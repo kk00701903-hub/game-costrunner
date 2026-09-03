@@ -34,7 +34,7 @@ namespace CoastRun
 
         public static CutsceneController Ensure()
         {
-            var existing = Object.FindFirstObjectByType<CutsceneController>();
+            var existing = UnityEngine.Object.FindAnyObjectByType<CutsceneController>();
             if (existing != null)
                 return existing;
             if (_stub != null)
@@ -59,7 +59,7 @@ namespace CoastRun
             _playhead = 0f;
             _holdTimer = 0f;
             EnsureGear();
-            Object.FindFirstObjectByType<CoastAudioManager>()?.SetBedMuted(true);
+            UnityEngine.Object.FindAnyObjectByType<CoastAudioManager>()?.SetBedMuted(true);
 
             if (_routine != null)
                 StopCoroutine(_routine);
@@ -268,7 +268,7 @@ namespace CoastRun
             StopBgm();
             // Unmute run bed after cutscene — except prologue handoff keeps mute until Release.
             if (_def == null || _def.id != "Prologue")
-                Object.FindFirstObjectByType<CoastAudioManager>()?.SetBedMuted(false);
+                UnityEngine.Object.FindAnyObjectByType<CoastAudioManager>()?.SetBedMuted(false);
 
             var cb = _onComplete;
             _onComplete = null;

@@ -94,7 +94,7 @@ namespace CoastRun
                 return;
             _progress = GameDirector.Instance != null
                 ? GameDirector.Instance.Progression
-                : Object.FindFirstObjectByType<ProgressionManager>();
+                : UnityEngine.Object.FindAnyObjectByType<ProgressionManager>();
             _progress?.Load();
         }
     }

@@ -19,13 +19,13 @@ MonoBehaviour:
     m_StripRuntimeDebugShaders: 1
   m_URPShaderStrippingSetting:
     m_Version: 0
-    m_StripUnusedPostProcessingVariants: 0
+    m_StripUnusedPostProcessingVariants: 1
     m_StripUnusedVariants: 1
     m_StripScreenCoordOverrideVariants: 1
   m_ShaderVariantLogLevel: 0
   m_ExportShaderVariants: 1
   m_StripDebugVariants: 1
-  m_StripUnusedPostProcessingVariants: 0
+  m_StripUnusedPostProcessingVariants: 1
   m_StripUnusedVariants: 1
   m_StripScreenCoordOverrideVariants: 1
   supportRuntimeDebugDisplay: 0
@@ -68,20 +68,7 @@ MonoBehaviour:
       - rid: 153530328980914212
       - rid: 153530328980914213
     m_RuntimeSettings:
-      m_List:
-      - rid: 153530328980914180
-      - rid: 153530328980914182
-      - rid: 153530328980914183
-      - rid: 153530328980914184
-      - rid: 153530328980914190
-      - rid: 153530328980914191
-      - rid: 153530328980914192
-      - rid: 153530328980914196
-      - rid: 153530328980914201
-      - rid: 153530328980914206
-      - rid: 153530328980914208
-      - rid: 153530328980914209
-      - rid: 153530328980914210
+      m_List: []
   m_AssetVersion: 10
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:
@@ -134,7 +121,7 @@ MonoBehaviour:
       type: {class: URPTerrainShaderSetting, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         m_Version: 0
-        m_IncludeTerrainShaders: 1
+        m_IncludeTerrainShaders: 0
     - rid: 153530328980914182
       type: {class: UniversalRenderPipelineRuntimeTerrainShaders, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
@@ -300,7 +287,7 @@ MonoBehaviour:
       type: {class: URPShaderStrippingSetting, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         m_Version: 0
-        m_StripUnusedPostProcessingVariants: 0
+        m_StripUnusedPostProcessingVariants: 1
         m_StripUnusedVariants: 1
         m_StripScreenCoordOverrideVariants: 1
     - rid: 153530328980914198

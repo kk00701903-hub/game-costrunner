@@ -154,7 +154,7 @@ namespace CoastRun
                 }
 
                 // Menu → CH1 BGM crossfade (no prologue).
-                Object.FindFirstObjectByType<TitleAudio>()?.StopMenu();
+                UnityEngine.Object.FindAnyObjectByType<TitleAudio>()?.StopMenu();
                 StartCoroutine(GoToRoutine(FlowState.Run, TransitionType.Fade));
             }
             else
@@ -195,14 +195,14 @@ namespace CoastRun
             PlayerPrefs.SetInt(MainMenuController.SkipPrologueKey, 1);
             _pendingStage = Mathf.Clamp(stageIndex, 1, 20);
             _pendingChapter = ((_pendingStage - 1) / 4) + 1;
-            Object.FindFirstObjectByType<TitleAudio>()?.StopMenu();
+            UnityEngine.Object.FindAnyObjectByType<TitleAudio>()?.StopMenu();
             StartCoroutine(GoToRoutine(FlowState.Run, TransitionType.Fade));
         }
 
         /// Legacy entry — prefer OnCutsceneControllerFinished for prologue.
         public void OnPrologueHandoffToRun()
         {
-            var ctrl = Object.FindFirstObjectByType<CutsceneController>();
+            var ctrl = UnityEngine.Object.FindAnyObjectByType<CutsceneController>();
             StartCoroutine(ExecutePrologueHandoff(ctrl));
         }
 
@@ -229,7 +229,7 @@ namespace CoastRun
         {
             // SlowMotion 0.3s then UI.
             yield return GoToRoutine(FlowState.StageClear, TransitionType.SlowMotion);
-            var clear = Object.FindFirstObjectByType<StageClearUI>();
+            var clear = UnityEngine.Object.FindAnyObjectByType<StageClearUI>();
             if (clear != null)
             {
                 clear.Show(stage, chapterComplete,
@@ -238,7 +238,7 @@ namespace CoastRun
             }
 
             // Memory overlay on top of clear screen — no scene load.
-            var mem = MemoryDirector.Instance ?? Object.FindFirstObjectByType<MemoryDirector>();
+            var mem = MemoryDirector.Instance ?? UnityEngine.Object.FindAnyObjectByType<MemoryDirector>();
             if (mem != null)
                 yield return mem.PlayQueuedIfAny();
             else if (clear == null)
@@ -248,7 +248,7 @@ namespace CoastRun
         private void OnStageClearRetry()
         {
             Time.timeScale = 1f;
-            Object.FindFirstObjectByType<StageClearUI>()?.Hide();
+            UnityEngine.Object.FindAnyObjectByType<StageClearUI>()?.Hide();
             SetState(FlowState.Run);
             StageManager.Instance?.RetryCurrent();
         }
@@ -321,7 +321,7 @@ namespace CoastRun
             _pendingStage = 1;
 
             Camera cine = ctrl != null ? ctrl.CineCamera : null;
-            var session = Object.FindFirstObjectByType<GameSession>();
+            var session = UnityEngine.Object.FindAnyObjectByType<GameSession>();
 
             // c–d. Capture + snap + swap entirely before any yield.
             if (session != null && cine != null)
@@ -350,7 +350,7 @@ namespace CoastRun
                 StageManager.Instance?.BeginCampaign(1);
             }
 
-            Object.FindFirstObjectByType<CoastAudioManager>()?.SetBedMuted(false);
+            UnityEngine.Object.FindAnyObjectByType<CoastAudioManager>()?.SetBedMuted(false);
         }
 
         private IEnumerator AfterCutscene()
@@ -359,7 +359,7 @@ namespace CoastRun
 
             if (_cutsceneKind == CutsceneKind.Prologue)
             {
-                yield return ExecutePrologueHandoff(Object.FindFirstObjectByType<CutsceneController>());
+                yield return ExecutePrologueHandoff(UnityEngine.Object.FindAnyObjectByType<CutsceneController>());
                 yield break;
             }
 
@@ -576,7 +576,7 @@ namespace CoastRun
         private IEnumerator ActivateRunSuspendedForHandoff()
         {
             yield return ActivateOrLoadRun();
-            var session = Object.FindFirstObjectByType<GameSession>();
+            var session = UnityEngine.Object.FindAnyObjectByType<GameSession>();
             session?.SuspendForPrologueHandoff();
             // Extra frame so Awake/Start settle under suspend flag.
             yield return null;
@@ -604,7 +604,7 @@ namespace CoastRun
                     yield return null;
             }
 
-            var cut = Object.FindFirstObjectByType<CutsceneController>();
+            var cut = UnityEngine.Object.FindAnyObjectByType<CutsceneController>();
             if (cut == null)
             {
                 var go = new GameObject("CutsceneController");
@@ -619,13 +619,13 @@ namespace CoastRun
 
         private void UnloadCutsceneIfAny()
         {
-            var stub = Object.FindFirstObjectByType<CutsceneController>();
+            var stub = UnityEngine.Object.FindAnyObjectByType<CutsceneController>();
             // Destroy DDOL/stub host when not in cutscene scene.
             if (stub != null && stub.gameObject.scene.name != CutsceneScene)
             {
                 // Keep scene-hosted; stub without scene unload is fine to destroy after prologue.
                 if (!IsSceneLoaded(CutsceneScene))
-                    Object.Destroy(stub.gameObject);
+                    UnityEngine.Object.Destroy(stub.gameObject);
             }
 
             if (IsSceneLoaded(CutsceneScene))

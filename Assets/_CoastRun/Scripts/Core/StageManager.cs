@@ -186,7 +186,7 @@ namespace CoastRun
             {
                 _stageActive = false;
                 feedback?.ShowWatchMessage("COMPLETE", "송전탑에 도착했어.");
-                var session = Object.FindFirstObjectByType<GameSession>();
+                var session = UnityEngine.Object.FindAnyObjectByType<GameSession>();
                 session?.EndRun();
                 return;
             }
@@ -253,7 +253,7 @@ namespace CoastRun
             else
                 clearUi?.Show(cleared, chapterEnd, ContinueToNext, RetryCurrent);
 
-            var mem = MemoryDirector.Instance ?? Object.FindFirstObjectByType<MemoryDirector>();
+            var mem = MemoryDirector.Instance ?? UnityEngine.Object.FindAnyObjectByType<MemoryDirector>();
             if (mem != null)
                 yield return mem.PlayQueuedIfAny();
         }

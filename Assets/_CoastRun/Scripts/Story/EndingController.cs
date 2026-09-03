@@ -771,12 +771,12 @@ namespace CoastRun
                 Object.Destroy(stalk.GetComponent<Collider>());
             }
 
-            _tower = DestinationGate.CreateVisual(null, 0f);
-            _tower.transform.position = new Vector3(0f, 0f, -2f);
-            _tower.transform.rotation = Quaternion.identity;
+            _tower = DestinationGate.CreateVisual(null, 0f).transform;
+            _tower.position = new Vector3(0f, 0f, -2f);
+            _tower.rotation = Quaternion.identity;
 
             var beaconGo = new GameObject("EndingBeacon");
-            beaconGo.transform.SetParent(_tower.transform, false);
+            beaconGo.transform.SetParent(_tower, false);
             beaconGo.transform.localPosition = new Vector3(0f, 22f, 0f);
             _beacon = beaconGo.AddComponent<Light>();
             _beacon.type = LightType.Point;

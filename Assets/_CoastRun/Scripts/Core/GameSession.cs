@@ -47,7 +47,8 @@ namespace CoastRun
         public CoinWallet Wallet => wallet;
         public UpgradeManager Upgrades => upgrades;
         public StageManager Stages => stages;
-        public CameraController Camera => cameraController;
+        // Not named Camera: that would shadow UnityEngine.Camera inside this class.
+        public CameraController CameraRig => cameraController;
 
         private bool _sessionBooted;
         private bool _suspendedForHandoff;
@@ -222,9 +223,9 @@ namespace CoastRun
             stages.OnChapterComplete += HandleChapterComplete;
 
             // Prefer GameDirector memory services; rebind to this StageManager (run scene).
-            var dir = GameDirector.EnsureExists();
-            dir.MemoryLog?.Bind(dir.Progression);
-            dir.Memory?.Bind(dir.MemoryLog, stages);
+            var director = GameDirector.EnsureExists();
+            director.MemoryLog?.Bind(director.Progression);
+            director.Memory?.Bind(director.MemoryLog, stages);
 
             story.Bind(storyConfig, this, player, cameraController);
             storyProgress.Bind(storyConfig, story, player, upgrades, dayCycle, destinationUi);

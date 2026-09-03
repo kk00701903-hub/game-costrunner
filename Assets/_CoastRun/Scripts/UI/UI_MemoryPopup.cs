@@ -82,7 +82,7 @@ namespace CoastRun
             _slide.anchoredPosition = new Vector2(0f, -80f);
 
             ApplySaturationVolume(def);
-            var audio = Object.FindFirstObjectByType<CoastAudioManager>();
+            var audio = UnityEngine.Object.FindAnyObjectByType<CoastAudioManager>();
             if (!fromGallery)
                 audio?.BeginMemoryBed(0.5f);
 
