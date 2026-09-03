@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0b0f14">
+  <title>{{{ PRODUCT_NAME }}}</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0b0f14;
+      color: #cfd6de;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
+    #unity-container {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Sized by JS to keep the 9:16 portrait framing the game was authored for. */
+    #unity-canvas {
+      display: block;
+      background: #0b0f14;
+      touch-action: none;
+      outline: none;
+    }
+    #unity-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: #0b0f14;
+      transition: opacity .4s ease;
+      z-index: 10;
+    }
+    #unity-loader.hidden { opacity: 0; pointer-events: none; }
+    #loader-title {
+      font-size: 13px;
+      letter-spacing: .34em;
+      text-transform: uppercase;
+      color: #7d8894;
+    }
+    #loader-track {
+      width: min(58vw, 240px);
+      height: 2px;
+      background: #1e2732;
+      overflow: hidden;
+    }
+    #loader-fill {
+      width: 0%;
+      height: 100%;
+      background: #d8b071;
+      transition: width .2s ease;
+    }
+    #loader-note { font-size: 11px; color: #4d5866; }
+    #unity-error {
+      position: fixed;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px;
+      background: #0b0f14;
+      text-align: center;
+      z-index: 20;
+    }
+    #unity-error.visible { display: flex; }
+    #unity-error p { margin: 0; font-size: 13px; line-height: 1.7; color: #8b95a1; }
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="-1"></canvas>
+  </div>
+
+  <div id="unity-loader">
+    <div id="loader-title">{{{ PRODUCT_NAME }}}</div>
+    <div id="loader-track"><div id="loader-fill"></div></div>
+    <div id="loader-note">불러오는 중…</div>
+  </div>
+
+  <div id="unity-error">
+    <p id="unity-error-text"></p>
+    <p>WebGL 2를 지원하는 최신 브라우저에서 열어주세요.</p>
+  </div>
+
+  <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+  <script>
+    var canvas = document.querySelector("#unity-canvas");
+    var container = document.querySelector("#unity-container");
+    var loader = document.querySelector("#unity-loader");
+    var fill = document.querySelector("#loader-fill");
+    var note = document.querySelector("#loader-note");
+
+    var ASPECT = {{{ WIDTH }}} / {{{ HEIGHT }}};
+
+    // Letterbox the portrait canvas inside whatever viewport we get, so the
+    // authored 720x1280 composition is never cropped or stretched.
+    function fitCanvas() {
+      var vw = container.clientWidth;
+      var vh = container.clientHeight;
+      var w = vw;
+      var h = w / ASPECT;
+      if (h > vh) {
+        h = vh;
+        w = h * ASPECT;
+      }
+      canvas.style.width = Math.round(w) + "px";
+      canvas.style.height = Math.round(h) + "px";
+    }
+    fitCanvas();
+    window.addEventListener("resize", fitCanvas);
+    window.addEventListener("orientationchange", function () {
+      setTimeout(fitCanvas, 200);
+    });
+
+    function showError(message) {
+      loader.classList.add("hidden");
+      document.querySelector("#unity-error-text").textContent = message;
+      document.querySelector("#unity-error").classList.add("visible");
+    }
+
+    var config = {
+      dataUrl: "Build/{{{ DATA_FILENAME }}}",
+      frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+      codeUrl: "Build/{{{ CODE_FILENAME }}}",
+#if MEMORY_FILENAME
+      memoryUrl: "Build/{{{ MEMORY_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+      symbolsUrl: "Build/{{{ SYMBOLS_FILENAME }}}",
+#endif
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+      productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+      productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+      // Report load failures in the page instead of a silent black canvas.
+      showBanner: function (msg, type) {
+        if (type === "error") showError(msg);
+      }
+    };
+
+    // Unity's mobile warning is pointless here: the game is portrait-first.
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      var meta = document.createElement("meta");
+      meta.name = "viewport";
+      meta.content = "width=device-width, height=device-height, initial-scale=1.0, " +
+        "maximum-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover";
+      document.head.appendChild(meta);
+    }
+
+    createUnityInstance(canvas, config, function (progress) {
+      fill.style.width = Math.round(progress * 100) + "%";
+      if (progress >= 1) note.textContent = "준비 완료";
+    }).then(function () {
+      loader.classList.add("hidden");
+      fitCanvas();
+      setTimeout(function () { loader.style.display = "none"; }, 500);
+    }).catch(function (message) {
+      showError(String(message));
+    });
+  </script>
+</body>
+</html>
