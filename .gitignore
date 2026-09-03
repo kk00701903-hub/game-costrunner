@@ -47,3 +47,7 @@ __pycache__/
 # Unity Test Framework 런타임 산출물
 /Assets/Resources/PerformanceTestRun*.json
 /Assets/Resources/PerformanceTestRun*.json.meta
+
+# Burst build leftovers dropped at the repo root
+/Data/
+*_BurstDebugInformation_DoNotShip/
