@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0f14">
+  <title>Coast Run</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0f14;
+      --bg2: #111720;
+      --accent: #d8b071;
+      --text: #cfd6de;
+      --sub: #7d8894;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100dvh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, #1a2535 0%, var(--bg) 70%);
+    }
+    .badge {
+      display: inline-block;
+      border: 1px solid #2a3545;
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 11px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: var(--sub);
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: clamp(2.6rem, 8vw, 5rem);
+      font-weight: 600;
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    h1 em { color: var(--accent); font-style: normal; }
+    .tagline {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: var(--sub);
+      font-weight: 300;
+      max-width: 480px;
+      line-height: 1.7;
+      margin-bottom: 44px;
+    }
+    .cta-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    .btn {
+      display: inline-block;
+      padding: 13px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: .04em;
+      transition: opacity .2s, transform .15s;
+    }
+    .btn:hover { opacity: .85; transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #0b0f14; }
+    .btn-ghost { border: 1px solid #2a3545; color: var(--text); }
+
+    /* ── Feature grid ── */
+    .features {
+      background: var(--bg2);
+      padding: 80px 24px;
+    }
+    .features-inner { max-width: 960px; margin: 0 auto; }
+    .section-label {
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--sub);
+      margin-bottom: 48px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: #161f2c;
+      border: 1px solid #1e2d40;
+      border-radius: 12px;
+      padding: 28px 24px;
+    }
+    .card-icon { font-size: 1.8rem; margin-bottom: 14px; }
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .card p { font-size: .875rem; color: var(--sub); line-height: 1.65; }
+
+    /* ── Stack ── */
+    .stack { padding: 80px 24px; max-width: 960px; margin: 0 auto; }
+    .stack h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 32px; text-align: center; }
+    .tags { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .tag {
+      border: 1px solid #2a3545;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      color: var(--sub);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 12px;
+      color: #3d4d5e;
+      border-top: 1px solid #161f2c;
+    }
+    footer a { color: var(--sub); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="badge">Unity 6 · URP · Mobile</div>
+    <h1>Coast <em>Run</em></h1>
+    <p class="tagline">
+      해안선을 따라 달리는 감성 러너.<br>
+      컷씬·회상 조각·엔딩이 있는 이야기형 모바일 게임.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/kk00701903-hub/game-costrunner" target="_blank">소스 코드 보기</a>
+      <a class="btn btn-ghost" href="https://github.com/kk00701903-hub/game-costrunner/blob/main/Assets/_Guide/AIAssetPromptPack.md" target="_blank">에셋 가이드</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="features-inner">
+      <p class="section-label">핵심 시스템</p>
+      <div class="grid">
+        <div class="card">
+          <div class="card-icon">🎬</div>
+          <h3>컷씬 시스템</h3>
+          <p>Timeline 기반 재생, 1초 홀드 스킵, 프롤로그 무로딩 핸드오프. 씬 전환 없이 영화에서 게임으로 이어집니다.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">💭</div>
+          <h3>회상 조각</h3>
+          <p>스테이지 클리어 시 오버레이 팝업. Ken Burns 효과, ±15% 채도 조정, BGM 스템 상태 완전 복원.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏁</div>
+          <h3>엔딩 시퀀스</h3>
+          <p>5막 구성 (도착·발굴·편지·하강·스팅어). 단일 경로, 해석 여지를 남긴 모호한 결말.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🎵</div>
+          <h3>오디오 매니저</h3>
+          <p>BGM 스템 스냅샷 캡처·복원. 회상 재생 전후 볼륨·피치·재생 위치를 정확히 유지합니다.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌊</div>
+          <h3>시즌 날씨</h3>
+          <p>챕터별 색조 팔레트와 날씨 디렉터. URP Volume 기반 실시간 후처리 전환.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤖</div>
+          <h3>Kling AI 파이프라인</h3>
+          <p>Python JWT 클라이언트로 에셋 자동 생성. .env 기반 키 관리, 폴링·다운로드 포함.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stack">
+    <h2>기술 스택</h2>
+    <div class="tags">
+      <span class="tag">Unity 6000.5.10f1</span>
+      <span class="tag">Universal RP 17.5</span>
+      <span class="tag">C# / IL2CPP</span>
+      <span class="tag">Unity Timeline</span>
+      <span class="tag">Python 3</span>
+      <span class="tag">Kling AI API</span>
+      <span class="tag">GitHub Pages</span>
+      <span class="tag">PowerShell</span>
+      <span class="tag">WebGL</span>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      &copy; 2026 Coast Run &nbsp;·&nbsp;
+      <a href="https://github.com/kk00701903-hub/game-costrunner" target="_blank">GitHub</a>
+    </p>
+  </footer>
+
+</body>
+</html>
