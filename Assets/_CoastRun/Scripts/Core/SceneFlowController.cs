@@ -256,7 +256,7 @@ namespace CoastRun
         private void OnStageClearContinue(StageDef stage, bool chapterComplete)
         {
             Time.timeScale = 1f;
-            FindObjectOfType<StageClearUI>()?.Hide();
+            FindFirstObjectByType<StageClearUI>()?.Hide();
 
             if (chapterComplete)
             {

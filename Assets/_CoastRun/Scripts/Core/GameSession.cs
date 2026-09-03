@@ -34,7 +34,6 @@ namespace CoastRun
         [SerializeField] private UI_PhoneOverlay phoneOverlay;
         [SerializeField] private SeasonWeatherDirector seasonWeather;
         [SerializeField] private WeatherFx weatherFx;
-        [SerializeField] private SeasonWeatherHud seasonHud;
         [SerializeField] private CoastAudioManager audio;
         [SerializeField] private JuiceDirector juice;
 
@@ -84,13 +83,13 @@ namespace CoastRun
                 Application.targetFrameRate = 60;
 
                 if (input == null)
-                    input = FindObjectOfType<MobileSwipeInput>() ?? gameObject.AddComponent<MobileSwipeInput>();
+                    input = FindFirstObjectByType<MobileSwipeInput>() ?? gameObject.AddComponent<MobileSwipeInput>();
                 if (map == null)
-                    map = FindObjectOfType<MapGenerator>() ?? new GameObject("MapGenerator").AddComponent<MapGenerator>();
+                    map = FindFirstObjectByType<MapGenerator>() ?? new GameObject("MapGenerator").AddComponent<MapGenerator>();
                 if (environment == null)
-                    environment = FindObjectOfType<EnvironmentManager>() ?? gameObject.AddComponent<EnvironmentManager>();
+                    environment = FindFirstObjectByType<EnvironmentManager>() ?? gameObject.AddComponent<EnvironmentManager>();
                 if (player == null)
-                    player = FindObjectOfType<PlayerController>();
+                    player = FindFirstObjectByType<PlayerController>();
                 if (cameraController == null)
                 {
                     Camera cam = Camera.main;
@@ -181,11 +180,8 @@ namespace CoastRun
             weatherFx.Bind(player != null ? player.transform : transform);
             seasonWeather.Bind(player, dayCycle, weatherFx);
 
-            // Season HUD removed from run screen.
-            if (seasonHud == null)
-                seasonHud = gameObject.GetComponent<SeasonWeatherHud>();
-            if (seasonHud != null)
-                seasonHud.Bind(seasonWeather);
+            // Season/weather HUD is gone for good — the one-day lightingT design has no
+            // season cycle to display, and nothing builds that widget any more.
 
             if (audio == null)
                 audio = gameObject.GetComponent<CoastAudioManager>() ?? gameObject.AddComponent<CoastAudioManager>();

@@ -18,13 +18,8 @@ namespace CoastRun
             public float fogDensity;
         }
 
-        /// Deprecated: season no longer cycles with distance. Returns Summer.
-        public static SeasonKind SeasonAt(float pathMetres)
-        {
-            if (StageManager.Instance != null)
-                return StageManager.ChapterAsSeason(StageManager.Instance.ChapterIndex);
-            return SeasonKind.Summer;
-        }
+        // SeasonAt(float pathMetres) removed — distance no longer selects a season.
+        // Season is a per-chapter art theme now: StageManager.ChapterAsSeason(chapter).
 
         public static Snapshot Get(SeasonKind season)
         {

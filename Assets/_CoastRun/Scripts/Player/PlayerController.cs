@@ -164,9 +164,9 @@ namespace CoastRun
                 _map = stream;
 
             if (_input == null)
-                _input = GetComponent<IInputReader>() ?? FindObjectOfType<MobileSwipeInput>();
+                _input = GetComponent<IInputReader>() ?? FindFirstObjectByType<MobileSwipeInput>();
             if (_map == null)
-                _map = FindObjectOfType<MapGenerator>();
+                _map = FindFirstObjectByType<MapGenerator>();
         }
 
         private void Update()

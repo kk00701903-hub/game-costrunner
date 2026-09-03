@@ -206,7 +206,7 @@ namespace CoastRun
             if (player == null)
                 return;
             player.enabled = !frozen;
-            var input = FindObjectOfType<MobileSwipeInput>();
+            var input = FindFirstObjectByType<MobileSwipeInput>();
             if (input != null)
                 input.enabled = !frozen;
         }

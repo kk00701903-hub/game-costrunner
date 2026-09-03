@@ -1,15 +1,13 @@
-# 『347』 quick test launcher (Windows)
+# 『우리의 송전탑』 (Coast Run) quick test launcher (Windows)
 # Usage:
-#   .\playtest.ps1              -> open Unity on Run.unity
-#   .\playtest.ps1 -Play        -> open scene + enter Play (Runner)
-#   .\playtest.ps1 -Arena       -> open scene + enter Play (King Arena)
+#   .\playtest.ps1              -> open Unity on 02_Run.unity
+#   .\playtest.ps1 -Play        -> open scene + enter Play
+#   .\playtest.ps1 -Title       -> open 01_Title.unity
 #   .\playtest.ps1 -CompileOnly -> Roslyn compile check only
-#   .\playtest.ps1 -CoastRun     -> open Coast Run scene + enter Play
 
 param(
     [switch]$Play,
-    [switch]$Arena,
-    [switch]$CoastRun,
+    [switch]$Title,
     [switch]$CompileOnly
 )
 
@@ -49,7 +47,7 @@ function Find-UnityExe {
     return $null
 }
 
-Write-Host "347 playtest — project: $Project"
+Write-Host "Coast Run playtest - project: $Project"
 
 $compile = Join-Path $Project "Temp\compilecheck.ps1"
 if (Test-Path $compile) {
@@ -63,29 +61,27 @@ if ($CompileOnly) { exit 0 }
 $unity = Find-UnityExe
 if (-not $unity) {
     Write-Host "Unity.exe not found. Open Unity Hub manually and load: $Project"
-    Write-Host "Then: Tools > 347 > Play Runner  (Ctrl+Shift+R)"
+    Write-Host "Then: Tools > Coast Run > PLAY 해안 주행  (Ctrl+Shift+C)"
     exit 1
 }
 
 Write-Host "Unity: $unity"
 
-$log = Join-Path $Project "Temp\347-play.log"
+$log = Join-Path $Project "Temp\coastrun-play.log"
 New-Item -ItemType Directory -Force -Path (Join-Path $Project "Temp") | Out-Null
 $args = @("-projectPath", $Project, "-logFile", $log)
-if ($CoastRun) {
+if ($Play) {
     $args += "-CoastPlay"
 }
-elseif ($Play) {
-    $args += "-347Play"
-}
-elseif ($Arena) {
-    $args += "-347Arena"
+elseif ($Title) {
+    $args += "-executeMethod"
+    $args += "CoastRunMenu.OpenMainMenuScene"
 }
 else {
     $args += "-executeMethod"
-    $args += "PlayTestTools.OpenRunScene"
+    $args += "CoastRunMenu.OpenRunScene"
 }
 
 Start-Process -FilePath $unity -ArgumentList $args | Out-Null
-Write-Host "347: Unity launched. Game tab에서 Play 확인 (Runner auto-starts with -347Play)."
+Write-Host "Coast Run: Unity launched. Game tab에서 Play 확인 (-Play 로 자동 시작)."
 exit 0
