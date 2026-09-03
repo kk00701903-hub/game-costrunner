@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "photoshop": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\ares2\\AppData\\Roaming\\npm\\node_modules\\@alisaitteke\\photoshop-mcp\\dist\\index.js"
+      ],
+      "env": {
+        "LOG_LEVEL": "1",
+        "PHOTOSHOP_PATH": "C:\\Program Files\\Adobe\\Adobe Photoshop 2026\\Photoshop.exe"
+      }
+    },
+    "illustrator": {
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": ["-y", "illustrator-mcp-server"],
+      "env": {
+        "LOG_LEVEL": "1",
+        "ILLUSTRATOR_PATH": "C:\\Program Files\\Adobe\\Adobe Illustrator 2026\\Support Files\\Contents\\Windows\\Illustrator.exe"
+      }
+    },
+    "blender": {
+      "type": "stdio",
+      "command": "C:\\Users\\ares2\\.local\\bin\\uvx.exe",
+      "args": ["blender-mcp"],
+      "env": {
+        "BLENDER_HOST": "127.0.0.1",
+        "BLENDER_PORT": "9876"
+      }
+    }
+  }
+}

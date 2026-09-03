@@ -1,0 +1,43 @@
+=== Coast Run Integration Audit ===
+2026-09-02 23:58:48Z
+
+--- Textures (Resources/CoastRun) ---
+[PASS] Texture SummerSky_Portrait
+[PASS] Texture Sea_Turquoise_Tile
+[PASS] Texture Road_Promenade
+[PASS] Texture Icon_Coin
+[PASS] Texture Icon_Speed
+[PASS] Texture Icon_Magnet
+[PASS] Texture Icon_Tower
+[PASS] Texture Icon_Him
+[PASS] Texture Watch_Frame
+[PASS] Texture UI_Panel_Memory
+[PASS] Texture UI_TitleBackground
+--- Scene stills ---
+[PASS] Scene_Frame_1
+[PASS] Scene_Frame_2
+[PASS] Scene_Frame_3
+[PASS] Scene_Frame_4
+[PASS] Scene_Frame_5
+--- Prefabs ---
+[PASS] Prefab GirlSkater
+[PASS] Prefab Pole_WireSet
+[PASS] Prefab Tile_Promenade_30m
+[PASS] Prefab Tile_TownL_ShopA
+[PASS] Prefab Tile_SeaWallR_30m
+[PASS] Prefab Obstacle_Cone
+[PASS] Prefab Prop_Bench
+[PASS] Prefab Prop_StreetLamp
+--- Scenes ---
+[PASS] MainMenu.unity exists
+[PASS] Run.unity exists
+[PASS] MainMenu in Build Settings
+[PASS] Run in Build Settings
+--- Edit-mode boot smoke ---
+[PASS] Player spawned
+[PASS] MapGenerator spawned
+[PASS] Camera exists
+--- Soft checks ---
+[PASS] Prefab TransmissionTower (optional — DestinationGate falls back)
+
+Summary: 31 pass, 0 fail

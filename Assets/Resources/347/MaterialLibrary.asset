@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46d73429d0a37404b98fc8305ffd66df, type: 3}
+  m_Name: MaterialLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::MaterialLibrary
+  asphalt: {fileID: 2100000, guid: 6543de6c30c2da94fb930338f0efbdfe, type: 2}
+  concrete: {fileID: 2100000, guid: 184b98cac2a85c946a88da560012ba07, type: 2}
+  metal: {fileID: 2100000, guid: b5206c2aa1e14db4f8157ebc646db63f, type: 2}
+  emissiveSign: {fileID: 2100000, guid: 69115425c764c6d4db53c5ceb3854ff3, type: 2}
+  water: {fileID: 2100000, guid: e83986e158f13264a85b245f823b632e, type: 2}
+  characterSkin: {fileID: 2100000, guid: 1ef6d68dfee5d5348b6ef103c1e96e96, type: 2}

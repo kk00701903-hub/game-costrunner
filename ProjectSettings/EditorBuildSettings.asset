@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_CoastRun/Scenes/00_Boot.unity
+    guid: 92920f4b36874279aee72f354f237385
+  - enabled: 1
+    path: Assets/_CoastRun/Scenes/01_Title.unity
+    guid: 82a1244f9a7a4ae6bc5282bd03206cee
+  - enabled: 1
+    path: Assets/_CoastRun/Scenes/02_Run.unity
+    guid: 289d2cd1c5bf48a4a354eca2cef1add8
+  - enabled: 1
+    path: Assets/_CoastRun/Scenes/03_Cutscene.unity
+    guid: 2364b79a308648dcafdbe3b18d7c235d
+  - enabled: 1
+    path: Assets/_CoastRun/Scenes/04_Ending.unity
+    guid: d7998474fe69450597d258d53decd441
+  m_configObjects: {}

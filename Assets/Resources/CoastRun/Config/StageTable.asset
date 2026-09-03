@@ -1,0 +1,195 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e4c91a2d5f48a0b3c6e8f1a204759d, type: 3}
+  m_Name: StageTable
+  m_EditorClassIdentifier: Assembly-CSharp::CoastRun.StageTable
+  stages:
+  - chapterIndex: 1
+    stageIndex: 1
+    stageName: "\uCCAB \uBC1C \uAD6C\uB974\uAE30"
+    targetDistance: 1650
+    timeLimit: 0
+    newMechanic: Jump
+    lightingTStart: 0
+    lightingTEnd: 0.05
+    rewardFragmentId: R01
+  - chapterIndex: 1
+    stageIndex: 2
+    stageName: "\uBC29\uD30C\uC81C"
+    targetDistance: 2200
+    timeLimit: 0
+    newMechanic: Slide
+    lightingTStart: 0.05
+    lightingTEnd: 0.1
+    rewardFragmentId: R02
+  - chapterIndex: 1
+    stageIndex: 3
+    stageName: "\uBE44\uB9B0\uB0B4 \uB098\uB294 \uACE8\uBAA9"
+    targetDistance: 2475
+    timeLimit: 225
+    newMechanic: Grind
+    lightingTStart: 0.1
+    lightingTEnd: 0.15
+    rewardFragmentId: R03
+  - chapterIndex: 1
+    stageIndex: 4
+    stageName: "\uAC08\uB9E4\uAE30 \uC5B8\uB355"
+    targetDistance: 2805
+    timeLimit: 0
+    newMechanic: Collect
+    lightingTStart: 0.15
+    lightingTEnd: 0.2
+    rewardFragmentId: 
+  - chapterIndex: 2
+    stageIndex: 5
+    stageName: "\uCC9C\uB9C9 \uC544\uB798"
+    targetDistance: 2420
+    timeLimit: 0
+    newMechanic: QuickDodge
+    lightingTStart: 0.2
+    lightingTEnd: 0.25
+    rewardFragmentId: R04
+  - chapterIndex: 2
+    stageIndex: 6
+    stageName: "\uC218\uB808\uC640 \uC0C1\uC790"
+    targetDistance: 2640
+    timeLimit: 0
+    newMechanic: MovingObstacle
+    lightingTStart: 0.25
+    lightingTEnd: 0.3
+    rewardFragmentId: R05
+  - chapterIndex: 2
+    stageIndex: 7
+    stageName: "\uD48D\uC120 \uC544\uCE58"
+    targetDistance: 2695
+    timeLimit: 0
+    newMechanic: FallingDebris
+    lightingTStart: 0.3
+    lightingTEnd: 0.35
+    rewardFragmentId: R06
+  - chapterIndex: 2
+    stageIndex: 8
+    stageName: "\uD589\uB82C \uB3CC\uD30C"
+    targetDistance: 2750
+    timeLimit: 250
+    newMechanic: Boost
+    lightingTStart: 0.35
+    lightingTEnd: 0.4
+    rewardFragmentId: 
+  - chapterIndex: 3
+    stageIndex: 9
+    stageName: "\uB451\uAE38"
+    targetDistance: 2585
+    timeLimit: 0
+    newMechanic: SpeedTiers
+    lightingTStart: 0.4
+    lightingTEnd: 0.45
+    rewardFragmentId: R07
+  - chapterIndex: 3
+    stageIndex: 10
+    stageName: "\uAC08\uB300\uBC17"
+    targetDistance: 2750
+    timeLimit: 0
+    newMechanic: VisionBlock
+    lightingTStart: 0.45
+    lightingTEnd: 0.5
+    rewardFragmentId: R08
+  - chapterIndex: 3
+    stageIndex: 11
+    stageName: "\uD3D0\uACF5\uC7A5"
+    targetDistance: 2805
+    timeLimit: 0
+    newMechanic: GapJump
+    lightingTStart: 0.5
+    lightingTEnd: 0.55
+    rewardFragmentId: R09
+  - chapterIndex: 3
+    stageIndex: 12
+    stageName: "\uCEE8\uBCA0\uC774\uC5B4"
+    targetDistance: 2805
+    timeLimit: 255
+    newMechanic: MovingPlatform
+    lightingTStart: 0.55
+    lightingTEnd: 0.6
+    rewardFragmentId: 
+  - chapterIndex: 4
+    stageIndex: 13
+    stageName: "\uAC16\uAE38"
+    targetDistance: 2805
+    timeLimit: 0
+    newMechanic: VehicleTraffic
+    lightingTStart: 0.6
+    lightingTEnd: 0.65
+    rewardFragmentId: R10
+  - chapterIndex: 4
+    stageIndex: 14
+    stageName: "\uD130\uB110"
+    targetDistance: 2970
+    timeLimit: 0
+    newMechanic: LightsOut
+    lightingTStart: 0.65
+    lightingTEnd: 0.72
+    rewardFragmentId: R11
+  - chapterIndex: 4
+    stageIndex: 15
+    stageName: "\uB0B4\uB9AC\uB9C9 \uAD6D\uB3C4"
+    targetDistance: 2981
+    timeLimit: 0
+    newMechanic: SpeedHold
+    lightingTStart: 0.72
+    lightingTEnd: 0.8
+    rewardFragmentId: R12
+  - chapterIndex: 4
+    stageIndex: 16
+    stageName: "\uC0AC\uAC70\uB9AC"
+    targetDistance: 3003
+    timeLimit: 0
+    newMechanic: SignalPattern
+    lightingTStart: 0.8
+    lightingTEnd: 0.86
+    rewardFragmentId: 
+  - chapterIndex: 5
+    stageIndex: 17
+    stageName: "\uC5B8\uB355 \uCD08\uC785"
+    targetDistance: 2849
+    timeLimit: 0
+    newMechanic: UphillPush
+    lightingTStart: 0.86
+    lightingTEnd: 0.91
+    rewardFragmentId: R13
+  - chapterIndex: 5
+    stageIndex: 18
+    stageName: "\uC5B5\uC0C8\uBC17"
+    targetDistance: 3003
+    timeLimit: 0
+    newMechanic: NightVision
+    lightingTStart: 0.91
+    lightingTEnd: 0.96
+    rewardFragmentId: R14
+  - chapterIndex: 5
+    stageIndex: 19
+    stageName: "\uB9C8\uC9C0\uB9C9 \uC624\uB974\uB9C9"
+    targetDistance: 3014
+    timeLimit: 274
+    newMechanic: Stamina
+    lightingTStart: 0.96
+    lightingTEnd: 1
+    rewardFragmentId: R15
+  - chapterIndex: 5
+    stageIndex: 20
+    stageName: "\uC1A1\uC804\uD0D1"
+    targetDistance: 3300
+    timeLimit: 0
+    newMechanic: 
+    lightingTStart: 1
+    lightingTEnd: 1
+    rewardFragmentId: 

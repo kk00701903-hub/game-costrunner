@@ -1,0 +1,34 @@
+﻿=== Coast Run File Integration Audit ===
+2026-09-02 23:50:49Z
+
+--- Textures ---
+[PASS] Texture SummerSky_Portrait.png
+[PASS] Texture Sea_Turquoise_Tile.png
+[PASS] Texture Road_Promenade.png
+[PASS] Texture Icon_Coin.png
+[PASS] Texture Icon_Speed.png
+[PASS] Texture Icon_Magnet.png
+[PASS] Texture Icon_Tower.png
+[PASS] Texture Icon_Him.png
+[PASS] Texture Watch_Frame.png
+[PASS] Texture UI_Panel_Memory.png
+[PASS] Texture UI_TitleBackground.png
+--- Scene stills ---
+[PASS] Scene_Frame_1
+[PASS] Scene_Frame_2
+[PASS] Scene_Frame_3
+[PASS] Scene_Frame_4
+[PASS] Scene_Frame_5
+--- Prefabs ---
+[PASS] Prefab GirlSkater.prefab
+[PASS] Prefab Pole_WireSet.prefab
+[PASS] Prefab Tile_Promenade_30m.prefab
+[PASS] Prefab Tile_TownL_ShopA.prefab
+[PASS] Prefab Tile_SeaWallR_30m.prefab
+[PASS] Prefab Obstacle_Cone.prefab
+[WARN] Prefab TransmissionTower.prefab (run Tools > Coast Run > Full Setup in Unity)
+--- Scenes ---
+[PASS] MainMenu.unity
+[PASS] Run.unity
+
+Summary: 24 pass, 0 fail

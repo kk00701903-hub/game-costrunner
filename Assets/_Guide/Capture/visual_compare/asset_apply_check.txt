@@ -1,0 +1,82 @@
+﻿=== TEXTURES (code LoadTexture) ===
+[PASS] SummerSky_Portrait
+[PASS] Sea_Turquoise_Tile
+[PASS] Road_Promenade
+[PASS] Icon_Coin
+[PASS] Icon_Speed
+[PASS] Icon_Magnet
+[PASS] Icon_Tower
+[PASS] Icon_Him
+[PASS] Watch_Frame
+[PASS] UI_Panel_Memory
+[PASS] UI_TitleBackground
+[PASS] UI_CharacterHero
+=== SCENE STILLS ===
+[PASS] Scene_Frame_1
+[PASS] Scene_Frame_2
+[PASS] Scene_Frame_3
+[PASS] Scene_Frame_4
+[PASS] Scene_Frame_5
+=== CORE PREFABS (always TryInstantiate) ===
+[PASS] GirlSkater
+[PASS] Pole_WireSet
+[PASS] Tile_Promenade_30m
+[PASS] Tile_TownL_ShopA
+[PASS] Tile_SeaWallR_30m
+[PASS] Obstacle_Cone
+[PASS] TransmissionTower
+[PASS] Prop_Bench
+[PASS] Prop_StreetLamp
+=== PROP PREFABS (PropCatalog BlenderPrefabName) ===
+[PASS] Prop_Bench
+[PASS] Prop_StreetLamp
+[PASS] Prop_CherryTree
+[PASS] Prop_Maple
+[PASS] Prop_Pine
+[PASS] Prop_Palm
+[PASS] Prop_Snowman
+[PASS] Prop_Buoy
+[PASS] Prop_CafeUmbrella
+[PASS] Prop_IceCreamCart
+[PASS] Prop_Pumpkin
+[PASS] Prop_LeafPile
+[PASS] Prop_SnowBank
+[PASS] Prop_VendingMachine
+[PASS] Prop_Planter
+[PASS] Prop_FestivalLantern
+=== OBSTACLE: file vs code key ===
+[PASS] code Obstacle_Cone → exact file
+[PASS] code Obstacle_Barrier → exact file
+[PASS] code Obstacle_Crate → exact file
+[WARN] code Obstacle_WetSign MISMATCH file Obstacle_WetFloorSign.prefab (procedural fallback until rename/alias)
+[WARN] code Obstacle_Bike MISMATCH file Obstacle_BikeFallen.prefab (procedural fallback until rename/alias)
+[PASS] code Obstacle_ConeTall → exact file
+[MISS] code Obstacle_SnowDrift (no prefab — procedural)
+[MISS] code Obstacle_LeafDrift (no prefab — procedural)
+[MISS] code Obstacle_Tourists (no prefab — procedural)
+=== AUDIO (ChapterAudioAtmosphere) ===
+[MISS] Resources/CoastRun/Audio/ folder
+[MISS] BGM_Menu
+[MISS] BGM_Prologue
+[MISS] BGM_Run
+[MISS] BGM_Golden
+[MISS] BGM_Blue
+[MISS] BGM_Arrival
+[MISS] Amb_Sea
+[MISS] Amb_Wind
+[MISS] SFX_NearMiss
+[MISS] SFX_SoftHit
+[MISS] SFX_Coin
+[MISS] SFX_Wheels
+=== CONFIG Resources ===
+[PASS] RunConfig
+[PASS] UpgradeConfig
+[PASS] StoryConfig
+=== FILE SIZES (spot) ===
+[INFO] GirlSkater.prefab = 38,590 bytes
+[INFO] SummerSky_Portrait.png = 2,115,422 bytes
+[INFO] Sea_Turquoise_Tile.png = 1,872,891 bytes
+[INFO] Scene\Scene_Frame_5.jpg = 173,666 bytes
+[INFO] TransmissionTower.prefab = 7,019 bytes
+
+Summary: 0 pass, 0 warn, 0 miss

@@ -1,0 +1,18 @@
+﻿=== Coast Run vs style_reference (StyleBible) ===
+capture=Assets/_Guide/Capture/visual_compare/game_capture.png
+
+[PASS] sky_third — horizonY=0.49 girlY=0.39 (sky should dominate upper frame)
+[PASS] girl_lower_third — girlViewportY=0.387 want 0.25-0.35 (tol 0.22-0.40)
+[PASS] girl_prefab — Resources GirlSkater
+[PASS] poles — Pole_WireSet prefab
+[PASS] sky_tex — SummerSky_Portrait
+[PASS] sea_tex — Sea_Turquoise_Tile
+[PASS] left_town — buildings=74
+[PASS] utility_poles — poles=27
+[PASS] power_wires — wires=43
+[PASS] npc_walkers — npcs=15
+[PASS] summer_clouds — cloudGroups=18
+
+Score: 11 / 11
+camFov=64.0
+camPos=(0.28, 1.75, 44.50)

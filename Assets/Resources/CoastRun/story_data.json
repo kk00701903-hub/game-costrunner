@@ -1,0 +1,161 @@
+{
+  "fragments": [
+    {
+      "id": "R01",
+      "title": "열두 살, 부러진 트럭",
+      "body": "하늘이 처음 보드를 타다 넘어져 트럭이 부러졌다. 도윤이 그걸 주워 들고 이리저리 돌려 보다가 말했다. \"이거 킹핀이 나간 건데, 아니 그게 아니고 부싱이 먼저 갔네. 이건 내가 고칠 수 있어.\"",
+      "chapter": 1,
+      "unlockedAtStage": 1,
+      "stillKeys": ["Mem_R01_A", "Mem_R01_B"],
+      "duration": 25,
+      "bgmKey": "BGM_Memory_Warm"
+    },
+    {
+      "id": "R02",
+      "title": "비밀 기지",
+      "body": "송전탑 콘크리트 기초 밑, 둘이 판 구덩이. 도윤이 과자 깡통을 묻었다. \"여기 뭐 넣을까?\" \"몰라.\" \"나중에 생각나면 넣어.\"",
+      "chapter": 1,
+      "unlockedAtStage": 2,
+      "stillKeys": ["Mem_R02_A", "Mem_R02_B"],
+      "duration": 24,
+      "bgmKey": "BGM_Memory_Warm"
+    },
+    {
+      "id": "R03",
+      "title": "라디오",
+      "body": "새벽 두 시 라디오 사연 코너를 도윤이 매주 들었다. 하늘은 한 번도 안 들었다.",
+      "chapter": 1,
+      "unlockedAtStage": 3,
+      "stillKeys": ["Mem_R03_A"],
+      "duration": 22,
+      "bgmKey": "BGM_Memory_Warm"
+    },
+    {
+      "id": "R04",
+      "title": "여름 방학",
+      "body": "둘이 하루 종일 아무것도 안 하고 방파제에 앉아 있었던 날. 도윤이 라디오 사연을 요약해 주는데 하늘은 반쯤 졸았다.",
+      "chapter": 2,
+      "unlockedAtStage": 5,
+      "stillKeys": ["Mem_R04_A", "Mem_R04_B"],
+      "duration": 26,
+      "bgmKey": "BGM_Memory_Warm"
+    },
+    {
+      "id": "R05",
+      "title": "이사 얘기",
+      "body": "도윤이 뭔가 말하려다 \"아니, 나중에\" 하고 삼킨 적이 있다. 하늘은 그때 안 물었다.",
+      "chapter": 2,
+      "unlockedAtStage": 6,
+      "stillKeys": ["Mem_R05_A"],
+      "duration": 23,
+      "bgmKey": "BGM_Memory_Warm"
+    },
+    {
+      "id": "R06",
+      "title": "스티커",
+      "body": "북극곰 아이스크림을 사 먹고 남은 스티커를 도윤이 하늘 보드 밑에 붙였다. \"왜 붙여?\" \"그냥.\"",
+      "chapter": 2,
+      "unlockedAtStage": 7,
+      "stillKeys": ["Mem_R06_A", "Mem_R06_B"],
+      "duration": 24,
+      "bgmKey": "BGM_Memory_Warm"
+    },
+    {
+      "id": "R07",
+      "title": "폐공장 탐험",
+      "body": "열네 살 여름, 둘이 몰래 들어갔다가 경비 노인한테 걸렸다. 노인은 혼내는 대신 옛날에 여기서 뭘 만들었는지 이십 분 동안 얘기했다. 도윤은 끝까지 들었다.",
+      "chapter": 3,
+      "unlockedAtStage": 9,
+      "stillKeys": ["Mem_R07_A", "Mem_R07_B"],
+      "duration": 28,
+      "bgmKey": "BGM_Memory_Mid"
+    },
+    {
+      "id": "R08",
+      "title": "자전거",
+      "body": "도윤의 자전거 뒷바퀴에 하늘이 매직으로 이름을 썼다.",
+      "chapter": 3,
+      "unlockedAtStage": 10,
+      "stillKeys": ["Mem_R08_A"],
+      "duration": 22,
+      "bgmKey": "BGM_Memory_Mid"
+    },
+    {
+      "id": "R09",
+      "title": "못 한 말",
+      "body": "\"꼭 할 말이 있어\"라는 문장을 도윤이 그해 여름에 세 번 썼다. 세 번 다 하늘은 다음에 듣겠다고 했다.",
+      "chapter": 3,
+      "unlockedAtStage": 11,
+      "stillKeys": ["Mem_R09_A"],
+      "duration": 25,
+      "bgmKey": "BGM_Memory_Mid"
+    },
+    {
+      "id": "R10",
+      "title": "새벽 두 시",
+      "body": "도윤이 라디오 사연에 하늘 얘기를 보냈다. 채택은 안 됐다. 그 얘기를 하늘은 몰랐다.",
+      "chapter": 4,
+      "unlockedAtStage": 13,
+      "stillKeys": ["Mem_R10_A", "Mem_R10_B"],
+      "duration": 26,
+      "bgmKey": "BGM_Memory_Mid"
+    },
+    {
+      "id": "R11",
+      "title": "국도",
+      "body": "도윤은 이 국도를 자전거로 자주 건넜다. 하늘이 위험하다고 했고, 도윤은 \"괜찮아, 아니 안 괜찮긴 한데 괜찮아\"라고 했다.",
+      "chapter": 4,
+      "unlockedAtStage": 14,
+      "stillKeys": ["Mem_R11_A"],
+      "duration": 25,
+      "bgmKey": "BGM_Memory_Mid"
+    },
+    {
+      "id": "R12",
+      "title": "8월 12일",
+      "body": "작년 그날, 하늘은 버스가 끊긴 걸 보고 걸어가다가 두 시간 만에 돌아섰다. 발이 아팠고 날이 어두워졌고, 내일 만나면 된다고 생각했다.",
+      "chapter": 4,
+      "unlockedAtStage": 15,
+      "stillKeys": ["Mem_R12_A", "Mem_R12_B"],
+      "duration": 28,
+      "bgmKey": "BGM_Memory_Mid"
+    },
+    {
+      "id": "R13",
+      "title": "마지막 통화",
+      "body": "작년 8월 11일 밤, 짧은 통화. 도윤이 \"내일 시간 돼?\"라고 물었고 하늘은 \"봐서\"라고 했다.",
+      "chapter": 5,
+      "unlockedAtStage": 17,
+      "stillKeys": ["Mem_R13_A"],
+      "duration": 24,
+      "bgmKey": "BGM_Memory_Cold"
+    },
+    {
+      "id": "R14",
+      "title": "깡통",
+      "body": "도윤이 혼자 송전탑에 다녀오던 날들이 있었다. 하늘은 몰랐다.",
+      "chapter": 5,
+      "unlockedAtStage": 18,
+      "stillKeys": ["Mem_R14_A"],
+      "duration": 22,
+      "bgmKey": "BGM_Memory_Cold"
+    },
+    {
+      "id": "R15",
+      "title": "루아",
+      "body": "언니는 왜 안 왔어요?\n…\n왜 안 왔냐고 묻는 게 이상해요?\n오빠 물건 다 뺐어요. 언니 것도 있던데.",
+      "chapter": 5,
+      "unlockedAtStage": 19,
+      "stillKeys": [],
+      "duration": 30,
+      "bgmKey": "",
+      "isCallOnly": true,
+      "callLines": [
+        { "speaker": "루아", "text": "언니는 왜 안 왔어요?" },
+        { "speaker": "하늘", "text": "…" },
+        { "speaker": "루아", "text": "왜 안 왔냐고 묻는 게 이상해요?" },
+        { "speaker": "루아", "text": "오빠 물건 다 뺐어요. 언니 것도 있던데." }
+      ]
+    }
+  ]
+}

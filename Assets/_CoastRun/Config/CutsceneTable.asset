@@ -1,0 +1,106 @@
+﻿%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f25bc06b7daa4975ab810706a87709be, type: 3}
+  m_Name: CutsceneTable
+  m_EditorClassIdentifier: 
+  cutscenes:
+  - id: Prologue
+    duration: 130
+    bgmKey: BGM_Cine_Prologue
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH2_Open
+    duration: 45
+    bgmKey: BGM_Cine_CH2_Open
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH3_Open
+    duration: 45
+    bgmKey: BGM_Cine_CH3_Open
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH4_Open
+    duration: 45
+    bgmKey: BGM_Cine_CH4_Open
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH5_Open
+    duration: 45
+    bgmKey: BGM_Cine_CH5_Open
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH1_Close
+    duration: 90
+    bgmKey: BGM_Cine_CH1_Close
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH2_Close
+    duration: 90
+    bgmKey: BGM_Cine_CH2_Close
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH3_Close
+    duration: 90
+    bgmKey: BGM_Cine_CH3_Close
+    timeline: {fileID: 0}
+    isTwistCut: 1
+    silenceStart: -1
+    silenceEnd: -1
+  - id: CH4_Close
+    duration: 90
+    bgmKey: BGM_Cine_CH4_Close
+    timeline: {fileID: 0}
+    isTwistCut: 1
+    silenceStart: 50
+    silenceEnd: 58
+  - id: Ending_A
+    duration: 0
+    bgmKey: BGM_Cine_Ending_A
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: Ending_B
+    duration: 0
+    bgmKey: BGM_Cine_Ending_B
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: Ending_C
+    duration: 0
+    bgmKey: BGM_Cine_Ending_C
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
+  - id: Ending_Sting
+    duration: 0
+    bgmKey: BGM_Cine_Sting
+    timeline: {fileID: 0}
+    isTwistCut: 0
+    silenceStart: -1
+    silenceEnd: -1
