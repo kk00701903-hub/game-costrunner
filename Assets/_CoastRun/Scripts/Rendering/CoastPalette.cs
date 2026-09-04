@@ -87,7 +87,9 @@ namespace CoastRun
         public static Color BoardDeck => TownCream;
         public static Color WheelOrange => AccentOrange;
 
-        public static Color ShadowCool => Color.Lerp(SkyBlue, Color.black, 0.45f);
+        // Shadow tint for the toon ramp. 0.45 toward black turned every shaded house wall
+        // into a navy slab; a lighter, bluer shade keeps the cel look but stays readable.
+        public static Color ShadowCool => Color.Lerp(SkyBlue, Color.black, 0.22f);
         public static Color Sun => Color.Lerp(TownCream, CoinYellow, 0.2f);
         public static Color BlobShadow => new Color(ShadowCool.r, ShadowCool.g, ShadowCool.b, 0.42f);
     }
