@@ -15,10 +15,14 @@ namespace CoastRun
         {
             _cleared = cleared;
             Ensure();
-            _bgm.clip = cleared
-                ? ProceduralAudio.CreateLoop(110f, 0.05f, 8f)   // BGM_Menu_Cleared — darker
-                : ProceduralAudio.CreateLoop(196f, 0.04f, 8f);  // BGM_Menu — warm noon
-            _bgm.volume = cleared ? 0.28f : 0.32f;
+            // Real track from Resources/CoastRun/BGM when it exists, procedural bed until then.
+            var real = CoastBgmLibrary.Load(CoastBgmLibrary.Menu(cleared));
+            _bgm.clip = real != null
+                ? real
+                : cleared
+                    ? ProceduralAudio.CreateLoop(110f, 0.05f, 8f)   // BGM_Menu_Cleared — darker
+                    : ProceduralAudio.CreateLoop(196f, 0.04f, 8f);  // BGM_Menu — warm noon
+            _bgm.volume = real != null ? 0.6f : (cleared ? 0.28f : 0.32f);
             _bgm.loop = true;
             if (!_bgm.isPlaying)
                 _bgm.Play();

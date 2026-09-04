@@ -434,7 +434,8 @@ namespace CoastRun
             if (string.IsNullOrEmpty(def.bgmKey))
                 return;
 
-            var clip = Resources.Load<AudioClip>("CoastRun/Audio/" + def.bgmKey);
+            var clip = CoastBgmLibrary.Load(def.bgmKey)
+                       ?? Resources.Load<AudioClip>("CoastRun/Audio/" + def.bgmKey);
             if (clip == null)
             {
                 float freq = def.IsColdTone ? 130f : def.chapter >= 3 ? 165f : 196f;

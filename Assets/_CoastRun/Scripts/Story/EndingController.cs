@@ -581,11 +581,14 @@ namespace CoastRun
         private void PlayBgm(string key, float freq, float noise, float volume, bool loop = true)
         {
             EnsureAudio();
-            var clip = Resources.Load<AudioClip>("CoastRun/Audio/" + key);
+            var clip = CoastBgmLibrary.Load(key)
+                       ?? Resources.Load<AudioClip>("CoastRun/Audio/" + key);
+            bool real = clip != null;
             if (clip == null)
                 clip = ProceduralAudio.CreateLoop(freq, noise, 8f);
             _bgm.clip = clip;
-            _bgm.loop = loop;
+            // Composed ending cues are through-written (Arrival/Letter); Descent is the loop.
+            _bgm.loop = real ? loop && (key == "BGM_End_Descent" || key == "BGM_Sting_Radio") : loop;
             _bgm.volume = volume;
             _bgm.pitch = 1f;
             _bgm.Play();

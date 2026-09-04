@@ -261,6 +261,8 @@ namespace CoastRun
             if (obstacles != null && player != null)
                 obstacles.ResetForStage(stage.stageIndex, player.PathDistance);
             seasonWeather?.SetChapterTheme(stage.chapterIndex);
+            // Chapter stems: four stages per chapter, stems build up (CH5: strip down).
+            audio?.SetChapterStage(stage.chapterIndex, ((stage.stageIndex - 1) % 4) + 1);
             IsRunning = true;
             if (input != null)
                 input.enabled = true;

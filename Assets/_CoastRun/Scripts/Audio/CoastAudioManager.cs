@@ -30,7 +30,14 @@ namespace CoastRun
         private bool _bedMuted;
         private bool _stemFrozen;
         private BedStemSnapshot _savedStem;
-        private AudioSource _runBgm; // optional chapter stem if present
+        private AudioSource _runBgm; // chapter stem a (the bed) when a real track exists
+
+        // Stems b/c/d ride on top of `a` in sample-sync; their target volumes follow the
+        // stage inside the chapter (see SetChapterStage). CH5 runs the other way round.
+        private readonly AudioSource[] _stems = new AudioSource[4];
+        private readonly float[] _stemTarget = new float[4];
+        private int _bgmChapter = -1;
+        private const float StemVolume = 0.55f;
 
         private struct BedStemSnapshot
         {
@@ -130,6 +137,8 @@ namespace CoastRun
                 if (_wind != null) _wind.volume = Mathf.Lerp(w0, 0f, u);
                 if (_wheel != null) _wheel.volume = Mathf.Lerp(wh0, 0f, u);
                 if (_runBgm != null) _runBgm.volume = Mathf.Lerp(r0, 0f, u);
+                for (int i = 1; i < _stems.Length; i++)
+                    if (_stems[i] != null) _stems[i].volume = Mathf.Lerp(_stemTarget[i], 0f, u);
                 yield return null;
             }
 
@@ -137,6 +146,8 @@ namespace CoastRun
             if (_wind != null) { _wind.volume = 0f; _wind.Pause(); }
             if (_wheel != null) { _wheel.volume = 0f; _wheel.Pause(); }
             if (_runBgm != null) { _runBgm.volume = 0f; _runBgm.Pause(); }
+            for (int i = 1; i < _stems.Length; i++)
+                if (_stems[i] != null) { _stems[i].volume = 0f; _stems[i].Pause(); }
         }
 
         private System.Collections.IEnumerator RestoreStemRoutine(float duration)
@@ -147,6 +158,17 @@ namespace CoastRun
             ResumeSource(_wind, snap.windPlaying, snap.windTime, snap.windPitch);
             ResumeSource(_wheel, snap.wheelPlaying, snap.wheelTime, snap.wheelPitch);
             ResumeSource(_runBgm, snap.runBgmPlaying, snap.runBgmTime, snap.runBgmPitch);
+            // Extra stems re-lock to the bed's playhead; TickStems fades them back in.
+            for (int i = 1; i < _stems.Length; i++)
+            {
+                var s = _stems[i];
+                if (s == null || s.clip == null || !snap.runBgmPlaying)
+                    continue;
+                s.UnPause();
+                if (!s.isPlaying) s.Play();
+                if (_runBgm != null && _runBgm.clip != null)
+                    s.timeSamples = Mathf.Min(_runBgm.timeSamples, s.clip.samples - 1);
+            }
 
             float t = 0f;
             while (t < duration)
@@ -189,6 +211,76 @@ namespace CoastRun
             if (_wind != null) _wind.mute = muted;
             if (_wheel != null) _wheel.mute = muted;
             if (_runBgm != null) _runBgm.mute = muted;
+            for (int i = 1; i < _stems.Length; i++)
+                if (_stems[i] != null) _stems[i].mute = muted;
+        }
+
+        // ── Chapter stems ────────────────────────────────────────────────────
+
+        /// Called on every stage start. Loads `BGM_CH{n}_a..d` from Resources/CoastRun/BGM
+        /// when the chapter changes and sets which stems are audible for this stage:
+        ///   CH1–4: stage 1 → a, stage 2 → a+b, stage 3+ → a+b+c   (build up)
+        ///   CH5:   stage 1 → a+b+c, 2 → a+b, 3 → a, 4 → d only   (strip down, with the HUD)
+        /// With no files present nothing plays and the procedural bed carries on.
+        public void SetChapterStage(int chapter, int stageInChapter)
+        {
+            EnsureSources();
+            chapter = Mathf.Clamp(chapter, 1, 5);
+            stageInChapter = Mathf.Clamp(stageInChapter, 1, 4);
+
+            if (chapter != _bgmChapter)
+            {
+                _bgmChapter = chapter;
+                for (int i = 0; i < _stems.Length; i++)
+                {
+                    var clip = CoastBgmLibrary.Load(CoastBgmLibrary.ChapterStem(chapter, i));
+                    // No split stems yet? Play the full mix as the bed so the chapter
+                    // still has music while the stem pass is pending.
+                    if (clip == null && i == 0)
+                        clip = CoastBgmLibrary.Load($"BGM_CH{chapter}");
+                    if (_stems[i] == null)
+                    {
+                        _stems[i] = CreateSource("Stem_" + (char)('a' + i), 0f, true);
+                        _stems[i].mute = _bedMuted;
+                    }
+                    _stems[i].Stop();
+                    _stems[i].clip = clip;
+                    _stems[i].volume = 0f;
+                    _stemTarget[i] = 0f;
+                }
+                _runBgm = _stems[0];
+
+                // Start every stem on the same DSP tick so they stay phase-locked.
+                double start = AudioSettings.dspTime + 0.1;
+                for (int i = 0; i < _stems.Length; i++)
+                    if (_stems[i].clip != null)
+                        _stems[i].PlayScheduled(start);
+            }
+
+            bool reverse = chapter == 5;
+            for (int i = 0; i < _stems.Length; i++)
+            {
+                bool on;
+                if (!reverse)
+                    on = i < Mathf.Min(3, stageInChapter);
+                else
+                    on = stageInChapter >= 4 ? i == 3 : i < 4 - stageInChapter;
+                _stemTarget[i] = on ? StemVolume : 0f;
+            }
+        }
+
+        private void TickStems(float dt)
+        {
+            if (_stemFrozen)
+                return;
+            for (int i = 0; i < _stems.Length; i++)
+            {
+                var s = _stems[i];
+                if (s == null || s.clip == null)
+                    continue;
+                // 3 s fades — the 발주서 asks for stems to breathe in, never to pop.
+                s.volume = Mathf.MoveTowards(s.volume, _stemTarget[i], dt / 3f * StemVolume);
+            }
         }
 
         private void EnsureSources()
@@ -295,8 +387,12 @@ namespace CoastRun
             if (player == null || _stemFrozen)
                 return;
 
+            TickStems(Time.deltaTime);
+
             // Keep loops alive — never Pause/Stop ambient here.
             float speed = player.NormalizedSpeed;
+            // Real music present → the procedural ambient bed steps back.
+            float bedScale = _runBgm != null && _runBgm.clip != null ? 0.35f : 1f;
             if (_wheel != null && !_bedMuted)
             {
                 _wheel.volume = Mathf.Lerp(0.02f, 0.28f, speed);
@@ -306,9 +402,9 @@ namespace CoastRun
             float rain = weather != null && weather.CurrentWeather == WeatherKind.Rain ? 0.25f : 0f;
             float snow = weather != null && weather.CurrentWeather == WeatherKind.Snow ? 0.15f : 0f;
             if (_wind != null && !_bedMuted)
-                _wind.volume = 0.12f + speed * 0.15f + rain + snow;
+                _wind.volume = (0.12f + speed * 0.15f) * bedScale + rain + snow;
             if (_ambient != null && !_bedMuted)
-                _ambient.volume = 0.22f + speed * 0.08f;
+                _ambient.volume = (0.22f + speed * 0.08f) * bedScale;
         }
     }
 

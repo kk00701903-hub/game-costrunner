@@ -282,12 +282,16 @@ namespace CoastRun
                 return;
 
             // Prefer Resources clip; else procedural placeholder. Never invent fill during silence.
-            var clip = Resources.Load<AudioClip>("CoastRun/Audio/" + def.bgmKey);
+            // Generated scores live in Resources/CoastRun/BGM (CoastBgmLibrary); the old
+            // CoastRun/Audio path stays as a second lookup for hand-placed clips.
+            var clip = CoastBgmLibrary.Load(def.bgmKey)
+                       ?? Resources.Load<AudioClip>("CoastRun/Audio/" + def.bgmKey);
+            bool real = clip != null;
             if (clip == null)
                 clip = ProceduralAudio.CreateLoop(def.isTwistCut ? 98f : 160f, 0.04f, 6f);
             bgmSource.clip = clip;
-            bgmSource.loop = true;
-            bgmSource.volume = 0.45f;
+            bgmSource.loop = !real;          // a composed cue plays once, to picture
+            bgmSource.volume = real ? 0.7f : 0.45f;
             bgmSource.Play();
         }
 
@@ -318,6 +322,13 @@ namespace CoastRun
             cineCamera.enabled = true;
             if (cineCamera.GetComponent<CoastPortraitViewport>() == null)
                 cineCamera.gameObject.AddComponent<CoastPortraitViewport>();
+
+            // The run camera's listener is switched off for the handoff; the cutscene
+            // must carry its own or the whole prologue (and its score) plays silent.
+            var cineListener = cineCamera.GetComponent<AudioListener>();
+            if (cineListener == null)
+                cineListener = cineCamera.gameObject.AddComponent<AudioListener>();
+            cineListener.enabled = true;
 
             // Framing for procedural / missing timeline — looking down the promenade.
             cineCamera.transform.position = DownhillPath.Point(12f, 0.2f, 2.2f) +
