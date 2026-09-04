@@ -29,6 +29,12 @@ namespace CoastRun.Editor
         [MenuItem("Coast Run/BGM/5. Re-split chapter stems (no render)")]
         public static void Resplit() => Launch("resplit.bat");
 
+        [MenuItem("Coast Run/BGM/6. Regenerate chapter tracks (CH1-5 + stems)")]
+        public static void RegenChapters() => Launch("regen_ch.bat");
+
+        [MenuItem("Coast Run/BGM/7. Generate P1 tracks (cutscenes + memory)")]
+        public static void GenerateP1() => Launch("run_p1.bat");
+
         [MenuItem("Coast Run/BGM/Open tool folder")]
         public static void OpenFolder() => EditorUtility.RevealInFinder(ToolDir);
 

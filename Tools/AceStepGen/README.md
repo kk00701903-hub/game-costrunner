@@ -39,6 +39,11 @@ turbo 8스텝 기준 2분 30초짜리 한 곡에 수 분. 밤에 `--priority P0`
 
 첫 실행 때 모델 ~10GB를 내려받습니다. `http://127.0.0.1:8001/health`가 200이면 준비 끝.
 
+## 0-1. Unity 메뉴 (권장)
+
+`Coast Run → BGM → 1~7`: 설치 / 서버 시작 / 테스트 곡 / P0+스템 / 스템 재분리 / 챕터 재생성 / P1.
+각 항목은 같은 이름의 `.bat`을 새 콘솔로 띄우고 로그를 이 폴더에 남깁니다. `Probe environment`는 실행 중인 generate.py를 멈추는 비상 정지도 겸합니다.
+
 ## 1. 생성
 
 다른 PowerShell 창에서(venv 활성화 상태로):
@@ -62,12 +67,17 @@ python generate.py                                 # 4) 나머지 전부
 ```
 BGM_CH1.wav (전체 편성 1곡, seed 고정)
    └─ Demucs htdemucs_6s → drums / bass / other / vocals / guitar / piano
-        a = other + guitar      (패드 + 코드)      ← S01
-        b = drums + bass        (리듬)            ← S02 추가
-        c = piano + vocals      (리드 멜로디)      ← S03 추가
+        a = other + bass        (신스·패드·베이스 그루브)  ← S01
+        b = drums               (드럼)                    ← S02 추가
+        c = guitar+piano+vocals (있으면 리드)             ← S03 추가
+   일렉트로닉 편성은 신스가 전부 other로 가므로 이렇게 묶어야 S01이 비지 않습니다.
 ```
 세 파일은 샘플 단위로 같은 길이로 잘립니다(게임이 동시 시작 후 볼륨만 페이드).
 CH5는 같은 구조 + `BGM_CH5_d`(드론)를 따로 생성. 게임은 S17→S20에서 c, b, a 순으로 빼고 d만 남깁니다.
+
+## 2-1. 산출물 형식
+
+최종 파일은 **`.ogg`(Vorbis)** 입니다 — 커밋 2d2f28c부터 저장소 표준. `generate.py`가 WAV로 후처리(무음 트림 → 루프 크로스페이드 → 라우드니스 정규화 rms 0.18/소프트클립) 후 자식 프로세스에서 인코딩합니다(번들 libsndfile이 한 번에 쓰면 크래시). ffmpeg가 PATH에 있으면 그걸 씁니다. 인코딩 실패 시 WAV를 남깁니다 — Unity는 둘 다 재생.
 
 ## 3. 확인·교체
 

@@ -28,22 +28,22 @@
       "name": "BGM_CH1",
       "group": "ch",
       "priority": "P0",
-      "prompt": "upbeat coastal skateboarding run, bright acoustic pop instrumental, windy, energetic acoustic guitar strum, light kick drum, airy hi-hats like wind, warm pad chords, simple piano lead melody, summer noon, cheerful, no sadness, loopable, three-note motif D E F# hidden in the guitar",
-      "bpm": 112,
+      "prompt": "endless runner video game soundtrack like Subway Surfers, upbeat energetic electronic pop, punchy four-on-the-floor drums, driving synth bass, bright plucky synth lead with a catchy hook, hand claps, summer beach vibe, fast and fun, big and loud, three-note motif D E F# in the lead hook, loopable",
+      "bpm": 128,
       "key": "D Major",
       "duration": 135,
-      "seed": 1101,
+      "seed": 1111,
       "loop": true,
       "stems": {
         "a": [
           "other",
-          "guitar"
-        ],
-        "b": [
-          "drums",
           "bass"
         ],
+        "b": [
+          "drums"
+        ],
         "c": [
+          "guitar",
           "piano",
           "vocals"
         ]
@@ -53,22 +53,22 @@
       "name": "BGM_CH2",
       "group": "ch",
       "priority": "P0",
-      "prompt": "festival crowd run, driving percussion, Korean summer festival rhythm reinterpreted on drum kit and toms, no real gong or folk instruments, dense but bright, energetic acoustic guitar, warm pad, piano lead melody, mid-high frequencies left open, loopable",
-      "bpm": 118,
+      "prompt": "endless runner video game soundtrack like Subway Surfers, festival energy, fast tribal drum kit and toms with electronic kick, driving synth bass, bright brass-like synth stabs, catchy plucky lead hook, dense and bright, high energy, loopable",
+      "bpm": 132,
       "key": "A Major",
       "duration": 140,
-      "seed": 1202,
+      "seed": 1212,
       "loop": true,
       "stems": {
         "a": [
           "other",
-          "guitar"
-        ],
-        "b": [
-          "drums",
           "bass"
         ],
+        "b": [
+          "drums"
+        ],
         "c": [
+          "guitar",
           "piano",
           "vocals"
         ]
@@ -78,19 +78,19 @@
       "name": "BGM_CH3",
       "group": "ch",
       "priority": "P0",
-      "prompt": "riverside industrial run, cooling tone, sparse synth pads, reverberant abandoned factory space, hollow muted guitar, uneasy but still driving drums and bass, restrained piano lead, first hint of minor sadness, loopable",
-      "bpm": 108,
+      "prompt": "endless runner video game soundtrack like Subway Surfers, darker driving electronic, punchy drums, deep synth bass, cool reverberant industrial pads, sharp arpeggiated synth lead hook, minor key tension but still fast and fun, loopable",
+      "bpm": 124,
       "key": "F# Minor",
       "duration": 150,
-      "seed": 1303,
+      "seed": 1313,
       "loop": true,
       "stems": {
         "a": [
-          "other"
+          "other",
+          "bass"
         ],
         "b": [
-          "drums",
-          "bass"
+          "drums"
         ],
         "c": [
           "guitar",
@@ -103,19 +103,19 @@
       "name": "BGM_CH4",
       "group": "ch",
       "priority": "P0",
-      "prompt": "golden hour highway run, warm lush pads, nostalgic sunset ride, hopeful urgency, low strings, soft synth lead, gentle tunnel reverb, the most beautiful track, driving but not desperate, drums and bass steady, loopable",
-      "bpm": 104,
+      "prompt": "endless runner video game soundtrack like Subway Surfers, euphoric sunset synthwave pop, punchy drums, warm driving bass, big lush pads, soaring bright synth lead hook, hopeful and fast, the most beautiful and loud track, loopable",
+      "bpm": 120,
       "key": "Bb Major",
       "duration": 150,
-      "seed": 1404,
+      "seed": 1414,
       "loop": true,
       "stems": {
         "a": [
-          "other"
+          "other",
+          "bass"
         ],
         "b": [
-          "drums",
-          "bass"
+          "drums"
         ],
         "c": [
           "guitar",
@@ -128,22 +128,22 @@
       "name": "BGM_CH5",
       "group": "ch",
       "priority": "P0",
-      "prompt": "blue hour approach, ambient, slow piano arpeggio, pampas grass texture, reduced low end, held breath, purple dusk, very soft brushed rhythm, thin pad, restrained, no melody resolution, loopable",
-      "bpm": 92,
+      "prompt": "endless runner video game soundtrack, restrained dusk electronic, soft but steady punchy drums, deep quiet bass, purple ambient pads, sparse plucky arpeggio lead, held breath, minor key, still moving forward, loopable",
+      "bpm": 104,
       "key": "B Minor",
       "duration": 135,
-      "seed": 1505,
+      "seed": 1515,
       "loop": true,
       "stems": {
         "a": [
           "other",
-          "guitar"
-        ],
-        "b": [
-          "drums",
           "bass"
         ],
+        "b": [
+          "drums"
+        ],
         "c": [
+          "guitar",
           "piano",
           "vocals"
         ]

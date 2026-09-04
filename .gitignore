@@ -46,6 +46,7 @@ Tools/AceStepGen/masters/
 Tools/AceStepGen/*_log.txt
 Tools/AceStepGen/env_probe.txt
 Tools/AceStepGen/install_done.txt
+Tools/AceStepGen/proc.txt
 __pycache__/
 *.pyc
 

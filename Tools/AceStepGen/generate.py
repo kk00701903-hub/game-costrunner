@@ -159,6 +159,74 @@ def trim_tail_fade(path, window=1.0, ratio=0.6, search=12.0):
         print(f"    tail fade trimmed: {len(x) / sr:.1f}s → {end / sr:.1f}s")
 
 
+def normalize_loudness(path, target_rms=0.18):
+    """Runner music has to sit on top of SFX. Bring the track up to a consistent RMS
+    and let tanh soft-clip the peaks — same job a mastering limiter does, cheaply."""
+    try:
+        import numpy as np
+        import soundfile as sf
+    except ImportError:
+        return
+    x, sr = sf.read(path, always_2d=True)
+    rms = float(np.sqrt((x ** 2).mean()))
+    if rms < 1e-4:
+        return
+    gain = min(4.0, target_rms / rms)
+    if gain <= 1.02:
+        return
+    y = np.tanh(x * gain * 1.1) / np.tanh(1.1)          # unity gain around zero, soft knee at ±1
+    y = np.clip(y, -0.98, 0.98)
+    sf.write(path, y, sr)
+    print(f"    loudness: rms {rms:.3f} → {float(np.sqrt((y ** 2).mean())):.3f} (gain x{gain:.2f})")
+
+
+_OGG_WORKER = r"""
+import sys, soundfile as sf
+src, dst = sys.argv[1], sys.argv[2]
+with sf.SoundFile(src) as f:
+    with sf.SoundFile(dst, "w", samplerate=f.samplerate, channels=f.channels, format="OGG", subtype="VORBIS") as o:
+        while True:
+            block = f.read(65536, always_2d=True)
+            if len(block) == 0:
+                break
+            o.write(block)
+"""
+
+
+def to_ogg(wav_path, quality=0.3):
+    """Ship Vorbis (the repo standard since 2d2f28c): ~9x smaller, Unity streams it
+    natively. ffmpeg when present; otherwise libsndfile in a child process, because
+    the bundled Windows libsndfile hard-crashed (no exception) on a 20 MB one-shot
+    write. If encoding fails the WAV stays — Unity plays either."""
+    if not os.path.exists(wav_path):
+        return wav_path
+    ogg = os.path.splitext(wav_path)[0] + ".ogg"
+    ok = False
+    ffmpeg = shutil.which("ffmpeg")
+    try:
+        if ffmpeg:
+            r = subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-i", wav_path,
+                                "-c:a", "libvorbis", "-q:a", "6", ogg], timeout=600)
+            ok = r.returncode == 0
+        else:
+            r = subprocess.run([sys.executable, "-c", _OGG_WORKER, wav_path, ogg], timeout=600)
+            ok = r.returncode == 0
+    except (subprocess.SubprocessError, OSError):
+        ok = False
+    if ok and os.path.exists(ogg) and os.path.getsize(ogg) > 10000:
+        os.remove(wav_path)
+        print(f"    ogg: {os.path.basename(ogg)} ({os.path.getsize(ogg) // 1024} KB)")
+        return ogg
+    if os.path.exists(ogg):
+        os.remove(ogg)
+    print(f"    !! ogg encode failed; keeping {os.path.basename(wav_path)}")
+    return wav_path
+
+
+def out_exists(out_dir, base):
+    return any(os.path.exists(os.path.join(out_dir, base + ext)) for ext in (".ogg", ".wav"))
+
+
 def trim_silence(path, threshold_db=-50.0):
     try:
         import numpy as np
@@ -288,15 +356,16 @@ def main():
                 if tr.get("loop") and not args.no_loopfix:
                     trim_tail_fade(final)
                     loop_crossfade(final)
+                if tr.get("loop"):
+                    normalize_loudness(final)
             if not os.path.exists(final):
                 print("    !! no full mix and no take to rebuild from\n"); continue
         elif not args.redo:
-            stems_done = want_stems and all(
-                os.path.exists(os.path.join(args.out, f"{name}_{b}.wav")) for b in tr["stems"])
-            if stems_done or (not want_stems and os.path.exists(final)):
+            stems_done = want_stems and all(out_exists(args.out, f"{name}_{b}") for b in tr["stems"])
+            if stems_done or (not want_stems and out_exists(args.out, name)):
                 print("    already done, skipping (use --redo to regenerate)\n"); continue
 
-        if want_stems and os.path.exists(final):
+        if want_stems and os.path.exists(final) and not args.redo:
             print("    full mix already rendered; splitting stems only")
         else:
             takes = max(1, min(8, tr.get("takes", args.takes)))
@@ -316,14 +385,21 @@ def main():
             if tr.get("loop") and not args.no_loopfix:
                 trim_tail_fade(final)
                 loop_crossfade(final)
+            if tr.get("loop"):
+                normalize_loudness(final)
 
         if args.stems and tr.get("stems"):
             try:
                 split_stems(final, name, tr["stems"], args.out, args.python)
                 os.remove(final)   # the game plays the buses, not the full mix
+                for b in tr["stems"]:
+                    to_ogg(os.path.join(args.out, f"{name}_{b}.wav"))
             except (subprocess.CalledProcessError, ImportError, FileNotFoundError) as e:
                 print(f"    !! stems failed ({e}); full mix kept as {name}.wav — "
                       f"install with: pip install demucs")
+                to_ogg(final)
+        else:
+            to_ogg(final)
         print(f"    ✔ {os.path.relpath(final if not (args.stems and tr.get('stems')) else args.out, HERE)}\n")
 
     print(f"done in {(time.time() - t0) / 60:.1f} min. Unity: Assets → Refresh, then Play.")
