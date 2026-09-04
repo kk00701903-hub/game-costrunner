@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace CoastRun
@@ -10,8 +11,28 @@ namespace CoastRun
         public const string InsetName = "HudInset";
         public const float HudPad = 28f;
 
+        /// Every scene in the flow is an empty shell — the world, the canvases and the
+        /// buttons are all built at runtime. Nothing was building the one object Unity UI
+        /// needs to deliver a click: an EventSystem. Each canvas got a GraphicRaycaster,
+        /// which finds the button under the finger, but with no EventSystem there was
+        /// nobody to ask. START sat on screen and ignored every tap.
+        ///
+        /// One persistent EventSystem is enough for the whole app; it survives scene loads.
+        public static void EnsureEventSystem()
+        {
+            if (EventSystem.current != null)
+                return;
+            if (Object.FindAnyObjectByType<EventSystem>() != null)
+                return;
+
+            var go = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+            Object.DontDestroyOnLoad(go);
+        }
+
         public static Canvas Create(string name, int sortingOrder, Transform parent = null)
         {
+            EnsureEventSystem();
+
             var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             if (parent != null)
                 go.transform.SetParent(parent, false);
