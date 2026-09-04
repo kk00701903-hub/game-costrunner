@@ -46,8 +46,12 @@ namespace CoastRun
 
             var vol = _ps.velocityOverLifetime;
             vol.enabled = true;
-            vol.z = new ParticleSystem.MinMaxCurve(18f);
+            // All three axes must share one MinMaxCurve mode. Mixing a Constant z with a
+            // TwoConstants x threw "Particle Velocity curves must all be in the same mode"
+            // on every emission — hundreds of times a second while running.
             vol.x = new ParticleSystem.MinMaxCurve(-1.5f, 1.5f);
+            vol.y = new ParticleSystem.MinMaxCurve(0f, 0f);
+            vol.z = new ParticleSystem.MinMaxCurve(18f, 18f);
 
             var color = _ps.colorOverLifetime;
             color.enabled = true;
