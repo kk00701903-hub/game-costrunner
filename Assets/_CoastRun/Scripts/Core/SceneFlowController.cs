@@ -15,9 +15,6 @@ namespace CoastRun
         public const string CutsceneScene = "03_Cutscene";
         public const string EndingScene = "04_Ending";
 
-        // Legacy aliases still in repo.
-        public const string LegacyRunScene = "Run";
-        public const string LegacyMenuScene = "MainMenu";
 
         private GameDirector _director;
         private FlowState _state = FlowState.Boot;
@@ -335,8 +332,6 @@ namespace CoastRun
 
             string runName = ResolveRunScene();
             var runScene = SceneManager.GetSceneByName(runName);
-            if (!runScene.IsValid())
-                runScene = SceneManager.GetSceneByName(LegacyRunScene);
             if (runScene.IsValid() && runScene.isLoaded)
                 SceneManager.SetActiveScene(runScene);
 
@@ -545,7 +540,6 @@ namespace CoastRun
                 _runSceneReady = true;
 
                 yield return UnloadIfLoaded(ResolveTitleScene());
-                yield return UnloadIfLoaded(LegacyMenuScene);
             }
             else if (!_runSceneReady || !IsSceneLoaded(run))
             {
@@ -556,7 +550,6 @@ namespace CoastRun
                     while (op != null && !op.isDone)
                         yield return null;
                     yield return UnloadIfLoaded(ResolveTitleScene());
-                    yield return UnloadIfLoaded(LegacyMenuScene);
                     _runSceneReady = true;
                 }
                 else
@@ -640,7 +633,7 @@ namespace CoastRun
                 yield break;
             }
 
-            _runSceneReady = sceneName == ResolveRunScene() || sceneName == LegacyRunScene;
+            _runSceneReady = sceneName == ResolveRunScene();
             var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
             while (op != null && !op.isDone)
                 yield return null;
@@ -666,23 +659,9 @@ namespace CoastRun
             return false;
         }
 
-        public static string ResolveRunScene()
-        {
-            if (Application.CanStreamedLevelBeLoaded(RunScene))
-                return RunScene;
-            if (Application.CanStreamedLevelBeLoaded(LegacyRunScene))
-                return LegacyRunScene;
-            return RunScene;
-        }
+        public static string ResolveRunScene() => RunScene;
 
-        public static string ResolveTitleScene()
-        {
-            if (Application.CanStreamedLevelBeLoaded(TitleScene))
-                return TitleScene;
-            if (Application.CanStreamedLevelBeLoaded(LegacyMenuScene))
-                return LegacyMenuScene;
-            return TitleScene;
-        }
+        public static string ResolveTitleScene() => TitleScene;
 
         private static int FirstStageOfChapter(int chapter)
         {

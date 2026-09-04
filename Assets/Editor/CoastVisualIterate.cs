@@ -24,9 +24,7 @@ public static class CoastVisualIterate
         string outDir = Path.GetFullPath(Path.Combine(Application.dataPath, "..", OutDirRel));
         Directory.CreateDirectory(outDir);
 
-        if (!File.Exists(CoastRunBootstrap.ScenePath))
-            CoastRunMenu.CreateRunScene();
-        EditorSceneManager.OpenScene(CoastRunBootstrap.ScenePath);
+        EditorSceneManager.OpenScene(CoastScenes.Path(CoastScenes.Run));
 
         var boot = Object.FindAnyObjectByType<CoastRunBootstrap>();
         if (boot == null)

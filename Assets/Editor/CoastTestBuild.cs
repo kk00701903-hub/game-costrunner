@@ -2,6 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
+using CoastRun;
 
 /// Builds a Windows x64 standalone for playtesting (no installer wizard — unzip & run).
 public static class CoastTestBuild
@@ -97,21 +98,11 @@ public static class CoastTestBuild
         return text;
     }
 
+    /// This used to hard-code MainMenu.unity and Run.unity and overwrite the whole
+    /// build list with those two — which, after the move to the numbered flow, meant
+    /// every test build silently dropped 00_Boot, 03_Cutscene and 04_Ending.
     private static void EnsureBuildScenes()
     {
-        const string menu = "Assets/_CoastRun/Scenes/MainMenu.unity";
-        const string run = "Assets/_CoastRun/Scenes/Run.unity";
-
-        if (!File.Exists(menu))
-            CoastRunMenu.CreateMainMenuScene();
-        if (!File.Exists(run))
-            CoastRunMenu.CreateRunScene();
-
-        var list = new System.Collections.Generic.List<EditorBuildSettingsScene>
-        {
-            new EditorBuildSettingsScene(menu, true),
-            new EditorBuildSettingsScene(run, true)
-        };
-        EditorBuildSettings.scenes = list.ToArray();
+        CoastRunMenu.RebuildSceneList();
     }
 }

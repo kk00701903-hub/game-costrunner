@@ -41,7 +41,7 @@ namespace CoastRun
     [DefaultExecutionOrder(-200)]
     public class CoastRunBootstrap : MonoBehaviour
     {
-        public const string ScenePath = "Assets/_CoastRun/Scenes/Run.unity";
+        public static string ScenePath => CoastScenes.Path(CoastScenes.Run);
 
         private CoastSky _sky;
         private CoastSea _sea;
@@ -58,8 +58,7 @@ namespace CoastRun
             var scene = SceneManager.GetActiveScene();
             // Only auto-boot the Run scene — never Title / Boot / Cutscene / Ending.
             string n = scene.name;
-            bool isRun = n == SceneFlowController.RunScene || n == SceneFlowController.LegacyRunScene ||
-                         scene.path.Contains("/Run.unity") || scene.path.Contains("/02_Run.unity");
+            bool isRun = n == SceneFlowController.RunScene || scene.path.Contains("/02_Run.unity");
             if (!isRun)
                 return;
 

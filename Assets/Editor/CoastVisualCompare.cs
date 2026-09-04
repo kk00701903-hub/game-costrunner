@@ -36,7 +36,8 @@ public static class CoastVisualCompare
     public static void ArmAndPlay()
     {
         SessionState.SetBool("CoastCompare.Armed", true);
-        CoastRunMenu.PlayCoastRun();
+        // Visual compare wants the run itself, not the title flow.
+        CoastRun.Editor.CoastRunPlayMenu.PlayRunOnly();
     }
 
     private static void OnPlayMode(PlayModeStateChange state)

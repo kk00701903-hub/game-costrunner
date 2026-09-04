@@ -66,25 +66,23 @@ public static class CoastIntegrationTest
 
         // Scenes in build
         sb.AppendLine("--- Scenes ---");
-        Check(File.Exists(MainMenuBootstrap.ScenePath), "MainMenu.unity exists");
-        Check(File.Exists(CoastRunBootstrap.ScenePath), "Run.unity exists");
+        foreach (string s in CoastScenes.BuildOrder)
+            Check(File.Exists(CoastScenes.Path(s)), s + ".unity exists");
 
         bool menuInBuild = false, runInBuild = false;
         foreach (var s in EditorBuildSettings.scenes)
         {
-            if (s.path.Contains("MainMenu")) menuInBuild = true;
-            if (s.path.Contains("Run.unity")) runInBuild = true;
+            if (s.path.Contains(CoastScenes.Title)) menuInBuild = true;
+            if (s.path.Contains(CoastScenes.Run)) runInBuild = true;
         }
-        Check(menuInBuild, "MainMenu in Build Settings");
-        Check(runInBuild, "Run in Build Settings");
+        Check(menuInBuild, CoastScenes.Title + " in Build Settings");
+        Check(runInBuild, CoastScenes.Run + " in Build Settings");
 
         // Boot smoke (edit mode)
         sb.AppendLine("--- Edit-mode boot smoke ---");
         try
         {
-            if (!File.Exists(CoastRunBootstrap.ScenePath))
-                CoastRunMenu.CreateRunScene();
-            EditorSceneManager.OpenScene(CoastRunBootstrap.ScenePath);
+            EditorSceneManager.OpenScene(CoastScenes.Path(CoastScenes.Run));
             var boot = Object.FindAnyObjectByType<CoastRunBootstrap>();
             if (boot == null)
             {

@@ -11,8 +11,7 @@ namespace CoastRun
         {
             var scene = SceneManager.GetActiveScene();
             string n = scene.name;
-            bool isTitle = n == SceneFlowController.TitleScene || n == SceneFlowController.LegacyMenuScene ||
-                           scene.path.Contains("01_Title") || scene.path.Contains("MainMenu");
+            bool isTitle = n == SceneFlowController.TitleScene || scene.path.Contains("01_Title");
             if (!isTitle)
                 return;
             if (Object.FindAnyObjectByType<TitleSceneDriver>() != null)

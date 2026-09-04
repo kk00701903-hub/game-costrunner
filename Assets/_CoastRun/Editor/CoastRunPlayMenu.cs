@@ -20,6 +20,11 @@ namespace CoastRun.Editor
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 return;
 
+            // A dev fast-path may have left this set; a run from Boot should show
+            // everything a player sees, prologue included.
+            PlayerPrefs.SetInt(MainMenuController.SkipPrologueKey, 0);
+            PlayerPrefs.Save();
+
             EditorSceneManager.OpenScene(BootScene, OpenSceneMode.Single);
             // delayCall so -executeMethod / menu both enter Play reliably
             EditorApplication.delayCall += () => { EditorApplication.isPlaying = true; };
@@ -37,11 +42,30 @@ namespace CoastRun.Editor
         public static void OpenRun()
         {
             EnsureScenesReady();
-            string path = File.Exists(RunScene) ? RunScene : "Assets/_CoastRun/Scenes/Run.unity";
-            if (File.Exists(path))
-                EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+            if (File.Exists(RunScene))
+                EditorSceneManager.OpenScene(RunScene, OpenSceneMode.Single);
             else
-                Debug.LogWarning("[Coast Run] Run scene missing — run Setup Scene Flow first.");
+                Debug.LogWarning("[Coast Run] 02_Run missing — run Setup Scene Flow first.");
+        }
+
+        /// Dev fast path: straight into the run with the prologue skipped. Useful while
+        /// tuning gameplay, but it is not the player's experience — Play From Boot is.
+        [MenuItem("Coast Run/▶ PLAY 주행만 (프롤로그 건너뜀) %#c")]
+        public static void PlayRunOnly()
+        {
+            if (!File.Exists(RunScene))
+            {
+                Debug.LogWarning("[Coast Run] 02_Run missing — run Setup Scene Flow first.");
+                return;
+            }
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+                return;
+
+            PlayerPrefs.SetInt(MainMenuController.SkipPrologueKey, 1);
+            PlayerPrefs.Save();
+
+            EditorSceneManager.OpenScene(RunScene, OpenSceneMode.Single);
+            EditorApplication.delayCall += () => { EditorApplication.isPlaying = true; };
         }
 
         [MenuItem("Coast Run/Prepare Project For Hub Test")]
