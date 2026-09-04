@@ -2,8 +2,12 @@ Shader "CoastRun/ToonLit"
 {
     Properties
     {
-        _BaseMap ("Albedo", 2D) = "white" {}
-        _BaseColor ("Color", Color) = (1,1,1,1)
+        // [MainTexture]/[MainColor] route Material.mainTexture / .color / .mainTextureScale
+        // to these properties. Without them Unity looks for _MainTex, which this shader
+        // does not have — every caller that set a texture scale logged an error and the
+        // texture never applied.
+        [MainTexture] _BaseMap ("Albedo", 2D) = "white" {}
+        [MainColor]   _BaseColor ("Color", Color) = (1,1,1,1)
         _ShadowColor ("Shadow Tint", Color) = (0.35, 0.48, 0.62, 1)
         _ShadowThreshold ("Shadow Threshold", Range(0,1)) = 0.45
         _ShadowSoftness ("Shadow Softness", Range(0.001,0.3)) = 0.08
