@@ -50,6 +50,10 @@ namespace CoastRun
 
         public float PathDistance => _pathDistance;
         public float Speed => _speed;
+
+        /// The transform sits at the body's mid-height (see EnsurePlayerPhysics), so a
+        /// visual built with its feet at local y = 0 must hang this far below it.
+        public float BodyHalfHeight => _bodyHeight * 0.5f;
         public float NormalizedSpeed
         {
             get

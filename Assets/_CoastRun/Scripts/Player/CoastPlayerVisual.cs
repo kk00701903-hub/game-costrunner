@@ -229,6 +229,19 @@ namespace CoastRun
                 new Vector3(0.18f, -0.05f, -0.48f), new Vector3(0.14f, 0.04f, 0.14f), () => CoastPalette.WheelOrange);
         }
 
+        /// The player transform rides at mid-body height (0.8 m) so the capsule can hit
+        /// ground obstacles; the visual is authored with shoes and board at y = 0. Without
+        /// this offset the whole skater — board included — hovered 80 cm over the road,
+        /// which is exactly what "she looks like she is floating" was.
+        private void KeepFeetOnRoad()
+        {
+            if (_rootVisual == null || _player == null)
+                return;
+            var p = _rootVisual.localPosition;
+            p.y = -_player.BodyHalfHeight;
+            _rootVisual.localPosition = p;
+        }
+
         /// Lane change lean. Same direction as camera roll (centrifugal). Starts immediately;
         /// camera anticipation is slightly slower so character leads by ~leadSeconds.
         public void PulseLaneLean(int direction, float leadSeconds)
@@ -249,6 +262,7 @@ namespace CoastRun
             if (_menuPose)
                 return;
 
+            KeepFeetOnRoad();
             ApplyGameplayPose();
             UpdateLaneLean();
 
