@@ -12,7 +12,8 @@ namespace CoastRun.Editor
         private const string BootScene = "Assets/_CoastRun/Scenes/00_Boot.unity";
         private const string RunScene = "Assets/_CoastRun/Scenes/02_Run.unity";
 
-        [MenuItem("Coast Run/Play From Boot (recommended) _%#B")]
+        // Ctrl+Shift+B belongs to File/Build Profiles in Unity 6 — Ctrl+Alt+B is free.
+        [MenuItem("Coast Run/Play From Boot (recommended) %&b")]
         public static void PlayFromBoot()
         {
             if (!EnsureScenesReady())
@@ -77,7 +78,7 @@ namespace CoastRun.Editor
             Debug.Log("[Coast Run] Ready. Use Coast Run → Play From Boot. Game View: 720×1280 portrait.");
             EditorUtility.DisplayDialog(
                 "Coast Run",
-                "Scene flow + story config ready.\n\nNext:\nCoast Run → Play From Boot\n(or Ctrl+Shift+B)\n\nGame View: 720 × 1280",
+                "Scene flow + story config ready.\n\nNext:\nCoast Run → Play From Boot\n(or Ctrl+Alt+B)\n\nGame View: 720 × 1280",
                 "OK");
         }
 

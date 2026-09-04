@@ -44,7 +44,7 @@ public static class CoastRunMenu
     // ── Playing ─────────────────────────────────────────────────────────
     //
     // Play entry points live in CoastRun.Editor.CoastRunPlayMenu:
-    //   Coast Run/Play From Boot (recommended)   Ctrl+Shift+B — full flow
+    //   Coast Run/Play From Boot (recommended)   Ctrl+Alt+B — full flow
     //   Coast Run/▶ PLAY 주행만                   Ctrl+Shift+C — dev fast path
     //
     // Editor Play runs whatever scene is open, not build index 0. That is why

@@ -23,7 +23,7 @@ Menu: **Coast Run → Prepare Project For Hub Test**
 
 | Action | Menu |
 |--------|------|
-| Full flow (Boot→Title→…) | **Coast Run → Play From Boot** (`Ctrl+Shift+B`) |
+| Full flow (Boot→Title→…) | **Coast Run → Play From Boot** (`Ctrl+Alt+B`) |
 | Gameplay only | **Coast Run → Open Run Scene** then Play |
 
 Game View: **720 × 1280** portrait.
