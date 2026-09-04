@@ -144,48 +144,73 @@ namespace CoastRun
             _uiCg.alpha = 0f;
             ui.SetActive(false);
 
+            // Layout follows the Subway Surfers title: the whole screen is the start
+            // button, the logo sits high, "tap to play" pulses mid-screen, and the three
+            // big rounded buttons along the bottom hold everything else.
+
+            // Full-screen tap-to-play (lowest sibling so the bottom buttons win clicks).
+            var tap = new GameObject("TapToPlay", typeof(RectTransform), typeof(Image), typeof(Button));
+            tap.transform.SetParent(ui.transform, false);
+            var tapRt = tap.GetComponent<RectTransform>();
+            tapRt.anchorMin = Vector2.zero;
+            tapRt.anchorMax = Vector2.one;
+            tapRt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
+            tapRt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+            var tapImg = tap.GetComponent<Image>();
+            tapImg.color = new Color(0f, 0f, 0f, 0f);
+            _startButton = tap.GetComponent<Button>();
+            _startButton.transition = Selectable.Transition.None;
+            _startButton.onClick.AddListener(OnStartRun);
+
             // Soft bottom veil for readability only — not a still background.
             var veil = CreateImage(ui.transform, "BottomVeil",
-                new Vector2(0f, 0f), new Vector2(1f, 0.38f));
+                new Vector2(0f, 0f), new Vector2(1f, 0.30f));
             veil.color = new Color(0.02f, 0.05f, 0.1f, 0.55f);
+            veil.raycastTarget = false;
 
-            CreateLabel(ui.transform, "Logo", "우리의 송전탑", 42, FontStyle.Bold,
-                new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.88f), new Vector2(600f, 56f));
-            CreateLabel(ui.transform, "Subtitle", "Coast Run", 20, FontStyle.Italic,
-                new Color(0.8f, 0.9f, 0.98f), new Vector2(0.5f, 0.82f), new Vector2(400f, 32f));
+            // Top row — coins (left) and best score (right), in the run HUD's pill style.
+            int coins = PlayerPrefs.GetInt(CoinWallet.PrefsKey, 0);
+            BuildTopPill(ui.transform, "CoinPill", coins.ToString(), "Icon_Coin", new Vector2(0f, 1f));
+            BuildTopPill(ui.transform, "BestPill", "BEST " + RunHudChrome.BestScore.ToString("00000"), null,
+                new Vector2(1f, 1f));
 
-            float y = 0.28f;
-            _startButton = CreateMenuButton(ui.transform, "START", y, OnStartRun);
-            y -= 0.07f;
+            // Logo block: shadow + title + subtitle on a rounded cream plate.
+            var plate = CoastUiArt.Panel(ui.transform, "LogoPlate", new Color(0.98f, 0.95f, 0.88f, 0.92f), 28);
+            var prt = plate.rectTransform;
+            prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 0.80f);
+            prt.sizeDelta = new Vector2(560f, 150f);
+            prt.localRotation = Quaternion.Euler(0f, 0f, 2.5f);
+            var shadow = CreateLabel(plate.transform, "LogoShadow", "우리의 송전탑", 60, FontStyle.Bold,
+                new Color(0.10f, 0.14f, 0.30f, 0.35f), new Vector2(0.5f, 0.58f), new Vector2(600f, 80f));
+            shadow.rectTransform.anchoredPosition = new Vector2(4f, -4f);
+            CreateLabel(plate.transform, "Logo", "우리의 송전탑", 60, FontStyle.Bold,
+                new Color(1f, 0.55f, 0.15f), new Vector2(0.5f, 0.58f), new Vector2(600f, 80f));
+            CreateLabel(plate.transform, "Subtitle", "COAST RUN", 20, FontStyle.Bold,
+                new Color(0.10f, 0.14f, 0.30f, 0.8f), new Vector2(0.5f, 0.18f), new Vector2(400f, 32f));
 
-            if (_progress != null && _progress.HasSave)
+            // Pulsing prompt.
+            _tapLabel = CreateLabel(ui.transform, "TapPrompt", "화면을 터치하면 출발", 30, FontStyle.Bold,
+                Color.white, new Vector2(0.5f, 0.36f), new Vector2(600f, 48f));
+            _tapLabel.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.6f);
+
+            // Bottom row: three big rounded buttons.
+            bool hasSave = _progress != null && _progress.HasSave;
+            bool showGallery = _cleared || (_progress != null && _progress.UnlockedMemoryCount >= 1);
+            BuildBottomButton(ui.transform, hasSave ? "이어하기" : "기록", 0,
+                new Color(0.30f, 0.72f, 0.36f), () =>
+                {
+                    if (hasSave) OnContinue();
+                    else { _audio?.PlayClick(); ShowPanel(_recordPanel, true); }
+                });
+            BuildBottomButton(ui.transform, "회상", 1, new Color(0.35f, 0.45f, 0.70f), () =>
             {
-                CreateMenuButton(ui.transform, "이어하기", y, OnContinue);
-                y -= 0.07f;
-            }
-
-            CreateMenuButton(ui.transform, "설정", y, () =>
+                _audio?.PlayClick();
+                ShowPanel(showGallery ? _galleryPanel : _recordPanel, true);
+            });
+            BuildBottomButton(ui.transform, "설정", 2, new Color(1f, 0.55f, 0.15f), () =>
             {
                 _audio?.PlayClick();
                 ShowPanel(_settingsPanel, true);
-            });
-            y -= 0.07f;
-
-            bool showGallery = _cleared || (_progress != null && _progress.UnlockedMemoryCount >= 1);
-            if (showGallery)
-            {
-                CreateMenuButton(ui.transform, "회상 갤러리", y, () =>
-                {
-                    _audio?.PlayClick();
-                    ShowPanel(_galleryPanel, true);
-                });
-                y -= 0.07f;
-            }
-
-            CreateMenuButton(ui.transform, "크레딧", y, () =>
-            {
-                _audio?.PlayClick();
-                ShowPanel(_creditsPanel, true);
             });
 
             // Skip prologue — only on replay (has save or cleared).
@@ -195,9 +220,94 @@ namespace CoastRun
             BuildGalleryPanel(root);
             BuildCreditsPanel(root);
             BuildSettingsPanel(root);
+            BuildRecordPanel(root);
         }
 
         private Button _startButton;
+        private Text _tapLabel;
+        private GameObject _recordPanel;
+
+        private void Update()
+        {
+            if (_tapLabel != null && _ready)
+            {
+                float a = 0.55f + 0.45f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 2.2f));
+                var c = _tapLabel.color;
+                c.a = a;
+                _tapLabel.color = c;
+            }
+        }
+
+        private void BuildTopPill(Transform parent, string name, string text, string iconName, Vector2 corner)
+        {
+            var pill = CoastUiArt.Panel(parent, name, RunHudChrome.PillNavy, 20);
+            var rt = pill.rectTransform;
+            rt.anchorMin = rt.anchorMax = corner;
+            rt.pivot = corner;
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = new Vector2(iconName != null ? 170f : 230f, 54f);
+
+            float textRight = -16f;
+            if (iconName != null)
+            {
+                var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+                iconGo.transform.SetParent(rt, false);
+                var irt = iconGo.GetComponent<RectTransform>();
+                irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f);
+                irt.pivot = new Vector2(0f, 0.5f);
+                irt.anchoredPosition = new Vector2(10f, 0f);
+                irt.sizeDelta = new Vector2(36f, 36f);
+                var icon = iconGo.GetComponent<Image>();
+                icon.sprite = CoastUiArt.AsSprite(ArtAssets.LoadTexture(iconName), 100f);
+                icon.preserveAspect = true;
+                icon.raycastTarget = false;
+            }
+
+            var label = CoastHudLayout.MakeText(rt, "Label", text, 26, TextAnchor.MiddleRight,
+                Vector2.zero, Vector2.one, new Vector2(iconName != null ? 52f : 16f, 0f), new Vector2(textRight, 0f));
+            label.color = RunHudChrome.ScoreYellow;
+        }
+
+        private void BuildBottomButton(Transform parent, string label, int slot, Color color,
+            UnityEngine.Events.UnityAction onClick)
+        {
+            var img = CoastUiArt.Panel(parent, label + "Btn", color, 22);
+            var rt = img.rectTransform;
+            float x = (slot - 1) * 0.31f;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f + x, 0f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = new Vector2(0f, 96f);
+            rt.sizeDelta = new Vector2(190f, 96f);
+            img.raycastTarget = true;
+
+            var text = CoastHudLayout.MakeText(rt, "Label", label, 28, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.one, new Vector2(0f, 0f), new Vector2(0f, 0f));
+            text.color = Color.white;
+            text.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.45f);
+
+            var btn = img.gameObject.AddComponent<Button>();
+            btn.targetGraphic = img;
+            btn.onClick.AddListener(onClick);
+        }
+
+        private void BuildRecordPanel(Transform root)
+        {
+            _recordPanel = CreateOverlayPanel(root, "Record");
+            CreateLabel(_recordPanel.transform, "T", "기록", 28, FontStyle.Bold,
+                Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
+            int coins = PlayerPrefs.GetInt(CoinWallet.PrefsKey, 0);
+            CreateLabel(_recordPanel.transform, "B",
+                "최고 점수  " + RunHudChrome.BestScore.ToString("00000") + "\n보유 코인  " + coins +
+                "\n회상 조각  " + (_progress != null ? _progress.UnlockedMemoryCount : 0) + " / " +
+                ProgressionManager.MemorySlotCount,
+                22, FontStyle.Normal, new Color(0.85f, 0.9f, 0.95f), new Vector2(0.5f, 0.5f), new Vector2(480f, 140f));
+            CreateMenuButton(_recordPanel.transform, "닫기", 0.12f, () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_recordPanel, false);
+            }, absoluteBottom: true);
+            _recordPanel.SetActive(false);
+        }
 
         private void BuildSkipToggle(Transform parent)
         {
@@ -334,6 +444,11 @@ namespace CoastRun
                 Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
             CreateLabel(_settingsPanel.transform, "B", "오디오 · 언어는 준비 중", 18, FontStyle.Normal,
                 new Color(0.8f, 0.85f, 0.9f, 0.7f), new Vector2(0.5f, 0.5f), new Vector2(400f, 40f));
+            CreateMenuButton(_settingsPanel.transform, "크레딧", 0.36f, () =>
+            {
+                ShowPanel(_settingsPanel, false);
+                ShowPanel(_creditsPanel, true);
+            });
             CreateMenuButton(_settingsPanel.transform, "닫기", 0.12f, () =>
             {
                 _audio?.PlayClick();
