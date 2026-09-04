@@ -14,6 +14,9 @@ namespace CoastRun
             var go = Object.Instantiate(prefab, parent);
             go.transform.localPosition = localPos;
             go.name = resourcesName;
+            // Every prefab joins the toon/curved-world material set, otherwise an imported
+            // URP/Lit prop stands straight while the road bends under it.
+            CoastMaterials.ApplyToonToHierarchy(go.transform);
             return go;
         }
 

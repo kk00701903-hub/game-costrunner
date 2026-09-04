@@ -141,7 +141,7 @@ namespace CoastRun
             go.transform.localRotation = Quaternion.identity;
             CoastEditUtil.DestroyCollider(go);
 
-            var mat = ArtAssets.CreateTexturedUnlit(_generatedSky, Color.white);
+            var mat = CoastMaterials.SetFlat(ArtAssets.CreateTexturedUnlit(_generatedSky, Color.white));
             var mr = go.GetComponent<Renderer>();
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;

@@ -206,6 +206,10 @@ namespace CoastRun
             obstacles.Bind(player, seasonWeather);
             coins.Bind(player, wallet, upgrades, feedback);
 
+            // Curved-world bend: the road sweeps left/right ahead of the player.
+            var curve = gameObject.GetComponent<CurveDirector>() ?? gameObject.AddComponent<CurveDirector>();
+            curve.Bind(player);
+
             // StageManager owns clear/retry; tower gate only for legacy / S20 assist.
             destination.enabled = false;
             destination.Bind(upgrades, player, this, feedback);

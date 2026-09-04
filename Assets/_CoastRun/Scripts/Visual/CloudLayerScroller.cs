@@ -80,7 +80,7 @@ namespace CoastRun
                     return live;
                 });
                 var mr = quad.GetComponent<MeshRenderer>();
-                mr.sharedMaterial = mat;
+                mr.sharedMaterial = CoastMaterials.SetFlat(mat);
                 mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 mr.receiveShadows = false;
             }

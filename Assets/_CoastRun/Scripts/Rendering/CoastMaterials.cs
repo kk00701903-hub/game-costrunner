@@ -41,7 +41,10 @@ namespace CoastRun
             {
                 if (_unlit == null)
                 {
-                    _unlit = Shader.Find("Universal Render Pipeline/Unlit")
+                    // The curved variant first, so sea, coins, wires and outlines bend with
+                    // the road. Sky and clouds opt out via SetFlat.
+                    _unlit = Shader.Find("CoastRun/UnlitCurved")
+                             ?? Shader.Find("Universal Render Pipeline/Unlit")
                              ?? Shader.Find("Unlit/Color")
                              ?? Shader.Find("Sprites/Default");
                 }
@@ -142,6 +145,15 @@ namespace CoastRun
                 mat.EnableKeyword("_ALPHABLEND_ON");
             }
 
+            return mat;
+        }
+
+        /// Pins a material in place while the rest of the world bends (sky, clouds, UI-ish
+        /// billboards that must not sweep off screen on a hard curve).
+        public static Material SetFlat(Material mat)
+        {
+            if (mat != null && mat.HasProperty("_CurveWeight"))
+                mat.SetFloat("_CurveWeight", 0f);
             return mat;
         }
 

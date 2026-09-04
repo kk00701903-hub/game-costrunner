@@ -32,6 +32,12 @@ namespace CoastRun
         [Header("Feel")]
         [SerializeField] private float anticipationSeconds = 0.1f;
 
+        [Header("Curve lean")]
+        [Tooltip("How far the aim point follows the visual bend at the look-ahead distance (0..1).")]
+        [SerializeField] private float curveAimFollow = 0.7f;
+        [Tooltip("Degrees of roll into the curve at peak curvature.")]
+        [SerializeField] private float curveRollDegrees = 2.5f;
+
         private Camera _camera;
         private float _lateral;
         private float _lateralVelocity;
@@ -226,7 +232,10 @@ namespace CoastRun
 
             transform.position = camPos;
 
-            float roll = _roll;
+            // Lean into the bend: the world sweeps right → tilt right, like a skater
+            // carving the turn. Curvature is tiny (m/m²) so scale it up to degrees.
+            float k = CurveDirector.Instance != null ? CurveDirector.Instance.Curvature : 0f;
+            float roll = _roll + Mathf.Clamp(k * 1000f, -1f, 1f) * curveRollDegrees;
             transform.rotation = ComputeChaseRotation(roll);
 
             if (_camera != null)
@@ -352,7 +361,12 @@ namespace CoastRun
         {
             Quaternion frame = SlopeFrame();
             Vector3 pivot = ComputePivot(frame);
-            Vector3 aim = pivot + frame * new Vector3(0f, lookHeight, lookAhead);
+            // Aim where the bent road actually is at lookAhead, so the camera pans through
+            // the curve instead of staring at where the straight road would have been.
+            float k = CurveDirector.Instance != null ? CurveDirector.Instance.Curvature : 0f;
+            float kv = CurveDirector.Instance != null ? CurveDirector.Instance.VerticalCurvature : 0f;
+            float d2 = lookAhead * lookAhead * curveAimFollow;
+            Vector3 aim = pivot + frame * new Vector3(k * d2, lookHeight + kv * d2, lookAhead);
             Vector3 toAim = aim - transform.position;
             if (toAim.sqrMagnitude < 0.001f)
                 return transform.rotation;

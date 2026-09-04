@@ -4,6 +4,11 @@ namespace CoastRun
 {
     /// Elevated coastal promenade. The road itself is nearly flat;
     /// the downhill read comes from the drop to sea/city on the right.
+    ///
+    /// The path is a straight line on purpose. The curves the player sees are a
+    /// vertex-shader bend driven by CurveDirector (see Shaders/CoastCurve.hlsl), which
+    /// keeps lanes, hit tests and row planning in this simple frame while the picture
+    /// sweeps left and right.
     public static class DownhillPath
     {
         public const float SlopeDegrees = 0f;
