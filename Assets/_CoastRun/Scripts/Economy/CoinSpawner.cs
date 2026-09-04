@@ -87,7 +87,7 @@ namespace CoastRun
         {
             float lateral = lane * laneWidth;
             // Waist-height float like the coastal mock (not glued to asphalt).
-            Vector3 pos = RoadPlacement.OnRoad(z, lateral, 0.85f);
+            Vector3 pos = RoadPlacement.OnRoad(z, lateral, 0.5f);   // coin centre ends up ~0.7 m: waist height, not floating
             CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, silver);
         }
     }
