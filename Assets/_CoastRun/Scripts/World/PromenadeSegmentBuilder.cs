@@ -93,17 +93,23 @@ namespace CoastRun
                 float shopD = 5.8f;
 
                 var pivot = UprightPivot(root, "House", new Vector3(shopX, 0f, z));
-                var building = CreateBox(pivot, "Walls", new Vector3(0f, shopH * 0.5f, 0f),
+                CreateBox(pivot, "Walls", new Vector3(0f, shopH * 0.5f, 0f),
                     new Vector3(shopW, shopH, shopD),
                     () => house % 2 == 0 ? CoastPalette.TownCream : CoastPalette.BuildingCool);
 
-                CreateBox(building.transform, "Roof", new Vector3(0f, shopH * 0.5f + 0.35f, 0f),
+                // Trim goes on the unscaled pivot, never on the Walls cube. The walls carry
+                // localScale (shopW, shopH, shopD); anything parented under them inherits
+                // that scale, so a 0.55 m roof became a 31 × 36 m slab floating 25 m up and
+                // the balcony rail turned into orange bars stretched out over the road —
+                // the dark plane that covered the top third of the screen.
+                float wallMidY = shopH * 0.5f;
+                CreateBox(pivot, "Roof", new Vector3(0f, shopH + 0.35f, 0f),
                     new Vector3(shopW + 0.45f, 0.55f, shopD + 0.45f), () => CoastPalette.Roof);
 
-                CreateBox(building.transform, "Balcony", new Vector3(shopW * 0.48f, 0.1f, 0f),
+                CreateBox(pivot, "Balcony", new Vector3(shopW * 0.48f, wallMidY + 0.1f, 0f),
                     new Vector3(0.35f, 0.12f, shopD * 0.55f),
                     () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.AccentOrange, 0.25f));
-                CreateBox(building.transform, "Flowers", new Vector3(shopW * 0.52f, 0.28f, 0f),
+                CreateBox(pivot, "Flowers", new Vector3(shopW * 0.52f, wallMidY + 0.28f, 0f),
                     new Vector3(0.2f, 0.25f, shopD * 0.5f), () => CoastPalette.AccentOrange);
 
                 for (int row = 0; row < 2; row++)
@@ -111,9 +117,9 @@ namespace CoastRun
                     for (int col = 0; col < 2; col++)
                     {
                         float wx = shopW * 0.48f;
-                        float wy = -shopH * 0.15f + row * 1.4f;
+                        float wy = wallMidY - shopH * 0.15f + row * 1.4f;
                         float wz = -shopD * 0.22f + col * shopD * 0.44f;
-                        CreateBox(building.transform, "Window", new Vector3(wx, wy, wz),
+                        CreateBox(pivot, "Window", new Vector3(wx, wy, wz),
                             new Vector3(0.08f, 0.95f, 1.05f), () => CoastPalette.Window);
                     }
                 }
