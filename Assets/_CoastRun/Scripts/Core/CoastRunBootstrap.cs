@@ -199,11 +199,28 @@ namespace CoastRun
 
         private static Camera EnsureCamera(PlayerController player)
         {
-            Camera cam = Camera.main;
+            // 02_Run is preloaded additively behind the title so the handoff is seamless,
+            // which means Build() runs while 01_Title is still loaded. Camera.main then
+            // returns the *title's* camera — and when the title unloads a moment later it
+            // takes that camera with it, leaving the run with nothing to render through.
+            // Only reuse a camera that actually lives in this scene.
+            Scene mine = SceneManager.GetSceneByName(CoastScenes.Run);
+            Camera cam = null;
+            foreach (var candidate in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))
+            {
+                if (candidate != null && candidate.gameObject.scene == mine)
+                {
+                    cam = candidate;
+                    break;
+                }
+            }
+
             if (cam == null)
             {
                 var camGo = new GameObject("Main Camera");
                 camGo.tag = "MainCamera";
+                if (mine.IsValid() && camGo.scene != mine)
+                    SceneManager.MoveGameObjectToScene(camGo, mine);
                 cam = camGo.AddComponent<Camera>();
                 camGo.AddComponent<AudioListener>();
             }
