@@ -251,6 +251,10 @@ namespace CoastRun
         private void HandleStageStart(StageDef stage)
         {
             runStats?.BeginStage();
+            // Same seed per stage: a retry replays the same course, so the player is
+            // learning a layout rather than fighting a new random one each attempt.
+            if (obstacles != null && player != null)
+                obstacles.ResetForStage(stage.stageIndex, player.PathDistance);
             seasonWeather?.SetChapterTheme(stage.chapterIndex);
             IsRunning = true;
             if (input != null)
