@@ -35,6 +35,9 @@ namespace CoastRun
         private float _crouchTimer;
         private float _softHitTimer;
         private float _inputFreezeTimer;
+        private float _coyoteTimer;     // grace after leaving ground where a jump still counts
+        private float _laneFrom;        // lane easing: where the last change started
+        private float _laneT = 1f;      // 0..1 progress of the current lane change
         private bool _tucking;
         private SkateState _state = SkateState.Run;
 
@@ -228,12 +231,21 @@ namespace CoastRun
 
         private void HandleInput()
         {
-            if (_input == null || _state == SkateState.SoftHit || _inputFreezeTimer > 0f)
+            if (_input == null)
                 return;
 
+            // A hit slows you down; it must not also make you deaf. Lane changes stay
+            // live through the stumble so a player can still steer out of the next
+            // obstacle — that is the difference between "I got hit" and "the game
+            // stopped listening". Jump and crouch wait for the freeze to lift, but the
+            // input buffer keeps them warm so a flick during the freeze still lands.
             int laneDelta = _input.ConsumeLaneDelta();
             if (laneDelta != 0)
                 ChangeLane(laneDelta);
+
+            bool locked = _state == SkateState.SoftHit || _inputFreezeTimer > 0f;
+            if (locked)
+                return;
 
             if (_input.ConsumeJump())
                 TryJump();
@@ -257,17 +269,36 @@ namespace CoastRun
         {
             int prev = _lane;
             _lane = Mathf.Clamp(_lane + direction, -1, 1);
-            if (_lane != prev)
-                OnLaneChanged?.Invoke(_lane - prev);
+            if (_lane == prev)
+                return;
+
+            // Start the ease from wherever we actually are, so a second flick mid-move
+            // does not snap back and restart — it just bends toward the new lane.
+            _laneFrom = _lateral;
+            _laneT = 0f;
+            OnLaneChanged?.Invoke(_lane - prev);
         }
 
         private void TryJump()
         {
-            if (!IsGrounded || _state == SkateState.Crouch)
+            // Coyote time: a jump issued just after the wheels leave the ground still
+            // counts. Without it, a jump at the lip of anything reads as ignored.
+            bool canJump = IsGrounded || _coyoteTimer > 0f;
+            if (!canJump)
                 return;
+
+            // Jumping out of a crouch is allowed — it is the natural way to cancel a duck
+            // when the next obstacle is a low one. Stand up first so the capsule and
+            // visuals agree.
+            if (_state == SkateState.Crouch)
+            {
+                _bodyHeight = config.standHeight;
+                _crouchTimer = 0f;
+            }
 
             _verticalVelocity = config.jumpForce;
             _state = SkateState.Air;
+            _coyoteTimer = 0f;
             OnJumped?.Invoke();
         }
 
@@ -276,8 +307,12 @@ namespace CoastRun
             if (!IsGrounded)
                 return;
 
+            // A tap ducks for just long enough to clear an overhead bar. Holding the
+            // finger down keeps extending it via HoldCrouch. The old fixed 0.9 s pinned
+            // the player for ~16 m at top speed with no way out — now a jump cancels it
+            // (TryJump) and a lane flick still steers through it (HandleInput).
             _state = SkateState.Crouch;
-            _crouchTimer = config.crouchDuration;
+            _crouchTimer = Mathf.Min(config.crouchDuration, 0.4f);
             _bodyHeight = config.crouchHeight;
         }
 
@@ -335,10 +370,21 @@ namespace CoastRun
             float step = _speed * Time.deltaTime;
             _pathDistance += step;
 
+            // Ease into the lane instead of sliding at constant speed. A constant-rate
+            // MoveTowards reads as a conveyor belt; an ease-out reads as a body leaning.
             float laneTarget = _lane * config.laneOffset;
-            float laneSpeed = config.laneOffset / Mathf.Max(0.05f, config.laneChangeSeconds);
-            _lateral = Mathf.MoveTowards(_lateral, laneTarget, laneSpeed * Time.deltaTime);
+            if (_laneT < 1f)
+            {
+                _laneT = Mathf.Min(1f, _laneT + Time.deltaTime / Mathf.Max(0.05f, config.laneChangeSeconds));
+                float e = 1f - (1f - _laneT) * (1f - _laneT) * (1f - _laneT);   // ease-out cubic
+                _lateral = Mathf.Lerp(_laneFrom, laneTarget, e);
+            }
+            else
+            {
+                _lateral = laneTarget;
+            }
 
+            bool wasGrounded = _state != SkateState.Air;
             _verticalVelocity += config.gravity * Time.deltaTime;
             _hop += _verticalVelocity * Time.deltaTime;
             float minHop = _groundY + _bodyHeight * 0.5f;
@@ -352,6 +398,16 @@ namespace CoastRun
                     _state = SkateState.Run;
                     OnLanded?.Invoke();
                 }
+                _coyoteTimer = 0.1f;
+            }
+            else if (wasGrounded && _state != SkateState.Air)
+            {
+                // Left the ground without jumping (a drop) — open the grace window.
+                _coyoteTimer -= Time.deltaTime;
+            }
+            else
+            {
+                _coyoteTimer = Mathf.Max(0f, _coyoteTimer - Time.deltaTime);
             }
 
             ApplyPathPose();
