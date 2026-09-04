@@ -33,35 +33,49 @@ namespace CoastRun
             return root;
         }
 
+        private static Material _roadMat;
+
+        /// One shared flagstone material for every segment — the old code made a new
+        /// material (and re-registered a UV scroller) per tile, which leaked forever.
+        private static Material RoadMaterial()
+        {
+            if (_roadMat != null)
+                return _roadMat;
+            _roadMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
+            var tex = RoadTextureGenerator.Flagstone();
+            // Whole repeats per 30 m tile so the stone pattern is seamless across segments.
+            // Not registered with RoadUvScroller: the world already moves past the camera,
+            // and a scrolling texture on moving geometry makes the stones slide.
+            if (_roadMat.HasProperty("_BaseMap"))
+            {
+                _roadMat.SetTexture("_BaseMap", tex);
+                _roadMat.SetTextureScale("_BaseMap", new Vector2(2f, 8f));
+            }
+            else
+            {
+                _roadMat.mainTexture = tex;
+                _roadMat.mainTextureScale = new Vector2(2f, 8f);
+            }
+            return _roadMat;
+        }
+
         private static void BuildRoad(Transform root, int index)
         {
-            Material roadMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
-            Texture2D roadTex = ArtAssets.LoadTexture("Road_Promenade");
-            if (roadTex != null)
-            {
-                if (roadMat.HasProperty("_BaseMap"))
-                {
-                    roadMat.SetTexture("_BaseMap", roadTex);
-                    roadMat.SetTextureScale("_BaseMap", new Vector2(1.2f, 10f));
-                }
-                else
-                {
-                    roadMat.mainTexture = roadTex;
-                    roadMat.mainTextureScale = new Vector2(1.2f, 10f);
-                }
-            }
-
-            RoadUvScroller.Register(roadMat);
-
+            // Cream flagstone promenade with inlaid lane guides — the "cosy seaside
+            // pavement" from the reference boards, not grey asphalt with a yellow dash.
             CreateBox(root, "Road", new Vector3(0f, -0.04f, Length * 0.5f),
-                new Vector3(RoadHalfWidth * 2f, 0.08f, Length), () => CoastPalette.Road, roadMat);
+                new Vector3(RoadHalfWidth * 2f, 0.08f, Length), () => CoastPalette.Road, RoadMaterial());
 
-            for (float z = 1.2f; z < Length; z += 3.2f)
+            // Lane guides sit on the lane *boundaries* (lanes are 2.2 m apart), so on a
+            // curve the player still reads three lanes at a glance.
+            for (int side = -1; side <= 1; side += 2)
             {
-                CreateBox(root, "CentreDash", new Vector3(0f, 0.01f, z),
-                    new Vector3(0.14f, 0.02f, 1.6f), () => CoastPalette.RoadLine);
+                CreateBox(root, "LaneGuide", new Vector3(side * 1.1f, 0.005f, Length * 0.5f),
+                    new Vector3(0.09f, 0.012f, Length),
+                    () => Color.Lerp(CoastPalette.Road, CoastPalette.RoadGrey, 0.45f));
             }
 
+            // Terracotta curbs and a warm sidewalk on the town side.
             CreateBox(root, "CurbL", new Vector3(-RoadHalfWidth - 0.12f, 0.08f, Length * 0.5f),
                 new Vector3(0.28f, 0.18f, Length), () => CoastPalette.Curb);
             CreateBox(root, "CurbR", new Vector3(RoadHalfWidth + 0.12f, 0.08f, Length * 0.5f),
@@ -73,6 +87,73 @@ namespace CoastRun
             CreateBox(root, "Deck", new Vector3(0f, -0.55f, Length * 0.5f),
                 new Vector3(RoadHalfWidth * 2f + 3.6f, 0.9f, Length),
                 () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.TownCream, 0.2f));
+
+            BuildRoadDetails(root, index);
+        }
+
+        /// Small regular touches that make a road feel lived-in: a zebra crossing every
+        /// few tiles, a manhole now and then, lamps at a fixed rhythm, planters between.
+        private static void BuildRoadDetails(Transform root, int index)
+        {
+            var rng = new System.Random(index * 7331 + 11);
+
+            if (index % 5 == 2)
+            {
+                var cross = CreateBox(root, "Crosswalk", new Vector3(0f, 0.004f, Length * 0.5f),
+                    new Vector3(RoadHalfWidth * 2f - 0.3f, 0.01f, 2.6f), () => Color.white);
+                var mat = CoastMaterials.CreateTransparent(new Color(1f, 1f, 1f, 0.9f));
+                mat.SetTexture("_BaseMap", RoadTextureGenerator.Crosswalk());
+                mat.SetTextureScale("_BaseMap", new Vector2(4f, 1f));
+                cross.GetComponent<Renderer>().sharedMaterial = mat;
+            }
+
+            if (rng.NextDouble() < 0.4)
+            {
+                int lane = rng.Next(3) - 1;
+                float z = 4f + (float)rng.NextDouble() * (Length - 8f);
+                var lid = CreateCylinder(root, "Manhole", new Vector3(lane * 2.2f, 0.006f, z), 0.45f, 0.012f,
+                    () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.Road, 0.35f));
+                lid.transform.localRotation = Quaternion.identity;
+            }
+
+            // Street lamps every 15 m at the sidewalk edge, warm heads; planters between.
+            float lampX = -(RoadHalfWidth + 0.55f);
+            for (int i = 0; i < 2; i++)
+            {
+                float z = 7.5f + i * 15f;
+                var lamp = UprightPivot(root, "Lamp", new Vector3(lampX, 0f, z));
+                CreateBox(lamp, "Post", new Vector3(0f, 1.9f, 0f), new Vector3(0.12f, 3.8f, 0.12f), () => CoastPalette.Pole);
+                CreateBox(lamp, "Arm", new Vector3(0.3f, 3.7f, 0f), new Vector3(0.6f, 0.07f, 0.07f), () => CoastPalette.Pole);
+                CreateBox(lamp, "Head", new Vector3(0.55f, 3.55f, 0f), new Vector3(0.34f, 0.26f, 0.34f),
+                    () => Color.Lerp(CoastPalette.CoinYellow, Color.white, 0.35f));
+
+                var planter = UprightPivot(root, "Planter", new Vector3(lampX - 0.1f, 0f, z + 7.5f));
+                CreateBox(planter, "Box", new Vector3(0f, 0.28f, 0f), new Vector3(0.8f, 0.55f, 0.5f),
+                    () => Color.Lerp(CoastPalette.AccentOrange, CoastPalette.TownCream, 0.35f));
+                CreateBox(planter, "Bloom", new Vector3(0f, 0.68f, 0f), new Vector3(0.7f, 0.3f, 0.42f),
+                    () => rng.NextDouble() < 0.5 ? CoastPalette.AccentOrange : Color.Lerp(CoastPalette.SeaTeal, Color.white, 0.3f));
+            }
+
+            // Short bollards on the sea side between the wooden posts.
+            float bollardX = RoadHalfWidth + 0.35f;
+            for (float z = 3.5f; z < Length; z += 6f)
+            {
+                CreateCylinder(root, "Bollard", new Vector3(bollardX, 0f, z), 0.09f, 0.55f,
+                    () => Color.Lerp(CoastPalette.TownCream, Color.white, 0.4f));
+            }
+        }
+
+        private static GameObject CreateCylinder(Transform parent, string name, Vector3 localPos, float radius,
+            float height, System.Func<Color> color)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            go.name = name;
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos + new Vector3(0f, height * 0.5f, 0f);
+            go.transform.localScale = new Vector3(radius * 2f, height * 0.5f, radius * 2f);
+            go.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(color);
+            CoastEditUtil.DestroyCollider(go);
+            return go;
         }
 
         private static void BuildTownSide(Transform root, int index)

@@ -58,10 +58,12 @@ namespace CoastRun
         public static Color CloudLight => Color.Lerp(TownCream, Color.white, 0.55f);
         public static Color CloudShadow => Color.Lerp(SkyBlue, RoadGrey, 0.35f);
 
-        public static Color Road => RoadGrey;
+        // Promenade surface is cream flagstone (texture supplies the tan variation), with
+        // terracotta curbs — the seaside-town read from the reference boards.
+        public static Color Road => Color.Lerp(TownCream, Color.white, 0.35f);
         public static Color RoadLine => CoinYellow;
-        public static Color Curb => Color.Lerp(TownCream, RoadGrey, 0.25f);
-        public static Color Sidewalk => Color.Lerp(TownCream, RoadGrey, 0.4f);
+        public static Color Curb => Color.Lerp(AccentOrange, TownCream, 0.55f);
+        public static Color Sidewalk => Color.Lerp(TownCream, RoadGrey, 0.25f);
 
         public static Color BuildingWarm => TownCream;
         public static Color BuildingCool => Color.Lerp(TownCream, SkyBlue, 0.28f);
