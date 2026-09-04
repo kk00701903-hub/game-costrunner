@@ -291,7 +291,7 @@ namespace CoastRun
                 clip = ProceduralAudio.CreateLoop(def.isTwistCut ? 98f : 160f, 0.04f, 6f);
             bgmSource.clip = clip;
             bgmSource.loop = !real;          // a composed cue plays once, to picture
-            bgmSource.volume = real ? 0.7f : 0.45f;
+            bgmSource.volume = real ? 0.85f : 0.45f;
             bgmSource.Play();
         }
 

@@ -37,7 +37,7 @@ namespace CoastRun
         private readonly AudioSource[] _stems = new AudioSource[4];
         private readonly float[] _stemTarget = new float[4];
         private int _bgmChapter = -1;
-        private const float StemVolume = 0.55f;
+        private const float StemVolume = 0.9f;   // music leads; the procedural bed ducks under it
 
         private struct BedStemSnapshot
         {
@@ -392,10 +392,10 @@ namespace CoastRun
             // Keep loops alive — never Pause/Stop ambient here.
             float speed = player.NormalizedSpeed;
             // Real music present → the procedural ambient bed steps back.
-            float bedScale = _runBgm != null && _runBgm.clip != null ? 0.35f : 1f;
+            float bedScale = _runBgm != null && _runBgm.clip != null ? 0.15f : 1f;
             if (_wheel != null && !_bedMuted)
             {
-                _wheel.volume = Mathf.Lerp(0.02f, 0.28f, speed);
+                _wheel.volume = Mathf.Lerp(0.02f, 0.28f, speed) * (_runBgm != null && _runBgm.clip != null ? 0.5f : 1f);
                 _wheel.pitch = Mathf.Lerp(0.85f, 1.35f, speed);
             }
 
