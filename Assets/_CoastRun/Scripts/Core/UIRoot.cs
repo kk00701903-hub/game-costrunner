@@ -31,8 +31,11 @@ namespace CoastRun
             _veil.color = Color.black;
             _veil.raycastTarget = true;
             _veilCg = veilGo.GetComponent<CanvasGroup>();
-            _veilCg.alpha = 1f;
-            _veilCg.blocksRaycasts = true;
+            // Starts clear. SceneFlowController.BootRoutine snaps to black on its first
+            // line, so the boot path is unchanged, but a scene played on its own is no
+            // longer stuck behind an opaque veil nobody is around to lift.
+            _veilCg.alpha = 0f;
+            _veilCg.blocksRaycasts = false;
 
             var dotGo = new GameObject("LoaderDot", typeof(RectTransform), typeof(Image));
             dotGo.transform.SetParent(veilGo.transform, false);
