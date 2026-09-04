@@ -48,7 +48,11 @@ namespace CoastRun
                 maxLevel = 45,
                 baseCost = 40,
                 costGrowth = 1.4f,
-                baseValue = 0f,
+                // A base radius, not zero: the curved-bezier magnet pull in CoinPickup is
+                // the best-feeling piece of feedback in the run, and at radius 0 a new
+                // player never sees it. 1.4 m is one lane's worth of reach — coins in the
+                // next lane over drift in, coins two lanes away do not. Upgrades widen it.
+                baseValue = 1.4f,
                 perLevel = 0.32f,
                 multiplicative = false
             }
