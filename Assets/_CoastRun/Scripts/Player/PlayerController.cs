@@ -152,7 +152,14 @@ namespace CoastRun
             col.isTrigger = false;
             col.radius = 0.32f;
             col.height = 1.5f;
-            col.center = new Vector3(0f, 0.85f, 0f);
+
+            // The transform already sits at the body's mid-height: _hop starts at
+            // _groundY + _bodyHeight * 0.5 = 0.8. Offsetting the capsule by another 0.85
+            // lifted its base to world y 0.90, while every ground obstacle's HardHit tops
+            // out at 0.645 (localPosition 0.32 + height 0.65 / 2). The two never touched,
+            // so ten of the twelve obstacle types were scenery and only the overhead duck
+            // hazards could actually hit. Keep this at zero — the offset belongs to _hop.
+            col.center = Vector3.zero;
             _bodyCollider = col;
         }
 
@@ -301,16 +308,24 @@ namespace CoastRun
             if (_bodyCollider == null)
                 return;
 
+            // The transform is already at the body's mid-height (_hop), so the capsule
+            // centre belongs at zero. It used to be pushed up another 0.85 every frame,
+            // which lifted the collider base to world y 0.90 — above the 0.645 top of
+            // every ground obstacle. Ten of the twelve obstacle types could not touch the
+            // player at all; only the overhead duck hazards ever registered a hit.
+            //
+            // Crouching drops the capsule instead of shrinking it in place, so ducking
+            // actually moves the body under an overhead bar.
             if (_state == SkateState.Crouch)
             {
                 _bodyCollider.height = 0.7f;
-                _bodyCollider.center = new Vector3(0f, 0.38f, 0f);
+                _bodyCollider.center = new Vector3(0f, -0.40f, 0f);
                 _bodyCollider.radius = 0.3f;
             }
             else
             {
                 _bodyCollider.height = 1.5f;
-                _bodyCollider.center = new Vector3(0f, 0.85f, 0f);
+                _bodyCollider.center = Vector3.zero;
                 _bodyCollider.radius = 0.32f;
             }
         }
