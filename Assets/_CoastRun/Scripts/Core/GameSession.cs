@@ -17,6 +17,7 @@ namespace CoastRun
         [SerializeField] private CoinWallet wallet;
         [SerializeField] private UpgradeManager upgrades;
         [SerializeField] private NearMissSystem nearMiss;
+        [SerializeField] private StageRunStats runStats;
         [SerializeField] private ObstacleSpawner obstacles;
         [SerializeField] private CoinSpawner coins;
         [SerializeField] private DestinationGate destination;
@@ -114,6 +115,8 @@ namespace CoastRun
                 upgrades = gameObject.GetComponent<UpgradeManager>() ?? gameObject.AddComponent<UpgradeManager>();
             if (nearMiss == null)
                 nearMiss = gameObject.GetComponent<NearMissSystem>() ?? gameObject.AddComponent<NearMissSystem>();
+            if (runStats == null)
+                runStats = gameObject.GetComponent<StageRunStats>() ?? gameObject.AddComponent<StageRunStats>();
             if (feedback == null)
                 feedback = gameObject.GetComponent<UI_FeedbackController>() ?? gameObject.AddComponent<UI_FeedbackController>();
             if (obstacles == null)
@@ -177,6 +180,8 @@ namespace CoastRun
             feedback.BuildRuntime(wallet);
             upgrades.Bind(CoastConfigRegistry.UpgradeConfig, wallet, feedback);
             nearMiss.Bind(wallet, upgrades, feedback);
+            nearMiss.OnNearMissRewarded -= HandleNearMissTally;
+            nearMiss.OnNearMissRewarded += HandleNearMissTally;
             weatherFx.Bind(player != null ? player.transform : transform);
             seasonWeather.Bind(player, dayCycle, weatherFx);
 
@@ -245,6 +250,7 @@ namespace CoastRun
 
         private void HandleStageStart(StageDef stage)
         {
+            runStats?.BeginStage();
             seasonWeather?.SetChapterTheme(stage.chapterIndex);
             IsRunning = true;
             if (input != null)
@@ -253,8 +259,14 @@ namespace CoastRun
                 player.enabled = true;
         }
 
+        private void HandleNearMissTally(int reward, int combo, Vector3 _)
+        {
+            runStats?.NotifyNearMiss(reward, combo);
+        }
+
         private void HandleStageClear(StageDef stage)
         {
+            runStats?.EndStage();
             IsRunning = false;
             if (input != null)
                 input.enabled = false;

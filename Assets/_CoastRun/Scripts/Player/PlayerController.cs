@@ -393,6 +393,8 @@ namespace CoastRun
         /// Camera / SFX juice is owned by JuiceDirector (subscribed to OnSoftHit).
         public void SoftHit()
         {
+            StageRunStats.Instance?.NotifySoftHit();
+
             if (_state == SkateState.Finish)
                 return;
 

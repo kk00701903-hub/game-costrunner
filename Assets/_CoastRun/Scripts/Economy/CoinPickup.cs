@@ -141,6 +141,7 @@ namespace CoastRun
             float mult = _upgrades != null ? _upgrades.GetCoinMultiplier() : 1f;
             int amount = Mathf.Max(1, Mathf.RoundToInt(value * mult));
             _wallet?.Add(amount);
+            StageRunStats.Instance?.NotifyCoin(amount);
             _feedback?.ShowFloatingReward(transform.position + Vector3.up * 0.6f, amount, 1);
 
             var juice = JuiceDirector.Instance;

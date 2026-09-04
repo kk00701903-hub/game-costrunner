@@ -9,6 +9,10 @@ namespace CoastRun
         public static readonly Color BarColor = new Color(0.07f, 0.16f, 0.30f, 0.86f);
         public static readonly Color AccentCyan = new Color(0.35f, 0.82f, 0.95f, 1f);
 
+        /// Chapter-complete and combo accents — the warm side of the palette, so a
+        /// chapter ending reads differently from a plain stage clear.
+        public static readonly Color AccentWarm = new Color(0.98f, 0.72f, 0.38f, 1f);
+
         public static RectTransform EnsureTopBar(Canvas canvas)
         {
             var root = CoastUiCanvas.Root(canvas);
