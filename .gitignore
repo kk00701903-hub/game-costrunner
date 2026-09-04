@@ -37,9 +37,12 @@ Dist/
 # Kling asset generation output
 Tools/KlingGen/out/
 
-# ACE-Step BGM generation scratch (candidates + Demucs splits + run logs)
+# ACE-Step BGM generation scratch (candidates + Demucs splits + run logs).
+# masters/ holds the lossless WAV the shipped .ogg was encoded from — kept on
+# disk, kept out of git: 425 MB of WAV against 41 MB of Vorbis.
 Tools/AceStepGen/takes/
 Tools/AceStepGen/demucs_out/
+Tools/AceStepGen/masters/
 Tools/AceStepGen/*_log.txt
 Tools/AceStepGen/env_probe.txt
 Tools/AceStepGen/install_done.txt
