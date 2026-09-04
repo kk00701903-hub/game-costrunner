@@ -35,8 +35,6 @@ namespace CoastRun
         private RectTransform _cheerRt;
         private Text _monologueLabel;
         private CanvasGroup _monologueCg;
-        private Text _scoreLabel;
-        private Text _comboLabel;
         private CanvasGroup _scoreCg;
         private CanvasGroup _comboCg;
         private CanvasGroup _coinCg;
@@ -78,7 +76,17 @@ namespace CoastRun
             BuildUi();
             feedback?.StripRunChrome();
             if (feedback != null)
+            {
                 _coinCg = feedback.CoinCanvasGroup;
+                // Score / combo now live in the Subway-Surfers-style pills; the CH5
+                // strip schedule fades those groups instead of private labels.
+                if (feedback.Chrome != null)
+                {
+                    _scoreCg = feedback.Chrome.ScoreGroup;
+                    _comboCg = feedback.Chrome.ComboGroup;
+                    _coinCg = feedback.Chrome.CoinGroup;
+                }
+            }
 
             if (nearMiss != null)
             {
@@ -254,11 +262,6 @@ namespace CoastRun
             }
 
             UpdateCheerFollow();
-
-            if (_scoreLabel != null)
-                _scoreLabel.text = _score > 0 ? _score.ToString() : "";
-            if (_comboLabel != null)
-                _comboLabel.text = _lastCombo >= 2 ? "x" + _lastCombo : "";
         }
 
         private void UpdateCheerFollow()
@@ -398,7 +401,6 @@ namespace CoastRun
 
             BuildProgressBar();
             BuildTimer();
-            BuildScoreCombo();
             BuildCheer();
             BuildMonologue();
             BuildRemainingDistance();
@@ -409,11 +411,12 @@ namespace CoastRun
             var wrap = new GameObject("ProgressWrap", typeof(RectTransform), typeof(CanvasGroup));
             wrap.transform.SetParent(_root, false);
             var wrt = wrap.GetComponent<RectTransform>();
-            wrt.anchorMin = new Vector2(0.18f, 1f);
-            wrt.anchorMax = new Vector2(0.82f, 1f);
+            // Below the pause / score / coin row so the top corners stay clean.
+            wrt.anchorMin = new Vector2(0.10f, 1f);
+            wrt.anchorMax = new Vector2(0.90f, 1f);
             wrt.pivot = new Vector2(0.5f, 1f);
-            wrt.anchoredPosition = new Vector2(0f, -18f);
-            wrt.sizeDelta = new Vector2(0f, 48f);
+            wrt.anchoredPosition = new Vector2(0f, -138f);
+            wrt.sizeDelta = new Vector2(0f, 40f);
             _progressCg = wrap.GetComponent<CanvasGroup>();
 
             var start = MakeText(wrap.transform, "Start", "◀", 14,
@@ -466,57 +469,20 @@ namespace CoastRun
             var go = new GameObject("DDay", typeof(RectTransform), typeof(CanvasGroup));
             go.transform.SetParent(_root, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(1f, 1f);
-            rt.anchorMax = new Vector2(1f, 1f);
-            rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(-16f, -16f);
-            rt.sizeDelta = new Vector2(220f, 36f);
+            rt.anchorMin = new Vector2(0.5f, 1f);
+            rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.anchoredPosition = new Vector2(0f, -176f);
+            rt.sizeDelta = new Vector2(260f, 28f);
             _timerCg = go.GetComponent<CanvasGroup>();
             _timerLabel = go.AddComponent<Text>();
             _timerLabel.font = CoastHudLayout.Font();
             _timerLabel.fontSize = 16;
             _timerLabel.fontStyle = FontStyle.Bold;
-            _timerLabel.alignment = TextAnchor.MiddleRight;
+            _timerLabel.alignment = TextAnchor.MiddleCenter;
             _timerLabel.color = new Color(0.9f, 0.95f, 1f);
             _timerLabel.raycastTarget = false;
             _timerLabel.text = "노을까지  --:--";
-        }
-
-        private void BuildScoreCombo()
-        {
-            var scoreGo = new GameObject("Score", typeof(RectTransform), typeof(CanvasGroup));
-            scoreGo.transform.SetParent(_root, false);
-            var srt = scoreGo.GetComponent<RectTransform>();
-            srt.anchorMin = new Vector2(0.5f, 1f);
-            srt.anchorMax = new Vector2(0.5f, 1f);
-            srt.pivot = new Vector2(0.5f, 1f);
-            srt.anchoredPosition = new Vector2(0f, -68f);
-            srt.sizeDelta = new Vector2(160f, 28f);
-            _scoreCg = scoreGo.GetComponent<CanvasGroup>();
-            _scoreLabel = scoreGo.AddComponent<Text>();
-            _scoreLabel.font = CoastHudLayout.Font();
-            _scoreLabel.fontSize = 20;
-            _scoreLabel.fontStyle = FontStyle.Bold;
-            _scoreLabel.alignment = TextAnchor.MiddleCenter;
-            _scoreLabel.color = new Color(1f, 0.92f, 0.55f, 0.85f);
-            _scoreLabel.raycastTarget = false;
-
-            var comboGo = new GameObject("Combo", typeof(RectTransform), typeof(CanvasGroup));
-            comboGo.transform.SetParent(_root, false);
-            var crt = comboGo.GetComponent<RectTransform>();
-            crt.anchorMin = new Vector2(0.5f, 1f);
-            crt.anchorMax = new Vector2(0.5f, 1f);
-            crt.pivot = new Vector2(0.5f, 1f);
-            crt.anchoredPosition = new Vector2(90f, -68f);
-            crt.sizeDelta = new Vector2(80f, 28f);
-            _comboCg = comboGo.GetComponent<CanvasGroup>();
-            _comboLabel = comboGo.AddComponent<Text>();
-            _comboLabel.font = CoastHudLayout.Font();
-            _comboLabel.fontSize = 18;
-            _comboLabel.fontStyle = FontStyle.Bold;
-            _comboLabel.alignment = TextAnchor.MiddleLeft;
-            _comboLabel.color = new Color(0.55f, 1f, 0.75f, 0.9f);
-            _comboLabel.raycastTarget = false;
         }
 
         private void BuildCheer()

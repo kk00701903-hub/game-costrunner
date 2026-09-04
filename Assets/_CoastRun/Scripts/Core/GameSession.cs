@@ -182,6 +182,7 @@ namespace CoastRun
             nearMiss.Bind(wallet, upgrades, feedback);
             nearMiss.OnNearMissRewarded -= HandleNearMissTally;
             nearMiss.OnNearMissRewarded += HandleNearMissTally;
+            feedback.BuildChrome(player, nearMiss);
             weatherFx.Bind(player != null ? player.transform : transform);
             seasonWeather.Bind(player, dayCycle, weatherFx);
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CoastRun
 {
@@ -177,6 +178,63 @@ namespace CoastRun
             if (tex == null)
                 return null;
             return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), ppu);
+        }
+
+        private static readonly System.Collections.Generic.Dictionary<string, Sprite> RoundedCache =
+            new System.Collections.Generic.Dictionary<string, Sprite>();
+
+        /// 9-sliced rounded rectangle for the Subway-Surfers-style pills and buttons: white
+        /// fill with an optional border, tinted through Image.color at use. Cached per shape.
+        public static Sprite RoundedRect(int radius, int border = 0)
+        {
+            radius = Mathf.Clamp(radius, 2, 60);
+            border = Mathf.Clamp(border, 0, radius - 1);
+            string key = radius + ":" + border;
+            if (RoundedCache.TryGetValue(key, out var cached) && cached != null)
+                return cached;
+
+            int s = radius * 2 + 4;
+            var tex = new Texture2D(s, s, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Bilinear;
+            tex.wrapMode = TextureWrapMode.Clamp;
+            var clear = new Color(1f, 1f, 1f, 0f);
+            var fill = Color.white;
+            var edge = new Color(1f, 1f, 1f, 0.35f);
+
+            for (int y = 0; y < s; y++)
+            {
+                for (int x = 0; x < s; x++)
+                {
+                    // Distance from the nearest corner centre, only inside corner squares.
+                    float cx = x < radius ? radius - 0.5f : (x >= s - radius ? s - radius - 0.5f : x);
+                    float cy = y < radius ? radius - 0.5f : (y >= s - radius ? s - radius - 0.5f : y);
+                    float d = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                    float a = Mathf.Clamp01(radius - d + 0.5f);          // anti-aliased edge
+                    bool inBorder = border > 0 && d > radius - border - 0.5f;
+                    Color c = inBorder ? edge : fill;
+                    c.a *= a;
+                    tex.SetPixel(x, y, a <= 0f ? clear : c);
+                }
+            }
+
+            tex.Apply();
+            var sprite = Sprite.Create(tex, new Rect(0f, 0f, s, s), new Vector2(0.5f, 0.5f), 100f, 0,
+                SpriteMeshType.FullRect, new Vector4(radius, radius, radius, radius));
+            RoundedCache[key] = sprite;
+            return sprite;
+        }
+
+        /// Filled rounded panel helper used by the run HUD and title screen.
+        public static Image Panel(Transform parent, string name, Color color, int radius = 18)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var img = go.GetComponent<Image>();
+            img.sprite = RoundedRect(radius);
+            img.type = Image.Type.Sliced;
+            img.color = color;
+            img.raycastTarget = false;
+            return img;
         }
     }
 }

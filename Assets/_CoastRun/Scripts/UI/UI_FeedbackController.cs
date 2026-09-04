@@ -326,6 +326,28 @@ namespace CoastRun
             RefreshCoinHud();
         }
 
+        /// Subway-Surfers-style top row (pause / score / coins). Owned by GameSession, but
+        /// it lives on the HUD canvas this controller creates, so it is built here.
+        public RunHudChrome Chrome { get; private set; }
+
+        public RunHudChrome BuildChrome(PlayerController player, NearMissSystem nearMiss)
+        {
+            if (Chrome != null)
+                return Chrome;
+            EnsureCanvas();
+            Chrome = gameObject.GetComponent<RunHudChrome>() ?? gameObject.AddComponent<RunHudChrome>();
+            Chrome.Build(_canvas, player, _wallet, nearMiss);
+
+            // The chrome's coin pill replaces the old top-left counter; keep the
+            // StageClear count-up hooks (SetDisplayedCoins) pointed at the live label.
+            if (_coinHudRoot != null)
+                _coinHudRoot.SetActive(false);
+            coinHud = Chrome.CoinText;
+            _coinCg = Chrome.CoinGroup;
+            RefreshCoinHud();
+            return Chrome;
+        }
+
         private void OnDestroy()
         {
             if (_wallet != null)
