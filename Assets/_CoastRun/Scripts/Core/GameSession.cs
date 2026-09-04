@@ -412,7 +412,13 @@ namespace CoastRun
                 var go = GameObject.Find(name);
                 if (go == null)
                     continue;
-                var cg = go.GetComponent<CanvasGroup>() ?? go.AddComponent<CanvasGroup>();
+                // `??` never fires on a destroyed/missing UnityEngine.Object (fake null),
+                // so the prologue handoff threw MissingComponentException on the HUD.
+                var cg = go.GetComponent<CanvasGroup>();
+                if (cg == null)
+                    cg = go.AddComponent<CanvasGroup>();
+                if (cg == null)   // HUD from a scene mid-unload: nothing to fade
+                    continue;
                 cg.alpha = alpha;
                 cg.blocksRaycasts = alpha > 0.5f;
             }
@@ -426,7 +432,11 @@ namespace CoastRun
                 var go = GameObject.Find(name);
                 if (go == null)
                     continue;
-                groups.Add(go.GetComponent<CanvasGroup>() ?? go.AddComponent<CanvasGroup>());
+                var cg = go.GetComponent<CanvasGroup>();
+                if (cg == null)
+                    cg = go.AddComponent<CanvasGroup>();
+                if (cg != null)
+                    groups.Add(cg);
             }
 
             float t = 0f;
