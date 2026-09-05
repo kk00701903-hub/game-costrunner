@@ -177,7 +177,16 @@ def compose_pose(name, out_name, target_h_frac=0.89, feet_from_bottom=40, canvas
     fm = fm.resize((nw, nh), Image.LANCZOS)
     # clean key: replace anything outside the figure with pure magenta, and
     # de-fringe by pulling the mask in by ~1px so no pink halo survives.
-    fm = fm.filter(ImageFilter.MinFilter(3))
+    fm = fm.filter(ImageFilter.MinFilter(5))
+    # Un-blend the key from the remaining edge texels: where a pixel still leans
+    # pink (r,b well above g) pull it toward its non-pink neighbour colour.
+    fa = np.asarray(fig).astype(np.float32)
+    r, g, b = fa[..., 0], fa[..., 1], fa[..., 2]
+    pink = ((r - g) > 70) & ((b - g) > 55)
+    if pink.any():
+        blurred = np.asarray(fig.filter(ImageFilter.MedianFilter(7))).astype(np.float32)
+        fa[pink] = blurred[pink]
+        fig = Image.fromarray(np.clip(fa, 0, 255).astype(np.uint8))
     bg = Image.new("RGB", canvas, (255, 0, 255))
     px = (cw - nw) // 2
     py = ch - feet_from_bottom - nh

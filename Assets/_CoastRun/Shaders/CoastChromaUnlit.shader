@@ -45,7 +45,11 @@ Shader "CoastRun/ChromaUnlit"
             {
                 half4 c = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _BaseColor;
                 half d = distance(c.rgb, _KeyColor.rgb);
-                if (d < _Cutoff || (c.r > 0.75 && c.g < 0.35 && c.b > 0.75))
+                // Also drop anti-aliased edge texels that are part figure, part key:
+                // anything clearly pink-purple (red and blue both well above green)
+                // is a key blend — the palette has no such colour of its own.
+                if (d < _Cutoff || (c.r > 0.75 && c.g < 0.35 && c.b > 0.75)
+                    || (c.r > c.g + 0.30 && c.b > c.g + 0.22))
                     clip(-1);
                 // Flat "lit" sprite: every 3D thing on screen is toon-lit (sun × ramp,
                 // well above albedo) and then tonemapped, so raw albedo read as a
