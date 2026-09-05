@@ -39,6 +39,8 @@ namespace CoastRun
             var shader = Shader.Find("CoastRun/ChromaUnlit") ?? CoastMaterials.UnlitShader;
             var mat = new Material(shader);
             if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", tex); else mat.mainTexture = tex;
+            // 하트처럼 분홍이 본체인 스프라이트는 핑크 에지 제거를 끈다(키 거리만으로 자른다).
+            if (mat.HasProperty("_PinkKill") && key == "Heart") mat.SetFloat("_PinkKill", 0f);
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
             if (mat.HasProperty("_KeyColor")) mat.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
             var mr = quad.GetComponent<Renderer>();

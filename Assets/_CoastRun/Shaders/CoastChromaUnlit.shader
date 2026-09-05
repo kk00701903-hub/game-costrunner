@@ -6,6 +6,7 @@ Shader "CoastRun/ChromaUnlit"
         _BaseColor ("Color", Color) = (1,1,1,1)
         _KeyColor ("Chroma Key", Color) = (1,0,1,1)
         _Cutoff ("Key Cutoff", Range(0,1)) = 0.38
+        _PinkKill ("Pink Kill (0 = keep pinks, e.g. hearts)", Float) = 1
     }
     SubShader
     {
@@ -28,6 +29,7 @@ Shader "CoastRun/ChromaUnlit"
             float4 _BaseMap_ST;
             float4 _BaseColor;
             float4 _KeyColor;
+            float _PinkKill;
             float _Cutoff;
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
@@ -48,8 +50,8 @@ Shader "CoastRun/ChromaUnlit"
                 // Also drop anti-aliased edge texels that are part figure, part key:
                 // anything clearly pink-purple (red and blue both well above green)
                 // is a key blend — the palette has no such colour of its own.
-                if (d < _Cutoff || (c.r > 0.75 && c.g < 0.35 && c.b > 0.75)
-                    || (c.r > c.g + 0.30 && c.b > c.g + 0.22))
+                bool pinkEdge = (c.r > 0.75 && c.g < 0.35 && c.b > 0.75) || (c.r > c.g + 0.30 && c.b > c.g + 0.22);
+                if (d < _Cutoff || (_PinkKill > 0.5 && pinkEdge))
                     clip(-1);
                 // Flat "lit" sprite: every 3D thing on screen is toon-lit (sun × ramp,
                 // well above albedo) and then tonemapped, so raw albedo read as a
