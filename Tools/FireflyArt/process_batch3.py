@@ -160,7 +160,7 @@ def figure_mask(im):
     return ~((d_key < 90) | pinkish)
 
 
-def compose_pose(name, out_name, target_h_frac=0.89, feet_from_bottom=40, canvas=(1024, 1536)):
+def compose_pose(name, out_name, target_h_frac=0.89, feet_from_bottom=40, canvas=(1024, 1536), fixed_scale=None):
     im = load(name)
     m = figure_mask(im)
     # remove flecks
@@ -172,6 +172,8 @@ def compose_pose(name, out_name, target_h_frac=0.89, feet_from_bottom=40, canvas
     scale = (ch * target_h_frac) / fig.size[1]
     if fig.size[0] * scale > cw * 0.96:
         scale = cw * 0.96 / fig.size[0]
+    if fixed_scale is not None:
+        scale = fixed_scale
     nw, nh = int(fig.size[0] * scale), int(fig.size[1] * scale)
     fig = fig.resize((nw, nh), Image.LANCZOS)
     fm = fm.resize((nw, nh), Image.LANCZOS)
@@ -192,6 +194,7 @@ def compose_pose(name, out_name, target_h_frac=0.89, feet_from_bottom=40, canvas
     py = ch - feet_from_bottom - nh
     bg.paste(fig, (px, py), fm)
     save(bg, out_name)
+    return scale
 
 
 compose_pose("Girl_Run_key.png", "GirlSkater_Back.png")
@@ -199,3 +202,12 @@ compose_pose("Girl_Jump_key.png", "GirlSkater_Jump.png", feet_from_bottom=150)  
 compose_pose("Girl_Crouch_key.png", "GirlSkater_Crouch.png", target_h_frac=0.70)
 compose_pose("Girl_Lean_key.png", "GirlSkater_Lean.png")
 print("done")
+
+# ── 5. Riding cycle: glide (feet on board) ↔ push (rear foot kicking) ────────
+# Both frames share the run framing so the board sits at the same height.
+if os.path.exists(os.path.join(HERE, "Girl_Glide_key.png")):
+    glide_scale = compose_pose("Girl_Glide_key.png", "GirlSkater_Back.png")
+    if os.path.exists(os.path.join(HERE, "Girl_Push_key.png")):
+        # Same pixel scale as the glide frame so the girl does not grow when the
+        # frames alternate; the crouched push pose is simply shorter.
+        compose_pose("Girl_Push_key.png", "GirlSkater_Push.png", fixed_scale=glide_scale)

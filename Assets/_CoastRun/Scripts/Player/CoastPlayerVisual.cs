@@ -27,8 +27,14 @@ namespace CoastRun
         // Painted pose sheet (Firefly): run / jump / crouch / lean. Any missing pose
         // falls back to the run sprite (and crouch to the old squash).
         private Material _billboardMat;
-        private Texture2D _poseRun, _poseJump, _poseCrouch, _poseLean;
+        private Texture2D _poseRun, _poseJump, _poseCrouch, _poseLean, _posePush;
         private Texture2D _poseCurrent;
+        // Riding cycle: glide (feet on the board) then a kick with the back foot.
+        // A push lasts ~0.3 s and comes every ~1.1 s so she reads as pushing along,
+        // not pedalling; the interval stretches a little as speed climbs.
+        private float _pushClock;
+        private const float PushEvery = 1.1f;
+        private const float PushHold = 0.32f;
         private float _lastLateral;
         private float _lateralVel;
 
@@ -99,6 +105,7 @@ namespace CoastRun
             _poseJump = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "GirlSkater_Jump");
             _poseCrouch = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "GirlSkater_Crouch");
             _poseLean = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "GirlSkater_Lean");
+            _posePush = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "GirlSkater_Push");
 
             foreach (var r in GetComponentsInChildren<Renderer>(true))
             {
@@ -359,6 +366,18 @@ namespace CoastRun
                 want = _poseLean;
                 mirror = _lateralVel > 0f;   // painted lean goes left; flip for right
             }
+            else if (_posePush != null)
+            {
+                // Grounded cruise: kick every PushEvery seconds, hold the kick frame briefly.
+                _pushClock += dt;
+                float period = PushEvery + Mathf.Clamp01(_player.Speed / 30f) * 0.5f;
+                if (_pushClock >= period)
+                    _pushClock -= period;
+                if (_pushClock < PushHold)
+                    want = _posePush;
+            }
+            if (want != _poseRun && want != _posePush)
+                _pushClock = PushHold;   // airborne/crouch/lean: resume with a glide, kick later
 
             if (want != _poseCurrent)
             {
