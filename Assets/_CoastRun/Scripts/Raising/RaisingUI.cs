@@ -1423,6 +1423,12 @@ namespace CoastRun
             RenderTexture.ReleaseTemporary(rt);
 
             var px = copy.GetPixels32();
+            // 이미 알파가 있는 RGBA 컷아웃(Raise_Girl_*)은 그대로 쓴다. 압축이 투명 텍셀의 RGB를
+            // 검게 만들면 키 거리 판정이 '불투명 검정'으로 오판해 검은 상자가 생긴다.
+            bool hasAlpha = false;
+            for (int i = 0; i < px.Length; i += 7)
+                if (px[i].a < 250) { hasAlpha = true; break; }
+            if (hasAlpha) { UnityEngine.Object.Destroy(copy); KeyedCache[src] = src; return src; }
             bool anyKey = false;
             for (int i = 0; i < px.Length; i++)
             {

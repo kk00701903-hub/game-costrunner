@@ -62,7 +62,7 @@ namespace CoastRun.Editor
 
         /// Re-runs ArtImportSettings on every painting under Resources/CoastRun — needed
         /// after the import rules change, since a postprocessor only fires on import.
-        [MenuItem("Coast Run/Art/Reimport painted art (apply import rules)")]
+        [MenuItem("Coast Run/Art/Reimport painted art (apply import rules) %#&i")]
         public static void ReimportPaintedArt()
         {
             const string folder = "Assets/Resources/CoastRun";

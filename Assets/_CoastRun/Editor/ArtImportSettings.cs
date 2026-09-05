@@ -40,12 +40,14 @@ namespace CoastRun.Editor
             importer.filterMode = FilterMode.Bilinear;
             // No mips on the keyed sprite: mip blending mixes the magenta key into the
             // outline and the chroma test then turns the whole edge dark.
-            importer.mipmapEnabled = (world || tile) && !file.StartsWith("GirlSkater_") && !file.StartsWith("Obs_");
+            importer.mipmapEnabled = (world || tile) && !file.StartsWith("GirlSkater_") && !file.StartsWith("Obs_") && !file.StartsWith("Raise_");
             importer.maxTextureSize = 2048;
             // Keyed billboards stay uncompressed: the DXT5 path inflated alpha in the
             // fully transparent regions (readback showed a≈90–140 where the PNG has 0),
             // which drew every cloud/town quad as a pale slab.
-            importer.textureCompression = world
+            // Raise_ 스탠딩(RGBA 컷아웃)도 비압축: DXT가 완전 투명 텍셀의 RGB를 검게 만들어
+            // 육성 화면 초상 주변에 검은 상자가 생겼다.
+            importer.textureCompression = world || file.StartsWith("Raise_")
                 ? TextureImporterCompression.Uncompressed
                 : TextureImporterCompression.Compressed;
             importer.npotScale = TextureImporterNPOTScale.None;
