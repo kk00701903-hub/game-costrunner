@@ -15,10 +15,14 @@ namespace CoastRun
 
         [SerializeField] private float max = 100f;
         [Tooltip("Passive drain per second. 1.6 → ~60 s with no pickups at all.")]
+        // Budget at ~19 m/s on a 1650–2800 m stage (90–150 s): trails lay ~0.41 jelly/m,
+        // so jellies are worth ~3 HP/s at full pickup; a potion (~every 190 m) ~2.5 HP/s.
+        // A middling run (30% jellies, one hit per 10 s, 60% potions) nets about −0.6 HP/s
+        // and finishes a long stage in the red; a sloppy one dies near the minute mark.
         [SerializeField] private float drainPerSecond = 1.6f;
         [SerializeField] private float hitDamage = 14f;
-        [SerializeField] private float jellyHeal = 0.8f;
-        [SerializeField] private float potionHeal = 35f;
+        [SerializeField] private float jellyHeal = 0.4f;
+        [SerializeField] private float potionHeal = 25f;
 
         private PlayerController _player;
         private float _current;

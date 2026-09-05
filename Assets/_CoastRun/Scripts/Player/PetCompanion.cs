@@ -63,7 +63,7 @@ namespace CoastRun
 
             MagnetBonus = kind == PetKind.Seagull ? 2.5f : 0f;
             CoinBonus = kind == PetKind.Cat ? 1.5f : 1f;
-            _regenPerSecond = kind == PetKind.Puppy ? 1.2f : 0f;
+            _regenPerSecond = kind == PetKind.Puppy ? 0.5f : 0f;
 
             // Seagull flies high on the sea side; the ground pets run at the skater's heel.
             _offset = kind == PetKind.Seagull ? new Vector3(1.35f, 1.9f, -0.4f) : new Vector3(-1.25f, 0.35f, -0.9f);

@@ -19,8 +19,8 @@ namespace CoastRun
         [Header("Pacing (metres)")]
         [SerializeField] private float trailGapMin = 6f;
         [SerializeField] private float trailGapMax = 14f;
-        [SerializeField] private float potionEvery = 75f;
-        [SerializeField] private float starEvery = 650f;
+        [SerializeField] private float potionEvery = 180f;
+        [SerializeField] private float starEvery = 900f;
 
         private Transform _root;
         private float _nextTrailZ = 12f;
@@ -47,7 +47,7 @@ namespace CoastRun
         {
             _rng = new System.Random(500 + stageIndex * 4271);
             _nextTrailZ = startZ + 12f;
-            _nextPotionZ = startZ + 50f + (float)_rng.NextDouble() * 30f;
+            _nextPotionZ = startZ + 90f + (float)_rng.NextDouble() * 60f;
             _nextStarZ = startZ + 320f + (float)_rng.NextDouble() * 120f;
             ClearAll();
         }
