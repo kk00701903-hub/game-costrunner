@@ -76,6 +76,15 @@ namespace CoastRun.EditorTools
             if (gm != null && gm.Save != null)
                 sb.AppendLine($"== v2 save week={gm.Save.week} chapter={gm.Save.chapter} phase={gm.Save.phaseIndex} hearts={gm.Save.chapterHearts} stats={gm.Save.stats.stamina}/{gm.Save.stats.agility}/{gm.Save.stats.charm}/{gm.Save.stats.stress} money={gm.Save.stats.money} mode={gm.Save.runMode} pet={gm.Save.equippedPet} retry={gm.IsRetry} queue={string.Join(",", gm.Save.queuedSchedule ?? new string[0])}");
 
+            var pet = PetCompanion.Instance;
+            if (pet != null)
+            {
+                sb.AppendLine($"== pet {pet.Kind} pos={pet.transform.position} playerPos={(pl != null ? pl.transform.position.ToString() : "-")}");
+                foreach (var r in pet.GetComponentsInChildren<Renderer>(true))
+                    sb.AppendLine($"   {Path(r.transform)} en={r.enabled} bounds={r.bounds.size} mat={(r.sharedMaterial != null ? r.sharedMaterial.shader.name + "/" + TexName(r.sharedMaterial) : "null")}");
+            }
+            else sb.AppendLine("== pet none");
+
             sb.AppendLine("== canvases / big images");
             foreach (var cv in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
@@ -173,6 +182,13 @@ namespace CoastRun.EditorTools
                     return;
                 }
             }
+        }
+
+        private static string TexName(Material m)
+        {
+            if (m == null) return "null";
+            Texture t = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") : (m.HasProperty("_MainTex") ? m.mainTexture : null);
+            return t != null ? t.name : "notex";
         }
 
         private static string Path(Transform t)
