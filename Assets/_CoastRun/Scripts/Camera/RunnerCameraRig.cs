@@ -17,7 +17,7 @@ namespace CoastRun
 
         [Header("FOV kick")]
         [SerializeField] private float baseFov = 55f;
-        [SerializeField] private float maxFov = 68f;
+        [SerializeField] private float maxFov = 74f;
         [SerializeField] private float fovAccelSeconds = 0.4f;
         [SerializeField] private float fovDecelSeconds = 0.25f;
 

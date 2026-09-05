@@ -28,7 +28,7 @@ namespace CoastRun
                 maxLevel = 80,
                 baseCost = 30,
                 costGrowth = 1.38f,
-                baseValue = 12f,
+                baseValue = 17f,
                 perLevel = 0.55f,
                 multiplicative = false
             },

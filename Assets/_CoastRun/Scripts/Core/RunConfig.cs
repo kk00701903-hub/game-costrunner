@@ -7,19 +7,19 @@ namespace CoastRun
     public class RunConfig : ScriptableObject
     {
         [Header("Speed")]
-        public float baseSpeed = 8f;
-        public float maxSpeed = 18f;
-        public float accelPerSecond = 0.35f;
+        public float baseSpeed = 11f;
+        public float maxSpeed = 26f;
+        public float accelPerSecond = 0.7f;
         [Tooltip("Hold-to-tuck speed multiplier.")]
         public float tuckMultiplier = 1.15f;
 
         [Header("Lanes")]
         public float laneOffset = 2.2f;
-        public float laneChangeSeconds = 0.18f;
+        public float laneChangeSeconds = 0.15f;
 
         [Header("Jump / Crouch")]
-        public float jumpForce = 7.5f;
-        public float gravity = -22f;
+        public float jumpForce = 8.6f;
+        public float gravity = -27f;
         public float crouchDuration = 0.9f;
         public float standHeight = 1.6f;
         public float crouchHeight = 0.55f;

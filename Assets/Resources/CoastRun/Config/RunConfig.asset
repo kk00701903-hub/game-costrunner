@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45072cc2fddfc6246a2aec6d404f5435, type: 3}
   m_Name: RunConfig
   m_EditorClassIdentifier: Assembly-CSharp::CoastRun.RunConfig
-  baseSpeed: 8
-  maxSpeed: 18
-  accelPerSecond: 0.35
+  baseSpeed: 11
+  maxSpeed: 26
+  accelPerSecond: 0.7
   tuckMultiplier: 1.15
   laneOffset: 2.2
-  laneChangeSeconds: 0.18
-  jumpForce: 7.5
-  gravity: -22
+  laneChangeSeconds: 0.15
+  jumpForce: 8.6
+  gravity: -27
   crouchDuration: 0.65
   standHeight: 1.6
   crouchHeight: 0.55
   softHitSlowFactor: 0.55
-  softHitRecoverSeconds: 1.2
+  softHitRecoverSeconds: 0.9
   swipeThresholdPx: 48
