@@ -33,6 +33,16 @@ namespace CoastRun.EditorTools
                     sb.AppendLine($"   {c.name} z={DownhillPath.DistanceAlong(c.position):F1} x={c.position.x:F1}");
             }
 
+            if (pl != null)
+            {
+                sb.AppendLine("== player renderers");
+                foreach (var r in pl.GetComponentsInChildren<Renderer>(true))
+                    sb.AppendLine($"   {Path(r.transform)} en={r.enabled} active={r.gameObject.activeInHierarchy} bounds={r.bounds.size} mat={(r.sharedMaterial != null ? r.sharedMaterial.shader.name + "/" + (r.sharedMaterial.mainTexture != null ? r.sharedMaterial.mainTexture.name : "notex") : "null")} scale={r.transform.lossyScale}");
+                var an = pl.GetComponentInChildren<Animator>();
+                if (an != null)
+                    sb.AppendLine($"   animator ctrl={(an.runtimeAnimatorController != null ? an.runtimeAnimatorController.name : "null")} avatar={(an.avatar != null ? an.avatar.name + " human=" + an.avatar.isHuman : "null")} state={an.GetCurrentAnimatorStateInfo(0).shortNameHash} speed={an.speed}");
+            }
+
             sb.AppendLine("== cameras");
             foreach (var c in Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
