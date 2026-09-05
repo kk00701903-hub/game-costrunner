@@ -42,7 +42,7 @@ turbo 8스텝 기준 2분 30초짜리 한 곡에 수 분. 밤에 `--priority P0`
 ## 0-1. Unity 메뉴 (권장)
 
 `Coast Run → BGM → 1~7`: 설치 / 서버 시작 / 테스트 곡 / P0+스템 / 스템 재분리 / 챕터 재생성 / P1.
-각 항목은 같은 이름의 `.bat`을 새 콘솔로 띄우고 로그를 이 폴더에 남깁니다. `Probe environment`는 실행 중인 generate.py를 멈추는 비상 정지도 겸합니다.
+각 항목은 같은 이름의 `.bat`을 새 콘솔로 띄우고 로그를 이 폴더에 남깁니다. `STOP render + probe environment`는 실행 중인 generate.py를 강제 종료하는 비상 정지를 겸하며, 누르면 확인 창이 먼저 뜹니다.
 
 ## 1. 생성
 

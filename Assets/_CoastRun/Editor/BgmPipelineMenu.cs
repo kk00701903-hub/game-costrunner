@@ -38,8 +38,16 @@ namespace CoastRun.Editor
         [MenuItem("Coast Run/BGM/Open tool folder")]
         public static void OpenFolder() => EditorUtility.RevealInFinder(ToolDir);
 
-        [MenuItem("Coast Run/BGM/Probe environment")]
-        public static void Probe() => Launch("probe_env.bat");
+        [MenuItem("Coast Run/BGM/STOP render + probe environment (kills generate.py)")]
+        public static void Probe()
+        {
+            if (!EditorUtility.DisplayDialog("Stop BGM render?",
+                    "probe_env.bat force-kills any running generate.py batch (a track mid-render is lost; " +
+                    "finished tracks are kept and the batch resumes on the next run), then writes env_probe.txt.\n\nContinue?",
+                    "Stop + probe", "Cancel"))
+                return;
+            Launch("probe_env.bat");
+        }
 
         [MenuItem("Coast Run/BGM/Repair torch versions")]
         public static void FixTorch() => Launch("fix_torch.bat");
