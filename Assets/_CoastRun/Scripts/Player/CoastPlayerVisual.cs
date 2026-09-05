@@ -24,6 +24,14 @@ namespace CoastRun
         private Vector3 _billboardBasePos;
         private Vector3 _billboardBaseScale = new Vector3(0.95f, 1.45f, 1f);
 
+        // Painted pose sheet (Firefly): run / jump / crouch / lean. Any missing pose
+        // falls back to the run sprite (and crouch to the old squash).
+        private Material _billboardMat;
+        private Texture2D _poseRun, _poseJump, _poseCrouch, _poseLean;
+        private Texture2D _poseCurrent;
+        private float _lastLateral;
+        private float _lateralVel;
+
         // Lane lean — same sign as camera roll (opposite to lane motion). Character leads camera.
         private float _leanZ;
         private float _leanTarget;
@@ -87,6 +95,10 @@ namespace CoastRun
             var tex = ArtAssets.LoadTexture("GirlSkater_Back");
             if (tex == null)
                 return;
+            _poseRun = tex;
+            _poseJump = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "GirlSkater_Jump");
+            _poseCrouch = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "GirlSkater_Crouch");
+            _poseLean = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "GirlSkater_Lean");
 
             foreach (var r in GetComponentsInChildren<Renderer>(true))
             {
@@ -114,6 +126,8 @@ namespace CoastRun
                 mat.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
             quad.GetComponent<Renderer>().sharedMaterial = mat;
             quad.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            _billboardMat = mat;
+            _poseCurrent = tex;
             _billboard = quad.transform;
             _billboardBasePos = _billboard.localPosition;
             _billboardBaseScale = _billboard.localScale;
@@ -302,6 +316,7 @@ namespace CoastRun
 
         private void LateUpdate()
         {
+            UpdatePose();
             ApplyCrouchBillboard();
 
             if (_billboard == null)
@@ -309,8 +324,63 @@ namespace CoastRun
             var cam = Camera.main;
             if (cam == null)
                 return;
-            _billboard.LookAt(cam.transform.position, Vector3.up);
-            _billboard.Rotate(0f, 180f, 0f);
+            // Yaw-only billboard: the sprite stays upright with its feet on the deck.
+            // Full LookAt tilted the quad back toward the high camera, which read as a
+            // squashed, floating figure.
+            Vector3 toCam = cam.transform.position - _billboard.position;
+            toCam.y = 0f;
+            if (toCam.sqrMagnitude > 0.001f)
+                _billboard.rotation = Quaternion.LookRotation(-toCam.normalized, Vector3.up);
+        }
+
+        /// Picks the painted pose for this frame: air → jump, crouch → crouch, a lane
+        /// change in progress → lean (mirrored for the other direction), else run.
+        private void UpdatePose()
+        {
+            if (_billboardMat == null || _player == null)
+                return;
+
+            float dt = Mathf.Max(Time.deltaTime, 0.0001f);
+            float lateral = _player.LateralOffset;
+            float vel = (lateral - _lastLateral) / dt;
+            _lastLateral = lateral;
+            _lateralVel = Mathf.Lerp(_lateralVel, vel, 1f - Mathf.Exp(-dt * 18f));
+
+            Texture2D want = _poseRun;
+            bool mirror = false;
+            if (_menuPose)
+                want = _poseRun;
+            else if (_player.State == SkateState.Air && _poseJump != null)
+                want = _poseJump;
+            else if (_player.IsCrouching && _poseCrouch != null)
+                want = _poseCrouch;
+            else if (Mathf.Abs(_lateralVel) > 2.5f && _poseLean != null)
+            {
+                want = _poseLean;
+                mirror = _lateralVel > 0f;   // painted lean goes left; flip for right
+            }
+
+            if (want != _poseCurrent)
+            {
+                _poseCurrent = want;
+                if (_billboardMat.HasProperty("_BaseMap")) _billboardMat.SetTexture("_BaseMap", want);
+                else _billboardMat.mainTexture = want;
+            }
+            var st = _billboardMat.HasProperty("_BaseMap") ? _billboardMat.GetTextureScale("_BaseMap") : _billboardMat.mainTextureScale;
+            float sx = mirror ? -1f : 1f;
+            if (!Mathf.Approximately(st.x, sx))
+            {
+                if (_billboardMat.HasProperty("_BaseMap"))
+                {
+                    _billboardMat.SetTextureScale("_BaseMap", new Vector2(sx, 1f));
+                    _billboardMat.SetTextureOffset("_BaseMap", new Vector2(mirror ? 1f : 0f, 0f));
+                }
+                else
+                {
+                    _billboardMat.mainTextureScale = new Vector2(sx, 1f);
+                    _billboardMat.mainTextureOffset = new Vector2(mirror ? 1f : 0f, 0f);
+                }
+            }
         }
 
         private void ApplyCrouchBillboard()
@@ -318,7 +388,8 @@ namespace CoastRun
             if (_billboard == null || _player == null || _menuPose)
                 return;
 
-            if (_player.IsCrouching)
+            // With a painted crouch pose the sprite itself ducks; no squash needed.
+            if (_player.IsCrouching && _poseCrouch == null)
             {
                 _billboard.localScale = new Vector3(
                     _billboardBaseScale.x,
