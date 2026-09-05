@@ -69,6 +69,27 @@ namespace CoastRun
             ClearVisualChildren();
             _phase = Random.value * Mathf.PI * 2f;
 
+            // Mixamo-animated skater (Resources/CoastRun/Rig) beats every other visual:
+            // real ride / push / jump / hit / grab motion instead of a pose sheet.
+            if (SkaterRig.Available)
+            {
+                _visualRoot = new GameObject("VisualRoot").transform;
+                _visualRoot.SetParent(transform, false);
+                _visualRoot.localScale = Vector3.one * ScreenOccupancyScale;
+                BuildBoardOnly();
+                var rig = SkaterRig.Spawn(_visualRoot, 1.62f);
+                if (rig != null)
+                {
+                    // Feet on the deck; the rig's origin is between the heels.
+                    rig.transform.localPosition = new Vector3(0f, 0.085f, 0.02f);
+                    _rootVisual = _visualRoot;
+                    ApplyCharacterOutlines(rig.transform);
+                    CacheBasePose();
+                    BlobShadow.Attach(transform, 0.85f * ScreenOccupancyScale);
+                    return;
+                }
+            }
+
             var prefabRoot = PrefabLibrary.TryInstantiate("GirlSkater", transform, Vector3.zero);
             if (prefabRoot != null)
             {
@@ -233,6 +254,11 @@ namespace CoastRun
             _backpack = AddPart("Backpack", PrimitiveType.Cube,
                 new Vector3(0f, 1.05f, -0.22f), new Vector3(0.42f, 0.48f, 0.28f), () => CoastPalette.Backpack).transform;
 
+            BuildBoardOnly();
+        }
+
+        private void BuildBoardOnly()
+        {
             _board = new GameObject("Skateboard").transform;
             _board.SetParent(_visualRoot != null ? _visualRoot : transform, false);
             _board.localPosition = new Vector3(0f, 0.04f, 0.08f);
