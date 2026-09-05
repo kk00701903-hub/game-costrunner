@@ -161,6 +161,10 @@ namespace CoastRun
                 case "Orange": return CoastMaterials.CreateLit(new Color(0.98f, 0.60f, 0.15f), 0.3f);
                 case "Sign": return CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.TownCream, Color.white, 0.6f));
                 case "Metal": return CoastMaterials.CreateLit(() => CoastPalette.Pole, 0.3f);
+                // Player skateboard (Prop_Skateboard): mint deck, darker grip top, orange wheels.
+                case "Deck": return CoastMaterials.CreateToon(new Color(0.45f, 0.82f, 0.74f));
+                case "Grip": return CoastMaterials.CreateToon(new Color(0.30f, 0.62f, 0.56f));
+                case "Wheel": return CoastMaterials.CreateToon(CoastPalette.WheelOrange, () => CoastPalette.WheelOrange, null, 0.3f);
                 case "Concrete": return CoastMaterials.CreateLit(() => CoastPalette.Sidewalk);
                 default: return CoastMaterials.CreateLit(() => CoastPalette.TownCream);
             }

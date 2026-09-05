@@ -56,6 +56,9 @@ MATS = {
     "Sign":        mat("Sign", (0.98, 0.95, 0.88)),
     "Metal":       mat("Metal", (0.45, 0.47, 0.50)),
     "Concrete":    mat("Concrete", (0.72, 0.72, 0.70)),
+    "Deck":        mat("Deck", (0.45, 0.82, 0.74)),
+    "Grip":        mat("Grip", (0.30, 0.62, 0.56)),
+    "Wheel":       mat("Wheel", (0.98, 0.60, 0.15)),
 }
 for k in "ABCDEFGH":
     MATS["Facade_" + k] = mat("Facade_" + k, (0.9, 0.9, 0.9))
@@ -396,7 +399,62 @@ def palm(name, height=6.0):
     return join(parts, name)
 
 
+def skateboard(name, length=0.95, width=0.26, thick=0.028):
+    """Popsicle skateboard: rounded deck with kicked nose/tail, trucks, four wheels.
+    Long axis = +Y (Unity: forward). Materials Deck / Grip / Wheel / Metal."""
+    parts = []
+    # deck outline: straight sides + semicircular ends, sampled as a polygon
+    n = 10
+    half = length/2 - width/2
+    ring = []
+    for i in range(n+1):                       # nose arc (+Y)
+        a = -math.pi/2 + math.pi*i/n
+        ring.append((width/2*math.cos(a), half + width/2*math.sin(a)))
+    for i in range(n+1):                       # tail arc (-Y)
+        a = math.pi/2 + math.pi*i/n
+        ring.append((width/2*math.cos(a), -half + width/2*math.sin(a)))
+    def kick(y):                                # tips curl up past the trucks
+        d = abs(y) - length*0.30
+        return 0.0 if d <= 0 else d*d*1.1
+    top = [(x, y, thick + kick(y)) for (x, y) in ring]
+    bot = [(x, y, kick(y)) for (x, y) in ring]
+    m = len(ring)
+    verts = top + bot
+    faces = [list(range(m))]                    # top cap
+    faces.append(list(range(2*m-1, m-1, -1)))   # bottom cap
+    for i in range(m):
+        j = (i+1) % m
+        faces.append([i, m+i, m+j, j])          # side strip
+    mats = ["Grip", "Deck"] + ["Deck"]*m
+    uvs = [[(0.5+x/width, 0.5+y/length) for (x, y) in ring],
+           [(0.5+x/width, 0.5+y/length) for (x, y) in reversed(ring)]] + [None]*m
+    deck = new_object(name+"_deck", verts, faces, mats, uvs)
+    parts.append(deck)
+    # trucks + wheels
+    for y in (length*0.30, -length*0.30):
+        parts.append(box(f"{name}_truck{y:+.2f}", -0.10, 0.10, y-0.03, y+0.03, -0.045, -0.005,
+                         {k: "Metal" for k in ["front","back","left","right","top","bottom"]}, tile=1))
+        for x in (-0.12, 0.12):
+            bpy.ops.mesh.primitive_cylinder_add(vertices=14, radius=0.055, depth=0.045,
+                                                location=(x, y, -0.06), rotation=(0, math.pi/2, 0))
+            w = bpy.context.active_object; w.name = f"{name}_wheel"
+            w.data.materials.append(MATS["Wheel"]); parts.append(w)
+    ob = join(parts, name)
+    # The deck caps are curved n-gons (kicked tips); Unity discards non-planar
+    # polygons, so triangulate everything before export.
+    bpy.context.view_layer.objects.active = ob
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY', ngon_method='BEAUTY')
+    bpy.ops.object.mode_set(mode='OBJECT')
+    # rest the wheels on the ground: lift everything so wheel bottoms sit at z = 0
+    ob.location = (0, 0, 0.115)
+    bpy.ops.object.transform_apply(location=True)
+    return ob
+
+
 PROPS = [
+    ("Prop_Skateboard", lambda: skateboard("Prop_Skateboard")),
     ("Prop_Hareubang", lambda: hareubang("Prop_Hareubang")),
     ("Prop_Palm", lambda: palm("Prop_Palm")),
     ("Prop_StoneWall", lambda: stone_wall("Prop_StoneWall")),

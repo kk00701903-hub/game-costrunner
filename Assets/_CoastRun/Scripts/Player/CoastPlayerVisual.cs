@@ -81,7 +81,7 @@ namespace CoastRun
                 if (rig != null)
                 {
                     // Feet on the deck; the rig's origin is between the heels.
-                    rig.transform.localPosition = new Vector3(0f, 0.19f, 0.06f);
+                    rig.transform.localPosition = new Vector3(0f, JejuKit.Load("Prop_Skateboard") != null ? 0.15f : 0.19f, 0.06f);
                     _rootVisual = _visualRoot;
                     ApplyCharacterOutlines(rig.transform);
                     CacheBasePose();
@@ -264,6 +264,21 @@ namespace CoastRun
             _board.localPosition = new Vector3(0f, 0.10f, 0.08f);
             _board.localRotation = Quaternion.Euler(4f, 0f, 0f);
 
+            // Blender popsicle deck (Tools/blender/jeju_kit.py → Prop_Skateboard): rounded
+            // nose and tail, kicks, trucks, wheels — reads as a real board from the high
+            // camera. The primitive board below only remains as a fallback.
+            if (JejuKit.Load("Prop_Skateboard") != null)
+            {
+                _board.localPosition = new Vector3(0f, 0.0f, 0.08f);
+                var mesh = JejuKit.Spawn("Prop_Skateboard", _board, Vector3.zero, 0f, 1.0f);
+                if (mesh != null)
+                {
+                    foreach (var r in mesh.GetComponentsInChildren<Renderer>(true))
+                        r.gameObject.AddComponent<CelOutlineHint>();
+                    return;
+                }
+            }
+
             // The old cream deck was the pavement colour and vanished under her feet.
             // Mint deck with a cream centre stripe, curled nose/tail, grey trucks and
             // fat orange wheels on real axles (cylinder axis along X).
@@ -271,7 +286,9 @@ namespace CoastRun
             Color stripe = new Color(1.00f, 0.96f, 0.86f);
             Color truck = new Color(0.55f, 0.58f, 0.62f);
             CreatePartOn(_board, "Deck", PrimitiveType.Cube,
-                new Vector3(0f, 0.045f, 0f), new Vector3(0.60f, 0.08f, 1.30f), () => mint);
+                new Vector3(0f, 0.045f, 0f), new Vector3(0.66f, 0.09f, 1.42f), () => mint);
+            // Ink edge on the deck so it reads as a drawn board, not a mint smear.
+            _board.Find("Deck").gameObject.AddComponent<CelOutlineHint>();
             CreatePartOn(_board, "Stripe", PrimitiveType.Cube,
                 new Vector3(0f, 0.09f, 0f), new Vector3(0.18f, 0.012f, 1.24f), () => stripe);
             var nose = MakePrimitive("Nose", PrimitiveType.Cube, new Vector3(0f, 0.10f, 0.74f), new Vector3(0.56f, 0.08f, 0.26f), () => mint);
@@ -287,7 +304,7 @@ namespace CoastRun
                 foreach (float x in new[] { -0.24f, 0.24f })
                 {
                     var wheel = MakePrimitive("Wheel", PrimitiveType.Cylinder,
-                        new Vector3(x, -0.04f, z), new Vector3(0.19f, 0.045f, 0.19f), () => CoastPalette.WheelOrange);
+                        new Vector3(x, -0.03f, z), new Vector3(0.24f, 0.06f, 0.24f), () => CoastPalette.WheelOrange);
                     wheel.transform.SetParent(_board, false);
                     wheel.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
                 }
