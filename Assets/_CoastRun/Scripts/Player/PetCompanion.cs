@@ -90,6 +90,13 @@ namespace CoastRun
 
             _body = new GameObject("Body").transform;
             _body.SetParent(transform, false);
+            // Firefly-painted pet (Obs_Pet_<Kind>.png) as a billboard; the blocky
+            // primitives below only remain as the fallback.
+            if (PaintedProp.Available("Pet_" + _kind))
+            {
+                PaintedProp.Attach(_body, "Pet_" + _kind, _kind == PetKind.Seagull ? 0.55f : 0.62f, replace: false);
+                return;
+            }
             switch (_kind)
             {
                 case PetKind.Seagull: BuildSeagull(); break;
