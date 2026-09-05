@@ -64,3 +64,4 @@ __pycache__/
 *_BurstDebugInformation_DoNotShip/
 
 Tools/scene_dump*.txt
+Tools/debug_log.txt

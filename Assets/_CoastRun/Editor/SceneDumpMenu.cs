@@ -93,6 +93,16 @@ namespace CoastRun.EditorTools
                 sb.AppendLine($"{Path(r.transform)} {r.GetType().Name} bounds={r.bounds} near={near} shader={(m != null ? m.shader.name : "null")} color={col} queue={(m != null ? m.renderQueue : 0)}");
             }
 
+            sb.AppendLine("== backdrop materials");
+            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                if (r.name != "FarTown" && r.name != "SkyGradient") continue;
+                var m = r.sharedMaterial;
+                if (m == null) { sb.AppendLine($"{Path(r.transform)} null mat"); continue; }
+                var tex = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") as Texture2D : null;
+                sb.AppendLine($"{Path(r.transform)} shader={m.shader.name} queue={m.renderQueue} src={(m.HasProperty("_SrcBlend") ? m.GetFloat("_SrcBlend") : -1)} dst={(m.HasProperty("_DstBlend") ? m.GetFloat("_DstBlend") : -1)} zw={(m.HasProperty("_ZWrite") ? m.GetFloat("_ZWrite") : -1)} fogW={(m.HasProperty("_FogWeight") ? m.GetFloat("_FogWeight") : -1)} curve={(m.HasProperty("_CurveWeight") ? m.GetFloat("_CurveWeight") : -1)} color={(m.HasProperty("_BaseColor") ? m.GetColor("_BaseColor").ToString() : "-")} tex={(tex != null ? tex.name + " " + tex.width + "x" + tex.height + " " + tex.format + " mips=" + tex.mipmapCount : "null")} kw={string.Join(",", m.shaderKeywords)} pos={r.transform.position} scale={r.transform.lossyScale}");
+            }
+
             sb.AppendLine("== render settings");
             sb.AppendLine($"fog={RenderSettings.fog} fogColor={RenderSettings.fogColor} mode={RenderSettings.fogMode} start={RenderSettings.fogStartDistance} end={RenderSettings.fogEndDistance} density={RenderSettings.fogDensity} ambient={RenderSettings.ambientLight} skybox={(RenderSettings.skybox != null ? RenderSettings.skybox.name : "null")}");
             foreach (var l in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
