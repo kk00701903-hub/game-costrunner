@@ -115,16 +115,24 @@ namespace CoastRun
 
         private GameObject _timelineModal;
 
+        private static void AddCellButton(Image img, Action onClick)
+        {
+            img.raycastTarget = true;
+            var btn = img.gameObject.GetComponent<Button>() ?? img.gameObject.AddComponent<Button>();
+            btn.transition = Selectable.Transition.None;
+            btn.onClick.AddListener(() => onClick?.Invoke());
+        }
+
         public void OpenTimeline()
         {
             if (Save == null) return;
             if (_timelineModal != null) Destroy(_timelineModal);
             _timelineModal = Modal("TimelinePopup", 660f, 760f, out var panel);
-            var t = Label(panel, "Title", "타임라인 · 52주", 28, Navy);
+            var t = Label(panel, "Title", "챕터 선택 · 52주", 28, Navy);
             Place(t.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -16f), new Vector2(0f, 40f), new Vector2(0.5f, 1f));
 
             int sCount = ChapterGrading.CountS(Save);
-            string sub = _gm.IsRetry ? $"재도전 중 · CH {Save.chapter}" : $"S급 {sCount} / {Timeline.Chapters}  ·  S급이 아닌 챕터를 눌러 다시 도전";
+            string sub = _gm.IsRetry ? $"재도전 중 · CH {Save.chapter}" : $"S급 {sCount} / {Timeline.Chapters}  ·  진행 중인 챕터는 돌입, 지난 챕터는 다시 보기 / 재도전";
             var s = Label(panel, "Sub", sub, 16, Ink);
             Place(s.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -56f), new Vector2(0f, 26f), new Vector2(0.5f, 1f));
 
@@ -143,26 +151,50 @@ namespace CoastRun
                 if (current)
                     cell.color = Coral;
 
-                var num = Label(cell.transform, "Num", $"CH {c}", 15, Navy);
-                Place(num.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 22f), new Vector2(0.5f, 1f));
-                var grade = Label(cell.transform, "Grade", rec != null && rec.cleared ? ChapterGrading.GradeLabel(rec.grade) : "-", 34, Navy);
-                Place(grade.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -4f), new Vector2(80f, 44f), new Vector2(0.5f, 0.5f));
+                bool locked = c > Save.chapter;
+                var num = Label(cell.transform, "Num", $"CH {c}", 14, Navy);
+                Place(num.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -6f), new Vector2(0f, 20f), new Vector2(0.5f, 1f));
+                var chTitle = Label(cell.transform, "ChTitle", locked ? "???" : ChapterScript.Title(c), 11, Ink);
+                Place(chTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -25f), new Vector2(0f, 16f), new Vector2(0.5f, 1f));
+                var grade = Label(cell.transform, "Grade", rec != null && rec.cleared ? ChapterGrading.GradeLabel(rec.grade) : (current ? "▶" : "-"), 32, Navy);
+                Place(grade.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -8f), new Vector2(80f, 44f), new Vector2(0.5f, 0.5f));
                 var hearts = Label(cell.transform, "Hearts", rec != null && rec.cleared ? $"♥{rec.heartsEarned}/{rec.heartsTarget}" : $"{rec?.weekStart}~{rec?.weekEnd}주", 12, Ink);
                 Place(hearts.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f), new Vector2(0f, 20f), new Vector2(0.5f, 0f));
+                if (locked) cell.color = new Color(0.78f, 0.78f, 0.82f);
 
-                if (_gm.CanRetry(c) && !_gm.IsRetry)
+                int chapter = c;
+                bool cleared = rec != null && rec.cleared;
+                bool canRetry = _gm.CanRetry(c) && !_gm.IsRetry;
+                if (current && !cleared && !_gm.IsRetry)
                 {
-                    var btn = cell.gameObject.AddComponent<Button>();
-                    cell.raycastTarget = true;
-                    btn.transition = Selectable.Transition.None;
-                    int chapter = c;
-                    btn.onClick.AddListener(() =>
+                    // 진행 중인 챕터: 스토리 돌입(육성 화면의 ★ 스토리와 같은 동작)
+                    AddCellButton(cell, () =>
                     {
-                        Destroy(_timelineModal);
-                        _timelineModal = null;
-                        Confirm($"CH {chapter}로 돌아갈까?", $"{rec.weekStart}주차 상태로 다시 도전해. 더 좋은 결과만 기록에 덮어써.",
-                            () => _gm.BeginRetry(chapter));
+                        Destroy(_timelineModal); _timelineModal = null;
+                        OnStoryPressed();
                     });
+                }
+                else if (cleared || _gm.IsRetry && current)
+                {
+                    // 지난 챕터: 오프닝 다시 보기. (S급 미만이면 셀 아래 '재도전' 알약)
+                    AddCellButton(cell, () =>
+                    {
+                        Destroy(_timelineModal); _timelineModal = null;
+                        Confirm($"CH {chapter} 「{ChapterScript.Title(chapter)}」", "오프닝 컷씬을 다시 볼까? 진행에는 영향이 없어.",
+                            () => _gm.ReplayOpening(chapter, OpenTimeline));
+                    });
+                    if (canRetry)
+                    {
+                        var retry = CoastUiArt.CutePill(cell.transform, "Retry", Coral, 8, 2);
+                        Place(retry.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-4f, 4f), new Vector2(54f, 22f), new Vector2(1f, 0f));
+                        var rl = Label(retry.transform, "T", "재도전", 11, Color.white);
+                        AddCellButton(retry, () =>
+                        {
+                            Destroy(_timelineModal); _timelineModal = null;
+                            Confirm($"CH {chapter}로 돌아갈까?", $"{rec.weekStart}주차 상태로 다시 도전해. 더 좋은 결과만 기록에 덮어써.",
+                                () => _gm.BeginRetry(chapter));
+                        });
+                    }
                 }
             }
             // 계절 라벨

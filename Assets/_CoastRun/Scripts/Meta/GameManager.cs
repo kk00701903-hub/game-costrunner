@@ -156,9 +156,28 @@ namespace CoastRun
             SetPhase(GamePhase.Run);
             RunTuning.Configure(Save);
             WriteMain();
+            // v5 컷씬: 회차 첫 돌입이면 프롤로그(VN) → 챕터 오프닝(VN) → 런. 재도전은 컷씬 생략.
             bool prologue = Save.chapter == 1 && !Save.prologueSeen && !IsRetry;
             Save.prologueSeen = true;
-            Flow?.StartStoryRun(Save.chapter, prologue);
+            int chapter = Save.chapter;
+            if (IsRetry)
+            {
+                Flow?.StartStoryRun(chapter, false);
+                return;
+            }
+            System.Action launch = () => Flow?.StartStoryRun(chapter, false);
+            System.Action opening = () => ChapterVN.PlayChapterOpening(chapter, launch);
+            if (prologue) ChapterVN.Play("PRO", opening);
+            else opening();
+        }
+
+        /// 챕터 선택 '다시 보기': 오프닝 컷씬만 재생(진행 영향 없음).
+        public void ReplayOpening(int chapter, System.Action onDone)
+        {
+            if (chapter == 1)
+                ChapterVN.Play("PRO", () => ChapterVN.PlayChapterOpening(1, onDone));
+            else
+                ChapterVN.PlayChapterOpening(chapter, onDone);
         }
 
         /// StageManager 클리어 → SceneFlow가 호출. 챕터 정산까지 여기서 끝낸다.
@@ -238,7 +257,12 @@ namespace CoastRun
 
             SetPhase(GamePhase.Ending);
             var flow = Flow;
-            if (flow != null) _ = flow.GoTo(FlowState.Ending, TransitionType.Fade);
+            // v5: 엔딩 VN(만난다/못 만난다) 컷씬을 먼저 보여 주고 기존 엔딩 시퀀스(편지·크레딧)로.
+            string vn = kind == EndingKind.Happy ? "END_A" : "END_B";
+            ChapterVN.Play(vn, () =>
+            {
+                if (flow != null) _ = flow.GoTo(FlowState.Ending, TransitionType.Fade);
+            });
         }
 
         /// 엔딩 끝. 비극이면 타임라인으로, 해피면 타이틀로.

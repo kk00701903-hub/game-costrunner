@@ -159,7 +159,17 @@ namespace CoastRun
             {
                 if (!Input.GetKeyDown(KeyCode.Alpha1 + n)) continue;
                 if (_shopModal != null) { if (n < PetShop.ForSale.Length) ShopAct(PetShop.ForSale[n]); continue; }
-                if (_timelineModal != null) { int ch = n + 1 + _timelinePage * 9; if (_gm.CanRetry(ch)) { Destroy(_timelineModal); _timelineModal = null; _modalPrimary = null; _gm.BeginRetry(ch); } continue; }
+                if (_timelineModal != null)
+                {
+                    // 챕터 선택 dev 키: 숫자 = 그 챕터 셀 (진행 중이면 돌입, 클리어면 다시 보기, S 미만이면 재도전)
+                    int ch = n + 1 + _timelinePage * 9;
+                    var rec = ch >= 1 && ch <= Timeline.Chapters ? Save.chapters[ch - 1] : null;
+                    Destroy(_timelineModal); _timelineModal = null; _modalPrimary = null;
+                    if (ch == Save.chapter && (rec == null || !rec.cleared) && !_gm.IsRetry) OnStoryPressed();
+                    else if (rec != null && rec.cleared && Input.GetKey(KeyCode.LeftShift) && _gm.CanRetry(ch)) _gm.BeginRetry(ch);
+                    else if (rec != null && rec.cleared) _gm.ReplayOpening(ch, OpenTimeline);
+                    continue;
+                }
                 var defs = ScheduleTable.ByCategory(_tab, Timeline.SeasonOf(Save.week));
                 if (n < defs.Count) OnCardTapped(defs[n]);
             }
@@ -178,6 +188,12 @@ namespace CoastRun
             if (Input.GetKeyDown(KeyCode.Return) && !_busy) OnRunPressed();
             if (Input.GetKeyDown(KeyCode.S) && !_busy) OpenShop();
             if (Input.GetKeyDown(KeyCode.T) && !_busy) OpenTimeline();
+            // Y = 현재 챕터 스토리 돌입(★ 스토리 셀과 같음). 타임라인이 열려 있으면 닫고 진행.
+            if (Input.GetKeyDown(KeyCode.Y) && !_busy)
+            {
+                if (_timelineModal != null) { Destroy(_timelineModal); _timelineModal = null; _modalPrimary = null; }
+                OnStoryPressed();
+            }
         }
 
         // ────────────────────────────────────────────────────────────────
@@ -525,7 +541,7 @@ namespace CoastRun
             _scheduleBtn = ActionButton(host, "Schedule", "스케줄", Coral, Hex("#FF8FAB"), 0, () => ToggleSheet(true));
             _runButton = ActionButton(host, "Run", "실행", Mint, Hex("#80CBC4"), 1, OnRunPressed);
             _runLabel = _runButton.GetComponentInChildren<Text>();
-            _storyBtn = ActionButton(host, "Story", "★ 스토리", Sun, Hex("#FFCC80"), 2, OnStoryPressed);
+            _storyBtn = ActionButton(host, "Story", "★ 스토리", Sun, Hex("#FFCC80"), 2, OpenTimeline);   // v5: 챕터 선택 화면으로
             _storyLabel = _storyBtn.GetComponentInChildren<Text>();
         }
 

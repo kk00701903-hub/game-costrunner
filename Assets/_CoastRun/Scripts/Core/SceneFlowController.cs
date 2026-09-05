@@ -251,9 +251,21 @@ namespace CoastRun
             _director?.Progression?.SaveCheckpoint(stage.chapterIndex, stage.stageIndex);
 
             // v2: 챕터 정산(하트·S급)은 GameManager가, 화면은 StageClearUI가. S20도 정산을 거친다.
+            // v5: 정산 전에 챕터 클로징 컷씬(VN, 한 컷)을 먼저. 재도전 중엔 생략.
             if (GameManager.Active)
             {
                 GameManager.I.OnRunCleared(StageRunStats.Instance);
+                int ch = stage.stageIndex;
+                if (!GameManager.I.IsRetry && ChapterVN.HasClosing(ch))
+                {
+                    Time.timeScale = 0f;
+                    ChapterVN.PlayChapterClosing(ch, () =>
+                    {
+                        Time.timeScale = 1f;
+                        if (this != null) StartCoroutine(EnterStageClear(stage, chapterComplete));
+                    });
+                    return;
+                }
                 StartCoroutine(EnterStageClear(stage, chapterComplete));
                 return;
             }
@@ -303,10 +315,11 @@ namespace CoastRun
 
             if (GameManager.Active)
             {
-                // 막(4챕터) 끝이면 기존 클로징/오프닝 컷씬을 먼저, 그 뒤 육성으로. 재도전 중엔 컷씬 생략.
-                if (chapterComplete && stage.chapterIndex < 5 && !GameManager.I.IsRetry)
+                // v5: 여름 끝(CH10)·가을 끝(CH15)에만 옛 시네마틱(CH1_Close·CH2_Close)을 재활용. 재도전 중엔 생략.
+                int legacyArc = stage.stageIndex == 10 ? 1 : stage.stageIndex == 15 ? 2 : 0;
+                if (legacyArc > 0 && !GameManager.I.IsRetry)
                 {
-                    StartCoroutine(ChapterCutsceneBridge(stage.chapterIndex));
+                    StartCoroutine(ChapterCutsceneBridge(legacyArc));
                     return;
                 }
                 GameManager.I.AfterChapterContinue();
@@ -418,6 +431,12 @@ namespace CoastRun
 
             if (_cutsceneKind == CutsceneKind.ChapterClosing)
             {
+                if (GameManager.Active)
+                {
+                    // v5: 옛 막 클로징 뒤에는 오프닝을 잇지 않고 바로 육성으로.
+                    GameManager.I.AfterChapterContinue();
+                    yield break;
+                }
                 int nextChapter = _cutsceneChapter + 1;
                 if (nextChapter > 5)
                 {
