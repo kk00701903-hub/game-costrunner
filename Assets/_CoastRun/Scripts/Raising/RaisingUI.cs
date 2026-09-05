@@ -106,6 +106,8 @@ namespace CoastRun
 
         // Log / toast / modal
         private GameObject _logPanel;
+        private Image _logArt;
+        private Image _logArtFrame;
         private Text _logTitle;
         private Text _logBody;
         private Text _logHint;
@@ -788,14 +790,22 @@ namespace CoastRun
             rt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
             rt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
 
-            var panel = OrnatePanel(_logPanel.transform, "Panel", Gold, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -30f), new Vector2(580f, 430f), anchoredSize: true, centered: true);
+            var panel = OrnatePanel(_logPanel.transform, "Panel", Gold, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -20f), new Vector2(600f, 760f), anchoredSize: true, centered: true);
             var host = panel.transform.Find("Inner");
             _logTitle = Label(host, "Title", "", 26, Navy);
             Place(_logTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -14f), new Vector2(0f, 40f), new Vector2(0.5f, 1f));
+            // 프메식 활동 일러스트 (Resources/CoastRun/Sched_<id>.png, 4:3). 없으면 칸을 접는다.
+            _logArtFrame = CoastUiArt.Panel(host, "ArtFrame", Gold, 14);
+            Place(_logArtFrame.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -58f), new Vector2(544f, 410f), new Vector2(0.5f, 1f));
+            _logArt = new GameObject("Art", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            _logArt.transform.SetParent(_logArtFrame.transform, false);
+            Stretch(_logArt.rectTransform, 4f, 4f, -4f, -4f);
+            _logArt.preserveAspect = true;
+            _logArt.raycastTarget = false;
             _logBody = Label(host, "Body", "", 19, Ink);
             _logBody.alignment = TextAnchor.UpperLeft;
             _logBody.horizontalOverflow = HorizontalWrapMode.Wrap;
-            Stretch(_logBody.rectTransform, 28f, 60f, -28f, -64f);
+            Stretch(_logBody.rectTransform, 28f, 52f, -28f, -480f);
             _logHint = Label(host, "Hint", "화면을 터치하면 계속", 15, new Color(0.5f, 0.45f, 0.4f));
             Place(_logHint.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 14f), new Vector2(0f, 30f), new Vector2(0.5f, 0f));
             _logPanel.SetActive(false);
@@ -1112,7 +1122,7 @@ namespace CoastRun
                 {
                     _gm.ResolvePhase(i);
                     yield return ShowLog("스토리 돌입", "송전탑 가는 길로. 장애물을 피해 하트를 모으자.\n\n" +
-                                          $"이번 챕터 목표 ♥{Save.CurrentChapter?.heartsTarget}  ·  지금 ♥{Save.chapterHearts}", 0.6f);
+                                          $"이번 챕터 목표 ♥{Save.CurrentChapter?.heartsTarget}  ·  지금 ♥{Save.chapterHearts}", 0.6f, ScheduleTable.StoryId);
                     _gm.StartStoryRun();
                     yield break;
                 }
@@ -1123,7 +1133,7 @@ namespace CoastRun
                 RefreshSlots();
                 RefreshCharacter(r.outcome == Outcome.GreatSuccess ? Mood.Great : r.outcome == Outcome.Fail ? Mood.Fail : (Mood?)null);
                 _bubble.text = r.outcome == Outcome.GreatSuccess ? "해냈다!" : r.outcome == Outcome.Fail ? "으으… 망했어." : "그럭저럭.";
-                yield return ShowLogTyped($"{i + 1}페이즈 · {r.def.displayName}", r.logLines, r.outcome);
+                yield return ShowLogTyped($"{i + 1}페이즈 · {r.def.displayName}", r.logLines, r.outcome, r.def.id);
                 RefreshStats();
             }
 
@@ -1142,8 +1152,19 @@ namespace CoastRun
             if (ev.HasValue) ShowEvent(ev.Value);
         }
 
-        private IEnumerator ShowLogTyped(string title, string[] lines, Outcome outcome)
+        /// 활동 일러스트를 로그 패널에 건다. 없으면 이미지 칸을 접고 본문을 위로 올린다.
+        private void SetLogArt(string scheduleId)
         {
+            var tex = string.IsNullOrEmpty(scheduleId) ? null : ArtAssets.LoadTexture("Sched_" + scheduleId);
+            bool has = tex != null;
+            _logArtFrame.gameObject.SetActive(has);
+            if (has) _logArt.sprite = CoastUiArt.AsSprite(tex);
+            _logBody.rectTransform.offsetMax = new Vector2(-28f, has ? -480f : -64f);
+        }
+
+        private IEnumerator ShowLogTyped(string title, string[] lines, Outcome outcome, string scheduleId = null)
+        {
+            SetLogArt(scheduleId);
             _logPanel.SetActive(true);
             _logTitle.text = title;
             _logTitle.color = outcome == Outcome.GreatSuccess ? Hex("#B8860B") : outcome == Outcome.Fail ? Red : Navy;
@@ -1167,8 +1188,9 @@ namespace CoastRun
             _logPanel.SetActive(false);
         }
 
-        private IEnumerator ShowLog(string title, string body, float minSeconds)
+        private IEnumerator ShowLog(string title, string body, float minSeconds, string scheduleId = null)
         {
+            SetLogArt(scheduleId);
             _logPanel.SetActive(true);
             _logTitle.text = title;
             _logTitle.color = Navy;
