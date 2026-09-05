@@ -70,6 +70,12 @@ namespace CoastRun.EditorTools
                 }
             }
 
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            sb.AppendLine($"== eventsystem {(es != null ? es.name + " module=" + (es.currentInputModule != null ? es.currentInputModule.GetType().Name : "none") + " over=" + es.IsPointerOverGameObject() : "NONE")}");
+            var gm = GameManager.I;
+            if (gm != null && gm.Save != null)
+                sb.AppendLine($"== v2 save week={gm.Save.week} chapter={gm.Save.chapter} phase={gm.Save.phaseIndex} hearts={gm.Save.chapterHearts} stats={gm.Save.stats.stamina}/{gm.Save.stats.agility}/{gm.Save.stats.charm}/{gm.Save.stats.stress} money={gm.Save.stats.money} mode={gm.Save.runMode} pet={gm.Save.equippedPet} retry={gm.IsRetry} queue={string.Join(",", gm.Save.queuedSchedule ?? new string[0])}");
+
             sb.AppendLine("== canvases / big images");
             foreach (var cv in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
@@ -128,6 +134,14 @@ namespace CoastRun.EditorTools
         {
             ObstacleSpawner.DebugForceBus = !ObstacleSpawner.DebugForceBus;
             Debug.Log("Force bus " + (ObstacleSpawner.DebugForceBus ? "on" : "off"));
+        }
+
+        [MenuItem("Coast Run/Debug/Warp to stage finish (play) %#&w")]
+        public static void WarpToFinish()
+        {
+            if (!EditorApplication.isPlaying) return;
+            StageManager.Instance?.DebugWarpToFinish();
+            Debug.Log("[Debug] warped to finish");
         }
 
         // ── Pause when an oncoming car is close: lets a screenshot catch the moment ──
