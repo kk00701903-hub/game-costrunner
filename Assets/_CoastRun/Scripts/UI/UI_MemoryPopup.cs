@@ -110,8 +110,11 @@ namespace CoastRun
             StopMemoryBgm();
             ClearSaturationVolume();
 
-            if (!fromGallery)
-                audio?.EndMemoryBed(0.5f);
+            // `?.` does not see a destroyed UnityEngine.Object: the popup is DDOL and can
+            // outlive the run scene that owned the audio manager (v2 goes back to the
+            // raising scene while the popup is still up).
+            if (!fromGallery && audio != null)
+                audio.EndMemoryBed(0.5f);
 
             _rootCg.gameObject.SetActive(false);
             _playing = false;

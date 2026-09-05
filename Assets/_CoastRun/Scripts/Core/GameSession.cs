@@ -275,6 +275,24 @@ namespace CoastRun
         private BonusTimeDirector _bonus;
         private PetCompanion _pet;
 
+        /// StageManager lives on the DDOL GameDirector and outlives every run scene. A
+        /// destroyed session left subscribed would still receive OnStageStart on the next
+        /// run load and touch its dead WeatherFx — which aborted the live session's handler
+        /// and left the second run of a play session frozen behind the fade veil.
+        private void OnDestroy()
+        {
+            if (stages != null)
+            {
+                stages.OnStageStart -= HandleStageStart;
+                stages.OnStageClear -= HandleStageClear;
+                stages.OnChapterComplete -= HandleChapterComplete;
+            }
+            if (nearMiss != null)
+                nearMiss.OnNearMissRewarded -= HandleNearMissTally;
+            if (_health != null)
+                _health.OnDepleted -= HandleStaminaDepleted;
+        }
+
         private void HandleStaminaDepleted()
         {
             IsRunning = false;
