@@ -76,7 +76,10 @@ namespace CoastRun.Editor
                 string texDir = Folder + "Textures";
                 if (!AssetDatabase.IsValidFolder(texDir.TrimEnd('/')))
                     AssetDatabase.CreateFolder(Folder.TrimEnd('/'), "Textures");
-                if (skaterImporter.ExtractTextures(texDir))
+                // Extract only once: the diffuse there is hand-recoloured afterwards
+                // (Tools/FireflyArt/recolor_amy.py) and must not be overwritten.
+                bool alreadyExtracted = AssetDatabase.FindAssets("t:Texture2D", new[] { texDir }).Length > 0;
+                if (!alreadyExtracted && skaterImporter.ExtractTextures(texDir))
                 {
                     AssetDatabase.Refresh();
                     AssetDatabase.ImportAsset(Folder + "Skater.fbx", ImportAssetOptions.ForceUpdate);
@@ -115,6 +118,7 @@ namespace CoastRun.Editor
             ctrl.AddParameter("Collect", AnimatorControllerParameterType.Trigger);
             ctrl.AddParameter("Push", AnimatorControllerParameterType.Trigger);
             ctrl.AddParameter("Grounded", AnimatorControllerParameterType.Bool);
+            ctrl.AddParameter("HitMirror", AnimatorControllerParameterType.Bool);
             ctrl.AddParameter("Speed", AnimatorControllerParameterType.Float);
 
             var sm = ctrl.layers[0].stateMachine;
@@ -149,6 +153,9 @@ namespace CoastRun.Editor
             {
                 var sHit = sm.AddState("Hit");
                 sHit.motion = hit;
+                // A sideways bounce plays the reaction mirrored toward the impact side.
+                sHit.mirrorParameterActive = true;
+                sHit.mirrorParameter = "HitMirror";
                 var t = sm.AddAnyStateTransition(sHit);
                 t.AddCondition(AnimatorConditionMode.If, 0, "Hit");
                 t.hasExitTime = false; t.duration = 0.05f; t.canTransitionToSelf = false;

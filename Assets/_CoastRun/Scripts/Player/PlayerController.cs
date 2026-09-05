@@ -12,6 +12,14 @@ namespace CoastRun
         Finish
     }
 
+    /// How an obstacle hit plays out: Trip = stumble over something knee-high and
+    /// keep the lane; Bounce = a solid body (car, crate) knocks her into the next lane.
+    public enum HitKind
+    {
+        Trip,
+        Bounce
+    }
+
     /// Physics-free downhill skater: path distance + lane offset + jump/crouch/tuck.
     /// Wire MobileSwipeInput + MapGenerator (IMapStream) in the inspector or at boot.
     public class PlayerController : MonoBehaviour
@@ -459,7 +467,13 @@ namespace CoastRun
 
         /// Call from obstacle triggers — casual soft fail, no hard death by default.
         /// Camera / SFX juice is owned by JuiceDirector (subscribed to OnSoftHit).
-        public void SoftHit()
+        public void SoftHit() => SoftHit(HitKind.Trip, 0);
+
+        /// Trip: a knee-high thing (hurdle, cone) — she stumbles over it and keeps her
+        /// lane. Bounce: a solid body (car, crate, bench) — she is knocked sideways into
+        /// the neighbouring lane, which is what a chest-high hit looks like. `bounceDir`
+        /// is the side she deflects to (+1 right); 0 lets the controller choose.
+        public void SoftHit(HitKind kind, int bounceDir)
         {
             if (Invincible || _state == SkateState.Finish)
                 return;
@@ -470,8 +484,26 @@ namespace CoastRun
             _softHitTimer = config.softHitRecoverSeconds;
             _speed *= config.softHitSlowFactor;
             _tucking = false;
+
+            LastHitKind = kind;
+            LastBounceDir = 0;
+            if (kind == HitKind.Bounce)
+            {
+                int dir = bounceDir;
+                if (dir == 0)
+                    dir = _lane >= 0 ? -1 : 1;
+                if (_lane + dir < -1 || _lane + dir > 1)
+                    dir = -dir;
+                LastBounceDir = dir;
+                _speed *= 0.8f;                 // a body check bleeds more speed than a trip
+                ChangeLane(dir);
+                FreezeInput(0.25f);
+            }
             OnSoftHit?.Invoke();
         }
+
+        public HitKind LastHitKind { get; private set; }
+        public int LastBounceDir { get; private set; }
 
         public void FinishRun()
         {

@@ -29,7 +29,37 @@ namespace CoastRun
 
             nearMiss?.NotifyHardHit();
             if (softHit)
-                player.SoftHit();
+                player.SoftHit(ClassifyHit(player), BounceSide(player));
+        }
+
+        /// Anything that reaches above her waist (≈ 0.9 m) is a solid body she cannot
+        /// stumble over — she gets bounced sideways instead. Cones, hurdles and
+        /// low rocks stay trips.
+        public const float BounceHeight = 0.9f;
+
+        public HitKind ClassifyHit(PlayerController player)
+        {
+            float top = float.MinValue;
+            foreach (var c in GetComponentsInChildren<Collider>(true))
+            {
+                if (c.GetComponent<NearMissZone>() != null) continue;
+                top = Mathf.Max(top, c.bounds.max.y - c.bounds.min.y);
+            }
+            if (top == float.MinValue)
+                foreach (var r in GetComponentsInChildren<Renderer>(true))
+                    top = Mathf.Max(top, r.bounds.size.y);
+            return top >= BounceHeight ? HitKind.Bounce : HitKind.Trip;
+        }
+
+        /// Deflect toward the side of the obstacle she is already on; centred hits let
+        /// the controller pick a lane that exists.
+        public int BounceSide(PlayerController player)
+        {
+            Vector3 right = transform.right;
+            float side = Vector3.Dot(player.transform.position - transform.position, right);
+            if (Mathf.Abs(side) < 0.15f)
+                return 0;
+            return side > 0f ? 1 : -1;
         }
 
         /// Builds cone-style obstacle: solid body + wider near-miss shell.
