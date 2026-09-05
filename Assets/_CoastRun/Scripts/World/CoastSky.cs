@@ -180,18 +180,22 @@ namespace CoastRun
             go.transform.SetParent(transform, false);
             // Small on purpose: at 150 m a 130 m wide strip reads as a town on the far
             // shore, not a wall of apartments behind the promenade.
-            float width = 150f;
+            float width = 170f;
             float height = width * tex.height / (float)tex.width;
-            // Quad pivot is centred: lift by half height so the base meets the horizon.
-            go.transform.localPosition = new Vector3(-30f, height * 0.5f - 1f, 152f);
+            // The painting carries Hallasan above a strip of painted sea; its shoreline
+            // sits at ~72 % of the height and must land on the real horizon (y ≈ 0.5),
+            // so the painted sea overlaps the 3D sea and dissolves into it (alpha fade).
+            const float shoreline = 0.72f;
+            float centreY = 0.5f + height * (shoreline - 0.5f);
+            go.transform.localPosition = new Vector3(-20f, centreY, 152f);
             go.transform.localScale = new Vector3(width, height, 1f);
             go.transform.localRotation = Quaternion.identity;
             CoastEditUtil.DestroyCollider(go);
 
-            var mat = CoastMaterials.CreateTexturedTransparent(tex, Color.white);
+            // Fog-free: the stock URP Unlit fogged this quad to a single pale band at
+            // 150 m (fog end ≈ 154 m), which was the saturation mismatch on the horizon.
+            var mat = CoastMaterials.CreateTexturedTransparentNoFog(tex, Color.white);
             CoastMaterials.SetFlat(mat);
-            // No fog at all: even a partial fog mix lit up the quad's transparent pixels
-            // as a pale slab (the painting already carries its own haze).
             CoastMaterials.SetNoFog(mat, 0f);
             mat.renderQueue = 3000;
             var mr = go.GetComponent<Renderer>();
@@ -226,7 +230,7 @@ namespace CoastRun
             if (_farTown != null)
             {
                 Vector3 tp = _farTown.localPosition;
-                tp.x = -30f + _follow.position.x * 0.03f;
+                tp.x = -20f + _follow.position.x * 0.03f;
                 _farTown.localPosition = tp;
             }
 

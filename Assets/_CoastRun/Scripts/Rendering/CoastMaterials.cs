@@ -192,6 +192,30 @@ namespace CoastRun
 
         private static Shader _urpUnlit;
 
+        /// Alpha-blended, fog-free painted backdrop (the Hallasan far layer). Stock URP
+        /// Unlit always applies distance fog, and at 150 m — right at fog end — that
+        /// bleached the whole layer into one pale band on the horizon. The curved
+        /// shader exposes _FogWeight, so it can draw the painting exactly as painted.
+        public static Material CreateTexturedTransparentNoFog(Texture2D tex, Color tint)
+        {
+            var shader = Shader.Find("CoastRun/UnlitCurved");
+            if (shader == null)
+                return CreateTexturedTransparent(tex, tint);
+            var mat = new Material(shader);
+            mat.SetColor("_BaseColor", tint);
+            if (tex != null)
+                mat.SetTexture("_BaseMap", tex);
+            mat.SetFloat("_Surface", 1f);
+            mat.SetFloat("_Blend", 0f);
+            mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_ZWrite", 0f);
+            mat.SetFloat("_CurveWeight", 0f);
+            mat.SetFloat("_FogWeight", 0f);
+            mat.renderQueue = 3000;
+            return mat;
+        }
+
         /// Alpha-blended textured unlit for painted billboards (clouds, far town).
         /// Deliberately the stock URP Unlit, not the curved shader: through the curved
         /// shader's transparent path the quad's fully transparent texels still rendered
