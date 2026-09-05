@@ -155,13 +155,26 @@ namespace CoastRun
             _coinHudRoutine = null;
         }
 
+        /// Bonus Time kick-off: shake + burst + max speed lines for a beat.
+        public void PlayBonusStart()
+        {
+            cameraRig?.Shake(0.35f, 0.18f);
+            for (int i = 0; i < 3; i++)
+                SpawnCoinBurst((player != null ? player.transform.position : Vector3.zero)
+                               + Vector3.up * (0.5f + i * 0.4f));
+            audio?.PlaySfx(CoastSfx.NearMiss);
+        }
+
         /// Called by CoinPickup when collect VFX starts (after wallet Add).
         public void PlayCoinCollect(Transform coinVisual, Vector3 worldPos, int amount)
         {
             if (coinVisual != null)
                 StartCoroutine(CoinScalePop(coinVisual));
 
-            SpawnCoinBurst(worldPos);
+            // amount 0 = jelly: a trail spawns ten of these a second, so no burst — the
+            // scale pop and the SFX carry it. (Bursts also leaked a full-screen tint.)
+            if (amount > 0)
+                SpawnCoinBurst(worldPos);
             audio?.PlaySfx(CoastSfx.Coin);
         }
 
@@ -197,6 +210,8 @@ namespace CoastRun
                     s = Mathf.Lerp(1.3f, 0f, EaseInCubic(p));
                 }
 
+                if (visual == null)
+                    yield break;          // owner already destroyed it (jelly shell)
                 visual.localScale = baseScale * s;
                 yield return null;
             }

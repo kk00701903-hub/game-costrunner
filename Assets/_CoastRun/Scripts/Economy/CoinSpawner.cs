@@ -10,7 +10,7 @@ namespace CoastRun
         [SerializeField] private UpgradeManager upgrades;
         [SerializeField] private UI_FeedbackController feedback;
         [SerializeField] private float spawnAhead = 80f;
-        [SerializeField] private float spawnInterval = 7f;
+        [SerializeField] private float spawnInterval = 13f;   // jellies are the main breadcrumb now; coins stay the currency
         [SerializeField] private float laneWidth = 2.2f;
 
         private float _nextSpawnZ = 8f;

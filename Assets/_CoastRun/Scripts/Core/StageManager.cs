@@ -129,6 +129,18 @@ namespace CoastRun
                 table.EnsurePopulated();
             }
 
+#if UNITY_EDITOR
+            // Dev-only: "Coast Run/PLAY from stage N" menus park a one-shot stage here,
+            // honoured by whichever entry point loads the first stage of the session.
+            int devStage = PlayerPrefs.GetInt(GameSession.DevStartStageKey, 0);
+            if (devStage > 0)
+            {
+                PlayerPrefs.DeleteKey(GameSession.DevStartStageKey);
+                stageIndex = devStage;
+                Debug.Log("[StageManager] Dev start stage " + stageIndex);
+            }
+#endif
+
             var def = table.GetByIndex(stageIndex);
             if (def == null)
             {
@@ -138,6 +150,11 @@ namespace CoastRun
 
             _awaitingContinue = false;
             clearUi?.Hide();
+
+            // Two managers can coexist for a frame or two during scene handoffs (the
+            // bootstrap's and the run scene's). Whoever actually runs a stage is the one
+            // spawners and HUD must read, so claim the singleton here.
+            Instance = this;
 
             _current = def;
             StageIndex = def.stageIndex;

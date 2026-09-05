@@ -88,7 +88,7 @@ namespace CoastRun
             if (_player == null || _upgrades == null)
                 return;
 
-            float magnet = _upgrades.GetMagnetRadius();
+            float magnet = _upgrades.GetMagnetRadius() + PetCompanion.MagnetBonus;
             if (magnet <= 0.05f)
                 return;
 
@@ -138,7 +138,7 @@ namespace CoastRun
                 return;
             _collected = true;
 
-            float mult = _upgrades != null ? _upgrades.GetCoinMultiplier() : 1f;
+            float mult = (_upgrades != null ? _upgrades.GetCoinMultiplier() : 1f) * PetCompanion.CoinBonus;
             int amount = Mathf.Max(1, Mathf.RoundToInt(value * mult));
             _wallet?.Add(amount);
             StageRunStats.Instance?.NotifyCoin(amount);

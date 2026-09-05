@@ -54,6 +54,13 @@ namespace CoastRun
         /// The transform sits at the body's mid-height (see EnsurePlayerPhysics), so a
         /// visual built with its feet at local y = 0 must hang this far below it.
         public float BodyHalfHeight => _bodyHeight * 0.5f;
+
+        /// Bonus Time and similar power-ups: multiplies the speed target (1 = normal).
+        public float SpeedBoost { get; set; } = 1f;
+
+        /// While true obstacle hits are ignored (Bonus Time). Hazards still fire
+        /// OnSoftHit-free feedback through JuiceDirector if they want to.
+        public bool Invincible { get; set; }
         public float NormalizedSpeed
         {
             get
@@ -229,6 +236,7 @@ namespace CoastRun
             _tucking = _input != null && _input.TuckHeld && IsGrounded && _state != SkateState.Crouch;
             if (_tucking)
                 target *= config.tuckMultiplier;
+            target *= Mathf.Max(0.1f, SpeedBoost);
 
             _speed = Mathf.MoveTowards(_speed, target, 20f * Time.deltaTime);
         }
@@ -453,10 +461,10 @@ namespace CoastRun
         /// Camera / SFX juice is owned by JuiceDirector (subscribed to OnSoftHit).
         public void SoftHit()
         {
-            StageRunStats.Instance?.NotifySoftHit();
-
-            if (_state == SkateState.Finish)
+            if (Invincible || _state == SkateState.Finish)
                 return;
+
+            StageRunStats.Instance?.NotifySoftHit();
 
             _state = SkateState.SoftHit;
             _softHitTimer = config.softHitRecoverSeconds;

@@ -449,12 +449,34 @@ namespace CoastRun
                 ShowPanel(_settingsPanel, false);
                 ShowPanel(_creditsPanel, true);
             });
+
+            // Pet picker — cycles through the three companions; the run reads
+            // PetCompanion.Selected when it builds the pet.
+            Text petLabel = null;
+            var petBtn = CreateMenuButton(_settingsPanel.transform, "펫", 0.6f, () =>
+            {
+                PetCompanion.Selected = (PetKind)(((int)PetCompanion.Selected + 1) % 3);
+                if (petLabel != null)
+                    petLabel.text = PetLabel();
+            });
+            petLabel = petBtn.GetComponentInChildren<Text>();
+            if (petLabel != null)
+            {
+                petLabel.text = PetLabel();
+                petLabel.fontSize = 18;
+            }
             CreateMenuButton(_settingsPanel.transform, "닫기", 0.12f, () =>
             {
                 _audio?.PlayClick();
                 ShowPanel(_settingsPanel, false);
             }, absoluteBottom: true);
             _settingsPanel.SetActive(false);
+        }
+
+        private static string PetLabel()
+        {
+            int k = (int)PetCompanion.Selected;
+            return "펫: " + PetCompanion.Names[k] + "  ▸  " + PetCompanion.Blurbs[k];
         }
 
         private void ShowPanel(GameObject panel, bool on)

@@ -17,6 +17,7 @@ namespace CoastRun
         public int NearMissValue { get; private set; }
         public int BestCombo { get; private set; }
         public int SoftHits { get; private set; }
+        public int Jellies { get; private set; }
         public float Seconds { get; private set; }
 
         public int Total => CoinValue + NearMissValue;
@@ -57,6 +58,7 @@ namespace CoastRun
             NearMissValue = 0;
             BestCombo = 0;
             SoftHits = 0;
+            Jellies = 0;
             Seconds = 0f;
             _running = true;
         }
@@ -69,6 +71,12 @@ namespace CoastRun
                 return;
             Coins++;
             CoinValue += value;
+        }
+
+        public void NotifyJelly(int count)
+        {
+            if (_running)
+                Jellies += count;
         }
 
         public void NotifyNearMiss(int reward, int combo)

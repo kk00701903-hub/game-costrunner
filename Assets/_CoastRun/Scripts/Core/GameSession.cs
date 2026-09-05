@@ -5,6 +5,8 @@ namespace CoastRun
     /// Minimal boot for Coast Run scenes. Attach to an empty GameObject in Run.unity.
     public class GameSession : MonoBehaviour
     {
+        public const string DevStartStageKey = "CoastRun_DevStartStage";
+
         [SerializeField] private RunConfig config;
         [SerializeField] private StoryConfig storyConfig;
         [SerializeField] private PlayerController player;
@@ -207,6 +209,21 @@ namespace CoastRun
             obstacles.Bind(player, seasonWeather);
             coins.Bind(player, wallet, upgrades, feedback);
 
+            // Cookie-Run layer: stamina bar, jelly trails, bonus time, pet.
+            // HealthSystem must exist before the HUD chrome subscribes to it, so it is
+            // created here and the chrome is rebuilt-aware via Instance lookups.
+            _health = gameObject.GetComponent<HealthSystem>() ?? gameObject.AddComponent<HealthSystem>();
+            _health.Bind(player);
+            _health.OnDepleted -= HandleStaminaDepleted;
+            _health.OnDepleted += HandleStaminaDepleted;
+            _jellies = gameObject.GetComponent<JellySpawner>() ?? gameObject.AddComponent<JellySpawner>();
+            _jellies.Bind(player, upgrades);
+            _bonus = gameObject.GetComponent<BonusTimeDirector>() ?? gameObject.AddComponent<BonusTimeDirector>();
+            _bonus.Bind(player, obstacles, _jellies, _health, rig);
+            if (_pet == null && player != null)
+                _pet = PetCompanion.Create(player, _health);
+            feedback.Chrome?.RebindHealth();
+
             // Curved-world bend: the road sweeps left/right ahead of the player.
             var curve = gameObject.GetComponent<CurveDirector>() ?? gameObject.AddComponent<CurveDirector>();
             curve.Bind(player);
@@ -253,9 +270,40 @@ namespace CoastRun
             dayCycle?.ResetLightingTo(dayCycle.LightingT);
         }
 
+        private HealthSystem _health;
+        private JellySpawner _jellies;
+        private BonusTimeDirector _bonus;
+        private PetCompanion _pet;
+
+        private void HandleStaminaDepleted()
+        {
+            IsRunning = false;
+            if (input != null)
+                input.enabled = false;
+            _bonus?.ForceEnd();
+            var chrome = feedback != null ? feedback.Chrome : null;
+            if (chrome == null)
+            {
+                stages?.RetryCurrent();
+                return;
+            }
+            chrome.ShowRunOver(
+                () => stages?.RetryCurrent(),
+                () =>
+                {
+                    var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
+                    if (flow != null)
+                        _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
+                });
+        }
+
         private void HandleStageStart(StageDef stage)
         {
             runStats?.BeginStage();
+            _bonus?.ForceEnd();
+            _health?.ResetFull();
+            if (_jellies != null && player != null)
+                _jellies.ResetForStage(stage.stageIndex, player.PathDistance);
             // Same seed per stage: a retry replays the same course, so the player is
             // learning a layout rather than fighting a new random one each attempt.
             if (obstacles != null && player != null)
@@ -278,6 +326,8 @@ namespace CoastRun
         private void HandleStageClear(StageDef stage)
         {
             runStats?.EndStage();
+            _bonus?.ForceEnd();
+            _health?.SetActive(false);
             IsRunning = false;
             if (input != null)
                 input.enabled = false;

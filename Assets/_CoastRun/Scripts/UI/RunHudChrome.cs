@@ -24,7 +24,22 @@ namespace CoastRun
         public const string BestScoreKey = "CoastRun.BestScore";
 
         public static int BestScore => PlayerPrefs.GetInt(BestScoreKey, 0);
+        public static RunHudChrome Instance { get; private set; }
         private float _nextBestCheck;
+
+        // Cookie-Run additions: stamina bar, bonus-time banner, run-over panel.
+        private Image _hpFill;
+        private RectTransform _hpBar;
+        private Text _hpText;
+        private CanvasGroup _hpCg;
+        private GameObject _bonusBanner;
+        private Image _bonusFill;
+        private Text _bonusLabel;
+        private GameObject _runOverOverlay;
+        private Image _flash;
+        private float _hpShown = 1f;
+        private float _hpShake;
+        private int _floatEvery;
 
         private Canvas _canvas;
         private PlayerController _player;
@@ -62,9 +77,23 @@ namespace CoastRun
             _wallet = wallet;
             var root = CoastUiCanvas.Root(canvas);
 
+            Instance = this;
             BuildPause(root);
             BuildScorePill(root);
             BuildCoinPill(root);
+            BuildHealthBar(root);
+            BuildBonusBanner(root);
+            BuildFlash(root);
+
+            var health = HealthSystem.Instance;
+            if (health != null)
+            {
+                health.OnChanged -= HandleHealth;
+                health.OnChanged += HandleHealth;
+                health.OnDamaged -= HandleDamaged;
+                health.OnDamaged += HandleDamaged;
+                HandleHealth(health.Current, health.Max);
+            }
 
             if (nearMiss != null)
             {
@@ -81,11 +110,208 @@ namespace CoastRun
 
         private void OnDestroy()
         {
+            if (Instance == this)
+                Instance = null;
             if (_wallet != null)
                 _wallet.OnCoinsChanged -= HandleCoins;
+            var health = HealthSystem.Instance;
+            if (health != null)
+            {
+                health.OnChanged -= HandleHealth;
+                health.OnDamaged -= HandleDamaged;
+            }
             if (_paused)
                 Time.timeScale = 1f;
             SaveBest();
+        }
+
+        // ── Cookie-Run HUD ───────────────────────────────────────────────────
+
+        /// GameSession creates HealthSystem after the chrome; call once it exists.
+        public void RebindHealth()
+        {
+            var health = HealthSystem.Instance;
+            if (health == null)
+                return;
+            health.OnChanged -= HandleHealth;
+            health.OnChanged += HandleHealth;
+            health.OnDamaged -= HandleDamaged;
+            health.OnDamaged += HandleDamaged;
+            HandleHealth(health.Current, health.Max);
+        }
+
+        private void BuildHealthBar(RectTransform root)
+        {
+            // Under the pause button, left-aligned: the thing you glance at most.
+            var track = CoastUiArt.Panel(root, "HpBar", new Color(0.05f, 0.08f, 0.18f, 0.9f), 14);
+            _hpBar = track.rectTransform;
+            _hpBar.anchorMin = _hpBar.anchorMax = new Vector2(0f, 1f);
+            _hpBar.pivot = new Vector2(0f, 1f);
+            _hpBar.anchoredPosition = new Vector2(0f, -84f);
+            _hpBar.sizeDelta = new Vector2(330f, 34f);
+            _hpCg = track.gameObject.AddComponent<CanvasGroup>();
+
+            var fill = CoastUiArt.Panel(_hpBar, "Fill", new Color(1f, 0.42f, 0.55f, 1f), 11);
+            _hpFill = fill;
+            var frt = fill.rectTransform;
+            frt.anchorMin = new Vector2(0f, 0f);
+            frt.anchorMax = new Vector2(1f, 1f);
+            frt.offsetMin = new Vector2(4f, 4f);
+            frt.offsetMax = new Vector2(-4f, -4f);
+            fill.type = Image.Type.Filled;
+            fill.fillMethod = Image.FillMethod.Horizontal;
+            fill.fillOrigin = (int)Image.OriginHorizontal.Left;
+            fill.fillAmount = 1f;
+
+            // Heart badge on the left edge.
+            var heart = CoastUiArt.Panel(_hpBar, "Heart", new Color(1f, 0.3f, 0.45f), 12);
+            var hrt = heart.rectTransform;
+            hrt.anchorMin = hrt.anchorMax = new Vector2(0f, 0.5f);
+            hrt.pivot = new Vector2(0.5f, 0.5f);
+            hrt.anchoredPosition = new Vector2(2f, 0f);
+            hrt.sizeDelta = new Vector2(40f, 40f);
+            var hl = CoastHudLayout.MakeText(hrt, "Glyph", "♥", 26, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.one, Vector2.zero, new Vector2(0f, 2f));
+            hl.color = Color.white;
+
+            _hpText = CoastHudLayout.MakeText(_hpBar, "Value", "100", 18, TextAnchor.MiddleRight,
+                Vector2.zero, Vector2.one, new Vector2(0f, 0f), new Vector2(-10f, 0f));
+            _hpText.color = Color.white;
+        }
+
+        private void BuildBonusBanner(RectTransform root)
+        {
+            var banner = CoastUiArt.Panel(root, "BonusBanner", new Color(0.55f, 0.2f, 0.8f, 0.92f), 22);
+            _bonusBanner = banner.gameObject;
+            var rt = banner.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.anchoredPosition = new Vector2(0f, -210f);
+            rt.sizeDelta = new Vector2(440f, 78f);
+
+            _bonusLabel = CoastHudLayout.MakeText(rt, "Label", "BONUS TIME!", 34, TextAnchor.MiddleCenter,
+                new Vector2(0f, 0.35f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
+            _bonusLabel.color = ScoreYellow;
+            _bonusLabel.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.5f);
+
+            var track = CoastUiArt.Panel(rt, "Track", new Color(0f, 0f, 0f, 0.35f), 6);
+            var trt = track.rectTransform;
+            trt.anchorMin = new Vector2(0.06f, 0.12f);
+            trt.anchorMax = new Vector2(0.94f, 0.3f);
+            trt.offsetMin = trt.offsetMax = Vector2.zero;
+            _bonusFill = CoastUiArt.Panel(trt, "Fill", ScoreYellow, 5);
+            var brt = _bonusFill.rectTransform;
+            brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one;
+            brt.offsetMin = brt.offsetMax = Vector2.zero;
+            _bonusFill.type = Image.Type.Filled;
+            _bonusFill.fillMethod = Image.FillMethod.Horizontal;
+            _bonusBanner.SetActive(false);
+        }
+
+        private void BuildFlash(RectTransform root)
+        {
+            _flash = CoastHudLayout.MakeImage(root, "Flash", Vector2.zero, Vector2.one,
+                new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad),
+                new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad), new Color(1f, 1f, 1f, 0f));
+            _flash.raycastTarget = false;
+            _flash.transform.SetAsFirstSibling();
+        }
+
+        private void HandleHealth(float current, float max)
+        {
+            if (_hpText != null)
+                _hpText.text = Mathf.CeilToInt(current).ToString();
+        }
+
+        private void HandleDamaged(float amount)
+        {
+            _hpShake = 0.35f;
+            Flash(new Color(1f, 0.2f, 0.2f, 0.3f));
+        }
+
+        public void Flash(Color c)
+        {
+            if (_flash == null)
+                return;
+            _flash.color = c;
+        }
+
+        /// Jelly / potion / star points. `big` shows a floating number; jellies only
+        /// float every fifth pickup so a trail does not paper the screen.
+        public void AddScore(int amount, Vector3 worldPos, bool big)
+        {
+            _bonus += amount * Mathf.Max(1, _combo);
+            if (big || (++_floatEvery % 5) == 0)
+            {
+                var fb = GetComponent<UI_FeedbackController>();
+                fb?.ShowFloatingReward(worldPos, amount * Mathf.Max(1, _combo), big ? 3 : 1);
+            }
+        }
+
+        public void ShowBonusBanner(bool on)
+        {
+            if (_bonusBanner != null)
+                _bonusBanner.SetActive(on);
+            if (on && _bonusBanner != null)
+                StartCoroutine(SimpleTween.PunchScale(_bonusBanner.transform, 0.3f, 0.35f));
+        }
+
+        public void SetBonusProgress(float t)
+        {
+            if (_bonusFill != null)
+                _bonusFill.fillAmount = t;
+            if (_bonusLabel != null)
+                _bonusLabel.color = Color.Lerp(ScoreYellow, Color.white, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 12f));
+        }
+
+        /// Stamina hit zero. Freezes time and offers retry / title.
+        public void ShowRunOver(UnityEngine.Events.UnityAction retry, UnityEngine.Events.UnityAction toTitle)
+        {
+            if (_runOverOverlay != null)
+                Destroy(_runOverOverlay);
+            Time.timeScale = 0f;
+            AudioListener.pause = true;
+
+            var canvas = CoastUiCanvas.Create("RunOverOverlay", 410);
+            _runOverOverlay = canvas.gameObject;
+            var root = CoastUiCanvas.Root(canvas);
+            var dim = CoastHudLayout.MakeImage(root, "Dim", Vector2.zero, Vector2.one,
+                new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad),
+                new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad), new Color(0.15f, 0.02f, 0.06f, 0.78f));
+            dim.raycastTarget = true;
+
+            var panel = CoastUiArt.Panel(root, "Panel", new Color(0.97f, 0.95f, 0.90f, 1f), 28);
+            var prt = panel.rectTransform;
+            prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 0.5f);
+            prt.sizeDelta = new Vector2(500f, 360f);
+            panel.raycastTarget = true;
+
+            var title = CoastHudLayout.MakeText(prt, "Title", "체력이 다 떨어졌어…", 36, TextAnchor.MiddleCenter,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -100f), new Vector2(0f, -24f));
+            title.color = PillNavy;
+            var sub = CoastHudLayout.MakeText(prt, "Sub", "젤리를 먹으면서 달려야 해. 포션은 크게 회복돼.", 18,
+                TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -140f), new Vector2(0f, -100f));
+            sub.color = new Color(0.3f, 0.32f, 0.4f);
+
+            MakeBigButton(prt, "Retry", "다시 달리기", new Color(0.30f, 0.72f, 0.36f), -210f, () =>
+            {
+                CloseRunOver();
+                retry?.Invoke();
+            });
+            MakeBigButton(prt, "Title", "메인으로", new Color(0.35f, 0.45f, 0.70f), -290f, () =>
+            {
+                CloseRunOver();
+                toTitle?.Invoke();
+            });
+        }
+
+        private void CloseRunOver()
+        {
+            Time.timeScale = 1f;
+            AudioListener.pause = false;
+            if (_runOverOverlay != null)
+                Destroy(_runOverOverlay);
+            _runOverOverlay = null;
         }
 
         private void SaveBest()
@@ -186,6 +412,7 @@ namespace CoastRun
 
         private void Update()
         {
+            UpdateCookieHud();
             if (_player != null && _player.Speed > 0.5f)
                 _distanceScore += _player.Speed * Time.deltaTime * 2f * _combo;
 
@@ -205,6 +432,41 @@ namespace CoastRun
             {
                 _nextBestCheck = Time.unscaledTime + 5f;
                 SaveBest();
+            }
+        }
+
+
+        private void UpdateCookieHud()
+        {
+            var health = HealthSystem.Instance;
+            if (_hpFill != null && health != null)
+            {
+                _hpShown = Mathf.Lerp(_hpShown, health.Normalized, 1f - Mathf.Exp(-Time.unscaledDeltaTime * 10f));
+                _hpFill.fillAmount = _hpShown;
+                bool low = _hpShown < 0.25f;
+                Color c = low
+                    ? Color.Lerp(new Color(1f, 0.25f, 0.3f), new Color(1f, 0.6f, 0.3f), 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 10f))
+                    : Color.Lerp(new Color(1f, 0.42f, 0.55f), new Color(0.45f, 0.9f, 0.5f), _hpShown);
+                if (health.Frozen)
+                    c = ScoreYellow;
+                _hpFill.color = c;
+            }
+            if (_hpBar != null)
+            {
+                if (_hpShake > 0f)
+                {
+                    _hpShake -= Time.unscaledDeltaTime;
+                    float k = _hpShake / 0.35f;
+                    _hpBar.anchoredPosition = new Vector2(Mathf.Sin(Time.unscaledTime * 60f) * 6f * k, -84f);
+                }
+                else
+                    _hpBar.anchoredPosition = new Vector2(0f, -84f);
+            }
+            if (_flash != null && _flash.color.a > 0f)
+            {
+                var c = _flash.color;
+                c.a = Mathf.MoveTowards(c.a, 0f, Time.unscaledDeltaTime * 1.2f);
+                _flash.color = c;
             }
         }
 
