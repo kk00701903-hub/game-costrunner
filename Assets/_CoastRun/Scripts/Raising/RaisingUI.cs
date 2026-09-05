@@ -470,7 +470,12 @@ namespace CoastRun
             ring.sprite = CoastUiArt.RoundedRect(60);
             ring.type = Image.Type.Simple;
             ring.color = Gold;
-            Place(ring.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(12f, -8f), new Vector2(92f, 92f), new Vector2(0f, 1f));
+            // 상단 38% 띠에 맞춘 원형 초상 (높이 기준 정사각)
+            ring.rectTransform.anchorMin = new Vector2(0f, 0.62f); ring.rectTransform.anchorMax = new Vector2(0f, 1f);
+            ring.rectTransform.pivot = new Vector2(0f, 1f);
+            ring.rectTransform.anchoredPosition = new Vector2(12f, -6f);
+            ring.rectTransform.sizeDelta = new Vector2(84f, -12f);
+            ring.gameObject.AddComponent<AspectRatioFitter>().aspectMode = AspectRatioFitter.AspectMode.HeightControlsWidth;
             var maskGo = new GameObject("Mask", typeof(RectTransform), typeof(Image), typeof(Mask));
             maskGo.transform.SetParent(ring.transform, false);
             var maskImg = maskGo.GetComponent<Image>();
@@ -486,7 +491,7 @@ namespace CoastRun
             Place(_portraitFace.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, 18f), new Vector2(180f, 270f), new Vector2(0.5f, 1f));
 
             // 말풍선
-            var bubble = OrnatePanel(host, "Bubble", Gold, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(116f, -8f), new Vector2(-10f, -86f), anchoredSize: true);
+            var bubble = OrnatePanel(host, "Bubble", Gold, new Vector2(0f, 0.62f), new Vector2(1f, 1f), new Vector2(112f, 4f), new Vector2(-10f, -6f));
             var tail = CoastHudLayout.MakeImage(bubble.transform, "Tail", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(-14f, -10f), new Vector2(6f, 10f), Gold);
             tail.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             tail.transform.SetAsFirstSibling();
@@ -500,7 +505,8 @@ namespace CoastRun
             {
                 int slot = i;
                 var chip = CoastUiArt.Panel(host, "Chip" + i, Ivory, 12);
-                Place(chip.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(12f + i * 226f, -100f), new Vector2(216f, 36f), new Vector2(0f, 1f));
+                chip.rectTransform.anchorMin = new Vector2(i / 3f, 0.44f); chip.rectTransform.anchorMax = new Vector2((i + 1) / 3f, 0.60f);
+                chip.rectTransform.offsetMin = new Vector2(i == 0 ? 12f : 5f, 0f); chip.rectTransform.offsetMax = new Vector2(i == 2 ? -12f : -5f, 0f);
                 chip.raycastTarget = true;
                 var edge = CoastUiArt.Panel(chip.transform, "Edge", Gold, 12);
                 Stretch(edge.rectTransform, 0f, 0f, 0f, 0f);
@@ -513,22 +519,24 @@ namespace CoastRun
             }
 
             // 액션 버튼 3개 (높이 ≥ 56dp → 112px)
-            const float btnW = 220f, btnH = 84f, gap = 12f;
-            float startX = (700f - (btnW * 3 + gap * 2)) * 0.5f;
-            _scheduleBtn = ActionButton(host, "Schedule", "스케줄", Coral, Hex("#FF8FAB"), new Vector2(startX, 12f), new Vector2(btnW, btnH), () => ToggleSheet(true));
-            _runButton = ActionButton(host, "Run", "실행", Mint, Hex("#80CBC4"), new Vector2(startX + btnW + gap, 12f), new Vector2(btnW, btnH), OnRunPressed);
+            // 아래 40% 띠를 3등분 — 어떤 높이에서도 프레임 안에 남는다 (hitSlop 10px 포함).
+            _scheduleBtn = ActionButton(host, "Schedule", "스케줄", Coral, Hex("#FF8FAB"), 0, () => ToggleSheet(true));
+            _runButton = ActionButton(host, "Run", "실행", Mint, Hex("#80CBC4"), 1, OnRunPressed);
             _runLabel = _runButton.GetComponentInChildren<Text>();
-            _storyBtn = ActionButton(host, "Story", "★ 스토리", Sun, Hex("#FFCC80"), new Vector2(startX + (btnW + gap) * 2, 12f), new Vector2(btnW, btnH), OnStoryPressed);
+            _storyBtn = ActionButton(host, "Story", "★ 스토리", Sun, Hex("#FFCC80"), 2, OnStoryPressed);
             _storyLabel = _storyBtn.GetComponentInChildren<Text>();
         }
 
         /// 둥근 직사각형 + 그림자 + 위쪽 밝은 그라데이션(두 톤). hitSlop 10px은 버튼 렉트를 사방 10px 키워 구현.
-        private Button ActionButton(Transform parent, string name, string label, Color color, Color light, Vector2 pos, Vector2 size, Action onClick)
+        private Button ActionButton(Transform parent, string name, string label, Color color, Color light, int column, Action onClick)
         {
             var hit = new GameObject(name + "Hit", typeof(RectTransform), typeof(Image), typeof(Button));
             hit.transform.SetParent(parent, false);
             var hrt = hit.GetComponent<RectTransform>();
-            Place(hrt, new Vector2(0f, 0f), new Vector2(0f, 0f), pos - new Vector2(10f, 10f), size + new Vector2(20f, 20f), new Vector2(0f, 0f));
+            hrt.anchorMin = new Vector2(column / 3f, 0.02f);
+            hrt.anchorMax = new Vector2((column + 1) / 3f, 0.42f);
+            hrt.offsetMin = new Vector2(column == 0 ? 2f : -4f, 0f);   // hitSlop: 버튼 본체(10px 안쪽)보다 10px 넓게
+            hrt.offsetMax = new Vector2(column == 2 ? -2f : 4f, 0f);
             hit.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);   // hitSlop 영역(투명)
             var btn = hit.GetComponent<Button>();
             btn.transition = Selectable.Transition.None;
@@ -590,7 +598,9 @@ namespace CoastRun
             {
                 int slot = i;
                 var card = CoastUiArt.Panel(host, "Slot" + i, Ivory, 14);
-                Place(card.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(12f + i * 226f, -50f), new Vector2(216f, 74f), new Vector2(0f, 1f));
+                card.rectTransform.anchorMin = new Vector2(i / 3f, 1f); card.rectTransform.anchorMax = new Vector2((i + 1) / 3f, 1f);
+                card.rectTransform.pivot = new Vector2(0.5f, 1f);
+                card.rectTransform.offsetMin = new Vector2(i == 0 ? 10f : 4f, -124f); card.rectTransform.offsetMax = new Vector2(i == 2 ? -10f : -4f, -50f);
                 card.raycastTarget = true;
                 var edge = CoastUiArt.Panel(card.transform, "Edge", Gold, 14);
                 Stretch(edge.rectTransform, 0f, 0f, 0f, 0f);
@@ -622,7 +632,9 @@ namespace CoastRun
             {
                 var t = tabs[i];
                 var pill = CoastUiArt.CutePill(host, "Tab" + t.cat, t.color, 14, 3);
-                Place(pill.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(12f + i * 170f, -136f), new Vector2(160f, 48f), new Vector2(0f, 1f));
+                pill.rectTransform.anchorMin = new Vector2(i / 4f, 1f); pill.rectTransform.anchorMax = new Vector2((i + 1) / 4f, 1f);
+                pill.rectTransform.pivot = new Vector2(0.5f, 1f);
+                pill.rectTransform.offsetMin = new Vector2(i == 0 ? 10f : 4f, -184f); pill.rectTransform.offsetMax = new Vector2(i == 3 ? -10f : -4f, -136f);
                 var btn = pill.gameObject.AddComponent<Button>();
                 pill.raycastTarget = true;
                 btn.transition = Selectable.Transition.None;
@@ -671,13 +683,17 @@ namespace CoastRun
 
             var season = Timeline.SeasonOf(Save.week);
             var defs = ScheduleTable.ByCategory(_tab, season);
-            const float w = 330f, h = 112f, gap = 8f;
+            const float h = 112f, gap = 8f;
             for (int i = 0; i < defs.Count; i++)
             {
                 var d = defs[i];
                 int col = i % 2, row = i / 2;
                 var card = CoastUiArt.CutePill(_cardRow, "Card_" + d.id, CardColor(d), 14, 3);
-                Place(card.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(col * (w + gap), -row * (h + gap)), new Vector2(w, h), new Vector2(0f, 1f));
+                // 2열: 컨테이너 너비의 절반씩 (고정 폭이면 좁은 안전 영역에서 오른쪽으로 삐져나간다)
+                card.rectTransform.anchorMin = new Vector2(col * 0.5f, 1f); card.rectTransform.anchorMax = new Vector2(col * 0.5f + 0.5f, 1f);
+                card.rectTransform.pivot = new Vector2(0.5f, 1f);
+                card.rectTransform.offsetMin = new Vector2(col == 0 ? 0f : gap * 0.5f, -row * (h + gap) - h);
+                card.rectTransform.offsetMax = new Vector2(col == 1 ? 0f : -gap * 0.5f, -row * (h + gap));
                 var btn = card.gameObject.AddComponent<Button>();
                 card.raycastTarget = true;
                 btn.transition = Selectable.Transition.None;

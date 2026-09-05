@@ -37,7 +37,7 @@ namespace CoastRun.EditorTools
             {
                 sb.AppendLine("== player renderers");
                 foreach (var r in pl.GetComponentsInChildren<Renderer>(true))
-                    sb.AppendLine($"   {Path(r.transform)} en={r.enabled} active={r.gameObject.activeInHierarchy} bounds={r.bounds.size} mat={(r.sharedMaterial != null ? r.sharedMaterial.shader.name + "/" + (r.sharedMaterial.mainTexture != null ? r.sharedMaterial.mainTexture.name : "notex") : "null")} scale={r.transform.lossyScale}");
+                    sb.AppendLine($"   {Path(r.transform)} en={r.enabled} active={r.gameObject.activeInHierarchy} bounds={r.bounds.size} mat={(r.sharedMaterial != null ? r.sharedMaterial.shader.name + "/" + TexName(r.sharedMaterial) : "null")} scale={r.transform.lossyScale}");
                 var an = pl.GetComponentInChildren<Animator>();
                 if (an != null)
                     sb.AppendLine($"   animator ctrl={(an.runtimeAnimatorController != null ? an.runtimeAnimatorController.name : "null")} avatar={(an.avatar != null ? an.avatar.name + " human=" + an.avatar.isHuman : "null")} state={an.GetCurrentAnimatorStateInfo(0).shortNameHash} speed={an.speed}");
@@ -84,6 +84,25 @@ namespace CoastRun.EditorTools
                     sb.AppendLine($"   {Path(r.transform)} en={r.enabled} bounds={r.bounds.size} mat={(r.sharedMaterial != null ? r.sharedMaterial.shader.name + "/" + TexName(r.sharedMaterial) : "null")}");
             }
             else sb.AppendLine("== pet none");
+
+            // UI 오버플로 검사: 캔버스 밖으로 나간 그래픽(버튼·텍스트)을 찍는다.
+            sb.AppendLine("== ui overflow (graphics outside their canvas)");
+            foreach (var cv in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                // 보이는 영역 = PortraitSafeArea(카메라 레터박스). 없으면 캔버스 전체.
+                var crt = (cv.transform.Find(CoastUiCanvas.SafeAreaName) as RectTransform) ?? cv.GetComponent<RectTransform>();
+                var cc = new Vector3[4]; crt.GetWorldCorners(cc);
+                float cx0 = cc[0].x, cy0 = cc[0].y, cx1 = cc[2].x, cy1 = cc[2].y;
+                foreach (var g in cv.GetComponentsInChildren<Graphic>(false))
+                {
+                    if (!g.gameObject.activeInHierarchy || g is Text) continue;
+                    var wc = new Vector3[4]; g.rectTransform.GetWorldCorners(wc);
+                    float x0 = wc[0].x, y0 = wc[0].y, x1 = wc[2].x, y1 = wc[2].y;
+                    float over = Mathf.Max(cx0 - x0, cy0 - y0, x1 - cx1, y1 - cy1);
+                    if (over > 1f)
+                        sb.AppendLine($"   OVERFLOW {over:F0}px  {Path(g.transform)}  rect=({x0:F0},{y0:F0})-({x1:F0},{y1:F0}) canvas=({cx0:F0},{cy0:F0})-({cx1:F0},{cy1:F0})");
+                }
+            }
 
             sb.AppendLine("== canvases / big images");
             foreach (var cv in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None))
