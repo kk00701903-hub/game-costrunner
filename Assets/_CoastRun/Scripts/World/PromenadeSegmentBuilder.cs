@@ -42,7 +42,8 @@ namespace CoastRun
             if (_roadMat != null)
                 return _roadMat;
             _roadMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
-            var tex = RoadTextureGenerator.Flagstone();
+            // Painted flagstone (Firefly) when present; the procedural stones otherwise.
+            Texture2D tex = ArtAssets.LoadTexture("Tex_Pavement_Cream") ?? RoadTextureGenerator.Flagstone();
             // Whole repeats per 30 m tile so the stone pattern is seamless across segments.
             // Not registered with RoadUvScroller: the world already moves past the camera,
             // and a scrolling texture on moving geometry makes the stones slide.
@@ -161,22 +162,31 @@ namespace CoastRun
             var rng = new System.Random(index * 3571 + 3);
             float shopX = -(RoadHalfWidth + 3.2f);
 
-            CreateBox(root, "TownFence", new Vector3(-RoadHalfWidth - 0.55f, 0.45f, Length * 0.5f),
-                new Vector3(0.18f, 0.9f, Length),
-                () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.AccentOrange, 0.35f));
+            // Jeju 돌담: a low basalt stone wall along the town side when the painted
+            // texture exists; the plain rail otherwise.
+            var stone = StoneWallMaterial();
+            CreateBox(root, "TownFence", new Vector3(-RoadHalfWidth - 0.55f, stone != null ? 0.4f : 0.45f, Length * 0.5f),
+                new Vector3(stone != null ? 0.45f : 0.18f, stone != null ? 0.8f : 0.9f, Length),
+                () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.AccentOrange, 0.35f), stone);
 
+            int facadeCount = FacadeCount();
             for (int i = 0; i < 3; i++)
             {
                 int house = i;
                 float z = 5f + i * 9f + (float)rng.NextDouble() * 1.2f;
-                float shopW = 4.8f + (float)rng.NextDouble() * 1.2f;
-                float shopH = 5.4f + (float)rng.NextDouble() * 1.6f;
+                // Streets are a mix: low one-storey shops, two-storey guesthouses and
+                // the odd small apartment block, never three of the same in a row.
+                int variant = facadeCount > 0 ? rng.Next(facadeCount) : house % 2;
+                int storeys = FacadeStoreys(variant, rng);
+                float shopW = 4.6f + (float)rng.NextDouble() * 1.8f;
+                float shopH = storeys * 3.1f + (float)rng.NextDouble() * 0.6f;
                 float shopD = 5.8f;
 
                 var pivot = UprightPivot(root, "House", new Vector3(shopX, 0f, z));
+                Material facade = FacadeMaterial(variant);
                 CreateBox(pivot, "Walls", new Vector3(0f, shopH * 0.5f, 0f),
                     new Vector3(shopW, shopH, shopD),
-                    () => house % 2 == 0 ? CoastPalette.TownCream : CoastPalette.BuildingCool);
+                    () => house % 2 == 0 ? CoastPalette.TownCream : CoastPalette.BuildingCool, facade);
 
                 // Trim goes on the unscaled pivot, never on the Walls cube. The walls carry
                 // localScale (shopW, shopH, shopD); anything parented under them inherits
@@ -184,8 +194,12 @@ namespace CoastRun
                 // the balcony rail turned into orange bars stretched out over the road —
                 // the dark plane that covered the top third of the screen.
                 float wallMidY = shopH * 0.5f;
+                int roofKind = rng.Next(3);
                 CreateBox(pivot, "Roof", new Vector3(0f, shopH + 0.35f, 0f),
-                    new Vector3(shopW + 0.45f, 0.55f, shopD + 0.45f), () => CoastPalette.Roof);
+                    new Vector3(shopW + 0.45f, 0.55f, shopD + 0.45f),
+                    () => roofKind == 0 ? CoastPalette.Roof
+                        : roofKind == 1 ? Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.45f)   // Jeju basalt-dark
+                        : Color.Lerp(CoastPalette.SkyBlue, CoastPalette.RoadGrey, 0.5f));          // slate blue
 
                 CreateBox(pivot, "Balcony", new Vector3(shopW * 0.48f, wallMidY + 0.1f, 0f),
                     new Vector3(0.35f, 0.12f, shopD * 0.55f),
@@ -193,7 +207,8 @@ namespace CoastRun
                 CreateBox(pivot, "Flowers", new Vector3(shopW * 0.52f, wallMidY + 0.28f, 0f),
                     new Vector3(0.2f, 0.25f, shopD * 0.5f), () => CoastPalette.AccentOrange);
 
-                for (int row = 0; row < 2; row++)
+                // The painted facade already carries its windows.
+                for (int row = 0; row < (facade != null ? 0 : 2); row++)
                 {
                     for (int col = 0; col < 2; col++)
                     {
@@ -205,6 +220,70 @@ namespace CoastRun
                     }
                 }
             }
+        }
+
+        // Facade sheet: Tex_Facade_A, _B, _C … in Resources/CoastRun; any gap ends the list.
+        private static Texture2D[] _facadeTex;
+        private static Material[] _facadeMats;
+
+        private static int FacadeCount()
+        {
+            if (_facadeTex == null)
+            {
+                var list = new System.Collections.Generic.List<Texture2D>();
+                for (char c = 'A'; c <= 'L'; c++)
+                {
+                    var t = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Facade_" + c);
+                    if (t == null) break;
+                    list.Add(t);
+                }
+                _facadeTex = list.ToArray();
+                _facadeMats = new Material[_facadeTex.Length];
+            }
+            return _facadeTex.Length;
+        }
+
+        /// Firefly-painted facade on the house walls when present. A cube maps the whole
+        /// texture onto each face, so the road-facing side reads as a full storefront
+        /// elevation; null falls back to the flat toon colour.
+        private static Material FacadeMaterial(int variant)
+        {
+            int n = FacadeCount();
+            if (n == 0)
+                return null;
+            variant = Mathf.Clamp(variant, 0, n - 1);
+            if (_facadeMats[variant] == null)
+                _facadeMats[variant] = ArtAssets.CreateTexturedLit(_facadeTex[variant], Color.white, 0.05f);
+            return _facadeMats[variant];
+        }
+
+        /// Storeys per facade: the painting's own floor count where it is obvious
+        /// (A/B are 3–4 storey blocks), otherwise 1–2 for shops and guesthouses.
+        private static int FacadeStoreys(int variant, System.Random rng)
+        {
+            if (FacadeCount() == 0)
+                return 2;
+            switch (variant)
+            {
+                case 0: return 2 + rng.Next(2);   // cream block: 2–3
+                case 1: return 2;                 // mint block
+                default: return 1 + rng.Next(2);  // Jeju shops/houses: 1–2
+            }
+        }
+
+        private static Material _stoneMat;
+
+        private static Material StoneWallMaterial()
+        {
+            if (_stoneMat != null)
+                return _stoneMat;
+            var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Stonewall_Jeju");
+            if (tex == null)
+                return null;
+            _stoneMat = ArtAssets.CreateTexturedLit(tex, Color.white, 0.02f);
+            if (_stoneMat.HasProperty("_BaseMap"))
+                _stoneMat.SetTextureScale("_BaseMap", new Vector2(12f, 1f));
+            return _stoneMat;
         }
 
         private static void CreateNpc(Transform root, Vector3 pos, System.Random rng)

@@ -12,6 +12,7 @@ namespace CoastRun.Editor
         private const string Folder = "Assets/Resources/CoastRun/";
 
         private static readonly string[] WorldPrefixes = { "Sky_", "Cloud_", "Far_" };
+        private static readonly string[] TilePrefixes = { "Tex_", "Sea_" };
         private static readonly string[] UiPrefixes = { "UI_", "Icon_", "Watch_" };
 
         private void OnPreprocessTexture()
@@ -22,8 +23,9 @@ namespace CoastRun.Editor
 
             string file = System.IO.Path.GetFileName(path);
             bool world = StartsWithAny(file, WorldPrefixes);
+            bool tile = StartsWithAny(file, TilePrefixes);
             bool ui = StartsWithAny(file, UiPrefixes);
-            if (!world && !ui)
+            if (!world && !ui && !tile)
                 return;
 
             var importer = (TextureImporter)assetImporter;
@@ -31,9 +33,9 @@ namespace CoastRun.Editor
             importer.sRGBTexture = true;
             importer.alphaSource = TextureImporterAlphaSource.FromInput;
             importer.alphaIsTransparency = true;
-            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.wrapMode = tile ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
             importer.filterMode = FilterMode.Bilinear;
-            importer.mipmapEnabled = world;
+            importer.mipmapEnabled = world || tile;
             importer.maxTextureSize = 2048;
             // Keyed billboards stay uncompressed: the DXT5 path inflated alpha in the
             // fully transparent regions (readback showed a≈90–140 where the PNG has 0),
