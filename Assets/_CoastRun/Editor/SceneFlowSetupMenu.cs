@@ -11,7 +11,7 @@ namespace CoastRun.Editor
     {
         private const string ScenesDir = "Assets/_CoastRun/Scenes";
 
-        [MenuItem("Coast Run/Setup Scene Flow (5 scenes + Build Settings)")]
+        [MenuItem("Coast Run/Setup Scene Flow (6 scenes + Build Settings)")]
         public static void Setup()
         {
             if (!AssetDatabase.IsValidFolder(ScenesDir))
@@ -22,6 +22,7 @@ namespace CoastRun.Editor
             EnsureRunScene();
             EnsureScene("03_Cutscene", typeof(CutsceneHost));
             EnsureScene("04_Ending", typeof(EndingController));
+            EnsureScene("05_Raising", typeof(RaisingSceneDriver));
 
             var scenes = new[]
             {
@@ -29,7 +30,8 @@ namespace CoastRun.Editor
                 ScenesDir + "/01_Title.unity",
                 ScenesDir + "/02_Run.unity",
                 ScenesDir + "/03_Cutscene.unity",
-                ScenesDir + "/04_Ending.unity"
+                ScenesDir + "/04_Ending.unity",
+                ScenesDir + "/05_Raising.unity"
             };
 
             var list = new EditorBuildSettingsScene[scenes.Length];
@@ -38,7 +40,7 @@ namespace CoastRun.Editor
             EditorBuildSettings.scenes = list;
 
             AssetDatabase.SaveAssets();
-            Debug.Log("[Coast Run] Scene flow ready — 5 scenes in Build Settings. Boot = 00_Boot.");
+            Debug.Log("[Coast Run] Scene flow ready — 6 scenes in Build Settings. Boot = 00_Boot.");
         }
 
         private static void EnsureScene(string name, System.Type bootComponent)

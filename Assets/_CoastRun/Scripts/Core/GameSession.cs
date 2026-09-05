@@ -305,14 +305,22 @@ namespace CoastRun
                 stages?.RetryCurrent();
                 return;
             }
+            // v2: 두 번째 버튼은 육성 복귀(페이즈 소비, 챕터 하트 보존). 레거시는 타이틀.
+            bool meta = GameManager.Active;
             chrome.ShowRunOver(
                 () => stages?.RetryCurrent(),
                 () =>
                 {
+                    if (meta)
+                    {
+                        GameManager.I.ReturnToRaisingAfterFail();
+                        return;
+                    }
                     var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
                     if (flow != null)
                         _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
-                });
+                },
+                meta ? "육성으로 돌아가기" : "메인으로");
         }
 
         private void HandleStageStart(StageDef stage)
@@ -321,12 +329,20 @@ namespace CoastRun
             _bonus?.ForceEnd();
             _health?.ResetFull();
             if (_jellies != null && player != null)
+            {
+                _jellies.ConfigureHearts(stage.targetDistance);
                 _jellies.ResetForStage(stage.stageIndex, player.PathDistance);
+            }
+            _health?.ApplyTuning();
+            _pet?.ResetForStage();
             // Same seed per stage: a retry replays the same course, so the player is
             // learning a layout rather than fighting a new random one each attempt.
             if (obstacles != null && player != null)
                 obstacles.ResetForStage(stage.stageIndex, player.PathDistance);
-            seasonWeather?.SetChapterTheme(stage.chapterIndex);
+            if (RunTuning.HasSeason)
+                seasonWeather?.ForceSeason(RunTuning.Season, WeatherKind.Clear, true);
+            else
+                seasonWeather?.SetChapterTheme(stage.chapterIndex);
             // Chapter stems: four stages per chapter, stems build up (CH5: strip down).
             audio?.SetChapterStage(stage.chapterIndex, ((stage.stageIndex - 1) % 4) + 1);
             IsRunning = true;

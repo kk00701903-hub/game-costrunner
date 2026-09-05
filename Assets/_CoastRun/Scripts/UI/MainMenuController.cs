@@ -33,6 +33,7 @@ namespace CoastRun
             _cleared = _progress.HasClearedCampaign ||
                        PlayerPrefs.GetInt(ProgressionManager.ClearedKey, 0) == 1;
 
+            _gm = GameManager.Ensure();
             _audio = gameObject.GetComponent<TitleAudio>() ?? gameObject.AddComponent<TitleAudio>();
             _world = gameObject.GetComponent<TitleWorldBackdrop>() ?? gameObject.AddComponent<TitleWorldBackdrop>();
             _world.Build(_cleared);
@@ -85,22 +86,40 @@ namespace CoastRun
             _ready = true;
         }
 
+        private GameManager _gm;
+        private GameObject _charSelectPanel;
+
+        /// v2: 세이브가 있으면 이어하기, 없으면 캐릭터 선택 → 새 회차.
         public void OnStartRun()
         {
             if (!_ready)
                 return;
+            if (_gm != null && _gm.HasSave)
+            {
+                OnContinue();
+                return;
+            }
             _audio?.PlayStart();
-            _audio?.StopMenu();
-            GameDirector.EnsureExists().Flow.OnTitleStartPressed();
+            ShowPanel(_charSelectPanel, true);
         }
 
         public void OnContinue()
         {
-            if (!_ready || _progress == null || !_progress.HasSave)
+            if (!_ready || _gm == null || !_gm.HasSave)
                 return;
             _audio?.PlayClick();
             _audio?.StopMenu();
-            GameDirector.EnsureExists().Flow.OnContinuePressed(_progress.LastStage);
+            _gm.Continue();
+        }
+
+        private void StartNewPlaythrough(RunMode mode)
+        {
+            if (_gm == null) return;
+            if (mode == RunMode.Skateboard && !_gm.Profile.skateboardUnlocked)
+                return;
+            _audio?.PlayStart();
+            _audio?.StopMenu();
+            _gm.NewGame(mode);
         }
 
         private void BuildSplashAndUi()
@@ -214,13 +233,14 @@ namespace CoastRun
             _tapLabel.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.6f);
 
             // Bottom row: three big rounded buttons.
-            bool hasSave = _progress != null && _progress.HasSave;
+            bool hasSave = _gm != null && _gm.HasSave;
             bool showGallery = _cleared || (_progress != null && _progress.UnlockedMemoryCount >= 1);
-            BuildBottomButton(ui.transform, hasSave ? "이어하기" : "기록", 0,
+            BuildBottomButton(ui.transform, hasSave ? "새로 시작" : "기록", 0,
                 new Color(0.30f, 0.72f, 0.36f), () =>
                 {
-                    if (hasSave) OnContinue();
-                    else { _audio?.PlayClick(); ShowPanel(_recordPanel, true); }
+                    _audio?.PlayClick();
+                    if (hasSave) ShowPanel(_charSelectPanel, true);
+                    else ShowPanel(_recordPanel, true);
                 });
             BuildBottomButton(ui.transform, "회상", 1, new Color(0.35f, 0.45f, 0.70f), () =>
             {
@@ -241,6 +261,61 @@ namespace CoastRun
             BuildCreditsPanel(root);
             BuildSettingsPanel(root);
             BuildRecordPanel(root);
+            BuildCharacterSelect(root);
+            if (hasSave)
+                _tapLabel.text = "화면을 터치하면 이어하기";
+        }
+
+        /// 회차 시작 캐릭터 선택: 러닝 / 스케이트보드(엔딩 1회 후 해금, 속도·코인 ×1.3).
+        private void BuildCharacterSelect(Transform root)
+        {
+            _charSelectPanel = CreateOverlayPanel(root, "CharacterSelect");
+            bool unlocked = _gm != null && _gm.Profile.skateboardUnlocked;
+            bool hasSave = _gm != null && _gm.HasSave;
+
+            CreateLabel(_charSelectPanel.transform, "Title", "누구로 달릴까?", 34, FontStyle.Bold,
+                new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.86f), new Vector2(600f, 50f));
+            if (hasSave)
+                CreateLabel(_charSelectPanel.transform, "Warn", "새로 시작하면 지금 진행 중인 회차는 지워져.", 16, FontStyle.Normal,
+                    new Color(1f, 0.6f, 0.6f), new Vector2(0.5f, 0.81f), new Vector2(600f, 30f));
+
+            BuildCharCard(_charSelectPanel.transform, "러닝", "달려서 송전탑까지.\n속도 ×1.0 · 코인 ×1.0\n처음이라면 이쪽.",
+                new Color(0.30f, 0.72f, 0.36f), 0.60f, true, () => StartNewPlaythrough(RunMode.Running));
+            BuildCharCard(_charSelectPanel.transform, "스케이트보드",
+                unlocked ? "보드로 질주. 속도 ×1.3 · 코인 ×1.3\n반응 시간이 짧은 고급 난이도." : "잠김 — 엔딩을 한 번 보면 열려.\n속도 ×1.3 · 코인 ×1.3 (고급)",
+                unlocked ? new Color(1f, 0.55f, 0.15f) : new Color(0.35f, 0.36f, 0.42f), 0.36f, unlocked,
+                () => StartNewPlaythrough(RunMode.Skateboard));
+
+            CreateMenuButton(_charSelectPanel.transform, "닫기", 0.12f, () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_charSelectPanel, false);
+            }, absoluteBottom: true);
+            _charSelectPanel.SetActive(false);
+        }
+
+        private void BuildCharCard(Transform parent, string title, string body, Color color, float anchorY, bool enabled,
+            UnityEngine.Events.UnityAction onClick)
+        {
+            var card = CoastUiArt.CutePill(parent, title + "Card", color, 24, 5);
+            var rt = card.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, anchorY);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(560f, 210f);
+            card.raycastTarget = true;
+            var btn = card.gameObject.AddComponent<Button>();
+            btn.transition = Selectable.Transition.None;
+            btn.onClick.AddListener(() =>
+            {
+                if (!enabled) { _audio?.PlayClick(); return; }
+                onClick?.Invoke();
+            });
+            var t = CreateLabel(card.transform, "T", title + (enabled ? "" : "  (잠김)"), 30, FontStyle.Bold, Color.white,
+                new Vector2(0.5f, 0.74f), new Vector2(520f, 44f));
+            CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.5f);
+            var b = CreateLabel(card.transform, "B", body, 17, FontStyle.Normal, new Color(1f, 1f, 1f, enabled ? 0.95f : 0.7f),
+                new Vector2(0.5f, 0.36f), new Vector2(520f, 90f));
+            b.horizontalOverflow = HorizontalWrapMode.Wrap;
         }
 
         private Button _startButton;
@@ -256,6 +331,18 @@ namespace CoastRun
                 c.a = a;
                 _tapLabel.color = c;
             }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 에디터 검증용: N = 캐릭터 선택, 1 = 러닝, 2 = 스케이트보드, C = 이어하기, Escape = 닫기.
+            if (!_ready) return;
+            if (Input.GetKeyDown(KeyCode.N)) ShowPanel(_charSelectPanel, true);
+            if (Input.GetKeyDown(KeyCode.C)) OnContinue();
+            if (_charSelectPanel != null && _charSelectPanel.activeSelf)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1)) StartNewPlaythrough(RunMode.Running);
+                if (Input.GetKeyDown(KeyCode.Alpha2)) StartNewPlaythrough(RunMode.Skateboard);
+                if (Input.GetKeyDown(KeyCode.Escape)) ShowPanel(_charSelectPanel, false);
+            }
+#endif
         }
 
         private void BuildTopPill(Transform parent, string name, string text, string iconName, Vector2 corner)
@@ -475,7 +562,7 @@ namespace CoastRun
             Text petLabel = null;
             var petBtn = CreateMenuButton(_settingsPanel.transform, "펫", 0.6f, () =>
             {
-                PetCompanion.Selected = (PetKind)(((int)PetCompanion.Selected + 1) % 3);
+                PetCompanion.Selected = (PetKind)(((int)PetCompanion.Selected + 1) % 4);
                 if (petLabel != null)
                     petLabel.text = PetLabel();
             });

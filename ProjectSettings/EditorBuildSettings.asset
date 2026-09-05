@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_CoastRun/Scenes/04_Ending.unity
     guid: d7998474fe69450597d258d53decd441
+  - enabled: 1
+    path: Assets/_CoastRun/Scenes/05_Raising.unity
+    guid: 8e1043b370c12ab45a09f50da75b2c6a
   m_configObjects: {}

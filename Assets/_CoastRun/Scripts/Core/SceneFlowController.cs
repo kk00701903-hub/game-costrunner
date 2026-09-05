@@ -14,6 +14,7 @@ namespace CoastRun
         public const string RunScene = "02_Run";
         public const string CutsceneScene = "03_Cutscene";
         public const string EndingScene = "04_Ending";
+        public const string RaisingScene = "05_Raising";
 
 
         private GameDirector _director;
@@ -72,7 +73,10 @@ namespace CoastRun
             {
                 case FlowState.Title:
                     yield return LoadSingle(ResolveTitleScene());
-                    BeginPreloadRun();
+                    // v2: 타이틀 다음은 육성 씬이라 런 프리로드를 걸지 않는다. 활성화를 미룬
+                    // 추가 로드가 남아 있으면 그 뒤의 Single 로드가 영원히 기다린다(검은 화면).
+                    if (GameManager.I == null)
+                        BeginPreloadRun();
                     break;
 
                 case FlowState.Cutscene:
@@ -91,6 +95,22 @@ namespace CoastRun
                 case FlowState.Ending:
                     UnloadCutsceneIfAny();
                     yield return LoadSingle(EndingScene);
+                    break;
+
+                case FlowState.Raising:
+                    UnloadCutsceneIfAny();
+                    Time.timeScale = 1f;
+                    _director?.UI?.SetLoader(true);
+                    if (_runPreload != null)
+                    {
+                        // 보류된 추가 로드는 먼저 흘려보내야 Single 로드가 진행된다.
+                        _runPreload.allowSceneActivation = true;
+                        while (!_runPreload.isDone)
+                            yield return null;
+                        _runPreload = null;
+                    }
+                    yield return LoadSingle(RaisingScene);
+                    _director?.UI?.SetLoader(false);
                     break;
 
                 case FlowState.Credits:
@@ -186,6 +206,24 @@ namespace CoastRun
             // Completion → OnCutsceneControllerFinished → ExecutePrologueHandoff
         }
 
+        /// v2: 육성 → 스토리 돌입. 챕터 N = 스테이지 N. 회차 첫 돌입만 프롤로그를 탄다.
+        public void StartStoryRun(int stageIndex, bool withPrologue)
+        {
+            _pendingStage = Mathf.Clamp(stageIndex, 1, 20);
+            _pendingChapter = Timeline.ArcOf(_pendingStage);
+            UnityEngine.Object.FindAnyObjectByType<TitleAudio>()?.StopMenu();
+            if (withPrologue && _pendingStage == 1)
+            {
+                _cutsceneKind = CutsceneKind.Prologue;
+                _cutsceneChapter = 1;
+                StartCoroutine(PlayPrologueSequence());
+                return;
+            }
+
+            PlayerPrefs.SetInt(MainMenuController.SkipPrologueKey, 1);
+            StartCoroutine(GoToRoutine(FlowState.Run, TransitionType.Fade));
+        }
+
         /// Continue from save — always skips prologue.
         public void OnContinuePressed(int stageIndex)
         {
@@ -211,6 +249,14 @@ namespace CoastRun
             _pendingChapter = stage.chapterIndex;
             _pendingStage = stage.stageIndex;
             _director?.Progression?.SaveCheckpoint(stage.chapterIndex, stage.stageIndex);
+
+            // v2: 챕터 정산(하트·S급)은 GameManager가, 화면은 StageClearUI가. S20도 정산을 거친다.
+            if (GameManager.Active)
+            {
+                GameManager.I.OnRunCleared(StageRunStats.Instance);
+                StartCoroutine(EnterStageClear(stage, chapterComplete));
+                return;
+            }
 
             // S20 → Ending, no fade (BGM drone continues).
             if (stage.stageIndex >= 20)
@@ -254,6 +300,18 @@ namespace CoastRun
         {
             Time.timeScale = 1f;
             FindFirstObjectByType<StageClearUI>()?.Hide();
+
+            if (GameManager.Active)
+            {
+                // 막(4챕터) 끝이면 기존 클로징/오프닝 컷씬을 먼저, 그 뒤 육성으로. 재도전 중엔 컷씬 생략.
+                if (chapterComplete && stage.chapterIndex < 5 && !GameManager.I.IsRetry)
+                {
+                    StartCoroutine(ChapterCutsceneBridge(stage.chapterIndex));
+                    return;
+                }
+                GameManager.I.AfterChapterContinue();
+                return;
+            }
 
             if (chapterComplete)
             {
@@ -376,6 +434,11 @@ namespace CoastRun
 
             if (_cutsceneKind == CutsceneKind.ChapterOpening)
             {
+                if (GameManager.Active)
+                {
+                    GameManager.I.AfterChapterContinue();
+                    yield break;
+                }
                 _pendingChapter = _cutsceneChapter;
                 _pendingStage = FirstStageOfChapter(_cutsceneChapter);
                 yield return GoToRoutine(FlowState.Run, TransitionType.Fade);
@@ -392,6 +455,16 @@ namespace CoastRun
         /// Called when EndingController finishes stinger (tap → title).
         public void CompleteEndingReturnToTitle()
         {
+            if (GameManager.Active)
+            {
+                if (_director != null)
+                {
+                    _director.CampaignCleared = true;
+                    _director.Progression?.MarkCampaignCleared();
+                }
+                GameManager.I.OnEndingFinished();
+                return;
+            }
             CampaignFlagAndTitle();
         }
 
@@ -540,6 +613,7 @@ namespace CoastRun
                 _runSceneReady = true;
 
                 yield return UnloadIfLoaded(ResolveTitleScene());
+                yield return UnloadIfLoaded(RaisingScene);
             }
             else if (!_runSceneReady || !IsSceneLoaded(run))
             {
@@ -550,6 +624,7 @@ namespace CoastRun
                     while (op != null && !op.isDone)
                         yield return null;
                     yield return UnloadIfLoaded(ResolveTitleScene());
+                    yield return UnloadIfLoaded(RaisingScene);
                     _runSceneReady = true;
                 }
                 else

@@ -12,7 +12,8 @@ namespace CoastRun
         StageClear,
         Ending,
         Credits,
-        Sting
+        Sting,
+        Raising     // v2: 육성 씬(05_Raising)
     }
 
     public enum TransitionType
@@ -44,6 +45,7 @@ namespace CoastRun
         [SerializeField] private UIRoot uiRoot;
         [SerializeField] private MemoryFragmentLog memoryLog;
         [SerializeField] private MemoryDirector memoryDirector;
+        [SerializeField] private GameManager gameManager;
 
         public StoryManager Story => story;
         public StageManager Stages => stages;
@@ -53,6 +55,7 @@ namespace CoastRun
         public UIRoot UI => uiRoot;
         public MemoryFragmentLog MemoryLog => memoryLog;
         public MemoryDirector Memory => memoryDirector;
+        public GameManager Game => gameManager;
 
         public bool CampaignCleared { get; set; }
 
@@ -104,6 +107,7 @@ namespace CoastRun
             uiRoot = GetOrAdd<UIRoot>();
             memoryLog = GetOrAdd<MemoryFragmentLog>();
             memoryDirector = GetOrAdd<MemoryDirector>();
+            gameManager = GetOrAdd<GameManager>();
 
             progression.Load();
             StoryDatabase.EnsureLoaded();

@@ -55,6 +55,8 @@ namespace CoastRun
                 Ensure<CoastRunBootstrap>("CoastRunBootstrap", scene);
             else if (Matches(name, path, CoastScenes.Ending))
                 Ensure<EndingSceneDriver>("EndingSceneDriver", scene);
+            else if (Matches(name, path, CoastScenes.Raising))
+                Ensure<RaisingSceneDriver>("RaisingSceneDriver", scene);
         }
 
         private static bool Matches(string sceneName, string scenePath, string target) =>
