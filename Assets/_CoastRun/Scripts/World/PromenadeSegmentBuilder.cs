@@ -246,8 +246,10 @@ namespace CoastRun
                 prev = variant;
 
                 var pivot = UprightPivot(root, "Lot", new Vector3(frontX, 0f, z));
-                // Front faces +X (road); the model's origin is its front-bottom-centre.
-                JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 0f);
+                // The FBX handedness swap mirrors Blender's X: the kit's front (+X in
+                // Blender) imports facing -X, so a half turn puts the shopfront on the
+                // road side with the body extending away from it.
+                JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 180f);
 
                 // 돌담 either side of the entrance.
                 for (int side = -1; side <= 1; side += 2)
@@ -262,8 +264,8 @@ namespace CoastRun
                 switch (filler)
                 {
                     case 0: JejuKit.Spawn("Prop_OrangeTree", gap, Vector3.zero, (float)rng.NextDouble() * 360f, 0.9f + (float)rng.NextDouble() * 0.3f); break;
-                    case 1: JejuKit.Spawn("Prop_Bench", gap, new Vector3(0.6f, 0f, 0f), 0f); break;
-                    case 2: JejuKit.Spawn("Prop_OrangeStall", gap, new Vector3(0.9f, 0f, 0f), 0f); break;
+                    case 1: JejuKit.Spawn("Prop_Bench", gap, new Vector3(0.6f, 0f, 0f), 180f); break;
+                    case 2: JejuKit.Spawn("Prop_OrangeStall", gap, new Vector3(0.9f, 0f, 0f), 180f); break;
                     default: JejuKit.Spawn("Prop_OrangeTree", gap, new Vector3(-1.5f, 0f, 0f), 0f, 1.1f); break;
                 }
             }

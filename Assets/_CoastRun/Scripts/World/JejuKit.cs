@@ -54,7 +54,7 @@ namespace CoastRun
             go.name = name;
             go.transform.localPosition = localPos;
             go.transform.localRotation = Quaternion.Euler(0f, yawDegrees, 0f);
-            go.transform.localScale = Vector3.one * scale;
+            go.transform.localScale = Vector3.one * scale * UnitFix(name, go);
             foreach (var col in go.GetComponentsInChildren<Collider>(true))
                 Object.Destroy(col);
             foreach (var r in go.GetComponentsInChildren<Renderer>(true))
@@ -67,6 +67,37 @@ namespace CoastRun
                 r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             }
             return go;
+        }
+
+        private static readonly Dictionary<string, float> UnitFixes = new Dictionary<string, float>();
+
+        /// Blender's FBX arrives in centimetres on some importer settings; a 6 m house
+        /// then lands as a 600 m wall. Measure once per model and bring anything that
+        /// is off by a hundred back to metres (kit pieces are all under 12 m tall).
+        private static float UnitFix(string name, GameObject instance)
+        {
+            if (UnitFixes.TryGetValue(name, out float f))
+                return f;
+            var rs = instance.GetComponentsInChildren<Renderer>(true);
+            Bounds b = new Bounds(instance.transform.position, Vector3.zero);
+            bool first = true;
+            foreach (var r in rs)
+            {
+                if (first) { b = r.bounds; first = false; }
+                else b.Encapsulate(r.bounds);
+            }
+            float h = b.size.y;
+            f = h > 25f ? 0.01f : 1f;
+            if (h < 0.001f) f = 1f;
+            UnitFixes[name] = f;
+            Vector3 lo = instance.transform.InverseTransformPoint(b.min);
+            Vector3 hi = instance.transform.InverseTransformPoint(b.max);
+            Debug.Log($"[JejuKit] {name} size {b.size} local min {lo} max {hi} → unit fix {f}");
+#if UNITY_EDITOR
+            System.IO.File.AppendAllText(System.IO.Path.Combine(Application.dataPath, "..", "Tools", "kit_log.txt"),
+                $"{name} size {b.size} local min {lo} max {hi} fix {f}\n");
+#endif
+            return f;
         }
 
         public static GameObject SpawnBuilding(int variant, Transform parent, Vector3 localPos, float yawDegrees)
