@@ -33,10 +33,13 @@ namespace CoastRun
         public float PathZ => _pathZ;
         public float Speed => _speed;
 
+        public enum Kind { Van, Bus }
+        public Kind VehicleKind { get; private set; }
+
         public static OncomingCar Spawn(Transform parent, PlayerController player, float startZ, int lane,
-            float laneWidth, float speed, System.Random rng)
+            float laneWidth, float speed, System.Random rng, Kind kind = Kind.Van)
         {
-            var go = new GameObject("Obstacle_OncomingCar");
+            var go = new GameObject(kind == Kind.Bus ? "Obstacle_OncomingBus" : "Obstacle_OncomingCar");
             go.transform.SetParent(parent, false);
             var car = go.AddComponent<OncomingCar>();
             car._player = player;
@@ -45,6 +48,7 @@ namespace CoastRun
             car._lateral = lane * laneWidth;
             car._speed = speed;
             car._bobPhase = (float)rng.NextDouble() * 6.28f;
+            car.VehicleKind = kind;
 
             // Faces the player: the model's +Z is its nose, and it drives toward -Z.
             go.transform.SetPositionAndRotation(RoadPlacement.OnRoad(startZ, car._lateral),
@@ -64,7 +68,8 @@ namespace CoastRun
             hard.transform.localPosition = new Vector3(0f, 0.7f, 0f);
             var hardCol = hard.AddComponent<BoxCollider>();
             hardCol.isTrigger = true;
-            hardCol.size = new Vector3(1.4f, 1.3f, 2.7f);
+            hardCol.size = kind == Kind.Bus ? new Vector3(1.7f, 2.4f, 5.5f) : new Vector3(1.4f, 1.3f, 2.7f);
+            if (kind == Kind.Bus) hard.transform.localPosition = new Vector3(0f, 1.2f, 0f);
             var hazard = hard.AddComponent<ObstacleHazard>();
 
             var near = new GameObject("NearMiss");
@@ -72,7 +77,7 @@ namespace CoastRun
             near.transform.localPosition = new Vector3(0f, 0.7f, 0f);
             var nearCol = near.AddComponent<BoxCollider>();
             nearCol.isTrigger = true;
-            nearCol.size = new Vector3(3.1f, 2f, 3.9f);
+            nearCol.size = kind == Kind.Bus ? new Vector3(3.4f, 3f, 6.5f) : new Vector3(3.1f, 2f, 3.9f);
             var zone = near.AddComponent<NearMissZone>();
             zone.Configure(25, lane);
             hazard.BindNearMiss(zone);
@@ -88,13 +93,16 @@ namespace CoastRun
             // A touch over lane scale so it reads from 80 m out, before the horn.
             _body.localScale = Vector3.one * 1.2f;
 
-            // Firefly-painted van (front view, it drives at the camera) when available.
-            if (PaintedProp.Available("Van"))
+            // Firefly-painted vehicle (front view, it drives at the camera) when available.
+            string key = VehicleKind == Kind.Bus ? "BusFront" : "Van";
+            if (PaintedProp.Available(key))
             {
-                PaintedProp.Attach(_body, "Van", 1.75f, replace: false);
+                PaintedProp.Attach(_body, key, VehicleKind == Kind.Bus ? 2.4f : 1.75f, replace: false);
                 _wheels = new Transform[0];
                 return;
             }
+            if (VehicleKind == Kind.Bus)
+                _body.localScale = Vector3.one * 1.9f;   // procedural fallback: a bigger box van
 
             var bodyMat = CoastMaterials.CreateLit(paint, 0.35f);
             var darkMat = CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.55f));

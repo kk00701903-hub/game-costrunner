@@ -15,7 +15,6 @@ namespace CoastRun
             if (season == SeasonKind.Autumn && r < 0.3)
                 return ObstacleId.LeafDrift;
 
-            if (r < 0.04) return ObstacleId.ParkedBus;
             if (r < 0.28) return ObstacleId.TrafficCone;
             if (r < 0.4) return ObstacleId.OverheadBar;
             if (r < 0.5) return ObstacleId.Clothesline;

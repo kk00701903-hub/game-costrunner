@@ -123,6 +123,13 @@ namespace CoastRun.EditorTools
             Debug.Log("Scene dump → " + path);
         }
 
+        [MenuItem("Coast Run/Debug/Force oncoming BUS (toggle) %#&b")]
+        public static void ToggleForceBus()
+        {
+            ObstacleSpawner.DebugForceBus = !ObstacleSpawner.DebugForceBus;
+            Debug.Log("Force bus " + (ObstacleSpawner.DebugForceBus ? "on" : "off"));
+        }
+
         // ── Pause when an oncoming car is close: lets a screenshot catch the moment ──
         private static bool _carWatch;
 

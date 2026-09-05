@@ -216,6 +216,14 @@ namespace CoastRun
         /// slot. It starts far enough up the road that, at the player's current speed,
         /// both arrive at that slot together; the slot itself blocks only the car's lane,
         /// so an escape is always one swipe away like any single row.
+        /// Editor aid (Coast Run/Debug): every oncoming vehicle becomes a bus.
+        public const string DebugForceBusKey = "CoastRun.Debug.ForceBus";
+        public static bool DebugForceBus
+        {
+            get => PlayerPrefs.GetInt(DebugForceBusKey, 0) != 0;
+            set { PlayerPrefs.SetInt(DebugForceBusKey, value ? 1 : 0); PlayerPrefs.Save(); }
+        }
+
         private void PlanCar(float playerZ, float speed, float progress)
         {
             // Pick a lane the previous row left open — the player is likely there, which
@@ -235,7 +243,13 @@ namespace CoastRun
             float secondsToMeet = Mathf.Max(0.5f, (meetZ - playerZ) / Mathf.Max(4f, speed));
             float startZ = meetZ + carSpeed * secondsToMeet;
 
-            _car = OncomingCar.Spawn(_root, player, startZ, lane - 1, laneWidth, carSpeed, _rng);
+            // From chapter 4 a third of the traffic is a city bus: slower, but a wall.
+            int chapterNow = StageManager.Instance != null ? StageManager.Instance.ChapterIndex : 1;
+            var kind = chapterNow >= 4 && _rng.NextDouble() < 0.35 ? OncomingCar.Kind.Bus : OncomingCar.Kind.Van;
+            if (DebugForceBus) kind = OncomingCar.Kind.Bus;
+            float vSpeed = kind == OncomingCar.Kind.Bus ? carSpeed * 0.8f : carSpeed;
+            startZ = meetZ + vSpeed * secondsToMeet;
+            _car = OncomingCar.Spawn(_root, player, startZ, lane - 1, laneWidth, vSpeed, _rng, kind);
             _carLaneMask = 1 << lane;
             _carMeetZ = meetZ;
 
