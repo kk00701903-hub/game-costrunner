@@ -338,7 +338,67 @@ def orange_stall(name):
     return join(parts, name)
 
 
+def hareubang(name, height=1.9):
+    """돌하르방: basalt grandfather — round body, bulging eyes, hat, hands on belly."""
+    parts = []
+    def blob(n, r, loc, scale=(1, 1, 1), mat="Stone"):
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=r, location=loc)
+        o = bpy.context.active_object; o.name = n; o.scale = scale
+        o.data.materials.append(MATS[mat]); return o
+    h = height
+    # pedestal
+    parts.append(box(name+"_base", -0.42, 0.42, -0.42, 0.42, 0.0, 0.16,
+                     {k: "Stone" for k in ["front","back","left","right","top","bottom"]}, tile=1))
+    parts.append(blob(name+"_body", 0.36, (0, 0, h*0.40), (1.0, 0.85, 1.25)))
+    parts.append(blob(name+"_head", 0.30, (0, 0, h*0.78), (1.0, 0.95, 1.05)))
+    # hat: a squat dome
+    parts.append(blob(name+"_hat", 0.34, (0, 0, h*0.93), (1.0, 1.0, 0.45)))
+    # nose, eyes (front = -Y like the buildings' facades)
+    parts.append(blob(name+"_nose", 0.09, (0, -0.28, h*0.76), (0.8, 1.0, 1.4)))
+    for x in (-0.13, 0.13):
+        parts.append(blob(f"{name}_eye{x}", 0.075, (x, -0.26, h*0.83), (1.4, 1.0, 1.0)))
+    # hands on the belly, one above the other
+    parts.append(blob(name+"_handL", 0.11, (-0.12, -0.30, h*0.46), (1.4, 0.8, 0.9)))
+    parts.append(blob(name+"_handR", 0.11, (0.12, -0.30, h*0.36), (1.4, 0.8, 0.9)))
+    return join(parts, name)
+
+
+def palm(name, height=6.0):
+    """Washingtonia-style palm: a tall slightly leaning trunk and a crown of fronds."""
+    parts = []
+    segs = 5
+    lean = 0.25
+    for i in range(segs):
+        z0 = height*0.85*i/segs; z1 = height*0.85*(i+1)/segs
+        r = 0.20 - 0.02*i
+        cx = lean*(i/segs)**2
+        bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=r, depth=z1-z0,
+                                            location=(cx, 0, (z0+z1)/2))
+        seg = bpy.context.active_object; seg.name = f"{name}_t{i}"
+        seg.data.materials.append(MATS["Trunk"]); parts.append(seg)
+    top = (lean, 0, height*0.85)
+    for i in range(11):
+        a = i*math.tau/11 + random.uniform(-0.15, 0.15)
+        tilt = random.uniform(0.25, 0.9)          # 0 = flat, 1 = hanging down
+        L = random.uniform(2.0, 2.8)
+        verts = [(0,-0.18,0),(0,0.18,0),(L,0.32,-tilt*L*0.55),(L,-0.32,-tilt*L*0.55),(L*0.5,0,-tilt*L*0.12)]
+        faces = [[0,1,4],[1,2,4],[2,3,4],[3,0,4],[4,2,1],[4,3,2],[4,0,3],[4,1,0]]
+        ob = new_object(f"{name}_f{i}", verts, faces, ["Leaf"]*len(faces),
+                        [[(0,0),(1,0),(0.5,1)]]*len(faces))
+        ob.rotation_euler = (0, 0, a)
+        ob.location = top
+        parts.append(ob)
+    # coconut cluster
+    for i in range(4):
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=0.14,
+            location=(top[0]+random.uniform(-0.2,0.2), random.uniform(-0.2,0.2), top[2]-0.25))
+        o = bpy.context.active_object; o.data.materials.append(MATS["Wood"]); parts.append(o)
+    return join(parts, name)
+
+
 PROPS = [
+    ("Prop_Hareubang", lambda: hareubang("Prop_Hareubang")),
+    ("Prop_Palm", lambda: palm("Prop_Palm")),
     ("Prop_StoneWall", lambda: stone_wall("Prop_StoneWall")),
     ("Prop_OrangeTree", lambda: orange_tree("Prop_OrangeTree")),
     ("Prop_UtilityPole", lambda: utility_pole("Prop_UtilityPole")),

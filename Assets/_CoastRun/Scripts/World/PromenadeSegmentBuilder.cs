@@ -259,13 +259,27 @@ namespace CoastRun
                 }
 
                 // Between lots: something to look at.
-                int filler = rng.Next(4);
+                // Jeju signatures (돌하르방, 야자수) get the biggest share so the street
+                // reads as the island at a glance; the rest is orchard / seating.
+                int filler = rng.Next(7);
                 var gap = UprightPivot(root, "Gap", new Vector3(frontX - 0.3f, 0f, z + 4.9f));
                 switch (filler)
                 {
                     case 0: JejuKit.Spawn("Prop_OrangeTree", gap, Vector3.zero, (float)rng.NextDouble() * 360f, 0.9f + (float)rng.NextDouble() * 0.3f); break;
                     case 1: JejuKit.Spawn("Prop_Bench", gap, new Vector3(0.6f, 0f, 0f), 180f); break;
                     case 2: JejuKit.Spawn("Prop_OrangeStall", gap, new Vector3(0.9f, 0f, 0f), 180f); break;
+                    case 3:
+                        // A pair of hareubang flanking the gap, facing the road (front = −Y
+                        // in Blender → yaw 180° like the facades).
+                        JejuKit.Spawn("Prop_Hareubang", gap, new Vector3(0.9f, 0f, -1.4f), 180f, 0.85f);
+                        JejuKit.Spawn("Prop_Hareubang", gap, new Vector3(0.9f, 0f, 1.4f), 180f, 0.85f);
+                        break;
+                    case 4:
+                    case 5:
+                        JejuKit.Spawn("Prop_Palm", gap, new Vector3(-0.8f, 0f, 0f), (float)rng.NextDouble() * 360f, 0.85f + (float)rng.NextDouble() * 0.35f);
+                        if (rng.Next(2) == 0)
+                            JejuKit.Spawn("Prop_Hareubang", gap, new Vector3(1.0f, 0f, 0.6f), 180f, 0.8f);
+                        break;
                     default: JejuKit.Spawn("Prop_OrangeTree", gap, new Vector3(-1.5f, 0f, 0f), 0f, 1.1f); break;
                 }
             }
