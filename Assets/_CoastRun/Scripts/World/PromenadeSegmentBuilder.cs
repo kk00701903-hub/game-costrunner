@@ -162,6 +162,13 @@ namespace CoastRun
             var rng = new System.Random(index * 3571 + 3);
             float shopX = -(RoadHalfWidth + 3.2f);
 
+            // Blender kit (Resources/CoastRun/Models): real Jeju shops, 돌담, 감귤 trees.
+            if (JejuKit.BuildingCount > 0)
+            {
+                BuildTownSideKit(root, index, rng);
+                return;
+            }
+
             // Jeju 돌담: a low basalt stone wall along the town side when the painted
             // texture exists; the plain rail otherwise.
             var stone = StoneWallMaterial();
@@ -218,6 +225,46 @@ namespace CoastRun
                         CreateBox(pivot, "Window", new Vector3(wx, wy, wz),
                             new Vector3(0.08f, 0.95f, 1.05f), () => CoastPalette.Window);
                     }
+                }
+            }
+        }
+
+        /// Kit street: three lots per 30 m tile. Each lot gets a building drawn from the
+        /// kit (never the same as its neighbour), a 돌담 run along the kerb with a gap at
+        /// the shop door, and a tree / bench / 감귤 stall between lots.
+        private static void BuildTownSideKit(Transform root, int index, System.Random rng)
+        {
+            float frontX = -(RoadHalfWidth + 0.9f);
+            int n = JejuKit.BuildingCount;
+            int prev = (index * 7) % n;
+
+            for (int lot = 0; lot < 3; lot++)
+            {
+                float z = 5.5f + lot * 9.5f + (float)rng.NextDouble() * 0.8f;
+                int variant = rng.Next(n);
+                if (variant == prev) variant = (variant + 1) % n;
+                prev = variant;
+
+                var pivot = UprightPivot(root, "Lot", new Vector3(frontX, 0f, z));
+                // Front faces +X (road); the model's origin is its front-bottom-centre.
+                JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 0f);
+
+                // 돌담 either side of the entrance.
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    float wz = side * 3.6f;
+                    JejuKit.Spawn("Prop_StoneWall", pivot, new Vector3(0.55f, 0f, wz), 0f, 0.55f);
+                }
+
+                // Between lots: something to look at.
+                int filler = rng.Next(4);
+                var gap = UprightPivot(root, "Gap", new Vector3(frontX - 0.3f, 0f, z + 4.9f));
+                switch (filler)
+                {
+                    case 0: JejuKit.Spawn("Prop_OrangeTree", gap, Vector3.zero, (float)rng.NextDouble() * 360f, 0.9f + (float)rng.NextDouble() * 0.3f); break;
+                    case 1: JejuKit.Spawn("Prop_Bench", gap, new Vector3(0.6f, 0f, 0f), 0f); break;
+                    case 2: JejuKit.Spawn("Prop_OrangeStall", gap, new Vector3(0.9f, 0f, 0f), 0f); break;
+                    default: JejuKit.Spawn("Prop_OrangeTree", gap, new Vector3(-1.5f, 0f, 0f), 0f, 1.1f); break;
                 }
             }
         }

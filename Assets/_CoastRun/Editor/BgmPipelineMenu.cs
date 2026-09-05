@@ -49,6 +49,17 @@ namespace CoastRun.Editor
             Launch("probe_env.bat");
         }
 
+        [MenuItem("Coast Run/Art/Build Jeju kit in Blender (headless) %&j")]
+        public static void BuildJejuKit()
+        {
+            string bat = System.IO.Path.GetFullPath("Tools/blender/build_kit.bat");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c start \"\" \"" + bat + "\"")
+            {
+                UseShellExecute = true,
+                WorkingDirectory = System.IO.Path.GetDirectoryName(bat),
+            });
+        }
+
         [MenuItem("Coast Run/BGM/Repair torch versions")]
         public static void FixTorch() => Launch("fix_torch.bat");
 
