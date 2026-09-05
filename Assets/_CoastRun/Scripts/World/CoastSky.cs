@@ -130,23 +130,75 @@ namespace CoastRun
 
             if (_generatedSky != null)
                 Destroy(_generatedSky);
-            _generatedSky = SkyTextureGenerator.CreatePortraitSky(512, 896);
+
+            // Painted sky (Firefly, Resources/CoastRun/Sky_Backdrop_NOON) when present;
+            // the procedural gradient stays as the fallback.
+            Texture2D skyTex = ArtAssets.LoadTexture("Sky_Backdrop_NOON");
+            bool painted = skyTex != null;
+            if (!painted)
+            {
+                _generatedSky = SkyTextureGenerator.CreatePortraitSky(512, 896);
+                skyTex = _generatedSky;
+            }
 
             var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
             go.name = "SkyGradient";
             go.transform.SetParent(transform, false);
             // High + far so it fills upper third of portrait framing.
-            go.transform.localPosition = new Vector3(0f, 62f, 160f);
-            go.transform.localScale = new Vector3(220f, 150f, 1f);
+            go.transform.localPosition = new Vector3(0f, painted ? 70f : 62f, 160f);
+            go.transform.localScale = painted ? new Vector3(230f, 172f, 1f) : new Vector3(220f, 150f, 1f);
             go.transform.localRotation = Quaternion.identity;
             CoastEditUtil.DestroyCollider(go);
 
-            var mat = CoastMaterials.SetFlat(ArtAssets.CreateTexturedUnlit(_generatedSky, Color.white));
+            var mat = CoastMaterials.SetFlat(ArtAssets.CreateTexturedUnlit(skyTex, Color.white));
+            if (painted)
+                CoastMaterials.SetNoFog(mat);
             var mr = go.GetComponent<Renderer>();
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             mr.receiveShadows = false;
             _dome = go.transform;
+
+            BuildFarTown();
+        }
+
+        private Transform _farTown;
+
+        /// Distant coastal town along the horizon (Firefly, alpha-keyed). Sits just in
+        /// front of the sky quad, feet on the horizon line, with the painted haze doing
+        /// the distance work instead of fog.
+        private void BuildFarTown()
+        {
+            if (_farTown != null)
+                CoastEditUtil.DestroyObject(_farTown.gameObject);
+            var tex = ArtAssets.LoadTexture("Far_Town_NOON");
+            if (tex == null)
+                return;
+
+            var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            go.name = "FarTown";
+            go.transform.SetParent(transform, false);
+            // Small on purpose: at 150 m a 130 m wide strip reads as a town on the far
+            // shore, not a wall of apartments behind the promenade.
+            float width = 150f;
+            float height = width * tex.height / (float)tex.width;
+            // Quad pivot is centred: lift by half height so the base meets the horizon.
+            go.transform.localPosition = new Vector3(-30f, height * 0.5f - 1f, 152f);
+            go.transform.localScale = new Vector3(width, height, 1f);
+            go.transform.localRotation = Quaternion.identity;
+            CoastEditUtil.DestroyCollider(go);
+
+            var mat = CoastMaterials.CreateTexturedTransparent(tex, Color.white);
+            CoastMaterials.SetFlat(mat);
+            // No fog at all: even a partial fog mix lit up the quad's transparent pixels
+            // as a pale slab (the painting already carries its own haze).
+            CoastMaterials.SetNoFog(mat, 0f);
+            mat.renderQueue = 3000;
+            var mr = go.GetComponent<Renderer>();
+            mr.sharedMaterial = mat;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            mr.receiveShadows = false;
+            _farTown = go.transform;
         }
 
         private void EnsureCloudScroller()
@@ -169,6 +221,13 @@ namespace CoastRun
                 Vector3 bp = _dome.localPosition;
                 bp.x = _follow.position.x * 0.01f;
                 _dome.localPosition = bp;
+            }
+
+            if (_farTown != null)
+            {
+                Vector3 tp = _farTown.localPosition;
+                tp.x = -30f + _follow.position.x * 0.03f;
+                _farTown.localPosition = tp;
             }
 
             // Keep fog locked to live sky tint (day-cycle blends Update background).

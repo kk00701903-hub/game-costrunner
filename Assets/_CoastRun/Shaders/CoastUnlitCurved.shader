@@ -8,6 +8,7 @@ Shader "CoastRun/UnlitCurved"
         [MainTexture] _BaseMap ("Texture", 2D) = "white" {}
         [MainColor]   _BaseColor ("Color", Color) = (1,1,1,1)
         _CurveWeight ("Curved World Weight", Range(0,1)) = 1
+        _FogWeight ("Fog Weight", Range(0,1)) = 1
 
         [HideInInspector] _Surface ("Surface", Float) = 0
         [HideInInspector] _Blend ("Blend", Float) = 0
@@ -30,6 +31,7 @@ Shader "CoastRun/UnlitCurved"
             float4 _BaseMap_ST;
             half4 _BaseColor;
             half _CurveWeight;
+            half _FogWeight;
             half _Surface;
             half _Blend;
         CBUFFER_END
@@ -69,7 +71,9 @@ Shader "CoastRun/UnlitCurved"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 c = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
-                c.rgb = MixFog(c.rgb, IN.fogFactor);
+                // Painted backdrops (far town, clouds) carry their own haze; fog on top
+                // would dissolve them into the sky colour at 150 m.
+                c.rgb = lerp(c.rgb, MixFog(c.rgb, IN.fogFactor), _FogWeight);
                 return c;
             }
             ENDHLSL
@@ -79,25 +83,34 @@ Shader "CoastRun/UnlitCurved"
         {
             Name "DepthOnly"
             Tags { "LightMode"="DepthOnly" }
-            ZWrite On
+            // Transparent surfaces (alpha billboards: clouds, far town) must not write
+            // depth here: a full-quad depth stamp let the quad occlude the painted sky
+            // behind it and the clear colour showed through as a flat rectangle.
+            ZWrite [_ZWrite]
             ColorMask R
 
             HLSLPROGRAM
             #pragma vertex vertDepth
             #pragma fragment fragDepth
 
-            struct Attributes { float4 positionOS : POSITION; };
-            struct Varyings { float4 positionCS : SV_POSITION; };
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
 
             Varyings vertDepth(Attributes IN)
             {
                 Varyings OUT;
                 float3 ws = CoastCurveWorld(TransformObjectToWorld(IN.positionOS.xyz), _CurveWeight);
                 OUT.positionCS = TransformWorldToHClip(ws);
+                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 return OUT;
             }
 
-            half4 fragDepth(Varyings IN) : SV_Target { return 0; }
+            half4 fragDepth(Varyings IN) : SV_Target
+            {
+                half a = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv).a * _BaseColor.a;
+                clip(a - 0.5);
+                return 0;
+            }
             ENDHLSL
         }
     }

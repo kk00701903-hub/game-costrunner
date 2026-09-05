@@ -1,0 +1,55 @@
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEngine;
+
+namespace CoastRun.Editor
+{
+    /// Firefly-painted art under Resources/CoastRun: alpha is transparency (no dark
+    /// fringes on keyed clouds/town), clamped wrap so quads never show the far edge,
+    /// mipmaps for world billboards, none for UI. Runs automatically on import.
+    public class ArtImportSettings : AssetPostprocessor
+    {
+        private const string Folder = "Assets/Resources/CoastRun/";
+
+        private static readonly string[] WorldPrefixes = { "Sky_", "Cloud_", "Far_" };
+        private static readonly string[] UiPrefixes = { "UI_", "Icon_", "Watch_" };
+
+        private void OnPreprocessTexture()
+        {
+            string path = assetPath.Replace('\\', '/');
+            if (!path.StartsWith(Folder) || path.StartsWith(Folder + "BGM/"))
+                return;
+
+            string file = System.IO.Path.GetFileName(path);
+            bool world = StartsWithAny(file, WorldPrefixes);
+            bool ui = StartsWithAny(file, UiPrefixes);
+            if (!world && !ui)
+                return;
+
+            var importer = (TextureImporter)assetImporter;
+            importer.textureType = TextureImporterType.Default;
+            importer.sRGBTexture = true;
+            importer.alphaSource = TextureImporterAlphaSource.FromInput;
+            importer.alphaIsTransparency = true;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.filterMode = FilterMode.Bilinear;
+            importer.mipmapEnabled = world;
+            importer.maxTextureSize = 2048;
+            // Keyed billboards stay uncompressed: the DXT5 path inflated alpha in the
+            // fully transparent regions (readback showed a≈90–140 where the PNG has 0),
+            // which drew every cloud/town quad as a pale slab.
+            importer.textureCompression = world
+                ? TextureImporterCompression.Uncompressed
+                : TextureImporterCompression.Compressed;
+            importer.npotScale = TextureImporterNPOTScale.None;
+        }
+
+        private static bool StartsWithAny(string s, string[] prefixes)
+        {
+            foreach (var p in prefixes)
+                if (s.StartsWith(p)) return true;
+            return false;
+        }
+    }
+}
+#endif

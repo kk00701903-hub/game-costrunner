@@ -67,18 +67,36 @@ namespace CoastRun
                 quad.transform.SetParent(root, false);
                 quad.transform.localPosition = new Vector3(x, y, z);
                 float s = scale * (0.7f + (float)rng.NextDouble() * 0.6f);
-                quad.transform.localScale = new Vector3(s * 1.8f, s * 0.55f, 1f);
                 CoastEditUtil.DestroyCollider(quad);
 
-                Color c = Color.Lerp(CoastPalette.CloudLight, CoastPalette.CloudShadow,
-                    (float)rng.NextDouble() * 0.35f);
-                c.a = opacity;
-                var mat = CoastMaterials.CreateTransparent(c, () =>
+                // Painted cumulus (Firefly, alpha) when the textures exist; the flat
+                // tinted slabs stay as the fallback.
+                Texture2D cloudTex = PaintedCloud(rng);
+                Material mat;
+                if (cloudTex != null)
                 {
-                    Color live = Color.Lerp(CoastPalette.CloudLight, CoastPalette.CloudShadow, 0.2f);
-                    live.a = opacity;
-                    return live;
-                });
+                    float aspect = cloudTex.width / (float)cloudTex.height;
+                    quad.transform.localScale = new Vector3(s * 1.6f, s * 1.6f / aspect, 1f);
+                    if (rng.NextDouble() < 0.5)
+                        quad.transform.localScale = Vector3.Scale(quad.transform.localScale, new Vector3(-1f, 1f, 1f));
+                    Color tint = Color.white;
+                    tint.a = opacity;
+                    mat = CoastMaterials.CreateTexturedTransparent(cloudTex, tint);
+                    CoastMaterials.SetNoFog(mat, 0f);
+                }
+                else
+                {
+                    quad.transform.localScale = new Vector3(s * 1.8f, s * 0.55f, 1f);
+                    Color c = Color.Lerp(CoastPalette.CloudLight, CoastPalette.CloudShadow,
+                        (float)rng.NextDouble() * 0.35f);
+                    c.a = opacity;
+                    mat = CoastMaterials.CreateTransparent(c, () =>
+                    {
+                        Color live = Color.Lerp(CoastPalette.CloudLight, CoastPalette.CloudShadow, 0.2f);
+                        live.a = opacity;
+                        return live;
+                    });
+                }
                 var mr = quad.GetComponent<MeshRenderer>();
                 mr.sharedMaterial = CoastMaterials.SetFlat(mat);
                 mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -93,6 +111,24 @@ namespace CoastRun
                 height = height,
                 depth = depth
             };
+        }
+
+        private static readonly string[] CloudNames = { "Cloud_Cumulus_A", "Cloud_Cumulus_B", "Cloud_Cumulus_C" };
+        private static Texture2D[] _cloudTex;
+
+        private static Texture2D PaintedCloud(System.Random rng)
+        {
+            if (_cloudTex == null)
+            {
+                var list = new System.Collections.Generic.List<Texture2D>();
+                foreach (var n in CloudNames)
+                {
+                    var t = ArtAssets.LoadTexture(n);
+                    if (t != null) list.Add(t);
+                }
+                _cloudTex = list.ToArray();
+            }
+            return _cloudTex.Length == 0 ? null : _cloudTex[rng.Next(_cloudTex.Length)];
         }
 
         private void LateUpdate()

@@ -182,6 +182,49 @@ namespace CoastRun
             return mat;
         }
 
+        /// Painted backdrops keep their own painted haze: no distance fog on top.
+        public static Material SetNoFog(Material mat, float weight = 0f)
+        {
+            if (mat != null && mat.HasProperty("_FogWeight"))
+                mat.SetFloat("_FogWeight", weight);
+            return mat;
+        }
+
+        private static Shader _urpUnlit;
+
+        /// Alpha-blended textured unlit for painted billboards (clouds, far town).
+        /// Deliberately the stock URP Unlit, not the curved shader: through the curved
+        /// shader's transparent path the quad's fully transparent texels still rendered
+        /// as a pale slab (fog interaction), while URP Unlit draws the same texture
+        /// cleanly. These billboards are pinned flat anyway, so nothing is lost.
+        public static Material CreateTexturedTransparent(Texture2D tex, Color tint)
+        {
+            if (_urpUnlit == null)
+                _urpUnlit = Shader.Find("Universal Render Pipeline/Unlit");
+            if (_urpUnlit == null)
+            {
+                var fallback = CreateTransparent(tint);
+                if (tex != null && fallback.HasProperty("_BaseMap")) fallback.SetTexture("_BaseMap", tex);
+                return fallback;
+            }
+
+            var mat = new Material(_urpUnlit);
+            mat.SetColor("_BaseColor", tint);
+            if (tex != null)
+                mat.SetTexture("_BaseMap", tex);
+            mat.SetFloat("_Surface", 1f);
+            mat.SetFloat("_Blend", 0f);
+            mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_SrcBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
+            mat.SetFloat("_DstBlendAlpha", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_ZWrite", 0f);
+            mat.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = 3000;
+            return mat;
+        }
+
         public static void RefreshTracked()
         {
             for (int i = TrackedMats.Count - 1; i >= 0; i--)
