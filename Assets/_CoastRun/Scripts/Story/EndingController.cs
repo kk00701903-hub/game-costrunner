@@ -167,7 +167,7 @@ namespace CoastRun
             {
                 // Camera must not move.
                 _camRig.SetPositionAndRotation(_camFixedPos, _camFixedRot);
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 float u = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / duration));
                 _girl.position = Vector3.Lerp(girlStart, girlEnd, u);
                 _board.position = Vector3.Lerp(boardStart, boardEnd, u);
@@ -197,7 +197,7 @@ namespace CoastRun
             float t = 0f;
             while (t < seconds)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 // Fixed.
                 yield return null;
             }
@@ -221,7 +221,7 @@ namespace CoastRun
             float t = 0f;
             while (t < digSeconds)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 // Subtle hand dig motion via can prop rising late.
                 if (_canProp != null && t > digSeconds * 0.55f)
                 {
@@ -265,7 +265,7 @@ namespace CoastRun
             if (_handOverlay != null)
                 _handOverlay.gameObject.SetActive(true);
 
-            string[] lines = EndingLetter.Lines;
+            string[] lines = EndingLetter.LinesFor(GameManager.I != null ? GameManager.I.PendingEnding : EndingKind.None);
             float per = seconds / Mathf.Max(1, lines.Length);
             var spoken = ProceduralAudio.CreateLoop(180f, 0.02f, 2f); // soft VO bed, not speech content
 
@@ -328,7 +328,7 @@ namespace CoastRun
             float t = 0f;
             while (t < seconds)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 _camRig.SetPositionAndRotation(camPos, camRot);
                 if (_bgm != null)
                 {
@@ -386,7 +386,7 @@ namespace CoastRun
             float t = 0f;
             while (t < seconds)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 _descentT = Mathf.Clamp01(t / seconds);
 
                 // Village lights one by one.
@@ -459,7 +459,7 @@ namespace CoastRun
             float t = 0f;
             while (t < FootstepTailSeconds)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 if (_footsteps != null)
                     _footsteps.volume = Mathf.Lerp(0.18f, 0f, t / FootstepTailSeconds);
                 yield return null;
@@ -483,7 +483,7 @@ namespace CoastRun
             float t = 0f;
             while (t < 1.2f)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 if (_titleCard != null)
                 {
                     var c = _titleCard.color;
@@ -523,7 +523,7 @@ namespace CoastRun
             Vector2 to = new Vector2(0f, 420f);
             while (t < seconds)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 if (rt != null)
                     rt.anchoredPosition = Vector2.Lerp(from, to, Mathf.Clamp01(t / seconds));
                 yield return null;
@@ -686,7 +686,7 @@ namespace CoastRun
             float t = 0f;
             while (t < duration)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 if (src != null)
                     src.volume = Mathf.Lerp(from, to, Mathf.Clamp01(t / duration));
                 yield return null;
@@ -706,7 +706,7 @@ namespace CoastRun
             float t = 0f;
             while (t < duration)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 _veil.alpha = Mathf.Lerp(from, to, Mathf.Clamp01(t / duration));
                 yield return null;
             }
@@ -714,12 +714,15 @@ namespace CoastRun
             _veil.alpha = to;
         }
 
+        /// 에디터 검증용 배속(Coast Run/Debug). 1 = 실시간.
+        public static float DebugTimeMul = 1f;
+
         private static IEnumerator Hold(float seconds)
         {
             float t = 0f;
             while (t < seconds)
             {
-                t += Time.unscaledDeltaTime;
+                t += Time.unscaledDeltaTime * DebugTimeMul;
                 yield return null;
             }
         }
@@ -993,8 +996,20 @@ namespace CoastRun
     }
 
     /// Letter body — ambiguous by design. Do not add clarifying narration.
+    /// v2: 20챕터 전부 S급이면 Lines(고백), 하나라도 미달이면 TragicLines(엇갈림).
     public static class EndingLetter
     {
+        public static string[] LinesFor(EndingKind kind) => kind == EndingKind.Tragic ? TragicLines : Lines;
+
+        public static readonly string[] TragicLines =
+        {
+            "하늘아.",
+            "나 서울 올라가. 병원에서 그러래. 여기서는 더 못 본대.\n언제 다시 내려올지는 나도 몰라.",
+            "네 라디오 주파수, 끝까지 못 맞췄다. 몇 번 물어보려다 말았어.\n네가 바빠 보여서. 아니, 그건 핑계고.",
+            "송전탑 밑에 이거 묻어 놓는다. 찾으면 찾는 거고.\n못 찾으면… 그것도 괜찮아.",
+            "잘 지내."
+        };
+
         public static readonly string[] Lines =
         {
             "하늘아.",
