@@ -69,13 +69,13 @@ namespace CoastRun.Editor
             EditorApplication.delayCall += () => { EditorApplication.isPlaying = true; };
         }
 
-        [MenuItem("Coast Run/▶ PLAY 주행만 — 9스테이지(3챕터)부터")]
+        [MenuItem("Coast Run/▶ PLAY 주행만 — 9스테이지(3챕터)부터 _F6")]
         public static void PlayRunFromChapter3() => PlayRunFromStage(9);
 
-        [MenuItem("Coast Run/▶ PLAY 주행만 — 13스테이지(4챕터)부터")]
+        [MenuItem("Coast Run/▶ PLAY 주행만 — 13스테이지(4챕터)부터 _F7")]
         public static void PlayRunFromChapter4() => PlayRunFromStage(13);
 
-        [MenuItem("Coast Run/▶ PLAY 주행만 — 17스테이지(5챕터)부터")]
+        [MenuItem("Coast Run/▶ PLAY 주행만 — 17스테이지(5챕터)부터 _F8")]
         public static void PlayRunFromChapter5() => PlayRunFromStage(17);
 
         private static void PlayRunFromStage(int stage)
