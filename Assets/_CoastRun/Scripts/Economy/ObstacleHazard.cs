@@ -11,6 +11,28 @@ namespace CoastRun
 
         public NearMissZone NearMiss => nearMiss;
 
+        /// 살아 있는 하자드 레지스트리 — 펫(오토바이탄 깡패)이 앞 장애물을 찾을 때 쓴다.
+        public static readonly System.Collections.Generic.List<ObstacleHazard> Active =
+            new System.Collections.Generic.List<ObstacleHazard>();
+
+        private void OnEnable() => Active.Add(this);
+        private void OnDisable() => Active.Remove(this);
+
+        /// 차량(마주 오는 차·버스)은 못 부순다. 그 밖의 정적 장애물은 전부 부술 수 있다.
+        public bool Breakable => GetComponentInParent<OncomingCar>() == null;
+
+        /// 장애물 루트째 제거 + 파편 연출. 니어미스 존도 함께 사라진다.
+        public void Smash()
+        {
+            Transform root = transform;
+            while (root.parent != null && !root.parent.name.StartsWith("Obstacle") && root.parent.name != "Obstacles")
+                root = root.parent;
+            if (root.parent != null && root.parent.name.StartsWith("Obstacle_"))
+                root = root.parent;
+            JuiceDirector.Instance?.PlaySmash(root.position + Vector3.up * 0.5f);
+            Destroy(root.gameObject);
+        }
+
         private void Reset()
         {
             var col = GetComponent<Collider>();

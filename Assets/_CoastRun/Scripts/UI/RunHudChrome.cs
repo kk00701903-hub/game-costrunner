@@ -36,6 +36,7 @@ namespace CoastRun
         private Image _bonusFill;
         private Text _bonusLabel;
         private GameObject _runOverOverlay;
+        private UnityEngine.Events.UnityAction _runOverRetry, _runOverSecond;
         private Image _flash;
         private float _hpShown = 1f;
         private float _hpShake;
@@ -249,6 +250,12 @@ namespace CoastRun
             Flash(new Color(1f, 0.2f, 0.2f, 0.3f));
         }
 
+        /// 짧은 안내 토스트 (펫 발동 등). UI_FeedbackController의 워치 메시지를 재사용.
+        public void ShowToast(string text)
+        {
+            GetComponent<UI_FeedbackController>()?.ShowWatchMessage("PET", text);
+        }
+
         public void Flash(Color c)
         {
             if (_flash == null)
@@ -285,7 +292,7 @@ namespace CoastRun
         }
 
         /// Stamina hit zero. Freezes time and offers retry / title.
-        public void ShowRunOver(UnityEngine.Events.UnityAction retry, UnityEngine.Events.UnityAction toTitle)
+        public void ShowRunOver(UnityEngine.Events.UnityAction retry, UnityEngine.Events.UnityAction toTitle, string secondLabel = "메인으로")
         {
             if (_runOverOverlay != null)
                 Destroy(_runOverOverlay);
@@ -313,12 +320,14 @@ namespace CoastRun
                 TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -140f), new Vector2(0f, -100f));
             sub.color = new Color(0.3f, 0.32f, 0.4f);
 
+            _runOverRetry = retry;
+            _runOverSecond = toTitle;
             MakeBigButton(prt, "Retry", "다시 달리기", new Color(0.30f, 0.72f, 0.36f), -210f, () =>
             {
                 CloseRunOver();
                 retry?.Invoke();
             });
-            MakeBigButton(prt, "Title", "메인으로", new Color(0.35f, 0.45f, 0.70f), -290f, () =>
+            MakeBigButton(prt, "Title", secondLabel, new Color(0.35f, 0.45f, 0.70f), -290f, () =>
             {
                 CloseRunOver();
                 toTitle?.Invoke();
@@ -449,6 +458,14 @@ namespace CoastRun
 
         private void Update()
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 에디터 검증용: 런오버 패널에서 R = 다시, Return = 두 번째 버튼.
+            if (_runOverOverlay != null)
+            {
+                if (Input.GetKeyDown(KeyCode.R)) { var a = _runOverRetry; CloseRunOver(); a?.Invoke(); }
+                else if (Input.GetKeyDown(KeyCode.Return)) { var a = _runOverSecond; CloseRunOver(); a?.Invoke(); }
+            }
+#endif
             UpdateCookieHud();
             if (_player != null && _player.Speed > 0.5f)
                 _distanceScore += _player.Speed * Time.deltaTime * 2f * _combo;

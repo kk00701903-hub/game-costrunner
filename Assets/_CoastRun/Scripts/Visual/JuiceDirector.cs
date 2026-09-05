@@ -165,6 +165,15 @@ namespace CoastRun
             audio?.PlaySfx(CoastSfx.NearMiss);
         }
 
+        /// 펫(오토바이탄 깡패)이 장애물을 부술 때: 흔들림 + 파편 버스트 + 타격음.
+        public void PlaySmash(Vector3 worldPos)
+        {
+            cameraRig?.Shake(0.25f, 0.14f);
+            SpawnCoinBurst(worldPos);
+            SpawnCoinBurst(worldPos + Vector3.up * 0.4f);
+            audio?.PlaySfx(CoastSfx.NearMiss);
+        }
+
         /// Called by CoinPickup when collect VFX starts (after wallet Add).
         public void PlayCoinCollect(Transform coinVisual, Vector3 worldPos, int amount)
         {
