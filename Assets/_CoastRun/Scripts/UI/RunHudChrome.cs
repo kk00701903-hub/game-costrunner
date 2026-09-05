@@ -120,8 +120,14 @@ namespace CoastRun
                 health.OnChanged -= HandleHealth;
                 health.OnDamaged -= HandleDamaged;
             }
-            if (_paused)
+            // The pause and run-over overlays freeze time; if the HUD goes away while
+            // one is up (scene change, editor stop), unfreeze — a frozen timeScale
+            // survives into the next session and every WaitForSeconds hangs.
+            if (_paused || _runOverOverlay != null)
+            {
                 Time.timeScale = 1f;
+                AudioListener.pause = false;
+            }
             SaveBest();
         }
 

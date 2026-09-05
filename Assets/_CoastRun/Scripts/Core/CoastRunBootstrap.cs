@@ -41,6 +41,15 @@ namespace CoastRun
     [DefaultExecutionOrder(-200)]
     public class CoastRunBootstrap : MonoBehaviour
     {
+        /// Time.timeScale and AudioListener.pause persist across play sessions in the
+        /// editor (and across scenes in a build). Nothing in Boot may start frozen.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void UnfreezeOnBoot()
+        {
+            Time.timeScale = 1f;
+            AudioListener.pause = false;
+        }
+
         public static string ScenePath => CoastScenes.Path(CoastScenes.Run);
 
         private CoastSky _sky;
