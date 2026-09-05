@@ -79,8 +79,7 @@ namespace CoastRun
             renderer.renderMode = ParticleSystemRenderMode.Stretch;
             renderer.lengthScale = 4.5f;
             renderer.velocityScale = 0.08f;
-            renderer.material = CoastMaterials.CreateUnlit(
-                () => new Color(1f, 1f, 1f, 0.4f));
+            renderer.material = CoastMaterials.CreateParticle(new Color(1f, 1f, 1f, 0.4f));
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
             _ps.Play();

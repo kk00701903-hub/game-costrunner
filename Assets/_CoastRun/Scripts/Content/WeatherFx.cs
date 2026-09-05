@@ -49,7 +49,7 @@ namespace CoastRun
             shape.scale = new Vector3(18f, 1f, 30f);
 
             var renderer = go.GetComponent<ParticleSystemRenderer>();
-            renderer.material = CoastMaterials.CreateUnlit(color);
+            renderer.material = CoastMaterials.CreateParticle(color);
 
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             return ps;

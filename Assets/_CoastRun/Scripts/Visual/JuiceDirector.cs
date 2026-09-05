@@ -497,7 +497,7 @@ namespace CoastRun
             shape.radius = 0.35f;
 
             var renderer = go.GetComponent<ParticleSystemRenderer>();
-            renderer.material = CoastMaterials.CreateUnlit(() => new Color(0.9f, 0.85f, 0.75f, 0.7f));
+            renderer.material = CoastMaterials.CreateParticle(new Color(0.9f, 0.85f, 0.75f, 0.7f));
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _landDust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
@@ -532,7 +532,10 @@ namespace CoastRun
             shape.radius = 0.15f;
 
             var renderer = go.GetComponent<ParticleSystemRenderer>();
-            renderer.material = CoastMaterials.CreateUnlit(() => CoastPalette.CoinYellow);
+            // Particles get the stock URP particle shader, not the curved-world unlit:
+            // ParticleSystemRenderer hands the curved shader vertices it does not expect
+            // and the burst smeared as screen-sized yellow blobs (even into the letterbox).
+            renderer.material = CoastMaterials.CreateParticle(CoastPalette.CoinYellow);
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
 

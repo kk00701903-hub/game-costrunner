@@ -148,6 +148,31 @@ namespace CoastRun
             return mat;
         }
 
+        private static Shader _particle;
+
+        /// Particle systems must not use the curved-world shaders: ParticleSystemRenderer
+        /// streams billboard vertices the bend maths misreads, and bursts turned into
+        /// screen-sized blobs. Stock URP particle unlit, alpha-blended.
+        public static Material CreateParticle(Color color)
+        {
+            if (_particle == null)
+                _particle = Shader.Find("Universal Render Pipeline/Particles/Unlit")
+                            ?? Shader.Find("Universal Render Pipeline/Unlit");
+            var mat = new Material(_particle);
+            ApplyColor(mat, color, true);
+            if (mat.HasProperty("_Surface"))
+            {
+                mat.SetFloat("_Surface", 1f);
+                mat.SetFloat("_Blend", 0f);
+                mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                mat.SetInt("_ZWrite", 0);
+                mat.renderQueue = 3000;
+                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            }
+            return mat;
+        }
+
         /// Pins a material in place while the rest of the world bends (sky, clouds, UI-ish
         /// billboards that must not sweep off screen on a hard curve).
         public static Material SetFlat(Material mat)
