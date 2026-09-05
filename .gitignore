@@ -62,3 +62,5 @@ __pycache__/
 # Burst build leftovers dropped at the repo root
 /Data/
 *_BurstDebugInformation_DoNotShip/
+
+Tools/scene_dump*.txt
