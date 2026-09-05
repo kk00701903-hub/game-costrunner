@@ -11,7 +11,10 @@ namespace CoastRun.Editor
     {
         private const string Folder = "Assets/Resources/CoastRun/";
 
-        private static readonly string[] WorldPrefixes = { "Sky_", "Cloud_", "Far_" };
+        // GirlSkater_* sprites are chroma-keyed billboards: keep them uncompressed and
+        // at native 1024×1536 — the default importer rounded them to 1024×2048 (NPOT
+        // scale) which squashed the character, and DXT bled magenta into the outline.
+        private static readonly string[] WorldPrefixes = { "Sky_", "Cloud_", "Far_", "GirlSkater_" };
         private static readonly string[] TilePrefixes = { "Tex_", "Sea_" };
         private static readonly string[] UiPrefixes = { "UI_", "Icon_", "Watch_" };
 
@@ -35,7 +38,9 @@ namespace CoastRun.Editor
             importer.alphaIsTransparency = true;
             importer.wrapMode = tile ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
             importer.filterMode = FilterMode.Bilinear;
-            importer.mipmapEnabled = world || tile;
+            // No mips on the keyed sprite: mip blending mixes the magenta key into the
+            // outline and the chroma test then turns the whole edge dark.
+            importer.mipmapEnabled = (world || tile) && !file.StartsWith("GirlSkater_");
             importer.maxTextureSize = 2048;
             // Keyed billboards stay uncompressed: the DXT5 path inflated alpha in the
             // fully transparent regions (readback showed a≈90–140 where the PNG has 0),

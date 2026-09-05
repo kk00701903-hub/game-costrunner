@@ -60,6 +60,23 @@ namespace CoastRun.Editor
             });
         }
 
+        /// Re-runs ArtImportSettings on every painting under Resources/CoastRun — needed
+        /// after the import rules change, since a postprocessor only fires on import.
+        [MenuItem("Coast Run/Art/Reimport painted art (apply import rules)")]
+        public static void ReimportPaintedArt()
+        {
+            const string folder = "Assets/Resources/CoastRun";
+            int n = 0;
+            foreach (var guid in UnityEditor.AssetDatabase.FindAssets("t:Texture2D", new[] { folder }))
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+                if (path.Contains("/BGM/")) continue;
+                UnityEditor.AssetDatabase.ImportAsset(path, UnityEditor.ImportAssetOptions.ForceUpdate);
+                n++;
+            }
+            UnityEngine.Debug.Log($"Reimported {n} painted textures under {folder}.");
+        }
+
         [MenuItem("Coast Run/BGM/Repair torch versions")]
         public static void FixTorch() => Launch("fix_torch.bat");
 
