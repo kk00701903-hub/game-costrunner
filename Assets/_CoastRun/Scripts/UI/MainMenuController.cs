@@ -35,19 +35,59 @@ namespace CoastRun
 
             _gm = GameManager.Ensure();
             _audio = gameObject.GetComponent<TitleAudio>() ?? gameObject.AddComponent<TitleAudio>();
-            _world = gameObject.GetComponent<TitleWorldBackdrop>() ?? gameObject.AddComponent<TitleWorldBackdrop>();
-            _world.Build(_cleared);
-            _audio.PlayMenu(_cleared);
+            _gateArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Gate");
+            if (_gateArt == null)
+            {
+                // 대문 아트가 없을 때만 옛 3D 배경을 세운다(모바일 메모리 절약).
+                _world = gameObject.GetComponent<TitleWorldBackdrop>() ?? gameObject.AddComponent<TitleWorldBackdrop>();
+                _world.Build(_cleared);
+            }
+            else
+            {
+                // 옛 3D 배경이 카메라를 만들던 자리 — 대문 아트만 쓸 때도 카메라/리스너는 있어야 한다.
+                var cam = Camera.main;
+                if (cam == null)
+                {
+                    var go = new GameObject("TitleCamera");
+                    go.tag = "MainCamera";
+                    cam = go.AddComponent<Camera>();
+                    go.AddComponent<AudioListener>();
+                    cam.transform.position = new Vector3(0f, 0f, -10f);
+                }
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = new Color(0.12f, 0.08f, 0.10f);
+                cam.cullingMask = 0;
+                if (cam.GetComponent<AudioListener>() == null) cam.gameObject.AddComponent<AudioListener>();
+                if (cam.GetComponent<CoastPortraitViewport>() == null)
+                    cam.gameObject.AddComponent<CoastPortraitViewport>();
+            }
 
             BuildSplashAndUi();
-            StartCoroutine(SplashThenUi());
+            bool firstLaunch = PlayerPrefs.GetInt(OpeningCinematic.SeenKey, 0) == 0;
+            if (firstLaunch && _gateArt != null)
+            {
+                // 첫 실행: 15초 오프닝 → 타이틀. 메뉴 음악은 오프닝이 끝나고 시작.
+                OpeningCinematic.Play(() =>
+                {
+                    if (this == null) return;
+                    _audio.PlayMenu(_cleared);
+                    StartCoroutine(SplashThenUi(0.2f));
+                });
+            }
+            else
+            {
+                _audio.PlayMenu(_cleared);
+                StartCoroutine(SplashThenUi(_gateArt != null ? 0.6f : 1.5f));
+            }
         }
 
-        private IEnumerator SplashThenUi()
+        private Texture2D _gateArt;
+
+        private IEnumerator SplashThenUi(float splashSeconds)
         {
-            // Logo splash 1.5s — skippable.
+            // Logo splash — skippable.
             float t = 0f;
-            while (t < 1.5f)
+            while (t < splashSeconds)
             {
                 t += Time.unscaledDeltaTime;
                 if (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
@@ -147,7 +187,9 @@ namespace CoastRun
 
             // Key art (Firefly, Resources/CoastRun/UI_TitleBackground) when present: the
             // splash becomes the painted poster, with a soft dark band so the logo reads.
-            var keyArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_TitleBackground");
+            var keyArt = _gateArt != null ? null : Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_TitleBackground");
+            if (_gateArt != null)
+                splashImg.color = new Color(0.12f, 0.08f, 0.10f, 1f);
             if (keyArt != null)
             {
                 splashImg.sprite = CoastUiArt.AsSprite(keyArt, 100f);
@@ -164,14 +206,22 @@ namespace CoastRun
                 band.GetComponent<Image>().color = new Color(0.03f, 0.08f, 0.16f, 0.55f);
             }
 
-            CreateLabel(go.transform, "SplashLogo", "우리의 송전탑", 44, FontStyle.Bold,
-                new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.82f), new Vector2(560f, 64f));
-            CreateLabel(go.transform, "SplashSub", "Coast Run", 22, FontStyle.Italic,
-                new Color(0.75f, 0.88f, 0.95f), new Vector2(0.5f, 0.745f), new Vector2(400f, 36f));
+            if (_gateArt == null)
+            {
+                CreateLabel(go.transform, "SplashLogo", "우리의 송전탑", 44, FontStyle.Bold,
+                    new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.82f), new Vector2(560f, 64f));
+                CreateLabel(go.transform, "SplashSub", "Coast Run", 22, FontStyle.Italic,
+                    new Color(0.75f, 0.88f, 0.95f), new Vector2(0.5f, 0.745f), new Vector2(400f, 36f));
+            }
         }
 
         private void BuildMainUi(Transform root)
         {
+            if (_gateArt != null)
+            {
+                BuildGateUi(root);
+                return;
+            }
             var ui = new GameObject("TitleUI", typeof(RectTransform), typeof(CanvasGroup));
             ui.transform.SetParent(root, false);
             var urt = ui.GetComponent<RectTransform>();
@@ -264,6 +314,87 @@ namespace CoastRun
             BuildCharacterSelect(root);
             if (hasSave)
                 _tapLabel.text = "화면을 터치하면 이어하기";
+        }
+
+
+        /// 프린세스 메이커 대문식 타이틀: 전면 키아트 + 상단 로고 + 장식 메뉴 패널.
+        private void BuildGateUi(Transform root)
+        {
+            var pad = CoastUiCanvas.HudPad;
+            var bg = CoastHudLayout.MakeImage(root, "GateArt", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), Color.white);
+            bg.sprite = CoastUiArt.AsSprite(_gateArt, 100f);
+            bg.preserveAspect = false;
+            bg.raycastTarget = false;
+            bg.transform.SetAsFirstSibling();
+
+            var ui = new GameObject("TitleUI", typeof(RectTransform), typeof(CanvasGroup));
+            ui.transform.SetParent(root, false);
+            CoastOrnate.Stretch(ui.GetComponent<RectTransform>(), 0f, 0f, 0f, 0f);
+            _uiCg = ui.GetComponent<CanvasGroup>();
+            _uiCg.alpha = 0f;
+            ui.SetActive(false);
+
+            // 로고 — 하늘 위 여백에.
+            var shadow = CreateLabel(ui.transform, "LogoShadow", "너와 나의 주파수", 62, FontStyle.Bold,
+                new Color(0.25f, 0.10f, 0.05f, 0.45f), new Vector2(0.5f, 0.865f), new Vector2(680f, 90f));
+            shadow.rectTransform.anchoredPosition = new Vector2(4f, -5f);
+            var logo = CreateLabel(ui.transform, "Logo", "너와 나의 주파수", 62, FontStyle.Bold,
+                new Color(1f, 0.97f, 0.88f), new Vector2(0.5f, 0.865f), new Vector2(680f, 90f));
+            CoastUiArt.OutlineText(logo, new Color(0.55f, 0.22f, 0.08f, 0.95f), 2.5f);
+            var sub = CreateLabel(ui.transform, "Subtitle", "우리의 송전탑  ·  COAST RUN", 22, FontStyle.Bold,
+                new Color(1f, 0.93f, 0.78f, 0.95f), new Vector2(0.5f, 0.815f), new Vector2(600f, 36f));
+            CoastUiArt.OutlineText(sub, new Color(0f, 0f, 0f, 0.55f), 1.5f);
+            var deco = CreateLabel(ui.transform, "Deco", "— ◆ —", 20, FontStyle.Normal,
+                new Color(1f, 0.85f, 0.45f, 0.9f), new Vector2(0.5f, 0.785f), new Vector2(300f, 30f));
+
+            // 메뉴 패널 — 화면 아래쪽, 그림의 도로 위.
+            bool hasSave = _gm != null && _gm.HasSave;
+            var items = new System.Collections.Generic.List<(string, System.Action)>();
+            if (hasSave) items.Add(("이어하기", OnContinue));
+            items.Add((hasSave ? "새로 시작" : "시작하기", () => { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }));
+            if (hasSave) items.Add(("챕터 선택", OnChapterSelect));
+            items.Add(("오프닝", () =>
+            {
+                _audio?.PlayClick();
+                _audio?.StopMenu();
+                _ready = false;
+                OpeningCinematic.Play(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; });
+            }));
+            items.Add(("설정", () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
+
+            // 그림의 소녀(하단 중앙)를 가리지 않게 오른쪽 세로 열에 세운다.
+            float rowH = 54f, gap = 8f;
+            float panelH = items.Count * rowH + (items.Count - 1) * gap + 40f;
+            var panel = CoastOrnate.PanelSized(ui.transform, "MenuPanel", CoastOrnate.Gold, new Vector2(1f, 0.31f),
+                new Vector2(-138f, 0f), new Vector2(252f, panelH), new Color(1f, 0.97f, 0.90f, 0.92f));
+            for (int i = 0; i < items.Count; i++)
+            {
+                float y = panelH * 0.5f - 20f - rowH * 0.5f - i * (rowH + gap);
+                var (label, act) = items[i];
+                bool primary = i == 0;
+                CoastOrnate.MenuButton(panel.transform, label + "Btn", label, new Vector2(0.5f, 0.5f), new Vector2(0f, y),
+                    new Vector2(216f, rowH), () => { if (_ready) act(); },
+                    primary ? CoastOrnate.Red : CoastOrnate.Wood, primary ? 24 : 22);
+            }
+
+            var ver = CreateLabel(ui.transform, "Version", "v" + Application.version, 14, FontStyle.Normal,
+                new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0.018f), new Vector2(300f, 20f));
+
+            BuildGalleryPanel(root);
+            BuildCreditsPanel(root);
+            BuildSettingsPanel(root);
+            BuildRecordPanel(root);
+            BuildCharacterSelect(root);
+        }
+
+        /// 세이브가 있을 때: 육성 화면을 챕터 선택(타임라인)이 열린 상태로 연다.
+        private void OnChapterSelect()
+        {
+            if (!_ready || _gm == null || !_gm.HasSave) return;
+            _audio?.PlayClick();
+            _audio?.StopMenu();
+            _gm.OpenTimelineOnRaising = true;
+            _gm.Continue();
         }
 
         /// 회차 시작 캐릭터 선택: 러닝 / 스케이트보드(엔딩 1회 후 해금, 속도·코인 ×1.3).

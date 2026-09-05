@@ -29,6 +29,26 @@ namespace CoastRun.Editor
             EditorApplication.delayCall += () => { EditorApplication.isPlaying = true; };
         }
 
+
+        private const string BootScene = "Assets/_CoastRun/Scenes/00_Boot.unity";
+
+        [MenuItem("Coast Run/▶ PLAY 처음부터 (00_Boot → 타이틀) _F4")]
+        public static void PlayBoot()
+        {
+            if (!File.Exists(BootScene)) { Debug.LogWarning("[Coast Run] 00_Boot missing."); return; }
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            EditorSceneManager.OpenScene(BootScene, OpenSceneMode.Single);
+            EditorApplication.delayCall += () => { EditorApplication.isPlaying = true; };
+        }
+
+        [MenuItem("Coast Run/Debug/오프닝 본 기록 초기화 (다음 실행에 오프닝 재생) %#&o")]
+        public static void ResetOpeningSeen()
+        {
+            PlayerPrefs.DeleteKey(OpeningCinematic.SeenKey);
+            PlayerPrefs.Save();
+            Debug.Log("[Coast Run] opening-seen flag cleared.");
+        }
+
         [MenuItem("Coast Run/Debug/v2 세이브 삭제 (save_0.json) %#&0")]
         public static void DeleteSave()
         {
