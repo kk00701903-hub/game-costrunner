@@ -68,4 +68,6 @@ Tools/debug_log.txt
 Tools/blender/build_log.txt
 # Pre-replacement copies of art git already has in history
 Tools/FireflyArt/_prev/
+# Scratch previews the art scripts write while tuning
+Tools/FireflyArt/_*.png
 Tools/kit_log.txt
