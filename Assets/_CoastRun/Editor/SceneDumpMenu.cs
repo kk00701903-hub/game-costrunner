@@ -96,7 +96,7 @@ namespace CoastRun.EditorTools
             sb.AppendLine("== backdrop materials");
             foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
             {
-                if (r.name != "FarTown" && r.name != "SkyGradient") continue;
+                if (r.name != "FarTown" && r.name != "SkyGradient" && r.name != "PaintedGirl") continue;
                 var m = r.sharedMaterial;
                 if (m == null) { sb.AppendLine($"{Path(r.transform)} null mat"); continue; }
                 var tex = m.HasProperty("_BaseMap") ? m.GetTexture("_BaseMap") as Texture2D : null;

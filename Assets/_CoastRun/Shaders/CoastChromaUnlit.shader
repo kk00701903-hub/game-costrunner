@@ -21,6 +21,7 @@ Shader "CoastRun/ChromaUnlit"
             #pragma vertex vert
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
@@ -46,6 +47,12 @@ Shader "CoastRun/ChromaUnlit"
                 half d = distance(c.rgb, _KeyColor.rgb);
                 if (d < _Cutoff || (c.r > 0.75 && c.g < 0.35 && c.b > 0.75))
                     clip(-1);
+                // Flat "lit" sprite: every 3D thing on screen is toon-lit (sun × ramp,
+                // well above albedo) and then tonemapped, so raw albedo read as a
+                // silhouette. Scale by sun + sky like a face-on lit surface would get.
+                Light sun = GetMainLight();
+                half3 lit = sun.color * 0.9 + half3(unity_AmbientSky.rgb) * 0.6 + 0.35;
+                c.rgb *= lit;
                 return c;
             }
             ENDHLSL
