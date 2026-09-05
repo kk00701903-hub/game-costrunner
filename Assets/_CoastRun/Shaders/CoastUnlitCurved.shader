@@ -15,6 +15,8 @@ Shader "CoastRun/UnlitCurved"
         [HideInInspector] _SrcBlend ("Src", Float) = 1
         [HideInInspector] _DstBlend ("Dst", Float) = 0
         [HideInInspector] _ZWrite ("ZWrite", Float) = 1
+        // 0 Off (billboards), 1 Front (ink outline shells), 2 Back
+        [HideInInspector] _Cull ("Cull", Float) = 0
     }
     SubShader
     {
@@ -43,7 +45,7 @@ Shader "CoastRun/UnlitCurved"
             Tags { "LightMode"="UniversalForward" }
             Blend [_SrcBlend] [_DstBlend]
             ZWrite [_ZWrite]
-            Cull Off
+            Cull [_Cull]
 
             HLSLPROGRAM
             #pragma vertex vert

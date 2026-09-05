@@ -26,8 +26,13 @@ namespace CoastRun
             var mf = outline.AddComponent<MeshFilter>();
             mf.sharedMesh = filter.sharedMesh;
             var mr = outline.AddComponent<MeshRenderer>();
-            mr.sharedMaterial = CoastMaterials.CreateUnlit(
+            var ink = CoastMaterials.CreateUnlit(
                 () => Color.Lerp(CoastPalette.ShadowCool, Color.black, 0.55f));
+            // Inverted-hull outline: only the shell's back faces may show, otherwise the
+            // enlarged copy simply paints over the part (that was the "black backpack").
+            if (ink.HasProperty("_Cull"))
+                ink.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Front);
+            mr.sharedMaterial = ink;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             mr.receiveShadows = false;
         }
