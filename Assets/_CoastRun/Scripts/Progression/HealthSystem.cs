@@ -67,9 +67,16 @@ namespace CoastRun
                 _player.OnSoftHit += HandleHit;
         }
 
+        /// v2: 육성 스탯 → 최대 HP / 피격 감소량. 스테이지 시작마다 호출.
+        public void ApplyTuning()
+        {
+            max = RunTuning.MaxHp;
+            hitDamage = RunTuning.HitDamage;
+        }
+
         public void ResetFull()
         {
-            _current = max;
+            _current = RunTuning.BurnoutStart ? max * 0.7f : max;
             _active = true;
             Frozen = false;
             OnChanged?.Invoke(_current, max);

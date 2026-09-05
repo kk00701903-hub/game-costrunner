@@ -87,13 +87,14 @@ namespace CoastRun.Editor
                 }
             }
 
-            AnimationClip Clip(string name)
+            AnimationClip Clip(string name, bool quiet = false)
             {
                 var all = AssetDatabase.LoadAllAssetsAtPath(Folder + "Anim_" + name + ".fbx");
                 foreach (var o in all)
                     if (o is AnimationClip c && !c.name.StartsWith("__preview"))
                         return c;
-                Debug.LogWarning($"[Mixamo] Anim_{name}.fbx not found under {Folder}");
+                if (!quiet)
+                    Debug.LogWarning($"[Mixamo] Anim_{name}.fbx not found under {Folder}");
                 return null;
             }
 
@@ -103,12 +104,23 @@ namespace CoastRun.Editor
                 Debug.LogError("[Mixamo] Need at least Anim_Skate.fbx.");
                 return;
             }
-            var push = Clip("Push");
-            var jump = Clip("Jump");
-            var hit = Clip("Hit");
-            var collect = Clip("Collect");
+            BuildController(Folder + "SkaterAnimator.controller", "Skate", skate, Clip("Push"), Clip("Jump"), Clip("Hit"), Clip("Collect"));
 
-            string ctrlPath = Folder + "SkaterAnimator.controller";
+            // v2 러닝 모드: Anim_Run.fbx가 있으면 RunnerAnimator도 만든다. 점프/피격/수집은
+            // 러닝 전용 클립(Anim_RunJump 등)이 없으면 스케이트 클립을 그대로 쓴다.
+            var run = Clip("Run", quiet: true);
+            if (run != null)
+                BuildController(Folder + "RunnerAnimator.controller", "Run", run, null,
+                    Clip("RunJump", quiet: true) ?? Clip("Jump"),
+                    Clip("RunHit", quiet: true) ?? Clip("Hit"),
+                    Clip("RunCollect", quiet: true) ?? Clip("Collect"));
+            else
+                Debug.Log("[Mixamo] Anim_Run.fbx 없음 — 러닝 모드는 스케이터 리그(보드 숨김)로 동작합니다.");
+        }
+
+        private static void BuildController(string ctrlPath, string baseName, AnimationClip skate,
+            AnimationClip push, AnimationClip jump, AnimationClip hit, AnimationClip collect)
+        {
             var ctrl = AssetDatabase.LoadAssetAtPath<AnimatorController>(ctrlPath);
             if (ctrl != null)
                 AssetDatabase.DeleteAsset(ctrlPath);
@@ -122,7 +134,7 @@ namespace CoastRun.Editor
             ctrl.AddParameter("Speed", AnimatorControllerParameterType.Float);
 
             var sm = ctrl.layers[0].stateMachine;
-            var sSkate = sm.AddState("Skate");
+            var sSkate = sm.AddState(baseName);
             sSkate.motion = skate;
             sm.defaultState = sSkate;
 

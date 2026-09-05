@@ -172,6 +172,13 @@ namespace CoastRun
             OnStageStart?.Invoke(def);
         }
 
+        /// Editor aid: warp the player to 30 m before the finish so a clear can be tested.
+        public void DebugWarpToFinish()
+        {
+            if (_current == null || player == null || !_stageActive) return;
+            player.SetPathDistance(_stageOriginDistance + Mathf.Max(0f, _current.targetDistance - 30f));
+        }
+
         /// Fail / manual retry — path rewinds to stage origin; lighting only to lightingTStart.
         public void RetryCurrent()
         {
@@ -286,6 +293,9 @@ namespace CoastRun
         /// Chapter-themed prop bias without season cycling.
         public static SeasonKind ChapterAsSeason(int chapter)
         {
+            // v2: 육성 타임라인이 계절을 정한다(52주 = 4계절). 레거시 직행 플레이만 막 테마.
+            if (RunTuning.HasSeason)
+                return RunTuning.Season;
             switch (Mathf.Clamp(chapter, 1, 5))
             {
                 case 1: return SeasonKind.Summer;

@@ -10,6 +10,10 @@ namespace CoastRun
     {
         public const string ModelPath = ArtAssets.ResourceRoot + "Rig/Skater";
         public const string ControllerPath = ArtAssets.ResourceRoot + "Rig/SkaterAnimator";
+        public const string RunnerControllerPath = ArtAssets.ResourceRoot + "Rig/RunnerAnimator";
+
+        /// v2 러닝 모드용 컨트롤러(Anim_Run.fbx → RunnerAnimator)가 있는가.
+        public static bool RunnerAvailable => Resources.Load<RuntimeAnimatorController>(RunnerControllerPath) != null;
 
         private static readonly int HashJump = Animator.StringToHash("Jump");
         private static readonly int HashHit = Animator.StringToHash("Hit");
@@ -34,10 +38,12 @@ namespace CoastRun
             Resources.Load<RuntimeAnimatorController>(ControllerPath) != null;
 
         /// Instantiates the rig under `parent`, scaled so the character stands `height` m.
-        public static SkaterRig Spawn(Transform parent, float height)
+        public static SkaterRig Spawn(Transform parent, float height, bool runner = false)
         {
             var prefab = Resources.Load<GameObject>(ModelPath);
-            var ctrl = Resources.Load<RuntimeAnimatorController>(ControllerPath);
+            var ctrl = runner ? Resources.Load<RuntimeAnimatorController>(RunnerControllerPath) : null;
+            if (ctrl == null)
+                ctrl = Resources.Load<RuntimeAnimatorController>(ControllerPath);
             if (prefab == null || ctrl == null)
                 return null;
 

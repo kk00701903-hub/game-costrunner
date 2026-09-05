@@ -226,6 +226,8 @@ namespace CoastRun
 
         private void UpdateSoftHit()
         {
+            if (_iFrameTimer > 0f)
+                _iFrameTimer -= Time.deltaTime;
             if (_softHitTimer <= 0f)
                 return;
 
@@ -236,10 +238,12 @@ namespace CoastRun
 
         private void UpdateSpeed()
         {
-            float maxSpeed = upgrades != null ? upgrades.GetMaxSpeed() : config.maxSpeed;
-            float target = Mathf.Min(maxSpeed, _speed + config.accelPerSecond * Time.deltaTime);
+            // v2 이동 모드: 스케이트보드는 기본·최대·가속 모두 ×1.3 (규칙은 동일, 반응 시간만 짧다).
+            float mode = RunTuning.SpeedMul;
+            float maxSpeed = (upgrades != null ? upgrades.GetMaxSpeed() : config.maxSpeed) * mode;
+            float target = Mathf.Min(maxSpeed, _speed + config.accelPerSecond * mode * Time.deltaTime);
             if (_state == SkateState.SoftHit)
-                target = config.baseSpeed * config.softHitSlowFactor;
+                target = config.baseSpeed * mode * config.softHitSlowFactor;
 
             _tucking = _input != null && _input.TuckHeld && IsGrounded && _state != SkateState.Crouch;
             if (_tucking)
@@ -473,15 +477,20 @@ namespace CoastRun
         /// lane. Bounce: a solid body (car, crate, bench) — she is knocked sideways into
         /// the neighbouring lane, which is what a chest-high hit looks like. `bounceDir`
         /// is the side she deflects to (+1 right); 0 lets the controller choose.
+        /// 피격 직후 무적(순발력 ↑ → 길어짐). 연속 충돌로 HP가 녹는 것을 막는 '무적 대시'.
+        private float _iFrameTimer;
+        public bool InIFrames => _iFrameTimer > 0f;
+
         public void SoftHit(HitKind kind, int bounceDir)
         {
-            if (Invincible || _state == SkateState.Finish)
+            if (Invincible || _state == SkateState.Finish || _iFrameTimer > 0f)
                 return;
 
             StageRunStats.Instance?.NotifySoftHit();
 
             _state = SkateState.SoftHit;
-            _softHitTimer = config.softHitRecoverSeconds;
+            _softHitTimer = config.softHitRecoverSeconds * RunTuning.HitFreezeMul;
+            _iFrameTimer = RunTuning.DashInvincible;
             _speed *= config.softHitSlowFactor;
             _tucking = false;
 
@@ -497,7 +506,7 @@ namespace CoastRun
                 LastBounceDir = dir;
                 _speed *= 0.8f;                 // a body check bleeds more speed than a trip
                 ChangeLane(dir);
-                FreezeInput(0.25f);
+                FreezeInput(0.25f * RunTuning.HitFreezeMul);
             }
             OnSoftHit?.Invoke();
         }

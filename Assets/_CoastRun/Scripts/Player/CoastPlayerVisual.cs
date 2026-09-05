@@ -76,12 +76,17 @@ namespace CoastRun
                 _visualRoot = new GameObject("VisualRoot").transform;
                 _visualRoot.SetParent(transform, false);
                 _visualRoot.localScale = Vector3.one * ScreenOccupancyScale;
-                BuildBoardOnly();
-                var rig = SkaterRig.Spawn(_visualRoot, 1.62f);
+                // v2 이동 모드: 러닝이면 보드 없이 발이 땅에 닿고, RunnerAnimator가 있으면 달리기 클립.
+                bool running = RunTuning.Mode == RunMode.Running;
+                if (!running)
+                    BuildBoardOnly();
+                var rig = SkaterRig.Spawn(_visualRoot, 1.62f, runner: running);
                 if (rig != null)
                 {
                     // Feet on the deck; the rig's origin is between the heels.
-                    rig.transform.localPosition = new Vector3(0f, JejuKit.Load("Prop_Skateboard") != null ? 0.15f : 0.19f, 0.06f);
+                    rig.transform.localPosition = running
+                        ? new Vector3(0f, 0.02f, 0.06f)
+                        : new Vector3(0f, JejuKit.Load("Prop_Skateboard") != null ? 0.15f : 0.19f, 0.06f);
                     _rootVisual = _visualRoot;
                     ApplyCharacterOutlines(rig.transform);
                     CacheBasePose();

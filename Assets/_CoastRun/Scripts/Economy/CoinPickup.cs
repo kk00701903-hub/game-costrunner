@@ -138,7 +138,7 @@ namespace CoastRun
                 return;
             _collected = true;
 
-            float mult = (_upgrades != null ? _upgrades.GetCoinMultiplier() : 1f) * PetCompanion.CoinBonus;
+            float mult = (_upgrades != null ? _upgrades.GetCoinMultiplier() : 1f) * PetCompanion.CoinBonus * RunTuning.CoinMul;
             int amount = Mathf.Max(1, Mathf.RoundToInt(value * mult));
             _wallet?.Add(amount);
             StageRunStats.Instance?.NotifyCoin(amount);
