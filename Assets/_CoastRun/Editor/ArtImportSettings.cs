@@ -16,7 +16,7 @@ namespace CoastRun.Editor
         // scale) which squashed the character, and DXT bled magenta into the outline.
         private static readonly string[] WorldPrefixes = { "Sky_", "Cloud_", "Far_", "GirlSkater_", "Obs_" };
         private static readonly string[] TilePrefixes = { "Tex_", "Sea_" };
-        private static readonly string[] UiPrefixes = { "UI_", "Icon_", "Watch_", "Raise_", "Sched_", "Cut_" };
+        private static readonly string[] UiPrefixes = { "UI_", "Icon_", "Watch_", "Raise_", "Sched_", "Cut_", "BG_", "Stand_" };
 
         private void OnPreprocessTexture()
         {
@@ -40,14 +40,14 @@ namespace CoastRun.Editor
             importer.filterMode = FilterMode.Bilinear;
             // No mips on the keyed sprite: mip blending mixes the magenta key into the
             // outline and the chroma test then turns the whole edge dark.
-            importer.mipmapEnabled = (world || tile) && !file.StartsWith("GirlSkater_") && !file.StartsWith("Obs_") && !file.StartsWith("Raise_");
+            importer.mipmapEnabled = (world || tile) && !file.StartsWith("GirlSkater_") && !file.StartsWith("Obs_") && !file.StartsWith("Raise_") && !file.StartsWith("Stand_");
             importer.maxTextureSize = 2048;
             // Keyed billboards stay uncompressed: the DXT5 path inflated alpha in the
             // fully transparent regions (readback showed a≈90–140 where the PNG has 0),
             // which drew every cloud/town quad as a pale slab.
             // Raise_ 스탠딩(RGBA 컷아웃)도 비압축: DXT가 완전 투명 텍셀의 RGB를 검게 만들어
             // 육성 화면 초상 주변에 검은 상자가 생겼다.
-            importer.textureCompression = world || file.StartsWith("Raise_")
+            importer.textureCompression = world || file.StartsWith("Raise_") || file.StartsWith("Stand_")
                 ? TextureImporterCompression.Uncompressed
                 : TextureImporterCompression.Compressed;
             importer.npotScale = TextureImporterNPOTScale.None;
