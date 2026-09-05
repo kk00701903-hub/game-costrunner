@@ -149,12 +149,12 @@ namespace CoastRun
         private void BuildHealthBar(RectTransform root)
         {
             // Under the pause button, left-aligned: the thing you glance at most.
-            var track = CoastUiArt.Panel(root, "HpBar", new Color(0.05f, 0.08f, 0.18f, 0.9f), 14);
+            var track = CoastUiArt.CutePill(root, "HpBar", new Color(0.08f, 0.12f, 0.26f, 0.95f), 18);
             _hpBar = track.rectTransform;
             _hpBar.anchorMin = _hpBar.anchorMax = new Vector2(0f, 1f);
             _hpBar.pivot = new Vector2(0f, 1f);
-            _hpBar.anchoredPosition = new Vector2(0f, -84f);
-            _hpBar.sizeDelta = new Vector2(330f, 34f);
+            _hpBar.anchoredPosition = new Vector2(6f, -88f);
+            _hpBar.sizeDelta = new Vector2(330f, 40f);
             _hpCg = track.gameObject.AddComponent<CanvasGroup>();
 
             var fill = CoastUiArt.Panel(_hpBar, "Fill", new Color(1f, 0.42f, 0.55f, 1f), 11);
@@ -162,27 +162,41 @@ namespace CoastRun
             var frt = fill.rectTransform;
             frt.anchorMin = new Vector2(0f, 0f);
             frt.anchorMax = new Vector2(1f, 1f);
-            frt.offsetMin = new Vector2(4f, 4f);
-            frt.offsetMax = new Vector2(-4f, -4f);
+            frt.offsetMin = new Vector2(26f, 8f);
+            frt.offsetMax = new Vector2(-8f, -8f);
             fill.type = Image.Type.Filled;
             fill.fillMethod = Image.FillMethod.Horizontal;
             fill.fillOrigin = (int)Image.OriginHorizontal.Left;
             fill.fillAmount = 1f;
 
             // Heart badge on the left edge.
-            var heart = CoastUiArt.Panel(_hpBar, "Heart", new Color(1f, 0.3f, 0.45f), 12);
+            var heartIcon = CoastUiArt.Icon("Heart");
+            var heart = heartIcon != null
+                ? CoastUiArt.Panel(_hpBar, "Heart", Color.white, 2)
+                : CoastUiArt.Panel(_hpBar, "Heart", new Color(1f, 0.3f, 0.45f), 12);
             var hrt = heart.rectTransform;
             hrt.anchorMin = hrt.anchorMax = new Vector2(0f, 0.5f);
             hrt.pivot = new Vector2(0.5f, 0.5f);
-            hrt.anchoredPosition = new Vector2(2f, 0f);
-            hrt.sizeDelta = new Vector2(40f, 40f);
-            var hl = CoastHudLayout.MakeText(hrt, "Glyph", "♥", 26, TextAnchor.MiddleCenter,
-                Vector2.zero, Vector2.one, Vector2.zero, new Vector2(0f, 2f));
-            hl.color = Color.white;
+            hrt.anchoredPosition = new Vector2(4f, 2f);
+            hrt.sizeDelta = heartIcon != null ? new Vector2(58f, 58f) : new Vector2(40f, 40f);
+            if (heartIcon != null)
+            {
+                heart.sprite = heartIcon;
+                heart.type = Image.Type.Simple;
+                heart.preserveAspect = true;
+            }
+            else
+            {
+                var hl = CoastHudLayout.MakeText(hrt, "Glyph", "♥", 26, TextAnchor.MiddleCenter,
+                    Vector2.zero, Vector2.one, Vector2.zero, new Vector2(0f, 2f));
+                hl.color = Color.white;
+            }
 
             _hpText = CoastHudLayout.MakeText(_hpBar, "Value", "100", 18, TextAnchor.MiddleRight,
                 Vector2.zero, Vector2.one, new Vector2(0f, 0f), new Vector2(-10f, 0f));
             _hpText.color = Color.white;
+            _hpText.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_hpText, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.5f);
         }
 
         private void BuildBonusBanner(RectTransform root)
@@ -334,17 +348,15 @@ namespace CoastRun
 
         private void BuildPause(RectTransform root)
         {
-            var go = new GameObject("PauseButton", typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(root, false);
+            var outer = CoastUiArt.CutePill(root, "PauseButton", PillNavy, 20);
+            var go = outer.gameObject;
+            outer.raycastTarget = true;
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
             rt.pivot = new Vector2(0f, 1f);
-            rt.anchoredPosition = new Vector2(0f, 0f);
+            rt.anchoredPosition = new Vector2(6f, -6f);
             rt.sizeDelta = new Vector2(72f, 72f);
-            var img = go.GetComponent<Image>();
-            img.sprite = CoastUiArt.RoundedRect(16, 3);
-            img.type = Image.Type.Sliced;
-            img.color = PillNavy;
+            go.AddComponent<Button>();
 
             // Two bars — no glyph font dependency.
             for (int i = 0; i < 2; i++)
@@ -362,39 +374,56 @@ namespace CoastRun
 
         private void BuildScorePill(RectTransform root)
         {
-            var pill = CoastUiArt.Panel(root, "ScorePill", PillNavy, 22);
+            var pill = CoastUiArt.CutePill(root, "ScorePill", PillNavy, 24);
             var rt = pill.rectTransform;
             rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
             rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(0f, 0f);
-            rt.sizeDelta = new Vector2(300f, 64f);
+            rt.anchoredPosition = new Vector2(-6f, -6f);
+            rt.sizeDelta = new Vector2(300f, 66f);
             _scoreCg = pill.gameObject.AddComponent<CanvasGroup>();
 
             _scoreText = CoastHudLayout.MakeText(rt, "Score", "00000", 36, TextAnchor.MiddleRight,
                 Vector2.zero, Vector2.one, new Vector2(110f, 0f), new Vector2(-18f, 0f));
             _scoreText.color = ScoreYellow;
+            _scoreText.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_scoreText, new Color(0.05f, 0.07f, 0.18f, 0.9f), 2f);
 
-            // Multiplier badge: orange lozenge with a star.
-            var badge = CoastUiArt.Panel(rt, "MultBadge", BadgeOrange, 14);
+            // Multiplier badge: orange lozenge with a big star poking out of the pill.
+            var badge = CoastUiArt.CutePill(rt, "MultBadge", BadgeOrange, 16, 3);
             _multBadge = badge.rectTransform;
             _multBadge.anchorMin = _multBadge.anchorMax = new Vector2(0f, 0.5f);
             _multBadge.pivot = new Vector2(0f, 0.5f);
-            _multBadge.anchoredPosition = new Vector2(10f, 0f);
-            _multBadge.sizeDelta = new Vector2(92f, 44f);
+            _multBadge.anchoredPosition = new Vector2(8f, 0f);
+            _multBadge.sizeDelta = new Vector2(104f, 48f);
             _multCg = badge.gameObject.AddComponent<CanvasGroup>();
-            _multText = CoastHudLayout.MakeText(_multBadge, "Mult", "x1", 24, TextAnchor.MiddleCenter,
-                Vector2.zero, Vector2.one, new Vector2(6f, 0f), new Vector2(-6f, 0f));
+            var star = CoastUiArt.Icon("Star");
+            if (star != null)
+            {
+                var sgo = new GameObject("Star", typeof(RectTransform), typeof(Image));
+                sgo.transform.SetParent(_multBadge, false);
+                var srt = sgo.GetComponent<RectTransform>();
+                srt.anchorMin = srt.anchorMax = new Vector2(1f, 0.5f);
+                srt.pivot = new Vector2(0.5f, 0.5f);
+                srt.anchoredPosition = new Vector2(-2f, 6f);
+                srt.sizeDelta = new Vector2(54f, 54f);
+                var si = sgo.GetComponent<Image>();
+                si.sprite = star; si.preserveAspect = true; si.raycastTarget = false;
+            }
+            _multText = CoastHudLayout.MakeText(_multBadge, "Mult", "x1", 26, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.one, new Vector2(6f, 0f), new Vector2(star != null ? -30f : -6f, 0f));
             _multText.color = Color.white;
+            _multText.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_multText, new Color(0.45f, 0.18f, 0.02f, 0.9f), 1.5f);
         }
 
         private void BuildCoinPill(RectTransform root)
         {
-            var pill = CoastUiArt.Panel(root, "CoinPill", PillNavy, 20);
+            var pill = CoastUiArt.CutePill(root, "CoinPill", PillNavy, 22);
             var rt = pill.rectTransform;
             rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
             rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(0f, -74f);
-            rt.sizeDelta = new Vector2(170f, 54f);
+            rt.anchoredPosition = new Vector2(-6f, -80f);
+            rt.sizeDelta = new Vector2(176f, 56f);
             _coinCg = pill.gameObject.AddComponent<CanvasGroup>();
 
             var iconGo = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
@@ -402,8 +431,8 @@ namespace CoastRun
             var irt = iconGo.GetComponent<RectTransform>();
             irt.anchorMin = irt.anchorMax = new Vector2(1f, 0.5f);
             irt.pivot = new Vector2(1f, 0.5f);
-            irt.anchoredPosition = new Vector2(-10f, 0f);
-            irt.sizeDelta = new Vector2(38f, 38f);
+            irt.anchoredPosition = new Vector2(-4f, 4f);
+            irt.sizeDelta = new Vector2(50f, 50f);
             var icon = iconGo.GetComponent<Image>();
             icon.sprite = CoastUiArt.AsSprite(ArtAssets.LoadTexture("Icon_Coin"), 100f);
             icon.preserveAspect = true;
@@ -412,6 +441,8 @@ namespace CoastRun
             _coinText = CoastHudLayout.MakeText(rt, "Coins", "0", 30, TextAnchor.MiddleRight,
                 Vector2.zero, Vector2.one, new Vector2(16f, 0f), new Vector2(-56f, 0f));
             _coinText.color = ScoreYellow;
+            _coinText.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_coinText, new Color(0.05f, 0.07f, 0.18f, 0.9f), 2f);
         }
 
         // ── Runtime ──────────────────────────────────────────────────────────

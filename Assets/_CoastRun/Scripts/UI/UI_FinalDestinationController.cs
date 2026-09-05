@@ -431,7 +431,15 @@ namespace CoastRun
             trackRt.offsetMin = Vector2.zero;
             trackRt.offsetMax = Vector2.zero;
             _track = track.GetComponent<Image>();
-            _track.color = new Color(0.08f, 0.12f, 0.2f, 0.75f);
+            // Same chunky pill language as the top bar: cream ring around a navy track.
+            _track.sprite = CoastUiArt.RoundedRect(12);
+            _track.type = Image.Type.Sliced;
+            _track.color = new Color(0.08f, 0.12f, 0.26f, 0.95f);
+            var ring = CoastUiArt.Panel(track.transform, "Ring", CoastUiArt.CreamOutline, 14);
+            var ringRt = ring.rectTransform;
+            ringRt.anchorMin = Vector2.zero; ringRt.anchorMax = Vector2.one;
+            ringRt.offsetMin = new Vector2(-3f, -3f); ringRt.offsetMax = new Vector2(3f, 3f);
+            ring.transform.SetAsFirstSibling();
 
             var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
             fillGo.transform.SetParent(track.transform, false);
@@ -441,14 +449,26 @@ namespace CoastRun
             fillRt.offsetMin = Vector2.zero;
             fillRt.offsetMax = Vector2.zero;
             _fill = fillGo.GetComponent<Image>();
+            _fill.sprite = CoastUiArt.RoundedRect(10);
             _fill.color = new Color(1f, 0.55f, 0.28f, 1f);
+            fillRt.offsetMin = new Vector2(3f, 3f);
+            fillRt.offsetMax = new Vector2(-3f, -3f);
             _fill.type = Image.Type.Filled;
             _fill.fillMethod = Image.FillMethod.Horizontal;
             _fill.fillOrigin = (int)Image.OriginHorizontal.Left;
             _fill.fillAmount = 0f;
 
             _playerDot = CreateMarker(trackRt, "PlayerDot", new Color(1f, 0.95f, 0.85f), "●");
-            _playerDot.sizeDelta = new Vector2(14f, 14f);
+            _playerDot.sizeDelta = new Vector2(22f, 22f);
+            var dotStar = CoastUiArt.Icon("Star");
+            if (dotStar != null)
+            {
+                // The runner's marker is the same little star as the multiplier badge.
+                foreach (Transform c in _playerDot) UnityEngine.Object.Destroy(c.gameObject);
+                var di = _playerDot.GetComponent<Image>() ?? _playerDot.gameObject.AddComponent<Image>();
+                di.sprite = dotStar; di.color = Color.white; di.preserveAspect = true; di.raycastTarget = false;
+                _playerDot.sizeDelta = new Vector2(30f, 30f);
+            }
 
             // Tower always at RIGHT end — empty/unfilled silhouette.
             _towerIcon = CreateMarker(trackRt, "Tower", new Color(0.75f, 0.8f, 0.85f), null, "Icon_Tower");
@@ -475,7 +495,17 @@ namespace CoastRun
             rt.anchoredPosition = new Vector2(0f, -176f);
             rt.sizeDelta = new Vector2(260f, 28f);
             _timerCg = go.GetComponent<CanvasGroup>();
-            _timerLabel = go.AddComponent<Text>();
+            var pill = CoastUiArt.CutePill(go.transform, "Pill", new Color(0.10f, 0.14f, 0.30f, 0.92f), 14, 3);
+            var prt = pill.rectTransform;
+            prt.anchorMin = new Vector2(0.5f, 0.5f); prt.anchorMax = new Vector2(0.5f, 0.5f);
+            prt.sizeDelta = new Vector2(190f, 30f);
+            var textGo = new GameObject("Label", typeof(RectTransform));
+            textGo.transform.SetParent(go.transform, false);
+            var trt = textGo.GetComponent<RectTransform>();
+            trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
+            trt.offsetMin = Vector2.zero; trt.offsetMax = new Vector2(0f, -2f);
+            _timerLabel = textGo.AddComponent<Text>();
+            CoastUiArt.OutlineText(_timerLabel, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.2f);
             _timerLabel.font = CoastHudLayout.Font();
             _timerLabel.fontSize = 16;
             _timerLabel.fontStyle = FontStyle.Bold;

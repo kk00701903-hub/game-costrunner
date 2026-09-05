@@ -88,8 +88,9 @@ namespace CoastRun
             _iconRt.anchorMin = new Vector2(0f, 1f);
             _iconRt.anchorMax = new Vector2(0f, 1f);
             _iconRt.pivot = new Vector2(0f, 1f);
-            _iconRt.anchoredPosition = new Vector2(16f, -62f);
-            _iconRt.sizeDelta = new Vector2(44f, 44f);
+            // Below the HP bar (pause 6..78, bar 88..128) so nothing overlaps the chrome.
+            _iconRt.anchoredPosition = new Vector2(8f, -138f);
+            _iconRt.sizeDelta = new Vector2(52f, 52f);
             _iconCg = go.GetComponent<CanvasGroup>();
 
             var img = go.GetComponent<Image>();
@@ -101,7 +102,20 @@ namespace CoastRun
                 img.color = Color.white;
             }
             else
-                img.color = new Color(0.2f, 0.35f, 0.5f, 0.9f);
+            {
+                // Cute pill fallback with a phone glyph until Icon_Phone is painted.
+                img.sprite = CoastUiArt.RoundedRect(16);
+                img.type = Image.Type.Sliced;
+                img.color = CoastUiArt.CreamOutline;
+                var fill = CoastUiArt.Panel(go.transform, "Fill", new Color(0.22f, 0.36f, 0.62f, 1f), 12);
+                var frt = fill.rectTransform;
+                frt.anchorMin = Vector2.zero; frt.anchorMax = Vector2.one;
+                frt.offsetMin = new Vector2(4f, 4f); frt.offsetMax = new Vector2(-4f, -4f);
+                var glyph = CoastHudLayout.MakeText(go.transform, "Glyph", "☎", 26, TextAnchor.MiddleCenter,
+                    Vector2.zero, Vector2.one, Vector2.zero, new Vector2(0f, 1f));
+                glyph.color = Color.white;
+                glyph.raycastTarget = false;
+            }
 
             go.GetComponent<Button>().onClick.AddListener(OpenFromPauseOrTap);
         }

@@ -224,6 +224,49 @@ namespace CoastRun
             return sprite;
         }
 
+        public static readonly Color CreamOutline = new Color(1f, 0.97f, 0.90f, 1f);
+
+        /// Subway-Surfers-style chunky pill: cream outline, a darker drop-shadow lip
+        /// under the fill, the fill itself and a soft gloss on its upper half. The
+        /// returned Image is the OUTER shape — anchor/size it like a Panel; children
+        /// (texts, icons) can be parented to it and will sit over the fill.
+        public static Image CutePill(Transform parent, string name, Color fill, int radius = 18, int outline = 4)
+        {
+            var outer = Panel(parent, name, CreamOutline, radius);
+            var shadow = Panel(outer.transform, "Lip", Color.Lerp(fill, Color.black, 0.45f), Mathf.Max(2, radius - outline));
+            Stretch(shadow.rectTransform, outline, outline, -outline, -outline);
+            var body = Panel(outer.transform, "Fill", fill, Mathf.Max(2, radius - outline));
+            Stretch(body.rectTransform, outline, outline + 3, -outline, -outline);
+            var gloss = Panel(outer.transform, "Gloss", new Color(1f, 1f, 1f, 0.16f), Mathf.Max(2, radius - outline - 2));
+            var g = gloss.rectTransform;
+            g.anchorMin = new Vector2(0f, 0.55f);
+            g.anchorMax = new Vector2(1f, 1f);
+            g.offsetMin = new Vector2(outline + 4, 0f);
+            g.offsetMax = new Vector2(-(outline + 4), -(outline + 2));
+            return outer;
+        }
+
+        private static void Stretch(RectTransform rt, float l, float b, float r, float t)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(l, b);
+            rt.offsetMax = new Vector2(r, t);
+        }
+
+        /// Icon sprite from Resources (Icon_<name>), or null so callers keep a glyph fallback.
+        public static Sprite Icon(string name) => AsSprite(ArtAssets.LoadTexture("Icon_" + name), 100f);
+
+        /// Chunky readable numbers: dark outline around the text.
+        public static void OutlineText(Text text, Color color, float size = 2f)
+        {
+            if (text == null) return;
+            var o = text.gameObject.GetComponent<Outline>() ?? text.gameObject.AddComponent<Outline>();
+            o.effectColor = color;
+            o.effectDistance = new Vector2(size, -size);
+            o.useGraphicAlpha = true;
+        }
+
         /// Filled rounded panel helper used by the run HUD and title screen.
         public static Image Panel(Transform parent, string name, Color color, int radius = 18)
         {
