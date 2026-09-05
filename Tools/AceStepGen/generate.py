@@ -78,8 +78,20 @@ def submit(api, track, common_tail, takes, thinking):
 
 def wait(api, task_id, poll=3.0):
     dots = 0
+    errors = 0
     while True:
-        res = post(api, "/query_result", {"task_id_list": [task_id]})
+        # 서버가 첫 요청에서 모델을 로드하는 동안 연결이 끊기는 경우가 있다 — 잠시 후 재시도.
+        try:
+            res = post(api, "/query_result", {"task_id_list": [task_id]})
+            errors = 0
+        except (urllib.error.URLError, ConnectionError, OSError) as e:
+            errors += 1
+            if errors > 40:
+                raise
+            sys.stdout.write(f"\r    server busy ({e.__class__.__name__}), retry {errors}/40   ")
+            sys.stdout.flush()
+            time.sleep(15)
+            continue
         items = res.get("data") or []
         if items:
             st = items[0].get("status", 0)
@@ -330,10 +342,15 @@ def main():
 
     if not tracks:
         print("nothing matched"); return
-    if not health(args.api):
-        print(f"ACE-Step API not reachable at {args.api}\n"
-              f"  → start_api_server.bat (NVIDIA) / start_api_server_rocm.bat (AMD) 먼저 실행")
-        return
+    # 서버가 모델을 올리는 중이면 /health가 잠시 안 뜬다 — 최대 15분 기다린다.
+    waited = 0
+    while not health(args.api):
+        if waited >= 900:
+            print(f"ACE-Step API not reachable at {args.api}\n"
+                  f"  → start_api_server.bat (NVIDIA) / start_api_server_rocm.bat (AMD) 먼저 실행")
+            return
+        sys.stdout.write(f"\r    waiting for API ({waited}s)   "); sys.stdout.flush()
+        time.sleep(15); waited += 15
 
     os.makedirs(args.out, exist_ok=True)
     print(f"{len(tracks)} track(s) → {args.out}\n")

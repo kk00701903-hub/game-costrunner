@@ -35,6 +35,9 @@ namespace CoastRun.Editor
         [MenuItem("Coast Run/BGM/7. Generate P1 tracks (cutscenes + memory)")]
         public static void GenerateP1() => Launch("run_p1.bat");
 
+        [MenuItem("Coast Run/BGM/8. Generate BGM_Title + BGM_Opening (title screen)")]
+        public static void GenerateTitle() => Launch("gen_title.bat");
+
         [MenuItem("Coast Run/BGM/Open tool folder")]
         public static void OpenFolder() => EditorUtility.RevealInFinder(ToolDir);
 

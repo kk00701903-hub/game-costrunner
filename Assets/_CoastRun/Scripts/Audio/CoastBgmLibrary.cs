@@ -33,7 +33,10 @@ namespace CoastRun
 
         public static bool Has(string name) => Load(name) != null;
 
-        public static string Menu(bool cleared) => cleared && Has("BGM_Menu_Cleared") ? "BGM_Menu_Cleared" : "BGM_Menu";
+        /// 타이틀 대문 테마(BGM_Title)가 있으면 그것, 없으면 옛 BGM_Menu(_Cleared).
+        public static string Menu(bool cleared) =>
+            Has("BGM_Title") ? "BGM_Title"
+            : cleared && Has("BGM_Menu_Cleared") ? "BGM_Menu_Cleared" : "BGM_Menu";
         public static string ChapterStem(int chapter, int stem) => $"BGM_CH{Mathf.Clamp(chapter, 1, 5)}_{(char)('a' + stem)}";
         public static string Memory(int chapter) => chapter >= 5 ? "BGM_Memory_Cold" : chapter >= 3 ? "BGM_Memory_Mid" : "BGM_Memory_Warm";
         public static string CineOpen(int chapter) => chapter <= 1 ? "BGM_Cine_Prologue" : $"BGM_Cine_CH{chapter}_Open";
