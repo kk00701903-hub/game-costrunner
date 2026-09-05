@@ -18,6 +18,8 @@ namespace CoastRun
         public int BestCombo { get; private set; }
         public int SoftHits { get; private set; }
         public int Jellies { get; private set; }
+        /// 말랑이 하트 — 챕터 호감도. 코인처럼 즉시 반영되지 않고 챕터 정산에서 합산된다.
+        public int Hearts { get; private set; }
         public float Seconds { get; private set; }
 
         public int Total => CoinValue + NearMissValue;
@@ -59,6 +61,7 @@ namespace CoastRun
             BestCombo = 0;
             SoftHits = 0;
             Jellies = 0;
+            Hearts = 0;
             Seconds = 0f;
             _running = true;
         }
@@ -77,6 +80,12 @@ namespace CoastRun
         {
             if (_running)
                 Jellies += count;
+        }
+
+        public void NotifyHeart(int count)
+        {
+            if (_running)
+                Hearts += count;
         }
 
         public void NotifyNearMiss(int reward, int combo)

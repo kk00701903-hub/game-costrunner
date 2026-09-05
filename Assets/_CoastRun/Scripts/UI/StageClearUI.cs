@@ -60,11 +60,31 @@ namespace CoastRun
             _title.color = chapterComplete ? CoastHudLayout.AccentWarm : CoastHudLayout.AccentCyan;
             _stageLabel.text = $"S{stage.stageIndex:00}  {stage.stageName}";
 
+            string continueLabel = stage.stageIndex >= 20 ? "도착" : "다음 스테이지";
+            if (GameManager.Active)
+            {
+                // v2: 스테이지 = 챕터. 말랑이 하트와 등급이 이 화면의 주인공.
+                var gm = GameManager.I;
+                var rec = gm.Save.CurrentChapter;
+                var grade = gm.LastGrade;
+                _title.text = $"CHAPTER {gm.Save.chapter}  ·  {ChapterGrading.GradeLabel(grade)}급";
+                _title.color = grade == ChapterGrade.S ? new Color(1f, 0.85f, 0.3f) : CoastHudLayout.AccentCyan;
+                string heartLine = rec != null
+                    ? $"말랑이 하트 {rec.heartsEarned} / {rec.heartsTarget}  (런닝 +{gm.LastRunHearts})"
+                    : $"말랑이 하트 +{gm.LastRunHearts}";
+                if (grade != ChapterGrade.S)
+                    heartLine += $"   ·   S급까지 {Mathf.CeilToInt((rec != null ? rec.heartsTarget : 0) * ChapterGrading.S_Ratio) - (rec != null ? rec.heartsEarned : 0)}개";
+                if (gm.IsRetry)
+                    heartLine += gm.LastImproved ? "   ·   기록 갱신!" : "   ·   이전 기록 유지";
+                _stageLabel.text = $"{stage.stageName}\n{heartLine}";
+                continueLabel = gm.IsRetry ? "타임라인으로" : gm.Save.chapter >= Timeline.Chapters ? "송전탑으로" : "육성으로";
+            }
+
             if (_continueBtn != null)
             {
                 var label = _continueBtn.GetComponentInChildren<Text>();
                 if (label != null)
-                    label.text = stage.stageIndex >= 20 ? "도착" : "다음 스테이지";
+                    label.text = continueLabel;
             }
 
             _root.SetActive(true);
@@ -80,6 +100,16 @@ namespace CoastRun
             _title.text = "ARRIVAL";
             _stageLabel.text = "S20  송전탑";
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private void Update()
+        {
+            // 에디터 검증용: 정산 화면에서 Return = 계속, R = 다시.
+            if (!IsVisible || _settle != null) return;
+            if (Input.GetKeyDown(KeyCode.Return)) _onContinue?.Invoke();
+            else if (Input.GetKeyDown(KeyCode.R)) _onRetry?.Invoke();
+        }
+#endif
 
         public void Hide()
         {
@@ -144,9 +174,13 @@ namespace CoastRun
             UpdateJourney(stage, seconds);
             yield return Wait(0.2f);
 
-            if (_shopHost != null)
-                _shopHost.SetActive(true);
-            shop?.ShowInPanel(_shopHost != null ? _shopHost.transform : _root.transform);
+            // v2: 업그레이드 상점은 펫 상점(육성 화면)으로 대체 — 정산엔 숫자만.
+            if (!GameManager.Active)
+            {
+                if (_shopHost != null)
+                    _shopHost.SetActive(true);
+                shop?.ShowInPanel(_shopHost != null ? _shopHost.transform : _root.transform);
+            }
             SetButtons(true);
             _settle = null;
         }

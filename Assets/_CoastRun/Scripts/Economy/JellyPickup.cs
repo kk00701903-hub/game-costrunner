@@ -7,7 +7,8 @@ namespace CoastRun
         Jelly,        // score + a sip of stamina; spawned in trails
         BigJelly,     // bonus-time jelly: 3× score
         Potion,       // big stamina refill
-        BonusStar     // starts Bonus Time
+        BonusStar,    // starts Bonus Time
+        Heart         // 말랑이 하트: 호감도. 챕터 S급 판정의 핵심 재화
     }
 
     /// Cookie-Run pickups. Jellies are the breadcrumbs that pull the player through
@@ -74,6 +75,11 @@ namespace CoastRun
                 case PickupKind.BigJelly:
                     BuildJelly(vis, colorIndex, 0.42f, true);
                     radius = 0.6f;
+                    break;
+                case PickupKind.Heart:
+                    if (PaintedProp.Available("Heart")) PaintedProp.Attach(vis, "Heart", 0.8f, replace: false);
+                    else BuildHeart(vis);
+                    radius = 0.7f;
                     break;
                 default:
                     BuildJelly(vis, colorIndex, 0.3f, false);
@@ -156,6 +162,45 @@ namespace CoastRun
             v.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(Color.white);
         }
 
+        /// 말랑이 하트: 두 개의 둥근 볼 + 45° 큐브로 만든 통통한 하트. 은은한 흰 하이라이트.
+        private static void BuildHeart(Transform root)
+        {
+            var pink = CoastMaterials.CreateLit(new Color(1f, 0.45f, 0.62f), 0.65f);
+            var heart = new GameObject("Heart").transform;
+            heart.SetParent(root, false);
+            heart.localPosition = new Vector3(0f, 0.42f, 0f);
+            heart.localScale = Vector3.one * 0.62f;
+
+            var lobeL = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            lobeL.transform.SetParent(heart, false);
+            lobeL.transform.localPosition = new Vector3(-0.22f, 0.18f, 0f);
+            lobeL.transform.localScale = new Vector3(0.5f, 0.5f, 0.32f);
+            Object.Destroy(lobeL.GetComponent<Collider>());
+            lobeL.GetComponent<Renderer>().sharedMaterial = pink;
+
+            var lobeR = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            lobeR.transform.SetParent(heart, false);
+            lobeR.transform.localPosition = new Vector3(0.22f, 0.18f, 0f);
+            lobeR.transform.localScale = new Vector3(0.5f, 0.5f, 0.32f);
+            Object.Destroy(lobeR.GetComponent<Collider>());
+            lobeR.GetComponent<Renderer>().sharedMaterial = pink;
+
+            var tip = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            tip.transform.SetParent(heart, false);
+            tip.transform.localPosition = new Vector3(0f, -0.02f, 0f);
+            tip.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            tip.transform.localScale = new Vector3(0.44f, 0.44f, 0.3f);
+            Object.Destroy(tip.GetComponent<Collider>());
+            tip.GetComponent<Renderer>().sharedMaterial = pink;
+
+            var gloss = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            gloss.transform.SetParent(heart, false);
+            gloss.transform.localPosition = new Vector3(-0.26f, 0.3f, -0.14f);
+            gloss.transform.localScale = Vector3.one * 0.14f;
+            Object.Destroy(gloss.GetComponent<Collider>());
+            gloss.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(1f, 0.92f, 0.95f));
+        }
+
         private static void BuildStar(Transform root)
         {
             // Five flattened lozenges around a core → a chunky star that spins.
@@ -198,7 +243,7 @@ namespace CoastRun
                 return;
 
             float magnet = (_upgrades != null ? _upgrades.GetMagnetRadius() : 1.4f) + PetCompanion.MagnetBonus;
-            if (_kind == PickupKind.BonusStar || _kind == PickupKind.Potion)
+            if (_kind == PickupKind.BonusStar || _kind == PickupKind.Potion || _kind == PickupKind.Heart)
                 magnet += 0.6f;   // the rare ones should never be a near miss
             if (BonusTimeDirector.IsActive)
                 magnet += 1.5f;
@@ -269,6 +314,12 @@ namespace CoastRun
                 case PickupKind.BonusStar:
                     hud?.AddScore(100, pos, true);
                     BonusTimeDirector.Instance?.Activate();
+                    break;
+                case PickupKind.Heart:
+                    health?.HealJelly();
+                    hud?.AddScore(40, pos, true);
+                    hud?.Flash(new Color(1f, 0.6f, 0.75f, 0.28f));
+                    StageRunStats.Instance?.NotifyHeart(1);
                     break;
             }
 

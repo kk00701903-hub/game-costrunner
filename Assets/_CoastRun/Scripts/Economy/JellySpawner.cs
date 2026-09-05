@@ -27,7 +27,17 @@ namespace CoastRun
         private float _nextPotionZ = 60f;
         private float _nextStarZ = 200f;
         private float _bonusFillZ;
+        private float _nextHeartZ;
+        private float _heartSpacing = 80f;
+        private int _heartsLeft;
         private System.Random _rng = new System.Random(7);
+
+        /// 말랑이 하트를 스테이지 길이에 균등 분배한다. RunTuning.HeartsPerStage 개.
+        public void ConfigureHearts(float stageLength)
+        {
+            _heartsLeft = RunTuning.HeartsPerStage;
+            _heartSpacing = Mathf.Max(20f, stageLength / (_heartsLeft + 1));
+        }
         private int _lastLane;
 
         public bool BonusMode { get; private set; }
@@ -49,6 +59,8 @@ namespace CoastRun
             _nextTrailZ = startZ + 12f;
             _nextPotionZ = startZ + 90f + (float)_rng.NextDouble() * 60f;
             _nextStarZ = startZ + 320f + (float)_rng.NextDouble() * 120f;
+            _nextHeartZ = startZ + _heartSpacing * 0.6f;
+            _heartsLeft = RunTuning.HeartsPerStage;
             ClearAll();
         }
 
@@ -115,6 +127,16 @@ namespace CoastRun
                 {
                     Place(PickupKind.BonusStar, _nextStarZ, _rng.Next(3) - 1, 0.5f);
                     _nextStarZ += starEvery * (0.85f + (float)_rng.NextDouble() * 0.4f);
+                }
+
+                // 말랑이 하트: 트랙 전체에 고르게, 레인은 시드 난수. 점프 높이(1.2 m)에 놓이는
+                // 것도 섞어 "받으려면 뛰어야 하는" 하트를 만든다.
+                if (_heartsLeft > 0 && _nextHeartZ < z + spawnAhead)
+                {
+                    bool high = _rng.NextDouble() < 0.3;
+                    Place(PickupKind.Heart, _nextHeartZ, _rng.Next(3) - 1, high ? 1.25f : 0.4f);
+                    _heartsLeft--;
+                    _nextHeartZ += _heartSpacing * (0.85f + (float)_rng.NextDouble() * 0.3f);
                 }
             }
 
