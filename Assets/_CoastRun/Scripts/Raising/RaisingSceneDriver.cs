@@ -64,6 +64,9 @@ namespace CoastRun
             }
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.94f, 0.90f, 0.82f);
+            // 다른 씬과 같은 9:16 레터박스 — 캔버스 SafeArea가 이 카메라 rect를 따라간다.
+            if (cam.GetComponent<CoastPortraitViewport>() == null)
+                cam.gameObject.AddComponent<CoastPortraitViewport>();
             cam.orthographic = true;
             cam.transform.position = new Vector3(0f, 0f, -10f);
             cam.transform.rotation = Quaternion.identity;

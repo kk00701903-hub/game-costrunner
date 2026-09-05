@@ -16,7 +16,7 @@ namespace CoastRun.Editor
         // scale) which squashed the character, and DXT bled magenta into the outline.
         private static readonly string[] WorldPrefixes = { "Sky_", "Cloud_", "Far_", "GirlSkater_", "Obs_" };
         private static readonly string[] TilePrefixes = { "Tex_", "Sea_" };
-        private static readonly string[] UiPrefixes = { "UI_", "Icon_", "Watch_" };
+        private static readonly string[] UiPrefixes = { "UI_", "Icon_", "Watch_", "Raise_" };
 
         private void OnPreprocessTexture()
         {
