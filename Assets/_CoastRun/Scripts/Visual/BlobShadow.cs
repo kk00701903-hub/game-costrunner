@@ -61,12 +61,44 @@ namespace CoastRun
             mr.receiveShadows = false;
             if (_sharedMat == null)
             {
-                _sharedMat = CoastMaterials.CreateTransparent(
-                    CoastPalette.BlobShadow, () => CoastPalette.BlobShadow);
+                // A plain-colour quad drew a hard square under the skater; a radial
+                // alpha falloff makes it the soft disc it was meant to be.
+                _sharedMat = CoastMaterials.CreateTexturedTransparent(DiscTexture(), CoastPalette.BlobShadow);
+                _sharedMat.renderQueue = 2950;
             }
 
             _mat = new Material(_sharedMat);
             mr.sharedMaterial = _mat;
+        }
+
+        private static Texture2D _disc;
+
+        /// 128² white disc with a smooth alpha falloff (opaque core ≈ 55 %, then eased to 0).
+        private static Texture2D DiscTexture()
+        {
+            if (_disc != null)
+                return _disc;
+            const int n = 128;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false, false)
+            {
+                name = "BlobShadowDisc",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+            };
+            var px = new Color32[n * n];
+            for (int y = 0; y < n; y++)
+            for (int x = 0; x < n; x++)
+            {
+                float dx = (x + 0.5f) / n * 2f - 1f;
+                float dy = (y + 0.5f) / n * 2f - 1f;
+                float r = Mathf.Sqrt(dx * dx + dy * dy);
+                float a = 1f - Mathf.SmoothStep(0.55f, 1f, r);
+                px[y * n + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+            }
+            tex.SetPixels32(px);
+            tex.Apply(false, true);
+            _disc = tex;
+            return tex;
         }
 
         private void LateUpdate()
@@ -93,7 +125,8 @@ namespace CoastRun
             _quad.SetPositionAndRotation(world, Quaternion.Euler(90f, follow.eulerAngles.y, 0f));
 
             float s = Mathf.Lerp(baseScale, baseScale * 0.42f, t);
-            _quad.localScale = new Vector3(s, s, 1f);
+            // Slightly longer along the direction of travel: a board's footprint.
+            _quad.localScale = new Vector3(s * 0.85f, s * 1.35f, 1f);
 
             float a = Mathf.Lerp(groundedAlpha, airborneAlpha, t);
             if (_mat != null)
