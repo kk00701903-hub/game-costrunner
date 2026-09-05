@@ -70,6 +70,14 @@ namespace CoastRun
             root.transform.position = localPos;
             root.transform.rotation = DownhillPath.Rotation;
 
+            // Firefly-painted cone wins; otherwise the FBX prefab / procedural cone below.
+            if (PaintedProp.Available("Cone"))
+            {
+                PaintedProp.Attach(root.transform, "Cone", 0.72f, replace: false);
+                FinishCone(root, lane);
+                return root;
+            }
+
             // Visual — prefer MCP FBX prefab when size is sane, then shrink to knee-high.
             var visualPrefab = PrefabLibrary.TryInstantiate("Obstacle_Cone", root.transform, Vector3.zero);
             if (visualPrefab != null && !RoadPlacement.IsPrefabUsable(visualPrefab))
@@ -103,6 +111,13 @@ namespace CoastRun
                     CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.TownCream, Color.white, 0.5f));
             }
 
+            FinishCone(root, lane);
+            return root;
+        }
+
+        /// Hit body + near-miss shell + shadow, shared by the painted and modelled cone.
+        private static void FinishCone(GameObject root, int lane)
+        {
             // Hard hit (tight)
             var hard = new GameObject("HardHit");
             hard.transform.SetParent(root.transform, false);
@@ -126,7 +141,6 @@ namespace CoastRun
             hazard.BindNearMiss(zone);
 
             BlobShadow.Attach(root.transform, 0.5f);
-            return root;
         }
 
         public void BindNearMiss(NearMissZone zone) => nearMiss = zone;

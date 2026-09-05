@@ -88,6 +88,14 @@ namespace CoastRun
             // A touch over lane scale so it reads from 80 m out, before the horn.
             _body.localScale = Vector3.one * 1.2f;
 
+            // Firefly-painted van (front view, it drives at the camera) when available.
+            if (PaintedProp.Available("Van"))
+            {
+                PaintedProp.Attach(_body, "Van", 1.75f, replace: false);
+                _wheels = new Transform[0];
+                return;
+            }
+
             var bodyMat = CoastMaterials.CreateLit(paint, 0.35f);
             var darkMat = CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.55f));
             var glassMat = CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.SkyBlue, Color.white, 0.45f), 0.6f);

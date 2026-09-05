@@ -105,6 +105,7 @@ namespace CoastRun
         DeliveryBox,
         BikeFallen,
         OverheadBar,
-        Clothesline
+        Clothesline,
+        ParkedBus
     }
 }

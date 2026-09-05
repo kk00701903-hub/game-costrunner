@@ -15,6 +15,7 @@ namespace CoastRun
             if (season == SeasonKind.Autumn && r < 0.3)
                 return ObstacleId.LeafDrift;
 
+            if (r < 0.04) return ObstacleId.ParkedBus;
             if (r < 0.28) return ObstacleId.TrafficCone;
             if (r < 0.4) return ObstacleId.OverheadBar;
             if (r < 0.5) return ObstacleId.Clothesline;
@@ -38,37 +39,55 @@ namespace CoastRun
                     return DuckHazard.Create(parent, worldPos, lane, DuckStyle.Clothesline);
                 case ObstacleId.Barrier:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Barrier",
-                        new Vector3(0.95f, 0.48f, 0.22f), () => CoastPalette.AccentOrange, 0.32f, 0.55f, 0.55f);
+                        new Vector3(0.95f, 0.48f, 0.22f), () => CoastPalette.AccentOrange, 0.32f, 0.55f, 0.55f, "Barrier", 0.9f);
                 case ObstacleId.CrateStack:
                 case ObstacleId.DeliveryBox:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Crate",
-                        new Vector3(0.55f, 0.65f, 0.55f), () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.AccentOrange, 0.35f), 0.3f, 0.6f, 0.7f);
+                        new Vector3(0.55f, 0.65f, 0.55f), () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.AccentOrange, 0.35f), 0.3f, 0.6f, 0.7f, "Crate", 1.0f);
                 case ObstacleId.WetFloorSign:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_WetFloorSign",
-                        new Vector3(0.35f, 0.55f, 0.1f), () => CoastPalette.CoinYellow, 0.2f, 0.5f, 0.6f);
+                        new Vector3(0.35f, 0.55f, 0.1f), () => CoastPalette.CoinYellow, 0.2f, 0.5f, 0.6f, "WetSign", 0.8f);
+                case ObstacleId.ParkedBus:
+                    // Chest-high and solid: a Bounce hit (see ObstacleHazard.BounceHeight).
+                    return CreateSimple(parent, worldPos, lane, "Obstacle_Bus",
+                        new Vector3(1.4f, 2.4f, 3.2f), () => Color.Lerp(CoastPalette.SeaTeal, Color.white, 0.25f), 0.6f, 2.4f, 2.4f, "Bus", 2.6f);
                 case ObstacleId.SnowDrift:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_SnowDrift",
-                        new Vector3(1.1f, 0.35f, 0.75f), () => Color.Lerp(CoastPalette.TownCream, Color.white, 0.5f), 0.42f, 0.42f, 0.45f);
+                        new Vector3(1.1f, 0.35f, 0.75f), () => Color.Lerp(CoastPalette.TownCream, Color.white, 0.5f), 0.42f, 0.42f, 0.45f, "SnowDrift", 0.6f);
                 case ObstacleId.LeafDrift:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_LeafDrift",
-                        new Vector3(1.0f, 0.22f, 0.7f), () => CoastPalette.AccentOrange, 0.4f, 0.35f, 0.35f);
+                        new Vector3(1.0f, 0.22f, 0.7f), () => CoastPalette.AccentOrange, 0.4f, 0.35f, 0.35f, "LeafDrift", 0.45f);
                 case ObstacleId.PuddleSlow:
                     return CreatePuddle(parent, worldPos, lane);
                 case ObstacleId.BikeFallen:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_BikeFallen",
-                        new Vector3(0.9f, 0.22f, 0.35f), () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.SeaTeal, 0.4f), 0.32f, 0.35f, 0.4f);
+                        new Vector3(0.9f, 0.22f, 0.35f), () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.SeaTeal, 0.4f), 0.32f, 0.35f, 0.4f, "Bike", 0.7f);
                 case ObstacleId.TouristCluster:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Tourists",
-                        new Vector3(0.75f, 0.95f, 0.5f), () => Color.Lerp(CoastPalette.TownCream, CoastPalette.SkyBlue, 0.4f), 0.32f, 0.75f, 1.0f);
+                        new Vector3(0.75f, 0.95f, 0.5f), () => Color.Lerp(CoastPalette.TownCream, CoastPalette.SkyBlue, 0.4f), 0.32f, 0.75f, 1.0f, "Tourists", 1.6f);
                 default:
                     return ObstacleHazard.CreateTrafficCone(parent, worldPos, lane);
             }
         }
 
         private static GameObject CreateSimple(Transform parent, Vector3 worldPos, int lane, string name,
-            Vector3 visualScale, System.Func<Color> color, float hardRadius, float hardHeight, float prefabFitHeight)
+            Vector3 visualScale, System.Func<Color> color, float hardRadius, float hardHeight, float prefabFitHeight,
+            string paintedKey = null, float paintedHeight = 1f)
         {
             GameObject root = null;
+            // Firefly painting first (Resources/CoastRun/Obs_<key>.png); the block below
+            // stays as the fallback when no painting exists yet.
+            if (paintedKey != null && PaintedProp.Available(paintedKey))
+            {
+                root = new GameObject(name);
+                root.transform.SetParent(parent, false);
+                root.transform.position = worldPos;
+                root.transform.rotation = DownhillPath.Rotation;
+                PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false);
+                AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
+                BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
+                return root;
+            }
             var prefab = PrefabLibrary.TryInstantiate(name, parent, Vector3.zero);
             if (prefab != null)
             {
@@ -110,6 +129,13 @@ namespace CoastRun
             var root = new GameObject("Obstacle_Puddle");
             root.transform.SetParent(parent, false);
             root.transform.position = worldPos;
+            root.transform.rotation = DownhillPath.Rotation;
+            if (PaintedProp.Available("Puddle"))
+            {
+                PaintedDecal.Attach(root.transform, "Puddle", 1.6f);
+                AttachTriggers(root, lane, 0.45f, 0.3f, 0.85f, 0.45f);
+                return root;
+            }
             var vis = GameObject.CreatePrimitive(PrimitiveType.Cube);
             vis.name = "Visual";
             vis.transform.SetParent(root.transform, false);

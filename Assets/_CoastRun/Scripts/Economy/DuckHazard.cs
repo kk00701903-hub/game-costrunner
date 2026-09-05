@@ -34,10 +34,21 @@ namespace CoastRun
             root.transform.position = worldPos;
             root.transform.rotation = DownhillPath.Rotation;
             float width = 1.7f;
-            CreatePole(root.transform, new Vector3(-width * 0.5f, 0f, 0f));
-            CreatePole(root.transform, new Vector3(width * 0.5f, 0f, 0f));
+            string painted = style == DuckStyle.Clothesline ? "Clothesline" : "OverheadBar";
+            bool hasPainting = PaintedProp.Available(painted);
+            if (hasPainting)
+            {
+                // Whole gate as one painting (posts + bar/clothes); the duck trigger
+                // below is unchanged, so gameplay stays identical.
+                PaintedProp.Attach(root.transform, painted, 1.55f, replace: false);
+            }
+            else
+            {
+                CreatePole(root.transform, new Vector3(-width * 0.5f, 0f, 0f));
+                CreatePole(root.transform, new Vector3(width * 0.5f, 0f, 0f));
+            }
 
-            if (style == DuckStyle.Clothesline)
+            if (!hasPainting && style == DuckStyle.Clothesline)
             {
                 var cloth = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cloth.name = "Cloth";
@@ -57,7 +68,7 @@ namespace CoastRun
                 line.GetComponent<Renderer>().sharedMaterial =
                     CoastMaterials.CreateUnlit(() => CoastPalette.Pole);
             }
-            else
+            else if (!hasPainting)
             {
                 var bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 bar.name = "Bar";
