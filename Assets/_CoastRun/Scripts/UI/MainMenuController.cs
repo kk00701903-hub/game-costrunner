@@ -122,13 +122,33 @@ namespace CoastRun
             rt.anchorMax = Vector2.one;
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
-            go.GetComponent<Image>().color = new Color(0.04f, 0.08f, 0.14f, 0.92f);
+            var splashImg = go.GetComponent<Image>();
+            splashImg.color = new Color(0.04f, 0.08f, 0.14f, 0.92f);
             _splashCg = go.GetComponent<CanvasGroup>();
 
+            // Key art (Firefly, Resources/CoastRun/UI_TitleBackground) when present: the
+            // splash becomes the painted poster, with a soft dark band so the logo reads.
+            var keyArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_TitleBackground");
+            if (keyArt != null)
+            {
+                splashImg.sprite = CoastUiArt.AsSprite(keyArt, 100f);
+                splashImg.color = Color.white;
+                splashImg.preserveAspect = false;
+
+                var band = new GameObject("LogoBand", typeof(RectTransform), typeof(Image));
+                band.transform.SetParent(go.transform, false);
+                var brt = band.GetComponent<RectTransform>();
+                // Up in the sky, so the painted skater below stays untouched.
+                brt.anchorMin = new Vector2(0f, 0.68f);
+                brt.anchorMax = new Vector2(1f, 0.90f);
+                brt.offsetMin = brt.offsetMax = Vector2.zero;
+                band.GetComponent<Image>().color = new Color(0.03f, 0.08f, 0.16f, 0.55f);
+            }
+
             CreateLabel(go.transform, "SplashLogo", "우리의 송전탑", 44, FontStyle.Bold,
-                new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.52f), new Vector2(560f, 64f));
+                new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.82f), new Vector2(560f, 64f));
             CreateLabel(go.transform, "SplashSub", "Coast Run", 22, FontStyle.Italic,
-                new Color(0.75f, 0.88f, 0.95f), new Vector2(0.5f, 0.44f), new Vector2(400f, 36f));
+                new Color(0.75f, 0.88f, 0.95f), new Vector2(0.5f, 0.745f), new Vector2(400f, 36f));
         }
 
         private void BuildMainUi(Transform root)
