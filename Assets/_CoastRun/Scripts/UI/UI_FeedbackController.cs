@@ -39,10 +39,14 @@ namespace CoastRun
             if (t == null)
                 yield break;
 
-            Vector3 baseScale = t.localScale;
+            // Overlapping punches (coins arriving every frame in Bonus Time) must not
+            // compound: measure from the rest scale, never from the current mid-punch one.
+            Vector3 baseScale = RestScale(t);
             float elapsed = 0f;
             while (elapsed < duration)
             {
+                if (t == null)
+                    yield break;
                 elapsed += Time.unscaledDeltaTime;
                 float u = elapsed / duration;
                 float s = 1f + Mathf.Sin(u * Mathf.PI) * punch;
@@ -50,7 +54,26 @@ namespace CoastRun
                 yield return null;
             }
 
-            t.localScale = baseScale;
+            if (t != null)
+                t.localScale = baseScale;
+        }
+
+        private static readonly System.Collections.Generic.Dictionary<Transform, Vector3> RestScales =
+            new System.Collections.Generic.Dictionary<Transform, Vector3>();
+
+        private static Vector3 RestScale(Transform t)
+        {
+            if (RestScales.TryGetValue(t, out var rest))
+                return rest;
+            if (RestScales.Count > 64)
+            {
+                var dead = new System.Collections.Generic.List<Transform>();
+                foreach (var k in RestScales.Keys)
+                    if (k == null) dead.Add(k);
+                foreach (var k in dead) RestScales.Remove(k);
+            }
+            RestScales[t] = t.localScale;
+            return t.localScale;
         }
     }
 
