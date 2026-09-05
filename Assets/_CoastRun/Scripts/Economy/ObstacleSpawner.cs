@@ -38,6 +38,22 @@ namespace CoastRun
         [SerializeField, Range(0f, 1f)] private float doubleRowChanceStart = 0.10f;
         [SerializeField, Range(0f, 1f)] private float doubleRowChanceEnd = 0.32f;
 
+        [Header("Oncoming cars (chapter 3+)")]
+        [Tooltip("First chapter (1-based) in which cars drive toward the player.")]
+        [SerializeField] private int carFromChapter = 3;
+        [Tooltip("Rows between cars, at stage start / end.")]
+        [SerializeField] private int carEveryRowsStart = 9;
+        [SerializeField] private int carEveryRowsEnd = 5;
+        [Tooltip("The car's own speed along the road (it closes at this + player speed).")]
+        [SerializeField] private float carSpeed = 9f;
+        [Tooltip("Seconds of travel around the meeting point kept free of other rows.")]
+        [SerializeField] private float carClearSeconds = 1.2f;
+
+        private OncomingCar _car;
+        private int _carLaneMask;
+        private float _carMeetZ;
+        private int _rowsUntilCar = 6;
+
         private float _nextSpawnZ = 14f;
         private Transform _root;
         private System.Random _rng = new System.Random(42);
@@ -66,6 +82,29 @@ namespace CoastRun
             _rng = new System.Random(1000 + stageIndex * 7919);
             _nextSpawnZ = startZ + 14f;
             _prevOpen = 0b111;
+            _rowsUntilCar = carEveryRowsStart;
+            if (_car != null)
+                Destroy(_car.gameObject);
+            _car = null;
+        }
+
+        private bool _suppressed;
+
+        /// Bonus Time: no new rows, and everything already ahead of the player is
+        /// removed so the carpet of jellies is genuinely free to run through.
+        public void SetSuppressed(bool on)
+        {
+            _suppressed = on;
+            if (!on || _root == null || player == null)
+                return;
+            float z = player.PathDistance;
+            for (int i = _root.childCount - 1; i >= 0; i--)
+            {
+                var c = _root.GetChild(i);
+                if (DownhillPath.DistanceAlong(c.position) > z - 2f)
+                    Destroy(c.gameObject);
+            }
+            _prevOpen = 0b111;
         }
 
         private void Update()
@@ -76,20 +115,52 @@ namespace CoastRun
             float z = player.PathDistance;
             float speed = Mathf.Max(6f, player.Speed);
 
+            if (_suppressed)
+            {
+                // Keep the cursor just ahead so rows resume right after Bonus Time.
+                _nextSpawnZ = Mathf.Max(_nextSpawnZ, z + 25f);
+                return;
+            }
+
             float progress = 0f;
+            int chapter = 1;
             SeasonKind season = SeasonKind.Summer;
             var stages = StageManager.Instance;
             if (stages != null)
             {
                 progress = stages.Current != null ? stages.StageProgress01 : 0f;
-                season = StageManager.ChapterAsSeason(stages.ChapterIndex);
+                chapter = stages.ChapterIndex;
+                season = StageManager.ChapterAsSeason(chapter);
             }
             WeatherKind weather = seasonWeather != null ? seasonWeather.CurrentWeather : WeatherKind.Clear;
 
+            if (_car == null)
+                _carLaneMask = 0;
+
             while (_nextSpawnZ < z + spawnAhead)
             {
+                bool carsAllowed = chapter >= carFromChapter && progress > 0.06f && progress < 0.93f;
+                if (carsAllowed && _car == null && _rowsUntilCar <= 0)
+                {
+                    PlanCar(z, speed, progress);
+                    continue;
+                }
+
                 int blocked = PlanRow(progress);
-                SpawnRow(_nextSpawnZ, blocked, season, weather);
+                _rowsUntilCar--;
+
+                if (_carLaneMask != 0)
+                {
+                    // A car is on its way down one lane. Rows it still has to drive
+                    // through leave that lane empty, and the stretch where it meets the
+                    // player has no other row at all — the car is the row there.
+                    blocked &= ~_carLaneMask;
+                    if (Mathf.Abs(_nextSpawnZ - _carMeetZ) < speed * carClearSeconds)
+                        blocked = 0;
+                }
+
+                if (blocked != 0)
+                    SpawnRow(_nextSpawnZ, blocked, season, weather);
 
                 int open = 0b111 & ~blocked;
                 float gap = RowGap(speed, progress, _prevOpen, open);
@@ -139,6 +210,42 @@ namespace CoastRun
                     return blocked;
             }
             return 0b010;
+        }
+
+        /// Plans an oncoming car whose meeting point with the player is the next row
+        /// slot. It starts far enough up the road that, at the player's current speed,
+        /// both arrive at that slot together; the slot itself blocks only the car's lane,
+        /// so an escape is always one swipe away like any single row.
+        private void PlanCar(float playerZ, float speed, float progress)
+        {
+            // Pick a lane the previous row left open — the player is likely there, which
+            // is exactly what makes the car a dodge instead of a freebie.
+            int lane = _rng.Next(3);
+            for (int k = 0; k < 3; k++)
+            {
+                int candidate = (lane + k) % 3;
+                if ((_prevOpen & (1 << candidate)) != 0)
+                {
+                    lane = candidate;
+                    break;
+                }
+            }
+
+            float meetZ = _nextSpawnZ;
+            float secondsToMeet = Mathf.Max(0.5f, (meetZ - playerZ) / Mathf.Max(4f, speed));
+            float startZ = meetZ + carSpeed * secondsToMeet;
+
+            _car = OncomingCar.Spawn(_root, player, startZ, lane - 1, laneWidth, carSpeed, _rng);
+            _carLaneMask = 1 << lane;
+            _carMeetZ = meetZ;
+
+            int open = 0b111 & ~_carLaneMask;
+            // Extra breathing room after the car: the swerve happens at closing speed.
+            float gap = RowGap(speed, progress, _prevOpen, open) + speed * 0.5f;
+            _prevOpen = open;
+            _nextSpawnZ += gap;
+            _rowsUntilCar = Mathf.RoundToInt(Mathf.Lerp(carEveryRowsStart, carEveryRowsEnd, progress))
+                            + _rng.Next(3) - 1;
         }
 
         /// True if any open lane in `next` is the same as, or adjacent to, an open lane in `prev`.

@@ -8,7 +8,8 @@ namespace CoastRun
         NearMiss,
         SoftHit,
         Land,
-        Jump
+        Jump,
+        Horn
     }
 
     /// Procedural ambient + skate SFX (no external clips required).
@@ -18,12 +19,24 @@ namespace CoastRun
         [SerializeField] private PlayerController player;
         [SerializeField] private SeasonWeatherDirector weather;
 
+        /// The run's manager, for hazards that want a one-shot without being wired up.
+        public static CoastAudioManager Instance { get; private set; }
+
+        private void OnEnable() => Instance = this;
+
+        private void OnDisable()
+        {
+            if (Instance == this)
+                Instance = null;
+        }
+
         private AudioSource _ambient;
         private AudioSource _wheel;
         private AudioSource _wind;
         private AudioSource _sfx;
         private AudioClip _clipCoin;
         private AudioClip _clipNearMiss;
+        private AudioClip _clipHorn;
         private AudioClip _clipSoftHit;
         private AudioClip _clipLand;
         private AudioClip _clipJump;
@@ -320,6 +333,8 @@ namespace CoastRun
                 _clipLand = ProceduralAudio.CreateBlip(200f, 0.05f);
             if (_clipJump == null)
                 _clipJump = ProceduralAudio.CreateBlip(360f, 0.05f);
+            if (_clipHorn == null)
+                _clipHorn = ProceduralAudio.CreateHorn(0.45f);
         }
 
         private AudioSource CreateSource(string name, float vol, bool loop)
@@ -370,6 +385,11 @@ namespace CoastRun
                     clip = _clipJump;
                     vol = 0.28f;
                     pitch = 1.2f;
+                    break;
+                case CoastSfx.Horn:
+                    clip = _clipHorn;
+                    vol = 0.6f;
+                    pitch = Random.Range(0.92f, 1.06f);
                     break;
                 default:
                     return;
@@ -433,6 +453,32 @@ namespace CoastRun
         public static AudioClip CreateOneShot(float baseFreq, float noise, float seconds)
         {
             return CreateLoop(baseFreq, noise, seconds);
+        }
+
+        /// Two-tone car horn: a fifth (e.g. 440 + 660 Hz) with a fast attack and a
+        /// short tail, square-ish so it cuts through the music bed.
+        public static AudioClip CreateHorn(float seconds)
+        {
+            int sampleRate = 44100;
+            int samples = Mathf.CeilToInt(sampleRate * seconds);
+            var data = new float[samples];
+            for (int i = 0; i < samples; i++)
+            {
+                float t = i / (float)sampleRate;
+                float attack = Mathf.Clamp01(t / 0.01f);
+                float release = Mathf.Clamp01((seconds - t) / 0.08f);
+                float env = attack * release;
+                float a = Mathf.Sin(2f * Mathf.PI * 440f * t);
+                float b = Mathf.Sin(2f * Mathf.PI * 659f * t);
+                float wave = (a + b) * 0.5f;
+                wave += Mathf.Sin(2f * Mathf.PI * 880f * t) * 0.18f + Mathf.Sin(2f * Mathf.PI * 1318f * t) * 0.12f;
+                wave = Mathf.Clamp(wave * 1.6f, -0.8f, 0.8f);   // soft clip toward a horn buzz
+                data[i] = wave * 0.5f * env;
+            }
+
+            var clip = AudioClip.Create("Horn", samples, 1, sampleRate, false);
+            clip.SetData(data, 0);
+            return clip;
         }
 
         public static AudioClip CreateBlip(float freq, float seconds)
