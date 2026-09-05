@@ -32,7 +32,10 @@ namespace CoastRun
             var blob = host.gameObject.AddComponent<BlobShadow>();
             blob.follow = host;
             blob.baseScale = scale;
-            blob.Build();
+            // AddComponent already ran Awake → Build; only build if that didn't happen
+            // (inactive host), otherwise two discs stack under the player.
+            if (blob._quad == null)
+                blob.Build();
             return blob;
         }
 
