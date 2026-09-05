@@ -62,6 +62,8 @@ __pycache__/
 # Burst build leftovers dropped at the repo root
 /Data/
 *_BurstDebugInformation_DoNotShip/
+# Unity's gradle/CMake scratch for Android builds
+/.utmp/
 
 Tools/scene_dump*.txt
 Tools/debug_log.txt
