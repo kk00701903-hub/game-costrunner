@@ -80,7 +80,15 @@ namespace CoastRun
                 }
                 if (gm.IsRetry)
                     heartLine += gm.LastImproved ? Loc.T("   ·   기록 갱신!", "   ·   New record!") : Loc.T("   ·   이전 기록 유지", "   ·   Previous record kept");
-                _stageLabel.text = $"{ChapterLocation.Get(gm.Save.chapter).Name}\n{heartLine}";
+                // 6차: 미션 별 3개 + 조건 텍스트
+                var prof = gm.Profile;
+                string stars = "";
+                for (int b = 0; b < 3; b++) stars += MissionTable.Has(prof, gm.Save.chapter, b) ? "★" : "☆";
+                string m1 = MissionTable.Get(gm.Save.chapter, 0).Text, m2 = MissionTable.Get(gm.Save.chapter, 1).Text;
+                string starLine = $"{stars}  {Loc.T("클리어", "Clear")} · {m1} · {m2}";
+                if (gm.LastStarsGained > 0) starLine += Loc.T($"   (+{gm.LastStarsGained}★, 총 {prof.StarsTotal}/60)", $"   (+{gm.LastStarsGained}★, total {prof.StarsTotal}/60)");
+                if (gm.LastRecord) starLine += Loc.T("   · 개인 기록", "   · Personal best");
+                _stageLabel.text = $"{ChapterLocation.Get(gm.Save.chapter).Name}\n{heartLine}\n{starLine}";
                 continueLabel = gm.IsRetry ? Loc.T("타임라인으로", "To timeline") : gm.Save.chapter >= Timeline.Chapters ? Loc.T("송전탑으로", "To the tower") : Loc.T("육성으로", "Back home");
             }
 
@@ -282,7 +290,9 @@ namespace CoastRun
             _title = Label("Title", "STAGE CLEAR", 34, 0.86f, 0.94f);
             _title.color = CoastHudLayout.AccentCyan;
 
-            _stageLabel = Label("Stage", "", 20, 0.80f, 0.86f);
+            _stageLabel = Label("Stage", "", 20, 0.775f, 0.865f);
+            _stageLabel.resizeTextForBestFit = true; _stageLabel.resizeTextMinSize = 12; _stageLabel.resizeTextMaxSize = 20;
+            _stageLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
             _stageLabel.color = new Color(0.75f, 0.82f, 0.88f);
 
             _lineCoins = Label("Coins", "", 21, 0.705f, 0.755f);

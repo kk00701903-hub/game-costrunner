@@ -31,6 +31,10 @@ namespace CoastRun
         public ChapterGrade LastGrade { get; private set; } = ChapterGrade.None;
         public bool LastImproved { get; private set; }
         public int LastRunHearts { get; private set; }
+        /// 6차: 이번 정산에서 새로 딴 미션 별 수 / 챕터 별 합계(0~3) / 기록 갱신 여부
+        public int LastStarsGained { get; private set; }
+        public int LastStars { get; private set; }
+        public bool LastRecord { get; private set; }
 
         public event Action<GamePhase> OnPhaseChanged;
         public event Action<SaveData> OnSaveChanged;
@@ -200,6 +204,25 @@ namespace CoastRun
             LastGrade = ChapterGrading.Settle(Save, out bool improved);
             LastImproved = improved;
             Collection.OnChapterSettled(Save.chapter, LastGrade, IsRetry);
+            // 6차 1단계: 미션 별·기록·누적 통계·업적
+            var p = Profile; p.EnsureArrays();
+            LastStarsGained = MissionTable.Settle(p, Save.chapter, stats);
+            LastStars = MissionTable.Stars(p, Save.chapter);
+            LastRecord = false;
+            int ci = Save.chapter - 1;
+            if (stats != null && ci >= 0 && ci < 20)
+            {
+                if (stats.Coins > p.bestCoins[ci]) { p.bestCoins[ci] = stats.Coins; LastRecord = true; }
+                if (stats.BestCombo > p.bestCombo[ci]) { p.bestCombo[ci] = stats.BestCombo; LastRecord = true; }
+                if (stats.NearMissCount > p.bestNearMiss[ci]) { p.bestNearMiss[ci] = stats.NearMissCount; LastRecord = true; }
+                p.totalCoins += stats.Coins; p.totalNearMiss += stats.NearMissCount; p.totalHearts += stats.Hearts;
+                if (stats.Flawless) p.flawlessRuns++;
+                var sm = StageManager.Instance;
+                if (sm != null && sm.Current != null) p.totalDistance += Mathf.RoundToInt(sm.Current.targetDistance);
+            }
+            p.totalRuns++;
+            WriteProfileNow();
+            AchievementTable.CheckAndToast(this);
             SetPhase(GamePhase.ChapterResult);
             WriteMain();
             OnSaveChanged?.Invoke(Save);

@@ -488,6 +488,7 @@ namespace CoastRun
             if (Input.GetKeyDown(KeyCode.C)) OnContinue();
             if (Input.GetKeyDown(KeyCode.L)) { Loc.Toggle(); UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
             if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
+            if (Input.GetKeyDown(KeyCode.K)) CollectionUI.Open(null, 3);
             if (_charSelectPanel != null && _charSelectPanel.activeSelf)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha1)) StartNewPlaythrough(RunMode.Running);

@@ -27,8 +27,8 @@ namespace CoastRun
         private Action _onClose;
         private Canvas _canvas;
         private RectTransform _root, _content;
-        private int _tab;                       // 0 레코드 / 1 포토카드 / 2 팬아트
-        private Button[] _tabBtns = new Button[3];
+        private int _tab;                       // 0 레코드 / 1 포토카드 / 2 팬아트 / 3 트로피
+        private Button[] _tabBtns = new Button[4];
         private AudioSource _preview;
         private GameObject _detail;             // 카드 상세 / 트랙 상세
         private int _cardPage;
@@ -61,12 +61,12 @@ namespace CoastRun
             Place(tag.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -52f), new Vector2(0f, 22f));
 
             // 탭
-            string[] names = { Loc.T("레코드", "Records"), Loc.T("포토카드", "Photocards"), Loc.T("팬아트", "Fan Art") };
-            for (int i = 0; i < 3; i++)
+            string[] names = { Loc.T("레코드", "Records"), Loc.T("포토카드", "Photocards"), Loc.T("팬아트", "Fan Art"), Loc.T("트로피", "Trophies") };
+            for (int i = 0; i < 4; i++)
             {
                 int idx = i;
-                float x = -240f + i * 240f;
-                _tabBtns[i] = CoastOrnate.GlassButton(_root, "Tab" + i, names[i], new Vector2(0.5f, 1f), new Vector2(x, -96f), new Vector2(220f, 42f), () => { _tab = idx; Refresh(); }, 0.45f, 18, false);
+                float x = -258f + i * 172f;
+                _tabBtns[i] = CoastOrnate.GlassButton(_root, "Tab" + i, names[i], new Vector2(0.5f, 1f), new Vector2(x, -96f), new Vector2(164f, 42f), () => { _tab = idx; Refresh(); }, 0.45f, 16, false);
             }
 
             // 본문
@@ -94,6 +94,7 @@ namespace CoastRun
             if (Input.GetKeyDown(KeyCode.Alpha1)) { _tab = 0; Refresh(); }
             if (Input.GetKeyDown(KeyCode.Alpha2)) { _tab = 1; Refresh(); }
             if (Input.GetKeyDown(KeyCode.Alpha3)) { _tab = 2; Refresh(); }
+            if (Input.GetKeyDown(KeyCode.Alpha4)) { _tab = 3; Refresh(); }
             if (Input.GetKeyDown(KeyCode.Return) && _detail == null) { if (_tab == 0) { if (Collection.TrackUnlocked(1)) OpenTrack(1); } else if (_tab == 1 && Collection.HasCard(1)) OpenCard(1); }
             if (Input.GetKeyDown(KeyCode.P)) ShowPaywall();
 #endif
@@ -102,10 +103,11 @@ namespace CoastRun
         private void Refresh()
         {
             for (int i = _content.childCount - 1; i >= 0; i--) Destroy(_content.GetChild(i).gameObject);
-            for (int i = 0; i < 3; i++) _tabBtns[i].transform.localScale = Vector3.one * (i == _tab ? 1.06f : 0.96f);
+            for (int i = 0; i < 4; i++) _tabBtns[i].transform.localScale = Vector3.one * (i == _tab ? 1.06f : 0.96f);
             if (_tab == 0) BuildRecords();
             else if (_tab == 1) BuildCards();
-            else BuildFanArt();
+            else if (_tab == 2) BuildFanArt();
+            else BuildTrophies();
         }
 
         // ── 레코드 ──────────────────────────────────────────────────────
@@ -376,7 +378,9 @@ namespace CoastRun
         {
             var sr = MakeScroll(_content, out var list);
             float y = 0f;
-            var intro = CoastOrnate.Label(list, "I", Loc.T("팬아트 갤러리 — 보내 주신 그림을 여기 걸어요. (지금은 샘플)", "Fan art gallery — your art goes here. (samples for now)"), 14, new Color(1f, 0.92f, 0.75f));
+            var prof = GameManager.I != null ? GameManager.I.Profile : null;
+            int open = MissionTable.FanArtUnlocked(prof);
+            var intro = CoastOrnate.Label(list, "I", Loc.T($"팬아트 갤러리 — 미션 별 {MissionTable.StarsPerFanArt}개마다 한 장이 열려요. (별 {(prof != null ? prof.StarsTotal : 0)}/60 → {open}장)", $"Fan art gallery — one piece per {MissionTable.StarsPerFanArt} mission stars. (stars {(prof != null ? prof.StarsTotal : 0)}/60 → {open} open)"), 14, new Color(1f, 0.92f, 0.75f));
             Top(intro.rectTransform, y, 30f, 0f); y += 36f;
             int n = 0;
             for (int i = 1; i <= 40; i++)
@@ -384,6 +388,15 @@ namespace CoastRun
                 var tex = ArtAssets.LoadTexture($"FanArt/FanArt_{i:00}");
                 if (tex == null) { if (i > 4) break; continue; }
                 n++;
+                if (i > open)
+                {
+                    var lockF = CoastUiArt.Panel(list, "L" + i, new Color(0.2f, 0.17f, 0.2f, 0.9f), 12);
+                    Top(lockF.rectTransform, y, 90f, 10f);
+                    var lt = CoastOrnate.Label(lockF.transform, "T", Loc.T($"🔒 팬아트 #{i:00} — 별 {i * MissionTable.StarsPerFanArt}개에 열려요", $"🔒 Fan art #{i:00} — opens at {i * MissionTable.StarsPerFanArt} stars"), 16, new Color(1f, 0.92f, 0.75f));
+                    CoastOrnate.Stretch(lt.rectTransform, 0f, 0f, 0f, 0f);
+                    y += 102f;
+                    continue;
+                }
                 float h = 660f * tex.height / tex.width;
                 var frame = CoastUiArt.Panel(list, "F" + i, Paper, 12);
                 Top(frame.rectTransform, y, h + 44f, 10f);
@@ -394,6 +407,55 @@ namespace CoastRun
                 y += h + 56f;
             }
             if (n == 0) { var none = CoastOrnate.Label(list, "N", Loc.T("아직 없어요.", "Nothing yet."), 16, Color.white); Top(none.rectTransform, y, 30f, 0f); y += 40f; }
+            list.sizeDelta = new Vector2(0f, y + 20f);
+        }
+
+        // ── 트로피(업적 40 + 기록) ────────────────────────────────────
+        private void BuildTrophies()
+        {
+            var sr = MakeScroll(_content, out var list);
+            var p = GameManager.I != null ? GameManager.I.Profile : null;
+            if (p == null) { list.sizeDelta = new Vector2(0f, 40f); return; }
+            p.EnsureArrays();
+            if (p.achNewCount > 0) { p.achNewCount = 0; GameManager.I.WriteProfileNow(); }
+            float y = 0f;
+            int got = AchievementTable.Count(p);
+            var head = CoastOrnate.Label(list, "H", Loc.T($"업적 {got}/{AchievementTable.All.Length}  ·  미션 별 {p.StarsTotal}/60  ·  오늘의 런 도장 {p.DailyCount}  ·  엔딩 {p.EndingsSeenCount}/7", $"Achievements {got}/{AchievementTable.All.Length}  ·  Stars {p.StarsTotal}/60  ·  Daily stamps {p.DailyCount}  ·  Endings {p.EndingsSeenCount}/7"), 16, new Color(1f, 0.92f, 0.75f));
+            Top(head.rectTransform, y, 30f, 0f); y += 36f;
+            // 기록
+            var rec = CoastUiArt.Panel(list, "Rec", Paper, 14);
+            Top(rec.rectTransform, y, 118f, 8f);
+            var rt = CoastOrnate.Label(rec.transform, "T",
+                Loc.T($"무한 달리기  최고 {p.endlessBestDist:N0}m · {p.endlessBestScore:N0}점\n오늘의 런  최고 {p.dailyBestScore:N0}점 · 연속 {p.dailyStreak}일 (최고 {p.dailyStreakBest})\n누적  런 {p.totalRuns}회 · {p.totalDistance / 1000f:0.0}km · 코인 {p.totalCoins:N0} · 니어미스 {p.totalNearMiss:N0} · 무피격 {p.flawlessRuns}",
+                      $"Endless  best {p.endlessBestDist:N0} m · {p.endlessBestScore:N0} pts\nDaily  best {p.dailyBestScore:N0} · streak {p.dailyStreak} (best {p.dailyStreakBest})\nTotal  {p.totalRuns} runs · {p.totalDistance / 1000f:0.0} km · {p.totalCoins:N0} coins · {p.totalNearMiss:N0} near misses · {p.flawlessRuns} flawless"),
+                14, Ink, TextAnchor.MiddleLeft);
+            CoastOrnate.Stretch(rt.rectTransform, 14f, 6f, -14f, -6f); rt.horizontalOverflow = HorizontalWrapMode.Wrap;
+            y += 126f;
+            // 챕터 별
+            var starsRow = CoastUiArt.Panel(list, "Stars", Paper, 14);
+            Top(starsRow.rectTransform, y, 150f, 8f);
+            var sb = new System.Text.StringBuilder();
+            for (int c = 1; c <= 20; c++)
+            {
+                int n = MissionTable.Stars(p, c);
+                sb.Append($"{c:00} ").Append(n >= 1 ? "★" : "☆").Append(n >= 2 ? "★" : "☆").Append(n >= 3 ? "★" : "☆");
+                sb.Append(c % 4 == 0 ? "\n" : "    ");
+            }
+            var st = CoastOrnate.Label(starsRow.transform, "T", Loc.T("챕터 미션 별\n", "Chapter mission stars\n") + sb.ToString(), 14, Ink, TextAnchor.UpperLeft);
+            CoastOrnate.Stretch(st.rectTransform, 14f, 6f, -14f, -8f);
+            y += 158f;
+            // 업적 목록
+            foreach (var a in AchievementTable.All)
+            {
+                bool has = AchievementTable.Has(p, a.id);
+                var row = CoastUiArt.Panel(list, "A" + a.id, has ? Paper : new Color(0.2f, 0.17f, 0.2f, 0.85f), 10);
+                Top(row.rectTransform, y, 48f, 8f);
+                var t = CoastOrnate.Label(row.transform, "T", (has ? "🏆  " : "○  ") + a.Name, 16, has ? Ink : new Color(0.8f, 0.75f, 0.7f), TextAnchor.MiddleLeft);
+                CoastOrnate.Stretch(t.rectTransform, 14f, 0f, -220f, 0f);
+                var h = CoastOrnate.Label(row.transform, "H", a.Hint, 12, has ? new Color(0.45f, 0.4f, 0.38f) : new Color(0.65f, 0.6f, 0.58f), TextAnchor.MiddleRight);
+                CoastOrnate.Stretch(h.rectTransform, 0f, 0f, -12f, 0f);
+                y += 54f;
+            }
             list.sizeDelta = new Vector2(0f, y + 20f);
         }
 

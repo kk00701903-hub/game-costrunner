@@ -139,5 +139,43 @@ namespace CoastRun
         public bool aiNoticeSeen;                // 첫 실행 AI 제작 고지
         public bool ratePrompted;                // 리뷰 요청 1회
         public int shareCount;
+
+        // ── 6차 1단계: 매일 켜는 이유 ──
+        public int[] starMask = new int[20];     // 챕터별 별 3개 비트 (bit0 클리어, bit1 미션1, bit2 미션2)
+        public int[] bestCoins = new int[20];    // 챕터별 최고 코인 수
+        public int[] bestCombo = new int[20];    // 챕터별 최고 니어미스 콤보
+        public int[] bestNearMiss = new int[20];
+        public int endlessBestScore;             // 무한 모드 최고 점수
+        public int endlessBestDist;              // 무한 모드 최고 거리(m)
+        public int dailyBestScore;
+        public int[] dailyStamps = new int[0];   // 오늘의 런 완료 날짜(yyyymmdd) 목록
+        public int dailyStreak;                  // 연속 일수
+        public int dailyStreakBest;
+        public int lastDailyDate;                // 마지막 도장 날짜
+        // 누적 통계 (업적용)
+        public int totalRuns, totalArcadeRuns, flawlessRuns;
+        public long totalCoins, totalNearMiss, totalHearts, totalDistance;
+        public long achMask;                     // 업적 1..64 비트
+        public int achNewCount;                  // 아직 안 본 업적 수
+        public int playthroughsStarted;
+        public int endingMask;                   // 엔딩 갤러리: bit0 A기본 1 A감성 2 A평판 3 B기본 4 B루아 5 B쓰러짐 6 진엔딩
+        public bool trueEndingSeen;
+        public int EndingsSeenCount { get { int n = 0; for (int i = 0; i < 7; i++) if ((endingMask & (1 << i)) != 0) n++; return n; } }
+
+        public int StarsTotal { get { int n = 0; if (starMask != null) foreach (var m in starMask) n += (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1); return n; } }
+        public int CardCount { get { int n = 0; for (int i = 0; i < 30; i++) if ((cardMask & (1 << i)) != 0) n++; return n; } }
+        public int TracksUnlocked { get { int n = 0; if (trackGrade != null) foreach (var g in trackGrade) if (g > 0) n++; return n; } }
+        public int SCount { get { int n = 0; if (trackGrade != null) foreach (var g in trackGrade) if (g >= 4) n++; return n; } }
+        public int DailyCount => dailyStamps != null ? dailyStamps.Length : 0;
+        public void EnsureArrays()
+        {
+            if (trackGrade == null || trackGrade.Length < 20) trackGrade = Grow(trackGrade, 20);
+            if (starMask == null || starMask.Length < 20) starMask = Grow(starMask, 20);
+            if (bestCoins == null || bestCoins.Length < 20) bestCoins = Grow(bestCoins, 20);
+            if (bestCombo == null || bestCombo.Length < 20) bestCombo = Grow(bestCombo, 20);
+            if (bestNearMiss == null || bestNearMiss.Length < 20) bestNearMiss = Grow(bestNearMiss, 20);
+            if (dailyStamps == null) dailyStamps = new int[0];
+        }
+        static int[] Grow(int[] a, int n) { var r = new int[n]; if (a != null) Array.Copy(a, r, Math.Min(a.Length, n)); return r; }
     }
 }

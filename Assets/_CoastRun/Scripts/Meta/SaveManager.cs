@@ -92,7 +92,11 @@ namespace CoastRun
             try
             {
                 if (File.Exists(ProfilePath))
-                    return JsonUtility.FromJson<MetaProfile>(File.ReadAllText(ProfilePath)) ?? new MetaProfile();
+                {
+                    var loaded = JsonUtility.FromJson<MetaProfile>(File.ReadAllText(ProfilePath)) ?? new MetaProfile();
+                    loaded.EnsureArrays();
+                    return loaded;
+                }
             }
             catch (Exception e)
             {
