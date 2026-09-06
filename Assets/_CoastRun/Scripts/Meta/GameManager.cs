@@ -116,6 +116,7 @@ namespace CoastRun
                 return null;
             }
 
+            ScheduleJudge.Rhythm = Save.rhythm; ScheduleJudge.SnackOn = Save.snackOn;
             var result = ScheduleJudge.Resolve(def, Save.stats, Timeline.SeasonOf(Save.week), SaveSys.NextDouble());
             Save.stats = result.after;
             Save.chapterHearts += result.heartsGained;
@@ -125,10 +126,15 @@ namespace CoastRun
         }
 
         /// 3페이즈가 끝났을 때. 반환: 강제 스토리 돌입이 필요한가.
+        /// 주말에 번아웃 단계에서 나온 문장(육성 화면이 한 번 보여 주고 지운다).
+        public string PendingWeekNote;
+
         public bool AdvanceWeek()
         {
             if (Save == null) return false;
+            ScheduleJudge.Rhythm = Save.rhythm; ScheduleJudge.SnackOn = Save.snackOn;
             ScheduleJudge.WeeklyDecay(Save.stats);
+            PendingWeekNote = ScheduleJudge.BurnoutStage(Save);
             Save.week = Mathf.Min(Timeline.Weeks + 1, Save.week + 1);
             Save.phaseIndex = 0;
             Save.queuedSchedule = new string[Timeline.PhasesPerWeek];

@@ -20,6 +20,10 @@ namespace CoastRun
         public int stress = 0;     // 스트레스
         public int money = 300;    // 돈
         public int hearts = 0;     // 말랑이 하트 누적(회차 전체)
+        // v3 (프메 오마주): 감성·평판(공개), 말썽(숨김)
+        public int sense = 15;     // 감성 — 라디오·사진·정령계 이벤트
+        public int trust = 10;     // 평판 — 마을 신뢰, 알바 해금, 할인 (0~100)
+        public int trouble = 0;    // 말썽 — 밤 알바·수상한 물건 (0~100, 숨김)
 
         public PlayerStats Clone() => (PlayerStats)MemberwiseClone();
 
@@ -31,6 +35,8 @@ namespace CoastRun
                 case StatKind.Agility: return agility;
                 case StatKind.Charm: return charm;
                 case StatKind.Stress: return stress;
+                case StatKind.Sense: return sense;
+                case StatKind.Trust: return trust;
                 default: return 0;
             }
         }
@@ -41,6 +47,9 @@ namespace CoastRun
             agility = Mathf.Clamp(agility, 0, StatMax);
             charm = Mathf.Clamp(charm, 0, StatMax);
             stress = Mathf.Clamp(stress, 0, StatMax);
+            sense = Mathf.Clamp(sense, 0, StatMax);
+            trust = Mathf.Clamp(trust, 0, 100);
+            trouble = Mathf.Clamp(trouble, 0, 100);
             money = Mathf.Max(0, money);
             hearts = Mathf.Max(0, hearts);
         }
@@ -49,7 +58,10 @@ namespace CoastRun
         public bool Burnout => stress > stamina;
     }
 
-    public enum StatKind { None = 0, Stamina = 1, Agility = 2, Charm = 3, Stress = 4 }
+    public enum StatKind { None = 0, Stamina = 1, Agility = 2, Charm = 3, Stress = 4, Sense = 5, Trust = 6 }
+
+    /// v3 생활 리듬(프메의 식단): 체력 성장·스트레스 배율.
+    public enum LifeRhythm { Normal = 0, Hard = 1, Easy = 2 }
 
     /// 챕터 1개의 영구 기록. 타임라인 재도전은 이 객체만 덮어쓴다.
     [Serializable]
@@ -78,6 +90,11 @@ namespace CoastRun
         public PlayerStats stats = new PlayerStats();
         public ChapterRecord[] chapters = new ChapterRecord[Timeline.Chapters];
         public int chapterHearts;            // 진행 중 챕터에서 지금까지 모은 하트
+        // v3
+        public LifeRhythm rhythm = LifeRhythm.Normal;
+        public int burnoutWeeks;             // 연속 번아웃 주 수 (1 지침 / 2 앓아눕기 / 3 잠수)
+        public int sickWeeks;                // 앓아눕기로 강제 휴식한 횟수(통계)
+        public bool snackOn;                 // 간식비(주 15G, 스트레스 ×0.8)
         public PetKind equippedPet = PetKind.None;
         public int ownedPetMask;
         public string[] queuedSchedule = new string[3];

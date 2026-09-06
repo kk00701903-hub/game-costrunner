@@ -97,6 +97,7 @@ namespace CoastRun
         private GameObject _sheet;
         private RectTransform _cardRow;
         private ScheduleCategory _tab = ScheduleCategory.Job;
+        private List<ScheduleCategory> _tabOrder;
         private readonly List<Button> _tabButtons = new List<Button>();
         private readonly Text[] _slotName = new Text[Timeline.PhasesPerWeek];
         private readonly Text[] _slotGlyph = new Text[Timeline.PhasesPerWeek];
@@ -309,10 +310,23 @@ namespace CoastRun
             }
 
             // 우상단 미니 버튼: 상점 / 타임라인 / 저장·타이틀
-            SmallButton(host, "ShopBtn", "상점", Sun, new Vector2(1f, 1f), new Vector2(-10f, -10f), 96f, OpenShop);
-            SmallButton(host, "TimelineBtn", "타임라인", Sky, new Vector2(1f, 1f), new Vector2(-112f, -10f), 120f, OpenTimeline);
-            SmallButton(host, "TitleBtn", "저장", new Color(0.55f, 0.50f, 0.48f), new Vector2(1f, 1f), new Vector2(-10f, -60f), 96f,
-                () => Confirm("타이틀로 돌아갈까?", "진행은 자동 저장돼.", () => _gm.ToTitle()));
+            SmallButton(host, "ShopBtn", Loc.T("상점", "Shop"), Sun, new Vector2(1f, 1f), new Vector2(-10f, -10f), 96f, OpenShop);
+            SmallButton(host, "TimelineBtn", Loc.T("타임라인", "Chapters"), Sky, new Vector2(1f, 1f), new Vector2(-112f, -10f), 120f, OpenTimeline);
+            SmallButton(host, "TitleBtn", Loc.T("저장", "Save"), new Color(0.55f, 0.50f, 0.48f), new Vector2(1f, 1f), new Vector2(-10f, -60f), 96f,
+                () => Confirm(Loc.T("타이틀로 돌아갈까?", "Back to title?"), Loc.T("진행은 자동 저장돼.", "Progress is auto-saved."), () => _gm.ToTitle()));
+            // v3 생활 리듬(프메 식단): 보통 → 빡세게 → 무리 안 함 순환. 간식비 토글은 길게가 아닌 두 번째 버튼.
+            Button rhythmBtn = null;
+            rhythmBtn = SmallButton(host, "RhythmBtn", RhythmLabel(), new Color(0.62f, 0.52f, 0.80f), new Vector2(1f, 1f), new Vector2(-112f, -60f), 120f, () =>
+            {
+                if (Save == null) return;
+                Save.rhythm = (LifeRhythm)(((int)Save.rhythm + 1) % 3);
+                _gm.Persist();
+                var t = rhythmBtn.GetComponentInChildren<Text>(); if (t != null) t.text = RhythmLabel();
+                Toast(Save.rhythm == LifeRhythm.Hard ? Loc.T("빡세게: 체력 성장 ×1.3, 스트레스 ×1.3", "Hard: stamina ×1.3, stress ×1.3")
+                    : Save.rhythm == LifeRhythm.Easy ? Loc.T("무리 안 함: 체력 성장 ×0.8, 스트레스 ×0.7", "Easy: stamina ×0.8, stress ×0.7")
+                    : Loc.T("보통 리듬", "Normal rhythm"));
+                RefreshCards();
+            });
         }
 
         // ── 3. Stats Tab Area ───────────────────────────────────────────
@@ -323,8 +337,8 @@ namespace CoastRun
             var host = frame.transform.Find("Inner") as RectTransform;
 
             // 탭 바
-            _tabBody = TabButton(host, "TabBody", "신체 능력", new Vector2(0f, 1f), new Vector2(0.5f, 1f), () => SetStatTab(StatTab.Body), out _tabBodyText);
-            _tabMind = TabButton(host, "TabMind", "정신/생활", new Vector2(0.5f, 1f), new Vector2(1f, 1f), () => SetStatTab(StatTab.Mind), out _tabMindText);
+            _tabBody = TabButton(host, "TabBody", Loc.T("신체 능력", "Body"), new Vector2(0f, 1f), new Vector2(0.5f, 1f), () => SetStatTab(StatTab.Body), out _tabBodyText);
+            _tabMind = TabButton(host, "TabMind", Loc.T("정신/생활", "Mind & Life"), new Vector2(0.5f, 1f), new Vector2(1f, 1f), () => SetStatTab(StatTab.Mind), out _tabMindText);
 
             // 세로 스크롤 리스트 + 가로 스와이프로 탭 전환
             var scrollGo = new GameObject("StatScroll", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(RectMask2D));
@@ -396,17 +410,19 @@ namespace CoastRun
             var rows = body
                 ? new (StatKind kind, string key, string label, string glyph)[]
                 {
-                    (StatKind.Stamina, null, "체력", "♥"),
-                    (StatKind.Agility, null, "순발력", "⚡"),
-                    (StatKind.None, "speed", "달리기", "»"),
-                    (StatKind.None, "hp", "런닝 HP", "+"),
+                    (StatKind.Stamina, null, Loc.T("체력", "Stamina"), "♥"),
+                    (StatKind.Agility, null, Loc.T("순발력", "Agility"), "⚡"),
+                    (StatKind.None, "speed", Loc.T("달리기", "Speed"), "»"),
+                    (StatKind.None, "hp", Loc.T("런닝 HP", "Run HP"), "+"),
                 }
                 : new (StatKind kind, string key, string label, string glyph)[]
                 {
-                    (StatKind.Charm, null, "매력", "★"),
-                    (StatKind.Stress, null, "스트레스", "~"),
-                    (StatKind.None, "hearts", "말랑이 하트", "♥"),
-                    (StatKind.None, "luck", "대성공률", "☆"),
+                    (StatKind.Charm, null, Loc.T("매력", "Charm"), "★"),
+                    (StatKind.Sense, null, Loc.T("감성", "Sense"), "♪"),
+                    (StatKind.Trust, null, Loc.T("평판", "Trust"), "◎"),
+                    (StatKind.Stress, null, Loc.T("스트레스", "Stress"), "~"),
+                    (StatKind.None, "hearts", Loc.T("말랑이 하트", "Hearts"), "♥"),
+                    (StatKind.None, "luck", Loc.T("대성공률", "Great %"), "☆"),
                 };
 
             const float rowH = 62f;
@@ -538,10 +554,10 @@ namespace CoastRun
 
             // 액션 버튼 3개 (높이 ≥ 56dp → 112px)
             // 아래 40% 띠를 3등분 — 어떤 높이에서도 프레임 안에 남는다 (hitSlop 10px 포함).
-            _scheduleBtn = ActionButton(host, "Schedule", "스케줄", Coral, Hex("#FF8FAB"), 0, () => ToggleSheet(true));
-            _runButton = ActionButton(host, "Run", "실행", Mint, Hex("#80CBC4"), 1, OnRunPressed);
+            _scheduleBtn = ActionButton(host, "Schedule", Loc.T("스케줄", "Plan"), Coral, Hex("#FF8FAB"), 0, () => ToggleSheet(true));
+            _runButton = ActionButton(host, "Run", Loc.T("실행", "Go"), Mint, Hex("#80CBC4"), 1, OnRunPressed);
             _runLabel = _runButton.GetComponentInChildren<Text>();
-            _storyBtn = ActionButton(host, "Story", "★ 스토리", Sun, Hex("#FFCC80"), 2, OpenTimeline);   // v5: 챕터 선택 화면으로
+            _storyBtn = ActionButton(host, "Story", Loc.T("★ 스토리", "★ Story"), Sun, Hex("#FFCC80"), 2, OpenTimeline);   // v5: 챕터 선택 화면으로
             _storyLabel = _storyBtn.GetComponentInChildren<Text>();
         }
 
@@ -641,24 +657,28 @@ namespace CoastRun
             // 카테고리 탭
             var tabs = new (ScheduleCategory cat, string name, Color color)[]
             {
-                (ScheduleCategory.Job, "알바", Sun),
-                (ScheduleCategory.SelfDev, "자기계발", Sky),
-                (ScheduleCategory.Rest, "휴식", Mint),
-                (ScheduleCategory.Story, "스토리", Coral),
+                (ScheduleCategory.Job, Loc.T("알바", "Jobs"), Sun),
+                (ScheduleCategory.Lesson, Loc.T("교육", "Lessons"), new Color(0.72f, 0.55f, 0.92f)),
+                (ScheduleCategory.SelfDev, Loc.T("연습", "Practice"), Sky),
+                (ScheduleCategory.Rest, Loc.T("휴식", "Rest"), Mint),
+                (ScheduleCategory.Story, Loc.T("스토리", "Story"), Coral),
             };
+            _tabOrder = new List<ScheduleCategory>();
             for (int i = 0; i < tabs.Length; i++)
             {
                 var t = tabs[i];
+                _tabOrder.Add(t.cat);
                 var pill = CoastUiArt.CutePill(host, "Tab" + t.cat, t.color, 14, 3);
-                pill.rectTransform.anchorMin = new Vector2(i / 4f, 1f); pill.rectTransform.anchorMax = new Vector2((i + 1) / 4f, 1f);
+                float n = tabs.Length;
+                pill.rectTransform.anchorMin = new Vector2(i / n, 1f); pill.rectTransform.anchorMax = new Vector2((i + 1) / n, 1f);
                 pill.rectTransform.pivot = new Vector2(0.5f, 1f);
-                pill.rectTransform.offsetMin = new Vector2(i == 0 ? 10f : 4f, -184f); pill.rectTransform.offsetMax = new Vector2(i == 3 ? -10f : -4f, -136f);
+                pill.rectTransform.offsetMin = new Vector2(i == 0 ? 10f : 3f, -184f); pill.rectTransform.offsetMax = new Vector2(i == tabs.Length - 1 ? -10f : -3f, -136f);
                 var btn = pill.gameObject.AddComponent<Button>();
                 pill.raycastTarget = true;
                 btn.transition = Selectable.Transition.None;
                 var cat = t.cat;
                 btn.onClick.AddListener(() => { Haptic(); _tab = cat; RefreshCards(); });
-                var lbl = Label(pill.transform, "Text", t.name, 19, Color.white);
+                var lbl = Label(pill.transform, "Text", t.name, 17, Color.white);
                 CoastUiArt.OutlineText(lbl, new Color(0f, 0f, 0f, 0.35f), 1.5f);
                 _tabButtons.Add(btn);
             }
@@ -677,8 +697,8 @@ namespace CoastRun
             _cardRow.pivot = new Vector2(0.5f, 1f);
             sr.content = _cardRow; sr.viewport = srt;
 
-            BigButton(host, "Close", "닫기", new Color(0.55f, 0.50f, 0.48f), new Vector2(0.5f, 0f), new Vector2(-120f, 10f), new Vector2(220f, 58f), () => ToggleSheet(false));
-            BigButton(host, "RunSheet", "실행", Mint, new Vector2(0.5f, 0f), new Vector2(120f, 10f), new Vector2(220f, 58f), () => { ToggleSheet(false); OnRunPressed(); });
+            BigButton(host, "Close", Loc.T("닫기", "Close"), new Color(0.55f, 0.50f, 0.48f), new Vector2(0.5f, 0f), new Vector2(-120f, 10f), new Vector2(220f, 58f), () => ToggleSheet(false));
+            BigButton(host, "RunSheet", Loc.T("실행", "Go"), Mint, new Vector2(0.5f, 0f), new Vector2(120f, 10f), new Vector2(220f, 58f), () => { ToggleSheet(false); OnRunPressed(); });
 
             _sheet.SetActive(false);
         }
@@ -697,9 +717,10 @@ namespace CoastRun
             for (int i = _cardRow.childCount - 1; i >= 0; i--)
                 Destroy(_cardRow.GetChild(i).gameObject);
             for (int i = 0; i < _tabButtons.Count; i++)
-                _tabButtons[i].transform.localScale = Vector3.one * ((int)_tab == i ? 1.06f : 0.96f);
+                _tabButtons[i].transform.localScale = Vector3.one * (_tabOrder != null && i < _tabOrder.Count && _tabOrder[i] == _tab ? 1.06f : 0.96f);
 
             var season = Timeline.SeasonOf(Save.week);
+            ScheduleJudge.Rhythm = Save.rhythm; ScheduleJudge.SnackOn = Save.snackOn;
             var defs = ScheduleTable.ByCategory(_tab, season);
             const float h = 112f, gap = 8f;
             for (int i = 0; i < defs.Count; i++)
@@ -716,12 +737,14 @@ namespace CoastRun
                 card.raycastTarget = true;
                 btn.transition = Selectable.Transition.None;
                 var def = d;
-                btn.onClick.AddListener(() => { Haptic(); OnCardTapped(def); });
+                string lockReason = d.LockReason(Save?.stats);
+                if (lockReason != null) card.color = Color.Lerp(card.color, new Color(0.45f, 0.45f, 0.5f), 0.7f);
+                btn.onClick.AddListener(() => { Haptic(); if (lockReason != null) Toast(lockReason); else OnCardTapped(def); });
 
                 var glyph = Label(card.transform, "Glyph", d.glyph, 20, Color.white);
                 CoastUiArt.OutlineText(glyph, new Color(0f, 0f, 0f, 0.35f), 1.5f);
                 Place(glyph.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -8f), new Vector2(64f, 32f), new Vector2(0f, 1f));
-                var name = Label(card.transform, "Name", d.displayName, 18, Color.white);
+                var name = Label(card.transform, "Name", d.Name, 18, Color.white);
                 name.alignment = TextAnchor.MiddleLeft;
                 CoastUiArt.OutlineText(name, new Color(0f, 0f, 0f, 0.35f), 1.5f);
                 Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 32f), new Vector2(0.5f, 1f));
@@ -751,6 +774,7 @@ namespace CoastRun
                 case ScheduleCategory.Job: return new Color(0.96f, 0.70f, 0.30f);
                 case ScheduleCategory.SelfDev: return new Color(0.40f, 0.66f, 0.92f);
                 case ScheduleCategory.Rest: return new Color(0.42f, 0.78f, 0.68f);
+                case ScheduleCategory.Lesson: return new Color(0.66f, 0.50f, 0.88f);
                 default: return new Color(0.98f, 0.50f, 0.50f);
             }
         }
@@ -764,17 +788,23 @@ namespace CoastRun
                 return $"장애물을 피해 송전탑까지. 하트를 모아 S급을 노려.\n{target}";
             }
             var parts = new List<string>();
-            if (d.dMoney != 0) parts.Add($"돈 {Signed(d.dMoney)}");
-            if (d.dStamina != 0) parts.Add($"체력 {Signed(d.dStamina)}");
-            if (d.dAgility != 0) parts.Add($"순발력 {Signed(d.dAgility)}");
-            if (d.dCharm != 0) parts.Add($"매력 {Signed(d.dCharm)}");
-            if (d.dStress != 0) parts.Add($"스트레스 {Signed(d.dStress)}");
+            if (d.dMoney != 0) parts.Add($"{Loc.T("돈", "$")} {Signed(d.dMoney)}");
+            if (d.dStamina != 0) parts.Add($"{Loc.T("체력", "STA")} {Signed(d.dStamina)}");
+            if (d.dAgility != 0) parts.Add($"{Loc.T("순발력", "AGI")} {Signed(d.dAgility)}");
+            if (d.dCharm != 0) parts.Add($"{Loc.T("매력", "CHA")} {Signed(d.dCharm)}");
+            if (d.dSense != 0) parts.Add($"{Loc.T("감성", "SEN")} {Signed(d.dSense)}");
+            if (d.dTrust != 0) parts.Add($"{Loc.T("평판", "TRU")} {Signed(d.dTrust)}");
+            if (d.dStress != 0) parts.Add($"{Loc.T("스트레스", "STR")} {Signed(d.dStress)}");
             string line1 = string.Join("  ", parts);
-            string line2 = d.category == ScheduleCategory.Rest
-                ? "판정 없음 · 항상 성공"
-                : $"{StatName(d.primaryStat)} 판정 · 성공률 {ScheduleJudge.SuccessChance(d, Save.stats):P0}";
-            if (d.heartsOnGreat > 0) line2 += $" · 대성공 시 ♥{d.heartsOnGreat}";
-            if (d.hasBonusSeason && d.bonusSeason == season) line2 += $" · {Timeline.SeasonName(season)} 보너스";
+            string lockR = d.LockReason(Save?.stats);
+            string line2 = lockR != null ? "🔒 " + lockR
+                : d.category == ScheduleCategory.Rest ? Loc.T("판정 없음 · 항상 성공", "No roll · always succeeds")
+                : d.deterministic ? Loc.T("수업료 지불 · 확정 상승", "Tuition · guaranteed gain")
+                : Loc.IsKo ? $"{StatName(d.primaryStat)} 판정 · 성공률 {ScheduleJudge.SuccessChance(d, Save.stats):P0}"
+                           : $"{StatName(d.primaryStat)} roll · {ScheduleJudge.SuccessChance(d, Save.stats):P0}";
+            if (lockR == null && d.heartsOnGreat > 0) line2 += Loc.IsKo ? $" · 대성공 시 ♥{d.heartsOnGreat}" : $" · great: ♥{d.heartsOnGreat}";
+            if (lockR == null && d.hasBonusSeason && d.bonusSeason == season) line2 += Loc.IsKo ? $" · {Timeline.SeasonName(season)} 보너스" : $" · {Timeline.SeasonName(season)} bonus";
+            if (d.dTrouble > 0 && lockR == null) line2 += Loc.T(" · 밤일", " · night work");
             return line1 + "\n" + line2;
         }
 
@@ -784,10 +814,12 @@ namespace CoastRun
         {
             switch (k)
             {
-                case StatKind.Stamina: return "체력";
-                case StatKind.Agility: return "순발력";
-                case StatKind.Charm: return "매력";
-                case StatKind.Stress: return "스트레스";
+                case StatKind.Stamina: return Loc.T("체력", "Stamina");
+                case StatKind.Agility: return Loc.T("순발력", "Agility");
+                case StatKind.Charm: return Loc.T("매력", "Charm");
+                case StatKind.Stress: return Loc.T("스트레스", "Stress");
+                case StatKind.Sense: return Loc.T("감성", "Sense");
+                case StatKind.Trust: return Loc.T("평판", "Trust");
                 default: return "-";
             }
         }
@@ -871,6 +903,8 @@ namespace CoastRun
                 case StatKind.Stamina: return $"체력 {st.stamina} = 런닝 최대 HP {RunTuning.MaxHp:0} · 피격 -{RunTuning.HitDamage:0.#}";
                 case StatKind.Agility: return $"순발력 {st.agility} = 피격 후 무적 {RunTuning.DashInvincible:0.0}초 · 경직 ×{RunTuning.HitFreezeMul:0.00}";
                 case StatKind.Charm: return $"매력 {st.charm} = 대성공률 +{st.charm * ScheduleJudge.GreatCharmCoef:P1} · 니어미스 하트 ×{RunTuning.NearMissBonus:0.00}";
+                case StatKind.Sense: return Loc.T($"감성 {st.sense} = 라디오·사진·정령계 이벤트 조건(60+) · 감성 판정 알바", $"Sense {st.sense} = radio/photo/spirit events (60+) · sense-based jobs");
+                case StatKind.Trust: return Loc.T($"평판 {st.trust} = 15 미용실 · 50 알바 스트레스 -2 · 실패하면 -1", $"Trust {st.trust} = 15 salon · 50 job stress -2 · fail -1");
                 case StatKind.Stress:
                     return st.Burnout ? $"스트레스 {st.stress} > 체력 {st.stamina} = 번아웃! 실패율 급증 · 휴식 필요"
                         : $"스트레스 {st.stress} = 성공률 -{ScheduleJudge.MildStressCoef * st.stress / Mathf.Max(1, st.stamina):P0} · 체력({st.stamina})을 넘으면 번아웃";
@@ -889,7 +923,7 @@ namespace CoastRun
         // Refresh
         // ────────────────────────────────────────────────────────────────
 
-        private static readonly string[] Weekdays = { "월", "화", "수", "목", "금", "토", "일" };
+        private static string[] Weekdays => Loc.IsKo ? new[] { "월", "화", "수", "목", "금", "토", "일" } : new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
         public void Refresh()
         {
@@ -900,7 +934,7 @@ namespace CoastRun
 
             // 주차 → 달력 느낌: 1주=봄 1월… 13주 단위 계절, 페이즈 = 요일
             string day = Weekdays[Mathf.Clamp(s.phaseIndex * 2, 0, 6)];
-            _dateLabel.text = $"{s.week}주차 {day} · {Timeline.SeasonName(season)}";
+            _dateLabel.text = Loc.IsKo ? $"{s.week}주차 {day} · {Timeline.SeasonName(season)}" : $"Week {s.week} {day} · {Timeline.SeasonName(season)}";
             _moneyLabel.text = s.stats.money.ToString("N0") + "G";
             _levelLabel.text = _gm.IsRetry ? $"재도전 {s.chapter}" : $"CH {s.chapter}";
             var cond = Condition(s.stats);
@@ -953,7 +987,7 @@ namespace CoastRun
             {
                 var def = ScheduleTable.Get(s.queuedSchedule != null && i < s.queuedSchedule.Length ? s.queuedSchedule[i] : null);
                 bool done = i < s.phaseIndex;
-                string name = done ? "완료" : def != null ? def.displayName : "비어 있음";
+                string name = done ? "완료" : def != null ? def.Name : "비어 있음";
                 if (_slotName[i] != null) _slotName[i].text = name;
                 if (_slotGlyph[i] != null) _slotGlyph[i].text = def != null ? def.glyph : "";
                 Color fillCol = done ? new Color(0.85f, 0.82f, 0.78f)
@@ -969,12 +1003,14 @@ namespace CoastRun
             if (_runButton != null) _runButton.interactable = ready && !_busy;
             if (_runLabel != null)
             {
-                _runLabel.text = finished ? "재도전" : s.phaseIndex > 0 ? "이어서" : "실행";
+                _runLabel.text = finished ? Loc.T("재도전", "Retry") : s.phaseIndex > 0 ? Loc.T("이어서", "Resume") : Loc.T("실행", "Go");
                 _runLabel.color = ready ? Color.white : new Color(1f, 1f, 1f, 0.5f);
             }
             if (_storyBtn != null) _storyBtn.interactable = !finished && !_busy;
             if (_sheetTitle != null)
-                _sheetTitle.text = $"{s.week}주차 스케줄  ·  {Timeline.SeasonName(Timeline.SeasonOf(s.week))}" + (s.CurrentChapter != null ? $"  (챕터 {s.CurrentChapter.weekEnd - s.week + 1}주 남음)" : "");
+                _sheetTitle.text = Loc.IsKo
+                ? $"{s.week}주차 스케줄  ·  {Timeline.SeasonName(Timeline.SeasonOf(s.week))}" + (s.CurrentChapter != null ? $"  (챕터 {s.CurrentChapter.weekEnd - s.week + 1}주 남음)" : "")
+                : $"Week {s.week} plan  ·  {Timeline.SeasonName(Timeline.SeasonOf(s.week))}" + (s.CurrentChapter != null ? $"  ({s.CurrentChapter.weekEnd - s.week + 1} wk left in chapter)" : "");
         }
 
         private void RefreshStats()
@@ -993,6 +1029,8 @@ namespace CoastRun
                     case StatKind.Agility: value = st.agility; break;
                     case StatKind.Charm: value = st.charm; break;
                     case StatKind.Stress: value = st.stress; break;
+                    case StatKind.Sense: value = st.sense; break;
+                    case StatKind.Trust: value = st.trust; max = 100; break;
                     default:
                         switch (v.key)
                         {
@@ -1149,12 +1187,18 @@ namespace CoastRun
                 RefreshSlots();
                 RefreshCharacter(r.outcome == Outcome.GreatSuccess ? Mood.Great : r.outcome == Outcome.Fail ? Mood.Fail : (Mood?)null);
                 _bubble.text = r.outcome == Outcome.GreatSuccess ? "해냈다!" : r.outcome == Outcome.Fail ? "으으… 망했어." : "그럭저럭.";
-                yield return ShowLogTyped($"{i + 1}페이즈 · {r.def.displayName}", r.logLines, r.outcome, r.def.id);
+                yield return ShowLogTyped($"{i + 1}페이즈 · {r.def.Name}", r.logLines, r.outcome, r.def.id);
                 RefreshStats();
             }
 
             bool forced = _gm.AdvanceWeek();
             Refresh();
+            if (!string.IsNullOrEmpty(_gm.PendingWeekNote))
+            {
+                yield return ShowLog(Loc.T("주말 · 컨디션", "Weekend · Condition"), _gm.PendingWeekNote, 1.2f);
+                _gm.PendingWeekNote = null;
+                Refresh();
+            }
             if (forced)
             {
                 yield return ShowLog("챕터 마지막 주", "이번 주가 이 챕터의 마지막 주야.\n이제 스토리로 가야 해.", 0.4f);
@@ -1360,6 +1404,12 @@ namespace CoastRun
             var btn = go.GetComponent<Button>() ?? go.AddComponent<Button>();
             btn.transition = Selectable.Transition.None;
             btn.onClick.AddListener(() => { Haptic(); onClick?.Invoke(); });
+        }
+
+        private string RhythmLabel()
+        {
+            var r = Save != null ? Save.rhythm : LifeRhythm.Normal;
+            return r == LifeRhythm.Hard ? Loc.T("리듬: 빡세게", "Pace: Hard") : r == LifeRhythm.Easy ? Loc.T("리듬: 여유", "Pace: Easy") : Loc.T("리듬: 보통", "Pace: Normal");
         }
 
         private Button SmallButton(Transform parent, string name, string label, Color color, Vector2 anchor, Vector2 pos, float width, Action onClick)
