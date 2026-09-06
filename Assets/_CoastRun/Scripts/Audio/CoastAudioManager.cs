@@ -56,6 +56,8 @@ namespace CoastRun
         // Stems b/c/d ride on top of `a` in sample-sync; their target volumes follow the
         // stage inside the chapter (see SetChapterStage). CH5 runs the other way round.
         private readonly AudioSource[] _stems = new AudioSource[4];
+        private bool _fullTrack;
+        private int _bgmStage = -1;
         private readonly float[] _stemTarget = new float[4];
         private int _bgmChapter = -1;
         private const float StemVolume = 0.9f;   // music leads; the procedural bed ducks under it
@@ -249,12 +251,17 @@ namespace CoastRun
             chapter = Mathf.Clamp(chapter, 1, 5);
             stageInChapter = Mathf.Clamp(stageInChapter, 1, 4);
 
-            if (chapter != _bgmChapter)
+            // 앨범 트랙(Suno, Resources/CoastRun/BGM/Track_CHnn)이 있으면 그 챕터는 풀 트랙 하나로 간다 — 스템 대신.
+            int metaStage = (chapter - 1) * 4 + stageInChapter;
+            var full = CoastBgmLibrary.Load(AlbumTable.Get(metaStage).Clip);
+            bool reload = chapter != _bgmChapter || (full != null && metaStage != _bgmStage) || (full == null && _fullTrack);
+            if (reload)
             {
-                _bgmChapter = chapter;
+                _bgmChapter = chapter; _bgmStage = metaStage;
+                _fullTrack = full != null;
                 for (int i = 0; i < _stems.Length; i++)
                 {
-                    var clip = CoastBgmLibrary.Load(CoastBgmLibrary.ChapterStem(chapter, i));
+                    var clip = _fullTrack ? (i == 0 ? full : null) : CoastBgmLibrary.Load(CoastBgmLibrary.ChapterStem(chapter, i));
                     // No split stems yet? Play the full mix as the bed so the chapter
                     // still has music while the stem pass is pending.
                     if (clip == null && i == 0)
@@ -278,6 +285,12 @@ namespace CoastRun
                         _stems[i].PlayScheduled(start);
             }
 
+            if (_fullTrack)
+            {
+                _stemTarget[0] = StemVolume; for (int i = 1; i < _stems.Length; i++) _stemTarget[i] = 0f;
+                if (_stems[0] != null) _stems[0].pitch = 1f;
+                return;
+            }
             bool reverse = chapter == 5;
             for (int i = 0; i < _stems.Length; i++)
             {
