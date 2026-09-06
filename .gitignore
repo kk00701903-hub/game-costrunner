@@ -92,3 +92,9 @@ Tools/blender/*_out.txt
 Tools/FireflyArt/Title_Gate_v2_raw.png
 Tools/FireflyArt/Title_jeju_coastal_sunset_poster.png
 Tools/FireflyArt/Title_our_frequency_jeju_coast.png
+# Firefly video fetch scratch (presigned URLs expire) and the source clips.
+# The trimmed mp4s that ship live in Assets/Resources/CoastRun/Video.
+Tools/FireflyVideo/fetch.txt
+Tools/FireflyVideo/fetch.log
+Tools/FireflyVideo/run.txt
+Tools/FireflyVideo/raw/

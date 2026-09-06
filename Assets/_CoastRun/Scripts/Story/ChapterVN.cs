@@ -231,6 +231,24 @@ namespace CoastRun
         private IEnumerator Run()
         {
             _fader.color = Color.black;
+            yield return null;   // 씬을 연 그 탭/키가 첫 프레임에서 '진행'으로 읽히지 않게
+            _advance = false;
+            // 6차: 씬 앞 짧은 영상(Resources/CoastRun/Video/VID_<씬>) — 페이더 위, 타이틀 카드 아래
+            var clip = StoryVideo.ClipFor(_sceneId);
+            if (clip != null)
+            {
+                var host = new GameObject("VideoHost", typeof(RectTransform));
+                host.transform.SetParent(_fader.transform.parent, false);
+                host.transform.SetSiblingIndex(_fader.transform.GetSiblingIndex() + 1);
+                var hr = host.GetComponent<RectTransform>();
+                hr.anchorMin = Vector2.zero; hr.anchorMax = Vector2.one;
+                hr.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
+                hr.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+                yield return StoryVideo.Play(clip, hr, Pressed, () => _skip);
+                UnityEngine.Object.Destroy(host);
+                _advance = false;
+                _skip = false;   // 영상만 건너뛴 것 — 본편은 이어서
+            }
             if (!string.IsNullOrEmpty(_titleCard))
             {
                 _titleText.text = _titleCard;
