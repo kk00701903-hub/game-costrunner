@@ -1201,6 +1201,19 @@ namespace CoastRun
 
             bool forced = _gm.AdvanceWeek();
             Refresh();
+            if (!string.IsNullOrEmpty(_gm.PendingSideScene))
+            {
+                // 6차: NPC 호감도 문턱 사이드 씬
+                string side = _gm.PendingSideScene; _gm.PendingSideScene = null;
+                int lvl = side.EndsWith("_3") ? 3 : side.EndsWith("_2") ? 2 : 1;
+                bool doneVn = false;
+                ChapterVN.Play(side, () => doneVn = true);
+                while (!doneVn) yield return null;
+                Affinity.Reward(Save, lvl);
+                _gm.Persist();
+                Refresh();
+                CoastToast.Show(Loc.T($"호감도 {lvl}단계 — 보상을 받았어요.", $"Affinity level {lvl} — reward received."));
+            }
             if (!string.IsNullOrEmpty(_gm.PendingWeekNote))
             {
                 yield return ShowLog(Loc.T("주말 · 컨디션", "Weekend · Condition"), _gm.PendingWeekNote, 1.2f);

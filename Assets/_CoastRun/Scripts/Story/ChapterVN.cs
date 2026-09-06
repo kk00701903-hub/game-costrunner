@@ -270,6 +270,16 @@ namespace CoastRun
             {
                 var line = _lines[i];
                 string txt = Loc.IsKo ? line.B : Loc.Tr(ChapterScript.TextEn(_sceneId, i) ?? line.B);
+                // 6차: 조건 태그 — SAY는 화자 칸, NARR/LETTER는 본문 앞 [조건]
+                string speaker = line.A;
+                bool pass = true;
+                if (line.Kind == "SAY") speaker = StoryCond.Strip(line.A, out pass);
+                else if (line.Kind == "NARR" || line.Kind == "LETTER")
+                {
+                    StoryCond.Strip(line.B, out pass);
+                    txt = StoryCond.Strip(txt, out _);
+                }
+                if (!pass) continue;
                 switch (line.Kind)
                 {
                     case "BG":
@@ -279,7 +289,7 @@ namespace CoastRun
                         yield return ShowCg(line);
                         break;
                     case "SAY":
-                        yield return Say(line.A, txt);
+                        yield return Say(speaker, txt);
                         break;
                     case "NARR":
                         yield return Say("", txt);

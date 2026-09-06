@@ -491,6 +491,10 @@ namespace CoastRun
             if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
             if (Input.GetKeyDown(KeyCode.A)) ArcadeUI.Open(false);
             if (Input.GetKeyDown(KeyCode.K)) CollectionUI.Open(null, 3);
+            // V/B/T: 사이드 씬·엔딩 변형·진엔딩 미리보기
+            if (Input.GetKeyDown(KeyCode.V)) ChapterVN.Play("SIDE_RUA_3", null);
+            if (Input.GetKeyDown(KeyCode.B)) ChapterVN.Play("END_A_TRUST", null);
+            if (Input.GetKeyDown(KeyCode.T)) ChapterVN.Play("END_TRUE", null);
             if (_charSelectPanel != null && _charSelectPanel.activeSelf)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha1)) StartNewPlaythrough(RunMode.Running);

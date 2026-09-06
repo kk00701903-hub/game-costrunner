@@ -33,6 +33,14 @@ namespace CoastRun
                 seed = Environment.TickCount ^ (int)DateTime.Now.Ticks,
                 playthrough = Mathf.Max(1, Profile.endingsSeen + 1),
             };
+            // 6차 NG+: 지난 회차 최종 스탯의 20%를 물려받는다(돈은 10%).
+            if (Profile.hasLastFinal && Profile.lastFinalStats != null && s.playthrough >= 2)
+            {
+                var f = Profile.lastFinalStats;
+                s.stats.stamina += f.stamina / 5; s.stats.agility += f.agility / 5; s.stats.charm += f.charm / 5;
+                s.stats.sense += f.sense / 5; s.stats.trust += f.trust / 5; s.stats.money += f.money / 10;
+                s.stats.Clamp();
+            }
             // 이전 빌드에서 모은 코인은 새 회차의 초기 자금으로 한 번 흡수.
             int legacyCoins = PlayerPrefs.GetInt(CoinWallet.PrefsKey, 0);
             if (legacyCoins > 0)

@@ -25,6 +25,7 @@ namespace CoastRun
         public int condStamina, condAgility;   // 스탯 조건
         public bool deterministic;             // 교육: 판정 없이 확정
         public int heartsOnGreat;     // 대성공 시 말랑이 하트
+        public bool ngPlusOnly;        // 2회차부터
         public bool hasOnlySeason;
         public SeasonKind onlySeason;
         public bool hasBonusSeason;
@@ -67,12 +68,15 @@ namespace CoastRun
             return !string.IsNullOrEmpty(id) && _byId.TryGetValue(id, out var d) ? d : null;
         }
 
+        /// 현재 회차(GameManager가 세팅). NG+ 전용 스케줄 노출용.
+        public static int Playthrough = 1;
+
         public static List<ScheduleDef> ByCategory(ScheduleCategory cat, SeasonKind season)
         {
             Ensure();
             var list = new List<ScheduleDef>();
             foreach (var d in _all)
-                if (d.category == cat && d.AvailableIn(season))
+                if (d.category == cat && d.AvailableIn(season) && (!d.ngPlusOnly || Playthrough >= 2))
                     list.Add(d);
             return list;
         }
@@ -98,6 +102,9 @@ namespace CoastRun
                 Job("job_dangsan", "본향당 준비", "본향당", StatKind.Sense, 30, st: 1, ag: 0, ch: 0, stress: 8, money: 15, glyph: "당", sense: 2, trust: 4, trouble: -3),
                 Job("job_tower_watch", "송전탑 관리소 야간 순찰", "송전탑", StatKind.Stamina, 60, st: 2, ag: 1, ch: -2, stress: 22, money: 65, glyph: "순찰", sense: 2, condStamina: 60),
                 Job("job_lighthouse", "목마등대 청소", "이호테우", StatKind.Stamina, 40, st: 2, ag: 0, ch: 0, stress: 14, money: 45, glyph: "등대", sense: 2, trust: 1),
+                // ── NG+ 전용 (2회차부터) ──
+                Ng(Job("job_tower_fix", "송전탑 정비 보조", "송전탑 관리소", StatKind.Agility, 55, st: 2, ag: 2, ch: 0, stress: 16, money: 70, glyph: "정비", sense: 2, trust: 2, condStamina: 40)),
+                Ng(Job("job_dj_assist", "라디오 국 보조", "제주 방송국", StatKind.Sense, 45, st: 0, ag: 0, ch: 2, stress: 10, money: 50, glyph: "DJ", sense: 3, trust: 1, condTrust: 20)),
                 // ── 교육 (확정·유료) ──
                 Les("les_skate", "스케이트 트릭 교습", "해안도로", 60, st: 1, ag: 3, stress: 8, glyph: "트릭"),
                 Les("les_gym", "체육관", "구좌 체육관", 50, st: 3, ag: 1, stress: 9, glyph: "체육"),
@@ -125,6 +132,8 @@ namespace CoastRun
             _byId = new Dictionary<string, ScheduleDef>();
             foreach (var d in _all) _byId[d.id] = d;
         }
+
+        private static ScheduleDef Ng(ScheduleDef d) { d.ngPlusOnly = true; return d; }
 
         private static ScheduleDef Job(string id, string name, string place, StatKind primary, int diff,
             int st, int ag, int ch, int stress, int money, SeasonKind? only = null, SeasonKind? bonus = null, string glyph = "●",

@@ -74,6 +74,8 @@ namespace CoastRun
             Save = SaveSys.CreateNew();
             Save.runMode = mode;
             ChapterGrading.InitRecords(Save);
+            Profile.playthroughsStarted++;
+            SaveSys.WriteProfile(Profile);
             WriteMain();
             PlayerPrefs.SetInt(MainMenuController.SkipPrologueKey, 0);
             EnterRaising();
@@ -91,6 +93,7 @@ namespace CoastRun
 
         public void EnterRaising()
         {
+            ScheduleTable.Playthrough = Save != null ? Save.playthrough : 1;
             SetPhase(GamePhase.Raising);
             var flow = Flow;
             if (flow != null) _ = flow.GoTo(FlowState.Raising, TransitionType.Fade);
@@ -127,6 +130,8 @@ namespace CoastRun
             Save.chapterHearts += result.heartsGained;
             if (def.id == "dev_radio" && result.outcome == Outcome.GreatSuccess) Collection.OnRadioGreat();
             Collection.CheckStatCards(Save.stats);
+            var side = Affinity.OnSchedule(Save, def.id, result.outcome);
+            if (side != null && ChapterScript.Has(side)) PendingSideScene = side;
             WriteMain();
             OnSaveChanged?.Invoke(Save);
             return result;
@@ -135,6 +140,8 @@ namespace CoastRun
         /// 3페이즈가 끝났을 때. 반환: 강제 스토리 돌입이 필요한가.
         /// 주말에 번아웃 단계에서 나온 문장(육성 화면이 한 번 보여 주고 지운다).
         public string PendingWeekNote;
+        /// 6차: 이번 주말에 재생할 NPC 사이드 씬(SIDE_*). RaisingUI가 재생 후 비운다.
+        public string PendingSideScene;
 
         public bool AdvanceWeek()
         {
@@ -294,6 +301,15 @@ namespace CoastRun
             Collection.OnEnding(kind);
 
             var p = Profile;
+            // 6차: 엔딩 변형(스탯) + 진엔딩(양쪽 엔딩을 이미 본 회차의 만남)
+            var st = Save.stats;
+            bool sawA = (p.endingMask & 0b111) != 0, sawB = (p.endingMask & 0b111000) != 0;
+            if (kind == EndingKind.Happy) Save.endingVariant = st.sense >= 60 ? 1 : st.trust >= 50 ? 2 : 0;
+            else Save.endingVariant = st.trust >= 50 ? 1 : st.stamina < 30 ? 2 : 0;
+            Save.trueEndingPending = kind == EndingKind.Happy && sawA && sawB && !p.trueEndingSeen;
+            p.endingMask |= 1 << ((kind == EndingKind.Happy ? 0 : 3) + Save.endingVariant);
+            if (Save.trueEndingPending) { p.endingMask |= 1 << 6; p.trueEndingSeen = true; }
+            p.lastFinalStats = st.Clone(); p.hasLastFinal = true;
             p.endingsSeen++;
             if (kind == EndingKind.Happy) p.happyEndings++;
             p.skateboardUnlocked = true;          // 엔딩 종류와 무관하게 해금
@@ -305,10 +321,19 @@ namespace CoastRun
             var flow = Flow;
             // v5: 엔딩 VN(만난다/못 만난다) 컷씬을 먼저 보여 주고 기존 엔딩 시퀀스(편지·크레딧)로.
             string vn = kind == EndingKind.Happy ? "END_A" : "END_B";
-            ChapterVN.Play(vn, () =>
-            {
-                if (flow != null) _ = flow.GoTo(FlowState.Ending, TransitionType.Fade);
-            });
+            string epi = EndingEpilogueId(kind, Save.endingVariant);
+            bool trueEnd = Save.trueEndingPending;
+            System.Action toEnding = () => { if (flow != null) _ = flow.GoTo(FlowState.Ending, TransitionType.Fade); };
+            System.Action afterEpi = trueEnd && ChapterScript.Has("END_TRUE") ? () => ChapterVN.Play("END_TRUE", toEnding) : toEnding;
+            System.Action afterMain = epi != null && ChapterScript.Has(epi) ? () => ChapterVN.Play(epi, afterEpi) : afterEpi;
+            ChapterVN.Play(vn, afterMain);
+        }
+
+        public static string EndingEpilogueId(EndingKind kind, int variant)
+        {
+            if (variant <= 0) return null;
+            if (kind == EndingKind.Happy) return variant == 1 ? "END_A_SENSE" : "END_A_TRUST";
+            return variant == 1 ? "END_B_TRUST" : "END_B_WEAK";
         }
 
         /// 엔딩 끝. 비극이면 타임라인으로, 해피면 타이틀로.

@@ -105,6 +105,11 @@ namespace CoastRun
         public bool prologueSeen;
         public int seed;
         public int rollCount;
+        // ── 6차 2단계 ──
+        public int[] affinity = new int[4];  // 루아·만수·할머니·DJ 호감도
+        public int affinityShown;            // 사이드 씬 본 비트 (npc*3+level-1)
+        public int endingVariant;            // 엔딩 변형(0 기본 / 1 / 2)
+        public bool trueEndingPending;       // 진엔딩 조건 충족(양쪽 엔딩을 본 뒤의 만남)
 
         public ChapterRecord CurrentChapter =>
             chapters != null && chapter >= 1 && chapter <= chapters.Length ? chapters[chapter - 1] : null;
@@ -160,6 +165,8 @@ namespace CoastRun
         public int playthroughsStarted;
         public int endingMask;                   // 엔딩 갤러리: bit0 A기본 1 A감성 2 A평판 3 B기본 4 B루아 5 B쓰러짐 6 진엔딩
         public bool trueEndingSeen;
+        public bool hasLastFinal;                // NG+ 계승용 마지막 회차 최종 스탯
+        public PlayerStats lastFinalStats;
         public int EndingsSeenCount { get { int n = 0; for (int i = 0; i < 7; i++) if ((endingMask & (1 << i)) != 0) n++; return n; } }
 
         public int StarsTotal { get { int n = 0; if (starMask != null) foreach (var m in starMask) n += (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1); return n; } }
