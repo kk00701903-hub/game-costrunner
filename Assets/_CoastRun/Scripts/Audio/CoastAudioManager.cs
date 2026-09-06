@@ -9,7 +9,15 @@ namespace CoastRun
         SoftHit,
         Land,
         Jump,
-        Horn
+        Horn,
+        // ACE-Step 생성 스팅어 (Resources/CoastRun/SFX/SFX_<이름>.ogg 가 있으면 그 클립, 없으면 절차 합성 대체)
+        CardReveal,     // 포토카드 개봉
+        ChapterClear,   // 챕터 정산
+        RankS,          // S급
+        Purchase,       // 앨범 구매 성공
+        RadioSting,     // 라디오 스팅어(엔딩·편지)
+        MenuOpen,       // 패널 열림
+        Fail            // 실패·잠수
     }
 
     /// Procedural ambient + skate SFX (no external clips required).
@@ -356,6 +364,45 @@ namespace CoastRun
             return src;
         }
 
+        // ── Resources 오버라이드 + 어디서나 재생 ─────────────────────────
+        private static readonly System.Collections.Generic.Dictionary<CoastSfx, AudioClip> _resClips = new System.Collections.Generic.Dictionary<CoastSfx, AudioClip>();
+        private static AudioSource _anySrc;
+
+        /// Resources/CoastRun/SFX/SFX_<kind>.(ogg|wav) 가 있으면 그 클립(한 번만 로드), 없으면 null.
+        public static AudioClip ResourceClip(CoastSfx kind)
+        {
+            if (_resClips.TryGetValue(kind, out var c)) return c;
+            c = Resources.Load<AudioClip>("CoastRun/SFX/SFX_" + kind);
+            _resClips[kind] = c;
+            return c;
+        }
+
+        /// 러닝 씬 밖(타이틀·육성·컬렉션)에서도 쓰는 원샷. 매니저가 있으면 그쪽으로.
+        public static void PlayAnywhere(CoastSfx kind, float vol = 0.7f)
+        {
+            if (Instance != null) { Instance.PlaySfx(kind); return; }
+            var clip = ResourceClip(kind);
+            if (clip == null)
+            {
+                switch (kind)
+                {
+                    case CoastSfx.CardReveal: case CoastSfx.RankS: clip = ProceduralAudio.CreateBlip(1320f, 0.12f); break;
+                    case CoastSfx.ChapterClear: case CoastSfx.Purchase: clip = ProceduralAudio.CreateBlip(880f, 0.14f); break;
+                    case CoastSfx.Fail: clip = ProceduralAudio.CreateBlip(220f, 0.18f); break;
+                    default: clip = ProceduralAudio.CreateBlip(660f, 0.06f); break;
+                }
+            }
+            if (_anySrc == null)
+            {
+                var go = new GameObject("CoastSfxAnywhere");
+                DontDestroyOnLoad(go);
+                _anySrc = go.AddComponent<AudioSource>();
+                _anySrc.spatialBlend = 0f; _anySrc.playOnAwake = false;
+            }
+            _anySrc.pitch = 1f;
+            _anySrc.PlayOneShot(clip, vol);
+        }
+
         /// Play a short SFX. Never touches ambient / wheel / wind (BGM) sources.
         public void PlaySfx(CoastSfx kind)
         {
@@ -366,6 +413,14 @@ namespace CoastRun
             AudioClip clip;
             float vol = 0.55f;
             float pitch = 1f;
+            var res = ResourceClip(kind);
+            if (res != null)
+            {
+                float v = kind == CoastSfx.Coin ? 0.4f : kind == CoastSfx.Horn ? 0.6f : 0.7f;
+                _sfx.pitch = kind == CoastSfx.Coin ? Random.Range(0.96f, 1.06f) : 1f;
+                _sfx.PlayOneShot(res, v);
+                return;
+            }
             switch (kind)
             {
                 case CoastSfx.Coin:
@@ -398,6 +453,17 @@ namespace CoastRun
                     vol = 0.6f;
                     pitch = Random.Range(0.92f, 1.06f);
                     break;
+                case CoastSfx.CardReveal:
+                case CoastSfx.RankS:
+                    clip = _clipCoin; vol = 0.5f; pitch = 1.5f; break;
+                case CoastSfx.ChapterClear:
+                case CoastSfx.Purchase:
+                    clip = _clipCoin; vol = 0.5f; pitch = 1.25f; break;
+                case CoastSfx.Fail:
+                    clip = _clipSoftHit; vol = 0.5f; pitch = 0.6f; break;
+                case CoastSfx.RadioSting:
+                case CoastSfx.MenuOpen:
+                    clip = _clipJump; vol = 0.3f; pitch = 1f; break;
                 default:
                     return;
             }

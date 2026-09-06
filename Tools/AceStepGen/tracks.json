@@ -361,6 +361,83 @@
    "duration": 50,
    "seed": 4004,
    "loop": false
+  },
+  {
+   "name": "SFX_CardReveal",
+   "group": "sfx",
+   "priority": "P2",
+   "prompt": "a two second sparkling reveal stinger, harp glissando up and glockenspiel chime, magical envelope opening, bright, then silence",
+   "bpm": 120,
+   "key": "D Major",
+   "duration": 10,
+   "seed": 9701,
+   "loop": false
+  },
+  {
+   "name": "SFX_ChapterClear",
+   "group": "sfx",
+   "priority": "P2",
+   "prompt": "a three second cheerful victory fanfare, bright brass hit and glockenspiel run, celebratory, then silence",
+   "bpm": 120,
+   "key": "D Major",
+   "duration": 10,
+   "seed": 9702,
+   "loop": false
+  },
+  {
+   "name": "SFX_RankS",
+   "group": "sfx",
+   "priority": "P2",
+   "prompt": "a three second triumphant jingle, ascending marimba arpeggio with string swell and sparkle, gold rank achieved, then silence",
+   "bpm": 120,
+   "key": "D Major",
+   "duration": 10,
+   "seed": 9703,
+   "loop": false
+  },
+  {
+   "name": "SFX_Purchase",
+   "group": "sfx",
+   "priority": "P2",
+   "prompt": "a two second warm two-note purchase chime, soft bell and acoustic guitar harmonic, thankful, then silence",
+   "bpm": 120,
+   "key": "D Major",
+   "duration": 10,
+   "seed": 9704,
+   "loop": false
+  },
+  {
+   "name": "SFX_RadioSting",
+   "group": "sfx",
+   "priority": "P2",
+   "prompt": "a three second radio tuning stinger, static crackle then a soft three note piano motif D E F sharp, lo-fi, then silence",
+   "bpm": 120,
+   "key": "D Major",
+   "duration": 10,
+   "seed": 9705,
+   "loop": false
+  },
+  {
+   "name": "SFX_MenuOpen",
+   "group": "sfx",
+   "priority": "P2",
+   "prompt": "a one second soft ui pop, woodblock tap and marimba note, tiny and gentle, then silence",
+   "bpm": 120,
+   "key": "D Major",
+   "duration": 10,
+   "seed": 9706,
+   "loop": false
+  },
+  {
+   "name": "SFX_Fail",
+   "group": "sfx",
+   "priority": "P2",
+   "prompt": "a two second gentle descending three-note motif on muted piano, mild disappointment, soft, then silence",
+   "bpm": 120,
+   "key": "D Major",
+   "duration": 10,
+   "seed": 9707,
+   "loop": false
   }
  ]
 }

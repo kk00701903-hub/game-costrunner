@@ -314,7 +314,7 @@ def main():
     ap.add_argument("--api", default="http://127.0.0.1:8001")
     ap.add_argument("--out", default=DEFAULT_OUT)
     ap.add_argument("--only", nargs="*", help="track names")
-    ap.add_argument("--group", choices=["menu", "ch", "cine", "memory", "end"])
+    ap.add_argument("--group", choices=["menu", "ch", "cine", "memory", "end", "sfx"])
     ap.add_argument("--priority", choices=["P0", "P1", "P2"], help="this priority and above")
     ap.add_argument("--takes", type=int, default=2, help="candidates per track (1-8)")
     ap.add_argument("--pick", type=int, default=1, help="which take becomes the final file")

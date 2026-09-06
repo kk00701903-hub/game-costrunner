@@ -11,9 +11,26 @@ namespace CoastRun.Editor
     {
         private const string Folder = "Assets/Resources/CoastRun/BGM/";
 
+        private const string SfxFolder = "Assets/Resources/CoastRun/SFX/";
+
         private void OnPreprocessAudio()
         {
-            if (!assetPath.Replace('\\', '/').StartsWith(Folder))
+            string path = assetPath.Replace('\\', '/');
+            if (path.StartsWith(SfxFolder))
+            {
+                // 짧은 스팅어: 메모리에 압축 해제, 지연 없이 재생.
+                var si = (AudioImporter)assetImporter;
+                var ss = si.defaultSampleSettings;
+                ss.loadType = AudioClipLoadType.DecompressOnLoad;
+                ss.compressionFormat = AudioCompressionFormat.Vorbis;
+                ss.quality = 0.6f;
+                ss.preloadAudioData = true;
+                si.defaultSampleSettings = ss;
+                si.forceToMono = true;
+                si.loadInBackground = false;
+                return;
+            }
+            if (!path.StartsWith(Folder))
                 return;
 
             var importer = (AudioImporter)assetImporter;
