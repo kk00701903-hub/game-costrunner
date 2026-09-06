@@ -17,6 +17,7 @@ namespace CoastRun
         public GamePhase Phase { get; private set; } = GamePhase.Title;
         public SaveManager SaveSys { get; private set; }
         public MetaProfile Profile => SaveSys.Profile;
+        public void WriteProfileNow() => SaveSys.WriteProfile(Profile);
 
         /// 타임라인 재도전 중이면 본 진행 세이브가 여기 보관된다.
         private SaveData _mainSave;
@@ -120,6 +121,8 @@ namespace CoastRun
             var result = ScheduleJudge.Resolve(def, Save.stats, Timeline.SeasonOf(Save.week), SaveSys.NextDouble());
             Save.stats = result.after;
             Save.chapterHearts += result.heartsGained;
+            if (def.id == "dev_radio" && result.outcome == Outcome.GreatSuccess) Collection.OnRadioGreat();
+            Collection.CheckStatCards(Save.stats);
             WriteMain();
             OnSaveChanged?.Invoke(Save);
             return result;
@@ -196,6 +199,7 @@ namespace CoastRun
             Save.stats.Clamp();
             LastGrade = ChapterGrading.Settle(Save, out bool improved);
             LastImproved = improved;
+            Collection.OnChapterSettled(Save.chapter, LastGrade, IsRetry);
             SetPhase(GamePhase.ChapterResult);
             WriteMain();
             OnSaveChanged?.Invoke(Save);
@@ -252,6 +256,7 @@ namespace CoastRun
             var kind = ChapterGrading.AllS(Save) ? EndingKind.Happy : EndingKind.Tragic;
             Save.reachedEnding = kind;
             PendingEnding = kind;
+            Collection.OnEnding(kind);
 
             var p = Profile;
             p.endingsSeen++;

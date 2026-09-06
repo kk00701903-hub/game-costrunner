@@ -26,6 +26,7 @@ namespace CoastRun
 
         private void Start()
         {
+            IapBridge.Init();   // 스토어 연결·구매 복원(비동기, 실패해도 무시)
             Application.targetFrameRate = 60;
             var dir = GameDirector.EnsureExists();
             _progress = dir.Progression;
@@ -125,9 +126,37 @@ namespace CoastRun
             }
 
             _ready = true;
+            ShowAiNoticeOnce();
+        }
+
+        /// 첫 실행 1회: AI 제작 혼성 듀오 고지(스토어 정책·팬덤 신뢰). 확인 전엔 메뉴가 안 눌린다.
+        private void ShowAiNoticeOnce()
+        {
+            var p = _gm?.Profile;
+            if (p == null || p.aiNoticeSeen) return;
+            _ready = false;
+            var root = CoastUiCanvas.Root(_canvas);
+            var dim = CoastHudLayout.MakeImage(root, "AiNoticeDim", Vector2.zero, Vector2.one, new Vector2(-40f, -40f), new Vector2(40f, 40f), new Color(0f, 0f, 0f, 0.7f));
+            dim.raycastTarget = true;
+            var panel = CoastOrnate.PanelSized(root, "AiNotice", CoastOrnate.Gold, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(600f, 420f), new Color(0.98f, 0.95f, 0.88f, 0.97f));
+            var t = CoastOrnate.Label(panel.transform, "T", Loc.T("『제주』는 AI로 만든 가상 듀오예요", "“JEJU” is an AI-produced virtual duo"), 22, new Color(0.16f, 0.12f, 0.10f));
+            t.rectTransform.anchorMin = new Vector2(0f, 1f); t.rectTransform.anchorMax = new Vector2(1f, 1f); t.rectTransform.anchoredPosition = new Vector2(0f, -40f); t.rectTransform.sizeDelta = new Vector2(0f, 40f);
+            var b = CoastOrnate.Label(panel.transform, "B", Loc.T(
+                "하늘과 도윤의 목소리·노래·그림은 AI로 제작했고, 이야기와 게임은 사람이 만들었습니다. 실존 인물이나 그룹을 흉내 내지 않습니다.\n\n봄 시즌은 무료, 나머지는 디지털 앨범(1회 결제)으로 열립니다. 광고는 없습니다.",
+                "Haneul and Doyun's voices, songs and art are AI-produced; the story and the game are made by people. They do not imitate any real person or group.\n\nSpring is free; the rest opens with the digital album (one purchase). No ads."), 16, new Color(0.16f, 0.12f, 0.10f), TextAnchor.UpperLeft);
+            b.rectTransform.anchorMin = new Vector2(0f, 0f); b.rectTransform.anchorMax = new Vector2(1f, 1f); b.rectTransform.offsetMin = new Vector2(30f, 90f); b.rectTransform.offsetMax = new Vector2(-30f, -80f);
+            b.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _aiNoticeOk = () =>
+            {
+                _aiNoticeOk = null;
+                p.aiNoticeSeen = true; _gm.WriteProfileNow();
+                Destroy(panel.gameObject); Destroy(dim.gameObject); _ready = true;
+            };
+            CoastOrnate.GlassButton(panel.transform, "Ok", Loc.T("알겠어요", "Got it"), new Vector2(0.5f, 0f), new Vector2(0f, 46f), new Vector2(220f, 46f), () => _aiNoticeOk?.Invoke(), 0.5f, 18, true);
         }
 
         private GameManager _gm;
+        private System.Action _aiNoticeOk;
         private GameObject _charSelectPanel;
 
         /// v2: 세이브가 있으면 이어하기, 없으면 캐릭터 선택 → 새 회차.
@@ -343,6 +372,7 @@ namespace CoastRun
             if (hasSave) items.Add((Loc.T("이어하기", "Continue"), OnContinue));
             items.Add((hasSave ? Loc.T("새로 시작", "New Game") : Loc.T("시작하기", "Start"), () => { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }));
             if (hasSave) items.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
+            items.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
             items.Add((Loc.T("오프닝", "Opening"), () =>
             {
                 _audio?.PlayClick();
@@ -452,9 +482,11 @@ namespace CoastRun
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // 에디터 검증용: N = 캐릭터 선택, 1 = 러닝, 2 = 스케이트보드, C = 이어하기, Escape = 닫기.
+            if (_aiNoticeOk != null && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))) { _aiNoticeOk(); return; }
             if (!_ready) return;
             if (Input.GetKeyDown(KeyCode.N)) ShowPanel(_charSelectPanel, true);
             if (Input.GetKeyDown(KeyCode.C)) OnContinue();
+            if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
             if (_charSelectPanel != null && _charSelectPanel.activeSelf)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha1)) StartNewPlaythrough(RunMode.Running);

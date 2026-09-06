@@ -189,6 +189,7 @@ namespace CoastRun
             if (Input.GetKeyDown(KeyCode.Return) && !_busy) OnRunPressed();
             if (Input.GetKeyDown(KeyCode.S) && !_busy) OpenShop();
             if (Input.GetKeyDown(KeyCode.T) && !_busy) OpenTimeline();
+            if (Input.GetKeyDown(KeyCode.K) && !_busy && !CollectionUI.IsOpen) CollectionUI.Open(Refresh);
             // Y = 현재 챕터 스토리 돌입(★ 스토리 셀과 같음). 타임라인이 열려 있으면 닫고 진행.
             if (Input.GetKeyDown(KeyCode.Y) && !_busy)
             {
@@ -314,6 +315,7 @@ namespace CoastRun
             SmallButton(host, "TimelineBtn", Loc.T("타임라인", "Chapters"), Sky, new Vector2(1f, 1f), new Vector2(-112f, -10f), 120f, OpenTimeline);
             SmallButton(host, "TitleBtn", Loc.T("저장", "Save"), new Color(0.55f, 0.50f, 0.48f), new Vector2(1f, 1f), new Vector2(-10f, -60f), 96f,
                 () => Confirm(Loc.T("타이틀로 돌아갈까?", "Back to title?"), Loc.T("진행은 자동 저장돼.", "Progress is auto-saved."), () => _gm.ToTitle()));
+            SmallButton(host, "CollBtn", Loc.T("컬렉션", "Collection"), new Color(0.80f, 0.45f, 0.55f), new Vector2(1f, 1f), new Vector2(-214f, -10f), 96f, () => { if (!_busy) CollectionUI.Open(Refresh); });
             // v3 생활 리듬(프메 식단): 보통 → 빡세게 → 무리 안 함 순환. 간식비 토글은 길게가 아닌 두 번째 버튼.
             Button rhythmBtn = null;
             rhythmBtn = SmallButton(host, "RhythmBtn", RhythmLabel(), new Color(0.62f, 0.52f, 0.80f), new Vector2(1f, 1f), new Vector2(-112f, -60f), 120f, () =>
@@ -1147,7 +1149,9 @@ namespace CoastRun
         private void OnStoryPressed()
         {
             if (_busy || Save == null) return;
-            Confirm("지금 스토리로 갈까?", "이번 주 남은 칸은 스토리로 채워져. 챕터가 끝나면 다음 챕터 첫 주로 넘어가.", () =>
+            // 유료 게이트: 봄(1~5챕터) 무료, 그 뒤는 디지털 앨범.
+            if (!Collection.CanPlayChapter(Save.chapter)) { CollectionUI.OpenPaywall(); return; }
+            Confirm(Loc.T("지금 스토리로 갈까?", "Go to the story now?"), Loc.T("이번 주 남은 칸은 스토리로 채워져. 챕터가 끝나면 다음 챕터 첫 주로 넘어가.", "The rest of this week becomes the story. After the chapter, you move to the next chapter's first week."), () =>
             {
                 for (int i = Save.phaseIndex; i < Timeline.PhasesPerWeek; i++)
                     _gm.SetQueued(i, ScheduleTable.StoryId);
@@ -1201,7 +1205,8 @@ namespace CoastRun
             }
             if (forced)
             {
-                yield return ShowLog("챕터 마지막 주", "이번 주가 이 챕터의 마지막 주야.\n이제 스토리로 가야 해.", 0.4f);
+                yield return ShowLog(Loc.T("챕터 마지막 주", "Last week of the chapter"), Loc.T("이번 주가 이 챕터의 마지막 주야.\n이제 스토리로 가야 해.", "This is the chapter's last week.\nTime to go to the story."), 0.4f);
+                if (!Collection.CanPlayChapter(Save.chapter)) { _busy = false; CollectionUI.OpenPaywall(); yield break; }
                 _gm.StartStoryRun();
                 yield break;
             }

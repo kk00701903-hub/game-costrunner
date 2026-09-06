@@ -128,5 +128,15 @@ namespace CoastRun
         public int happyEndings;
         public bool skateboardUnlocked;
         public int bestPlaythrough;
+        // ── 컬렉션 (회차를 넘어 남는다) ──
+        public int[] trackGrade = new int[20];   // 트랙별 최고 등급(0 잠김, 1 C … 4 S)
+        public int cardMask;                     // 포토카드 1..30 획득 비트 (bit id-1)
+        public int cardSignedMask;               // 챕터 카드 사인(S) 버전 비트
+        public int cardNewMask;                  // 아직 안 열어 본(개봉 연출 대기) 비트
+        public bool albumOwned;                  // 디지털 앨범 언락(유료). 봄(1~5챕터)은 무료
+        public int radioGreatCount;              // 시크릿 카드 25 조건
+        public bool aiNoticeSeen;                // 첫 실행 AI 제작 고지
+        public bool ratePrompted;                // 리뷰 요청 1회
+        public int shareCount;
     }
 }
