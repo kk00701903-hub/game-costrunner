@@ -1,4 +1,4 @@
-﻿# Unity
+# Unity
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -73,3 +73,18 @@ Tools/FireflyArt/_prev/
 # Scratch previews the art scripts write while tuning
 Tools/FireflyArt/_*.png
 Tools/kit_log.txt
+
+# secrets in txt form
+*환경 변수*.txt
+# Studio*
+
+# Telegram reporter scratch (token lives in .env, which is not tracked)
+Tools/Telegram/queue.txt
+Tools/Telegram/sent.log
+Tools/Telegram/__pycache__/
+Tools/blender/*_log.txt
+Tools/blender/*_out.txt
+# Firefly title candidates that were not chosen
+Tools/FireflyArt/Title_Gate_v2_raw.png
+Tools/FireflyArt/Title_jeju_coastal_sunset_poster.png
+Tools/FireflyArt/Title_our_frequency_jeju_coast.png
