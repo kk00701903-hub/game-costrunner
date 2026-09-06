@@ -239,7 +239,7 @@ namespace CoastRun
         private void UpdateSpeed()
         {
             // v2 이동 모드: 스케이트보드는 기본·최대·가속 모두 ×1.3 (규칙은 동일, 반응 시간만 짧다).
-            float mode = RunTuning.SpeedMul;
+            float mode = RunTuning.SpeedMul * ChapterDifficulty.SpeedMul;
             float maxSpeed = (upgrades != null ? upgrades.GetMaxSpeed() : config.maxSpeed) * mode;
             float target = Mathf.Min(maxSpeed, _speed + config.accelPerSecond * mode * Time.deltaTime);
             if (_state == SkateState.SoftHit)

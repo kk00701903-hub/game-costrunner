@@ -5,15 +5,28 @@ namespace CoastRun
     /// Extra obstacle types beyond traffic cones — season aware.
     public static class ObstacleCatalog
     {
-        public static ObstacleId Pick(SeasonKind season, WeatherKind weather, System.Random rng)
+        public static ObstacleId Pick(SeasonKind season, WeatherKind weather, System.Random rng, int stage = 1)
         {
             double r = rng.NextDouble();
             if (weather == WeatherKind.Rain && r < 0.35)
                 return ObstacleId.PuddleSlow;
             if (weather == WeatherKind.Snow && r < 0.4)
                 return ObstacleId.SnowDrift;
+            // 계절 고유 장애물(날씨와 무관): 봄 웅덩이, 여름 관광객, 가을 낙엽, 겨울 눈더미.
             if (season == SeasonKind.Autumn && r < 0.3)
                 return ObstacleId.LeafDrift;
+            if (season == SeasonKind.Winter && r < 0.22)
+                return ObstacleId.SnowDrift;
+            if (season == SeasonKind.Spring && r < 0.12)
+                return ObstacleId.PuddleSlow;
+            if (season == SeasonKind.Summer && r < 0.10)
+                return ObstacleId.TouristCluster;
+
+            // 챕터가 오르면 새 장애물이 섞인다(각 15%). 두 번째 주사위로 기존 분포를 흩트리지 않는다.
+            double r2 = rng.NextDouble();
+            if (stage >= ChapterDifficulty.LanternFrom && r2 < 0.12) return ObstacleId.LanternString;
+            if (stage >= ChapterDifficulty.ScooterFrom && r2 < 0.26) return ObstacleId.ScooterParked;
+            if (stage >= ChapterDifficulty.StatueFrom && r2 < 0.40) return ObstacleId.StoneStatue;
 
             if (r < 0.28) return ObstacleId.TrafficCone;
             if (r < 0.4) return ObstacleId.OverheadBar;
@@ -61,6 +74,14 @@ namespace CoastRun
                 case ObstacleId.BikeFallen:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_BikeFallen",
                         new Vector3(0.9f, 0.22f, 0.35f), () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.SeaTeal, 0.4f), 0.32f, 0.35f, 0.4f, "Bike", 0.7f);
+                case ObstacleId.StoneStatue:
+                    return CreateStatue(parent, worldPos, lane);
+                case ObstacleId.ScooterParked:
+                    // 낮고 길쭉: 점프로 넘는다(Trip 높이).
+                    return CreateSimple(parent, worldPos, lane, "Obstacle_Scooter",
+                        new Vector3(0.6f, 0.75f, 1.5f), () => Color.Lerp(CoastPalette.SeaTeal, Color.white, 0.3f), 0.34f, 0.6f, 0.8f, "Scooter", 1.0f);
+                case ObstacleId.LanternString:
+                    return DuckHazard.Create(parent, worldPos, lane, DuckStyle.LanternString);
                 case ObstacleId.TouristCluster:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Tourists",
                         new Vector3(0.75f, 0.95f, 0.5f), () => Color.Lerp(CoastPalette.TownCream, CoastPalette.SkyBlue, 0.4f), 0.32f, 0.75f, 1.0f, "Tourists", 1.6f);
@@ -121,6 +142,25 @@ namespace CoastRun
             AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
             BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
             return root;
+        }
+
+        /// 돌하르방 석상: 제주 키트 모델이 있으면 그 모델, 없으면 그림/회색 기둥. 키가 커서 점프 불가(Bounce).
+        private static GameObject CreateStatue(Transform parent, Vector3 worldPos, int lane)
+        {
+            if (JejuKit.Load("Prop_Hareubang") != null)
+            {
+                var root = new GameObject("Obstacle_StoneStatue");
+                root.transform.SetParent(parent, false);
+                root.transform.position = worldPos;
+                root.transform.rotation = DownhillPath.Rotation;
+                JejuKit.Spawn("Prop_Hareubang", root.transform, Vector3.zero, 180f, 1.35f);
+                foreach (var c in root.GetComponentsInChildren<Collider>()) Object.Destroy(c);
+                AttachTriggers(root, lane, 0.42f, 1.9f, 0.85f, 2.2f);
+                BlobShadow.Attach(root.transform, 0.7f);
+                return root;
+            }
+            return CreateSimple(parent, worldPos, lane, "Obstacle_StoneStatue",
+                new Vector3(0.7f, 1.9f, 0.7f), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.35f), 0.42f, 1.9f, 1.9f, "Hareubang", 1.9f);
         }
 
         private static GameObject CreatePuddle(Transform parent, Vector3 worldPos, int lane)

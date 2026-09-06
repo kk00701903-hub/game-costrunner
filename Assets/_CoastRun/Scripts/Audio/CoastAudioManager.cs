@@ -275,11 +275,18 @@ namespace CoastRun
             {
                 bool on;
                 if (!reverse)
-                    on = i < Mathf.Min(3, stageInChapter);
+                {
+                    // 1: a / 2: a+b / 3: a+b+c / 4: a+c (b를 빼서 3과 다르게 — 20챕터가 전부 다른 믹스)
+                    on = stageInChapter >= 4 ? (i == 0 || i == 2) : i < Mathf.Min(3, stageInChapter);
+                }
                 else
                     on = stageInChapter >= 4 ? i == 3 : i < 4 - stageInChapter;
                 _stemTarget[i] = on ? StemVolume : 0f;
             }
+            // 챕터마다 미세한 키/템포 변화(±2%) — 같은 스템이라도 귀에 다르게 들린다. 스템은 같은 피치라 위상 유지.
+            float pitch = stageInChapter == 2 ? 1.0f : stageInChapter == 3 ? 1.02f : stageInChapter == 4 ? 0.98f : 1.0f;
+            for (int i = 0; i < _stems.Length; i++)
+                if (_stems[i] != null) _stems[i].pitch = pitch;
         }
 
         private void TickStems(float dt)

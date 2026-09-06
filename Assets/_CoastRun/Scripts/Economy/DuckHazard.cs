@@ -29,12 +29,12 @@ namespace CoastRun
 
         public static GameObject Create(Transform parent, Vector3 worldPos, int lane, DuckStyle style)
         {
-            var root = new GameObject(style == DuckStyle.Clothesline ? "Obstacle_Clothesline" : "Obstacle_OverheadBar");
+            var root = new GameObject(style == DuckStyle.Clothesline ? "Obstacle_Clothesline" : style == DuckStyle.LanternString ? "Obstacle_LanternString" : "Obstacle_OverheadBar");
             root.transform.SetParent(parent, false);
             root.transform.position = worldPos;
             root.transform.rotation = DownhillPath.Rotation;
             float width = 1.7f;
-            string painted = style == DuckStyle.Clothesline ? "Clothesline" : "OverheadBar";
+            string painted = style == DuckStyle.Clothesline ? "Clothesline" : style == DuckStyle.LanternString ? "Lantern" : "OverheadBar";
             bool hasPainting = PaintedProp.Available(painted);
             if (hasPainting)
             {
@@ -48,6 +48,20 @@ namespace CoastRun
                 CreatePole(root.transform, new Vector3(width * 0.5f, 0f, 0f));
             }
 
+            if (!hasPainting && style == DuckStyle.LanternString)
+            {
+                // 등불 줄: 줄 하나에 등불 4개(폴백).
+                for (int i = 0; i < 4; i++)
+                {
+                    var lamp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    lamp.name = "Lantern" + i;
+                    lamp.transform.SetParent(root.transform, false);
+                    lamp.transform.localPosition = new Vector3(-width * 0.375f + i * width * 0.25f, 1.2f - (i == 1 || i == 2 ? 0.08f : 0f), 0f);
+                    lamp.transform.localScale = new Vector3(0.22f, 0.3f, 0.22f);
+                    Object.Destroy(lamp.GetComponent<Collider>());
+                    lamp.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(i % 2 == 0 ? new Color(1f, 0.45f, 0.25f) : new Color(1f, 0.85f, 0.35f));
+                }
+            }
             if (!hasPainting && style == DuckStyle.Clothesline)
             {
                 var cloth = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -128,6 +142,7 @@ namespace CoastRun
     public enum DuckStyle
     {
         OverheadBar,
-        Clothesline
+        Clothesline,
+        LanternString
     }
 }

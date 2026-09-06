@@ -184,7 +184,7 @@ namespace CoastRun
         /// within one swipe of a lane that was open in the previous row.
         private int PlanRow(float progress)
         {
-            float doubleChance = Mathf.Lerp(doubleRowChanceStart, doubleRowChanceEnd, progress);
+            float doubleChance = Mathf.Lerp(doubleRowChanceStart, doubleRowChanceEnd, progress) + ChapterDifficulty.DoubleLaneBonus;
             bool wantDouble = _rng.NextDouble() < doubleChance;
 
             // Candidate layouts, as blocked-lane masks.
@@ -247,7 +247,11 @@ namespace CoastRun
             int chapterNow = StageManager.Instance != null ? StageManager.Instance.ChapterIndex : 1;
             var kind = chapterNow >= 4 && _rng.NextDouble() < 0.35 ? OncomingCar.Kind.Bus : OncomingCar.Kind.Van;
             if (DebugForceBus) kind = OncomingCar.Kind.Bus;
-            float vSpeed = kind == OncomingCar.Kind.Bus ? carSpeed * 0.8f : carSpeed;
+            // 11챕터부터 일부는 '구르는 귤' — 작고 느리지만 점프로만 넘는다.
+            if (_rng.NextDouble() < ChapterDifficulty.RollingOrangeChance(ChapterDifficulty.Stage) && !DebugForceBus)
+                kind = OncomingCar.Kind.Orange;
+            float vSpeed = (kind == OncomingCar.Kind.Bus ? carSpeed * 0.8f : kind == OncomingCar.Kind.Orange ? carSpeed * 0.55f : carSpeed)
+                           * ChapterDifficulty.CarSpeedMul;
             startZ = meetZ + vSpeed * secondsToMeet;
             _car = OncomingCar.Spawn(_root, player, startZ, lane - 1, laneWidth, vSpeed, _rng, kind);
             _carLaneMask = 1 << lane;
@@ -258,8 +262,11 @@ namespace CoastRun
             float gap = RowGap(speed, progress, _prevOpen, open) + speed * 0.5f;
             _prevOpen = open;
             _nextSpawnZ += gap;
-            _rowsUntilCar = Mathf.RoundToInt(Mathf.Lerp(carEveryRowsStart, carEveryRowsEnd, progress))
+            _rowsUntilCar = Mathf.RoundToInt(Mathf.Lerp(carEveryRowsStart, carEveryRowsEnd, progress) * ChapterDifficulty.CarEveryMul)
                             + _rng.Next(3) - 1;
+            // 17챕터부터 가끔 차 두 대가 연달아 온다.
+            if (ChapterDifficulty.Stage >= ChapterDifficulty.DoubleCarFrom && _rng.NextDouble() < 0.3)
+                _rowsUntilCar = Mathf.Min(_rowsUntilCar, 2);
         }
 
         /// True if any open lane in `next` is the same as, or adjacent to, an open lane in `prev`.
@@ -280,7 +287,7 @@ namespace CoastRun
         /// reaction floor plus however many lane changes the escape actually needs.
         private float RowGap(float speed, float progress, int prevOpen, int nextOpen)
         {
-            float pacing = Mathf.Lerp(rowGapSecondsStart, rowGapSecondsEnd, progress);
+            float pacing = Mathf.Lerp(rowGapSecondsStart, rowGapSecondsEnd, progress) * ChapterDifficulty.GapMul;
 
             int swipes = MinSwipes(prevOpen, nextOpen);
             float floor = reactionSeconds + swipes * laneChangeSeconds;
@@ -318,7 +325,7 @@ namespace CoastRun
                 int l = lane - 1;
                 float lateral = l * laneWidth;
                 Vector3 pos = RoadPlacement.OnRoad(z, lateral);
-                var id = ObstacleCatalog.Pick(season, weather, _rng);
+                var id = ObstacleCatalog.Pick(season, weather, _rng, ChapterDifficulty.Stage);
                 var go = ObstacleCatalog.Spawn(id, _root, pos, l);
                 if (go != null)
                     RoadPlacement.Snap(go, z, lateral);

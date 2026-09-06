@@ -106,6 +106,9 @@ namespace CoastRun
         BikeFallen,
         OverheadBar,
         Clothesline,
-        ParkedBus
+        ParkedBus,
+        StoneStatue,      // 돌하르방 석상 — 5챕터부터, 옆으로만 피함
+        ScooterParked,    // 세워 둔 스쿠터 — 7챕터부터, 점프 가능
+        LanternString     // 축제 등불 줄 — 15챕터부터, 숙이기
     }
 }

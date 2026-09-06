@@ -33,13 +33,13 @@ namespace CoastRun
         public float PathZ => _pathZ;
         public float Speed => _speed;
 
-        public enum Kind { Van, Bus }
+        public enum Kind { Van, Bus, Orange }
         public Kind VehicleKind { get; private set; }
 
         public static OncomingCar Spawn(Transform parent, PlayerController player, float startZ, int lane,
             float laneWidth, float speed, System.Random rng, Kind kind = Kind.Van)
         {
-            var go = new GameObject(kind == Kind.Bus ? "Obstacle_OncomingBus" : "Obstacle_OncomingCar");
+            var go = new GameObject(kind == Kind.Bus ? "Obstacle_OncomingBus" : kind == Kind.Orange ? "Obstacle_RollingOrange" : "Obstacle_OncomingCar");
             go.transform.SetParent(parent, false);
             var car = go.AddComponent<OncomingCar>();
             car._player = player;
@@ -68,8 +68,9 @@ namespace CoastRun
             hard.transform.localPosition = new Vector3(0f, 0.7f, 0f);
             var hardCol = hard.AddComponent<BoxCollider>();
             hardCol.isTrigger = true;
-            hardCol.size = kind == Kind.Bus ? new Vector3(1.7f, 2.4f, 5.5f) : new Vector3(1.4f, 1.3f, 2.7f);
+            hardCol.size = kind == Kind.Bus ? new Vector3(1.7f, 2.4f, 5.5f) : kind == Kind.Orange ? new Vector3(0.9f, 0.6f, 0.9f) : new Vector3(1.4f, 1.3f, 2.7f);
             if (kind == Kind.Bus) hard.transform.localPosition = new Vector3(0f, 1.2f, 0f);
+            if (kind == Kind.Orange) hard.transform.localPosition = new Vector3(0f, 0.3f, 0f);   // 낮아서 점프로 넘는다
             var hazard = hard.AddComponent<ObstacleHazard>();
 
             var near = new GameObject("NearMiss");
@@ -77,12 +78,12 @@ namespace CoastRun
             near.transform.localPosition = new Vector3(0f, 0.7f, 0f);
             var nearCol = near.AddComponent<BoxCollider>();
             nearCol.isTrigger = true;
-            nearCol.size = kind == Kind.Bus ? new Vector3(3.4f, 3f, 6.5f) : new Vector3(3.1f, 2f, 3.9f);
+            nearCol.size = kind == Kind.Bus ? new Vector3(3.4f, 3f, 6.5f) : kind == Kind.Orange ? new Vector3(2.6f, 1.6f, 2.2f) : new Vector3(3.1f, 2f, 3.9f);
             var zone = near.AddComponent<NearMissZone>();
             zone.Configure(25, lane);
             hazard.BindNearMiss(zone);
 
-            BlobShadow.Attach(go.transform, 1.1f);
+            BlobShadow.Attach(go.transform, kind == Kind.Orange ? 0.6f : 1.1f);
             return car;
         }
 
@@ -94,6 +95,23 @@ namespace CoastRun
             _body.localScale = Vector3.one * 1.2f;
 
             // Firefly-painted vehicle (front view, it drives at the camera) when available.
+            if (VehicleKind == Kind.Orange)
+            {
+                // 구르는 귤: 그림이 있으면 그림, 없으면 주황 공. 몸통이 굴러가는 회전은 Update에서.
+                _wheels = new Transform[0];
+                if (PaintedProp.Available("Orange"))
+                {
+                    PaintedProp.Attach(_body, "Orange", 0.8f, replace: false);
+                    return;
+                }
+                var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                ball.name = "Ball"; ball.transform.SetParent(_body, false);
+                ball.transform.localPosition = new Vector3(0f, 0.35f, 0f);
+                ball.transform.localScale = Vector3.one * 0.7f;
+                Object.Destroy(ball.GetComponent<Collider>());
+                ball.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(new Color(1f, 0.6f, 0.15f), 0.3f);
+                return;
+            }
             string key = VehicleKind == Kind.Bus ? "BusFront" : "Van";
             if (PaintedProp.Available(key))
             {
@@ -180,7 +198,14 @@ namespace CoastRun
             float closing = Mathf.Max(1f, _speed + _player.Speed);
             float seconds = (_pathZ - playerZ) / closing;
 
-            if (!_honked && seconds < 1.6f)
+            if (VehicleKind == Kind.Orange && _body != null)
+            {
+                // 굴러오는 느낌: 좌우로 살짝 흔들리며 위아래로 통통.
+                _bobPhase += dt * 9f;
+                _body.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(_bobPhase) * 9f);
+                _body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(_bobPhase * 0.5f)) * 0.12f, 0f);
+            }
+            if (!_honked && seconds < 1.6f && VehicleKind != Kind.Orange)
             {
                 _honked = true;
                 CoastAudioManager.Instance?.PlaySfx(CoastSfx.Horn);
