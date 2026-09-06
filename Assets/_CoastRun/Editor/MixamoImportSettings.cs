@@ -44,12 +44,16 @@ namespace CoastRun.Editor
             {
                 // Clip files: the skin (if any) is unused; keep only the animation.
                 importer.importBlendShapes = false;
+                // 첫 임포트(또는 재임포트 직전)엔 defaultClipAnimations가 비어 있다 — 그때 빈 배열을
+                // 써 버리면 BuildAnimator가 넣은 루프 설정이 지워진다. 비어 있으면 건드리지 않는다.
                 var clips = importer.defaultClipAnimations;
+                if (clips.Length == 0) clips = importer.clipAnimations;
+                if (clips.Length == 0) return;
                 for (int i = 0; i < clips.Length; i++)
                 {
                     var c = clips[i];
                     c.name = file.Substring("Anim_".Length);
-                    bool loop = c.name == "Skate" || c.name == "Push";
+                    bool loop = c.name == "Skate" || c.name == "Push" || c.name == "Run";
                     c.loopTime = loop;
                     c.loopPose = loop;
                     c.lockRootRotation = true;
@@ -65,9 +69,16 @@ namespace CoastRun.Editor
             }
         }
 
+        private static void FileLog(string msg)
+        {
+            try { File.AppendAllText("Tools/blender/animator_log.txt", System.DateTime.Now.ToString("HH:mm:ss ") + msg + "\n"); } catch { }
+            Debug.Log(msg);
+        }
+
         [MenuItem("Coast Run/Art/Build Skater animator (Mixamo clips)")]
         public static void BuildAnimator()
         {
+            FileLog("[Mixamo] BuildAnimator start");
             // Mixamo embeds the textures inside the FBX; until they are extracted the
             // prefab's materials have no maps and the skater renders flat white.
             var skaterImporter = AssetImporter.GetAtPath(Folder + "Skater.fbx") as ModelImporter;
@@ -85,6 +96,31 @@ namespace CoastRun.Editor
                     AssetDatabase.ImportAsset(Folder + "Skater.fbx", ImportAssetOptions.ForceUpdate);
                     Debug.Log("[Mixamo] Extracted skater textures → " + texDir);
                 }
+            }
+
+            // 첫 임포트 때는 defaultClipAnimations가 비어 있어 OnPreprocessModel의 루프 설정이 안 붙는다.
+            // 여기서 한 번 더 강제로 써 준다(Skate/Push/Run = 루프).
+            foreach (var file in Directory.GetFiles(Folder, "Anim_*.fbx"))
+            {
+                string p = file.Replace('\\', '/');
+                var imp = AssetImporter.GetAtPath(p) as ModelImporter;
+                if (imp == null) continue;
+                var defs = imp.defaultClipAnimations;
+                FileLog($"[Mixamo] {p}: defaultClips={defs.Length} clipAnimations={imp.clipAnimations.Length}" + (defs.Length > 0 ? $" first='{defs[0].name}' {defs[0].firstFrame}-{defs[0].lastFrame} loop={defs[0].loopTime}" : ""));
+                if (defs.Length == 0) continue;
+                string clipName = Path.GetFileNameWithoutExtension(p).Substring("Anim_".Length);
+                bool loop = clipName == "Skate" || clipName == "Push" || clipName == "Run";
+                bool dirty = imp.clipAnimations.Length != defs.Length;
+                for (int i = 0; i < defs.Length; i++)
+                {
+                    var c = defs[i];
+                    if (!dirty && imp.clipAnimations[i].loopTime == loop && imp.clipAnimations[i].name == clipName) continue;
+                    c.name = clipName; c.loopTime = loop; c.loopPose = loop;
+                    c.lockRootRotation = true; c.lockRootHeightY = true; c.lockRootPositionXZ = true;
+                    c.keepOriginalOrientation = true; c.keepOriginalPositionY = true; c.keepOriginalPositionXZ = true;
+                    defs[i] = c; dirty = true;
+                }
+                if (dirty) { imp.clipAnimations = defs; imp.SaveAndReimport(); FileLog("[Mixamo] clip settings → " + p + " loop=" + loop); }
             }
 
             AnimationClip Clip(string name, bool quiet = false)
@@ -109,6 +145,7 @@ namespace CoastRun.Editor
             // v2 러닝 모드: Anim_Run.fbx가 있으면 RunnerAnimator도 만든다. 점프/피격/수집은
             // 러닝 전용 클립(Anim_RunJump 등)이 없으면 스케이트 클립을 그대로 쓴다.
             var run = Clip("Run", quiet: true);
+            FileLog("[Mixamo] run clip: " + (run == null ? "null" : run.name + " len=" + run.length + " loop=" + run.isLooping));
             if (run != null)
                 BuildController(Folder + "RunnerAnimator.controller", "Run", run, null,
                     Clip("RunJump", quiet: true) ?? Clip("Jump"),

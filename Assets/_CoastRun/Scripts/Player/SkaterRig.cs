@@ -93,7 +93,7 @@ namespace CoastRun
                 r.sharedMaterials = mats;
             }
 
-            AttachBackpack(go, anim, height);
+            AttachBackpack(go, anim, height, runner);
 
             var rig = go.AddComponent<SkaterRig>();
             rig._anim = anim;
@@ -103,7 +103,7 @@ namespace CoastRun
 
         /// The blue school backpack is part of her silhouette in every painting; the
         /// Mixamo body has none, so it rides on the chest bone (follows every clip).
-        private static void AttachBackpack(GameObject go, Animator anim, float height)
+        private static void AttachBackpack(GameObject go, Animator anim, float height, bool runner = false)
         {
             if (anim == null || anim.avatar == null || !anim.avatar.isHuman)
                 return;
@@ -160,7 +160,18 @@ namespace CoastRun
             // clips never write bone scale, so this sticks through every animation.
             var head = anim.GetBoneTransform(HumanBodyBones.Head);
             if (head != null)
-                head.localScale = Vector3.one * 1.18f;
+                head.localScale = Vector3.one * (runner ? 1.32f : 1.22f);
+            // 손·발도 살짝 크게 — 치비 비율(러닝 모드는 보드가 없어 발이 더 보인다).
+            foreach (var hb in new[] { HumanBodyBones.LeftHand, HumanBodyBones.RightHand })
+            {
+                var t = anim.GetBoneTransform(hb);
+                if (t != null) t.localScale = Vector3.one * 1.12f;
+            }
+            foreach (var fb in new[] { HumanBodyBones.LeftFoot, HumanBodyBones.RightFoot })
+            {
+                var t = anim.GetBoneTransform(fb);
+                if (t != null) t.localScale = Vector3.one * (runner ? 1.18f : 1.08f);
+            }
         }
 
         private static bool HasParameter(Animator anim, string name)
