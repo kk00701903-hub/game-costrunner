@@ -1202,6 +1202,7 @@ namespace CoastRun
                 yield return ShowLog(Loc.T("주말 · 컨디션", "Weekend · Condition"), _gm.PendingWeekNote, 1.2f);
                 _gm.PendingWeekNote = null;
                 Refresh();
+                if (Save.forfeitPending) { _busy = false; _gm.ForfeitChapter(); yield break; }
             }
             if (forced)
             {

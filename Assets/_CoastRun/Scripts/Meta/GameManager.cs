@@ -205,6 +205,18 @@ namespace CoastRun
             OnSaveChanged?.Invoke(Save);
         }
 
+        /// v3 잠수: 노을을 못 가서 이번 챕터를 C급(하트 0)으로 닫고 다음 챕터로.
+        public void ForfeitChapter()
+        {
+            if (Save == null) return;
+            var rec = Save.CurrentChapter;
+            if (rec != null && !rec.cleared) { rec.cleared = true; rec.heartsEarned = 0; rec.grade = ChapterGrade.C; }
+            Save.forfeitPending = false;
+            Collection.OnChapterSettled(Save.chapter, ChapterGrade.C, false);
+            WriteMain();
+            AfterChapterContinue();
+        }
+
         /// 정산 화면 '계속' (+ 막 컷씬) 이후. 다음 챕터 첫 주로 가거나, 20챕터면 엔딩.
         public void AfterChapterContinue()
         {

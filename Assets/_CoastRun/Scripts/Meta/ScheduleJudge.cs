@@ -169,13 +169,14 @@ namespace CoastRun
                 for (int i = 0; i < save.queuedSchedule.Length; i++) save.queuedSchedule[i] = "rest_home";
                 return Loc.T("열이 났다. 이번 주는 꼼짝 못 하고 누워 있었다. (약값 -30G, 스트레스 -40)", "Fever. Bedridden the whole week. (medicine -30G, stress -40)");
             }
-            // 3주+: 잠수 — 스트레스 0, 평판 -10, 말썽 +5. (챕터 자동 C급은 다음 단계)
+            // 3주+: 잠수 — 스트레스 0, 평판 -10, 말썽 +5, 그리고 이번 챕터 노을을 놓친다(자동 C급).
             s.stress = 0;
             s.trust -= 10;
             s.trouble += 5;
             save.burnoutWeeks = 0;
+            save.forfeitPending = true;
             s.Clamp();
-            return Loc.T("한동안 아무도 만나지 않았다. 마을에 소문이 돌았다. (평판 -10)", "You disappeared for a while. The village talked. (Trust -10)");
+            return Loc.T("한동안 아무도 만나지 않았다. 노을을 놓쳤다. (평판 -10, 이번 챕터 C급)", "You disappeared for a while and missed the sunset. (Trust -10, chapter graded C)");
         }
     }
 }

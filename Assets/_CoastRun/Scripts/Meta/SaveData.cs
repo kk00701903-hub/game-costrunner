@@ -95,6 +95,7 @@ namespace CoastRun
         public int burnoutWeeks;             // 연속 번아웃 주 수 (1 지침 / 2 앓아눕기 / 3 잠수)
         public int sickWeeks;                // 앓아눕기로 강제 휴식한 횟수(통계)
         public bool snackOn;                 // 간식비(주 15G, 스트레스 ×0.8)
+        public bool forfeitPending;          // 잠수: 이번 챕터 노을을 놓쳐 자동 C급 처리 대기
         public PetKind equippedPet = PetKind.None;
         public int ownedPetMask;
         public string[] queuedSchedule = new string[3];
