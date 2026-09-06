@@ -40,8 +40,12 @@ namespace CoastRun
         private static Material RoadMaterial()
         {
             if (_roadMat != null)
+            {
+                if (_roadMat.HasProperty("_BaseColor")) _roadMat.SetColor("_BaseColor", SeasonLook.RoadTint(SeasonLook.Current));
                 return _roadMat;
+            }
             _roadMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
+            if (_roadMat.HasProperty("_BaseColor")) _roadMat.SetColor("_BaseColor", SeasonLook.RoadTint(SeasonLook.Current));
             // Painted flagstone (Firefly) when present; the procedural stones otherwise.
             Texture2D tex = ArtAssets.LoadTexture("Tex_Pavement_Cream") ?? RoadTextureGenerator.Flagstone();
             // Whole repeats per 30 m tile so the stone pattern is seamless across segments.

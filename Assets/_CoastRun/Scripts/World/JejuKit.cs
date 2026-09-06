@@ -105,7 +105,9 @@ namespace CoastRun
             int n = BuildingCount;
             if (n == 0) return null;
             variant = ((variant % n) + n) % n;
-            return Spawn("Bldg_" + (char)('A' + variant), parent, localPos, yawDegrees);
+            var b = Spawn("Bldg_" + (char)('A' + variant), parent, localPos, yawDegrees);
+            SeasonLook.Tint(b);   // 계절 색조(봄 파스텔·가을 따뜻·겨울 차가움)
+            return b;
         }
 
         private static Material MaterialFor(string rawName)

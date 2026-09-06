@@ -30,7 +30,7 @@ namespace CoastRun
 
         public static void PlayChapterOpening(int chapter, Action onDone)
         {
-            string title = chapter >= 1 ? $"CHAPTER {chapter}\n「{ChapterScript.Title(chapter)}」" : null;
+            string title = chapter >= 1 ? $"CHAPTER {chapter}\n「{ChapterScript.Title(chapter)}」\n<size=18>{ChapterLocation.Get(chapter).Name}</size>" : null;
             Play(ChapterScript.OpenId(chapter), onDone, title);
         }
 
@@ -156,6 +156,7 @@ namespace CoastRun
             tdim.raycastTarget = false;
             _titleText = CoastOrnate.Label(tgo.transform, "T", "", 40, CoastOrnate.Ivory);
             _titleText.lineSpacing = 1.3f;
+            _titleText.supportRichText = true;
             CoastUiArt.OutlineText(_titleText, new Color(0.83f, 0.69f, 0.22f, 0.9f), 1.5f);
             tgo.SetActive(false);
         }

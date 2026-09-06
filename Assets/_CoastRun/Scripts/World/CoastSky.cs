@@ -133,7 +133,7 @@ namespace CoastRun
 
             // Painted sky (Firefly, Resources/CoastRun/Sky_Backdrop_NOON) when present;
             // the procedural gradient stays as the fallback.
-            Texture2D skyTex = ArtAssets.LoadTexture("Sky_Backdrop_NOON");
+            Texture2D skyTex = SeasonLook.LoadSeasonal("Sky_Backdrop");
             bool painted = skyTex != null;
             if (!painted)
             {
@@ -171,7 +171,7 @@ namespace CoastRun
         {
             if (_farTown != null)
                 CoastEditUtil.DestroyObject(_farTown.gameObject);
-            var tex = ArtAssets.LoadTexture("Far_Town_NOON");
+            var tex = SeasonLook.LoadSeasonal("Far_Town");
             if (tex == null)
                 return;
 
