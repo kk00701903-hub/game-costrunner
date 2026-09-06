@@ -372,6 +372,7 @@ namespace CoastRun
             if (hasSave) items.Add((Loc.T("이어하기", "Continue"), OnContinue));
             items.Add((hasSave ? Loc.T("새로 시작", "New Game") : Loc.T("시작하기", "Start"), () => { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }));
             if (hasSave) items.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
+            items.Add((Loc.T("노을 달리기", "Sunset Run"), () => { _audio?.PlayClick(); ArcadeUI.Open(false); }));
             items.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
             items.Add((Loc.T("오프닝", "Opening"), () =>
             {
@@ -488,6 +489,7 @@ namespace CoastRun
             if (Input.GetKeyDown(KeyCode.C)) OnContinue();
             if (Input.GetKeyDown(KeyCode.L)) { Loc.Toggle(); UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
             if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
+            if (Input.GetKeyDown(KeyCode.A)) ArcadeUI.Open(false);
             if (Input.GetKeyDown(KeyCode.K)) CollectionUI.Open(null, 3);
             if (_charSelectPanel != null && _charSelectPanel.activeSelf)
             {

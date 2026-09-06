@@ -77,9 +77,12 @@ namespace CoastRun
 
         /// Deterministic per stage: a retry lays out the same course, which is what a
         /// player replaying the same 200 m expects.
+        /// 아케이드(오늘의 런): 날짜 시드로 코스 고정.
+        public static int? SeedOverride;
+
         public void ResetForStage(int stageIndex, float startZ)
         {
-            _rng = new System.Random(1000 + stageIndex * 7919);
+            _rng = new System.Random(SeedOverride ?? (1000 + stageIndex * 7919));
             _nextSpawnZ = startZ + 14f;
             _prevOpen = 0b111;
             _rowsUntilCar = carEveryRowsStart;

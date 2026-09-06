@@ -487,6 +487,7 @@ namespace CoastRun
                 return;
 
             StageRunStats.Instance?.NotifySoftHit();
+            if (ArcadeRun.Active) ArcadeRun.OnHit();
 
             _state = SkateState.SoftHit;
             _softHitTimer = config.softHitRecoverSeconds * RunTuning.HitFreezeMul;

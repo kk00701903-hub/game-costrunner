@@ -16,14 +16,18 @@ namespace CoastRun
         {
             get
             {
+                if (ArcadeRun.Active) return Mathf.Clamp(Mathf.FloorToInt(ArcadeRun.VirtualStage), 1, 20);
                 var sm = StageManager.Instance;
                 if (sm != null && sm.Current != null) return Mathf.Clamp(sm.Current.stageIndex, 1, 20);
                 return 1;
             }
         }
 
-        /// 0(1챕터) → 1(20챕터).
-        public static float T => (Stage - 1) / 19f;
+        /// 연속 스테이지(아케이드는 거리로 계속 오른다, 최대 26).
+        public static float StageF => ArcadeRun.Active ? ArcadeRun.VirtualStage : Stage;
+
+        /// 0(1챕터) → 1(20챕터). 아케이드는 1을 넘어 계속 어려워진다.
+        public static float T => (StageF - 1f) / 19f;
 
         public static float SpeedMul => 1f + 0.32f * T;
         public static float GapMul => Mathf.Lerp(1f, 0.74f, T);

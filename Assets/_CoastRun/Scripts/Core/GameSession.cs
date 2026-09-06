@@ -299,6 +299,14 @@ namespace CoastRun
             if (input != null)
                 input.enabled = false;
             _bonus?.ForceEnd();
+            if (ArcadeRun.Active)
+            {
+                // 아케이드: 점수 정산 + 결과창(다시/나가기)
+                runStats?.EndStage();
+                ArcadeRun.Settle(GameManager.I, runStats);
+                ArcadeResultUI.Show(runStats, () => stages?.RetryCurrent(), ArcadeRun.Exit);
+                return;
+            }
             var chrome = feedback != null ? feedback.Chrome : null;
             if (chrome == null)
             {
@@ -326,6 +334,7 @@ namespace CoastRun
         private void HandleStageStart(StageDef stage)
         {
             runStats?.BeginStage();
+            if (ArcadeRun.Active) ArcadeRun.OnStageBegin();
             _bonus?.ForceEnd();
             _health?.ResetFull();
             if (_jellies != null && player != null)

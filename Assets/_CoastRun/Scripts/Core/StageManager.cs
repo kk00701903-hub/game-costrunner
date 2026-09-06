@@ -238,6 +238,13 @@ namespace CoastRun
                 return;
             }
 
+            // 아케이드: 끝이 없다. 코스 끝에 닿아도 계속 달리고, 조명은 노을에 고정.
+            if (ArcadeRun.Active)
+            {
+                ArcadeRun.Tick(StageLocalDistance, StageRunStats.Instance);
+                return;
+            }
+
             if (u >= 1f)
                 ClearCurrent();
         }

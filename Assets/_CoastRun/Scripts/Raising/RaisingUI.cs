@@ -316,6 +316,7 @@ namespace CoastRun
             SmallButton(host, "TitleBtn", Loc.T("저장", "Save"), new Color(0.55f, 0.50f, 0.48f), new Vector2(1f, 1f), new Vector2(-10f, -60f), 96f,
                 () => Confirm(Loc.T("타이틀로 돌아갈까?", "Back to title?"), Loc.T("진행은 자동 저장돼.", "Progress is auto-saved."), () => _gm.ToTitle()));
             SmallButton(host, "CollBtn", Loc.T("컬렉션", "Collection"), new Color(0.80f, 0.45f, 0.55f), new Vector2(1f, 1f), new Vector2(-214f, -10f), 96f, () => { if (!_busy) CollectionUI.Open(Refresh); });
+            SmallButton(host, "ArcadeBtn", Loc.T("달리기", "Run"), new Color(0.95f, 0.55f, 0.25f), new Vector2(1f, 1f), new Vector2(-316f, -10f), 90f, () => { if (!_busy) ArcadeUI.Open(true); });
             // v3 생활 리듬(프메 식단): 보통 → 빡세게 → 무리 안 함 순환. 간식비 토글은 길게가 아닌 두 번째 버튼.
             Button rhythmBtn = null;
             rhythmBtn = SmallButton(host, "RhythmBtn", RhythmLabel(), new Color(0.62f, 0.52f, 0.80f), new Vector2(1f, 1f), new Vector2(-112f, -60f), 120f, () =>
