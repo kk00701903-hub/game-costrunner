@@ -70,6 +70,10 @@ Tools/debug_log.txt
 Tools/blender/build_log.txt
 # Pre-replacement copies of art git already has in history
 Tools/FireflyArt/_prev/
+# Cutscene re-render: Firefly originals in, previous art out. The processed
+# 810x1440 results live in Assets/Resources; cut_prompts.json is the recipe.
+Tools/FireflyArt/cut_new/
+Tools/FireflyArt/cut_old/
 # Scratch previews the art scripts write while tuning
 Tools/FireflyArt/_*.png
 Tools/kit_log.txt

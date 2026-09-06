@@ -82,7 +82,8 @@ def export(folder):
     for n, (sid, lines) in enumerate(scenes, 1):
         out = [f"# {n:02d}  {sid}  —  {scene_label(sid, titles, loc_titles)}",
                "# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.",
-               "# BG = 배경ID | 왼쪽 스탠딩(이름:표정) | 오른쪽 스탠딩 / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지"]
+               "# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지",
+               "# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래"]
         m = re.match(r"CH(\d+)_Open", sid)
         if m:
             ch = int(m.group(1))
@@ -92,7 +93,7 @@ def export(folder):
             if kind == "BG":
                 out.append(f"[{i + 1}] BG | {a} | {b} | {c} | {d}".rstrip(" |"))
             elif kind == "CG":
-                out.append(f"[{i + 1}] CG | {a} | {b}")
+                out.append(f"[{i + 1}] CG | {a} | {b}" + (f" | {c}" if c else ""))
             elif kind == "SAY":
                 out.append(f"[{i + 1}] SAY | {a} | {b}")
                 out.append(f"    EN: {en.get(f'{sid}:{i}', '')}")
@@ -128,7 +129,7 @@ def parse_txt(path):
             cells += [""] * (4 - len(cells))
             lines.append(("BG", cells[0], cells[1], cells[2], cells[3]))
         elif kind == "CG":
-            lines.append(("CG", cells[0], "|".join(cells[1:]).strip() if len(cells) > 1 else "", "", ""))
+            lines.append(("CG", cells[0], cells[1] if len(cells) > 1 else "", cells[2] if len(cells) > 2 else "", ""))
         elif kind == "SAY":
             if len(cells) < 2:
                 raise SystemExit(f"{os.path.basename(path)}: SAY는 '화자 | 대사' → {ln}")

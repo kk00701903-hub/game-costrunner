@@ -55,7 +55,7 @@ namespace CoastRun.Editor
             // ── Android 용량 절감 (플레이 스토어 200MB 목표) ──
             // 에디터/PC는 위 설정 그대로(비압축 확인용), 안드로이드만 ASTC로 덮어쓴다.
             // ASTC는 DXT처럼 투명 영역 알파를 부풀리지 않아 키드 빌보드에도 안전하다.
-            bool big = file.StartsWith("Sky_") || file.StartsWith("Far_") || file.StartsWith("UI_Title");
+            bool big = file.StartsWith("Sky_") || file.StartsWith("Far_") || file.StartsWith("UI_Title") || file.StartsWith("BG_") || file.StartsWith("Cut_");   // 컷씬 풀스크린 810×1440
             int androidMax = big ? 2048 : 1024;
             var android = importer.GetPlatformTextureSettings("Android");
             android.overridden = true;

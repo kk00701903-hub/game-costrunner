@@ -38,6 +38,8 @@ namespace CoastRun
         public static void PlayChapterClosing(int chapter, Action onDone) => Play(ChapterScript.CloseId(chapter), onDone);
 
         // ── 상태 ──────────────────────────────────────────────────────────
+        /// 옛 방식(배경 + 스탠딩 합성). 새 그림은 인물까지 그려진 풀 일러스트라 기본 꺼짐.
+        public static bool UseStandings = false;
         private VnLine[] _lines;
         private string _sceneId;
         private Action _onDone;
@@ -88,13 +90,13 @@ namespace CoastRun
             _black.raycastTarget = true;
             // 아래 UI로 클릭이 새지 않게 레이캐스트만 막는다. 진행 입력은 Pressed()가 Input으로 읽는다.
 
-            // 그림 영역(상단 62%)
+            // 그림 영역 — 화면 전체(레터박스 포함). 그림은 720×1280 세로 풀 일러스트, cover 로 채운다.
             var artGo = new GameObject("Art", typeof(RectTransform), typeof(Image), typeof(Mask));
             artGo.transform.SetParent(root, false);
             _artArea = artGo.GetComponent<RectTransform>();
-            _artArea.anchorMin = new Vector2(0f, 0.36f);
+            _artArea.anchorMin = new Vector2(0f, 0f);
             _artArea.anchorMax = new Vector2(1f, 1f);
-            _artArea.offsetMin = new Vector2(-CoastUiCanvas.HudPad, 0f);
+            _artArea.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
             _artArea.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
             var artImg = artGo.GetComponent<Image>();
             artImg.color = new Color(0.08f, 0.07f, 0.09f, 1f);
@@ -107,19 +109,24 @@ namespace CoastRun
             _cg = MakeCover(_artArea, "CG");
             _cg.gameObject.SetActive(false);
 
-            // 하단 그라데이션 띠(그림→텍스트박스 이음새)
-            var shade = CoastHudLayout.MakeImage(root, "Shade", new Vector2(0f, 0.30f), new Vector2(1f, 0.42f),
-                new Vector2(-CoastUiCanvas.HudPad, 0f), new Vector2(CoastUiCanvas.HudPad, 0f), new Color(0f, 0f, 0f, 0.35f));
-            shade.raycastTarget = false;
-
-            // 텍스트박스
-            _box = CoastOrnate.Panel(root, "TextBox", CoastOrnate.Gold, new Vector2(0f, 0.02f), new Vector2(1f, 0.35f),
-                new Vector2(10f, 0f), new Vector2(-10f, 0f), CoastOrnate.Ivory);
-            _body = CoastOrnate.Label(_box.transform, "Body", "", 24, CoastOrnate.Ink, TextAnchor.UpperLeft);
-            CoastOrnate.Stretch(_body.rectTransform, 30f, 26f, -30f, -48f);
+            // 텍스트박스 — 프린세스 메이커식: 그림 위에 반투명 창. 기본은 아래, 씬이 '위'를 요구하면 위로(인물을 가리지 않게).
+            _box = CoastUiArt.Panel(root, "TextBox", new Color(0.05f, 0.04f, 0.07f, 0.66f), 22);
+            _box.raycastTarget = false;
+            PlaceBox(true);
+            var edge = CoastUiArt.Panel(_box.transform, "Edge", new Color(0.83f, 0.69f, 0.22f, 0.55f), 22);
+            edge.raycastTarget = false;
+            CoastOrnate.Stretch(edge.rectTransform, 0f, 0f, 0f, 0f);
+            var inner = CoastUiArt.Panel(edge.transform, "Inner", new Color(0.05f, 0.04f, 0.07f, 1f), 20);
+            inner.raycastTarget = false;
+            CoastOrnate.Stretch(inner.rectTransform, 2f, 2f, -2f, -2f);
+            inner.color = new Color(0.05f, 0.04f, 0.07f, 0.72f);
+            _box.color = new Color(0f, 0f, 0f, 0f);
+            _body = CoastOrnate.Label(_box.transform, "Body", "", 24, CoastOrnate.Ivory, TextAnchor.UpperLeft);
+            CoastOrnate.Stretch(_body.rectTransform, 28f, 22f, -28f, -46f);
             _body.horizontalOverflow = HorizontalWrapMode.Wrap;
             _body.verticalOverflow = VerticalWrapMode.Truncate;
             _body.lineSpacing = 1.25f;
+            CoastUiArt.OutlineText(_body, new Color(0f, 0f, 0f, 0.55f), 1f);
 
             _namePlate = CoastUiArt.Panel(_box.transform, "NamePlate", CoastOrnate.WoodDark, 12);
             var nrt = _namePlate.rectTransform;
@@ -131,7 +138,7 @@ namespace CoastRun
             _nameTag = CoastOrnate.Label(_namePlate.transform, "Name", "", 22, CoastOrnate.GoldLight);
             CoastUiArt.OutlineText(_nameTag, new Color(0f, 0f, 0f, 0.4f), 1.2f);
 
-            _cursor = CoastOrnate.Label(_box.transform, "Cursor", "▼", 20, CoastOrnate.Wood);
+            _cursor = CoastOrnate.Label(_box.transform, "Cursor", "▼", 20, CoastOrnate.GoldLight);
             var crt = _cursor.rectTransform;
             crt.anchorMin = crt.anchorMax = new Vector2(1f, 0f);
             crt.pivot = new Vector2(1f, 0f);
@@ -163,6 +170,27 @@ namespace CoastRun
             tgo.SetActive(false);
         }
 
+        /// 텍스트 창 위치. top=true 면 화면 위(인물이 아래쪽에 크게 있는 그림), 아니면 아래.
+        private void PlaceBox(bool top)
+        {
+            var rt = _box.rectTransform;
+            // 위: SKIP 버튼(우상단 44px) 아래부터. 아래: 홈 제스처 영역 위.
+            if (top) { rt.anchorMin = new Vector2(0f, 0.715f); rt.anchorMax = new Vector2(1f, 0.935f); }
+            else { rt.anchorMin = new Vector2(0f, 0.03f); rt.anchorMax = new Vector2(1f, 0.25f); }
+            rt.offsetMin = new Vector2(12f, 0f);
+            rt.offsetMax = new Vector2(-12f, 0f);
+            if (_namePlate != null)
+            {
+                // 이름표는 항상 창의 위 테두리에 걸친다
+                var nrt = _namePlate.rectTransform;
+                nrt.anchorMin = nrt.anchorMax = new Vector2(0f, 1f);
+                nrt.anchoredPosition = new Vector2(22f, 0f);
+            }
+        }
+
+        /// 대본 힌트: 새 컷씬 그림은 인물이 아래쪽에 크게 있어서 기본이 '위'. BG 의 D칸 / CG 의 C칸에 '아래' 또는 'bottom' 이 있으면 아래로.
+        private static bool WantsTop(string hint) => string.IsNullOrEmpty(hint) || !(hint.Contains("아래") || hint.ToLowerInvariant().Contains("bottom"));
+
         private static Image MakeCover(RectTransform parent, string name)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter));
@@ -176,7 +204,7 @@ namespace CoastRun
             img.preserveAspect = false;
             var fit = go.GetComponent<AspectRatioFitter>();
             fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
-            fit.aspectRatio = 4f / 3f;
+            fit.aspectRatio = 9f / 16f;
             return img;
         }
 
@@ -230,7 +258,7 @@ namespace CoastRun
                         yield return ShowBg(line);
                         break;
                     case "CG":
-                        yield return ShowCg(line.A);
+                        yield return ShowCg(line);
                         break;
                     case "SAY":
                         yield return Say(line.A, txt);
@@ -254,11 +282,16 @@ namespace CoastRun
             bool first = _bg.sprite == null && !_cg.gameObject.activeSelf && _fader.color.a > 0.99f;
             if (!first) yield return FadeImage(_fader, 1f, 0.22f, true);
             _cg.gameObject.SetActive(false);
-            var tex = ArtAssets.LoadTexture("BG_" + line.A);
+            // 변형(눈 등) 전용 그림이 있으면 그걸 쓰고 틴트는 생략
+            bool snow = !string.IsNullOrEmpty(line.D) && line.D.Contains("눈");
+            var tex = snow ? ArtAssets.LoadTexture("BG_" + line.A + "_SNOW") : null;
+            bool dedicated = tex != null;
+            if (tex == null) tex = ArtAssets.LoadTexture("BG_" + line.A);
             if (tex != null)
             {
                 _bg.sprite = CoastUiArt.AsSprite(tex, 100f);
-                _bg.color = Tint(line.D);
+                _bg.GetComponent<AspectRatioFitter>().aspectRatio = (float)tex.width / tex.height;
+                _bg.color = dedicated ? Color.white : Tint(line.D);
                 _bg.gameObject.SetActive(true);
             }
             else
@@ -266,8 +299,10 @@ namespace CoastRun
                 _bg.sprite = null;
                 _bg.color = new Color(0.16f, 0.14f, 0.18f, 1f);
             }
-            SetStanding(_standL, line.B, out _curL);
-            SetStanding(_standR, line.C, out _curR);
+            PlaceBox(WantsTop(line.D));
+            // 새 컷씬 그림은 인물이 그려진 풀 일러스트 → 스탠딩은 쓰지 않는다(그림이 없을 때만 대체로).
+            if (UseStandings || tex == null) { SetStanding(_standL, line.B, out _curL); SetStanding(_standR, line.C, out _curR); }
+            else { _standL.gameObject.SetActive(false); _standR.gameObject.SetActive(false); _curL = line.B; _curR = line.C; }
             SetText("", "", false);
             yield return FadeImage(_fader, 0f, 0.3f, false);
         }
@@ -280,15 +315,18 @@ namespace CoastRun
             return Color.white;
         }
 
-        private IEnumerator ShowCg(string id)
+        private IEnumerator ShowCg(VnLine line)
         {
+            string id = line.A;
             var tex = ArtAssets.LoadTexture("Cut_" + id);
             yield return FadeImage(_fader, 1f, 0.25f, true);
+            PlaceBox(WantsTop(line.C));
             _standL.gameObject.SetActive(false);
             _standR.gameObject.SetActive(false);
             if (tex != null)
             {
                 _cg.sprite = CoastUiArt.AsSprite(tex, 100f);
+                _cg.GetComponent<AspectRatioFitter>().aspectRatio = (float)tex.width / tex.height;
                 _cg.color = Color.white;
                 _cg.gameObject.SetActive(true);
             }
@@ -373,7 +411,7 @@ namespace CoastRun
             _nameTag.text = Loc.IsKo ? speaker : ChapterScript.SpeakerEn(speaker);
             _body.text = body;
             _body.fontStyle = hasName ? FontStyle.Normal : FontStyle.Italic;
-            _body.color = hasName ? CoastOrnate.Ink : new Color(0.36f, 0.30f, 0.28f);
+            _body.color = hasName ? CoastOrnate.Ivory : new Color(0.93f, 0.90f, 0.84f, 0.92f);
             _body.alignment = letter ? TextAnchor.MiddleCenter : TextAnchor.UpperLeft;
             _body.fontSize = letter ? 28 : (hasName ? 25 : 23);
             _cursor.gameObject.SetActive(false);
