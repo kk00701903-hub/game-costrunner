@@ -531,7 +531,7 @@ namespace CoastRun
             var tail = CoastHudLayout.MakeImage(bubble.transform, "Tail", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(-14f, -10f), new Vector2(6f, 10f), Gold);
             tail.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             tail.transform.SetAsFirstSibling();
-            _bubble = Label(bubble.transform.Find("Inner"), "Text", "오늘도 송전탑이 잘 보여.", 19, Ink);
+            _bubble = Label(bubble.transform.Find("Inner"), "Text", Loc.T("오늘도 송전탑이 잘 보여.", "I can see the tower clearly today."), 19, Ink);
             _bubble.horizontalOverflow = HorizontalWrapMode.Wrap;
             _bubble.rectTransform.offsetMin = new Vector2(14f, 4f);
             _bubble.rectTransform.offsetMax = new Vector2(-14f, -4f);
@@ -1090,10 +1090,10 @@ namespace CoastRun
             if (force == null)
             {
                 var season = Timeline.SeasonOf(Save.week);
-                _bubble.text = st.Burnout ? "…몸이 안 따라줘. 오늘은 쉬어야 할 것 같아."
-                    : mood == Mood.Tired ? "…좀 쉬고 싶어."
-                    : mood == Mood.Happy ? (season == SeasonKind.Winter ? "눈 오면 송전탑에 가자." : "오늘도 송전탑이 잘 보여.")
-                    : "라디오 주파수, 오늘은 맞을까.";
+                _bubble.text = st.Burnout ? Loc.T("…몸이 안 따라줘. 오늘은 쉬어야 할 것 같아.", "…My body won't keep up. I should rest today.")
+                    : mood == Mood.Tired ? Loc.T("…좀 쉬고 싶어.", "…I want to rest a bit.")
+                    : mood == Mood.Happy ? (season == SeasonKind.Winter ? Loc.T("눈 오면 송전탑에 가자.", "Let's go to the tower when it snows.") : Loc.T("오늘도 송전탑이 잘 보여.", "I can see the tower clearly today."))
+                    : Loc.T("라디오 주파수, 오늘은 맞을까.", "Will I tune the radio in today?");
             }
         }
 
@@ -1102,7 +1102,7 @@ namespace CoastRun
             if (_busy || Save == null) return;
             // 의상/신발 변경은 후속 — 지금은 상태 한 줄 + 컨디션 설명
             var cond = Condition(Save.stats);
-            Toast($"컨디션 {cond.label} · 스트레스 {Save.stats.stress} / 체력 {Save.stats.stamina}");
+            Toast(Loc.T($"컨디션 {cond.label} · 스트레스 {Save.stats.stress} / 체력 {Save.stats.stamina}", $"Condition {cond.label} · Stress {Save.stats.stress} / Stamina {Save.stats.stamina}"));
         }
 
         // ────────────────────────────────────────────────────────────────

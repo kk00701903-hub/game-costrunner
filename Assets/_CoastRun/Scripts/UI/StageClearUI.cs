@@ -60,24 +60,28 @@ namespace CoastRun
             _title.color = chapterComplete ? CoastHudLayout.AccentWarm : CoastHudLayout.AccentCyan;
             _stageLabel.text = $"S{stage.stageIndex:00}  {stage.stageName}";
 
-            string continueLabel = stage.stageIndex >= 20 ? "도착" : "다음 스테이지";
+            string continueLabel = stage.stageIndex >= 20 ? Loc.T("도착", "Arrived") : Loc.T("다음 스테이지", "Next stage");
             if (GameManager.Active)
             {
                 // v2: 스테이지 = 챕터. 말랑이 하트와 등급이 이 화면의 주인공.
                 var gm = GameManager.I;
                 var rec = gm.Save.CurrentChapter;
                 var grade = gm.LastGrade;
-                _title.text = $"CHAPTER {gm.Save.chapter}  ·  {ChapterGrading.GradeLabel(grade)}급";
+                _title.text = Loc.T($"CHAPTER {gm.Save.chapter}  ·  {ChapterGrading.GradeLabel(grade)}급", $"CHAPTER {gm.Save.chapter}  ·  RANK {ChapterGrading.GradeLabel(grade)}");
                 _title.color = grade == ChapterGrade.S ? new Color(1f, 0.85f, 0.3f) : CoastHudLayout.AccentCyan;
+                CoastAudioManager.PlayAnywhere(grade == ChapterGrade.S ? CoastSfx.RankS : CoastSfx.ChapterClear);
                 string heartLine = rec != null
-                    ? $"말랑이 하트 {rec.heartsEarned} / {rec.heartsTarget}  (런닝 +{gm.LastRunHearts})"
-                    : $"말랑이 하트 +{gm.LastRunHearts}";
+                    ? Loc.T($"말랑이 하트 {rec.heartsEarned} / {rec.heartsTarget}  (런닝 +{gm.LastRunHearts})", $"Hearts {rec.heartsEarned} / {rec.heartsTarget}  (run +{gm.LastRunHearts})")
+                    : Loc.T($"말랑이 하트 +{gm.LastRunHearts}", $"Hearts +{gm.LastRunHearts}");
                 if (grade != ChapterGrade.S)
-                    heartLine += $"   ·   S급까지 {Mathf.CeilToInt((rec != null ? rec.heartsTarget : 0) * ChapterGrading.S_Ratio) - (rec != null ? rec.heartsEarned : 0)}개";
+                {
+                    int need = Mathf.CeilToInt((rec != null ? rec.heartsTarget : 0) * ChapterGrading.S_Ratio) - (rec != null ? rec.heartsEarned : 0);
+                    heartLine += Loc.T($"   ·   S급까지 {need}개", $"   ·   {need} more for S");
+                }
                 if (gm.IsRetry)
-                    heartLine += gm.LastImproved ? "   ·   기록 갱신!" : "   ·   이전 기록 유지";
-                _stageLabel.text = $"{stage.stageName}\n{heartLine}";
-                continueLabel = gm.IsRetry ? "타임라인으로" : gm.Save.chapter >= Timeline.Chapters ? "송전탑으로" : "육성으로";
+                    heartLine += gm.LastImproved ? Loc.T("   ·   기록 갱신!", "   ·   New record!") : Loc.T("   ·   이전 기록 유지", "   ·   Previous record kept");
+                _stageLabel.text = $"{ChapterLocation.Get(gm.Save.chapter).Name}\n{heartLine}";
+                continueLabel = gm.IsRetry ? Loc.T("타임라인으로", "To timeline") : gm.Save.chapter >= Timeline.Chapters ? Loc.T("송전탑으로", "To the tower") : Loc.T("육성으로", "Back home");
             }
 
             if (_continueBtn != null)
@@ -98,7 +102,7 @@ namespace CoastRun
         {
             Show(stage, true, onContinue, onRetry);
             _title.text = "ARRIVAL";
-            _stageLabel.text = "S20  송전탑";
+            _stageLabel.text = Loc.T("S20  송전탑", "S20  The Tower");
         }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -151,24 +155,24 @@ namespace CoastRun
 
             yield return Wait(0.25f);
 
-            _lineCoins.text = Row("코인", $"×{coinCount}", coinValue);
+            _lineCoins.text = Row(Loc.T("코인", "Coins"), $"×{coinCount}", coinValue);
             yield return Wait(0.22f);
 
-            _lineNearMiss.text = Row("니어미스", $"×{nmCount}", nmValue);
+            _lineNearMiss.text = Row(Loc.T("니어미스", "Near miss"), $"×{nmCount}", nmValue);
             yield return Wait(0.22f);
 
             if (bestCombo > 1)
-                _lineCombo.text = Row("최고 콤보", $"×{bestCombo}", 0, showValue: false);
+                _lineCombo.text = Row(Loc.T("최고 콤보", "Best combo"), $"×{bestCombo}", 0, showValue: false);
             else if (flawless)
-                _lineCombo.text = Row("무피해", "", 0, showValue: false);
+                _lineCombo.text = Row(Loc.T("무피해", "No damage"), "", 0, showValue: false);
             yield return Wait(0.22f);
 
             // Count the total up rather than stamping it — the same trick the coin HUD
             // uses in-run, so the two read as one language.
             int total = coinValue + nmValue;
-            yield return CountUp(_lineTotal, "합계", total, 0.45f);
+            yield return CountUp(_lineTotal, Loc.T("합계", "Total"), total, 0.45f);
 
-            _lineHeld.text = Row("보유", "", wallet != null ? wallet.TotalCoins : 0);
+            _lineHeld.text = Row(Loc.T("보유", "Wallet"), "", wallet != null ? wallet.TotalCoins : 0);
             yield return Wait(0.15f);
 
             UpdateJourney(stage, seconds);
@@ -237,7 +241,7 @@ namespace CoastRun
 
             float remainingKm = stages.RemainingJourneyDistance / 1000f;
             _journey.text =
-                $"송전탑까지 {remainingKm:0.0} km   ·   {ClockAt(stage.lightingTEnd)}" +
+                Loc.T($"송전탑까지 {remainingKm:0.0} km   ·   {ClockAt(stage.lightingTEnd)}", $"{remainingKm:0.0} km to the tower   ·   {ClockAt(stage.lightingTEnd)}") +
                 $"   ·   {StageRunStats.FormatTime(seconds)}";
         }
 
@@ -303,9 +307,9 @@ namespace CoastRun
             sht.offsetMax = Vector2.zero;
 
             _continueBtn = MakeButton(_root.transform, "Continue", new Vector2(0.52f, 0.08f),
-                new Vector2(0.92f, 0.185f), "다음 스테이지", () => _onContinue?.Invoke());
+                new Vector2(0.92f, 0.185f), Loc.T("다음 스테이지", "Next stage"), () => _onContinue?.Invoke());
             _retryBtn = MakeButton(_root.transform, "Retry", new Vector2(0.08f, 0.08f),
-                new Vector2(0.48f, 0.185f), "다시", () => _onRetry?.Invoke());
+                new Vector2(0.48f, 0.185f), Loc.T("다시", "Retry"), () => _onRetry?.Invoke());
         }
 
         private void BuildJourneyBar()

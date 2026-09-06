@@ -39,6 +39,7 @@ namespace CoastRun
 
         // ── 상태 ──────────────────────────────────────────────────────────
         private VnLine[] _lines;
+        private string _sceneId;
         private Action _onDone;
         private string _titleCard;
         private Canvas _canvas;
@@ -66,6 +67,7 @@ namespace CoastRun
         private void Begin(string sceneId, Action onDone, string titleCard)
         {
             _lines = ChapterScript.Get(sceneId);
+            _sceneId = sceneId;
             _onDone = onDone;
             _titleCard = titleCard;
             IsPlaying = true;
@@ -221,6 +223,7 @@ namespace CoastRun
             for (int i = 0; i < _lines.Length && !_skip; i++)
             {
                 var line = _lines[i];
+                string txt = Loc.IsKo ? line.B : (ChapterScript.TextEn(_sceneId, i) ?? line.B);
                 switch (line.Kind)
                 {
                     case "BG":
@@ -230,13 +233,13 @@ namespace CoastRun
                         yield return ShowCg(line.A);
                         break;
                     case "SAY":
-                        yield return Say(line.A, line.B);
+                        yield return Say(line.A, txt);
                         break;
                     case "NARR":
-                        yield return Say("", line.B);
+                        yield return Say("", txt);
                         break;
                     case "LETTER":
-                        yield return Say("", line.B, letter: true);
+                        yield return Say("", txt, letter: true);
                         break;
                 }
             }
@@ -367,7 +370,7 @@ namespace CoastRun
         {
             bool hasName = !string.IsNullOrEmpty(speaker);
             _namePlate.gameObject.SetActive(hasName);
-            _nameTag.text = speaker;
+            _nameTag.text = Loc.IsKo ? speaker : ChapterScript.SpeakerEn(speaker);
             _body.text = body;
             _body.fontStyle = hasName ? FontStyle.Normal : FontStyle.Italic;
             _body.color = hasName ? CoastOrnate.Ink : new Color(0.36f, 0.30f, 0.28f);

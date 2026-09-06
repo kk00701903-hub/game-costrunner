@@ -486,6 +486,7 @@ namespace CoastRun
             if (!_ready) return;
             if (Input.GetKeyDown(KeyCode.N)) ShowPanel(_charSelectPanel, true);
             if (Input.GetKeyDown(KeyCode.C)) OnContinue();
+            if (Input.GetKeyDown(KeyCode.L)) { Loc.Toggle(); UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
             if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
             if (_charSelectPanel != null && _charSelectPanel.activeSelf)
             {
@@ -739,7 +740,9 @@ namespace CoastRun
         private static string PetLabel()
         {
             int k = (int)PetCompanion.Selected;
-            return "펫: " + PetCompanion.Names[k] + "  ▸  " + PetCompanion.Blurbs[k];
+            string name = Loc.Data("pet." + PetCompanion.Names[k], PetCompanion.Names[k]);
+            string[] blurbsEn = { "no pet", "coins ×1.2 while running", "smashes blocking obstacles (12 s cooldown, ×3)", "pulls coins & hearts within 7 m" };
+            return (Loc.IsKo ? "펫: " : "Pet: ") + name + "  ▸  " + (Loc.IsKo ? PetCompanion.Blurbs[k] : blurbsEn[Mathf.Clamp(k, 0, 3)]);
         }
 
         private void ShowPanel(GameObject panel, bool on)
