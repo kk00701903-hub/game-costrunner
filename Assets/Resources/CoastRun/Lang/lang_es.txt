@@ -1,0 +1,549 @@
+   ·   New record!	   ·   ¡Nuevo récord!
+   ·   Previous record kept	   ·   Récord anterior conservado
+   · Personal best	   · Mejor marca
+  …someone said you've been out late a lot.	  …dicen que últimamente sales mucho de noche.
+ · night work	 · trabajo nocturno
+(Lyrics coming with the Suno track)	(La letra llegará con la pista de Suno)
+AI-produced mixed duo	Dúo mixto creado con IA
+Achievement  ★ 	Logro  ★ 
+Acoustic	Acústico
+Agility	Agilidad
+Album	Álbum
+Album owned	Álbum adquirido
+Amateur Radio Class	Clase de radioaficionado
+An endless course that keeps speeding up. Distance, coins, hearts = score.	Un recorrido sin fin que acelera sin parar. Distancia, monedas y corazones = puntos.
+Arrive without a hit	Llega sin recibir golpes
+Arrived	Llegaste
+Autumn	Otoño
+Autumn EP	EP de otoño
+Back home	Volver a casa
+Back to title?	¿Volver al título?
+Beach Cafe	Café de la playa
+Best combo	Mejor combo
+Biker	Motorista
+Body	Cuerpo
+Chapter mission stars\n	Estrellas de misión por capítulo\n
+Chapters	Capítulos
+Charm	Encanto
+Clear	Superado
+Close	Cerrar
+Coins	Monedas
+Collection	Colección
+Continue	Continuar
+Credits	Créditos
+Daily Run	Carrera diaria
+Dance Academy	Academia de baile
+Dance Practice	Práctica de baile
+Digital Album “Our Frequency”	Álbum digital «Nuestra frecuencia»
+Done today — run again	Hecho por hoy — correr otra vez
+Doyun	Doyun
+Duet	Dúo
+Easy: stamina ×0.8, stress ×0.7	Fácil: energía ×0,8, estrés ×0,7
+End of Spring	Fin de la primavera
+Endless	Sin fin
+Exhausted. One more week like this and you'll fall ill.	Agotada. Otra semana así y caerás enferma.
+Fallen Leaves	Hojas caídas
+Fan Art	Fan art
+Festival	Festival
+Fever. Bedridden the whole week. (medicine -30G, stress -40)	Fiebre. Toda la semana en cama. (medicinas -30G, estrés -40)
+First Snow	Primera nevada
+Frequency	Frecuencia
+Full	Completa
+Get the album	Conseguir el álbum
+Go	Ir
+Go to the Tower	Ir a la torre
+Go to the story now?	¿Ir a la historia ahora?
+Got it	Entendido
+Grandma	Abuela
+Great %	% de gran éxito
+Growth	Crecimiento
+Gym	Gimnasio
+Haenyeo School	Escuela de haenyeo
+Haneul	Haneul
+Haneul and Doyun's voices, songs and art are AI-produced; the story and the game are made by people. They do not imitate any real person or group.\n\nSpring is free; the rest opens with the digital album (one purchase). No ads.	Las voces, canciones y el arte de Haneul y Doyun son creados con IA; la historia y el juego los hicieron personas. No imitan a ninguna persona ni grupo real.\n\nLa primavera es gratis; el resto se abre con el álbum digital (una sola compra). Sin anuncios.
+Hard: stamina ×1.3, stress ×1.3	Difícil: energía ×1,3, estrés ×1,3
+Hearts	Corazones
+Help the Haenyeo	Ayudar a las haenyeo
+Hospital Day	Día de hospital
+How will you run?	¿Cómo vas a correr?
+I can see the tower clearly today.	Hoy se ve la torre con claridad.
+If you like JEJU, a rating helps us make the next song.	Si te gusta JEJU, una valoración nos ayuda a hacer la próxima canción.
+Jeju Cooking Class	Clase de cocina de Jeju
+Jeju Dialect Class	Clase de dialecto de Jeju
+Jobs	Trabajos
+Language	Idioma
+Language: English  →  한국어	Idioma: English  →  한국어
+Last week of the chapter	Última semana del capítulo
+Late-night Delivery	Reparto nocturno
+Later	Luego
+Laze at Home	Holgazanear en casa
+Leave	Salir
+Lessons	Clases
+Let's go to the tower when it snows.	Vamos a la torre cuando nieve.
+Lighthouse Cleaning	Limpieza del faro
+Mansu	Mansu
+Market Porter	Cargador del mercado
+Mind & Life	Mente y vida
+Money	Dinero
+Near miss	Casi choque
+New Game	Nueva partida
+Next stage	Siguiente etapa
+Night Serving	Servicio nocturno
+No audio yet.	Aún no hay audio.
+No damage	Sin daño
+No roll · always succeeds	Sin tirada · siempre acierta
+None	Ninguno
+Normal rhythm	Ritmo normal
+Not enough money	Dinero insuficiente
+Nothing yet.	Nada todavía.
+Opening	Apertura
+Oreum	Oreum
+Oreum Walk	Paseo por el oreum
+Outside the story — just run.	Fuera de la historia: solo correr.
+Pace: Easy	Ritmo: fácil
+Pace: Hard	Ritmo: difícil
+Pace: Normal	Ritmo: normal
+Photo & Drawing Class	Clase de foto y dibujo
+Photocards	Fotocards
+Plan	Plan
+Practice	Práctica
+Progress is auto-saved.	El progreso se guarda automáticamente.
+Purchase not completed.	La compra no se completó.
+Radio Letter	Carta a la radio
+Radio Station Assistant	Ayudante de la emisora
+Rate	Valorar
+Records	Récords
+Rest	Descansar
+Restore / Close	Restaurar / Cerrar
+Resume	Reanudar
+Retry	Reintentar
+Rua	Rua
+Run	Correr
+Run HP	PV de carrera
+Run again	Correr otra vez
+S20  The Tower	S20  La torre
+Salon Assistant	Ayudante de peluquería
+Save	Guardar
+Save & share	Guardar y compartir
+Saved to gallery (Pictures/JEJU)	Guardado en la galería (Pictures/JEJU)
+Scooter Delivery	Reparto en scooter
+Sea Swim	Nadar en el mar
+Sense	Sensibilidad
+Settings	Ajustes
+Share photocard	Compartir fotocard
+Shop	Tienda
+Shrine Preparation	Preparar el santuario
+Skate Practice	Práctica de skate
+Skate Trick Lessons	Clase de trucos de skate
+Sparrow	Gorrión
+Speed	Velocidad
+Spring	Primavera
+Spring EP	EP de primavera
+Stamina	Energía
+Start	Empezar
+Start daily run	Empezar carrera diaria
+Starting over erases the current playthrough.	Empezar de nuevo borra la partida actual.
+Story	Historia
+Stress	Estrés
+Summer	Verano
+Summer EP	EP de verano
+Sunset Run	Carrera al atardecer
+Talk of Seoul	Hablar de Seúl
+Tangerine Farm	Huerto de mandarinas
+Tangerines	Mandarinas
+Tap the card to flip · save & share below	Toca la carta para girarla · guarda y comparte abajo
+Thank you! Everything is unlocked.	¡Gracias! Todo está desbloqueado.
+Thank you. Every track is yours.	Gracias. Todas las pistas son tuyas.
+The Base	La base
+The Letter	La carta
+The One Who Came Back	El que volvió
+The Rule	La regla
+The Sea	El mar
+The Tin Can	La lata
+The Tower	La torre
+The rest of this week becomes the story. After the chapter, you move to the next chapter's first week.	El resto de esta semana pasa a ser la historia. Tras el capítulo, irás a la primera semana del siguiente.
+The skateboard unlocks after one ending.	El monopatín se desbloquea tras ver un final.
+This is the chapter's last week.\nTime to go to the story.	Es la última semana del capítulo.\nHora de ir a la historia.
+Three cards already.	Ya van tres cartas.
+Title	Título
+To the tower	A la torre
+To timeline	A la línea de tiempo
+Today's stamp is already yours.	El sello de hoy ya es tuyo.
+Total	Total
+Tower Maintenance Helper	Ayudante de mantenimiento de la torre
+Tower Night Patrol	Ronda nocturna de la torre
+Track	Pista
+Trophies	Trofeos
+Trust	Confianza
+Tuition · guaranteed gain	Matrícula · mejora garantizada
+Typhoon	Tifón
+Unlock with the album	Desbloquear con el álbum
+Verse 1 (rank A+ for full)	Estrofa 1 (rango A+ para la completa)
+Village Hall Volunteer	Voluntariado en el centro cívico
+Wallet	Cartera
+Weekend · Condition	Fin de semana · Estado
+Wild Goose	Ganso salvaje
+Will I tune the radio in today?	¿Sintonizaré la radio hoy?
+Winter	Invierno
+Winter EP	EP de invierno
+Word got around…	Se corrió la voz…
+Words Unsaid	Palabras no dichas
+You disappeared for a while and missed the sunset. (Trust -10, chapter graded C)	Desapareciste un tiempo y te perdiste el atardecer. (Confianza -10, capítulo con nota C)
+— Haneul ♡	— Haneul ♡
+“JEJU” is an AI-produced virtual duo	«JEJU» es un dúo virtual creado con IA
+…I want to rest a bit.	…Quiero descansar un poco.
+…My body won't keep up. I should rest today.	…El cuerpo no me responde. Hoy debería descansar.
+← Back	← Atrás
+← Binder	← Álbum
+▶ Play	▶ Reproducir
+▶ Preview	▶ Escuchar
+★ New best!	★ ¡Nueva marca!
+★ Story	★ Historia
+⚠ Stress is over stamina. Rest is needed.	⚠ El estrés supera a la energía. Necesitas descansar.
+👟 Running	👟 Correr
+🛹 Skateboard	🛹 Monopatín
+"A while ago," for Mansu, can mean ten minutes or three hours.	«Hace un rato», para Mansu, puede ser diez minutos o tres horas.
+"I came back down. Under the tower when the sun sets. Let's see if our base is still there."	«Volví a bajar. Bajo la torre cuando se ponga el sol. A ver si nuestra base sigue ahí.»
+"I'll come back. Radio 91.9, two in the morning. Meet me there."	«Volveré. Radio 91.9, a las dos de la madrugada. Nos vemos allí.»
+"Sorry" was a first.	«Perdón» era la primera vez.
+'Haneul. I'm going. Fixed your trucks. The bushing.' …That part you already know.	«Haneul. Me voy. Te arreglé los ejes. El casquillo.» …Esa parte ya la sabes.
+'I like you. You can come late. I'll wait.' That part I've never said out loud.	«Me gustas. Puedes llegar tarde. Te esperaré.» Esa parte nunca la he dicho en voz alta.
+'There's only one year.' I already know this line.	«Solo hay un año.» Esta frase ya la conozco.
+(A few steps and I'm out of breath. How am I going to make the sunset like this.)	(Unos pasos y me falta el aire. ¿Cómo voy a llegar al atardecer así?)
+(I haven't been sleeping. Is that why I'm late.)	(No he dormido. ¿Por eso llego tarde?)
+(I sent a story twice. The DJ seems to know my handwriting.)	(Envié una historia dos veces. El DJ parece conocer mi letra.)
+(I've already read this note. My hands still shake.)	(Ya he leído esta nota. Aun así me tiemblan las manos.)
+(My feet don't hurt. I ran all summer.)	(No me duelen los pies. Corrí todo el verano.)
+(People keep talking to me. No time to look for the back of his head.)	(La gente no para de hablarme. No hay tiempo para buscar su nuca.)
+(Rua is watching from somewhere. Today I'm not alone.)	(Rua está mirando desde algún sitio. Hoy no estoy sola.)
+(Second spring. This time I came with more than half the sunset left.)	(Segunda primavera. Esta vez llegué con más de medio atardecer.)
+(Snow on the road and I'm not slipping. A year's worth of legs.)	(Nieve en el camino y no resbalo. Piernas de un año entero.)
+(Succulents don't die in winter. That's why she gave it.)	(Las suculentas no mueren en invierno. Por eso me la dio.)
+(That's mine.)	(Eso es mío.)
+(The DJ reads my request. One I never sent.)	(El DJ lee mi petición. Una que nunca envié.)
+(The bus driver sees me and closes the door late.)	(El conductor del autobús me ve y cierra la puerta tarde.)
+(The crates are heavy. Three hours is long.)	(Las cajas pesan. Tres horas son largas.)
+(The digit isn't smeared by accident. It looks smeared on purpose.)	(El número no está borroso por accidente. Parece borrado a propósito.)
+(The story from two years ago — I remember it to the end.)	(La historia de hace dos años: la recuerdo hasta el final.)
+(The tin can Mansu talked about. Bought there six years ago.)	(La lata de la que hablaba Mansu. Comprada allí hace seis años.)
+(This DJ's voice — the one I hear every night at two.)	(La voz de este DJ: la que oigo cada noche a las dos.)
+(Twelve percent. The battery, and me.)	(Doce por ciento. La batería, y yo.)
+(Why didn't I believe the tower wouldn't fall.)	(¿Por qué no creí que la torre no caería?)
+91.9. Two in the morning.	91.9. Las dos de la madrugada.
+A medicine bag falls. It makes no sound.	Cae una bolsa de medicinas. No hace ruido.
+A note under the stone. "Can't come out this week. Tests. Big ones. No, not big — long ones. Open the tin can. It's yours. Half of it."	Una nota bajo la piedra. «Esta semana no puedo salir. Pruebas. Grandes. No, grandes no: largas. Abre la lata. Es tuya. La mitad.»
+A note where he sat. "You're late. Tomorrow, before sunset."	Una nota donde él se sentaba. «Llegas tarde. Mañana, antes del atardecer.»
+A polar bear. It doesn't mean anything.	Un oso polar. No significa nada.
+A story from Jeju. You say you're finally answering a note you got six years ago. …They'll be listening too. Everyone listening at this hour is.	Una historia desde Jeju. Dices que por fin respondes a una nota que recibiste hace seis años. …Ellos también estarán escuchando. Todos los que escuchan a esta hora.
+A while ago.	Hace un rato.
+Ah, the sick kid. Came from Seoul to recover, they say. He was just here. Just now.	Ah, el chico enfermo. Dicen que vino de Seúl a recuperarse. Estaba aquí. Hace nada.
+And one more. A story sent two springs ago from a hospital in Seoul, by an eighteen-year-old listener. We couldn't read it back then. "Next spring I'm going back to Jeju. To the kid next door — "	Y una más. Una historia enviada hace dos primaveras desde un hospital de Seúl, por un oyente de dieciocho años. Entonces no pudimos leerla. «La próxima primavera vuelvo a Jeju. A la chica de al lado…»
+And the canola blooms a day early.	Y la colza florece un día antes.
+Aren't you scared of climbing the tower? No, you wouldn't be.	¿No te da miedo subir a la torre? No, a ti no.
+Asked what he'd put in it — a note, he said. What note does a twelve-year-old write. But it's still there, I hear. Here, one more bag. A bag.	Le pregunté qué iba a meter: una nota, dijo. ¿Qué nota escribe uno a los doce? Pero dicen que sigue ahí. Toma, otra bolsa. Una bolsa.
+Back at the bus stop the display has changed. Service resumed.	De vuelta en la parada, el cartel ha cambiado. Servicio restablecido.
+Bought it because a typhoon was coming. Not for himself. I'll put it in a bag. A bag.	Lo compró porque venía un tifón. No para él. Te lo pongo en una bolsa. Una bolsa.
+Come with me. Before sunset today.	Ven conmigo. Hoy, antes del atardecer.
+Daytime. Hamdeok. This time he was there first. Only his feet in the water.	De día. Hamdeok. Esta vez él llegó primero. Solo los pies en el agua.
+Did I say that?	¿Dije eso?
+Display board: Under maintenance · Service suspended.	Panel: En mantenimiento · Servicio suspendido.
+Do you go up the oreum a lot? My brother said he saw you there.	¿Subes mucho al oreum? Mi hermano dijo que te vio allí.
+Doyun!	¡Doyun!
+Doyun.	Doyun.
+Eight on the calendar. Minus the days you were late — but that's my count to keep.	Ocho en el calendario. Menos los días que llegaste tarde… pero esa cuenta la llevo yo.
+Eleven.	Once.
+Empty. He said as long as you believe the illness, he can stay. When winter ends, he goes. That's all I know.	Vacías. Dijo que mientras creas en la enfermedad, él puede quedarse. Cuando acabe el invierno, se va. Es todo lo que sé.
+Every day he leaves first, he comes to me. He always says it's not because you were late.	Cada día que él se va primero, viene a verme. Siempre dice que no es porque llegaras tarde.
+Every day you were late, my brother left first. So you wouldn't blame yourself. Did you know that?	Cada día que llegabas tarde, mi hermano se iba primero. Para que no te culparas. ¿Lo sabías?
+Every day you're late, I lose a day. That's the rule. But if you knew, you'd run every day, and you'd get hurt running — so on the days you were late I just left first. So it wouldn't be your fault.	Cada día que llegas tarde, pierdo un día. Esa es la regla. Pero si lo supieras, correrías cada día y te harías daño corriendo… así que los días que llegabas tarde, simplemente me iba primero. Para que no fuera tu culpa.
+Everyone listening at this hour is someone who was late. It's fine. The show doesn't end.	Todos los que escuchan a esta hora llegaron tarde a algo. No pasa nada. El programa no termina.
+Fireworks. She watches alone. At her feet, one festival lantern. Lit.	Fuegos artificiales. Ella mira sola. A sus pies, un farol del festival. Encendido.
+Fixed your trucks. The bushing.	Te arreglé los ejes. El casquillo.
+For six years she didn't know. So it wasn't only for treatment that he chose that hospital, she thought. That was a misunderstanding too.	Durante seis años no lo supo. Así que no fue solo por el tratamiento que eligió ese hospital, pensó. Eso también fue un malentendido.
+Forgot it.	Se me olvidó.
+Glass is going out. The glass.	El cristal se va. El cristal.
+Grandma gave me tonic too. Told me to just smell it.	La abuela también me dio tónico. Me dijo que solo lo oliera.
+Grandma hands over one more bottle. This one is Haneul's.	La abuela le da otra botella. Esta es para Haneul.
+Haneul can't answer. It was sad. There's no other word. And from that day, Haneul ran every day.	Haneul no puede responder. Fue triste. No hay otra palabra. Y desde ese día, Haneul corrió cada día.
+Haneul didn't turn the radio off. For the first time she listened to the end.	Haneul no apagó la radio. Por primera vez escuchó hasta el final.
+Haneul doesn't answer and stands up. From that week she stops going to the tower. One day, two, four.	Haneul no responde y se levanta. Desde esa semana deja de ir a la torre. Un día, dos, cuatro.
+Haneul doesn't answer. That not answering is the answer — after six years, they both know.	Haneul no responde. Que no responda es la respuesta: tras seis años, los dos lo saben.
+Haneul doesn't turn the radio off. One light is on at the tower outside the window.	Haneul no apaga la radio. Hay una luz encendida en la torre, al otro lado de la ventana.
+Haneul knows who sent it. 91.9. Through the static, the first-snow song begins.	Haneul sabe quién la envió. 91.9. Entre la estática, empieza la canción de la primera nevada.
+Haneul runs after the bus. Two stops. At the third, the bus pulls away.	Haneul corre tras el autobús. Dos paradas. En la tercera, el autobús arranca.
+Haneul went first. When she reached the tower half the sunset was left, and he didn't come.	Haneul llegó primero. Cuando alcanzó la torre quedaba medio atardecer, y él no vino.
+Haneul worked three more hours until the shift ended. When she looked back, the ridge was empty.	Haneul trabajó tres horas más hasta acabar el turno. Cuando miró atrás, el surco estaba vacío.
+Haneul. There was one more rule. No, not a rule — if you come all the way to the end twice, I get to say one more thing.	Haneul. Había una regla más. No, regla no: si llegas hasta el final dos veces, puedo decir una cosa más.
+He can't come out today. He said not to tell you.	Hoy no puede salir. Dijo que no te lo contara.
+He doesn't turn around. The silver grass closes.	No se da la vuelta. La hierba plateada se cierra.
+He left a while ago. He saw you coming and left. You'd have seen only the back of his head.	Se fue hace un rato. Te vio venir y se fue. Solo habrás visto su nuca.
+He looks. Three seconds. The drum troupe passes. When it's gone, he's gone.	Él mira. Tres segundos. Pasa la comparsa de tambores. Cuando se va, él ya no está.
+He touches the envelope. He doesn't hand it over.	Toca el sobre. No lo entrega.
+He unfolds the letter. Half sunset, half his voice.	Despliega la carta. Mitad atardecer, mitad su voz.
+He was here a while ago, that kid. Bought a raincoat. A raincoat.	Estuvo aquí hace un rato, ese chico. Compró un chubasquero. Un chubasquero.
+He went first. It's the first time. That Haneul is the one who stays.	Él se fue primero. Es la primera vez. Que Haneul sea la que se queda.
+He's at the bottom. Waving. He's in the picture — no, when she comes down and looks, only his spot is out of focus.	Él está abajo. Saludando. Está en la foto… no, cuando ella baja y mira, solo su sitio está desenfocado.
+He's not here right now.	Ahora no está.
+Heard the Seo boy is sick. Drink this. It's what my old man used to take.	Oí que el chico de los Seo está enfermo. Bebe esto. Es lo que tomaba mi marido.
+How?	¿Cómo?
+I asked at the shrine. Whether there are people who stay only one year and go.	Pregunté en el santuario. Si hay gente que se queda solo un año y se va.
+I asked you.	Te lo pregunté a ti.
+I brought bags. Bags. Put something in them to take along.	Traje bolsas. Bolsas. Mete algo para llevarte.
+I don't know. I don't know either. They're just empty. He says it only works while you believe it.	No lo sé. Yo tampoco lo sé. Solo están vacías. Dice que solo funciona mientras lo creas.
+I had something to say.	Tenía algo que decir.
+I had something to say. …You do too. It's on your face.	Tenía algo que decir. …Tú también. Se te nota en la cara.
+I heard you deliver at night. Mansu's worried.	Oí que repartes de noche. Mansu está preocupado.
+I know.	Lo sé.
+I know. You're not late. Half the sunset's still left. First time in a year you got here first.	Lo sé. No llegas tarde. Aún queda medio atardecer. Por primera vez en un año llegaste primero.
+I like you	Me gustas
+I meant not to leave first on the last day, but the day left first. Not your fault.	No quería irme primero el último día, pero el día se fue primero. No es tu culpa.
+I never built my body up, all year. That's it. That's all it was.	Nunca fortalecí el cuerpo, en todo el año. Eso es todo. Solo fue eso.
+I never once said hospital. That's what you heard. Every time.	Nunca dije hospital. Eso es lo que tú oíste. Cada vez.
+I ran every day for a year, and today we all walk down together.	Corrí cada día durante un año, y hoy bajamos todos juntos.
+I ran this store six years ago too. The day that kid left for Seoul, he bought a tin can here.	Hace seis años también llevaba esta tienda. El día que ese chico se fue a Seúl, compró aquí una lata.
+I said you could come late. Take that back. Don't be late. I'll be at that spot next spring too. When the sun sets.	Dije que podías llegar tarde. Lo retiro. No llegues tarde. La próxima primavera también estaré en ese sitio. Cuando se ponga el sol.
+I won't tell you. Just — he says you look funny running, from far away.	No te lo diré. Solo… dice que corres raro, visto desde lejos.
+I'd rather not say either. Is that not allowed?	Yo tampoco quiero decirlo. ¿No se puede?
+I'll come. I won't be late. This time I'm the one chasing.	Iré. No llegaré tarde. Esta vez soy yo quien persigue.
+I'll tell only you. My brother's medicine bags — they're empty.	Solo te lo diré a ti. Las bolsas de medicinas de mi hermano… están vacías.
+I'm burying this. Take care	Entierro esto. Cuídate
+I'm going	Me voy
+I'm slow. Go ahead.	Soy lenta. Adelántate.
+If you stop chasing, there's nothing to miss. That's what she thought.	Si dejas de perseguir, no hay nada que perder. Eso pensó.
+Is the little sister guarding him, Haneul thinks. At thirteen.	¿La hermana pequeña lo está protegiendo?, piensa Haneul. A los trece.
+It doesn't need meaning. A picture is enough. This is as far as I can go. No, not as far as I can go — as far as I go today.	No necesita significado. Con una foto basta. Hasta aquí puedo llegar. No, hasta donde puedo no: hasta donde llego hoy.
+It takes ten minutes to untangle the cord. She felt sorry. She doesn't know why.	Tarda diez minutos en desenredar el cable. Se sintió culpable. No sabe por qué.
+It was like that when we were twelve too.	A los doce también era así.
+It's different from Seoul snow.	Es distinta de la nieve de Seúl.
+Jeju listener. This time you sent a request instead of a story. Play this song at two in the morning on the last day.	Oyente de Jeju. Esta vez enviaste una petición en lugar de una historia. Que pongamos esta canción a las dos de la madrugada del último día.
+Just a tangerine.	Solo una mandarina.
+Later. Just the smell for now.	Luego. Por ahora solo el olor.
+Left it at the hospital. They don't let you use it there.	Lo dejé en el hospital. Allí no dejan usarlo.
+Let's read it together. It's been a while since I saw his handwriting too.	Leámosla juntas. Yo también hace tiempo que no veía su letra.
+Long after the sun is gone, nobody leaves first. Today he didn't have to leave first.	Mucho después de que se vaya el sol, nadie se va primero. Hoy él no tuvo que irse primero.
+Look at your yellow hands. And that boy's are white.	Mira tus manos amarillas. Y las de ese chico son blancas.
+Mansu starts to take something from under the counter, then stops. Not today, it seems.	Mansu empieza a sacar algo de debajo del mostrador y se detiene. Hoy no, parece.
+Mansu's stall. Bags hanging like lanterns.	El puesto de Mansu. Bolsas colgadas como faroles.
+Me? No, it's not that I'm not there, it's that you're late. Your trucks are loose, that's why. The kingpin nut — no, it's the bushing. The bushing's gone.	¿Yo? No, no es que yo no esté, es que tú llegas tarde. Tienes los ejes flojos, por eso. La tuerca del kingpin… no, es el casquillo. El casquillo está gastado.
+Misdiagnosed it back then. Took six years.	Entonces se equivocaron con el diagnóstico. Tardaron seis años.
+My brother died two springs ago. At the hospital in Seoul.	Mi hermano murió hace dos primaveras. En el hospital de Seúl.
+My brother leaves when winter ends. That part's decided.	Mi hermano se va cuando acabe el invierno. Eso está decidido.
+My brother? My brother said he's meeting someone?	¿Mi hermano? ¿Mi hermano dijo que se ve con alguien?
+My old man was sick too. I fed him everything the hospital forbade. He went anyway.	Mi marido también estuvo enfermo. Le di de comer todo lo que el hospital prohibía. Se fue igual.
+Need a bag? A bag.	¿Necesitas una bolsa? Una bolsa.
+Never did tune the frequency all the way. That was me.	Nunca sintonicé la frecuencia del todo. Esa era yo.
+Next spring she'll be able to run. She won't be late then. She decides to think that.	La próxima primavera podrá correr. Entonces no llegará tarde. Decide pensar eso.
+Next story… from an eighteen-year-old listener recovering on Jeju. Says the friend next door keeps being late.	Siguiente historia… de una oyente de dieciocho años que se recupera en Jeju. Dice que el amigo de al lado siempre llega tarde.
+Ninety-one point… four? Seven?	Noventa y uno punto… ¿cuatro? ¿Siete?
+No one is there. No — one person. Rua, sitting on the stone at the tower base.	No hay nadie. No: una persona. Rua, sentada en la piedra de la base de la torre.
+No one is there. The canola bloomed a day early. As many days as Haneul was late, he ended that many days sooner. The twenty-first miss.	No hay nadie. La colza floreció un día antes. Tantos días como Haneul llegó tarde, tantos días antes terminó él. El vigésimo primer desencuentro.
+Nothing.	Nada.
+Nothing. Chalk on the stone. "91.9 — two in the morning. Not in the daytime."	Nada. Tiza en la piedra. «91.9 — a las dos de la madrugada. No de día.»
+Nothing. Just looked at the bags and left. The bags.	Nada. Solo miró las bolsas y se fue. Las bolsas.
+Nothing. The grass is pressed down. In the shape of someone who was sitting there a moment ago.	Nada. La hierba está aplastada. Con la forma de alguien que estaba sentado hace un momento.
+Nothing. The tangerine and the tonic sit on the stone. As if only smelled.	Nada. La mandarina y el tónico siguen en la piedra. Como si solo los hubieran olido.
+Oh, you came in the day. No, that's not — it's not here, a bit more south. You dug and I covered, so count with your steps. Twelve?	Ah, viniste de día. No, no es… no es aquí, un poco más al sur. Tú cavaste y yo tapé, así que cuenta con tus pasos. ¿Doce?
+Oh. Fancy seeing you here.	Ah. Qué casualidad verte aquí.
+One year. From the first day of spring to the last day of winter. The sunset is the clock. I have to be at the tower when the sun sets. Because this is the antenna. No, not an antenna — it just comes in clearest here. Once the sun's down, I can't stay.	Un año. Del primer día de primavera al último de invierno. El atardecer es el reloj. Tengo que estar en la torre cuando se pone el sol. Porque esta es la antena. No, antena no: es que aquí se oye más claro. Cuando el sol baja, no puedo quedarme.
+Only Haneul's hands are yellow.	Solo las manos de Haneul están amarillas.
+Oppa. Leave late.	Oppa. Vete tarde.
+People in the village don't say nice things about you. That's why I'm asking.	La gente del pueblo no habla bien de ti. Por eso te lo pregunto.
+Right, eleven. But those were twelve-year-old steps.	Sí, once. Pero eran pasos de doce años.
+Rua brings Haneul home. Doyun's room. The bed is made and there are no belongings. On the desk, one photo frame, face down.	Rua lleva a Haneul a casa. La habitación de Doyun. La cama hecha y sin pertenencias. En el escritorio, un marco de fotos, boca abajo.
+Rua comes to Haneul's house. A first. Carrying a succulent in a pot.	Rua viene a casa de Haneul. Por primera vez. Con una suculenta en una maceta.
+Rua holds out the tin can. A note inside. Not read yet.	Rua le tiende la lata. Una nota dentro. Aún sin leer.
+Rua is watching from far away. She doesn't wave.	Rua mira desde lejos. No saluda.
+Rua laughed for the first time. Like a thirteen-year-old.	Rua rio por primera vez. Como una niña de trece.
+Rua says nothing more. She closes the gate halfway.	Rua no dice nada más. Cierra la verja a medias.
+Rua stands the frame up. Eighteen. All his front teeth grown in.	Rua endereza el marco. Dieciocho. Todos los dientes de delante ya crecidos.
+Rua taps the tin-can spot with her foot. Eleven steps. Right.	Rua golpea con el pie el sitio de la lata. Once pasos. Correcto.
+Rua told you, didn't she. She can't hold anything in. Even at twelve she told everyone where the tin can was — no, that's not the point.	Te lo dijo Rua, ¿verdad? No puede guardarse nada. Hasta a los doce le contó a todos dónde estaba la lata… no, eso no es lo importante.
+Run on the last day. That day he won't leave.	Corre el último día. Ese día él no se irá.
+Seoul has no sea. The Han River isn't the sea.	Seúl no tiene mar. El río Han no es el mar.
+She finished the sentence to the end. The second time.	Terminó la frase hasta el final. La segunda vez.
+She finishes reading and looks up. The sun is all the way down. No one is there.	Termina de leer y levanta la vista. El sol se ha ido del todo. No hay nadie.
+She flips the board over.	Da la vuelta a la tabla.
+She flips the board over. The twentieth time.	Da la vuelta a la tabla. La vigésima vez.
+She got three seconds. That's what she lived on all summer.	Consiguió tres segundos. De eso vivió todo el verano.
+She knows who left it. She still doesn't go the next day. Or the day after.	Sabe quién lo dejó. Aun así no va al día siguiente. Ni al otro.
+She listens to the end. She listened to the end, but she can't remember the rest.	Escucha hasta el final. Escuchó hasta el final, pero no recuerda el resto.
+She looks at the photo she took on her phone. His spot is eaten by lantern light, blown out white. Backlight, probably.	Mira la foto que hizo con el móvil. Su sitio está comido por la luz de los faroles, quemado en blanco. Contraluz, seguramente.
+She looks for the tin can and gives up. It doesn't feel like eleven steps.	Busca la lata y se rinde. No parecen once pasos.
+She only saw the back of his head, and still knew his steps hurt.	Solo vio su nuca, y aun así supo que le dolían los pasos.
+She only saw the back of his head. She still knows.	Solo vio su nuca. Aun así lo sabe.
+She peels one and holds it out. He only holds it.	Pela una y se la ofrece. Él solo la sostiene.
+She reached it before sunset. He's there. Today he talks at length. From beginning to end.	Llegó antes del atardecer. Él está. Hoy habla largo. Del principio al final.
+She sets the pot on the porch and leaves. She said it has no name.	Deja la maceta en el porche y se va. Dijo que no tiene nombre.
+She sits down on the roadside. Where Doyun sat. Where the medicine bag fell.	Se sienta al borde del camino. Donde se sentaba Doyun. Donde cayó la bolsa de medicinas.
+She turns it off.	La apaga.
+She turns it off. Turns it on.	La apaga. La enciende.
+She went in daytime. Without waiting for the sunset. He was digging.	Fue de día. Sin esperar el atardecer. Él estaba cavando.
+She went in the day. He was there first. Today his sentences are short.	Fue de día. Él llegó primero. Hoy sus frases son cortas.
+Six. I counted right.	Seis. Conté bien.
+So.	Y bien.
+Sound from the bottom of the hill. Mansu's truck. Grandma. Rua. The market people.	Sonido desde el pie de la colina. La camioneta de Mansu. La abuela. Rua. La gente del mercado.
+Spring ending — this time I'll say it first. Go ahead.	Se acaba la primavera… esta vez lo digo yo primero. Adelántate.
+Static. A stinger. Title card → credits. Skateboard character unlocked.	Estática. Una cortinilla. Título → créditos. Personaje con monopatín desbloqueado.
+Static. Commercials. Trot songs.	Estática. Anuncios. Canciones trot.
+Static. Then a voice she knows. The voice of someone who talks in long sentences.	Estática. Luego una voz que conoce. La voz de alguien que habla con frases largas.
+Take one more tangerine. Don't leave it on the stone — put it in his hand.	Llévate otra mandarina. No la dejes en la piedra: pónsela en la mano.
+Take this. Raincoat. New. The kid bought it and never took it.	Toma. Chubasquero. Nuevo. El chico lo compró y nunca lo recogió.
+Thank you. But the hospital said not to take anything else —	Gracias. Pero el hospital dijo que no tomara nada más…
+That kid comes every day. Looks at the bags and leaves. Every day.	Ese chico viene cada día. Mira las bolsas y se va. Cada día.
+That kid — he just looks at the bags and leaves. Every day. He's not buying. He's measuring time.	Ese chico… solo mira las bolsas y se va. Cada día. No compra. Está midiendo el tiempo.
+That kid? He just left. Said the sun was setting. Why does a sick boy fuss so much over sunsets.	¿Ese chico? Acaba de irse. Dijo que se ponía el sol. ¿Por qué un chico enfermo se preocupa tanto por los atardeceres?
+That night at two, she listened. The DJ read a story. Someone else's story. She listened to the end anyway.	Esa noche a las dos, escuchó. El DJ leyó una historia. La historia de otra persona. Escuchó hasta el final igualmente.
+That raincoat — I gave it to you, right. The kid bought it and left it.	Ese chubasquero… te lo di yo, ¿verdad? El chico lo compró y lo dejó.
+That's why it's better.	Por eso es mejor.
+That's why you kept leaving first.	Por eso seguías yéndote primero.
+That's worse.	Eso es peor.
+The Seo boy. This isn't tonic, it's just tangerines. Eat.	El chico de los Seo. Esto no es tónico, son solo mandarinas. Come.
+The bus comes. Only Rua gets on. Window seat. The seat beside her is empty.	Llega el autobús. Solo sube Rua. Asiento de ventana. El de al lado está vacío.
+The bus.	El autobús.
+The chalk is wet but the writing hasn't run.	La tiza está mojada pero la escritura no se ha corrido.
+The day Doyun called "the big hospital day." Rua is wearing a backpack. Doyun isn't there.	El día que Doyun llamó «el día del hospital grande». Rua lleva mochila. Doyun no está.
+The following spring. Two in the morning. 91.9.	La primavera siguiente. Las dos de la madrugada. 91.9.
+The grandmother who owns the farm comes over with a bottle of tonic.	La abuela dueña del huerto se acerca con una botella de tónico.
+The kid came today too. Just looked at the bags. That's eleven times.	El chico vino hoy también. Solo miró las bolsas. Ya van once veces.
+The last day of winter. There's no bus. The canola is a day early.	El último día de invierno. No hay autobús. La colza va un día adelantada.
+The last day of winter. When the sun sets. Come then. That day I won't leave first.	El último día de invierno. Cuando se ponga el sol. Ven entonces. Ese día no me iré primero.
+The medicine bags.	Las bolsas de medicinas.
+The note doesn't answer.	La nota no responde.
+The note from under the tower stone yesterday. "The tower won't fall, right? Our tin can."	La nota de ayer, bajo la piedra de la torre. «La torre no va a caer, ¿verdad? Nuestra lata.»
+The note she left last night — "It didn't fall." — is gone. Instead: "Told you."	La nota que dejó anoche —«No cayó.»— ha desaparecido. En su lugar: «Te lo dije.»
+The old town. Gongs. Across the crowd, there he is. Under the lanterns.	El casco antiguo. Gongs. Al otro lado de la multitud, ahí está. Bajo los faroles.
+The radio stinger is the same. What comes after, it doesn't say.	La cortinilla de la radio es la misma. Lo que viene después, no lo dice.
+The radio stinger is the same. What comes after, the two of them listen to together.	La cortinilla de la radio es la misma. Lo que viene después, lo escuchan los dos juntos.
+The radio. The frequency he wrote on the shovel handle. One digit smeared in the dirt.	La radio. La frecuencia que él escribió en el mango de la pala. Un número borroso por la tierra.
+The raincoat is folded, never once opened. The paper is dry.	El chubasquero está doblado, sin abrir ni una vez. El papel está seco.
+The raincoat is folded. Never once opened.	El chubasquero está doblado. Sin abrir ni una vez.
+The succulent has no name. You name it. He said so.	La suculenta no tiene nombre. Ponle tú uno. Él lo dijo.
+The sun goes all the way down. The tower is visible from here too. No one is standing under it.	El sol baja del todo. La torre también se ve desde aquí. No hay nadie debajo.
+The sun was all the way down. No, that's not the reason — it was cold.	El sol se había ido del todo. No, esa no es la razón: hacía frío.
+The tangerine farm job. He's sitting on the ridge between rows. Said he was discharged. Thinner, but he still talks in long sentences.	El trabajo en el huerto de mandarinas. Él está sentado en el surco entre hileras. Dijo que le dieron el alta. Más delgado, pero sigue hablando con frases largas.
+The things they put in at twelve. Stickers. A front tooth. And the note he put in the day before he left for Seoul.	Lo que metieron a los doce. Pegatinas. Un diente de leche. Y la nota que él metió el día antes de irse a Seúl.
+The tin can doesn't turn up. He coughs. Haneul pretends not to hear.	La lata no aparece. Él tose. Haneul finge no oírlo.
+The whole village knows. That you run every day. Some days I couldn't leave first because of that.	Todo el pueblo lo sabe. Que corres cada día. Algunos días no pude irme primero por eso.
+Then I guess that's what it is.	Entonces supongo que es eso.
+Then the tower. I'll climb up there and take it. Wait at the bottom.	Entonces la torre. Subiré ahí arriba y la haré. Espera abajo.
+Then what is it?	¿Entonces qué es?
+There's a story about two people listening to the same frequency. One wrote two years ago, one last week.	Hay una historia sobre dos personas que escuchan la misma frecuencia. Una escribió hace dos años, otra la semana pasada.
+There's no such thing as just a tangerine.	No existe eso de «solo una mandarina».
+They both know it's a lie. Haneul could have asked first. She didn't. Wind. Silver grass. Haneul counts numbers. Twelve percent battery left. The first time they'd met in ten days, and it wasn't even five minutes. In those five minutes she only had to ask one of three things — why he keeps getting thinner, where the hospital is, where he goes in winter — and she couldn't ask any of them, and she never knew it could be that hard.	Los dos saben que es mentira. Haneul podría haber preguntado primero. No lo hizo. Viento. Hierba plateada. Haneul cuenta números. Doce por ciento de batería. La primera vez que se veían en diez días, y no fueron ni cinco minutos. En esos cinco minutos solo tenía que preguntar una de tres cosas —por qué sigue adelgazando, dónde está el hospital, adónde va en invierno— y no pudo preguntar ninguna, y nunca supo que podía ser tan difícil.
+They promised by note. "The festival. You can see the fireworks from the tower." The reply: "Crowds, not really. No, it's not that I don't like them — okay."	Prometieron por nota. «El festival. Desde la torre se ven los fuegos.» La respuesta: «Multitudes, no mucho. No, no es que no me gusten… vale.»
+They ran into each other at the bus stop. Snow. He's wearing two scarves.	Se cruzaron en la parada del autobús. Nieve. Él lleva dos bufandas.
+They ran into each other on the coastal road. No promise made. The canola has all fallen.	Se cruzaron en la carretera de la costa. Sin promesa. La colza ya ha caído del todo.
+They reached it before sunset. The two of them. For the first time Haneul finishes a sentence to the end.	Llegaron antes del atardecer. Los dos. Por primera vez Haneul termina una frase hasta el final.
+They reached it before sunset. Together, for the first time. This chapter is all of summer.	Llegaron antes del atardecer. Juntos, por primera vez. Este capítulo es todo el verano.
+They said yes. Only at sunset. Just don't be late, they said. That's all.	Dijeron que sí. Solo al atardecer. Solo que no llegue tarde, dijeron. Eso es todo.
+This is better.	Esto es mejor.
+This is nice.	Esto está bien.
+This is the second time I'm telling you the rule. This time you knew first.	Es la segunda vez que te cuento la regla. Esta vez tú la sabías primero.
+This spring he walked in through the gate. Mom couldn't see him. Only I could. The village thinks he came back sick. That's what he went around saying. To you too.	Esta primavera entró por la verja. Mamá no podía verlo. Solo yo. El pueblo cree que volvió enfermo. Eso fue diciendo por ahí. A ti también.
+This time I didn't forget. I just can't. I'll say it in winter.	Esta vez no se me olvidó. Es que no puedo. Lo diré en invierno.
+This time it comes out. Eleven steps was right. She doesn't open it. She doesn't want to open it alone.	Esta vez sale. Once pasos era correcto. No la abre. No quiere abrirla sola.
+This time it wasn't a miss. She saw him off. She never got to say goodbye, but he said she could come late. It didn't say where he'd wait, but she knows. 91.9.	Esta vez no fue un desencuentro. Lo despidió. Nunca pudo decir adiós, pero él dijo que podía llegar tarde. No decía dónde esperaría, pero ella lo sabe. 91.9.
+This time they met in the morning. Avoiding the sunset. Haneul decided that.	Esta vez se vieron por la mañana. Evitando el atardecer. Lo decidió Haneul.
+Three of the 4.2 kilometers. Her legs stop first. The last day, the last sunset.	Tres de los 4,2 kilómetros. Las piernas se detienen primero. El último día, el último atardecer.
+Through the door gap, the shoe rack. One pair of sneakers, one pair of adult shoes. That's all.	Por la rendija de la puerta, el zapatero. Un par de zapatillas, un par de zapatos de adulto. Nada más.
+Together —	Juntos…
+Tomorrow again?	¿Mañana otra vez?
+Tonight it came not as a letter but as a voice. From Jeju, nineteen years old…	Esta noche no llegó como carta sino como voz. Desde Jeju, diecinueve años…
+Tonight's letter is from Jeju. You wrote again about the friend who's always late.	La carta de esta noche viene de Jeju. Escribiste otra vez sobre el amigo que siempre llega tarde.
+Too many people. No, that's not it — I saw you coming, but the sunset was — I just left. Sorry.	Demasiada gente. No, no es eso… te vi venir, pero el atardecer… me fui sin más. Perdón.
+Two in the morning. 91.9.	Las dos de la madrugada. 91.9.
+Two in the morning. A story from Jeju. The one who sent one last year too… this time it's short. "You're listening, right?" …Yes. They'll be listening.	Las dos de la madrugada. Una historia desde Jeju. Quien también envió una el año pasado… esta vez es corta. «Estás escuchando, ¿verdad?» …Sí. Estarán escuchando.
+Two in the morning. This time she gets it on the first try. Haneul sent in her story three days ago. For the first time, writing a sentence all the way to the end.	Las dos de la madrugada. Esta vez la sintoniza a la primera. Haneul envió su historia hace tres días. Por primera vez, escribiendo una frase hasta el final.
+Two springs ago.	Hace dos primaveras.
+Want me to read it? If you read it, you'd read it late.	¿Quieres que la lea? Si la lees tú, la leerías tarde.
+We couldn't read the one from two years ago back then. They asked for spring. We'll read it in spring.	La de hace dos años no pudimos leerla entonces. Pidieron primavera. La leeremos en primavera.
+We'll play it. Someone else will be listening at that hour too.	La pondremos. Alguien más estará escuchando a esa hora.
+What do you know, you've never even been.	Qué sabrás tú, si ni siquiera has ido.
+What does a hospital know.	Qué sabe un hospital.
+What will you do when my brother goes?	¿Qué harás cuando mi hermano se vaya?
+What?	¿Qué?
+When winter ends he goes. If you blame yourself then, that's what he'd hate most.	Cuando acabe el invierno se va. Si entonces te culpas, eso es lo que él más odiaría.
+When?	¿Cuándo?
+Where he's going isn't Seoul. I don't know where it is either.	Adonde va no es Seúl. Yo tampoco sé dónde es.
+Where's Doyun?	¿Dónde está Doyun?
+Why are you asking me that?	¿Por qué me preguntas eso?
+Why did you just leave yesterday?	¿Por qué te fuiste sin más ayer?
+Why do you ask me that? He thinks you've stopped chasing him, you know.	¿Por qué me preguntas eso a mí? Él cree que dejaste de perseguirlo, ¿sabes?
+Yeah.	Sí.
+Yeah. There.	Sí. Ahí.
+Yeah. Today.	Sí. Hoy.
+You can come late. I'll wait	Puedes llegar tarde. Te esperaré
+You did. The hospital's going to say something.	Sí que lo hiciste. El hospital va a decir algo.
+You don't wash it off. That boy's aren't yellow. He doesn't touch them. Only smells.	No te lo lavas. Las de ese chico no están amarillas. No las toca. Solo las huele.
+You drink the tonic. The one who runs should. Tell that boy to just smell it.	Bébete tú el tónico. Debe tomarlo quien corre. A ese chico dile que solo lo huela.
+You go up first. Take a picture from the top and show me.	Sube tú primero. Haz una foto desde arriba y enséñamela.
+You got burned, right? Me too.	Te quemaste, ¿verdad? Yo también.
+You peel a tangerine from the stem end so it doesn't burst. No, that's a mandarin, this is… what is this.	La mandarina se pela desde el tallo para que no reviente. No, eso es una clementina, esto es… ¿qué es esto?
+You weren't late all year. Everyone knows what you did around the village. He knew too.	No llegaste tarde en todo el año. Todos saben lo que hiciste por el pueblo. Él también lo sabía.
+You work well. I won't charge for the bag. The bag.	Trabajas bien. No te cobro la bolsa. La bolsa.
+You're Haneul, the one he talks about?	¿Tú eres Haneul, de la que él habla?
+You're late.	Llegas tarde.
+You're not even in it.	Si ni siquiera sales.
+You've been at the village hall a lot lately. Here, one more bag.	Últimamente vas mucho al centro cívico. Toma, otra bolsa.
+You've been listening to the radio. Your voice sounds like two in the morning.	Has estado escuchando la radio. Tu voz suena a las dos de la madrugada.
+You've gotten better on the board. Definitely better than at twelve.	Has mejorado con la tabla. Sin duda más que a los doce.
+Your hands are yellow. Tangerine hands. Those are working hands.	Tienes las manos amarillas. Manos de mandarina. Esas son manos que trabajan.
+Your trucks don't wobble anymore. You fixed them?	Tus ejes ya no bailan. ¿Los arreglaste?
+— there's only one year, and every day that kid is late he loses a day, so he gets up and leaves first. I'm not sure what it means either…	…solo hay un año, y cada día que ese chico llega tarde pierde un día, así que se levanta y se va primero. Yo tampoco sé qué significa…
+…	…
+…4.2 kilometers.	…4,2 kilómetros.
+…A tin can.	…Una lata.
+…And if it falls?	…¿Y si cae?
+…Did he lose his phone?	…¿Perdió el móvil?
+…Did my brother tell you he's going to the hospital?	…¿Mi hermano te dijo que va al hospital?
+…Don't know. It's different. Seoul snow turns gray as soon as it lands, but here — no, that's not it. It's just different.	…No sé. Es distinta. La nieve de Seúl se vuelve gris nada más caer, pero aquí… no, no es eso. Solo es distinta.
+…Doyun did?	…¿Doyun?
+…Doyun.	…Doyun.
+…Eleven steps. You said it first. No — you're going to say it.	…Once pasos. Lo dijiste tú primero. No… lo vas a decir tú.
+…Five.	…Cinco.
+…Goes? Where?	…¿Se va? ¿Adónde?
+…How many days left. Exactly.	…Cuántos días quedan. Exactamente.
+…I did.	…Lo hice.
+…I didn't.	…No lo hice.
+…I feel like we've had this conversation before.	…Siento que ya hemos tenido esta conversación.
+…I know. No, I didn't. I know now.	…Lo sé. No, no lo sabía. Ahora lo sé.
+…I never sent a request.	…Nunca envié una petición.
+…I'll go first. You stay today.	…Me voy yo primero. Hoy te quedas tú.
+…I'll tell you. It's not the hospital.	…Te lo diré. No es el hospital.
+…If that's what you think, then that's what it is.	…Si eso es lo que piensas, entonces es eso.
+…It won't wash off.	…No se va.
+…It's meaningless if we don't go together.	…No tiene sentido si no vamos juntos.
+…Me.	…Yo.
+…Not yet. Half the sunset is still left.	…Todavía no. Aún queda medio atardecer.
+…Okay.	…Vale.
+…Okay. At the bottom.	…Vale. Abajo.
+…Read it.	…Léela.
+…So?	…¿Y?
+…Spring's over. Go ahead. Before sunset.	…Se acabó la primavera. Adelántate. Antes del atardecer.
+…Thanks.	…Gracias.
+…The Seo family. Next door. I heard their son came back.	…Los Seo. Los de al lado. Oí que su hijo volvió.
+…The hospital?	…¿El hospital?
+…This village, honestly.	…Este pueblo, de verdad.
+…Tomorrow's the hospital.	…Mañana toca hospital.
+…Two years ago.	…Hace dos años.
+…Was he admitted?	…¿Lo ingresaron?
+…What did he buy?	…¿Qué compró?
+…What did he say.	…¿Qué dijo?
+…What did they say.	…¿Qué dijeron?
+…What do you mean.	…¿Qué quieres decir?
+…What tests?	…¿Qué pruebas?
+…What's the rule?	…¿Cuál es la regla?
+…When?	…¿Cuándo?
+…Where to? A hospital in Seoul?	…¿Adónde? ¿A un hospital de Seúl?
+…Who listens to the radio at two in the morning?	…¿Quién escucha la radio a las dos de la madrugada?
+…Why are you telling me.	…¿Por qué me lo cuentas?
+…Why did you leave at the festival?	…¿Por qué te fuiste del festival?
+…Yeah.	…Sí.
+…Yeah. I won't be late.	…Sí. No llegaré tarde.
+…Yeah. Is Doyun in?	…Sí. ¿Está Doyun?
+…Yeah. It is.	…Sí. Lo es.
+…You can come in. He's not here, though.	…Puedes pasar. Aunque él no está.
+…You keep not being there.	…Nunca estás.
+…You kept saying the hospital.	…No parabas de decir hospital.
+…You look pale lately. On the last day, you can walk instead of run.	…Últimamente estás pálido. El último día puedes caminar en vez de correr.
+…Your phone?	…¿Tu móvil?

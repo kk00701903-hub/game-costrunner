@@ -702,7 +702,7 @@ namespace CoastRun
             CreateLabel(_settingsPanel.transform, "T", Loc.T("설정", "Settings"), 28, FontStyle.Bold,
                 Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
             // 언어 토글: 바꾸면 타이틀을 다시 열어 모든 문구·대문 아트를 새 언어로 만든다.
-            CreateMenuButton(_settingsPanel.transform, Loc.T("언어: 한국어  →  English", "Language: English  →  한국어"), 0.48f, () =>
+            CreateMenuButton(_settingsPanel.transform, Loc.T($"언어: 한국어  →  {Loc.Native(Loc.NextLang)}", Loc.Tr("Language") + $": {Loc.Native(Loc.Lang)}  →  {Loc.Native(Loc.NextLang)}"), 0.48f, () =>
             {
                 _audio?.PlayClick();
                 Loc.Toggle();

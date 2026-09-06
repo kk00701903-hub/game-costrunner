@@ -1,0 +1,549 @@
+   ·   New record!	   ·   Rekor baru!
+   ·   Previous record kept	   ·   Rekor lama dipertahankan
+   · Personal best	   · Rekor pribadi
+  …someone said you've been out late a lot.	  …katanya kamu sering keluar sampai larut.
+ · night work	 · kerja malam
+(Lyrics coming with the Suno track)	(Lirik menyusul bersama trek Suno)
+AI-produced mixed duo	Duo campuran buatan AI
+Achievement  ★ 	Pencapaian  ★ 
+Acoustic	Akustik
+Agility	Kelincahan
+Album	Album
+Album owned	Album dimiliki
+Amateur Radio Class	Kelas Radio Amatir
+An endless course that keeps speeding up. Distance, coins, hearts = score.	Lintasan tanpa akhir yang terus makin cepat. Jarak, koin, hati = skor.
+Arrive without a hit	Sampai tanpa terkena
+Arrived	Sampai
+Autumn	Musim gugur
+Autumn EP	EP Musim Gugur
+Back home	Pulang
+Back to title?	Kembali ke judul?
+Beach Cafe	Kafe Pantai
+Best combo	Kombo terbaik
+Biker	Pengendara motor
+Body	Tubuh
+Chapter mission stars\n	Bintang misi per bab\n
+Chapters	Bab
+Charm	Pesona
+Clear	Selesai
+Close	Tutup
+Coins	Koin
+Collection	Koleksi
+Continue	Lanjutkan
+Credits	Kredit
+Daily Run	Lari Harian
+Dance Academy	Akademi Tari
+Dance Practice	Latihan Tari
+Digital Album “Our Frequency”	Album Digital "Frekuensi Kita"
+Done today — run again	Selesai hari ini — lari lagi
+Doyun	Doyun
+Duet	Duet
+Easy: stamina ×0.8, stress ×0.7	Mudah: stamina ×0,8, stres ×0,7
+End of Spring	Akhir Musim Semi
+Endless	Tanpa Akhir
+Exhausted. One more week like this and you'll fall ill.	Kelelahan. Seminggu lagi seperti ini dan kamu akan jatuh sakit.
+Fallen Leaves	Daun Gugur
+Fan Art	Fan Art
+Festival	Festival
+Fever. Bedridden the whole week. (medicine -30G, stress -40)	Demam. Terbaring seminggu penuh. (obat -30G, stres -40)
+First Snow	Salju Pertama
+Frequency	Frekuensi
+Full	Penuh
+Get the album	Dapatkan album
+Go	Pergi
+Go to the Tower	Pergi ke Menara
+Go to the story now?	Ke cerita sekarang?
+Got it	Mengerti
+Grandma	Nenek
+Great %	% Sukses besar
+Growth	Pertumbuhan
+Gym	Gym
+Haenyeo School	Sekolah Haenyeo
+Haneul	Haneul
+Haneul and Doyun's voices, songs and art are AI-produced; the story and the game are made by people. They do not imitate any real person or group.\n\nSpring is free; the rest opens with the digital album (one purchase). No ads.	Suara, lagu, dan gambar Haneul dan Doyun dibuat dengan AI; cerita dan gamenya dibuat oleh manusia. Tidak meniru orang atau grup nyata mana pun.\n\nMusim semi gratis; sisanya terbuka dengan album digital (sekali beli). Tanpa iklan.
+Hard: stamina ×1.3, stress ×1.3	Sulit: stamina ×1,3, stres ×1,3
+Hearts	Hati
+Help the Haenyeo	Bantu Haenyeo
+Hospital Day	Hari Rumah Sakit
+How will you run?	Mau lari bagaimana?
+I can see the tower clearly today.	Hari ini menaranya terlihat jelas.
+If you like JEJU, a rating helps us make the next song.	Kalau kamu suka JEJU, penilaianmu membantu kami membuat lagu berikutnya.
+Jeju Cooking Class	Kelas Masak Jeju
+Jeju Dialect Class	Kelas Dialek Jeju
+Jobs	Kerja
+Language	Bahasa
+Language: English  →  한국어	Bahasa: English  →  한국어
+Last week of the chapter	Minggu terakhir bab
+Late-night Delivery	Antar Malam
+Later	Nanti
+Laze at Home	Bermalasan di Rumah
+Leave	Keluar
+Lessons	Les
+Let's go to the tower when it snows.	Ayo ke menara saat salju turun.
+Lighthouse Cleaning	Bersihkan Mercusuar
+Mansu	Mansu
+Market Porter	Kuli Pasar
+Mind & Life	Pikiran & Hidup
+Money	Uang
+Near miss	Nyaris kena
+New Game	Permainan Baru
+Next stage	Tahap berikutnya
+Night Serving	Pelayan Malam
+No audio yet.	Belum ada audio.
+No damage	Tanpa cedera
+No roll · always succeeds	Tanpa dadu · selalu berhasil
+None	Tidak ada
+Normal rhythm	Ritme normal
+Not enough money	Uang tidak cukup
+Nothing yet.	Belum ada apa-apa.
+Opening	Pembukaan
+Oreum	Oreum
+Oreum Walk	Jalan di Oreum
+Outside the story — just run.	Di luar cerita — hanya lari.
+Pace: Easy	Tempo: Mudah
+Pace: Hard	Tempo: Sulit
+Pace: Normal	Tempo: Normal
+Photo & Drawing Class	Kelas Foto & Gambar
+Photocards	Photocard
+Plan	Rencana
+Practice	Latihan
+Progress is auto-saved.	Progres tersimpan otomatis.
+Purchase not completed.	Pembelian tidak selesai.
+Radio Letter	Surat Radio
+Radio Station Assistant	Asisten Stasiun Radio
+Rate	Nilai
+Records	Rekor
+Rest	Istirahat
+Restore / Close	Pulihkan / Tutup
+Resume	Lanjut
+Retry	Ulangi
+Rua	Rua
+Run	Lari
+Run HP	HP Lari
+Run again	Lari lagi
+S20  The Tower	S20  Menara
+Salon Assistant	Asisten Salon
+Save	Simpan
+Save & share	Simpan & bagikan
+Saved to gallery (Pictures/JEJU)	Tersimpan ke galeri (Pictures/JEJU)
+Scooter Delivery	Antar Skuter
+Sea Swim	Berenang di Laut
+Sense	Kepekaan
+Settings	Pengaturan
+Share photocard	Bagikan photocard
+Shop	Toko
+Shrine Preparation	Persiapan Kuil
+Skate Practice	Latihan Skate
+Skate Trick Lessons	Kelas Trik Skate
+Sparrow	Burung Gereja
+Speed	Kecepatan
+Spring	Musim semi
+Spring EP	EP Musim Semi
+Stamina	Stamina
+Start	Mulai
+Start daily run	Mulai lari harian
+Starting over erases the current playthrough.	Mulai ulang menghapus permainan saat ini.
+Story	Cerita
+Stress	Stres
+Summer	Musim panas
+Summer EP	EP Musim Panas
+Sunset Run	Lari Senja
+Talk of Seoul	Cerita Seoul
+Tangerine Farm	Kebun Jeruk
+Tangerines	Jeruk
+Tap the card to flip · save & share below	Ketuk kartu untuk membalik · simpan & bagikan di bawah
+Thank you! Everything is unlocked.	Terima kasih! Semua sudah terbuka.
+Thank you. Every track is yours.	Terima kasih. Semua trek milikmu.
+The Base	Markas
+The Letter	Surat
+The One Who Came Back	Yang Kembali
+The Rule	Aturan
+The Sea	Laut
+The Tin Can	Kaleng
+The Tower	Menara
+The rest of this week becomes the story. After the chapter, you move to the next chapter's first week.	Sisa minggu ini menjadi cerita. Setelah bab selesai, kamu pindah ke minggu pertama bab berikutnya.
+The skateboard unlocks after one ending.	Skateboard terbuka setelah melihat satu ending.
+This is the chapter's last week.\nTime to go to the story.	Ini minggu terakhir bab.\nSaatnya masuk ke cerita.
+Three cards already.	Sudah tiga kartu.
+Title	Judul
+To the tower	Ke menara
+To timeline	Ke linimasa
+Today's stamp is already yours.	Stempel hari ini sudah kamu dapat.
+Total	Total
+Tower Maintenance Helper	Pembantu Perawatan Menara
+Tower Night Patrol	Patroli Malam Menara
+Track	Trek
+Trophies	Trofi
+Trust	Kepercayaan
+Tuition · guaranteed gain	Biaya les · pasti naik
+Typhoon	Topan
+Unlock with the album	Buka dengan album
+Verse 1 (rank A+ for full)	Bait 1 (peringkat A+ untuk versi penuh)
+Village Hall Volunteer	Relawan Balai Desa
+Wallet	Dompet
+Weekend · Condition	Akhir pekan · Kondisi
+Wild Goose	Angsa Liar
+Will I tune the radio in today?	Apa hari ini aku bisa menangkap siaran radionya?
+Winter	Musim dingin
+Winter EP	EP Musim Dingin
+Word got around…	Kabar tersebar…
+Words Unsaid	Kata yang Tak Terucap
+You disappeared for a while and missed the sunset. (Trust -10, chapter graded C)	Kamu menghilang sebentar dan melewatkan senja. (Kepercayaan -10, bab dinilai C)
+— Haneul ♡	— Haneul ♡
+“JEJU” is an AI-produced virtual duo	"JEJU" adalah duo virtual buatan AI
+…I want to rest a bit.	…Aku ingin istirahat sebentar.
+…My body won't keep up. I should rest today.	…Badanku tidak kuat. Hari ini sebaiknya istirahat.
+← Back	← Kembali
+← Binder	← Binder
+▶ Play	▶ Putar
+▶ Preview	▶ Pratinjau
+★ New best!	★ Rekor baru!
+★ Story	★ Cerita
+⚠ Stress is over stamina. Rest is needed.	⚠ Stres melebihi stamina. Perlu istirahat.
+👟 Running	👟 Lari
+🛹 Skateboard	🛹 Skateboard
+"A while ago," for Mansu, can mean ten minutes or three hours.	"Tadi," bagi Mansu, bisa berarti sepuluh menit atau tiga jam.
+"I came back down. Under the tower when the sun sets. Let's see if our base is still there."	"Aku turun lagi. Di bawah menara saat matahari terbenam. Ayo lihat apakah markas kita masih ada."
+"I'll come back. Radio 91.9, two in the morning. Meet me there."	"Aku akan kembali. Radio 91.9, jam dua pagi. Temui aku di sana."
+"Sorry" was a first.	"Maaf" adalah yang pertama.
+'Haneul. I'm going. Fixed your trucks. The bushing.' …That part you already know.	"Haneul. Aku pergi. Truck-mu sudah kuperbaiki. Bushing-nya." …Bagian itu kamu sudah tahu.
+'I like you. You can come late. I'll wait.' That part I've never said out loud.	"Aku suka kamu. Kamu boleh terlambat. Aku akan menunggu." Bagian itu belum pernah kuucapkan.
+'There's only one year.' I already know this line.	"Hanya ada satu tahun." Kalimat ini sudah kutahu.
+(A few steps and I'm out of breath. How am I going to make the sunset like this.)	(Beberapa langkah saja napasku habis. Bagaimana aku mengejar senja seperti ini.)
+(I haven't been sleeping. Is that why I'm late.)	(Aku tidak bisa tidur. Karena itu aku terlambat?)
+(I sent a story twice. The DJ seems to know my handwriting.)	(Aku mengirim cerita dua kali. DJ-nya sepertinya hafal tulisanku.)
+(I've already read this note. My hands still shake.)	(Catatan ini sudah kubaca. Tanganku masih gemetar.)
+(My feet don't hurt. I ran all summer.)	(Kakiku tidak sakit. Aku berlari sepanjang musim panas.)
+(People keep talking to me. No time to look for the back of his head.)	(Orang-orang terus mengajakku bicara. Tidak sempat mencari punggungnya.)
+(Rua is watching from somewhere. Today I'm not alone.)	(Rua mengawasi dari suatu tempat. Hari ini aku tidak sendirian.)
+(Second spring. This time I came with more than half the sunset left.)	(Musim semi kedua. Kali ini aku datang saat senja masih lebih dari separuh.)
+(Snow on the road and I'm not slipping. A year's worth of legs.)	(Salju di jalan dan aku tidak tergelincir. Kaki hasil setahun.)
+(Succulents don't die in winter. That's why she gave it.)	(Sukulen tidak mati di musim dingin. Karena itu dia memberikannya.)
+(That's mine.)	(Itu punyaku.)
+(The DJ reads my request. One I never sent.)	(DJ membaca permintaanku. Yang tidak pernah kukirim.)
+(The bus driver sees me and closes the door late.)	(Sopir bus melihatku dan menutup pintu terlambat.)
+(The crates are heavy. Three hours is long.)	(Petinya berat. Tiga jam itu lama.)
+(The digit isn't smeared by accident. It looks smeared on purpose.)	(Angkanya tidak kabur tanpa sengaja. Sepertinya sengaja dikaburkan.)
+(The story from two years ago — I remember it to the end.)	(Cerita dua tahun lalu — aku ingat sampai akhir.)
+(The tin can Mansu talked about. Bought there six years ago.)	(Kaleng yang dibicarakan Mansu. Dibeli di sana enam tahun lalu.)
+(This DJ's voice — the one I hear every night at two.)	(Suara DJ ini — yang kudengar tiap malam jam dua.)
+(Twelve percent. The battery, and me.)	(Dua belas persen. Bateraiku, dan aku.)
+(Why didn't I believe the tower wouldn't fall.)	(Kenapa aku tidak percaya menaranya tidak akan roboh.)
+91.9. Two in the morning.	91.9. Jam dua pagi.
+A medicine bag falls. It makes no sound.	Sebuah kantong obat jatuh. Tidak bersuara.
+A note under the stone. "Can't come out this week. Tests. Big ones. No, not big — long ones. Open the tin can. It's yours. Half of it."	Catatan di bawah batu. "Minggu ini tidak bisa keluar. Tes. Besar. Bukan, bukan besar — panjang. Buka kalengnya. Itu punyamu. Separuhnya."
+A note where he sat. "You're late. Tomorrow, before sunset."	Catatan di tempat dia duduk. "Kamu terlambat. Besok, sebelum senja."
+A polar bear. It doesn't mean anything.	Beruang kutub. Tidak berarti apa-apa.
+A story from Jeju. You say you're finally answering a note you got six years ago. …They'll be listening too. Everyone listening at this hour is.	Cerita dari Jeju. Katamu akhirnya kamu membalas catatan yang kamu terima enam tahun lalu. …Mereka juga pasti mendengarkan. Semua yang mendengar di jam ini.
+A while ago.	Tadi.
+Ah, the sick kid. Came from Seoul to recover, they say. He was just here. Just now.	Ah, anak yang sakit itu. Katanya datang dari Seoul untuk pemulihan. Tadi dia di sini. Baru saja.
+And one more. A story sent two springs ago from a hospital in Seoul, by an eighteen-year-old listener. We couldn't read it back then. "Next spring I'm going back to Jeju. To the kid next door — "	Dan satu lagi. Cerita yang dikirim dua musim semi lalu dari rumah sakit di Seoul, oleh pendengar berusia delapan belas tahun. Waktu itu kami tidak bisa membacakannya. "Musim semi depan aku kembali ke Jeju. Ke anak sebelah rumah — "
+And the canola blooms a day early.	Dan bunga kanola mekar sehari lebih awal.
+Aren't you scared of climbing the tower? No, you wouldn't be.	Kamu tidak takut memanjat menara? Tidak, kamu memang tidak.
+Asked what he'd put in it — a note, he said. What note does a twelve-year-old write. But it's still there, I hear. Here, one more bag. A bag.	Kutanya mau diisi apa — catatan, katanya. Catatan apa yang ditulis anak dua belas tahun. Tapi katanya masih ada di sana. Nih, satu kantong lagi. Kantong.
+Back at the bus stop the display has changed. Service resumed.	Kembali di halte, papannya sudah berubah. Layanan kembali beroperasi.
+Bought it because a typhoon was coming. Not for himself. I'll put it in a bag. A bag.	Dibelinya karena topan akan datang. Bukan untuk dirinya. Kumasukkan ke kantong. Kantong.
+Come with me. Before sunset today.	Ikut aku. Hari ini sebelum senja.
+Daytime. Hamdeok. This time he was there first. Only his feet in the water.	Siang hari. Hamdeok. Kali ini dia yang lebih dulu ada. Hanya kakinya di air.
+Did I say that?	Aku bilang begitu?
+Display board: Under maintenance · Service suspended.	Papan informasi: Dalam perawatan · Layanan dihentikan.
+Do you go up the oreum a lot? My brother said he saw you there.	Kamu sering naik ke oreum? Kakakku bilang melihatmu di sana.
+Doyun!	Doyun!
+Doyun.	Doyun.
+Eight on the calendar. Minus the days you were late — but that's my count to keep.	Delapan di kalender. Dikurangi hari-hari kamu terlambat — tapi itu hitunganku.
+Eleven.	Sebelas.
+Empty. He said as long as you believe the illness, he can stay. When winter ends, he goes. That's all I know.	Kosong. Katanya selama kamu percaya dia sakit, dia bisa tinggal. Saat musim dingin berakhir, dia pergi. Hanya itu yang kutahu.
+Every day he leaves first, he comes to me. He always says it's not because you were late.	Setiap kali dia pergi duluan, dia datang padaku. Dia selalu bilang bukan karena kamu terlambat.
+Every day you were late, my brother left first. So you wouldn't blame yourself. Did you know that?	Setiap kali kamu terlambat, kakakku pergi duluan. Supaya kamu tidak menyalahkan diri sendiri. Kamu tahu itu?
+Every day you're late, I lose a day. That's the rule. But if you knew, you'd run every day, and you'd get hurt running — so on the days you were late I just left first. So it wouldn't be your fault.	Setiap hari kamu terlambat, aku kehilangan satu hari. Itu aturannya. Tapi kalau kamu tahu, kamu akan lari tiap hari, dan kamu akan terluka — jadi di hari kamu terlambat aku pergi duluan saja. Supaya bukan salahmu.
+Everyone listening at this hour is someone who was late. It's fine. The show doesn't end.	Semua yang mendengar di jam ini adalah orang yang pernah terlambat. Tidak apa-apa. Acaranya tidak berakhir.
+Fireworks. She watches alone. At her feet, one festival lantern. Lit.	Kembang api. Dia menonton sendirian. Di kakinya, satu lentera festival. Menyala.
+Fixed your trucks. The bushing.	Truck-mu sudah kuperbaiki. Bushing-nya.
+For six years she didn't know. So it wasn't only for treatment that he chose that hospital, she thought. That was a misunderstanding too.	Enam tahun dia tidak tahu. Jadi bukan hanya untuk berobat dia memilih rumah sakit itu, pikirnya. Itu juga salah paham.
+Forgot it.	Lupa.
+Glass is going out. The glass.	Kacanya keluar. Kaca itu.
+Grandma gave me tonic too. Told me to just smell it.	Nenek juga memberiku tonik. Katanya cukup dicium saja.
+Grandma hands over one more bottle. This one is Haneul's.	Nenek menyodorkan satu botol lagi. Yang ini untuk Haneul.
+Haneul can't answer. It was sad. There's no other word. And from that day, Haneul ran every day.	Haneul tidak bisa menjawab. Itu menyedihkan. Tidak ada kata lain. Dan sejak hari itu, Haneul berlari setiap hari.
+Haneul didn't turn the radio off. For the first time she listened to the end.	Haneul tidak mematikan radio. Untuk pertama kalinya dia mendengarkan sampai akhir.
+Haneul doesn't answer and stands up. From that week she stops going to the tower. One day, two, four.	Haneul tidak menjawab dan berdiri. Sejak minggu itu dia berhenti pergi ke menara. Sehari, dua hari, empat hari.
+Haneul doesn't answer. That not answering is the answer — after six years, they both know.	Haneul tidak menjawab. Tidak menjawab itulah jawabannya — setelah enam tahun, mereka berdua tahu.
+Haneul doesn't turn the radio off. One light is on at the tower outside the window.	Haneul tidak mematikan radio. Satu lampu menyala di menara di luar jendela.
+Haneul knows who sent it. 91.9. Through the static, the first-snow song begins.	Haneul tahu siapa pengirimnya. 91.9. Di sela derau, lagu salju pertama dimulai.
+Haneul runs after the bus. Two stops. At the third, the bus pulls away.	Haneul mengejar bus. Dua halte. Di halte ketiga, bus melaju pergi.
+Haneul went first. When she reached the tower half the sunset was left, and he didn't come.	Haneul lebih dulu. Saat sampai di menara senja masih separuh, dan dia tidak datang.
+Haneul worked three more hours until the shift ended. When she looked back, the ridge was empty.	Haneul bekerja tiga jam lagi sampai giliran selesai. Saat menoleh, galengan itu kosong.
+Haneul. There was one more rule. No, not a rule — if you come all the way to the end twice, I get to say one more thing.	Haneul. Ada satu aturan lagi. Bukan, bukan aturan — kalau kamu sampai ke akhir dua kali, aku boleh bilang satu hal lagi.
+He can't come out today. He said not to tell you.	Hari ini dia tidak bisa keluar. Katanya jangan bilang ke kamu.
+He doesn't turn around. The silver grass closes.	Dia tidak menoleh. Rumput perak menutup.
+He left a while ago. He saw you coming and left. You'd have seen only the back of his head.	Dia pergi tadi. Melihatmu datang lalu pergi. Kamu pasti cuma lihat punggungnya.
+He looks. Three seconds. The drum troupe passes. When it's gone, he's gone.	Dia melihat. Tiga detik. Rombongan gendang lewat. Saat sudah lewat, dia sudah tidak ada.
+He touches the envelope. He doesn't hand it over.	Dia menyentuh amplopnya. Tidak menyerahkannya.
+He unfolds the letter. Half sunset, half his voice.	Dia membuka surat itu. Separuh senja, separuh suaranya.
+He was here a while ago, that kid. Bought a raincoat. A raincoat.	Tadi dia di sini, anak itu. Beli jas hujan. Jas hujan.
+He went first. It's the first time. That Haneul is the one who stays.	Dia pergi duluan. Baru pertama kali. Haneul yang tinggal.
+He's at the bottom. Waving. He's in the picture — no, when she comes down and looks, only his spot is out of focus.	Dia di bawah. Melambai. Dia ada di foto — bukan, saat dia turun dan melihat, hanya tempatnya yang buram.
+He's not here right now.	Dia sedang tidak ada.
+Heard the Seo boy is sick. Drink this. It's what my old man used to take.	Kudengar anak keluarga Seo sakit. Minum ini. Dulu suamiku minum ini.
+How?	Bagaimana?
+I asked at the shrine. Whether there are people who stay only one year and go.	Aku bertanya di kuil. Apakah ada orang yang tinggal hanya setahun lalu pergi.
+I asked you.	Aku tanya kamu.
+I brought bags. Bags. Put something in them to take along.	Aku bawa kantong. Kantong. Isi sesuatu untuk dibawa.
+I don't know. I don't know either. They're just empty. He says it only works while you believe it.	Tidak tahu. Aku juga tidak tahu. Isinya kosong saja. Katanya hanya bekerja selama kamu percaya.
+I had something to say.	Ada yang ingin kukatakan.
+I had something to say. …You do too. It's on your face.	Ada yang ingin kukatakan. …Kamu juga. Kelihatan di wajahmu.
+I heard you deliver at night. Mansu's worried.	Kudengar kamu mengantar barang malam-malam. Mansu khawatir.
+I know.	Aku tahu.
+I know. You're not late. Half the sunset's still left. First time in a year you got here first.	Aku tahu. Kamu tidak terlambat. Senja masih separuh. Pertama kali dalam setahun kamu sampai duluan.
+I like you	Aku suka kamu
+I meant not to leave first on the last day, but the day left first. Not your fault.	Aku tidak berniat pergi duluan di hari terakhir, tapi harinya yang pergi duluan. Bukan salahmu.
+I never built my body up, all year. That's it. That's all it was.	Aku tidak pernah melatih badanku, sepanjang tahun. Itu saja. Hanya itu.
+I never once said hospital. That's what you heard. Every time.	Aku tidak pernah sekali pun bilang rumah sakit. Itu yang kamu dengar. Setiap kali.
+I ran every day for a year, and today we all walk down together.	Aku berlari setiap hari selama setahun, dan hari ini kita semua turun bersama.
+I ran this store six years ago too. The day that kid left for Seoul, he bought a tin can here.	Enam tahun lalu aku juga menjaga toko ini. Hari anak itu berangkat ke Seoul, dia beli kaleng di sini.
+I said you could come late. Take that back. Don't be late. I'll be at that spot next spring too. When the sun sets.	Aku bilang kamu boleh terlambat. Kutarik kembali. Jangan terlambat. Musim semi depan aku juga ada di tempat itu. Saat matahari terbenam.
+I won't tell you. Just — he says you look funny running, from far away.	Tidak akan kuberi tahu. Cuma — katanya larimu lucu kalau dilihat dari jauh.
+I'd rather not say either. Is that not allowed?	Aku juga tidak mau bilang. Tidak boleh?
+I'll come. I won't be late. This time I'm the one chasing.	Aku akan datang. Tidak akan terlambat. Kali ini aku yang mengejar.
+I'll tell only you. My brother's medicine bags — they're empty.	Hanya kamu yang kuberi tahu. Kantong obat kakakku — kosong.
+I'm burying this. Take care	Aku mengubur ini. Jaga diri
+I'm going	Aku pergi
+I'm slow. Go ahead.	Aku lambat. Duluan saja.
+If you stop chasing, there's nothing to miss. That's what she thought.	Kalau berhenti mengejar, tidak ada yang terlewat. Itu yang dia pikirkan.
+Is the little sister guarding him, Haneul thinks. At thirteen.	Apa adiknya yang menjaganya, pikir Haneul. Di usia tiga belas.
+It doesn't need meaning. A picture is enough. This is as far as I can go. No, not as far as I can go — as far as I go today.	Tidak perlu arti. Foto saja cukup. Sejauh ini aku bisa. Bukan, bukan sejauh aku bisa — sejauh aku pergi hari ini.
+It takes ten minutes to untangle the cord. She felt sorry. She doesn't know why.	Butuh sepuluh menit mengurai kabelnya. Dia merasa bersalah. Tidak tahu kenapa.
+It was like that when we were twelve too.	Waktu kita dua belas tahun juga begitu.
+It's different from Seoul snow.	Beda dengan salju Seoul.
+Jeju listener. This time you sent a request instead of a story. Play this song at two in the morning on the last day.	Pendengar dari Jeju. Kali ini kamu mengirim permintaan lagu, bukan cerita. Putar lagu ini jam dua pagi di hari terakhir.
+Just a tangerine.	Cuma jeruk.
+Later. Just the smell for now.	Nanti. Sekarang baunya saja.
+Left it at the hospital. They don't let you use it there.	Kutinggal di rumah sakit. Di sana tidak boleh dipakai.
+Let's read it together. It's been a while since I saw his handwriting too.	Ayo baca bersama. Aku juga sudah lama tidak melihat tulisannya.
+Long after the sun is gone, nobody leaves first. Today he didn't have to leave first.	Lama setelah matahari hilang, tidak ada yang pergi duluan. Hari ini dia tidak perlu pergi duluan.
+Look at your yellow hands. And that boy's are white.	Lihat tanganmu yang kuning. Dan tangan anak itu putih.
+Mansu starts to take something from under the counter, then stops. Not today, it seems.	Mansu mulai mengambil sesuatu dari bawah meja, lalu berhenti. Sepertinya bukan hari ini.
+Mansu's stall. Bags hanging like lanterns.	Lapak Mansu. Kantong-kantong tergantung seperti lentera.
+Me? No, it's not that I'm not there, it's that you're late. Your trucks are loose, that's why. The kingpin nut — no, it's the bushing. The bushing's gone.	Aku? Bukan, bukan aku yang tidak ada, kamu yang terlambat. Truck-mu longgar, itu sebabnya. Mur kingpin — bukan, bushing-nya. Bushing-nya sudah aus.
+Misdiagnosed it back then. Took six years.	Waktu itu salah diagnosis. Butuh enam tahun.
+My brother died two springs ago. At the hospital in Seoul.	Kakakku meninggal dua musim semi lalu. Di rumah sakit di Seoul.
+My brother leaves when winter ends. That part's decided.	Kakakku pergi saat musim dingin berakhir. Itu sudah pasti.
+My brother? My brother said he's meeting someone?	Kakakku? Kakakku bilang dia menemui seseorang?
+My old man was sick too. I fed him everything the hospital forbade. He went anyway.	Suamiku juga dulu sakit. Kuberi makan semua yang dilarang rumah sakit. Dia tetap pergi.
+Need a bag? A bag.	Perlu kantong? Kantong.
+Never did tune the frequency all the way. That was me.	Tidak pernah memutar frekuensinya sampai pas. Itu aku.
+Next spring she'll be able to run. She won't be late then. She decides to think that.	Musim semi depan dia akan bisa berlari. Saat itu dia tidak akan terlambat. Dia memutuskan berpikir begitu.
+Next story… from an eighteen-year-old listener recovering on Jeju. Says the friend next door keeps being late.	Cerita berikutnya… dari pendengar delapan belas tahun yang sedang pemulihan di Jeju. Katanya teman sebelah rumahnya selalu terlambat.
+Ninety-one point… four? Seven?	Sembilan puluh satu koma… empat? Tujuh?
+No one is there. No — one person. Rua, sitting on the stone at the tower base.	Tidak ada orang. Bukan — satu orang. Rua, duduk di batu di kaki menara.
+No one is there. The canola bloomed a day early. As many days as Haneul was late, he ended that many days sooner. The twenty-first miss.	Tidak ada orang. Kanola mekar sehari lebih awal. Sebanyak hari Haneul terlambat, sebanyak itu pula dia berakhir lebih cepat. Kelewatan yang kedua puluh satu.
+Nothing.	Tidak ada.
+Nothing. Chalk on the stone. "91.9 — two in the morning. Not in the daytime."	Tidak ada. Kapur di batu. "91.9 — jam dua pagi. Bukan siang."
+Nothing. Just looked at the bags and left. The bags.	Tidak ada. Cuma melihat kantong lalu pergi. Kantong-kantong itu.
+Nothing. The grass is pressed down. In the shape of someone who was sitting there a moment ago.	Tidak ada. Rumputnya tertekan. Berbentuk seseorang yang baru saja duduk di sana.
+Nothing. The tangerine and the tonic sit on the stone. As if only smelled.	Tidak ada. Jeruk dan tonik itu masih di atas batu. Seperti hanya dicium.
+Oh, you came in the day. No, that's not — it's not here, a bit more south. You dug and I covered, so count with your steps. Twelve?	Oh, kamu datang siang. Bukan, bukan itu — bukan di sini, sedikit lebih ke selatan. Kamu yang gali dan aku yang tutup, jadi hitung dengan langkahmu. Dua belas?
+Oh. Fancy seeing you here.	Oh. Tak sangka bertemu di sini.
+One year. From the first day of spring to the last day of winter. The sunset is the clock. I have to be at the tower when the sun sets. Because this is the antenna. No, not an antenna — it just comes in clearest here. Once the sun's down, I can't stay.	Satu tahun. Dari hari pertama musim semi sampai hari terakhir musim dingin. Senja adalah jamnya. Aku harus ada di menara saat matahari terbenam. Karena ini antenanya. Bukan, bukan antena — di sini saja paling jelas tertangkapnya. Begitu matahari terbenam, aku tidak bisa tinggal.
+Only Haneul's hands are yellow.	Hanya tangan Haneul yang kuning.
+Oppa. Leave late.	Kak. Pulangnya nanti saja.
+People in the village don't say nice things about you. That's why I'm asking.	Orang desa tidak bicara baik tentangmu. Karena itu aku bertanya.
+Right, eleven. But those were twelve-year-old steps.	Benar, sebelas. Tapi itu langkah anak dua belas tahun.
+Rua brings Haneul home. Doyun's room. The bed is made and there are no belongings. On the desk, one photo frame, face down.	Rua membawa Haneul pulang. Kamar Doyun. Tempat tidur rapi dan tidak ada barang. Di meja, satu bingkai foto, tertelungkup.
+Rua comes to Haneul's house. A first. Carrying a succulent in a pot.	Rua datang ke rumah Haneul. Pertama kalinya. Membawa sukulen dalam pot.
+Rua holds out the tin can. A note inside. Not read yet.	Rua menyodorkan kaleng. Ada catatan di dalamnya. Belum dibaca.
+Rua is watching from far away. She doesn't wave.	Rua mengawasi dari jauh. Dia tidak melambai.
+Rua laughed for the first time. Like a thirteen-year-old.	Rua tertawa untuk pertama kali. Seperti anak tiga belas tahun.
+Rua says nothing more. She closes the gate halfway.	Rua tidak berkata apa-apa lagi. Dia menutup gerbang setengah.
+Rua stands the frame up. Eighteen. All his front teeth grown in.	Rua menegakkan bingkai itu. Delapan belas. Semua gigi depannya sudah tumbuh.
+Rua taps the tin-can spot with her foot. Eleven steps. Right.	Rua mengetuk tempat kaleng dengan kakinya. Sebelas langkah. Benar.
+Rua told you, didn't she. She can't hold anything in. Even at twelve she told everyone where the tin can was — no, that's not the point.	Rua yang memberitahumu, kan. Dia tidak bisa menyimpan apa pun. Waktu dua belas tahun pun dia memberi tahu semua orang di mana kalengnya — bukan, bukan itu intinya.
+Run on the last day. That day he won't leave.	Larilah di hari terakhir. Hari itu dia tidak akan pergi.
+Seoul has no sea. The Han River isn't the sea.	Seoul tidak punya laut. Sungai Han bukan laut.
+She finished the sentence to the end. The second time.	Dia menyelesaikan kalimatnya sampai akhir. Yang kedua kali.
+She finishes reading and looks up. The sun is all the way down. No one is there.	Dia selesai membaca dan mendongak. Matahari sudah terbenam sepenuhnya. Tidak ada orang.
+She flips the board over.	Dia membalik papannya.
+She flips the board over. The twentieth time.	Dia membalik papannya. Yang kedua puluh kali.
+She got three seconds. That's what she lived on all summer.	Dia mendapat tiga detik. Itu yang menghidupinya sepanjang musim panas.
+She knows who left it. She still doesn't go the next day. Or the day after.	Dia tahu siapa yang meninggalkannya. Tetap saja dia tidak pergi keesokan harinya. Atau lusa.
+She listens to the end. She listened to the end, but she can't remember the rest.	Dia mendengarkan sampai akhir. Sudah mendengar sampai akhir, tapi tidak ingat sisanya.
+She looks at the photo she took on her phone. His spot is eaten by lantern light, blown out white. Backlight, probably.	Dia melihat foto yang diambil dengan ponselnya. Tempatnya termakan cahaya lentera, putih terbakar. Mungkin backlight.
+She looks for the tin can and gives up. It doesn't feel like eleven steps.	Dia mencari kaleng itu dan menyerah. Rasanya bukan sebelas langkah.
+She only saw the back of his head, and still knew his steps hurt.	Dia hanya melihat punggungnya, tapi tetap tahu langkahnya sakit.
+She only saw the back of his head. She still knows.	Dia hanya melihat punggungnya. Tetap saja dia tahu.
+She peels one and holds it out. He only holds it.	Dia mengupas satu dan menyodorkannya. Dia hanya memegangnya.
+She reached it before sunset. He's there. Today he talks at length. From beginning to end.	Dia sampai sebelum senja. Dia ada di sana. Hari ini dia bicara panjang. Dari awal sampai akhir.
+She sets the pot on the porch and leaves. She said it has no name.	Dia meletakkan pot di teras dan pergi. Katanya tidak ada namanya.
+She sits down on the roadside. Where Doyun sat. Where the medicine bag fell.	Dia duduk di pinggir jalan. Tempat Doyun duduk. Tempat kantong obat itu jatuh.
+She turns it off.	Dia mematikannya.
+She turns it off. Turns it on.	Dia mematikannya. Menyalakannya.
+She went in daytime. Without waiting for the sunset. He was digging.	Dia pergi siang hari. Tanpa menunggu senja. Dia sedang menggali.
+She went in the day. He was there first. Today his sentences are short.	Dia pergi siang hari. Dia sudah lebih dulu ada. Hari ini kalimatnya pendek.
+Six. I counted right.	Enam. Hitunganku benar.
+So.	Jadi.
+Sound from the bottom of the hill. Mansu's truck. Grandma. Rua. The market people.	Suara dari bawah bukit. Truk Mansu. Nenek. Rua. Orang-orang pasar.
+Spring ending — this time I'll say it first. Go ahead.	Musim semi berakhir — kali ini aku yang bilang duluan. Duluan saja.
+Static. A stinger. Title card → credits. Skateboard character unlocked.	Derau. Jingle. Kartu judul → kredit. Karakter skateboard terbuka.
+Static. Commercials. Trot songs.	Derau. Iklan. Lagu trot.
+Static. Then a voice she knows. The voice of someone who talks in long sentences.	Derau. Lalu suara yang dia kenal. Suara seseorang yang bicara dengan kalimat panjang.
+Take one more tangerine. Don't leave it on the stone — put it in his hand.	Bawa satu jeruk lagi. Jangan ditinggal di batu — taruh di tangannya.
+Take this. Raincoat. New. The kid bought it and never took it.	Ambil ini. Jas hujan. Baru. Anak itu beli tapi tidak pernah diambil.
+Thank you. But the hospital said not to take anything else —	Terima kasih. Tapi rumah sakit bilang jangan makan yang lain —
+That kid comes every day. Looks at the bags and leaves. Every day.	Anak itu datang tiap hari. Melihat kantong lalu pergi. Tiap hari.
+That kid — he just looks at the bags and leaves. Every day. He's not buying. He's measuring time.	Anak itu — cuma melihat kantong lalu pergi. Tiap hari. Bukan beli. Dia mengukur waktu.
+That kid? He just left. Said the sun was setting. Why does a sick boy fuss so much over sunsets.	Anak itu? Baru saja pergi. Katanya matahari mau terbenam. Kenapa anak sakit begitu peduli soal senja.
+That night at two, she listened. The DJ read a story. Someone else's story. She listened to the end anyway.	Malam itu jam dua, dia mendengarkan. DJ membacakan cerita. Cerita orang lain. Dia tetap mendengarkan sampai akhir.
+That raincoat — I gave it to you, right. The kid bought it and left it.	Jas hujan itu — aku yang memberikannya padamu, kan. Anak itu beli lalu ditinggal.
+That's why it's better.	Karena itu lebih baik.
+That's why you kept leaving first.	Karena itu kamu terus pergi duluan.
+That's worse.	Itu lebih buruk.
+The Seo boy. This isn't tonic, it's just tangerines. Eat.	Anak keluarga Seo. Ini bukan tonik, cuma jeruk. Makan.
+The bus comes. Only Rua gets on. Window seat. The seat beside her is empty.	Bus datang. Hanya Rua yang naik. Kursi dekat jendela. Kursi di sebelahnya kosong.
+The bus.	Bus.
+The chalk is wet but the writing hasn't run.	Kapurnya basah tapi tulisannya tidak luntur.
+The day Doyun called "the big hospital day." Rua is wearing a backpack. Doyun isn't there.	Hari yang disebut Doyun "hari rumah sakit besar". Rua memakai ransel. Doyun tidak ada.
+The following spring. Two in the morning. 91.9.	Musim semi berikutnya. Jam dua pagi. 91.9.
+The grandmother who owns the farm comes over with a bottle of tonic.	Nenek pemilik kebun datang membawa sebotol tonik.
+The kid came today too. Just looked at the bags. That's eleven times.	Anak itu datang lagi hari ini. Cuma melihat kantong. Sudah sebelas kali.
+The last day of winter. There's no bus. The canola is a day early.	Hari terakhir musim dingin. Tidak ada bus. Kanola mekar sehari lebih awal.
+The last day of winter. When the sun sets. Come then. That day I won't leave first.	Hari terakhir musim dingin. Saat matahari terbenam. Datanglah saat itu. Hari itu aku tidak akan pergi duluan.
+The medicine bags.	Kantong-kantong obat.
+The note doesn't answer.	Catatan itu tidak menjawab.
+The note from under the tower stone yesterday. "The tower won't fall, right? Our tin can."	Catatan dari bawah batu menara kemarin. "Menaranya tidak akan roboh, kan? Kaleng kita."
+The note she left last night — "It didn't fall." — is gone. Instead: "Told you."	Catatan yang ditinggalkannya semalam — "Tidak roboh." — hilang. Gantinya: "Sudah kubilang."
+The old town. Gongs. Across the crowd, there he is. Under the lanterns.	Kota lama. Gong. Di seberang kerumunan, dia ada. Di bawah lentera.
+The radio stinger is the same. What comes after, it doesn't say.	Jingle radionya sama. Apa yang datang setelahnya, tidak disebutkan.
+The radio stinger is the same. What comes after, the two of them listen to together.	Jingle radionya sama. Apa yang datang setelahnya, mereka berdua dengarkan bersama.
+The radio. The frequency he wrote on the shovel handle. One digit smeared in the dirt.	Radio. Frekuensi yang dia tulis di gagang sekop. Satu angka kabur oleh tanah.
+The raincoat is folded, never once opened. The paper is dry.	Jas hujannya terlipat, tidak pernah sekali pun dibuka. Kertasnya kering.
+The raincoat is folded. Never once opened.	Jas hujannya terlipat. Tidak pernah sekali pun dibuka.
+The succulent has no name. You name it. He said so.	Sukulen itu tidak punya nama. Kamu yang beri nama. Dia bilang begitu.
+The sun goes all the way down. The tower is visible from here too. No one is standing under it.	Matahari terbenam sepenuhnya. Menaranya terlihat dari sini juga. Tidak ada yang berdiri di bawahnya.
+The sun was all the way down. No, that's not the reason — it was cold.	Matahari sudah terbenam sepenuhnya. Bukan, bukan itu alasannya — dingin.
+The tangerine farm job. He's sitting on the ridge between rows. Said he was discharged. Thinner, but he still talks in long sentences.	Kerja di kebun jeruk. Dia duduk di galengan antar baris. Katanya sudah keluar dari rumah sakit. Lebih kurus, tapi masih bicara dengan kalimat panjang.
+The things they put in at twelve. Stickers. A front tooth. And the note he put in the day before he left for Seoul.	Barang yang mereka masukkan waktu dua belas tahun. Stiker. Gigi depan. Dan catatan yang dia masukkan sehari sebelum berangkat ke Seoul.
+The tin can doesn't turn up. He coughs. Haneul pretends not to hear.	Kalengnya tidak ketemu. Dia batuk. Haneul pura-pura tidak dengar.
+The whole village knows. That you run every day. Some days I couldn't leave first because of that.	Seluruh desa tahu. Bahwa kamu lari tiap hari. Ada hari-hari aku tidak bisa pergi duluan karena itu.
+Then I guess that's what it is.	Kalau begitu, ya sudah begitu.
+Then the tower. I'll climb up there and take it. Wait at the bottom.	Kalau begitu menara. Aku naik ke atas dan memotret. Tunggu di bawah.
+Then what is it?	Lalu apa?
+There's a story about two people listening to the same frequency. One wrote two years ago, one last week.	Ada cerita tentang dua orang yang mendengar frekuensi yang sama. Satu menulis dua tahun lalu, satu minggu lalu.
+There's no such thing as just a tangerine.	Tidak ada yang namanya cuma jeruk.
+They both know it's a lie. Haneul could have asked first. She didn't. Wind. Silver grass. Haneul counts numbers. Twelve percent battery left. The first time they'd met in ten days, and it wasn't even five minutes. In those five minutes she only had to ask one of three things — why he keeps getting thinner, where the hospital is, where he goes in winter — and she couldn't ask any of them, and she never knew it could be that hard.	Keduanya tahu itu bohong. Haneul bisa saja bertanya lebih dulu. Dia tidak. Angin. Rumput perak. Haneul menghitung angka. Baterai sisa dua belas persen. Pertama kali bertemu dalam sepuluh hari, dan tidak sampai lima menit. Dalam lima menit itu dia hanya perlu menanyakan satu dari tiga hal — kenapa dia terus mengurus, di mana rumah sakitnya, ke mana dia pergi di musim dingin — dan tidak satu pun bisa ditanyakan, dan dia tidak pernah tahu itu bisa sesulit ini.
+They promised by note. "The festival. You can see the fireworks from the tower." The reply: "Crowds, not really. No, it's not that I don't like them — okay."	Mereka berjanji lewat catatan. "Festival. Kembang apinya terlihat dari menara." Balasannya: "Keramaian, kurang suka. Bukan, bukan tidak suka — oke."
+They ran into each other at the bus stop. Snow. He's wearing two scarves.	Mereka berpapasan di halte bus. Salju. Dia memakai dua syal.
+They ran into each other on the coastal road. No promise made. The canola has all fallen.	Mereka berpapasan di jalan pesisir. Tanpa janji. Kanolanya sudah rontok semua.
+They reached it before sunset. The two of them. For the first time Haneul finishes a sentence to the end.	Mereka sampai sebelum senja. Berdua. Untuk pertama kalinya Haneul menyelesaikan kalimat sampai akhir.
+They reached it before sunset. Together, for the first time. This chapter is all of summer.	Mereka sampai sebelum senja. Bersama, untuk pertama kalinya. Bab ini adalah seluruh musim panas.
+They said yes. Only at sunset. Just don't be late, they said. That's all.	Mereka bilang boleh. Hanya saat senja. Asal jangan terlambat, kata mereka. Itu saja.
+This is better.	Ini lebih baik.
+This is nice.	Ini enak.
+This is the second time I'm telling you the rule. This time you knew first.	Ini kedua kalinya aku memberitahumu aturannya. Kali ini kamu tahu duluan.
+This spring he walked in through the gate. Mom couldn't see him. Only I could. The village thinks he came back sick. That's what he went around saying. To you too.	Musim semi ini dia masuk lewat gerbang. Ibu tidak bisa melihatnya. Hanya aku. Desa mengira dia pulang karena sakit. Itu yang dia bilang ke mana-mana. Ke kamu juga.
+This time I didn't forget. I just can't. I'll say it in winter.	Kali ini aku tidak lupa. Aku hanya tidak bisa. Akan kukatakan di musim dingin.
+This time it comes out. Eleven steps was right. She doesn't open it. She doesn't want to open it alone.	Kali ini ketemu. Sebelas langkah itu benar. Dia tidak membukanya. Tidak mau membuka sendirian.
+This time it wasn't a miss. She saw him off. She never got to say goodbye, but he said she could come late. It didn't say where he'd wait, but she knows. 91.9.	Kali ini bukan kelewatan. Dia mengantarnya pergi. Tidak sempat mengucap selamat tinggal, tapi dia bilang boleh terlambat. Tidak tertulis di mana dia menunggu, tapi Haneul tahu. 91.9.
+This time they met in the morning. Avoiding the sunset. Haneul decided that.	Kali ini mereka bertemu pagi. Menghindari senja. Haneul yang memutuskan.
+Three of the 4.2 kilometers. Her legs stop first. The last day, the last sunset.	Tiga dari 4,2 kilometer. Kakinya berhenti lebih dulu. Hari terakhir, senja terakhir.
+Through the door gap, the shoe rack. One pair of sneakers, one pair of adult shoes. That's all.	Dari celah pintu, rak sepatu. Sepasang sepatu kets, sepasang sepatu dewasa. Itu saja.
+Together —	Bersama —
+Tomorrow again?	Besok lagi?
+Tonight it came not as a letter but as a voice. From Jeju, nineteen years old…	Malam ini datang bukan sebagai surat tapi sebagai suara. Dari Jeju, sembilan belas tahun…
+Tonight's letter is from Jeju. You wrote again about the friend who's always late.	Surat malam ini dari Jeju. Kamu menulis lagi tentang teman yang selalu terlambat.
+Too many people. No, that's not it — I saw you coming, but the sunset was — I just left. Sorry.	Terlalu ramai. Bukan, bukan itu — aku melihatmu datang, tapi senjanya — aku pergi saja. Maaf.
+Two in the morning. 91.9.	Jam dua pagi. 91.9.
+Two in the morning. A story from Jeju. The one who sent one last year too… this time it's short. "You're listening, right?" …Yes. They'll be listening.	Jam dua pagi. Cerita dari Jeju. Yang tahun lalu juga mengirim… kali ini pendek. "Kamu mendengarkan, kan?" …Ya. Mereka pasti mendengarkan.
+Two in the morning. This time she gets it on the first try. Haneul sent in her story three days ago. For the first time, writing a sentence all the way to the end.	Jam dua pagi. Kali ini dia langsung dapat di percobaan pertama. Haneul mengirim ceritanya tiga hari lalu. Untuk pertama kalinya, menulis kalimat sampai akhir.
+Two springs ago.	Dua musim semi lalu.
+Want me to read it? If you read it, you'd read it late.	Mau kubacakan? Kalau kamu yang baca, kamu bacanya terlambat.
+We couldn't read the one from two years ago back then. They asked for spring. We'll read it in spring.	Yang dua tahun lalu tidak bisa kami bacakan waktu itu. Mereka minta musim semi. Kami bacakan di musim semi.
+We'll play it. Someone else will be listening at that hour too.	Akan kami putar. Ada orang lain yang juga mendengarkan di jam itu.
+What do you know, you've never even been.	Tahu apa kamu, belum pernah ke sana.
+What does a hospital know.	Tahu apa rumah sakit.
+What will you do when my brother goes?	Apa yang akan kamu lakukan kalau kakakku pergi?
+What?	Apa?
+When winter ends he goes. If you blame yourself then, that's what he'd hate most.	Saat musim dingin berakhir dia pergi. Kalau saat itu kamu menyalahkan diri, itu yang paling dia benci.
+When?	Kapan?
+Where he's going isn't Seoul. I don't know where it is either.	Tujuannya bukan Seoul. Aku juga tidak tahu di mana.
+Where's Doyun?	Di mana Doyun?
+Why are you asking me that?	Kenapa tanya itu padaku?
+Why did you just leave yesterday?	Kenapa kemarin kamu pergi begitu saja?
+Why do you ask me that? He thinks you've stopped chasing him, you know.	Kenapa tanya itu padaku? Dia pikir kamu sudah berhenti mengejarnya, tahu.
+Yeah.	Ya.
+Yeah. There.	Ya. Di sana.
+Yeah. Today.	Ya. Hari ini.
+You can come late. I'll wait	Kamu boleh terlambat. Aku akan menunggu
+You did. The hospital's going to say something.	Iya, kamu makan. Rumah sakit pasti bilang sesuatu.
+You don't wash it off. That boy's aren't yellow. He doesn't touch them. Only smells.	Kamu tidak mencucinya. Tangan anak itu tidak kuning. Dia tidak menyentuhnya. Cuma mencium.
+You drink the tonic. The one who runs should. Tell that boy to just smell it.	Kamu yang minum toniknya. Yang lari yang harus minum. Bilang ke anak itu cukup dicium.
+You go up first. Take a picture from the top and show me.	Kamu naik duluan. Foto dari atas dan tunjukkan padaku.
+You got burned, right? Me too.	Kamu terbakar matahari, kan? Aku juga.
+You peel a tangerine from the stem end so it doesn't burst. No, that's a mandarin, this is… what is this.	Jeruk dikupas dari pangkal tangkai supaya tidak pecah. Bukan, itu jeruk keprok, ini… ini apa ya.
+You weren't late all year. Everyone knows what you did around the village. He knew too.	Kamu tidak terlambat sepanjang tahun. Semua orang tahu apa yang kamu lakukan di desa. Dia juga tahu.
+You work well. I won't charge for the bag. The bag.	Kerjamu bagus. Kantongnya gratis. Kantong.
+You're Haneul, the one he talks about?	Kamu Haneul, yang sering dia ceritakan?
+You're late.	Kamu terlambat.
+You're not even in it.	Kamu bahkan tidak ada di dalamnya.
+You've been at the village hall a lot lately. Here, one more bag.	Akhir-akhir ini kamu sering ke balai desa. Nih, satu kantong lagi.
+You've been listening to the radio. Your voice sounds like two in the morning.	Kamu sering dengar radio. Suaramu terdengar seperti jam dua pagi.
+You've gotten better on the board. Definitely better than at twelve.	Kamu makin jago naik papan. Jelas lebih baik dari waktu dua belas tahun.
+Your hands are yellow. Tangerine hands. Those are working hands.	Tanganmu kuning. Tangan jeruk. Itu tangan pekerja.
+Your trucks don't wobble anymore. You fixed them?	Truck-mu tidak goyang lagi. Kamu perbaiki?
+— there's only one year, and every day that kid is late he loses a day, so he gets up and leaves first. I'm not sure what it means either…	— hanya ada satu tahun, dan setiap kali anak itu terlambat dia kehilangan satu hari, jadi dia bangun dan pergi duluan. Aku juga tidak yakin apa artinya…
+…	…
+…4.2 kilometers.	…4,2 kilometer.
+…A tin can.	…Kaleng.
+…And if it falls?	…Kalau roboh?
+…Did he lose his phone?	…Dia kehilangan ponselnya?
+…Did my brother tell you he's going to the hospital?	…Kakakku bilang dia ke rumah sakit?
+…Don't know. It's different. Seoul snow turns gray as soon as it lands, but here — no, that's not it. It's just different.	…Tidak tahu. Beda. Salju Seoul langsung jadi abu-abu begitu jatuh, tapi di sini — bukan, bukan itu. Pokoknya beda.
+…Doyun did?	…Doyun yang bilang?
+…Doyun.	…Doyun.
+…Eleven steps. You said it first. No — you're going to say it.	…Sebelas langkah. Kamu yang bilang duluan. Bukan — kamu yang akan bilang.
+…Five.	…Lima.
+…Goes? Where?	…Pergi? Ke mana?
+…How many days left. Exactly.	…Tinggal berapa hari. Tepatnya.
+…I did.	…Aku bilang.
+…I didn't.	…Aku tidak.
+…I feel like we've had this conversation before.	…Rasanya kita pernah bicara begini sebelumnya.
+…I know. No, I didn't. I know now.	…Aku tahu. Bukan, aku tidak tahu. Sekarang aku tahu.
+…I never sent a request.	…Aku tidak pernah mengirim permintaan.
+…I'll go first. You stay today.	…Aku duluan. Hari ini kamu yang tinggal.
+…I'll tell you. It's not the hospital.	…Akan kuberi tahu. Bukan rumah sakit.
+…If that's what you think, then that's what it is.	…Kalau itu yang kamu pikir, ya begitulah.
+…It won't wash off.	…Tidak mau hilang.
+…It's meaningless if we don't go together.	…Tidak ada artinya kalau tidak pergi bersama.
+…Me.	…Aku.
+…Not yet. Half the sunset is still left.	…Belum. Senja masih separuh.
+…Okay.	…Oke.
+…Okay. At the bottom.	…Oke. Di bawah.
+…Read it.	…Bacalah.
+…So?	…Lalu?
+…Spring's over. Go ahead. Before sunset.	…Musim semi sudah berakhir. Duluan saja. Sebelum senja.
+…Thanks.	…Terima kasih.
+…The Seo family. Next door. I heard their son came back.	…Keluarga Seo. Sebelah rumah. Kudengar anak mereka pulang.
+…The hospital?	…Rumah sakit?
+…This village, honestly.	…Desa ini, sungguh.
+…Tomorrow's the hospital.	…Besok rumah sakit.
+…Two years ago.	…Dua tahun lalu.
+…Was he admitted?	…Dia dirawat inap?
+…What did he buy?	…Dia beli apa?
+…What did he say.	…Dia bilang apa.
+…What did they say.	…Mereka bilang apa.
+…What do you mean.	…Maksudmu apa.
+…What tests?	…Tes apa?
+…What's the rule?	…Aturannya apa?
+…When?	…Kapan?
+…Where to? A hospital in Seoul?	…Ke mana? Rumah sakit di Seoul?
+…Who listens to the radio at two in the morning?	…Siapa yang dengar radio jam dua pagi?
+…Why are you telling me.	…Kenapa memberitahuku.
+…Why did you leave at the festival?	…Kenapa kamu pergi waktu festival?
+…Yeah.	…Ya.
+…Yeah. I won't be late.	…Ya. Aku tidak akan terlambat.
+…Yeah. Is Doyun in?	…Ya. Doyun ada?
+…Yeah. It is.	…Ya. Memang.
+…You can come in. He's not here, though.	…Masuk saja. Tapi dia tidak ada.
+…You keep not being there.	…Kamu terus saja tidak ada.
+…You kept saying the hospital.	…Kamu terus bilang rumah sakit.
+…You look pale lately. On the last day, you can walk instead of run.	…Akhir-akhir ini kamu pucat. Di hari terakhir, kamu boleh jalan, tidak usah lari.
+…Your phone?	…Ponselmu?

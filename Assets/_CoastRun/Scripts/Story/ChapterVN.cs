@@ -251,7 +251,7 @@ namespace CoastRun
             for (int i = 0; i < _lines.Length && !_skip; i++)
             {
                 var line = _lines[i];
-                string txt = Loc.IsKo ? line.B : (ChapterScript.TextEn(_sceneId, i) ?? line.B);
+                string txt = Loc.IsKo ? line.B : Loc.Tr(ChapterScript.TextEn(_sceneId, i) ?? line.B);
                 switch (line.Kind)
                 {
                     case "BG":
@@ -408,7 +408,7 @@ namespace CoastRun
         {
             bool hasName = !string.IsNullOrEmpty(speaker);
             _namePlate.gameObject.SetActive(hasName);
-            _nameTag.text = Loc.IsKo ? speaker : ChapterScript.SpeakerEn(speaker);
+            _nameTag.text = Loc.IsKo ? speaker : Loc.Tr(ChapterScript.SpeakerEn(speaker));
             _body.text = body;
             _body.fontStyle = hasName ? FontStyle.Normal : FontStyle.Italic;
             _body.color = hasName ? CoastOrnate.Ivory : new Color(0.93f, 0.90f, 0.84f, 0.92f);

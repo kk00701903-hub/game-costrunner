@@ -9,7 +9,11 @@ namespace CoastRun
     public static class Loc
     {
         public const string PrefKey = "CoastRun_Lang";
+        /// 지원 언어 순서(설정 토글 순서). ko/en 은 코드 안 인라인, 나머지는 Resources/CoastRun/Lang/lang_<code>.txt (영어 → 번역 표).
+        public static readonly string[] Langs = { "ko", "en", "ja", "id", "th", "es" };
         private static string _lang;
+        private static Dictionary<string, string> _table;
+        private static string _tableLang;
 
         public static string Lang
         {
@@ -18,33 +22,93 @@ namespace CoastRun
                 if (_lang == null)
                 {
                     _lang = PlayerPrefs.GetString(PrefKey, "");
-                    if (string.IsNullOrEmpty(_lang))
-                        _lang = Application.systemLanguage == SystemLanguage.Korean ? "ko" : "en";
+                    if (string.IsNullOrEmpty(_lang)) _lang = FromSystem();
                 }
                 return _lang;
             }
             set
             {
-                _lang = value == "en" ? "en" : "ko";
+                _lang = System.Array.IndexOf(Langs, value) >= 0 ? value : "en";
                 PlayerPrefs.SetString(PrefKey, _lang);
                 PlayerPrefs.Save();
             }
         }
 
+        static string FromSystem()
+        {
+            switch (Application.systemLanguage)
+            {
+                case SystemLanguage.Korean: return "ko";
+                case SystemLanguage.Japanese: return "ja";
+                case SystemLanguage.Indonesian: return "id";
+                case SystemLanguage.Thai: return "th";
+                case SystemLanguage.Spanish: return "es";
+                default: return "en";
+            }
+        }
+
         public static bool IsKo => Lang == "ko";
-        public static void Toggle() => Lang = IsKo ? "en" : "ko";
+        public static bool IsEn => Lang == "en";
 
-        /// 인라인: 한글 원문 / 영어.
-        public static string T(string ko, string en) => IsKo ? ko : en;
+        /// 설정 토글: ko → en → ja → id → th → es → ko
+        public static void Toggle()
+        {
+            int i = System.Array.IndexOf(Langs, Lang);
+            Lang = Langs[(i + 1) % Langs.Length];
+        }
 
-        /// 언어 접미사가 붙은 리소스 이름(예: UI_Title_Gate_en). 없으면 기본 이름.
-        public static string ResName(string baseName) => baseName + "_" + Lang;
+        public static string Native(string code)
+        {
+            switch (code)
+            {
+                case "ko": return "한국어";
+                case "ja": return "日本語";
+                case "id": return "Bahasa Indonesia";
+                case "th": return "ไทย";
+                case "es": return "Español";
+                default: return "English";
+            }
+        }
+        public static string NextLang => Langs[(System.Array.IndexOf(Langs, Lang) + 1) % Langs.Length];
 
-        /// 데이터 사전 — id → 영어. 한국어는 데이터 원문을 그대로 쓴다.
+        /// 인라인: 한글 원문 / 영어 (그 외 언어는 영어를 키로 번역표 조회, 없으면 영어).
+        public static string T(string ko, string en) => IsKo ? ko : Tr(en);
+
+        /// 영어 문장 → 현재 언어. 표에 없으면 영어 그대로.
+        public static string Tr(string en)
+        {
+            if (IsKo || IsEn || string.IsNullOrEmpty(en)) return en;
+            var t = Table();
+            return t != null && t.TryGetValue(en, out var v) && !string.IsNullOrEmpty(v) ? v : en;
+        }
+
+        static Dictionary<string, string> Table()
+        {
+            if (_table != null && _tableLang == Lang) return _table;
+            _tableLang = Lang;
+            _table = new Dictionary<string, string>();
+            var ta = Resources.Load<TextAsset>("CoastRun/Lang/lang_" + Lang);
+            if (ta == null) return _table;
+            foreach (var raw in ta.text.Split('\n'))
+            {
+                var line = raw.TrimEnd('\r');
+                int tab = line.IndexOf('\t');
+                if (tab <= 0) continue;
+                string k = line.Substring(0, tab).Replace("\\n", "\n");
+                string v = line.Substring(tab + 1).Replace("\\n", "\n");
+                _table[k] = v;
+            }
+            return _table;
+        }
+
+        /// 언어 접미사가 붙은 리소스 이름(예: UI_Title_Gate_en). ko 외에는 en 그림을 쓴다.
+        public static string ResName(string baseName) => baseName + "_" + (IsKo ? "ko" : "en");
+
+        /// 데이터 사전 — id → 영어(→ 번역표). 한국어는 데이터 원문을 그대로 쓴다.
         public static string Data(string id, string ko)
         {
             if (IsKo) return ko;
-            return En.TryGetValue(id, out var v) ? v : ko;
+            return En.TryGetValue(id, out var v) ? Tr(v) : ko;
         }
 
         private static readonly Dictionary<string, string> En = new Dictionary<string, string>
@@ -64,7 +128,7 @@ namespace CoastRun
             { "sched.rest_sea", "Sea Swim" }, { "sched.story", "Go to the Tower" },
             { "sched.job_salon", "Salon Assistant" }, { "sched.job_market", "Market Porter" }, { "sched.job_sashimi", "Night Serving" },
             { "sched.job_night_delivery", "Late-night Delivery" }, { "sched.job_hall", "Village Hall Volunteer" }, { "sched.job_dangsan", "Shrine Preparation" },
-            { "sched.job_tower_watch", "Tower Night Patrol" }, { "sched.job_lighthouse", "Lighthouse Cleaning" },
+            { "sched.job_tower_watch", "Tower Night Patrol" }, { "sched.job_lighthouse", "Lighthouse Cleaning" }, { "sched.job_tower_fix", "Tower Maintenance Helper" }, { "sched.job_dj_assist", "Radio Station Assistant" },
             { "sched.les_skate", "Skate Trick Lessons" }, { "sched.les_gym", "Gym" }, { "sched.les_ham", "Amateur Radio Class" },
             { "sched.les_photo", "Photo & Drawing Class" }, { "sched.les_speech", "Jeju Dialect Class" }, { "sched.les_dance", "Dance Academy" },
             { "sched.les_cook", "Jeju Cooking Class" }, { "sched.les_swim", "Haenyeo School" },

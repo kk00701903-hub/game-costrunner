@@ -1,0 +1,548 @@
+   ·   New record!	   ·   新記録！
+   ·   Previous record kept	   ·   前の記録を維持
+   · Personal best	   · 自己ベスト
+  …someone said you've been out late a lot.	  …最近、夜遅くまで出歩いてるって聞いたよ。
+ · night work	 · 夜の仕事
+(Lyrics coming with the Suno track)	(歌詞はSunoトラックと一緒に)
+AI-produced mixed duo	AI制作の男女デュオ
+Achievement  ★ 	実績達成  ★ 
+Acoustic	アコースティック
+Agility	敏捷
+Album	アルバム
+Album owned	アルバム所有
+Amateur Radio Class	アマチュア無線教室
+An endless course that keeps speeding up. Distance, coins, hearts = score.	終わりのないコース、どんどん速くなる。距離・コイン・ハートがスコア。
+Arrive without a hit	ノーダメージで到着
+Arrived	到着
+Autumn	秋
+Autumn EP	秋EP
+Back home	家に帰る
+Back to title?	タイトルに戻る？
+Beach Cafe	ビーチカフェ
+Best combo	最高コンボ
+Biker	バイカー
+Body	からだ
+Chapters	チャプター
+Charm	魅力
+Clear	クリア
+Close	閉じる
+Coins	コイン
+Collection	コレクション
+Continue	つづきから
+Credits	クレジット
+Daily Run	デイリーラン
+Dance Academy	ダンス教室
+Dance Practice	ダンス練習
+Digital Album “Our Frequency”	デジタルアルバム「僕らの周波数」
+Done today — run again	今日は完了 — もう一回
+Doyun	ドユン
+Duet	デュエット
+Easy: stamina ×0.8, stress ×0.7	やさしい：体力×0.8、ストレス×0.7
+End of Spring	春の終わり
+Endless	エンドレス
+Exhausted. One more week like this and you'll fall ill.	くたくた。あと一週こんな調子だと倒れるよ。
+Fallen Leaves	落ち葉
+Fan Art	ファンアート
+Festival	祭り
+Fever. Bedridden the whole week. (medicine -30G, stress -40)	発熱。一週間寝込む。（薬代 -30G、ストレス -40）
+First Snow	初雪
+Frequency	周波数
+Full	フル
+Get the album	アルバムを手に入れる
+Go	実行
+Go to the Tower	鉄塔へ
+Go to the story now?	今すぐストーリーへ？
+Got it	わかった
+Grandma	おばあちゃん
+Great %	大成功率
+Growth	成長
+Gym	ジム
+Haenyeo School	海女学校
+Haneul	ハヌル
+Haneul and Doyun's voices, songs and art are AI-produced; the story and the game are made by people. They do not imitate any real person or group.\n\nSpring is free; the rest opens with the digital album (one purchase). No ads.	ハヌルとドユンの声・歌・絵はAIで制作し、物語とゲームは人が作りました。実在の人物やグループを模倣していません。\n\n春は無料、続きはデジタルアルバム（1回購入）で開きます。広告はありません。
+Hard: stamina ×1.3, stress ×1.3	きびしい：体力×1.3、ストレス×1.3
+Hearts	ハート
+Help the Haenyeo	海女さんの手伝い
+Hospital Day	病院の日
+How will you run?	どうやって走る？
+I can see the tower clearly today.	今日も鉄塔がよく見える。
+If you like JEJU, a rating helps us make the next song.	JEJUが気に入ったら、評価が次の曲の力になります。
+Jeju Cooking Class	済州料理教室
+Jeju Dialect Class	済州方言教室
+Jobs	バイト
+Language	言語
+Language: English  →  한국어	言語: English  →  한국어
+Last week of the chapter	チャプター最後の週
+Late-night Delivery	深夜配達
+Later	あとで
+Laze at Home	家でごろごろ
+Leave	やめる
+Lessons	レッスン
+Let's go to the tower when it snows.	雪が降ったら鉄塔に行こう。
+Lighthouse Cleaning	灯台の掃除
+Mansu	マンス
+Market Porter	市場の荷運び
+Mind & Life	こころ・生活
+Money	お金
+Near miss	ニアミス
+New Game	はじめから
+Next stage	次のステージ
+Night Serving	夜のホール
+No audio yet.	まだ音声がありません。
+No damage	ノーダメージ
+No roll · always succeeds	判定なし・必ず成功
+None	なし
+Normal rhythm	ふつうのリズム
+Not enough money	お金が足りない
+Nothing yet.	まだ何もありません。
+Opening	オープニング
+Oreum	オルム
+Oreum Walk	オルム散歩
+Outside the story — just run.	物語の外で、ただ走る。
+Pace: Easy	ペース：やさしい
+Pace: Hard	ペース：きびしい
+Pace: Normal	ペース：ふつう
+Photo & Drawing Class	写真・絵画教室
+Photocards	フォトカード
+Plan	計画
+Practice	練習
+Progress is auto-saved.	進行は自動保存されます。
+Purchase not completed.	購入が完了しませんでした。
+Radio Letter	ラジオへの手紙
+Radio Station Assistant	ラジオ局アシスタント
+Rate	評価する
+Records	レコード
+Rest	休む
+Restore / Close	復元 / 閉じる
+Resume	再開
+Retry	リトライ
+Rua	ルア
+Run	走る
+Run HP	ランHP
+Run again	もう一回走る
+S20  The Tower	S20  鉄塔
+Salon Assistant	美容室アシスタント
+Save	保存
+Save & share	保存・共有
+Saved to gallery (Pictures/JEJU)	ギャラリーに保存しました (Pictures/JEJU)
+Scooter Delivery	スクーター配達
+Sea Swim	海で泳ぐ
+Sense	感性
+Settings	設定
+Share photocard	フォトカードを共有
+Shop	ショップ
+Shrine Preparation	本郷堂の準備
+Skate Practice	スケート練習
+Skate Trick Lessons	スケートトリック教室
+Sparrow	スズメ
+Speed	速さ
+Spring	春
+Spring EP	春EP
+Stamina	体力
+Start	はじめる
+Start daily run	デイリーランを始める
+Starting over erases the current playthrough.	はじめからにすると今の周回は消えます。
+Story	ストーリー
+Stress	ストレス
+Summer	夏
+Summer EP	夏EP
+Sunset Run	夕焼けラン
+Talk of Seoul	ソウルの話
+Tangerine Farm	みかん農園
+Tangerines	みかん
+Tap the card to flip · save & share below	カードをタップで裏返し・下で保存＆共有
+Thank you! Everything is unlocked.	ありがとう！全部開きました。
+Thank you. Every track is yours.	ありがとう。すべてのトラックはあなたのものです。
+The Base	基地
+The Letter	手紙
+The One Who Came Back	帰ってきた人
+The Rule	ルール
+The Sea	海
+The Tin Can	缶
+The Tower	鉄塔
+The rest of this week becomes the story. After the chapter, you move to the next chapter's first week.	今週の残りはストーリーになります。チャプターの後、次のチャプターの最初の週へ移ります。
+The skateboard unlocks after one ending.	スケートボードはエンディングを一度見ると開きます。
+This is the chapter's last week.\nTime to go to the story.	今週がこのチャプター最後の週。\nストーリーへ行く時間です。
+Three cards already.	もう3枚目のカード。
+Title	タイトル
+To the tower	鉄塔へ
+To timeline	タイムラインへ
+Today's stamp is already yours.	今日のスタンプはもう受け取り済み。
+Total	合計
+Tower Maintenance Helper	鉄塔整備の助手
+Tower Night Patrol	鉄塔の夜間巡回
+Track	トラック
+Trophies	トロフィー
+Trust	評判
+Tuition · guaranteed gain	受講料・確実に上がる
+Typhoon	台風
+Unlock with the album	アルバムで解放
+Verse 1 (rank A+ for full)	1番のみ（フルはA以上）
+Village Hall Volunteer	公民館ボランティア
+Wallet	所持金
+Weekend · Condition	週末・コンディション
+Wild Goose	ガン
+Will I tune the radio in today?	今日はラジオの周波数、合うかな。
+Winter	冬
+Winter EP	冬EP
+Word got around…	噂が広まった…
+Words Unsaid	言えなかった言葉
+You disappeared for a while and missed the sunset. (Trust -10, chapter graded C)	しばらく姿を消して夕焼けを逃した。（評判 -10、チャプターC評価）
+— Haneul ♡	— ハヌル ♡
+“JEJU” is an AI-produced virtual duo	「JEJU」はAI制作のバーチャルデュオです
+…I want to rest a bit.	…少し休みたい。
+…My body won't keep up. I should rest today.	…体がついてこない。今日は休まないと。
+← Back	← 戻る
+← Binder	← バインダー
+▶ Play	▶ 再生
+▶ Preview	▶ 試聴
+★ New best!	★ 新記録！
+★ Story	★ ストーリー
+⚠ Stress is over stamina. Rest is needed.	⚠ ストレスが体力を超えています。休息が必要。
+👟 Running	👟 ランニング
+🛹 Skateboard	🛹 スケートボード
+"A while ago," for Mansu, can mean ten minutes or three hours.	マンスの「さっき」は、十分前のことも三時間前のこともある。
+"I came back down. Under the tower when the sun sets. Let's see if our base is still there."	「また降りてきた。日が沈むころ、鉄塔の下で。僕らの基地がまだあるか確かめよう。」
+"I'll come back. Radio 91.9, two in the morning. Meet me there."	「戻ってくる。ラジオ91.9、夜中の二時。そこで会おう。」
+"Sorry" was a first.	「ごめん」は初めてだった。
+'Haneul. I'm going. Fixed your trucks. The bushing.' …That part you already know.	「ハヌル。行くよ。トラックは直しておいた。ブッシングだ。」…そこはもう知ってるよね。
+'I like you. You can come late. I'll wait.' That part I've never said out loud.	「好きだ。遅れてきてもいい。待ってる。」その部分は、まだ一度も声に出したことがない。
+'There's only one year.' I already know this line.	「一年しかない。」このセリフは、もう知っている。
+(A few steps and I'm out of breath. How am I going to make the sunset like this.)	（少し歩いただけで息が切れる。これでどうやって夕焼けに間に合うの。）
+(I haven't been sleeping. Is that why I'm late.)	（ずっと眠れていない。だから遅れるのかな。）
+(I sent a story twice. The DJ seems to know my handwriting.)	（お便りを二回送った。DJは私の字を覚えているみたい。）
+(I've already read this note. My hands still shake.)	（このメモはもう読んだ。それでも手が震える。）
+(My feet don't hurt. I ran all summer.)	（足が痛くない。夏じゅう走ったから。）
+(People keep talking to me. No time to look for the back of his head.)	（みんなが話しかけてくる。彼の後ろ姿を探す暇がない。）
+(Rua is watching from somewhere. Today I'm not alone.)	（ルアがどこかで見ている。今日はひとりじゃない。）
+(Second spring. This time I came with more than half the sunset left.)	（二度目の春。今度は夕焼けが半分以上残っているうちに来た。）
+(Snow on the road and I'm not slipping. A year's worth of legs.)	（道に雪、でも滑らない。一年分の脚だ。）
+(Succulents don't die in winter. That's why she gave it.)	（多肉植物は冬に枯れない。だからくれたんだ。）
+(That's mine.)	（あれは私のだ。）
+(The DJ reads my request. One I never sent.)	（DJが私のリクエストを読む。送った覚えのないリクエストを。）
+(The bus driver sees me and closes the door late.)	（バスの運転手が私を見て、ドアを閉めるのを遅らせる。）
+(The crates are heavy. Three hours is long.)	（箱が重い。三時間は長い。）
+(The digit isn't smeared by accident. It looks smeared on purpose.)	（数字は偶然にじんだんじゃない。わざとにじませたみたいだ。）
+(The story from two years ago — I remember it to the end.)	（二年前のお便り——最後まで覚えている。）
+(The tin can Mansu talked about. Bought there six years ago.)	（マンスが言っていた缶。六年前にあそこで買ったもの。）
+(This DJ's voice — the one I hear every night at two.)	（このDJの声——毎晩二時に聞いている声だ。）
+(Twelve percent. The battery, and me.)	（十二パーセント。バッテリーも、私も。）
+(Why didn't I believe the tower wouldn't fall.)	（どうして鉄塔は倒れないって信じられなかったんだろう。）
+91.9. Two in the morning.	91.9。夜中の二時。
+A medicine bag falls. It makes no sound.	薬の袋が落ちる。音はしない。
+A note under the stone. "Can't come out this week. Tests. Big ones. No, not big — long ones. Open the tin can. It's yours. Half of it."	石の下にメモ。「今週は出られない。検査。大きいやつ。いや、大きいんじゃなくて——長いやつ。缶を開けて。君のものだ。半分は。」
+A note where he sat. "You're late. Tomorrow, before sunset."	彼が座っていた場所にメモ。「遅いよ。明日、日が沈む前に。」
+A polar bear. It doesn't mean anything.	シロクマ。意味はない。
+A story from Jeju. You say you're finally answering a note you got six years ago. …They'll be listening too. Everyone listening at this hour is.	済州からのお便りです。六年前にもらったメモに、やっと返事をするそうです。…彼らも聞いているでしょう。この時間に聞いている人は、みんな。
+A while ago.	さっき。
+Ah, the sick kid. Came from Seoul to recover, they say. He was just here. Just now.	ああ、あの病気の子。療養しにソウルから来たって。さっきまでここにいたよ。ついさっき。
+And one more. A story sent two springs ago from a hospital in Seoul, by an eighteen-year-old listener. We couldn't read it back then. "Next spring I'm going back to Jeju. To the kid next door — "	もう一通。二年前の春、ソウルの病院から十八歳のリスナーが送ってくれたお便り。当時は読めませんでした。「来年の春、済州に帰る。隣の家のあの子に——」
+And the canola blooms a day early.	そして菜の花は一日早く咲く。
+Aren't you scared of climbing the tower? No, you wouldn't be.	鉄塔に登るのは怖くないの？いや、君は怖がらないか。
+Asked what he'd put in it — a note, he said. What note does a twelve-year-old write. But it's still there, I hear. Here, one more bag. A bag.	何を入れるのかと聞いたら、メモだって。十二歳が何を書くんだか。でもまだそこにあるらしい。ほら、袋をもう一つ。袋。
+Back at the bus stop the display has changed. Service resumed.	バス停に戻ると表示が変わっている。運行再開。
+Bought it because a typhoon was coming. Not for himself. I'll put it in a bag. A bag.	台風が来るからって買ったんだ。自分のためじゃなく。袋に入れとくよ。袋。
+Come with me. Before sunset today.	一緒に来て。今日、日が沈む前に。
+Daytime. Hamdeok. This time he was there first. Only his feet in the water.	昼間。咸徳。今度は彼が先にいた。足だけ水につけて。
+Did I say that?	私、そんなこと言った？
+Display board: Under maintenance · Service suspended.	表示板：整備中・運行休止。
+Do you go up the oreum a lot? My brother said he saw you there.	オルムによく登る？兄が君をそこで見たって。
+Doyun!	ドユン！
+Doyun.	ドユン。
+Eight on the calendar. Minus the days you were late — but that's my count to keep.	カレンダーに八。遅れた日を引くと——でも数えるのは僕の役目だ。
+Eleven.	十一。
+Empty. He said as long as you believe the illness, he can stay. When winter ends, he goes. That's all I know.	空っぽ。病気だと信じてもらえる間はいられるって。冬が終わったら行くって。私が知ってるのはそれだけ。
+Every day he leaves first, he comes to me. He always says it's not because you were late.	兄が先に帰る日は、いつも私のところに来る。君が遅れたせいじゃないって、いつも言う。
+Every day you were late, my brother left first. So you wouldn't blame yourself. Did you know that?	君が遅れた日は、いつも兄が先に帰った。君が自分を責めないように。知ってた？
+Every day you're late, I lose a day. That's the rule. But if you knew, you'd run every day, and you'd get hurt running — so on the days you were late I just left first. So it wouldn't be your fault.	君が遅れるたびに、僕は一日を失う。それがルールだ。でも知ったら君は毎日走るし、走れば怪我をする——だから遅れた日は先に帰った。君のせいにならないように。
+Everyone listening at this hour is someone who was late. It's fine. The show doesn't end.	この時間に聞いている人は、みんな遅れた人です。大丈夫。番組は終わりません。
+Fireworks. She watches alone. At her feet, one festival lantern. Lit.	花火。彼女はひとりで見ている。足元に祭りの提灯がひとつ。火が灯っている。
+Fixed your trucks. The bushing.	トラックは直しておいた。ブッシングだ。
+For six years she didn't know. So it wasn't only for treatment that he chose that hospital, she thought. That was a misunderstanding too.	六年間、彼女は知らなかった。だからあの病院を選んだのは治療のためだけじゃなかったんだ、と思った。それも誤解だった。
+Forgot it.	忘れた。
+Glass is going out. The glass.	ガラスが出ていく。ガラスだ。
+Grandma gave me tonic too. Told me to just smell it.	おばあちゃんが私にも薬をくれた。匂いだけ嗅げって。
+Grandma hands over one more bottle. This one is Haneul's.	おばあちゃんがもう一本差し出す。これはハヌルの分。
+Haneul can't answer. It was sad. There's no other word. And from that day, Haneul ran every day.	ハヌルは答えられない。悲しかった。ほかに言葉がない。そしてその日から、ハヌルは毎日走った。
+Haneul didn't turn the radio off. For the first time she listened to the end.	ハヌルはラジオを消さなかった。初めて最後まで聞いた。
+Haneul doesn't answer and stands up. From that week she stops going to the tower. One day, two, four.	ハヌルは答えずに立ち上がる。その週から鉄塔に行くのをやめる。一日、二日、四日。
+Haneul doesn't answer. That not answering is the answer — after six years, they both know.	ハヌルは答えない。答えないことが答えだと——六年経って、二人ともわかっている。
+Haneul doesn't turn the radio off. One light is on at the tower outside the window.	ハヌルはラジオを消さない。窓の外、鉄塔に灯りがひとつ。
+Haneul knows who sent it. 91.9. Through the static, the first-snow song begins.	ハヌルは誰が送ったか知っている。91.9。ノイズの向こうで、初雪の歌が始まる。
+Haneul runs after the bus. Two stops. At the third, the bus pulls away.	ハヌルはバスを追いかける。二つ目の停留所。三つ目で、バスは走り去る。
+Haneul went first. When she reached the tower half the sunset was left, and he didn't come.	ハヌルが先に着いた。鉄塔に着いたとき夕焼けは半分残っていて、彼は来なかった。
+Haneul worked three more hours until the shift ended. When she looked back, the ridge was empty.	ハヌルはシフトが終わるまであと三時間働いた。振り返ると、畝は空だった。
+Haneul. There was one more rule. No, not a rule — if you come all the way to the end twice, I get to say one more thing.	ハヌル。ルールがもう一つあった。いや、ルールじゃない——最後まで二回来てくれたら、もう一つ言えることがある。
+He can't come out today. He said not to tell you.	今日は出られないって。君には言うなって。
+He doesn't turn around. The silver grass closes.	彼は振り向かない。ススキが閉じる。
+He left a while ago. He saw you coming and left. You'd have seen only the back of his head.	さっき帰ったよ。君が来るのを見て帰った。後ろ姿しか見えなかったろう。
+He looks. Three seconds. The drum troupe passes. When it's gone, he's gone.	彼が見る。三秒。太鼓の一団が通り過ぎる。過ぎたとき、彼はいない。
+He touches the envelope. He doesn't hand it over.	彼は封筒に触れる。渡さない。
+He unfolds the letter. Half sunset, half his voice.	彼は手紙を広げる。半分は夕焼け、半分は彼の声。
+He was here a while ago, that kid. Bought a raincoat. A raincoat.	さっきここにいたよ、あの子。レインコートを買った。レインコート。
+He went first. It's the first time. That Haneul is the one who stays.	彼が先に行った。初めてだ。ハヌルが残る側になるのは。
+He's at the bottom. Waving. He's in the picture — no, when she comes down and looks, only his spot is out of focus.	彼は下にいる。手を振っている。写真に写っている——いや、降りて見ると、彼のいた場所だけピントが合っていない。
+He's not here right now.	今はいないよ。
+Heard the Seo boy is sick. Drink this. It's what my old man used to take.	ソ家の子が病気だって聞いたよ。これを飲みな。うちの人がよく飲んでたやつだ。
+How?	どうやって？
+I asked at the shrine. Whether there are people who stay only one year and go.	堂に聞いてみた。一年だけいて去る人がいるかどうか。
+I asked you.	あなたに聞いたのに。
+I brought bags. Bags. Put something in them to take along.	袋を持ってきた。袋。何か入れて持っていきな。
+I don't know. I don't know either. They're just empty. He says it only works while you believe it.	わからない。私にもわからない。ただ空っぽなの。信じてる間だけ効くんだって。
+I had something to say.	言いたいことがあった。
+I had something to say. …You do too. It's on your face.	言いたいことがあった。…君もだろ。顔に書いてある。
+I heard you deliver at night. Mansu's worried.	夜に配達してるって聞いたよ。マンスが心配してる。
+I know.	知ってる。
+I know. You're not late. Half the sunset's still left. First time in a year you got here first.	知ってる。君は遅れてない。夕焼けはまだ半分残ってる。一年で初めて君が先に着いた。
+I like you	好きだ
+I meant not to leave first on the last day, but the day left first. Not your fault.	最後の日は先に帰らないつもりだったのに、日のほうが先に帰った。君のせいじゃない。
+I never built my body up, all year. That's it. That's all it was.	一年間、体を鍛えなかった。それだけ。それだけのことだった。
+I never once said hospital. That's what you heard. Every time.	病院とは一度も言ってない。そう聞こえたんだ。毎回。
+I ran every day for a year, and today we all walk down together.	一年間毎日走って、今日はみんなで一緒に下りる。
+I ran this store six years ago too. The day that kid left for Seoul, he bought a tin can here.	六年前もこの店をやってた。あの子がソウルに発つ日、ここで缶を買っていった。
+I said you could come late. Take that back. Don't be late. I'll be at that spot next spring too. When the sun sets.	遅れてきてもいいって言った。取り消す。遅れるな。来年の春もあの場所にいる。日が沈むころに。
+I won't tell you. Just — he says you look funny running, from far away.	教えない。ただ——遠くから見ると君の走り方が変だって。
+I'd rather not say either. Is that not allowed?	私も言いたくない。だめ？
+I'll come. I won't be late. This time I'm the one chasing.	行く。遅れない。今度は私が追いかける番。
+I'll tell only you. My brother's medicine bags — they're empty.	君にだけ言う。兄の薬の袋——空っぽなの。
+I'm burying this. Take care	これを埋める。元気で
+I'm going	行くよ
+I'm slow. Go ahead.	遅いから。先に行って。
+If you stop chasing, there's nothing to miss. That's what she thought.	追いかけるのをやめれば、逃すものもない。そう思った。
+Is the little sister guarding him, Haneul thinks. At thirteen.	妹が彼を守っているのか、とハヌルは思う。十三歳で。
+It doesn't need meaning. A picture is enough. This is as far as I can go. No, not as far as I can go — as far as I go today.	意味はいらない。写真で十分。ここまでが限界。いや、限界じゃない——今日はここまで。
+It takes ten minutes to untangle the cord. She felt sorry. She doesn't know why.	コードをほどくのに十分かかる。申し訳なく思った。なぜかはわからない。
+It was like that when we were twelve too.	十二歳のときもそうだった。
+It's different from Seoul snow.	ソウルの雪とは違う。
+Jeju listener. This time you sent a request instead of a story. Play this song at two in the morning on the last day.	済州のリスナー。今回はお便りじゃなくリクエストですね。最後の日の夜中二時にこの曲を流してほしいと。
+Just a tangerine.	ただのみかん。
+Later. Just the smell for now.	あとで。今は匂いだけ。
+Left it at the hospital. They don't let you use it there.	病院に置いてきた。あそこじゃ使わせてくれない。
+Let's read it together. It's been a while since I saw his handwriting too.	一緒に読もう。私も兄の字を見るのは久しぶり。
+Long after the sun is gone, nobody leaves first. Today he didn't have to leave first.	日がすっかり沈んでも、誰も先に帰らない。今日、彼は先に帰らなくてよかった。
+Look at your yellow hands. And that boy's are white.	自分の黄色い手を見てごらん。あの子の手は白い。
+Mansu starts to take something from under the counter, then stops. Not today, it seems.	マンスがカウンターの下から何か取り出そうとして、やめる。今日じゃないらしい。
+Mansu's stall. Bags hanging like lanterns.	マンスの屋台。提灯みたいにぶら下がる袋。
+Me? No, it's not that I'm not there, it's that you're late. Your trucks are loose, that's why. The kingpin nut — no, it's the bushing. The bushing's gone.	僕？いや、僕がいないんじゃなくて、君が遅いんだ。トラックが緩んでるから。キングピンのナット——いや、ブッシングだ。ブッシングがだめになってる。
+Misdiagnosed it back then. Took six years.	あのときは誤診だった。六年かかった。
+My brother died two springs ago. At the hospital in Seoul.	兄は二年前の春に死んだ。ソウルの病院で。
+My brother leaves when winter ends. That part's decided.	兄は冬が終わったら行く。それは決まってる。
+My brother? My brother said he's meeting someone?	兄？兄が誰かと会ってるって？
+My old man was sick too. I fed him everything the hospital forbade. He went anyway.	うちの人も病気だった。病院が禁じたものを全部食べさせた。それでも逝ったよ。
+Need a bag? A bag.	袋、いる？袋。
+Never did tune the frequency all the way. That was me.	周波数を最後まで合わせたことがなかった。それが私だった。
+Next spring she'll be able to run. She won't be late then. She decides to think that.	来年の春には走れるようになる。そのときは遅れない。そう思うことにする。
+Next story… from an eighteen-year-old listener recovering on Jeju. Says the friend next door keeps being late.	次のお便りは…済州で療養中の十八歳のリスナーから。隣の家の友達がいつも遅れてくるそうです。
+Ninety-one point… four? Seven?	九十一点…四？七？
+No one is there. No — one person. Rua, sitting on the stone at the tower base.	誰もいない。いや——ひとり。ルアが鉄塔の根元の石に座っている。
+No one is there. The canola bloomed a day early. As many days as Haneul was late, he ended that many days sooner. The twenty-first miss.	誰もいない。菜の花は一日早く咲いた。ハヌルが遅れた日数だけ、彼はその分早く終わった。二十一回目のすれ違い。
+Nothing.	なにも。
+Nothing. Chalk on the stone. "91.9 — two in the morning. Not in the daytime."	なにも。石にチョーク。「91.9——夜中の二時。昼間じゃない。」
+Nothing. Just looked at the bags and left. The bags.	なにも。袋を見て帰っただけ。袋を。
+Nothing. The grass is pressed down. In the shape of someone who was sitting there a moment ago.	なにも。草が押しつぶされている。さっきまで誰かが座っていた形に。
+Nothing. The tangerine and the tonic sit on the stone. As if only smelled.	なにも。みかんと薬が石の上にある。匂いだけ嗅いだみたいに。
+Oh, you came in the day. No, that's not — it's not here, a bit more south. You dug and I covered, so count with your steps. Twelve?	あ、昼に来たんだ。いや、そうじゃなくて——ここじゃない、もう少し南。君が掘って僕が埋めたから、歩数で数えて。十二？
+Oh. Fancy seeing you here.	あ。こんなところで会うなんて。
+One year. From the first day of spring to the last day of winter. The sunset is the clock. I have to be at the tower when the sun sets. Because this is the antenna. No, not an antenna — it just comes in clearest here. Once the sun's down, I can't stay.	一年。春の初日から冬の最後の日まで。夕焼けが時計だ。日が沈むとき鉄塔にいなきゃいけない。ここがアンテナだから。いや、アンテナじゃなくて——ここが一番よく入るんだ。日が沈んだら、いられない。
+Only Haneul's hands are yellow.	ハヌルの手だけ黄色い。
+Oppa. Leave late.	お兄ちゃん。遅く帰って。
+People in the village don't say nice things about you. That's why I'm asking.	村の人たちは君のことをよく言わない。だから聞いてるんだ。
+Right, eleven. But those were twelve-year-old steps.	そう、十一。でもあれは十二歳の歩幅だ。
+Rua brings Haneul home. Doyun's room. The bed is made and there are no belongings. On the desk, one photo frame, face down.	ルアがハヌルを家に連れてくる。ドユンの部屋。ベッドは整えられ、持ち物はない。机の上に写真立てがひとつ、伏せてある。
+Rua comes to Haneul's house. A first. Carrying a succulent in a pot.	ルアがハヌルの家に来る。初めてだ。鉢植えの多肉植物を抱えて。
+Rua holds out the tin can. A note inside. Not read yet.	ルアが缶を差し出す。中にメモ。まだ読んでいない。
+Rua is watching from far away. She doesn't wave.	ルアが遠くから見ている。手は振らない。
+Rua laughed for the first time. Like a thirteen-year-old.	ルアが初めて笑った。十三歳らしく。
+Rua says nothing more. She closes the gate halfway.	ルアはそれ以上何も言わない。門を半分閉める。
+Rua stands the frame up. Eighteen. All his front teeth grown in.	ルアが写真立てを起こす。十八歳。前歯が全部生えそろっている。
+Rua taps the tin-can spot with her foot. Eleven steps. Right.	ルアが缶の場所を足で叩く。十一歩。正解。
+Rua told you, didn't she. She can't hold anything in. Even at twelve she told everyone where the tin can was — no, that's not the point.	ルアが言ったんだろ。あの子は何も隠せない。十二歳のときも缶の場所をみんなに言った——いや、そこは重要じゃない。
+Run on the last day. That day he won't leave.	最後の日に走って。その日は先に帰らない。
+Seoul has no sea. The Han River isn't the sea.	ソウルに海はない。漢江は海じゃない。
+She finished the sentence to the end. The second time.	彼女は文を最後まで言い切った。二度目。
+She finishes reading and looks up. The sun is all the way down. No one is there.	読み終えて顔を上げる。日はすっかり沈んでいる。誰もいない。
+She flips the board over.	彼女はボードを裏返す。
+She flips the board over. The twentieth time.	彼女はボードを裏返す。二十回目。
+She got three seconds. That's what she lived on all summer.	三秒もらえた。それを糧に夏じゅう生きた。
+She knows who left it. She still doesn't go the next day. Or the day after.	誰が置いたか知っている。それでも次の日は行かない。その次の日も。
+She listens to the end. She listened to the end, but she can't remember the rest.	最後まで聞く。最後まで聞いたのに、続きを思い出せない。
+She looks at the photo she took on her phone. His spot is eaten by lantern light, blown out white. Backlight, probably.	スマホで撮った写真を見る。彼の場所は提灯の光に食われて、白く飛んでいる。逆光だろう、たぶん。
+She looks for the tin can and gives up. It doesn't feel like eleven steps.	缶を探して、あきらめる。十一歩じゃない気がする。
+She only saw the back of his head, and still knew his steps hurt.	後ろ姿しか見えなかったのに、足が痛いのがわかった。
+She only saw the back of his head. She still knows.	後ろ姿しか見なかった。それでもわかる。
+She peels one and holds it out. He only holds it.	ひとつ剥いて差し出す。彼は持っているだけ。
+She reached it before sunset. He's there. Today he talks at length. From beginning to end.	日が沈む前に着いた。彼がいる。今日は長く話す。最初から最後まで。
+She sets the pot on the porch and leaves. She said it has no name.	鉢を縁側に置いて帰る。名前はないと言っていた。
+She sits down on the roadside. Where Doyun sat. Where the medicine bag fell.	道端に座る。ドユンが座った場所。薬の袋が落ちた場所。
+She turns it off.	彼女は消す。
+She turns it off. Turns it on.	彼女は消す。つける。
+She went in daytime. Without waiting for the sunset. He was digging.	昼に行った。夕焼けを待たずに。彼は掘っていた。
+She went in the day. He was there first. Today his sentences are short.	昼に行った。彼が先にいた。今日は文が短い。
+Six. I counted right.	六。ちゃんと数えた。
+So.	で。
+Sound from the bottom of the hill. Mansu's truck. Grandma. Rua. The market people.	丘の下から音。マンスのトラック。おばあちゃん。ルア。市場の人たち。
+Spring ending — this time I'll say it first. Go ahead.	春が終わる——今度は私が先に言う。先に行って。
+Static. A stinger. Title card → credits. Skateboard character unlocked.	ノイズ。ジングル。タイトル→クレジット。スケートボードキャラクター解放。
+Static. Commercials. Trot songs.	ノイズ。CM。トロット。
+Static. Then a voice she knows. The voice of someone who talks in long sentences.	ノイズ。それから知っている声。長い文で話す人の声。
+Take one more tangerine. Don't leave it on the stone — put it in his hand.	みかんをもう一つ持っていきな。石に置かないで——あの子の手に渡すんだよ。
+Take this. Raincoat. New. The kid bought it and never took it.	持っていきな。レインコート。新品だ。あの子が買って、取りに来なかった。
+Thank you. But the hospital said not to take anything else —	ありがとう。でも病院がほかのものは口にするなって——
+That kid comes every day. Looks at the bags and leaves. Every day.	あの子、毎日来る。袋を見て帰る。毎日。
+That kid — he just looks at the bags and leaves. Every day. He's not buying. He's measuring time.	あの子——袋を見て帰るだけ。毎日。買うんじゃない。時間を測ってるんだ。
+That kid? He just left. Said the sun was setting. Why does a sick boy fuss so much over sunsets.	あの子？さっき帰ったよ。日が沈むからって。病気の子がなんで夕焼けにそんなにこだわるんだか。
+That night at two, she listened. The DJ read a story. Someone else's story. She listened to the end anyway.	その夜の二時、彼女は聞いた。DJがお便りを読んだ。誰か別の人の話。それでも最後まで聞いた。
+That raincoat — I gave it to you, right. The kid bought it and left it.	あのレインコート——君にあげたよな。あの子が買って置いていった。
+That's why it's better.	だからいいんだ。
+That's why you kept leaving first.	だから先に帰り続けたんだね。
+That's worse.	そのほうがひどい。
+The Seo boy. This isn't tonic, it's just tangerines. Eat.	ソ家の子。これは薬じゃない、ただのみかんだ。食べな。
+The bus comes. Only Rua gets on. Window seat. The seat beside her is empty.	バスが来る。ルアだけが乗る。窓側。隣の席は空いている。
+The bus.	バス。
+The chalk is wet but the writing hasn't run.	チョークは濡れているのに、文字は流れていない。
+The day Doyun called "the big hospital day." Rua is wearing a backpack. Doyun isn't there.	ドユンが「大きい病院の日」と呼んだ日。ルアはリュックを背負っている。ドユンはいない。
+The following spring. Two in the morning. 91.9.	翌年の春。夜中の二時。91.9。
+The grandmother who owns the farm comes over with a bottle of tonic.	農園のおばあちゃんが薬の瓶を持ってやってくる。
+The kid came today too. Just looked at the bags. That's eleven times.	あの子、今日も来た。袋を見ただけ。これで十一回。
+The last day of winter. There's no bus. The canola is a day early.	冬の最後の日。バスはない。菜の花は一日早い。
+The last day of winter. When the sun sets. Come then. That day I won't leave first.	冬の最後の日。日が沈むとき。そのとき来て。その日は先に帰らない。
+The medicine bags.	薬の袋。
+The note doesn't answer.	メモは答えない。
+The note from under the tower stone yesterday. "The tower won't fall, right? Our tin can."	昨日、鉄塔の石の下にあったメモ。「鉄塔、倒れないよね？僕らの缶。」
+The note she left last night — "It didn't fall." — is gone. Instead: "Told you."	昨夜置いたメモ——「倒れなかった。」——が消えている。代わりに「言っただろ。」
+The old town. Gongs. Across the crowd, there he is. Under the lanterns.	旧市街。銅鑼。人混みの向こうに、彼がいる。提灯の下。
+The radio stinger is the same. What comes after, it doesn't say.	ラジオのジングルは同じ。そのあとに何が来るかは、言わない。
+The radio stinger is the same. What comes after, the two of them listen to together.	ラジオのジングルは同じ。そのあとに来るものを、二人で一緒に聞く。
+The radio. The frequency he wrote on the shovel handle. One digit smeared in the dirt.	ラジオ。彼がシャベルの柄に書いた周波数。数字がひとつ土でにじんでいる。
+The raincoat is folded, never once opened. The paper is dry.	レインコートは畳まれたまま、一度も開かれていない。紙は乾いている。
+The raincoat is folded. Never once opened.	レインコートは畳まれたまま。一度も開かれていない。
+The succulent has no name. You name it. He said so.	多肉植物に名前はない。君がつけて。彼がそう言った。
+The sun goes all the way down. The tower is visible from here too. No one is standing under it.	日がすっかり沈む。ここからも鉄塔が見える。その下に誰も立っていない。
+The sun was all the way down. No, that's not the reason — it was cold.	日はすっかり沈んでいた。いや、理由はそれじゃない——寒かったんだ。
+The tangerine farm job. He's sitting on the ridge between rows. Said he was discharged. Thinner, but he still talks in long sentences.	みかん農園のバイト。彼は畝の間に座っている。退院したって。痩せたけど、まだ長い文で話す。
+The things they put in at twelve. Stickers. A front tooth. And the note he put in the day before he left for Seoul.	十二歳のときに入れたもの。シール。前歯。そして彼がソウルに発つ前日に入れたメモ。
+The tin can doesn't turn up. He coughs. Haneul pretends not to hear.	缶は出てこない。彼が咳をする。ハヌルは聞こえないふりをする。
+The whole village knows. That you run every day. Some days I couldn't leave first because of that.	村じゅうが知ってる。君が毎日走ってること。そのせいで先に帰れない日もあった。
+Then I guess that's what it is.	じゃあ、そういうことなんだ。
+Then the tower. I'll climb up there and take it. Wait at the bottom.	じゃあ鉄塔。僕が上に登って撮る。下で待ってて。
+Then what is it?	じゃあ何？
+There's a story about two people listening to the same frequency. One wrote two years ago, one last week.	同じ周波数を聞いている二人の話があります。ひとりは二年前に、ひとりは先週に書きました。
+There's no such thing as just a tangerine.	ただのみかんなんてものはない。
+They both know it's a lie. Haneul could have asked first. She didn't. Wind. Silver grass. Haneul counts numbers. Twelve percent battery left. The first time they'd met in ten days, and it wasn't even five minutes. In those five minutes she only had to ask one of three things — why he keeps getting thinner, where the hospital is, where he goes in winter — and she couldn't ask any of them, and she never knew it could be that hard.	嘘だと二人ともわかっている。ハヌルが先に聞けばよかった。聞かなかった。風。ススキ。ハヌルは数を数える。バッテリー残り十二パーセント。十日ぶりに会ったのに、五分もなかった。その五分で三つのうち一つだけ聞けばよかった——なぜ痩せていくのか、病院はどこか、冬にどこへ行くのか——どれも聞けなくて、こんなに難しいなんて知らなかった。
+They promised by note. "The festival. You can see the fireworks from the tower." The reply: "Crowds, not really. No, it's not that I don't like them — okay."	メモで約束した。「祭り。鉄塔から花火が見える。」返事：「人混みは、あまり。いや、嫌いなんじゃなくて——わかった。」
+They ran into each other at the bus stop. Snow. He's wearing two scarves.	バス停で鉢合わせた。雪。彼はマフラーを二枚巻いている。
+They ran into each other on the coastal road. No promise made. The canola has all fallen.	海岸道路で鉢合わせた。約束はしていない。菜の花はすっかり散った。
+They reached it before sunset. The two of them. For the first time Haneul finishes a sentence to the end.	日が沈む前に着いた。二人で。初めてハヌルが文を最後まで言い切る。
+They reached it before sunset. Together, for the first time. This chapter is all of summer.	日が沈む前に着いた。初めて一緒に。この章は夏のすべて。
+They said yes. Only at sunset. Just don't be late, they said. That's all.	いいって。夕焼けのときだけ。遅れるなって、それだけ。
+This is better.	こっちのほうがいい。
+This is nice.	いいね。
+This is the second time I'm telling you the rule. This time you knew first.	ルールを言うのは二度目だ。今度は君が先に知ってた。
+This spring he walked in through the gate. Mom couldn't see him. Only I could. The village thinks he came back sick. That's what he went around saying. To you too.	今年の春、兄は門から入ってきた。ママには見えなかった。私だけに見えた。村は病気で戻ってきたと思ってる。兄がそう言って回ったから。君にも。
+This time I didn't forget. I just can't. I'll say it in winter.	今度は忘れたんじゃない。ただ言えない。冬に言う。
+This time it comes out. Eleven steps was right. She doesn't open it. She doesn't want to open it alone.	今度は出てきた。十一歩で合っていた。開けない。ひとりで開けたくない。
+This time it wasn't a miss. She saw him off. She never got to say goodbye, but he said she could come late. It didn't say where he'd wait, but she knows. 91.9.	今度はすれ違いじゃなかった。見送った。さよならは言えなかったけど、遅れてきてもいいと彼は言った。どこで待つかは書いてなかったけど、彼女は知っている。91.9。
+This time they met in the morning. Avoiding the sunset. Haneul decided that.	今度は朝に会った。夕焼けを避けて。ハヌルがそう決めた。
+Three of the 4.2 kilometers. Her legs stop first. The last day, the last sunset.	4.2キロのうち三キロ。脚が先に止まる。最後の日、最後の夕焼け。
+Through the door gap, the shoe rack. One pair of sneakers, one pair of adult shoes. That's all.	ドアの隙間から、靴箱。スニーカーが一足、大人の靴が一足。それだけ。
+Together —	一緒に——
+Tomorrow again?	明日も？
+Tonight it came not as a letter but as a voice. From Jeju, nineteen years old…	今夜は手紙ではなく、声で届きました。済州から、十九歳…
+Tonight's letter is from Jeju. You wrote again about the friend who's always late.	今夜の手紙は済州から。いつも遅れてくる友達について、また書いてくれました。
+Too many people. No, that's not it — I saw you coming, but the sunset was — I just left. Sorry.	人が多すぎて。いや、違う——君が来るのは見えたけど、夕焼けが——帰っちゃった。ごめん。
+Two in the morning. 91.9.	夜中の二時。91.9。
+Two in the morning. A story from Jeju. The one who sent one last year too… this time it's short. "You're listening, right?" …Yes. They'll be listening.	夜中の二時。済州からのお便り。去年も送ってくれた人…今回は短いです。「聞いてるよね？」…はい。聞いているでしょう。
+Two in the morning. This time she gets it on the first try. Haneul sent in her story three days ago. For the first time, writing a sentence all the way to the end.	夜中の二時。今度は一度で合わせる。ハヌルは三日前にお便りを送った。初めて、文を最後まで書いて。
+Two springs ago.	二年前の春。
+Want me to read it? If you read it, you'd read it late.	読もうか？君が読むと、遅く読むことになる。
+We couldn't read the one from two years ago back then. They asked for spring. We'll read it in spring.	二年前のお便りは、当時読めませんでした。春にと頼まれたので。春に読みます。
+We'll play it. Someone else will be listening at that hour too.	流しましょう。その時間、ほかにも誰かが聞いているはずです。
+What do you know, you've never even been.	行ったこともないくせに、何がわかるの。
+What does a hospital know.	病院に何がわかる。
+What will you do when my brother goes?	兄が行ったら、どうするの？
+What?	え？
+When winter ends he goes. If you blame yourself then, that's what he'd hate most.	冬が終わったら兄は行く。そのとき自分を責めたら、兄が一番嫌がる。
+When?	いつ？
+Where he's going isn't Seoul. I don't know where it is either.	行き先はソウルじゃない。私もどこかは知らない。
+Where's Doyun?	ドユンは？
+Why are you asking me that?	なんでそんなこと私に聞くの？
+Why did you just leave yesterday?	昨日、なんで帰っちゃったの？
+Why do you ask me that? He thinks you've stopped chasing him, you know.	なんでそれを私に聞くの？兄は、君がもう追いかけるのをやめたと思ってるよ。
+Yeah.	うん。
+Yeah. There.	うん。あそこ。
+Yeah. Today.	うん。今日。
+You can come late. I'll wait	遅れてきてもいい。待ってる
+You did. The hospital's going to say something.	そうだよ。病院に何か言われる。
+You don't wash it off. That boy's aren't yellow. He doesn't touch them. Only smells.	洗わないんだ。あの子の手は黄色くない。触らない。匂いだけ。
+You drink the tonic. The one who runs should. Tell that boy to just smell it.	薬はあんたが飲みな。走る人が飲むもんだ。あの子には匂いだけ嗅げって言っときな。
+You go up first. Take a picture from the top and show me.	先に登って。上から写真を撮って見せて。
+You got burned, right? Me too.	日焼けしたでしょ？私も。
+You peel a tangerine from the stem end so it doesn't burst. No, that's a mandarin, this is… what is this.	みかんはヘタのほうから剥くと弾けない。いや、それはポンカンで、これは…何だっけ。
+You weren't late all year. Everyone knows what you did around the village. He knew too.	一年間、君は遅れなかった。村で何をしたか、みんな知ってる。彼も知ってた。
+You work well. I won't charge for the bag. The bag.	よく働くね。袋代はいらないよ。袋。
+You're Haneul, the one he talks about?	あなたが、兄が話してるハヌル？
+You're late.	遅いよ。
+You're not even in it.	君、写ってもいないじゃない。
+You've been at the village hall a lot lately. Here, one more bag.	最近、公民館によく行ってるね。ほら、袋をもう一つ。
+You've been listening to the radio. Your voice sounds like two in the morning.	ラジオを聞いてるんだね。声が夜中の二時みたいだ。
+You've gotten better on the board. Definitely better than at twelve.	ボード、うまくなったね。十二歳のときよりは確実に。
+Your hands are yellow. Tangerine hands. Those are working hands.	手が黄色い。みかんの手。働く手だよ。
+Your trucks don't wobble anymore. You fixed them?	トラック、もうぐらつかない。直した？
+— there's only one year, and every day that kid is late he loses a day, so he gets up and leaves first. I'm not sure what it means either…	——一年しかなくて、あの子が遅れるたびに一日失うから、先に立って帰るんだって。私にも何のことかわからないけど…
+…	…
+…4.2 kilometers.	…4.2キロ。
+…A tin can.	…缶。
+…And if it falls?	…倒れたら？
+…Did he lose his phone?	…スマホ、なくしたの？
+…Did my brother tell you he's going to the hospital?	…兄が病院に行くって言った？
+…Don't know. It's different. Seoul snow turns gray as soon as it lands, but here — no, that's not it. It's just different.	…わからない。違うんだ。ソウルの雪は落ちた途端に灰色になるけど、ここは——いや、そうじゃない。ただ違う。
+…Doyun did?	…ドユンが？
+…Doyun.	…ドユン。
+…Eleven steps. You said it first. No — you're going to say it.	…十一歩。先に言ったのは君だ。いや——これから君が言う。
+…Five.	…五。
+…Goes? Where?	…行く？どこに？
+…How many days left. Exactly.	…あと何日。正確に。
+…I did.	…言った。
+…I didn't.	…言ってない。
+…I feel like we've had this conversation before.	…この会話、前にもした気がする。
+…I know. No, I didn't. I know now.	…知ってる。いや、知らなかった。今知った。
+…I never sent a request.	…リクエストなんて送ってない。
+…I'll go first. You stay today.	…私が先に行く。今日は君が残って。
+…I'll tell you. It's not the hospital.	…言う。病院じゃない。
+…If that's what you think, then that's what it is.	…そう思うなら、そういうことだ。
+…It won't wash off.	…落ちないんだ。
+…It's meaningless if we don't go together.	…一緒に行かなきゃ意味がない。
+…Me.	…私。
+…Not yet. Half the sunset is still left.	…まだ。夕焼けはまだ半分残ってる。
+…Okay.	…わかった。
+…Okay. At the bottom.	…わかった。下で。
+…Read it.	…読んで。
+…So?	…それで？
+…Spring's over. Go ahead. Before sunset.	…春は終わった。先に行って。日が沈む前に。
+…Thanks.	…ありがとう。
+…The Seo family. Next door. I heard their son came back.	…ソ家。隣の。息子が帰ってきたって聞いた。
+…The hospital?	…病院？
+…This village, honestly.	…この村、ほんとに。
+…Tomorrow's the hospital.	…明日は病院。
+…Two years ago.	…二年前。
+…Was he admitted?	…入院したの？
+…What did he buy?	…何を買ったの？
+…What did he say.	…なんて言ってた。
+…What did they say.	…なんて言われたの。
+…What do you mean.	…どういう意味。
+…What tests?	…何の検査？
+…What's the rule?	…ルールって？
+…When?	…いつ？
+…Where to? A hospital in Seoul?	…どこへ？ソウルの病院？
+…Who listens to the radio at two in the morning?	…夜中の二時に誰がラジオを聞くの？
+…Why are you telling me.	…なんで私に言うの。
+…Why did you leave at the festival?	…祭りでなんで帰ったの？
+…Yeah.	…うん。
+…Yeah. I won't be late.	…うん。遅れない。
+…Yeah. Is Doyun in?	…うん。ドユンいる？
+…Yeah. It is.	…うん。そう。
+…You can come in. He's not here, though.	…入っていいよ。兄はいないけど。
+…You keep not being there.	…いつもいないじゃない。
+…You kept saying the hospital.	…病院って言い続けてたじゃない。
+…You look pale lately. On the last day, you can walk instead of run.	…最近、顔色が悪い。最後の日は走らずに歩いてもいいよ。
+…Your phone?	…スマホは？
