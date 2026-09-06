@@ -93,7 +93,7 @@ namespace CoastRun
                 _shopModal = null;
                 Refresh();
             };
-            BigButton(panel, "Close", "닫기", new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(220f, 54f), () => closeShop());
+            BigButton(panel, "Close", Loc.T("닫기", "Close"), new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(220f, 54f), () => closeShop());
             _modalPrimary = closeShop;
         }
 
@@ -187,7 +187,7 @@ namespace CoastRun
                     {
                         var retry = CoastUiArt.CutePill(cell.transform, "Retry", Coral, 8, 2);
                         Place(retry.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-4f, 4f), new Vector2(54f, 22f), new Vector2(1f, 0f));
-                        var rl = Label(retry.transform, "T", "재도전", 11, Color.white);
+                        var rl = Label(retry.transform, "T", Loc.T("재도전", "Retry"), 11, Color.white);
                         AddCellButton(retry, () =>
                         {
                             Destroy(_timelineModal); _timelineModal = null;
@@ -230,7 +230,7 @@ namespace CoastRun
                 Destroy(_timelineModal);
                 _timelineModal = null;
             };
-            BigButton(panel, "Close", "닫기", new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(150f, 16f), new Vector2(200f, 54f), () => closeTimeline());
+            BigButton(panel, "Close", Loc.T("닫기", "Close"), new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(150f, 16f), new Vector2(200f, 54f), () => closeTimeline());
             _modalPrimary = closeTimeline;
         }
     }

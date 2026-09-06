@@ -35,7 +35,8 @@ namespace CoastRun
 
             _gm = GameManager.Ensure();
             _audio = gameObject.GetComponent<TitleAudio>() ?? gameObject.AddComponent<TitleAudio>();
-            _gateArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Gate");
+            _gateArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + Loc.ResName("UI_Title_Gate"))
+                       ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Gate");
             if (_gateArt == null)
             {
                 // 대문 아트가 없을 때만 옛 3D 배경을 세운다(모바일 메모리 절약).
@@ -404,10 +405,10 @@ namespace CoastRun
             bool unlocked = _gm != null && _gm.Profile.skateboardUnlocked;
             bool hasSave = _gm != null && _gm.HasSave;
 
-            CreateLabel(_charSelectPanel.transform, "Title", "누구로 달릴까?", 34, FontStyle.Bold,
+            CreateLabel(_charSelectPanel.transform, "Title", Loc.T("누구로 달릴까?", "How will you run?"), 34, FontStyle.Bold,
                 new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.86f), new Vector2(600f, 50f));
             if (hasSave)
-                CreateLabel(_charSelectPanel.transform, "Warn", "새로 시작하면 지금 진행 중인 회차는 지워져.", 16, FontStyle.Normal,
+                CreateLabel(_charSelectPanel.transform, "Warn", Loc.T("새로 시작하면 지금 진행 중인 회차는 지워져.", "Starting over erases the current playthrough."), 16, FontStyle.Normal,
                     new Color(1f, 0.6f, 0.6f), new Vector2(0.5f, 0.81f), new Vector2(600f, 30f));
 
             BuildCharCard(_charSelectPanel.transform, "러닝", "달려서 송전탑까지.\n속도 ×1.0 · 코인 ×1.0\n처음이라면 이쪽.",
@@ -678,11 +679,16 @@ namespace CoastRun
         private void BuildSettingsPanel(Transform root)
         {
             _settingsPanel = CreateOverlayPanel(root, "Settings");
-            CreateLabel(_settingsPanel.transform, "T", "설정", 28, FontStyle.Bold,
+            CreateLabel(_settingsPanel.transform, "T", Loc.T("설정", "Settings"), 28, FontStyle.Bold,
                 Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
-            CreateLabel(_settingsPanel.transform, "B", "오디오 · 언어는 준비 중", 18, FontStyle.Normal,
-                new Color(0.8f, 0.85f, 0.9f, 0.7f), new Vector2(0.5f, 0.5f), new Vector2(400f, 40f));
-            CreateMenuButton(_settingsPanel.transform, "크레딧", 0.36f, () =>
+            // 언어 토글: 바꾸면 타이틀을 다시 열어 모든 문구·대문 아트를 새 언어로 만든다.
+            CreateMenuButton(_settingsPanel.transform, Loc.T("언어: 한국어  →  English", "Language: English  →  한국어"), 0.48f, () =>
+            {
+                _audio?.PlayClick();
+                Loc.Toggle();
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            });
+            CreateMenuButton(_settingsPanel.transform, Loc.T("크레딧", "Credits"), 0.36f, () =>
             {
                 ShowPanel(_settingsPanel, false);
                 ShowPanel(_creditsPanel, true);
@@ -703,7 +709,7 @@ namespace CoastRun
                 petLabel.text = PetLabel();
                 petLabel.fontSize = 18;
             }
-            CreateMenuButton(_settingsPanel.transform, "닫기", 0.12f, () =>
+            CreateMenuButton(_settingsPanel.transform, Loc.T("닫기", "Close"), 0.12f, () =>
             {
                 _audio?.PlayClick();
                 ShowPanel(_settingsPanel, false);

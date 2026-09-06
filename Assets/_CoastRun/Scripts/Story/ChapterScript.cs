@@ -24,7 +24,7 @@ namespace CoastRun
 
         public static VnLine[] Get(string id) => Has(id) ? Scenes[id] : System.Array.Empty<VnLine>();
 
-        public static string Title(int chapter) => Titles.TryGetValue(chapter, out var t) ? t : "";
+        public static string Title(int chapter) => Titles.TryGetValue(chapter, out var t) ? Loc.Data("ch." + chapter, t) : "";
 
         /// 스탠딩 리소스 이름: 하늘은 육성 캐릭터(Raise_Girl_*), 나머지는 Stand_<Name>_<Mood>.
         public static string StandingResource(string who)

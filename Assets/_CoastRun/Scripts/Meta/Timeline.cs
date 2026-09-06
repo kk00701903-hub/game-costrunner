@@ -25,10 +25,10 @@ namespace CoastRun
         {
             switch (s)
             {
-                case SeasonKind.Spring: return "봄";
-                case SeasonKind.Summer: return "여름";
-                case SeasonKind.Autumn: return "가을";
-                default: return "겨울";
+                case SeasonKind.Spring: return Loc.T("봄", "Spring");
+                case SeasonKind.Summer: return Loc.T("여름", "Summer");
+                case SeasonKind.Autumn: return Loc.T("가을", "Autumn");
+                default: return Loc.T("겨울", "Winter");
             }
         }
 
