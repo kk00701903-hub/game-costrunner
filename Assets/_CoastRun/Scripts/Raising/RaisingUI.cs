@@ -1065,7 +1065,10 @@ namespace CoastRun
             Mood mood = force ?? (ratio < 0.4f ? Mood.Happy : ratio < 0.7f ? Mood.Normal : Mood.Tired);
 
             string key = mood == Mood.Great ? "Happy" : mood == Mood.Fail ? "Tired" : mood.ToString();
-            var tex = ArtAssets.LoadTexture("Raise_Girl_" + key) ?? ArtAssets.LoadTexture("Raise_Girl_Normal");
+            // 6차: 계절 옷 — Raise_Girl_<mood>_<SEASON> 이 있으면 그것(봄은 기본 노란 티)
+            string sfx = Save != null ? SeasonLook.Suffix(Timeline.SeasonOf(Save.week)) : "SPRING";
+            var tex = ArtAssets.LoadTexture("Raise_Girl_" + key + "_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_" + key)
+                      ?? ArtAssets.LoadTexture("Raise_Girl_Normal_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_Normal");
             if (tex == null)
                 tex = ArtAssets.LoadTexture("GirlSkater_Back");
             if (tex != null)

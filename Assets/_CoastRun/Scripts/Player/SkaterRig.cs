@@ -82,6 +82,12 @@ namespace CoastRun
                     if (mats[i] == null) continue;
                     Color c = mats[i].HasProperty("_BaseColor") ? mats[i].GetColor("_BaseColor") : Color.white;
                     Texture t = mats[i].HasProperty("_BaseMap") ? mats[i].GetTexture("_BaseMap") : mats[i].mainTexture;
+                    // 6차: 계절 옷 — 디퓨즈 텍스처의 계절 변형(Ch46_1001_Diffuse_<SEASON>)이 있으면 교체
+                    if (t != null && RunTuning.HasSeason && t.name.StartsWith("Ch46_1001_Diffuse"))
+                    {
+                        var seasonal = Resources.Load<Texture2D>("CoastRun/Rig/Textures/Ch46_1001_Diffuse_" + SeasonLook.Suffix(RunTuning.Season));
+                        if (seasonal != null) t = seasonal;
+                    }
                     var toon = CoastMaterials.CreateToon(c, t as Texture2D);
                     // The camera only ever sees her shadow side (sun ahead), so the
                     // default cool shade turned her muddy. A pale warm shade with a low

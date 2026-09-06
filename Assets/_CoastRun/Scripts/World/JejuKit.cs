@@ -106,7 +106,12 @@ namespace CoastRun
             if (n == 0) return null;
             variant = ((variant % n) + n) % n;
             var b = Spawn("Bldg_" + (char)('A' + variant), parent, localPos, yawDegrees);
-            SeasonLook.Tint(b);   // 계절 색조(봄 파스텔·가을 따뜻·겨울 차가움)
+            // 계절 색조 + 건물별 미세 변주(위치 해시): 밝기 ±6%, 따뜻/차가운 쪽으로 ±4%
+            float h = Mathf.Abs(Mathf.Sin(localPos.z * 12.9898f + variant * 78.233f + (parent != null ? parent.position.z * 0.37f : 0f)) * 43758.5453f) % 1f;
+            float h2 = Mathf.Abs(Mathf.Sin(h * 91.7f + 3.1f) * 24634.63f) % 1f;
+            float br = 0.94f + h * 0.12f;
+            var extra = new Color(br * (1f + (h2 - 0.5f) * 0.08f), br, br * (1f - (h2 - 0.5f) * 0.08f), 1f);
+            SeasonLook.Tint(b, 1f, extra);
             return b;
         }
 
@@ -126,6 +131,17 @@ namespace CoastRun
             return m;
         }
 
+        private static Material RoofMat(string tex, System.Func<Color> fallback)
+        {
+            var t = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + tex);
+            if (t == null) return CoastMaterials.CreateLit(fallback);
+            var m = ArtAssets.CreateTexturedLit(t, Color.white, 0.05f);
+            // 지붕 UV는 미터 단위 → 타일 1장 = 1.5m
+            if (m.HasProperty("_BaseMap")) m.SetTextureScale("_BaseMap", new Vector2(0.66f, 0.66f));
+            else m.mainTextureScale = new Vector2(0.66f, 0.66f);
+            return m;
+        }
+
         private static Material Build(string name)
         {
             if (name.StartsWith("Facade_"))
@@ -137,16 +153,23 @@ namespace CoastRun
             }
             switch (name)
             {
+                // 6차: 옆벽·지붕도 그려진 텍스처(Firefly). 없으면 예전 단색/스투코.
                 case "Wall":
                 {
-                    var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Stucco");
+                    var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Side")
+                              ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Stucco");
                     return tex != null ? ArtAssets.CreateTexturedLit(tex, Color.white, 0.03f)
                                        : CoastMaterials.CreateLit(() => CoastPalette.TownCream);
                 }
-                case "WallCool": return CoastMaterials.CreateLit(() => CoastPalette.BuildingCool);
-                case "Roof_Terracotta": return CoastMaterials.CreateLit(() => CoastPalette.Roof);
-                case "Roof_Slate": return CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.SkyBlue, CoastPalette.RoadGrey, 0.55f));
-                case "Roof_Basalt": return CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.55f));
+                case "WallCool":
+                {
+                    var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Cool");
+                    return tex != null ? ArtAssets.CreateTexturedLit(tex, Color.white, 0.03f)
+                                       : CoastMaterials.CreateLit(() => CoastPalette.BuildingCool);
+                }
+                case "Roof_Terracotta": return RoofMat("Tex_Roof_Terracotta", () => CoastPalette.Roof);
+                case "Roof_Slate": return RoofMat("Tex_Roof_Slate", () => Color.Lerp(CoastPalette.SkyBlue, CoastPalette.RoadGrey, 0.55f));
+                case "Roof_Basalt": return RoofMat("Tex_Roof_Basalt", () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.55f));
                 case "Stone":
                 {
                     var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Stonewall_Jeju");

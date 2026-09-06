@@ -72,11 +72,15 @@ namespace CoastRun
         private static MaterialPropertyBlock _mpb;
 
         /// 렌더러들에 계절 색조를 MaterialPropertyBlock으로 얹는다(공유 머티리얼은 건드리지 않음).
-        public static void Tint(GameObject go, float strength = 1f)
+        public static void Tint(GameObject go, float strength = 1f) => Tint(go, strength, Color.white);
+
+        /// extra: 건물마다 살짝 다른 색조(6차 — 같은 건물이 줄지어 서도 밋밋하지 않게).
+        public static void Tint(GameObject go, float strength, Color extra)
         {
             var s = Current;
-            if (s == SeasonKind.Summer || go == null) return;
-            Color tint = Color.Lerp(Color.white, BuildingTint(s), strength);
+            if (go == null) return;
+            if (s == SeasonKind.Summer && extra == Color.white) return;
+            Color tint = Color.Lerp(Color.white, BuildingTint(s), strength) * extra;
             _mpb ??= new MaterialPropertyBlock();
             foreach (var r in go.GetComponentsInChildren<Renderer>(true))
             {
