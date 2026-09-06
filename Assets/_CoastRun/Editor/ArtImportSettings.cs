@@ -51,6 +51,34 @@ namespace CoastRun.Editor
                 ? TextureImporterCompression.Uncompressed
                 : TextureImporterCompression.Compressed;
             importer.npotScale = TextureImporterNPOTScale.None;
+
+            // ── Android 용량 절감 (플레이 스토어 200MB 목표) ──
+            // 에디터/PC는 위 설정 그대로(비압축 확인용), 안드로이드만 ASTC로 덮어쓴다.
+            // ASTC는 DXT처럼 투명 영역 알파를 부풀리지 않아 키드 빌보드에도 안전하다.
+            bool big = file.StartsWith("Sky_") || file.StartsWith("Far_") || file.StartsWith("UI_Title");
+            int androidMax = big ? 2048 : 1024;
+            var android = importer.GetPlatformTextureSettings("Android");
+            android.overridden = true;
+            android.maxTextureSize = androidMax;
+            android.format = TextureImporterFormat.ASTC_6x6;
+            android.compressionQuality = 100;
+            android.allowsAlphaSplitting = false;
+            importer.SetPlatformTextureSettings(android);
+        }
+
+        [MenuItem("Coast Run/Art/Reimport CoastRun textures (apply Android ASTC)")]
+        public static void ReimportAll()
+        {
+            var guids = AssetDatabase.FindAssets("t:Texture2D", new[] { Folder.TrimEnd('/') });
+            int n = 0;
+            foreach (var g in guids)
+            {
+                string p = AssetDatabase.GUIDToAssetPath(g);
+                if (p.Contains("/BGM/")) continue;
+                AssetDatabase.ImportAsset(p, ImportAssetOptions.ForceUpdate);
+                n++;
+            }
+            Debug.Log("[Art] reimported " + n + " textures");
         }
 
         private static bool StartsWithAny(string s, string[] prefixes)
