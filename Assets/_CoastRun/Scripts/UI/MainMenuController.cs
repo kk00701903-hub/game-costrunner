@@ -335,47 +335,34 @@ namespace CoastRun
             _uiCg.alpha = 0f;
             ui.SetActive(false);
 
-            // 로고 — 하늘 위 여백에.
-            var shadow = CreateLabel(ui.transform, "LogoShadow", "너와 나의 주파수", 62, FontStyle.Bold,
-                new Color(0.25f, 0.10f, 0.05f, 0.45f), new Vector2(0.5f, 0.865f), new Vector2(680f, 90f));
-            shadow.rectTransform.anchoredPosition = new Vector2(4f, -5f);
-            var logo = CreateLabel(ui.transform, "Logo", "너와 나의 주파수", 62, FontStyle.Bold,
-                new Color(1f, 0.97f, 0.88f), new Vector2(0.5f, 0.865f), new Vector2(680f, 90f));
-            CoastUiArt.OutlineText(logo, new Color(0.55f, 0.22f, 0.08f, 0.95f), 2.5f);
-            var sub = CreateLabel(ui.transform, "Subtitle", "우리의 송전탑  ·  COAST RUN", 22, FontStyle.Bold,
-                new Color(1f, 0.93f, 0.78f, 0.95f), new Vector2(0.5f, 0.815f), new Vector2(600f, 36f));
-            CoastUiArt.OutlineText(sub, new Color(0f, 0f, 0f, 0.55f), 1.5f);
-            var deco = CreateLabel(ui.transform, "Deco", "— ◆ —", 20, FontStyle.Normal,
-                new Color(1f, 0.85f, 0.45f, 0.9f), new Vector2(0.5f, 0.785f), new Vector2(300f, 30f));
+            // 로고는 키아트(UI_Title_Gate)에 구워져 있다 — 별도 텍스트 없음.
 
-            // 메뉴 패널 — 화면 아래쪽, 그림의 도로 위.
+            // 메뉴 — 오른쪽 세로 열, 작고 반투명하게. 그림(왼쪽 두 사람·송전탑)을 가리지 않는다.
             bool hasSave = _gm != null && _gm.HasSave;
             var items = new System.Collections.Generic.List<(string, System.Action)>();
-            if (hasSave) items.Add(("이어하기", OnContinue));
-            items.Add((hasSave ? "새로 시작" : "시작하기", () => { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }));
-            if (hasSave) items.Add(("챕터 선택", OnChapterSelect));
-            items.Add(("오프닝", () =>
+            if (hasSave) items.Add((Loc.T("이어하기", "Continue"), OnContinue));
+            items.Add((hasSave ? Loc.T("새로 시작", "New Game") : Loc.T("시작하기", "Start"), () => { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }));
+            if (hasSave) items.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
+            items.Add((Loc.T("오프닝", "Opening"), () =>
             {
                 _audio?.PlayClick();
                 _audio?.StopMenu();
                 _ready = false;
                 OpeningCinematic.Play(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; });
             }));
-            items.Add(("설정", () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
+            items.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
 
-            // 그림의 소녀(하단 중앙)를 가리지 않게 오른쪽 세로 열에 세운다.
-            float rowH = 54f, gap = 8f;
-            float panelH = items.Count * rowH + (items.Count - 1) * gap + 40f;
-            var panel = CoastOrnate.PanelSized(ui.transform, "MenuPanel", CoastOrnate.Gold, new Vector2(1f, 0.31f),
-                new Vector2(-138f, 0f), new Vector2(252f, panelH), new Color(1f, 0.97f, 0.90f, 0.92f));
+            // 오른쪽 가장자리, 화면 세로 중앙보다 조금 아래(그림의 언덕·도로 위 빈 영역). 유리 버튼, 패널 없음.
+            float rowH = 40f, gap = 7f, btnW = 150f;
+            float total = items.Count * rowH + (items.Count - 1) * gap;
+            float topY = total * 0.5f;
             for (int i = 0; i < items.Count; i++)
             {
-                float y = panelH * 0.5f - 20f - rowH * 0.5f - i * (rowH + gap);
+                float y = topY - rowH * 0.5f - i * (rowH + gap);
                 var (label, act) = items[i];
                 bool primary = i == 0;
-                CoastOrnate.MenuButton(panel.transform, label + "Btn", label, new Vector2(0.5f, 0.5f), new Vector2(0f, y),
-                    new Vector2(216f, rowH), () => { if (_ready) act(); },
-                    primary ? CoastOrnate.Red : CoastOrnate.Wood, primary ? 24 : 22);
+                CoastOrnate.GlassButton(ui.transform, label + "Btn", label, new Vector2(1f, 0.56f), new Vector2(-(btnW * 0.5f + 18f), y),
+                    new Vector2(btnW, rowH), () => { if (_ready) act(); }, 0.30f, primary ? 19 : 17, primary);
             }
 
             var ver = CreateLabel(ui.transform, "Version", "v" + Application.version, 14, FontStyle.Normal,

@@ -91,6 +91,31 @@ namespace CoastRun
             return btn;
         }
 
+        /// 반투명 유리 버튼: 배경 그림을 가리지 않는 작은 메뉴용. 어두운 유리 + 얇은 금테 + 아이보리 글자.
+        public static Button GlassButton(Transform parent, string name, string label, Vector2 anchor, Vector2 pos, Vector2 size, Action onClick, float alpha = 0.32f, int fontSize = 18, bool primary = false)
+        {
+            var outer = CoastUiArt.Panel(parent, name, new Color(GoldLight.r, GoldLight.g, GoldLight.b, primary ? 0.75f : 0.45f), 12);
+            var rt = outer.rectTransform;
+            rt.anchorMin = rt.anchorMax = anchor;
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+            outer.raycastTarget = true;
+            var inner = CoastUiArt.Panel(outer.transform, "Fill", primary ? new Color(0.55f, 0.18f, 0.08f, alpha + 0.25f) : new Color(0.08f, 0.06f, 0.10f, alpha), 11);
+            Stretch(inner.rectTransform, 1.5f, 1.5f, -1.5f, -1.5f);
+            inner.raycastTarget = false;
+            var t = CoastHudLayout.MakeText(outer.transform, "Text", label, fontSize, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            t.color = new Color(1f, 0.97f, 0.88f, 0.96f);
+            t.raycastTarget = false;
+            CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.5f), 1.2f);
+            var btn = outer.gameObject.AddComponent<Button>();
+            btn.transition = Selectable.Transition.ColorTint;
+            btn.targetGraphic = inner;
+            var cb = btn.colors; cb.highlightedColor = new Color(1.3f, 1.3f, 1.3f, 1f); cb.pressedColor = new Color(1.6f, 1.6f, 1.6f, 1f); btn.colors = cb;
+            btn.onClick.AddListener(() => onClick?.Invoke());
+            return btn;
+        }
+
         public static void Stretch(RectTransform rt, float l, float b, float r, float t)
         {
             rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
