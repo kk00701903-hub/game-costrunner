@@ -14,6 +14,8 @@ Shader "CoastRun/ChromaUnlit"
         _OutlineOn ("Outline On", Float) = 0
         _OutlineColor ("Outline Color", Color) = (1,1,1,1)
         _OutlineWidth ("Outline Width (texels)", Range(0,12)) = 5
+        // 14차-10: 아래쪽을 어둡게(접지·무게감), 위쪽은 살짝 밝게 — 종이 같던 그림에 부피감
+        _Shade ("Vertical Shade", Range(0,1)) = 1
     }
     SubShader
     {
@@ -43,6 +45,7 @@ Shader "CoastRun/ChromaUnlit"
             float _OutlineOn;
             float4 _OutlineColor;
             float _OutlineWidth;
+            float _Shade;
             float4 _BaseMap_TexelSize;
 
             // 14차-7: 그림은 오프라인에서 진짜 알파로 바꿨다(Tools/Art/key_to_alpha.py).
@@ -93,6 +96,9 @@ Shader "CoastRun/ChromaUnlit"
                 Light sun = GetMainLight();
                 half3 lit = sun.color * 0.9 + half3(unity_AmbientSky.rgb) * 0.6 + 0.35;
                 c.rgb *= lit;
+                // 14차-10: 세로 명암 — 바닥 쪽 0.74, 위쪽 1.05 (부피감·무게감)
+                half shade = lerp(1.0, lerp(0.74, 1.05, smoothstep(0.0, 0.6, i.uv.y)), _Shade);
+                c.rgb *= shade;
                 // 알파 가장자리는 0.5 를 중심으로 짧게 섞는다(밉맵에서 부드러운 윤곽, 멀리서 도트 반짝임 없음)
                 c.a = saturate((c.a - 0.5) * 8.0 + 0.5);   // 14차-9: 가장자리 더 또렷하게(뿌연 페더 제거)
                 return c;

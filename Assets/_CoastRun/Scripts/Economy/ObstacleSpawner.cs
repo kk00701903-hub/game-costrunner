@@ -366,6 +366,9 @@ namespace CoastRun
             for (int k = 0; k < 3 && (_carLaneMask & (1 << (padLane + 1))) != 0; k++)
                 padLane = ((padLane + 2) % 3) - 1;
             JumpPad.Spawn(_root, RoadPlacement.OnRoad(z, padLane * laneWidth));
+            // 14차-10: 점프대 뒤 하늘 코인 아치(밟으면 포물선을 따라 먹는다)
+            if (player != null && player.Config != null)
+                CoinSpawner.Instance?.SpawnAirArc(z + 0.6f, padLane, player.Config.jumpForce * JumpPad.LaunchMul, player.Config.gravity, Mathf.Max(speed, player.Speed));
             // 낮은(점프로 넘는) 장애물만. 패드 레인 + 옆 레인 하나를 막고 나머지 하나는 비운다.
             ObstacleId[] low = { ObstacleId.TrafficCone, ObstacleId.Slime, ObstacleId.WetFloorSign, ObstacleId.BikeFallen };
             int other = padLane == 0 ? (_rng.Next(2) == 0 ? -1 : 1) : 0;

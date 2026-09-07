@@ -63,6 +63,7 @@ namespace CoastRun
 
         public float PathDistance => _pathDistance;
         public float Speed => _speed;
+        public RunConfig Config => config;   // 14차-10: 점프대 코인 아치 계산용
 
         /// The transform sits at the body's mid-height (see EnsurePlayerPhysics), so a
         /// visual built with its feet at local y = 0 must hang this far below it.

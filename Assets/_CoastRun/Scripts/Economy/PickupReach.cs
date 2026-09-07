@@ -17,7 +17,10 @@ namespace CoastRun
             if (dz > Ahead || dz < -Behind) return false;
             Vector3 right = DownhillPath.Rotation * Vector3.right;
             float dx = Vector3.Dot(itemPos - player.position, right);
-            return Mathf.Abs(dx) <= Lateral;
+            if (Mathf.Abs(dx) > Lateral) return false;
+            // 14차-10: 높이도 본다 — 하늘 코인은 점프해야 먹는다(주인공 transform 은 몸 중간 ≈ 0.8 m).
+            float dy = itemPos.y - player.position.y;
+            return dy > -1.1f && dy < 1.25f;
         }
 
         /// 자석에 끌리는 아이템은 몸속이 아니라 몸 앞(가슴 높이)으로 온다.

@@ -7,7 +7,7 @@ namespace CoastRun
     /// 그림은 Resources/CoastRun/Obs_JumpPad.png(마젠타 키 빌보드); 없으면 청록 원판.
     public class JumpPad : MonoBehaviour
     {
-        public const float LaunchMul = 1.5f;
+        public const float LaunchMul = 1.7f;   // 14차-10: 하늘 코인 아치까지 닿는 높이(약 4 m)
         private bool _used;
         private Transform _vis;
         private float _pulse;

@@ -48,14 +48,39 @@ namespace CoastRun
             {
                 mat.SetFloat("_OutlineOn", 1f);
                 // 14차-9: 흰 테두리는 밝은 배경에서 뿌옇게 번져 보였다 → 짙은 남색 굵은 선(레퍼런스의 볼드 아웃라인).
-                mat.SetColor("_OutlineColor", new Color(0.10f, 0.08f, 0.16f, 1f));
-                mat.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 150f, 3f, 8f));
+                // 14차-10: 더 진하고 굵게(거의 검정 남색, 1024px 기준 8텍셀)
+                mat.SetColor("_OutlineColor", new Color(0.06f, 0.05f, 0.10f, 1f));
+                mat.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 120f, 4f, 10f));
             }
             var mr = quad.GetComponent<Renderer>();
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             mr.receiveShadows = false;
             quad.AddComponent<YawBillboard>();
+
+            // 14차-10: '두께' — 같은 그림을 어둡게 한 장 뒤에 살짝 비껴 깔아 종이 인형이 아니라
+            // 두툼한 조각처럼 읽히게 한다(빌보드와 함께 돌아가므로 늘 한쪽 가장자리로 어두운 옆면이 보인다).
+            if (outline)
+            {
+                var back = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                back.name = "Painted_Back";
+                back.transform.SetParent(quad.transform, false);
+                CoastEditUtil.DestroyCollider(back);
+                back.transform.localPosition = new Vector3(0.028f, -0.012f, 0.06f);
+                back.transform.localScale = new Vector3(1.035f, 1.0f, 1f);
+                var bm = new Material(shader);
+                if (bm.HasProperty("_BaseMap")) bm.SetTexture("_BaseMap", tex); else bm.mainTexture = tex;
+                if (bm.HasProperty("_BaseColor")) bm.SetColor("_BaseColor", new Color(0.22f, 0.20f, 0.28f, 1f));
+                if (bm.HasProperty("_KeyColor")) bm.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
+                if (bm.HasProperty("_OutlineOn")) bm.SetFloat("_OutlineOn", 1f);
+                if (bm.HasProperty("_OutlineColor")) bm.SetColor("_OutlineColor", new Color(0.06f, 0.05f, 0.10f, 1f));
+                if (bm.HasProperty("_OutlineWidth")) bm.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 120f, 4f, 10f));
+                if (bm.HasProperty("_Shade")) bm.SetFloat("_Shade", 0f);
+                var br = back.GetComponent<Renderer>();
+                br.sharedMaterial = bm;
+                br.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                br.receiveShadows = false;
+            }
             return quad.transform;
         }
     }

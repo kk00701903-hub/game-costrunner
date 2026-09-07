@@ -42,6 +42,14 @@ namespace CoastRun
 
         public static GameObject Spawn(ObstacleId id, Transform parent, Vector3 worldPos, int lane)
         {
+            var go = SpawnInner(id, parent, worldPos, lane);
+            // 14차-10: 첫 등장 하이라이트('!' + 통통 + 빨간 테두리) — 피할 시간을 준다
+            ObstacleWarning.Attach(go);
+            return go;
+        }
+
+        private static GameObject SpawnInner(ObstacleId id, Transform parent, Vector3 worldPos, int lane)
+        {
             switch (id)
             {
                 case ObstacleId.TrafficCone:

@@ -104,6 +104,27 @@ namespace CoastRun
             }
         }
 
+        public static CoinSpawner Instance { get; private set; }
+        private void Awake() { Instance = this; }
+        private void OnDestroy() { if (Instance == this) Instance = null; }
+
+        /// 14차-10: 점프대 뒤 하늘 코인 아치 — 점프대를 밟으면 포물선을 따라 코인을 먹는다.
+        /// v0(초기 상승 속도)·g(중력)·speed(진행 속도)로 실제 궤적을 계산해 그 위에 1.6 m 간격으로 놓는다.
+        public void SpawnAirArc(float z, int lane, float v0, float g, float speed)
+        {
+            if (_root == null || speed <= 0.1f) return;
+            Transform follow = player != null ? player.transform : null;
+            float T = 2f * v0 / Mathf.Abs(g);
+            int n = Mathf.Clamp(Mathf.FloorToInt(speed * T / 1.6f), 4, 14);
+            for (int i = 0; i < n; i++)
+            {
+                float t = (i + 0.5f) / n * T;
+                float h = v0 * t + 0.5f * g * t * t;
+                Vector3 pos = RoadPlacement.OnRoad(z + speed * t, lane * laneWidth, h + 0.35f);
+                CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, i == n / 2 ? false : (i % 4 == 3));
+            }
+        }
+
         private void Place(float z, int lane, bool silver, Transform follow)
         {
             float lateral = lane * laneWidth;
