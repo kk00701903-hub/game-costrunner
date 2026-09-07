@@ -98,3 +98,5 @@ Tools/FireflyVideo/fetch.txt
 Tools/FireflyVideo/fetch.log
 Tools/FireflyVideo/run.txt
 Tools/FireflyVideo/raw/
+# Agent scratch sheets. The slices that ship live in Assets/Resources/CoastRun.
+Claude outputs/
