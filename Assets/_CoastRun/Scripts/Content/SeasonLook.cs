@@ -64,7 +64,8 @@ namespace CoastRun
                 case SeasonKind.Spring: return new Color(1.0f, 0.99f, 0.97f);
                 case SeasonKind.Autumn: return new Color(1.0f, 0.92f, 0.82f);
                 case SeasonKind.Winter: return new Color(0.92f, 0.95f, 1.0f);
-                default: return Color.white;
+                // 14차-3: 목표 이미지의 햇볕 받은 따뜻한 돌길 — 파란 하늘 반사광에 눌린 회청색을 걷어낸다.
+                default: return new Color(1.0f, 0.95f, 0.86f);
             }
         }
 

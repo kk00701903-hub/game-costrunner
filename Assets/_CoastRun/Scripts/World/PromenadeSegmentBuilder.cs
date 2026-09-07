@@ -286,10 +286,28 @@ namespace CoastRun
                 // Between lots: something to look at.
                 // Jeju signatures (돌하르방, 야자수) get the biggest share so the street
                 // reads as the island at a glance; the rest is orchard / seating.
-                int filler = rng.Next(7);
+                int filler = rng.Next(10);
                 var gap = UprightPivot(root, "Gap", new Vector3(frontX - 0.3f, 0f, z + 4.9f));
                 switch (filler)
                 {
+                    case 7:
+                    case 8:
+                    case 9:
+                    {
+                        // 14차-3: Kling으로 그린 거리 소품(마젠타 키 빌보드) — 귤 좌판·파라솔·서프보드
+                        // 걸이·아이스크림 카트·우체통·수국 화분. 그림이 없으면 귤나무로.
+                        string[] painted = { "Stall_Tangerine", "Parasol", "SurfRack", "IceCreamCart", "Postbox", "HydrangeaPot" };
+                        float[] heights = { 2.4f, 2.3f, 2.2f, 2.2f, 1.5f, 1.1f };
+                        int pk = rng.Next(painted.Length);
+                        var pivot2 = new GameObject("PaintedProp").transform;
+                        pivot2.SetParent(gap, false);
+                        pivot2.localPosition = new Vector3(1.1f, 0f, 0f);
+                        if (PaintedProp.Attach(pivot2, painted[pk], heights[pk], replace: false, zOffset: 0f) == null)
+                            JejuKit.Spawn("Prop_OrangeTree", gap, Vector3.zero, 0f, 1f);
+                        else
+                            BlobShadow.Attach(pivot2, heights[pk] * 0.55f);
+                        break;
+                    }
                     case 0: JejuKit.Spawn("Prop_OrangeTree", gap, Vector3.zero, (float)rng.NextDouble() * 360f, 0.9f + (float)rng.NextDouble() * 0.3f); break;
                     case 1: JejuKit.Spawn("Prop_Bench", gap, new Vector3(0.6f, 0f, 0f), 180f); break;
                     case 2: JejuKit.Spawn("Prop_OrangeStall", gap, new Vector3(0.9f, 0f, 0f), 180f); break;

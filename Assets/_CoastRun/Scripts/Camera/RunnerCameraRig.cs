@@ -11,7 +11,7 @@ namespace CoastRun
         [Header("Framing")]
         // 14차: 서브웨이 서퍼 구도 — 엉덩이 뒤 4.6 m, 눈높이 1.75 m 에서 낮게 따라간다. 8.6 m 뒤 2.35 m 위의
         // 준-탑다운은 앞으로 가는 느낌이 없었다(주인공 11%). 이제 주인공이 화면의 ~22%, 지면이 빠르게 흐른다.
-        [SerializeField] private Vector3 offset = new Vector3(0.05f, 1.9f, -4.8f);
+        [SerializeField] private Vector3 offset = new Vector3(0.05f, 1.85f, -4.4f);   // 14차-3: 목표 이미지처럼 주인공을 조금 더 크게
         [SerializeField] private float lookAhead = 13f;
         [SerializeField] private float lookHeight = 1.9f;   // 14차-2: 지평선을 화면 45% 높이로(목표 이미지 구도)
         [SerializeField] private float pitchUp = -1.0f;
