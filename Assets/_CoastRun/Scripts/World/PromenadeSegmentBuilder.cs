@@ -195,9 +195,19 @@ namespace CoastRun
 
                 var pivot = UprightPivot(root, "House", new Vector3(shopX, 0f, z));
                 Material facade = FacadeMaterial(variant);
-                CreateBox(pivot, "Walls", new Vector3(0f, shopH * 0.5f, 0f),
+                // 12차: 정사각 파사드 그림을 육면체 여섯 면에 그대로 씌우니 1층 상가는 세로로 2:1 눌리고
+                // 옆면엔 정면 그림이 늘어져 붙어 있었다(픽셀 밀도·원근 이질감). 벽은 담백한 벽 텍스처로
+                // 실제 크기 타일링하고, 도로 쪽 면에만 비율을 지킨 파사드 쿼드를 얹는다.
+                var walls = CreateBox(pivot, "Walls", new Vector3(0f, shopH * 0.5f, 0f),
                     new Vector3(shopW, shopH, shopD),
-                    () => house % 2 == 0 ? CoastPalette.TownCream : CoastPalette.BuildingCool, facade);
+                    () => house % 2 == 0 ? CoastPalette.TownCream : CoastPalette.BuildingCool,
+                    facade != null ? PlainWallMaterial(variant) : null);
+                if (facade != null)
+                {
+                    SetTiling(walls, shopD / 2.2f, shopH / 2.2f);
+                    CreateFacadeQuad(pivot, facade, _facadeTex[Mathf.Clamp(variant, 0, _facadeTex.Length - 1)],
+                        shopW, shopH, shopD);
+                }
 
                 // Trim goes on the unscaled pivot, never on the Walls cube. The walls carry
                 // localScale (shopW, shopH, shopD); anything parented under them inherits
@@ -322,6 +332,60 @@ namespace CoastRun
             if (_facadeMats[variant] == null)
                 _facadeMats[variant] = ArtAssets.CreateTexturedLit(_facadeTex[variant], Color.white, 0.05f);
             return _facadeMats[variant];
+        }
+
+        private static Material[] _plainWallMats;
+        private static readonly int BaseMapStId = Shader.PropertyToID("_BaseMap_ST");
+
+        /// 옆면·뒷면용 벽 텍스처(Tex_Wall_Side / Stucco / Cool 순환). 없으면 톤 색.
+        private static Material PlainWallMaterial(int variant)
+        {
+            _plainWallMats ??= new Material[3];
+            int k = Mathf.Abs(variant) % 3;
+            if (_plainWallMats[k] == null)
+            {
+                string[] names = { "Tex_Wall_Side", "Tex_Wall_Stucco", "Tex_Wall_Cool" };
+                var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + names[k])
+                          ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Side");
+                _plainWallMats[k] = tex != null
+                    ? ArtAssets.CreateTexturedLit(tex, Color.white, 0.03f)
+                    : CoastMaterials.CreateLit(() => CoastPalette.TownCream, 0.03f);
+            }
+            return _plainWallMats[k];
+        }
+
+        /// 렌더러 하나의 텍스처 타일링만 바꾼다(공유 머티리얼은 그대로, MPB).
+        private static void SetTiling(GameObject go, float tx, float ty, float ox = 0f, float oy = 0f)
+        {
+            var r = go != null ? go.GetComponent<Renderer>() : null;
+            if (r == null) return;
+            var mpb = new MaterialPropertyBlock();
+            r.GetPropertyBlock(mpb);
+            mpb.SetVector(BaseMapStId, new Vector4(tx, ty, ox, oy));
+            r.SetPropertyBlock(mpb);
+        }
+
+        /// 도로를 보는 +x 면에 파사드 쿼드. 그림의 텍셀 밀도를 가로·세로 같게 유지하고,
+        /// 남는 쪽은 잘라 낸다(1층 상가는 그림 아랫부분만 — 1층이 땅에 붙어야 하니 바닥 정렬).
+        private static void CreateFacadeQuad(Transform pivot, Material facade, Texture2D tex,
+            float shopW, float shopH, float shopD)
+        {
+            var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            quad.name = "Facade";
+            quad.transform.SetParent(pivot, false);
+            CoastEditUtil.DestroyCollider(quad);
+            quad.transform.localPosition = new Vector3(shopW * 0.5f + 0.012f, shopH * 0.5f, 0f);
+            quad.transform.localRotation = Quaternion.Euler(0f, -90f, 0f);   // -z 를 보던 쿼드를 +x 로
+            quad.transform.localScale = new Vector3(shopD, shopH, 1f);
+            var mr = quad.GetComponent<Renderer>();
+            mr.sharedMaterial = facade;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            float aspect = tex != null && tex.height > 0 ? tex.width / (float)tex.height : 1f;   // 그림 가로/세로
+            float faceAspect = shopD / shopH;
+            float uw, uh, ox = 0f, oy = 0f;
+            if (faceAspect >= aspect) { uw = 1f; uh = aspect / faceAspect; }          // 옆으로 긴 면: 세로를 자른다
+            else { uh = 1f; uw = faceAspect / aspect; ox = (1f - uw) * 0.5f; }         // 위로 긴 면: 가로 가운데
+            SetTiling(quad, uw, uh, ox, oy);
         }
 
         /// Storeys per facade: the painting's own floor count where it is obvious

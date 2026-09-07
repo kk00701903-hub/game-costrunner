@@ -38,7 +38,8 @@ namespace CoastRun
                 return;
 
             float pathY = OnRoad(pathZ, lateral).y;
-            float dy = Mathf.Clamp(pathY - bottom, -1f, 1.25f);
+            // 12차: ±1.25 m 클램프 때문에 피벗이 깊은 프리팹은 끝까지 못 올라와 바닥에 파묻혔다.
+            float dy = Mathf.Clamp(pathY - bottom, -3f, 3f);
             go.transform.position += Vector3.up * dy;
         }
 

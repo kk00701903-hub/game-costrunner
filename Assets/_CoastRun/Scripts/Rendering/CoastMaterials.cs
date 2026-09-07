@@ -216,6 +216,31 @@ namespace CoastRun
             return mat;
         }
 
+        /// 12차: 도로와 같이 휘는 투명 텍스처 언릿 — 블롭 그림자·아이템 광원·장애물 경고 링처럼
+        /// 바닥/소품에 붙어 다니는 것들. (구름·원경은 그대로 CreateTexturedTransparent: 곧게.)
+        public static Material CreateTexturedTransparentCurved(Texture2D tex, Color tint, bool additive = false)
+        {
+            var shader = Shader.Find("CoastRun/UnlitCurved");
+            if (shader == null)
+                return CreateTexturedTransparent(tex, tint);
+            var mat = new Material(shader);
+            mat.SetColor("_BaseColor", tint);
+            if (tex != null)
+                mat.SetTexture("_BaseMap", tex);
+            mat.SetFloat("_Surface", 1f);
+            mat.SetFloat("_Blend", 0f);
+            mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", additive
+                ? (float)UnityEngine.Rendering.BlendMode.One
+                : (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_ZWrite", 0f);
+            mat.SetFloat("_Cull", 0f);
+            mat.SetFloat("_CurveWeight", 1f);
+            mat.SetFloat("_FogWeight", additive ? 0f : 1f);
+            mat.renderQueue = 3000;
+            return mat;
+        }
+
         /// Alpha-blended textured unlit for painted billboards (clouds, far town).
         /// Deliberately the stock URP Unlit, not the curved shader: through the curved
         /// shader's transparent path the quad's fully transparent texels still rendered

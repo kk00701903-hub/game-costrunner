@@ -330,8 +330,17 @@ namespace CoastRun
 
         private Vector3 EvaluateShakeOffset()
         {
+            // 12차: 속도에 비례하는 아주 작은 상시 진동(≤1.2 cm) — 고속에서 화면이 '달리고 있다'고 느껴진다.
+            Vector3 rumble = Vector3.zero;
+            if (target != null && target.IsGrounded && target.Speed > 1f)
+            {
+                float ts = Time.time;
+                float amp = 0.012f * Mathf.Pow(_speedFovT, 1.6f);
+                rumble = new Vector3((Mathf.PerlinNoise(3.7f, ts * 17f) - 0.5f) * 2f,
+                                     (Mathf.PerlinNoise(11.2f, ts * 19f) - 0.5f) * 2f, 0f) * amp;
+            }
             if (_shakeTimeLeft <= 0f || _shakeMagnitude <= 0f)
-                return Vector3.zero;
+                return rumble;
 
             _shakeTimeLeft -= Time.unscaledDeltaTime;
             float life = Mathf.Clamp01(_shakeTimeLeft / Mathf.Max(0.01f, _shakeDuration));
@@ -340,7 +349,7 @@ namespace CoastRun
             float nx = (Mathf.PerlinNoise(_shakeSeed, t * 26f) - 0.5f) * 2f;
             float ny = (Mathf.PerlinNoise(_shakeSeed + 19.1f, t * 23f) - 0.5f) * 2f;
             float nz = (Mathf.PerlinNoise(_shakeSeed + 7.3f, t * 21f) - 0.5f) * 2f;
-            return new Vector3(nx, ny, nz) * (_shakeMagnitude * envelope);
+            return rumble + new Vector3(nx, ny, nz) * (_shakeMagnitude * envelope);
         }
 
         private Quaternion SlopeFrame() => target != null ? target.PathRotation : DownhillPath.Rotation;

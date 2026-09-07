@@ -93,6 +93,12 @@ namespace CoastRun
             col.center = new Vector3(0f, 0.25f, 0f);
 
             BlobShadow.Attach(go.transform, kind == PickupKind.Jelly ? 0.4f : 0.6f);
+            // 12차 시인성: 먹는 것은 전부 빛난다. 종류별 색으로 멀리서도 구분.
+            Color glow = kind == PickupKind.Heart ? new Color(1f, 0.45f, 0.6f)
+                       : kind == PickupKind.Potion ? new Color(0.5f, 0.9f, 1f)
+                       : kind == PickupKind.BonusStar ? new Color(1f, 0.9f, 0.4f)
+                       : new Color(0.75f, 1f, 0.8f);
+            PickupGlow.Attach(go.transform, glow, kind == PickupKind.Jelly ? 0.7f : 1.05f, kind == PickupKind.Jelly ? 0.22f : 0.32f);
             return p;
         }
 
@@ -289,6 +295,7 @@ namespace CoastRun
         private void Collect()
         {
             _collected = true;
+            GetComponent<PickupGlow>()?.Hide();
             var health = HealthSystem.Instance;
             var hud = RunHudChrome.Instance;
             var juice = JuiceDirector.Instance;

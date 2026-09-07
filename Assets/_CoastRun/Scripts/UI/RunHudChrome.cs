@@ -228,7 +228,7 @@ namespace CoastRun
             var frt = fill.rectTransform;
             frt.anchorMin = new Vector2(0f, 0f);
             frt.anchorMax = new Vector2(1f, 1f);
-            frt.offsetMin = new Vector2(26f, 8f);
+            frt.offsetMin = new Vector2(44f, 8f);      // 12차: 하트 배지를 알약 안쪽으로 들여 왼쪽 여백 확보
             frt.offsetMax = new Vector2(-62f, -8f);   // 10차: 오른쪽 54px 은 숫자 자리(막대와 겹쳐 안 읽히던 것)
             fill.type = Image.Type.Filled;
             fill.fillMethod = Image.FillMethod.Horizontal;
@@ -243,8 +243,9 @@ namespace CoastRun
             var hrt = heart.rectTransform;
             hrt.anchorMin = hrt.anchorMax = new Vector2(0f, 0.5f);
             hrt.pivot = new Vector2(0.5f, 0.5f);
-            hrt.anchoredPosition = new Vector2(4f, 2f);
-            hrt.sizeDelta = heartIcon != null ? new Vector2(58f, 58f) : new Vector2(40f, 40f);
+            // 12차: x=4 에 58px 배지는 알약 왼쪽으로 25px 이 튀어나와 실기기 모서리에서 잘렸다 → 안쪽으로.
+            hrt.anchoredPosition = new Vector2(24f, 2f);
+            hrt.sizeDelta = heartIcon != null ? new Vector2(52f, 52f) : new Vector2(38f, 38f);
             if (heartIcon != null)
             {
                 heart.sprite = heartIcon;

@@ -5,8 +5,8 @@ namespace CoastRun
     /// Screen-edge speed lines — emission scales with NormalizedSpeed.
     public class SpeedLineFx : MonoBehaviour
     {
-        [SerializeField] private float maxRate = 120f;
-        [SerializeField] private float minSpeedToEmit = 0.08f;
+        [SerializeField] private float maxRate = 190f;   // 12차: 120 → 190, 고속에서 바람 집중선이 읽히게
+        [SerializeField] private float minSpeedToEmit = 0.05f;
 
         private ParticleSystem _ps;
         private ParticleSystem.EmissionModule _emission;

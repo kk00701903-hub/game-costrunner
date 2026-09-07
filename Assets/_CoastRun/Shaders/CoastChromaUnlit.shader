@@ -7,6 +7,9 @@ Shader "CoastRun/ChromaUnlit"
         _KeyColor ("Chroma Key", Color) = (1,0,1,1)
         _Cutoff ("Key Cutoff", Range(0,1)) = 0.38
         _PinkKill ("Pink Kill (0 = keep pinks, e.g. hearts)", Float) = 1
+        // 12차: 그림 소품도 도로와 같이 휜다. 전엔 이 셰이더만 곧게 그려서 멀리 있는 관광객·버스가
+        // 도로가 오르막으로 휘면 바닥에 파묻히고 내리막이면 떠 보였다(하반신 클리핑의 원인).
+        _CurveWeight ("Curved World Weight", Range(0,1)) = 1
     }
     SubShader
     {
@@ -23,6 +26,7 @@ Shader "CoastRun/ChromaUnlit"
             #pragma fragment frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "CoastCurve.hlsl"
 
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
@@ -31,6 +35,7 @@ Shader "CoastRun/ChromaUnlit"
             float4 _KeyColor;
             float _PinkKill;
             float _Cutoff;
+            float _CurveWeight;
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
             struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
@@ -38,7 +43,8 @@ Shader "CoastRun/ChromaUnlit"
             Varyings vert(Attributes v)
             {
                 Varyings o;
-                o.positionCS = TransformObjectToHClip(v.positionOS.xyz);
+                float3 ws = CoastCurveWorld(TransformObjectToWorld(v.positionOS.xyz), _CurveWeight);
+                o.positionCS = TransformWorldToHClip(ws);
                 o.uv = TRANSFORM_TEX(v.uv, _BaseMap);
                 return o;
             }

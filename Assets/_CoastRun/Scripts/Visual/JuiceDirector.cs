@@ -28,6 +28,8 @@ namespace CoastRun
         private Coroutine _coinHudRoutine;
         private int _displayedCoins;
         private ParticleSystem _landDust;
+        private ParticleSystem _runDust;     // 12차: 달리는 내내 발밑 먼지
+        private TrailRenderer _boardTrail;   // 12차: 보드 뒤 트레일
         private ParticleSystem _coinBurstPrefab;
         private Text _cheerPopup;
         private CanvasGroup _cheerCg;
@@ -64,6 +66,8 @@ namespace CoastRun
             EnsureJuiceVolume();
             EnsureCheerPopup();
             EnsureLandDust();
+            EnsureRunDust();
+            EnsureBoardTrail();
 
             if (feedback != null)
                 feedback.SetCoinDriveExternal(true);
@@ -107,6 +111,13 @@ namespace CoastRun
                 player.OnJumped -= HandleJumped;
                 player.OnLaneChanged -= HandleLaneChanged;
             }
+            if (_boardTrail != null) { _boardTrail.emitting = false; _boardTrail.Clear(); }
+            if (_runDust != null) { var em = _runDust.emission; em.rateOverTime = 0f; }
+        }
+
+        private void LateUpdate()
+        {
+            UpdateSpeedFx();
         }
 
         // ── Coin HUD count-up ──────────────────────────────────────────────
@@ -491,6 +502,90 @@ namespace CoastRun
         }
 
         // ── Particles ──────────────────────────────────────────────────────
+
+        // ── 12차: 속도감 — 상시 먼지·트레일 ─────────────────────────────
+        private void EnsureRunDust()
+        {
+            if (_runDust != null || player == null)
+                return;
+            var go = new GameObject("RunDust");
+            go.transform.SetParent(transform, false);
+            _runDust = go.AddComponent<ParticleSystem>();
+            var main = _runDust.main;
+            main.loop = true;
+            main.playOnAwake = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.28f, 0.5f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(0.4f, 1.4f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.10f, 0.26f);
+            main.startColor = new Color(0.86f, 0.82f, 0.74f, 0.42f);
+            main.gravityModifier = -0.05f;   // 살짝 떠오르며 흩어진다
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.maxParticles = 60;
+            var emission = _runDust.emission;
+            emission.rateOverTime = 0f;
+            var shape = _runDust.shape;
+            shape.shapeType = ParticleSystemShapeType.Cone;
+            shape.angle = 28f;
+            shape.radius = 0.14f;
+            shape.rotation = new Vector3(-80f, 180f, 0f);   // 뒤쪽 아래로
+            var col = _runDust.colorOverLifetime;
+            col.enabled = true;
+            var grad = new Gradient();
+            grad.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                         new[] { new GradientAlphaKey(0.9f, 0f), new GradientAlphaKey(0f, 1f) });
+            col.color = grad;
+            var sz = _runDust.sizeOverLifetime;
+            sz.enabled = true;
+            sz.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 0.6f, 1f, 1.6f));
+            var renderer = go.GetComponent<ParticleSystemRenderer>();
+            renderer.material = CoastMaterials.CreateParticle(new Color(0.9f, 0.86f, 0.78f, 0.6f));
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            _runDust.Play();
+        }
+
+        private void EnsureBoardTrail()
+        {
+            if (_boardTrail != null || player == null)
+                return;
+            var go = new GameObject("BoardTrail");
+            go.transform.SetParent(player.transform, false);
+            go.transform.localPosition = new Vector3(0f, 0.06f, -0.35f);
+            _boardTrail = go.AddComponent<TrailRenderer>();
+            _boardTrail.time = 0.28f;
+            _boardTrail.minVertexDistance = 0.08f;
+            _boardTrail.startWidth = 0.22f;
+            _boardTrail.endWidth = 0.0f;
+            _boardTrail.alignment = LineAlignment.View;
+            _boardTrail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            _boardTrail.receiveShadows = false;
+            _boardTrail.material = CoastMaterials.CreateParticle(new Color(1f, 1f, 1f, 0.35f));
+            var g = new Gradient();
+            g.SetKeys(new[] { new GradientColorKey(new Color(0.95f, 0.98f, 1f), 0f), new GradientColorKey(new Color(0.8f, 0.95f, 1f), 1f) },
+                      new[] { new GradientAlphaKey(0.55f, 0f), new GradientAlphaKey(0f, 1f) });
+            _boardTrail.colorGradient = g;
+            _boardTrail.emitting = false;
+        }
+
+        private void UpdateSpeedFx()
+        {
+            if (player == null)
+                return;
+            float n = player.NormalizedSpeed;
+            bool ground = player.IsGrounded && player.Speed > 2f;
+            if (_runDust != null)
+            {
+                var em = _runDust.emission;
+                em.rateOverTime = ground ? Mathf.Lerp(6f, 34f, n) : 0f;
+                _runDust.transform.position = player.transform.position + Vector3.up * 0.04f;
+                _runDust.transform.rotation = player.transform.rotation;
+            }
+            if (_boardTrail != null)
+            {
+                // 트레일은 빠를 때만, 또 점프 중엔 끊는다 — 땅에 붙어 미끄러지는 느낌이 목적.
+                _boardTrail.emitting = ground && n > 0.35f;
+                _boardTrail.time = Mathf.Lerp(0.18f, 0.42f, n);
+            }
+        }
 
         private void EnsureLandDust()
         {

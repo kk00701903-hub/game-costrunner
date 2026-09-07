@@ -491,11 +491,24 @@ namespace CoastRun
             }
 
             // Tower always at RIGHT end — empty/unfilled silhouette.
+            // 12차: 하늘 위에 회색 탑 아이콘만 떠 있어 '우상단 글자 찌꺼기'처럼 보였다.
+            // 남색 동그라미 배지 위에 얹어 목적지 마커로 읽히게.
+            var towerBadge = CoastUiArt.Panel(trackRt, "TowerBadge", new Color(0.08f, 0.12f, 0.26f, 0.95f), 20);
+            var tbRt = towerBadge.rectTransform;
+            tbRt.anchorMin = tbRt.anchorMax = new Vector2(1f, 0.5f);
+            tbRt.pivot = new Vector2(0.5f, 0.5f);
+            tbRt.anchoredPosition = new Vector2(8f, 10f);
+            tbRt.sizeDelta = new Vector2(46f, 46f);
+            towerBadge.raycastTarget = false;
+            var tbRing = CoastUiArt.Panel(tbRt, "Ring", CoastUiArt.CreamOutline, 22);
+            var tbrRt = tbRing.rectTransform; tbrRt.anchorMin = Vector2.zero; tbrRt.anchorMax = Vector2.one;
+            tbrRt.offsetMin = new Vector2(-2f, -2f); tbrRt.offsetMax = new Vector2(2f, 2f);
+            tbRing.raycastTarget = false; tbRing.transform.SetAsFirstSibling();
             _towerIcon = CreateMarker(trackRt, "Tower", new Color(0.75f, 0.8f, 0.85f), null, "Icon_Tower");
-            _towerIcon.sizeDelta = new Vector2(34f, 34f);
+            _towerIcon.sizeDelta = new Vector2(38f, 38f);
             var towerImg = _towerIcon.GetComponent<Image>();
             if (towerImg != null)
-                towerImg.color = new Color(1f, 1f, 1f, 0.95f); // 9차: 목적지가 보여야 바가 읽힌다
+                towerImg.color = new Color(1f, 1f, 1f, 1f);
 
             _himIcon = CreateMarker(trackRt, "Him", new Color(0.95f, 0.55f, 0.45f), null, "Icon_Him");
             _himIcon.sizeDelta = new Vector2(22f, 22f);

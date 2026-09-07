@@ -15,6 +15,7 @@ namespace CoastRun
         private Transform _player;
         private bool _collected;
         private float _spin;
+        private float _bobPhase;   // 12차: 코인도 젤리처럼 떠서 흔들린다
         private bool _magnetActive;
         private float _magnetT;
         private Vector3 _magnetStart;
@@ -48,9 +49,10 @@ namespace CoastRun
             vis.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
             vis.transform.localScale = new Vector3(0.5f, 0.07f, 0.5f);
             Object.Destroy(vis.GetComponent<Collider>());
+            // 12차: 1.0을 넘는 색은 블룸(임계 1.1)이 집어 광원을 만든다 — 은은하게 빛나는 동전.
             System.Func<Color> face = silver
-                ? () => Color.Lerp(CoastPalette.TownCream, CoastPalette.SkyBlue, 0.35f)
-                : () => CoastPalette.CoinYellow;
+                ? () => Color.Lerp(CoastPalette.TownCream, CoastPalette.SkyBlue, 0.35f) * 1.35f
+                : () => CoastPalette.CoinYellow * 1.5f;
             System.Func<Color> rimCol = silver
                 ? () => Color.Lerp(CoastPalette.TownCream, Color.white, 0.4f)
                 : () => Color.Lerp(CoastPalette.CoinYellow, Color.white, 0.35f);
@@ -68,10 +70,11 @@ namespace CoastRun
             var col = go.AddComponent<SphereCollider>();
             col.isTrigger = true;
             col.radius = 0.5f;
-            BlobShadow.Attach(go.transform, 0.36f);   // 10차: 코인도 바닥에 붙어 보이게
             col.center = new Vector3(0f, 0.2f, 0f);
-
-            BlobShadow.Attach(go.transform, 0.55f);
+            // 12차: 두 번 붙이던 그림자를 하나로(뒤 호출이 앞 값을 덮어쓰고 있었다), 광원 추가.
+            BlobShadow.Attach(go.transform, 0.5f);
+            PickupGlow.Attach(go.transform, silver ? new Color(0.8f, 0.92f, 1f) : new Color(1f, 0.8f, 0.25f), 0.85f, 0.26f);
+            coin._bobPhase = Random.value * Mathf.PI * 2f;
             return coin;
         }
 
@@ -82,7 +85,10 @@ namespace CoastRun
 
             _spin += Time.deltaTime * 180f;
             if (_visualRoot != null)
+            {
                 _visualRoot.localRotation = Quaternion.Euler(0f, _spin, 0f);
+                _visualRoot.localPosition = new Vector3(0f, Mathf.Sin(Time.time * 3.2f + _bobPhase) * 0.07f, 0f);
+            }
             else
                 transform.rotation = DownhillPath.Rotation * Quaternion.Euler(0f, _spin, 0f);
 
@@ -138,6 +144,7 @@ namespace CoastRun
             if (_collected)
                 return;
             _collected = true;
+            GetComponent<PickupGlow>()?.Hide();
 
             float mult = (_upgrades != null ? _upgrades.GetCoinMultiplier() : 1f) * PetCompanion.CoinBonus * RunTuning.CoinMul;
             int amount = Mathf.Max(1, Mathf.RoundToInt(value * mult));

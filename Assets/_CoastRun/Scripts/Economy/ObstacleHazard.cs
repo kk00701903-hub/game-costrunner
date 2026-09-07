@@ -163,6 +163,7 @@ namespace CoastRun
             hazard.BindNearMiss(zone);
 
             BlobShadow.Attach(root.transform, 0.5f);
+            HazardRing.Attach(root.transform, 0.6f);
         }
 
         public void BindNearMiss(NearMissZone zone) => nearMiss = zone;

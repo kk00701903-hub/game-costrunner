@@ -67,7 +67,8 @@ namespace CoastRun
             {
                 // A plain-colour quad drew a hard square under the skater; a radial
                 // alpha falloff makes it the soft disc it was meant to be.
-                _sharedMat = CoastMaterials.CreateTexturedTransparent(DiscTexture(), CoastPalette.BlobShadow);
+                // 12차: 휘는 셰이더로 — 곧게 그리던 그림자가 휜 도로에서 코인·소품과 떨어져 떠 있었다.
+                _sharedMat = CoastMaterials.CreateTexturedTransparentCurved(DiscTexture(), CoastPalette.BlobShadow);
                 _sharedMat.renderQueue = 2950;
             }
 
@@ -78,6 +79,8 @@ namespace CoastRun
         private static Texture2D _disc;
 
         /// 128² white disc with a smooth alpha falloff (opaque core ≈ 55 %, then eased to 0).
+        public static Texture2D SoftDisc() => DiscTexture();
+
         private static Texture2D DiscTexture()
         {
             if (_disc != null)
@@ -134,6 +137,9 @@ namespace CoastRun
             }
 
             float t = Mathf.Clamp01(lift / Mathf.Max(0.01f, maxLift));
+            // 12차: 떠 있는 아이템(젤리 아치·높은 하트)의 그림자가 거의 사라져 스티커처럼 보였다.
+            // 소품은 높이에 따라 옅어지되 바닥에 늘 남아 있어야 원근이 읽힌다.
+            if (player == null) t *= 0.55f;
             Vector3 world = new Vector3(follow.position.x, groundY + 0.025f, follow.position.z);
             _quad.SetPositionAndRotation(world, Quaternion.Euler(90f, follow.eulerAngles.y, 0f));
 

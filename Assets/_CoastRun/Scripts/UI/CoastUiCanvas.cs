@@ -103,6 +103,12 @@ namespace CoastRun
 
             var cam = Camera.main;
             Rect r = cam != null ? cam.pixelRect : new Rect(0f, 0f, Screen.width, Screen.height);
+            // 12차: 기기 안전 영역(펀치홀·노치·제스처 바)과 교집합. 전엔 카메라 사각형만 써서
+            // 좌상단 하트·우상단 알약이 실기기에서 반쯤 잘렸다.
+            Rect sa = Screen.safeArea;
+            float x0 = Mathf.Max(r.xMin, sa.xMin), y0 = Mathf.Max(r.yMin, sa.yMin);
+            float x1 = Mathf.Min(r.xMax, sa.xMax), y1 = Mathf.Min(r.yMax, sa.yMax);
+            if (x1 - x0 > 8f && y1 - y0 > 8f) r = Rect.MinMaxRect(x0, y0, x1, y1);
             float w = Mathf.Max(1f, Screen.width);
             float h = Mathf.Max(1f, Screen.height);
             _safe.anchorMin = new Vector2(r.x / w, r.y / h);

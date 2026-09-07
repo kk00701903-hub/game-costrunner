@@ -106,6 +106,7 @@ namespace CoastRun
                 PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false);
                 AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
                 BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
+                HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));
                 return root;
             }
             var prefab = PrefabLibrary.TryInstantiate(name, parent, Vector3.zero);
@@ -141,6 +142,7 @@ namespace CoastRun
 
             AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
             BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
+            HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));
             return root;
         }
 
@@ -157,6 +159,7 @@ namespace CoastRun
                 foreach (var c in root.GetComponentsInChildren<Collider>()) Object.Destroy(c);
                 AttachTriggers(root, lane, 0.42f, 1.9f, 0.85f, 2.2f);
                 BlobShadow.Attach(root.transform, 0.7f);
+                HazardRing.Attach(root.transform, 0.8f);
                 return root;
             }
             return CreateSimple(parent, worldPos, lane, "Obstacle_StoneStatue",
@@ -185,6 +188,7 @@ namespace CoastRun
                 CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.SeaTeal, CoastPalette.RoadGrey, 0.45f));
             AttachTriggers(root, lane, 0.45f, 0.3f, 0.85f, 0.45f);
             BlobShadow.Attach(root.transform, 0.9f);
+            HazardRing.Attach(root.transform, 0.85f);
             return root;
         }
 
