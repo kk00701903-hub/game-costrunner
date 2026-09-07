@@ -107,6 +107,20 @@ namespace CoastRun
             string paintedKey = null, float paintedHeight = 1f)
         {
             GameObject root = null;
+            // 14차-11: Blender 3D 키트(Obs3_<key>.fbx)가 있으면 그림 대신 진짜 입체 모델 + 잉크 테두리.
+            if (paintedKey != null && JejuKit.Load("Obs3_" + paintedKey) != null)
+            {
+                root = new GameObject(name);
+                root.transform.SetParent(parent, false);
+                root.transform.position = worldPos;
+                root.transform.rotation = DownhillPath.Rotation;
+                JejuKit.Spawn("Obs3_" + paintedKey, root.transform, Vector3.zero, 0f, paintedHeight / Mathf.Max(0.5f, KitHeight(paintedKey)));
+                AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
+                BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
+                HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));
+                ObstacleOutline.Attach(root.transform, 1.05f);
+                return root;
+            }
             // Firefly painting first (Resources/CoastRun/Obs_<key>.png); the block below
             // stays as the fallback when no painting exists yet.
             if (paintedKey != null && PaintedProp.Available(paintedKey))
@@ -204,6 +218,19 @@ namespace CoastRun
             BlobShadow.Attach(root.transform, 0.9f);
             HazardRing.Attach(root.transform, 0.85f);
             return root;
+        }
+
+        /// Obs3 모델의 원래 높이(m) — Blender 스크립트와 맞춘다. paintedHeight 로 스케일한다.
+        private static float KitHeight(string key)
+        {
+            switch (key)
+            {
+                case "Slime": return 0.84f;
+                case "Cone": return 0.78f;
+                case "Barrier": return 0.84f;
+                case "Crate": return 0.74f;
+                default: return 1f;
+            }
         }
 
         private static void AttachTriggers(GameObject root, int lane, float hardR, float hardH, float nearR, float nearH)

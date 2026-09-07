@@ -118,6 +118,8 @@ namespace CoastRun
             // 14차-8: 목표 이미지의 '벽 3색 규칙' — 민트 / 베이지 / 블루가 순서대로 돌아 거리에 리듬이 생긴다.
             // 파사드 그림은 그대로 두고 옆벽·뒷벽(Wall 재질)만 물들인다.
             WallColorRule(b, parent);
+            // 14차-11: 건물 잉크 테두리(3 cm) — 파사드·처마·옆벽이 한 덩어리 입체로 또렷하게 떨어진다.
+            BuildingOutline.Attach(b.transform, 0.03f);
             return b;
         }
 
@@ -233,6 +235,22 @@ namespace CoastRun
                 case "Grip": return CoastMaterials.CreateToon(new Color(0.30f, 0.62f, 0.56f));
                 case "Wheel": return CoastMaterials.CreateToon(CoastPalette.WheelOrange, () => CoastPalette.WheelOrange, null, 0.3f);
                 case "Concrete": return CoastMaterials.CreateLit(() => CoastPalette.Sidewalk);
+                // 14차-11: 장애물·차량 3D 키트(Obs3_*)
+                case "SlimeBody": return CoastMaterials.CreateToon(new Color(0.95f, 0.36f, 0.30f), null, null, 0.45f);
+                case "SlimeDark": return CoastMaterials.CreateToon(new Color(0.72f, 0.20f, 0.17f), null, null, 0.35f);
+                case "Eye": return CoastMaterials.CreateToon(new Color(0.08f, 0.06f, 0.09f), null, null, 0.6f);
+                case "EyeWhite": return CoastMaterials.CreateUnlit(Color.white);
+                case "ConeOrange": return CoastMaterials.CreateToon(new Color(0.98f, 0.46f, 0.12f), null, null, 0.2f);
+                case "ConeWhite": case "BarrierWhite": return CoastMaterials.CreateToon(new Color(0.97f, 0.97f, 0.95f), null, null, 0.2f);
+                case "ConeBase": return CoastMaterials.CreateToon(new Color(0.14f, 0.14f, 0.16f), null, null, 0.1f);
+                case "BarrierOrange": return CoastMaterials.CreateToon(new Color(0.98f, 0.52f, 0.16f), null, null, 0.2f);
+                case "WoodDark": return CoastMaterials.CreateToon(new Color(0.42f, 0.28f, 0.16f), null, null, 0.05f);
+                case "BusBody": return CoastMaterials.CreateToon(new Color(0.20f, 0.56f, 0.82f), null, null, 0.4f);
+                case "BusRoof": return CoastMaterials.CreateToon(new Color(0.93f, 0.94f, 0.96f), null, null, 0.3f);
+                case "VanBody": return CoastMaterials.CreateToon(new Color(0.96f, 0.93f, 0.86f), null, null, 0.4f);
+                case "Tire": return CoastMaterials.CreateToon(new Color(0.10f, 0.10f, 0.11f), null, null, 0.1f);
+                case "Light": return CoastMaterials.CreateUnlit(new Color(1f, 0.95f, 0.6f));
+                case "Chrome": return CoastMaterials.CreateToon(new Color(0.75f, 0.78f, 0.82f), null, null, 0.7f);
                 default: return CoastMaterials.CreateLit(() => CoastPalette.TownCream);
             }
         }

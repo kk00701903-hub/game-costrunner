@@ -41,7 +41,7 @@ namespace CoastRun
 
         private static Material Make()
         {
-            var ink = CoastMaterials.CreateUnlit(() => new Color(1f, 1f, 1f, 1f));
+            var ink = CoastMaterials.CreateUnlit(() => new Color(0.06f, 0.05f, 0.10f, 1f));   // 14차-11: 짙은 잉크 선
             if (ink.HasProperty("_Cull"))
                 ink.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Front);
             return ink;

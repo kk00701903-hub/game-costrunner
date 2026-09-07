@@ -17,5 +17,17 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Scenes/Open 02_Run #F2")] public static void OpenRun() => Open("02_Run");
         [MenuItem("Coast Run/Scenes/Open 05_Raising #F5")] public static void OpenRaising() => Open("05_Raising");
         [MenuItem("Coast Run/Scenes/Open 00_Boot #F9")] public static void OpenBoot() => Open("00_Boot");
+
+        /// 14차-11: 장애물·차량 3D 키트(Blender headless) 빌드 → Assets/Resources/CoastRun/Models/Obs3_*.fbx
+        [MenuItem("Coast Run/Art/Build obstacle kit in Blender (headless) #F7")]
+        public static void BuildObstacleKit()
+        {
+            string bat = System.IO.Path.GetFullPath("Tools/blender/build_obstacles.bat");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c start \"\" \"" + bat + "\"")
+            {
+                UseShellExecute = true,
+                WorkingDirectory = System.IO.Path.GetDirectoryName(bat),
+            });
+        }
     }
 }

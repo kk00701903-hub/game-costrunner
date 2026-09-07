@@ -2,24 +2,24 @@ using UnityEngine;
 
 namespace CoastRun
 {
-    /// 14차-10: 장애물이 처음 사정거리(약 26 m)에 들어올 때 한 번 '나 장애물이야' 하고 알린다 —
-    /// 빨간 '!' 말풍선이 튀어 오르고, 그림이 한 번 통통 커졌다 돌아오며, 테두리가 0.5 초 빨갛게 번쩍인다.
-    /// 골드런의 첫 등장 하이라이트. 한 번만.
+    /// 14차-11: 장애물이 처음 사정거리(약 26 m)에 들어올 때 한 번, 장애물 '모양 자체'가 색으로 반짝인다 —
+    /// 본체 색이 흰빛→빨강 사이를 3번 튀고(0.9 s), 테두리는 빨갛게 달아올랐다 식는다. 말풍선 없음.
     public class ObstacleWarning : MonoBehaviour
     {
         private const float TriggerAhead = 26f;
+        private const float Duration = 0.9f;
         private static PlayerController _player;
-        private static Material _bubbleMat;
-        private static Font _font;
+        private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int ColorId = Shader.PropertyToID("_Color");
+        private static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
+        private static readonly int EmissionId = Shader.PropertyToID("_EmissionColor");
 
         private bool _fired;
         private float _t = -1f;
-        private Transform _bubble;
-        private Renderer[] _painted;
+        private Renderer[] _targets;
+        private Color[] _baseColors;
+        private bool[] _hasOutline;
         private MaterialPropertyBlock _mpb;
-        private static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
-        private Vector3 _baseScale = Vector3.one;
-        private Transform _visual;
 
         public static void Attach(GameObject root)
         {
@@ -29,102 +29,59 @@ namespace CoastRun
 
         private void Start()
         {
-            // 그림 소품(ChromaUnlit)을 찾아 둔다 — 테두리 색 번쩍임용
-            var rs = GetComponentsInChildren<Renderer>();
             var list = new System.Collections.Generic.List<Renderer>();
-            foreach (var r in rs)
-                if (r.sharedMaterial != null && r.sharedMaterial.HasProperty(OutlineColorId)) list.Add(r);
-            _painted = list.ToArray();
-            _visual = _painted.Length > 0 ? _painted[0].transform : transform;
-            _baseScale = _visual.localScale;
+            foreach (var r in GetComponentsInChildren<Renderer>())
+            {
+                if (r == null || r.sharedMaterial == null) continue;
+                string n = r.gameObject.name;
+                if (n == "BlobShadow" || n == "HazardRing" || n == "PickupGlow" || n == "Outline" || n == "Painted_Back" || n.StartsWith("Decal_")) continue;
+                if (r is ParticleSystemRenderer) continue;
+                list.Add(r);
+            }
+            _targets = list.ToArray();
+            _baseColors = new Color[_targets.Length];
+            _hasOutline = new bool[_targets.Length];
+            _mpb = new MaterialPropertyBlock();
+            for (int i = 0; i < _targets.Length; i++)
+            {
+                var m = _targets[i].sharedMaterial;
+                _baseColors[i] = m.HasProperty(BaseColorId) ? m.GetColor(BaseColorId) : (m.HasProperty(ColorId) ? m.GetColor(ColorId) : Color.white);
+                _hasOutline[i] = m.HasProperty(OutlineColorId);
+                // 기존 프로퍼티 블록(계절 틴트 등)이 있으면 그 색을 기준으로
+                _targets[i].GetPropertyBlock(_mpb);
+                var pb = _mpb.GetColor(BaseColorId);
+                if (pb != default) _baseColors[i] = pb;
+            }
         }
 
         private void Update()
         {
             if (_player == null) _player = FindFirstObjectByType<PlayerController>();
-            if (_player == null) return;
+            if (_player == null || _targets == null) return;
             if (!_fired)
             {
                 float ahead = DownhillPath.DistanceAlong(transform.position) - _player.PathDistance;
                 if (ahead > TriggerAhead || ahead < 2f) return;
                 _fired = true; _t = 0f;
-                SpawnBubble();
             }
             if (_t < 0f) return;
             _t += Time.deltaTime;
-            float k = Mathf.Clamp01(_t / 0.55f);
-            // 통통: 0→1.22→1 (sin 반주기)
-            float punch = 1f + 0.22f * Mathf.Sin(k * Mathf.PI);
-            if (_visual != null) _visual.localScale = _baseScale * punch;
-            // 테두리 빨강 → 원래 색
-            if (_painted != null && _painted.Length > 0)
+            float k = Mathf.Clamp01(_t / Duration);
+            // 3번 반짝: |sin(3π k)| 로 흰빛 ↔ 빨강, 끝으로 갈수록 잦아든다
+            float pulse = Mathf.Abs(Mathf.Sin(k * Mathf.PI * 3f)) * (1f - k * 0.6f);
+            Color flash = Color.Lerp(new Color(1f, 0.30f, 0.22f, 1f), new Color(1.6f, 1.4f, 1.3f, 1f), pulse);
+            Color outline = Color.Lerp(new Color(0.06f, 0.05f, 0.10f, 1f), new Color(1f, 0.2f, 0.12f, 1f), 1f - k);
+            for (int i = 0; i < _targets.Length; i++)
             {
-                _mpb ??= new MaterialPropertyBlock();
-                Color c = Color.Lerp(new Color(1f, 0.25f, 0.15f, 1f), new Color(0.10f, 0.08f, 0.16f, 1f), k);
-                foreach (var r in _painted) { r.GetPropertyBlock(_mpb); _mpb.SetColor(OutlineColorId, c); r.SetPropertyBlock(_mpb); }
+                var r = _targets[i]; if (r == null) continue;
+                r.GetPropertyBlock(_mpb);
+                Color c = _t >= Duration ? _baseColors[i] : Color.Lerp(_baseColors[i], _baseColors[i] * flash, 0.85f * (1f - k * 0.3f));
+                _mpb.SetColor(BaseColorId, c);
+                _mpb.SetColor(ColorId, c);
+                if (_hasOutline[i]) _mpb.SetColor(OutlineColorId, _t >= Duration ? new Color(0.06f, 0.05f, 0.10f, 1f) : outline);
+                r.SetPropertyBlock(_mpb);
             }
-            // 말풍선: 0.2 s 튀어 올라 0.9 s 머물다 사라진다
-            if (_bubble != null)
-            {
-                float bt = _t;
-                float rise = Mathf.Clamp01(bt / 0.2f);
-                float pop = 1f + 0.35f * Mathf.Sin(rise * Mathf.PI);
-                _bubble.localScale = Vector3.one * (0.55f * pop);
-                _bubble.localPosition = new Vector3(0f, _bubbleBaseY + 0.25f * (1f - (1f - rise) * (1f - rise)) + Mathf.Sin(bt * 9f) * 0.03f, 0f);
-                if (Camera.main != null) _bubble.rotation = Quaternion.LookRotation(_bubble.position - Camera.main.transform.position);
-                if (bt > 1.1f) { Destroy(_bubble.gameObject); _bubble = null; }
-            }
-            if (_t > 1.2f) { _t = -1f; if (_visual != null) _visual.localScale = _baseScale; }
-        }
-
-        private float _bubbleBaseY;
-
-        private void SpawnBubble()
-        {
-            // 높이: 소품 위 0.3 m
-            float top = 1.0f;
-            var rs = GetComponentsInChildren<Renderer>();
-            foreach (var r in rs) if (r.bounds.size.y < 10f) top = Mathf.Max(top, r.bounds.max.y - transform.position.y);
-            _bubbleBaseY = top + 0.35f;
-
-            var go = new GameObject("WarnBubble");
-            go.transform.SetParent(transform, false);
-            _bubble = go.transform;
-            var disc = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            disc.name = "Disc";
-            disc.transform.SetParent(go.transform, false);
-            Object.Destroy(disc.GetComponent<Collider>());
-            _bubbleMat ??= CoastMaterials.CreateTexturedTransparentCurved(BubbleTexture(), Color.white);
-            var dr = disc.GetComponent<Renderer>();
-            dr.sharedMaterial = _bubbleMat;
-            dr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            go.transform.localScale = Vector3.zero;
-        }
-
-        private static Texture2D _bubbleTex;
-        private static Texture2D BubbleTexture()
-        {
-            if (_bubbleTex != null) return _bubbleTex;
-            const int N = 128;
-            _bubbleTex = new Texture2D(N, N, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp };
-            for (int y = 0; y < N; y++)
-                for (int x = 0; x < N; x++)
-                {
-                    float dx = (x + 0.5f) / N - 0.5f, dy = (y + 0.5f) / N - 0.5f;
-                    float d = Mathf.Sqrt(dx * dx + dy * dy) * 2f;   // 0 center .. 1 edge
-                    Color c;
-                    if (d > 1f) c = new Color(0, 0, 0, 0);
-                    else if (d > 0.86f) c = new Color(0.12f, 0.08f, 0.14f, 1f);          // 짙은 테두리
-                    else c = new Color(1f, 0.28f, 0.2f, 1f);                            // 빨강 원
-                    // 느낌표: 세로 막대 + 점 (흰색)
-                    float ax = Mathf.Abs(dx), ay = dy;
-                    bool bar = ax < 0.07f && ay > -0.05f && ay < 0.30f;
-                    bool dot = ax < 0.08f && ay > -0.30f && ay < -0.16f;
-                    if (d <= 0.86f && (bar || dot)) c = Color.white;
-                    _bubbleTex.SetPixel(x, y, c);
-                }
-            _bubbleTex.Apply();
-            return _bubbleTex;
+            if (_t >= Duration) { _t = -1f; enabled = false; }
         }
     }
 }

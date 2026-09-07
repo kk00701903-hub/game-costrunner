@@ -92,6 +92,14 @@ namespace CoastRun
             root.transform.position = localPos;
             root.transform.rotation = DownhillPath.Rotation;
 
+            // 14차-11: Blender 3D 콘이 있으면 최우선(입체 + 잉크 테두리)
+            if (JejuKit.Load("Obs3_Cone") != null)
+            {
+                JejuKit.Spawn("Obs3_Cone", root.transform, Vector3.zero, 0f, 0.72f / 0.78f);
+                FinishCone(root, lane);
+                ObstacleOutline.Attach(root.transform, 1.05f);
+                return root;
+            }
             // Firefly-painted cone wins; otherwise the FBX prefab / procedural cone below.
             if (PaintedProp.Available("Cone"))
             {
