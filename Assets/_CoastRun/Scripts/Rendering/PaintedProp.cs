@@ -15,7 +15,7 @@ namespace CoastRun
         /// Adds the sprite under `root`, `height` metres tall with its feet at y = 0
         /// (+ `groundLift`), and hides every other renderer under `root` if `replace`.
         public static Transform Attach(Transform root, string key, float height, bool replace = true,
-            float groundLift = 0f, float zOffset = 0f)
+            float groundLift = 0f, float zOffset = 0f, bool outline = false)
         {
             var tex = Load(key);
             if (tex == null)
@@ -43,6 +43,13 @@ namespace CoastRun
             if (mat.HasProperty("_PinkKill") && key == "Heart") mat.SetFloat("_PinkKill", 0f);
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
             if (mat.HasProperty("_KeyColor")) mat.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
+            // 14차: 장애물은 흰 테두리 — 그림 크기에 맞춰 두께를 잡는다(1024px 기준 5텍셀 ≈ 화면에서 2px).
+            if (outline && mat.HasProperty("_OutlineOn"))
+            {
+                mat.SetFloat("_OutlineOn", 1f);
+                mat.SetColor("_OutlineColor", Color.white);
+                mat.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 180f, 3f, 9f));
+            }
             var mr = quad.GetComponent<Renderer>();
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;

@@ -275,6 +275,9 @@ namespace CoastRun
                 {
                     float wz = side * 3.6f;
                     JejuKit.Spawn("Prop_StoneWall", pivot, new Vector3(0.55f, 0f, wz), 0f, 0.55f);
+                    // 14차: 돌담 앞 수국 — 목표 이미지의 파란 수국 덤불. 문 앞은 비운다.
+                    if (rng.Next(3) != 0)
+                        StreetDressing.Hydrangea(pivot, new Vector3(0.7f, 0f, wz + side * 0.9f), rng, 0.85f + (float)rng.NextDouble() * 0.35f);
                 }
 
                 // Between lots: something to look at.
@@ -443,6 +446,16 @@ namespace CoastRun
         private static void BuildSeaSide(Transform root, int index)
         {
             float railX = RoadHalfWidth + 0.9f;
+            var drng = new System.Random(index * 911 + 17);
+
+            // 14차: 만국기 — 타일마다 한 줄, 왼쪽 상가 처마에서 바다 쪽 기둥까지. 축제 거리의 리듬.
+            float bz = 9f + (float)drng.NextDouble() * 12f;
+            StreetDressing.Bunting(root, new Vector3(-RoadHalfWidth - 1.0f, 4.3f, bz), new Vector3(railX + 0.2f, 4.0f, bz + 1.5f), drng);
+            CreateBox(root, "BuntingPost", new Vector3(railX + 0.2f, 2.0f, bz + 1.5f), new Vector3(0.12f, 4.0f, 0.12f),
+                () => Color.Lerp(CoastPalette.TownCream, CoastPalette.RoadGrey, 0.5f));
+            // 난간 앞 화단 두 개.
+            StreetDressing.Planter(root, new Vector3(railX - 0.75f, 0f, 4.5f + (float)drng.NextDouble() * 3f), drng);
+            StreetDressing.Planter(root, new Vector3(railX - 0.75f, 0f, 19f + (float)drng.NextDouble() * 4f), drng);
 
             CreateBox(root, "WoodRailBase", new Vector3(railX, 0.4f, Length * 0.5f),
                 new Vector3(0.35f, 0.8f, Length),
