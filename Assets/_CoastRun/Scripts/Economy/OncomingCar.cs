@@ -33,13 +33,13 @@ namespace CoastRun
         public float PathZ => _pathZ;
         public float Speed => _speed;
 
-        public enum Kind { Van, Bus, Orange }
+        public enum Kind { Van, Bus, Orange, Scooter }   // 14차-2 Scooter: 킥보드 탄 아이(목표 이미지), 좁고 낮아 옆으로 피하거나 점프
         public Kind VehicleKind { get; private set; }
 
         public static OncomingCar Spawn(Transform parent, PlayerController player, float startZ, int lane,
             float laneWidth, float speed, System.Random rng, Kind kind = Kind.Van)
         {
-            var go = new GameObject(kind == Kind.Bus ? "Obstacle_OncomingBus" : kind == Kind.Orange ? "Obstacle_RollingOrange" : "Obstacle_OncomingCar");
+            var go = new GameObject(kind == Kind.Bus ? "Obstacle_OncomingBus" : kind == Kind.Orange ? "Obstacle_RollingOrange" : kind == Kind.Scooter ? "Obstacle_KickScooter" : "Obstacle_OncomingCar");
             go.transform.SetParent(parent, false);
             var car = go.AddComponent<OncomingCar>();
             car._player = player;
@@ -68,7 +68,8 @@ namespace CoastRun
             hard.transform.localPosition = new Vector3(0f, 0.7f, 0f);
             var hardCol = hard.AddComponent<BoxCollider>();
             hardCol.isTrigger = true;
-            hardCol.size = kind == Kind.Bus ? new Vector3(1.7f, 2.4f, 5.5f) : kind == Kind.Orange ? new Vector3(0.9f, 0.6f, 0.9f) : new Vector3(1.4f, 1.3f, 2.7f);
+            hardCol.size = kind == Kind.Bus ? new Vector3(1.7f, 2.4f, 5.5f) : kind == Kind.Orange ? new Vector3(0.9f, 0.6f, 0.9f)
+                         : kind == Kind.Scooter ? new Vector3(0.8f, 1.5f, 1.4f) : new Vector3(1.4f, 1.3f, 2.7f);
             if (kind == Kind.Bus) hard.transform.localPosition = new Vector3(0f, 1.2f, 0f);
             if (kind == Kind.Orange) hard.transform.localPosition = new Vector3(0f, 0.3f, 0f);   // 낮아서 점프로 넘는다
             var hazard = hard.AddComponent<ObstacleHazard>();
@@ -78,12 +79,15 @@ namespace CoastRun
             near.transform.localPosition = new Vector3(0f, 0.7f, 0f);
             var nearCol = near.AddComponent<BoxCollider>();
             nearCol.isTrigger = true;
-            nearCol.size = kind == Kind.Bus ? new Vector3(3.4f, 3f, 6.5f) : kind == Kind.Orange ? new Vector3(2.6f, 1.6f, 2.2f) : new Vector3(3.1f, 2f, 3.9f);
+            nearCol.size = kind == Kind.Bus ? new Vector3(3.4f, 3f, 6.5f) : kind == Kind.Orange ? new Vector3(2.6f, 1.6f, 2.2f)
+                         : kind == Kind.Scooter ? new Vector3(2.6f, 2.2f, 2.6f) : new Vector3(3.1f, 2f, 3.9f);
             var zone = near.AddComponent<NearMissZone>();
             zone.Configure(25, lane);
             hazard.BindNearMiss(zone);
 
-            BlobShadow.Attach(go.transform, kind == Kind.Orange ? 0.6f : 1.1f);
+            BlobShadow.Attach(go.transform, kind == Kind.Orange ? 0.6f : kind == Kind.Scooter ? 0.7f : 1.1f);
+            HazardRing.Attach(go.transform, kind == Kind.Bus ? 1.3f : 0.8f);
+            ObstacleOutline.Attach(go.transform);
             return car;
         }
 
@@ -110,6 +114,11 @@ namespace CoastRun
                 ball.transform.localScale = Vector3.one * 0.7f;
                 Object.Destroy(ball.GetComponent<Collider>());
                 ball.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(new Color(1f, 0.6f, 0.15f), 0.3f);
+                return;
+            }
+            if (VehicleKind == Kind.Scooter)
+            {
+                BuildScooterRider();
                 return;
             }
             string key = VehicleKind == Kind.Bus ? "BusFront" : "Van";
@@ -157,6 +166,71 @@ namespace CoastRun
                 wheel.GetComponent<Renderer>().sharedMaterial = darkMat;
                 _wheels[i] = wheel.transform;
             }
+        }
+
+        /// 킥보드 탄 아이(목표 이미지의 왼쪽 인물): 민트 킥보드 + 노란 헬멧 + 초록 셔츠. 프리미티브.
+        private void BuildScooterRider()
+        {
+            _body.localScale = Vector3.one * 1.0f;
+            var mint = CoastMaterials.CreateLit(new Color(0.35f, 0.80f, 0.72f), 0.3f);
+            var dark = CoastMaterials.CreateLit(() => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.55f));
+            var skin = CoastMaterials.CreateLit(new Color(0.98f, 0.84f, 0.70f), 0.1f);
+            var shirt = CoastMaterials.CreateLit(new Color(0.42f, 0.70f, 0.40f), 0.1f);
+            var pants = CoastMaterials.CreateLit(new Color(0.30f, 0.42f, 0.66f), 0.1f);
+            var helmet = CoastMaterials.CreateLit(new Color(1.0f, 0.82f, 0.30f), 0.4f);
+            var hair = CoastMaterials.CreateLit(new Color(0.30f, 0.20f, 0.14f), 0.1f);
+            // 킥보드
+            Box(_body, "Deck", new Vector3(0f, 0.16f, 0f), new Vector3(0.22f, 0.06f, 0.95f), mint);
+            Box(_body, "Stem", new Vector3(0f, 0.65f, 0.42f), new Vector3(0.06f, 0.95f, 0.06f), mint);
+            Box(_body, "Handle", new Vector3(0f, 1.1f, 0.42f), new Vector3(0.52f, 0.05f, 0.05f), dark);
+            _wheels = new Transform[2];
+            for (int i = 0; i < 2; i++)
+            {
+                var wheel = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                wheel.name = "Wheel"; wheel.transform.SetParent(_body, false);
+                wheel.transform.localPosition = new Vector3(0f, 0.11f, i == 0 ? 0.48f : -0.45f);
+                wheel.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+                wheel.transform.localScale = new Vector3(0.22f, 0.05f, 0.22f);
+                Object.Destroy(wheel.GetComponent<Collider>());
+                wheel.GetComponent<Renderer>().sharedMaterial = dark;
+                _wheels[i] = wheel.transform;
+            }
+            // 아이: 다리 → 몸통 → 머리(헬멧). 한 발은 데크, 한 발은 뒤로 차는 자세.
+            Box(_body, "LegL", new Vector3(-0.08f, 0.45f, -0.05f), new Vector3(0.12f, 0.5f, 0.14f), pants);
+            var legR = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            legR.name = "LegR"; legR.transform.SetParent(_body, false);
+            legR.transform.localPosition = new Vector3(0.1f, 0.42f, -0.32f);
+            legR.transform.localRotation = Quaternion.Euler(-35f, 0f, 0f);
+            legR.transform.localScale = new Vector3(0.12f, 0.5f, 0.14f);
+            Object.Destroy(legR.GetComponent<Collider>());
+            legR.GetComponent<Renderer>().sharedMaterial = pants;
+            var torso = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            torso.name = "Torso"; torso.transform.SetParent(_body, false);
+            torso.transform.localPosition = new Vector3(0f, 0.98f, 0.02f);
+            torso.transform.localRotation = Quaternion.Euler(12f, 0f, 0f);
+            torso.transform.localScale = new Vector3(0.34f, 0.3f, 0.26f);
+            Object.Destroy(torso.GetComponent<Collider>());
+            torso.GetComponent<Renderer>().sharedMaterial = shirt;
+            Box(_body, "ArmL", new Vector3(-0.2f, 1.02f, 0.2f), new Vector3(0.09f, 0.09f, 0.42f), skin);
+            Box(_body, "ArmR", new Vector3(0.2f, 1.02f, 0.2f), new Vector3(0.09f, 0.09f, 0.42f), skin);
+            var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            head.name = "Head"; head.transform.SetParent(_body, false);
+            head.transform.localPosition = new Vector3(0f, 1.42f, 0.04f);
+            head.transform.localScale = Vector3.one * 0.3f;
+            Object.Destroy(head.GetComponent<Collider>());
+            head.GetComponent<Renderer>().sharedMaterial = skin;
+            var hr = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            hr.name = "Hair"; hr.transform.SetParent(_body, false);
+            hr.transform.localPosition = new Vector3(0f, 1.47f, 0f);
+            hr.transform.localScale = new Vector3(0.32f, 0.26f, 0.32f);
+            Object.Destroy(hr.GetComponent<Collider>());
+            hr.GetComponent<Renderer>().sharedMaterial = hair;
+            var hm = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            hm.name = "Helmet"; hm.transform.SetParent(_body, false);
+            hm.transform.localPosition = new Vector3(0f, 1.53f, -0.01f);
+            hm.transform.localScale = new Vector3(0.36f, 0.24f, 0.36f);
+            Object.Destroy(hm.GetComponent<Collider>());
+            hm.GetComponent<Renderer>().sharedMaterial = helmet;
         }
 
         private static void Box(Transform parent, string name, Vector3 localPos, Vector3 scale, Material mat)

@@ -253,7 +253,11 @@ namespace CoastRun
             // 11챕터부터 일부는 '구르는 귤' — 작고 느리지만 점프로만 넘는다.
             if (_rng.NextDouble() < ChapterDifficulty.RollingOrangeChance(ChapterDifficulty.Stage) && !DebugForceBus)
                 kind = OncomingCar.Kind.Orange;
-            float vSpeed = (kind == OncomingCar.Kind.Bus ? carSpeed * 0.8f : kind == OncomingCar.Kind.Orange ? carSpeed * 0.55f : carSpeed)
+            // 14차-2: 킥보드 탄 아이 — 봄부터 나온다. 마주 오는 차량 셋 중 하나꼴, 속도는 밴의 절반.
+            if (kind == OncomingCar.Kind.Van && !DebugForceBus && _rng.NextDouble() < 0.35)
+                kind = OncomingCar.Kind.Scooter;
+            float vSpeed = (kind == OncomingCar.Kind.Bus ? carSpeed * 0.8f : kind == OncomingCar.Kind.Orange ? carSpeed * 0.55f
+                          : kind == OncomingCar.Kind.Scooter ? carSpeed * 0.5f : carSpeed)
                            * ChapterDifficulty.CarSpeedMul;
             startZ = meetZ + vSpeed * secondsToMeet;
             _car = OncomingCar.Spawn(_root, player, startZ, lane - 1, laneWidth, vSpeed, _rng, kind);

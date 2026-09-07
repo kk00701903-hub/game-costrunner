@@ -101,7 +101,7 @@ namespace CoastRun
             }
 
             AttachBackpack(go, anim, height, runner);
-            AttachBucketHat(go, anim, height);
+            // (14차-2 벙거지는 사용자 요청으로 뺌 — AttachBucketHat 는 남겨 둠, 필요하면 한 줄로 복구)
 
             var rig = go.AddComponent<SkaterRig>();
             rig._anim = anim;
