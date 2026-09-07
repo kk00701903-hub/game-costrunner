@@ -48,7 +48,8 @@ namespace CoastRun
             for (int i = _root.childCount - 1; i >= 0; i--)
             {
                 var child = _root.GetChild(i);
-                if (DownhillPath.DistanceAlong(child.position) < z - 40f)
+                // 14차-7: 지나친 코인은 1.2 m 뒤에서 바로 회수 — 카메라 앞에서 거대하게 떠다니던 원인.
+                if (DownhillPath.DistanceAlong(child.position) < z - 1.2f)
                 {
                     var c = child.GetComponent<CoinPickup>();
                     if (c != null) c.Recycle(); else Destroy(child.gameObject);

@@ -212,10 +212,9 @@ namespace CoastRun
             GetComponent<UI_FeedbackController>()?.ShowWatchMessage(Loc.T("해가 졌어", "SUN DOWN"), Loc.T("늦었어… 그래도 달려.", "Late… keep running."));
         }
 
-        private Image[] _heartFills;
-        private Image[] _heartDims;
 
-        /// 14차: 체력은 숫자 막대 대신 하트 3개 — 서브웨이 서퍼처럼 한눈에. 각 하트는 체력 1/3 구간을 세로로 채운다.
+        /// 14차-7: 레퍼런스 HUD — 하트 1개 + 초록 게이지 + 숫자(0~100). 하트 3개는 크고 답답했다.
+        private Image _hpGaugeFill; private Text _hpGaugeText; private RectTransform _hpHeartRt;
         private void BuildHealthBar(RectTransform root)
         {
             var wrap = new GameObject("Hearts", typeof(RectTransform), typeof(CanvasGroup));
@@ -224,37 +223,40 @@ namespace CoastRun
             _hpBar.anchorMin = _hpBar.anchorMax = new Vector2(0f, 1f);
             _hpBar.pivot = new Vector2(0f, 1f);
             _hpBar.anchoredPosition = new Vector2(6f, -84f);
-            _hpBar.sizeDelta = new Vector2(170f, 54f);
+            _hpBar.sizeDelta = new Vector2(190f, 48f);
             _hpCg = wrap.GetComponent<CanvasGroup>();
 
-            var heartIcon = CoastUiArt.Icon("Heart");
-            _heartFills = new Image[3];
-            _heartDims = new Image[3];
-            for (int i = 0; i < 3; i++)
-            {
-                var pos = new Vector2(4f + i * 56f, -2f);
-                var size = new Vector2(54f, 54f);
-                // 바닥: 어두운 하트(빈 칸), 위: 채워지는 하트(세로 fill).
-                var dim = CoastUiArt.Panel(_hpBar, "HeartDim" + i, new Color(0.06f, 0.08f, 0.18f, 0.75f), 12);
-                var drt = dim.rectTransform; drt.anchorMin = drt.anchorMax = new Vector2(0f, 1f); drt.pivot = new Vector2(0f, 1f);
-                drt.anchoredPosition = pos; drt.sizeDelta = size;
-                if (heartIcon != null) { dim.sprite = heartIcon; dim.type = Image.Type.Simple; dim.preserveAspect = true; }
-                dim.raycastTarget = false;
-                _heartDims[i] = dim;
+            // 게이지 트랙(남색 알약 + 크림 테두리)
+            var track = CoastUiArt.CutePill(_hpBar, "Track", PillNavy, 14, 3);
+            var trt = track.rectTransform; trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f); trt.pivot = new Vector2(0f, 1f);
+            trt.anchoredPosition = new Vector2(26f, -9f); trt.sizeDelta = new Vector2(150f, 30f);
+            track.raycastTarget = false;
 
-                var fill = CoastUiArt.Panel(_hpBar, "Heart" + i, Color.white, 12);
-                var frt = fill.rectTransform; frt.anchorMin = frt.anchorMax = new Vector2(0f, 1f); frt.pivot = new Vector2(0f, 1f);
-                frt.anchoredPosition = pos; frt.sizeDelta = size;
-                if (heartIcon != null) { fill.sprite = heartIcon; fill.preserveAspect = true; }
-                fill.type = Image.Type.Filled;
-                fill.fillMethod = Image.FillMethod.Vertical;
-                fill.fillOrigin = (int)Image.OriginVertical.Bottom;
-                fill.fillAmount = 1f;
-                fill.raycastTarget = false;
-                _heartFills[i] = fill;
-            }
-            _hpFill = _heartFills[0];
-            _hpText = null;
+            var fill = CoastUiArt.Panel(trt, "Fill", new Color(0.45f, 0.9f, 0.25f, 1f), 10);
+            var frt = fill.rectTransform; frt.anchorMin = new Vector2(0f, 0f); frt.anchorMax = new Vector2(1f, 1f);
+            frt.offsetMin = new Vector2(5f, 5f); frt.offsetMax = new Vector2(-5f, -5f);
+            fill.type = Image.Type.Filled; fill.fillMethod = Image.FillMethod.Horizontal; fill.fillOrigin = (int)Image.OriginHorizontal.Left;
+            fill.fillAmount = 1f; fill.raycastTarget = false;
+            _hpGaugeFill = fill;
+            // 윗면 하이라이트(광택)
+            var shine = CoastUiArt.Panel(frt, "Shine", new Color(1f, 1f, 1f, 0.28f), 6);
+            var srt = shine.rectTransform; srt.anchorMin = new Vector2(0f, 0.55f); srt.anchorMax = new Vector2(1f, 1f);
+            srt.offsetMin = new Vector2(4f, 0f); srt.offsetMax = new Vector2(-4f, -3f); shine.raycastTarget = false;
+
+            _hpGaugeText = CoastHudLayout.MakeText(trt, "Value", "100", 20, TextAnchor.MiddleRight,
+                new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(-12f, 0f));
+            _hpGaugeText.fontStyle = FontStyle.Bold; _hpGaugeText.color = Color.white; _hpGaugeText.raycastTarget = false;
+            CoastUiArt.OutlineText(_hpGaugeText, new Color(0.05f, 0.07f, 0.18f, 0.95f), 2f);
+
+            // 하트 아이콘이 게이지 왼쪽 끝을 살짝 덮는다
+            var heartIcon = CoastUiArt.Icon("Heart");
+            var heart = CoastUiArt.Panel(_hpBar, "HeartIcon", Color.white, 12);
+            _hpHeartRt = heart.rectTransform; _hpHeartRt.anchorMin = _hpHeartRt.anchorMax = new Vector2(0f, 1f); _hpHeartRt.pivot = new Vector2(0.5f, 0.5f);
+            _hpHeartRt.anchoredPosition = new Vector2(26f, -24f); _hpHeartRt.sizeDelta = new Vector2(52f, 52f);
+            if (heartIcon != null) { heart.sprite = heartIcon; heart.type = Image.Type.Simple; heart.preserveAspect = true; }
+            heart.raycastTarget = false;
+            _hpFill = _hpGaugeFill;
+            _hpText = null;   // 숫자는 UpdateCookieHud 에서 퍼센트로 쓴다
         }
 
         // ── 9차: 스토리 런 목표 — 챕터 하트 (지금까지 + 이번 런) / 목표. 여정 바 아래 오른쪽.
@@ -708,24 +710,21 @@ namespace CoastRun
         private void UpdateCookieHud()
         {
             var health = HealthSystem.Instance;
-            if (_heartFills != null && health != null)
+            if (_hpGaugeFill != null && health != null)
             {
                 _hpShown = Mathf.Lerp(_hpShown, health.Normalized, 1f - Mathf.Exp(-Time.unscaledDeltaTime * 10f));
                 bool low = _hpShown < 0.25f;
                 Color c = low
                     ? Color.Lerp(new Color(1f, 0.25f, 0.3f), new Color(1f, 0.6f, 0.3f), 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 10f))
-                    : Color.white;
+                    : Color.Lerp(new Color(0.95f, 0.8f, 0.2f), new Color(0.45f, 0.9f, 0.25f), Mathf.Clamp01((_hpShown - 0.25f) / 0.35f));
                 if (health.Frozen)
                     c = ScoreYellow;
-                for (int i = 0; i < _heartFills.Length; i++)
-                {
-                    float seg = Mathf.Clamp01(_hpShown * 3f - i);
-                    _heartFills[i].fillAmount = seg;
-                    _heartFills[i].color = c;
-                    // 마지막 남은 하트는 살짝 뛴다.
-                    float pulse = (low && seg > 0f) ? 1f + 0.08f * Mathf.Sin(Time.unscaledTime * 9f) : 1f;
-                    _heartFills[i].rectTransform.localScale = Vector3.one * pulse;
-                }
+                _hpGaugeFill.fillAmount = _hpShown;
+                _hpGaugeFill.color = c;
+                if (_hpGaugeText != null) _hpGaugeText.text = Mathf.RoundToInt(_hpShown * 100f).ToString();
+                // 체력이 낮으면 하트가 뛴다.
+                float pulse = low ? 1f + 0.1f * Mathf.Sin(Time.unscaledTime * 9f) : 1f;
+                if (_hpHeartRt != null) _hpHeartRt.localScale = Vector3.one * pulse;
             }
             if (_hpBar != null)
             {

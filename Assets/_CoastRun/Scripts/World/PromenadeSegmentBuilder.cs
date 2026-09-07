@@ -79,8 +79,9 @@ namespace CoastRun
             {
                 for (float z = 0.6f; z < Length; z += 2.4f)
                 {
-                    var dash = CreateBox(root, "LaneDash", new Vector3(side * 1.1f, 0.006f, z + 0.6f),
-                        new Vector3(0.13f, 0.012f, 1.2f), null, _laneDashMat);
+                    // 14차-7: 바닥과 같은 높이라 z-파이팅으로 아른거렸다 — 1 cm 띄우고 조금 굵게.
+                    var dash = CreateBox(root, "LaneDash", new Vector3(side * 1.1f, 0.016f, z + 0.6f),
+                        new Vector3(0.16f, 0.012f, 1.2f), null, _laneDashMat);
                     dash.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 }
             }
@@ -109,7 +110,7 @@ namespace CoastRun
 
             if (index % 5 == 2)
             {
-                var cross = CreateBox(root, "Crosswalk", new Vector3(0f, 0.004f, Length * 0.5f),
+                var cross = CreateBox(root, "Crosswalk", new Vector3(0f, 0.012f, Length * 0.5f),
                     new Vector3(RoadHalfWidth * 2f - 0.3f, 0.01f, 2.6f), () => Color.white);
                 var mat = CoastMaterials.CreateTransparent(new Color(1f, 1f, 1f, 0.9f));
                 mat.SetTexture("_BaseMap", RoadTextureGenerator.Crosswalk());
@@ -121,7 +122,7 @@ namespace CoastRun
             {
                 int lane = rng.Next(3) - 1;
                 float z = 4f + (float)rng.NextDouble() * (Length - 8f);
-                var lid = CreateCylinder(root, "Manhole", new Vector3(lane * 2.2f, 0.006f, z), 0.45f, 0.012f,
+                var lid = CreateCylinder(root, "Manhole", new Vector3(lane * 2.2f, 0.014f, z), 0.45f, 0.012f,
                     () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.Road, 0.35f));
                 lid.transform.localRotation = Quaternion.identity;
             }

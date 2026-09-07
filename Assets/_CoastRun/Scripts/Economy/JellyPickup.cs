@@ -255,6 +255,13 @@ namespace CoastRun
             if (_player == null)
                 return;
 
+            // 14차-7: 거리 기반 수집(트리거 미발동으로 몸에 붙어 거대하게 보이던 젤리 버그 제거).
+            if (PickupReach.InReach(_player, transform.position))
+            {
+                Collect();
+                return;
+            }
+
             float magnet = (_upgrades != null ? _upgrades.GetMagnetRadius() : 1.4f) + PetCompanion.MagnetBonus;
             if (_kind == PickupKind.BonusStar || _kind == PickupKind.Potion || _kind == PickupKind.Heart)
                 magnet += 0.6f;   // the rare ones should never be a near miss
@@ -279,7 +286,7 @@ namespace CoastRun
             _magnetT += Time.deltaTime * 3f;
             float u = Mathf.Clamp01(_magnetT);
             float e = u * u * (3f - 2f * u);
-            Vector3 end = _player.position + Vector3.up * 0.3f;
+            Vector3 end = PickupReach.MagnetTarget(_player);
             Vector3 mid = Vector3.Lerp(_magnetStart, end, 0.45f);
             Vector3 lateral = Vector3.Cross(Vector3.up, (end - _magnetStart).normalized);
             if (lateral.sqrMagnitude < 0.001f)
@@ -340,19 +347,17 @@ namespace CoastRun
             var col = GetComponent<Collider>();
             if (col != null)
                 col.enabled = false;
-            // The pop coroutine (JuiceDirector) owns the detached visual and destroys it.
+            // 14차-7: 그림은 즉시 숨기고 터짐만 주인공 앞에서.
             if (_visualRoot != null)
-                _visualRoot.SetParent(null, true);
+                _visualRoot.gameObject.SetActive(false);
             if (juice != null)
             {
                 Color tint = _kind == PickupKind.Heart ? new Color(1f, 0.35f, 0.5f)
                            : _kind == PickupKind.Potion ? new Color(0.45f, 0.8f, 1f)
                            : _kind == PickupKind.BonusStar ? new Color(1f, 0.9f, 0.3f)
                            : new Color(0.6f, 1f, 0.5f);
-                juice.PlayCoinCollect(_visualRoot, pos, _kind == PickupKind.Jelly ? 0 : 2, tint);
+                juice.PlayCoinCollect(null, PickupReach.PopPos(_player, transform.position), _kind == PickupKind.Jelly ? 0 : 2, tint);
             }
-            else if (_visualRoot != null)
-                Destroy(_visualRoot.gameObject);
             Destroy(gameObject);
         }
     }

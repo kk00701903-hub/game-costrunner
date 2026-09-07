@@ -143,7 +143,8 @@ namespace CoastRun
             for (int i = _root.childCount - 1; i >= 0; i--)
             {
                 var child = _root.GetChild(i);
-                if (DownhillPath.DistanceAlong(child.position) < z - 30f)
+                // 14차-7: 지나친 젤리/하트는 1.2 m 뒤에서 바로 제거(카메라 앞 거대 젤리 방지).
+                if (DownhillPath.DistanceAlong(child.position) < z - 1.2f)
                     Destroy(child.gameObject);
             }
         }

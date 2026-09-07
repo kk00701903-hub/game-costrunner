@@ -218,12 +218,17 @@ namespace CoastRun
             // small ring only. Everything else gets the full pop.
             // 14차-6: 먹는 순간 아이템은 이미 몸에 겹쳐 있어 터짐이 몸 뒤로 지나갔다 —
             // 카메라 쪽으로 0.9 m, 위로 0.45 m 당겨서 주인공 앞에서 터지게 한다.
-            var cam = Camera.main != null ? Camera.main.transform : null;
-            Vector3 popPos = worldPos + Vector3.up * 0.45f;
-            if (cam != null)
+            // 14차-7: 호출자가 PickupReach.PopPos 로 이미 몸 앞 위치를 준다(coinVisual == null).
+            Vector3 popPos = worldPos;
+            if (coinVisual != null)
             {
-                Vector3 toCam = cam.position - worldPos; toCam.y = 0f;
-                popPos += toCam.normalized * 0.9f;
+                var cam = Camera.main != null ? Camera.main.transform : null;
+                popPos += Vector3.up * 0.45f;
+                if (cam != null)
+                {
+                    Vector3 toCam = cam.position - worldPos; toCam.y = 0f;
+                    popPos += toCam.normalized * 0.9f;
+                }
             }
             if (amount > 0)
             {

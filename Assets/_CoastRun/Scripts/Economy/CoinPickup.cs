@@ -62,7 +62,7 @@ namespace CoastRun
                 reuse._collected = false; reuse._magnetActive = false; reuse._magnetT = 0f;
                 reuse._bobPhase = Random.value * Mathf.PI * 2f;
                 var rc = rgo.GetComponent<Collider>(); if (rc != null) rc.enabled = true;
-                if (reuse._visualRoot != null) { reuse._visualRoot.localPosition = Vector3.zero; reuse._visualRoot.localRotation = Quaternion.identity; }
+                if (reuse._visualRoot != null) { reuse._visualRoot.gameObject.SetActive(true); reuse._visualRoot.localPosition = Vector3.zero; reuse._visualRoot.localRotation = Quaternion.identity; }
                 var g = rgo.GetComponent<PickupGlow>(); if (g != null) g.Show();
                 rgo.GetComponent<BlobShadow>()?.Invalidate();
                 rgo.SetActive(true);
@@ -163,6 +163,14 @@ namespace CoastRun
             if (_player == null || _upgrades == null)
                 return;
 
+            // 14차-7: 물리 트리거 대신 거리로 먹는다 — 트리거가 안 걸린 아이템이 몸에 붙어
+            // 카메라 앞에서 거대하게 보이던 버그 제거. 주인공 앞 1.1 m 안, 같은 레인이면 즉시 수집.
+            if (PickupReach.InReach(_player, transform.position))
+            {
+                Collect();
+                return;
+            }
+
             float magnet = _upgrades.GetMagnetRadius() + PetCompanion.MagnetBonus;
             if (magnet <= 0.05f)
                 return;
@@ -186,7 +194,7 @@ namespace CoastRun
             _magnetT += Time.deltaTime * 2.4f;
             float u = Mathf.Clamp01(_magnetT);
             float e = u * u * (3f - 2f * u);
-            Vector3 end = _player.position + Vector3.up * 0.8f;
+            Vector3 end = PickupReach.MagnetTarget(_player);
             Vector3 mid = Vector3.Lerp(_magnetStart, end, 0.45f);
             Vector3 lateral = Vector3.Cross(Vector3.up, (end - _magnetStart).normalized);
             if (lateral.sqrMagnitude < 0.001f)
@@ -221,8 +229,9 @@ namespace CoastRun
             _feedback?.ShowFloatingReward(transform.position + Vector3.up * 0.6f, amount, 1);
 
             var juice = JuiceDirector.Instance;
-            Transform vis = _visualRoot != null ? _visualRoot : transform;
-            juice?.PlayCoinCollect(vis, transform.position + Vector3.up * 0.2f, amount);
+            // 14차-7: 아이템 그림은 그 자리에서 바로 사라지고, 터짐은 주인공 가슴 앞(카메라 쪽)에서.
+            if (_visualRoot != null) _visualRoot.gameObject.SetActive(false);
+            juice?.PlayCoinCollect(null, PickupReach.PopPos(_player, transform.position), amount);
 
             // Disable collision; visual destroyed by juice pop (or fallback).
             var col = GetComponent<Collider>();
@@ -235,9 +244,6 @@ namespace CoastRun
                 return;
             }
 
-            // Detach visual for independent pop; destroy empty shell after.
-            if (_visualRoot != null)
-                _visualRoot.SetParent(null, true);
             StartCoroutine(DestroyShell());
         }
 

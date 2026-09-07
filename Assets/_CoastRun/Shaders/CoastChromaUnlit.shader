@@ -45,12 +45,13 @@ Shader "CoastRun/ChromaUnlit"
             float _OutlineWidth;
             float4 _BaseMap_TexelSize;
 
+            // 14차-7: 그림은 오프라인에서 진짜 알파로 바꿨다(Tools/Art/key_to_alpha.py).
+            // 셰이더는 알파를 믿고, 남은 마젠타만 안전장치로 자른다 — 밉맵/필터링에서 분홍 테두리 없음.
             bool IsKeyed(float2 uv)
             {
                 half4 c = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv);
                 half d = distance(c.rgb, _KeyColor.rgb);
-                bool pinkEdge = (c.r > 0.75 && c.g < 0.35 && c.b > 0.75) || (c.r > c.g + 0.30 && c.b > c.g + 0.22);
-                return d < _Cutoff || (_PinkKill > 0.5 && pinkEdge);
+                return c.a < 0.5 || d < 0.22;
             }
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
@@ -69,11 +70,7 @@ Shader "CoastRun/ChromaUnlit"
             {
                 half4 c = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _BaseColor;
                 half d = distance(c.rgb, _KeyColor.rgb);
-                // Also drop anti-aliased edge texels that are part figure, part key:
-                // anything clearly pink-purple (red and blue both well above green)
-                // is a key blend — the palette has no such colour of its own.
-                bool pinkEdge = (c.r > 0.75 && c.g < 0.35 && c.b > 0.75) || (c.r > c.g + 0.30 && c.b > c.g + 0.22);
-                if (d < _Cutoff || (_PinkKill > 0.5 && pinkEdge))
+                if (c.a < 0.5 || d < 0.22)
                 {
                     if (_OutlineOn > 0.5)
                     {
@@ -96,6 +93,8 @@ Shader "CoastRun/ChromaUnlit"
                 Light sun = GetMainLight();
                 half3 lit = sun.color * 0.9 + half3(unity_AmbientSky.rgb) * 0.6 + 0.35;
                 c.rgb *= lit;
+                // 알파 가장자리는 0.5 를 중심으로 짧게 섞는다(밉맵에서 부드러운 윤곽, 멀리서 도트 반짝임 없음)
+                c.a = saturate((c.a - 0.5) * 4.0 + 0.5);
                 return c;
             }
             ENDHLSL

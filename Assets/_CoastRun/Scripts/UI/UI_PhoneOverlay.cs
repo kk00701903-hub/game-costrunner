@@ -118,6 +118,8 @@ namespace CoastRun
             }
 
             go.GetComponent<Button>().onClick.AddListener(OpenFromPauseOrTap);
+            // 14차-7: 런 HUD 에서 전화 버튼 제거(사용자 요청). 패널은 일시정지/스토리에서만 연다.
+            _iconCg.alpha = 0f; _iconCg.interactable = false; _iconCg.blocksRaycasts = false;
         }
 
         private void EnsurePanel()
