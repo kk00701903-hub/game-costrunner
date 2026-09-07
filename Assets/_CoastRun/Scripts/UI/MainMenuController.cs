@@ -812,8 +812,8 @@ namespace CoastRun
         {
             int k = (int)PetCompanion.Selected;
             string name = Loc.Data("pet." + PetCompanion.Names[k], PetCompanion.Names[k]);
-            string[] blurbsEn = { "no pet", "coins ×1.2 while running", "smashes blocking obstacles (12 s cooldown, ×3)", "pulls coins & hearts within 7 m" };
-            return (Loc.IsKo ? "펫: " : "Pet: ") + name + "  ▸  " + (Loc.IsKo ? PetCompanion.Blurbs[k] : blurbsEn[Mathf.Clamp(k, 0, 3)]);
+            string[] blurbsEn = { "no pet", "coins ×1.2 while running", "smashes blocking obstacles (12 s cooldown, ×3)", "pulls coins & hearts within 7 m", "saves you once per run (40% HP)" };
+            return (Loc.IsKo ? "펫: " : "Pet: ") + name + "  ▸  " + (Loc.IsKo ? PetCompanion.Blurbs[k] : blurbsEn[Mathf.Clamp(k, 0, blurbsEn.Length - 1)]);
         }
 
         private void ShowPanel(GameObject panel, bool on)

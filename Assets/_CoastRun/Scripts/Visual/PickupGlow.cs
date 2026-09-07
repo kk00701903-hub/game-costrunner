@@ -61,5 +61,11 @@ namespace CoastRun
             if (_quad != null)
                 _quad.gameObject.SetActive(false);
         }
+
+        public void Show()
+        {
+            if (_quad != null)
+                _quad.gameObject.SetActive(true);
+        }
     }
 }

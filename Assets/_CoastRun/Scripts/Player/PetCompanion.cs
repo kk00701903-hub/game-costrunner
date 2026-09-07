@@ -9,7 +9,8 @@ namespace CoastRun
         None = 0,
         Sparrow = 1,     // 참새: 런닝 돈 획득 ×1.2
         BikerThug = 2,   // 오토바이탄 깡패: 같은 레인 앞 장애물을 대신 부숨 (쿨타임 12 s, 런당 3회)
-        WildGoose = 3    // 기러기: 반경 7 m 돈·하트 자동 수집(자석)
+        WildGoose = 3,   // 기러기: 반경 7 m 돈·하트 자동 수집(자석)
+        BlackPig = 4     // 14차 흑돼지: 체력이 바닥나면 런당 1회 40%로 버텨 준다(부활)
     }
 
     /// 스케이터 옆을 따라다니는 펫 하나. 절차 생성(프리팹 없음); Resources/CoastRun/Obs_Pet_<Kind>.png
@@ -17,14 +18,26 @@ namespace CoastRun
     public class PetCompanion : MonoBehaviour
     {
         public const string PrefsKey = "CoastRun.Pet";   // 레거시 키 — v2는 SaveData.equippedPet
-        public static readonly string[] Names = { "없음", "참새", "오토바이탄 깡패", "기러기" };
+        public static readonly string[] Names = { "없음", "참새", "오토바이탄 깡패", "기러기", "흑돼지" };
         public static readonly string[] Blurbs =
         {
             "펫 없음",
             "런닝 중 돈 획득량 ×1.2",
             "앞을 막는 장애물을 대신 부숴줌 (쿨타임 12초, 3회)",
             "반경 7 m의 돈과 하트를 자석처럼 끌어모음",
+            "체력이 바닥나면 한 번 버텨줌 (런당 1회, 40% 회복)",
         };
+        /// 흑돼지 부활: 런당 1회. HealthSystem 이 바닥날 때 묻는다.
+        public static bool TryRevive()
+        {
+            if (Instance == null || Instance._kind != PetKind.BlackPig || Instance._reviveUsed)
+                return false;
+            Instance._reviveUsed = true;
+            RunHudChrome.Instance?.ShowToast("흑돼지가 버텨줬어!");
+            CoastPrefs.Vibrate();
+            return true;
+        }
+        private bool _reviveUsed;
 
         public const float SparrowCoinMul = 1.2f;
         public const float GooseMagnet = 7f;
@@ -94,6 +107,7 @@ namespace CoastRun
             {
                 case PetKind.Sparrow: _offset = new Vector3(1.1f, 1.7f, -0.3f); break;
                 case PetKind.WildGoose: _offset = new Vector3(1.5f, 2.2f, -0.6f); break;
+                case PetKind.BlackPig: _offset = new Vector3(1.25f, 0f, -0.9f); break;   // 옆에서 종종걸음
                 default: _offset = new Vector3(-1.6f, 0.3f, -1.4f); break;
             }
             Build();
@@ -144,6 +158,7 @@ namespace CoastRun
             {
                 case PetKind.Sparrow: BuildBird(0.55f, new Color(0.62f, 0.45f, 0.30f), new Color(0.95f, 0.88f, 0.75f)); break;
                 case PetKind.WildGoose: BuildBird(1.0f, new Color(0.55f, 0.50f, 0.45f), new Color(0.92f, 0.92f, 0.90f)); break;
+                case PetKind.BlackPig: BuildPig(); break;
                 default: BuildThug(); break;
             }
         }
@@ -161,6 +176,25 @@ namespace CoastRun
             Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.07f, 0.2f, 0.33f), Vector3.one * 0.05f, Color.black);
             _wingL = Part(root, "WingL", PrimitiveType.Cube, new Vector3(-0.32f, 0.04f, 0f), new Vector3(0.5f, 0.04f, 0.26f), back).transform;
             _wingR = Part(root, "WingR", PrimitiveType.Cube, new Vector3(0.32f, 0.04f, 0f), new Vector3(0.5f, 0.04f, 0.26f), back).transform;
+        }
+
+        /// 제주 흑돼지: 검은 몸통에 분홍 코·귀, 짧은 다리. 프리팹/그림이 없을 때의 대체.
+        private void BuildPig()
+        {
+            Color black = new Color(0.16f, 0.14f, 0.15f);
+            Color pink = new Color(0.98f, 0.62f, 0.70f);
+            var root = new GameObject("Pig").transform;
+            root.SetParent(_body, false);
+            Part(root, "Torso", PrimitiveType.Sphere, new Vector3(0f, 0.34f, 0f), new Vector3(0.46f, 0.40f, 0.62f), black);
+            Part(root, "Head", PrimitiveType.Sphere, new Vector3(0f, 0.44f, 0.36f), Vector3.one * 0.34f, black);
+            Part(root, "Snout", PrimitiveType.Cylinder, new Vector3(0f, 0.40f, 0.53f), new Vector3(0.16f, 0.04f, 0.16f), pink).transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            Part(root, "EarL", PrimitiveType.Cube, new Vector3(-0.12f, 0.6f, 0.34f), new Vector3(0.09f, 0.12f, 0.04f), pink);
+            Part(root, "EarR", PrimitiveType.Cube, new Vector3(0.12f, 0.6f, 0.34f), new Vector3(0.09f, 0.12f, 0.04f), pink);
+            Part(root, "EyeL", PrimitiveType.Sphere, new Vector3(-0.09f, 0.5f, 0.48f), Vector3.one * 0.05f, Color.white);
+            Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.09f, 0.5f, 0.48f), Vector3.one * 0.05f, Color.white);
+            for (int i = 0; i < 4; i++)
+                Part(root, "Leg" + i, PrimitiveType.Cube, new Vector3(i % 2 == 0 ? -0.13f : 0.13f, 0.1f, i < 2 ? 0.18f : -0.18f), new Vector3(0.1f, 0.2f, 0.1f), black);
+            Part(root, "Tail", PrimitiveType.Sphere, new Vector3(0f, 0.42f, -0.33f), Vector3.one * 0.08f, pink);
         }
 
         private void BuildThug()
@@ -270,7 +304,7 @@ namespace CoastRun
             transform.position = Vector3.SmoothDamp(transform.position, target, ref _vel, 0.18f);
             transform.rotation = frame;
 
-            bool bird = _kind != PetKind.BikerThug;
+            bool bird = _kind != PetKind.BikerThug && _kind != PetKind.BlackPig;
             _phase += dt * (bird ? 9f : 14f);
             if (_body != null)
             {

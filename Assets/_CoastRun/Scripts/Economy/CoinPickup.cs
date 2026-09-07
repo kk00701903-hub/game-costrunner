@@ -22,9 +22,51 @@ namespace CoastRun
         private float _magnetBend;
         private Transform _visualRoot;
 
+        // 14차 최적화: 지나친 코인은 파괴하지 않고 풀에 넣었다가 다시 쓴다(금/은 따로).
+        // 런 한 번에 코인 수백 개 — 프리미티브 3개 + 셰이더 머티리얼을 매번 만들면 GC 스파이크가 났다.
+        private static readonly System.Collections.Generic.Stack<CoinPickup> _poolGold = new System.Collections.Generic.Stack<CoinPickup>();
+        private static readonly System.Collections.Generic.Stack<CoinPickup> _poolSilver = new System.Collections.Generic.Stack<CoinPickup>();
+
+        /// 뒤로 지나간 코인: 비활성화하고 풀로. 먹은 코인은 연출 때문에 그대로 파괴된다.
+        public void Recycle()
+        {
+            if (_collected) { Destroy(gameObject); return; }
+            _magnetActive = false;
+            gameObject.SetActive(false);
+            (silver ? _poolSilver : _poolGold).Push(this);
+        }
+
+        private static CoinPickup PopPool(bool silver)
+        {
+            var pool = silver ? _poolSilver : _poolGold;
+            while (pool.Count > 0)
+            {
+                var c = pool.Pop();
+                if (c != null && c.gameObject != null) return c;   // 씬 전환으로 파괴된 항목은 건너뛴다
+            }
+            return null;
+        }
+
         public static CoinPickup Spawn(Transform parent, Vector3 worldPos, CoinWallet wallet,
             UpgradeManager upgrades, UI_FeedbackController feedback, Transform player, bool silver = false)
         {
+            var reuse = PopPool(silver);
+            if (reuse != null)
+            {
+                var rgo = reuse.gameObject;
+                rgo.transform.SetParent(parent, false);
+                rgo.transform.SetPositionAndRotation(worldPos, DownhillPath.Rotation);
+                reuse._wallet = wallet; reuse._upgrades = upgrades; reuse._feedback = feedback; reuse._player = player;
+                reuse._collected = false; reuse._magnetActive = false; reuse._magnetT = 0f;
+                reuse._bobPhase = Random.value * Mathf.PI * 2f;
+                var rc = rgo.GetComponent<Collider>(); if (rc != null) rc.enabled = true;
+                if (reuse._visualRoot != null) { reuse._visualRoot.localPosition = Vector3.zero; reuse._visualRoot.localRotation = Quaternion.identity; }
+                var g = rgo.GetComponent<PickupGlow>(); if (g != null) g.Show();
+                rgo.GetComponent<BlobShadow>()?.Invalidate();
+                rgo.SetActive(true);
+                return reuse;
+            }
+
             var go = new GameObject(silver ? "Coin_Silver" : "Coin_Gold");
             go.transform.SetParent(parent, false);
             go.transform.position = worldPos;

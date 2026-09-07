@@ -160,6 +160,9 @@ namespace CoastRun
                             ?? Shader.Find("Universal Render Pipeline/Unlit");
             var mat = new Material(_particle);
             ApplyColor(mat, color, true);
+            // 14차: 텍스처 없는 파티클은 네모로 찍힌다(코인 터짐이 주황 사각형이던 원인) → 부드러운 원판.
+            if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", BlobShadow.SoftDisc());
+            else if (mat.HasProperty("_MainTex")) mat.SetTexture("_MainTex", BlobShadow.SoftDisc());
             if (mat.HasProperty("_Surface"))
             {
                 mat.SetFloat("_Surface", 1f);

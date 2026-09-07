@@ -40,6 +40,9 @@ namespace CoastRun
             return blob;
         }
 
+        /// 풀에서 다시 꺼내 다른 위치에 놓았을 때 바닥 높이를 다시 재게 한다.
+        public void Invalidate() => _groundCached = false;
+
         private void Awake()
         {
             if (follow == null)

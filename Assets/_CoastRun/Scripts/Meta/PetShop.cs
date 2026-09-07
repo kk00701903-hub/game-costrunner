@@ -6,11 +6,12 @@ namespace CoastRun
     /// 상점: 돈으로 펫을 사고 장착한다. 소유는 SaveData.ownedPetMask 비트, 장착은 equippedPet.
     public static class PetShop
     {
-        public static readonly PetKind[] ForSale = { PetKind.Sparrow, PetKind.BikerThug, PetKind.WildGoose };
+        public static readonly PetKind[] ForSale = { PetKind.Sparrow, PetKind.BlackPig, PetKind.BikerThug, PetKind.WildGoose };
 
         public static readonly Dictionary<PetKind, int> Price = new Dictionary<PetKind, int>
         {
             { PetKind.Sparrow, 800 },
+            { PetKind.BlackPig, 1500 },   // 14차: 부활 펫 — 코인 쓸 곳
             { PetKind.BikerThug, 2000 },
             { PetKind.WildGoose, 4500 },
         };

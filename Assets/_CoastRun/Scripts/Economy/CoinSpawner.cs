@@ -49,7 +49,10 @@ namespace CoastRun
             {
                 var child = _root.GetChild(i);
                 if (DownhillPath.DistanceAlong(child.position) < z - 40f)
-                    Destroy(child.gameObject);
+                {
+                    var c = child.GetComponent<CoinPickup>();
+                    if (c != null) c.Recycle(); else Destroy(child.gameObject);
+                }
             }
         }
 

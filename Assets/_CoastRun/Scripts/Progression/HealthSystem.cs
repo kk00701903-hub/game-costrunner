@@ -119,6 +119,14 @@ namespace CoastRun
             if (!_active)
                 return;
             _current = Mathf.Clamp(_current + delta, 0f, max);
+            if (_current <= 0f && PetCompanion.TryRevive())
+            {
+                // 14차 흑돼지: 바닥 대신 40%에서 다시.
+                _current = max * 0.4f;
+                OnChanged?.Invoke(_current, max);
+                OnHealed?.Invoke(_current);
+                return;
+            }
             OnChanged?.Invoke(_current, max);
             if (_current <= 0f)
             {

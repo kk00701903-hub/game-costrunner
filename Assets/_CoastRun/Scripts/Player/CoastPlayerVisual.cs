@@ -11,6 +11,7 @@ namespace CoastRun
 
         private Transform _hair;
         private Transform _backpack;
+        private float _springRoll, _springRollVel, _springPitch, _springPitchVel, _prevClear;   // 14차 2차 운동
         private Transform _board;
         private Transform _body;
         private Transform _rootVisual;
@@ -357,10 +358,24 @@ namespace CoastRun
             float t = Time.time * (windStrength + speed * 4f) + _phase;
             float sway = Mathf.Sin(t) * (4f + speed * 3f);
 
+            // 14차: 사인 흔들림 위에 2차 운동 스프링 — 레인 이동엔 옆으로 쏠리고, 점프·착지엔 위아래로
+            // 덜렁거리며, 놓으면 몇 번 튕기다 멈춘다. (가방 덜렁거림·머리카락 흔들림)
+            float dt = Time.deltaTime;
+            float lat = _player != null ? _player.LateralVelocity : 0f;
+            float vy = _player != null ? _player.GroundClearance : 0f;
+            float vAccel = (vy - _prevClear) / Mathf.Max(0.001f, dt); _prevClear = vy;
+            float rollTarget = Mathf.Clamp(-lat * 6f, -28f, 28f);
+            float pitchTarget = Mathf.Clamp(-vAccel * 1.6f, -22f, 22f);
+            const float stiff = 140f, damp = 9f;
+            _springRollVel += ((rollTarget - _springRoll) * stiff - _springRollVel * damp) * dt;
+            _springRoll += _springRollVel * dt;
+            _springPitchVel += ((pitchTarget - _springPitch) * stiff - _springPitchVel * damp) * dt;
+            _springPitch += _springPitchVel * dt;
+
             if (_hair != null)
-                _hair.localRotation = Quaternion.Euler(sway * 0.6f, 0f, sway * 0.3f);
+                _hair.localRotation = Quaternion.Euler(sway * 0.6f + _springPitch * 0.8f, 0f, sway * 0.3f + _springRoll * 0.9f);
             if (_backpack != null)
-                _backpack.localRotation = Quaternion.Euler(sway * 0.25f, 0f, sway * 0.15f);
+                _backpack.localRotation = Quaternion.Euler(sway * 0.25f + _springPitch * 0.5f, 0f, sway * 0.15f + _springRoll * 0.45f);
 
             if (_body != null && _player != null && _player.State == SkateState.Run && !_player.IsTucking)
             {
