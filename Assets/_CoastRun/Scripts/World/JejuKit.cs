@@ -100,8 +100,32 @@ namespace CoastRun
             return f;
         }
 
+        /// 14차-13: 파트별 상가 키트(Shop_A~F) 개수. 있으면 Bldg_ 대신 쓴다.
+        private static int _shopCount = -1;
+        public static int ShopCount
+        {
+            get
+            {
+                if (_shopCount < 0)
+                {
+                    _shopCount = 0;
+                    for (char c = 'A'; c <= 'H'; c++) { if (Load("Shop_" + c) == null) break; _shopCount++; }
+                }
+                return _shopCount;
+            }
+        }
+
         public static GameObject SpawnBuilding(int variant, Transform parent, Vector3 localPos, float yawDegrees)
         {
+            if (ShopCount > 0)
+            {
+                int sn = ShopCount;
+                int sv = ((variant % sn) + sn) % sn;
+                var sb = Spawn("Shop_" + (char)('A' + sv), parent, localPos, yawDegrees, 1f);
+                WallColorRule(sb, parent);
+                BuildingOutline.Attach(sb.transform, 0.025f);
+                return sb;
+            }
             int n = BuildingCount;
             if (n == 0) return null;
             variant = ((variant % n) + n) % n;
@@ -165,9 +189,11 @@ namespace CoastRun
                 if (m == null) continue;
                 string n = m.name;
                 Color cc;
-                if (n.StartsWith("Facade") || n.StartsWith("Wall") || n.StartsWith("Concrete")) cc = wall;
+                if (n.StartsWith("Facade") || n.StartsWith("Wall")) cc = wall;
                 else if (n.StartsWith("Roof")) cc = roof;
-                else if (n.StartsWith("Awning")) cc = LastAccent;
+                else if (n == "AwningA" || n.StartsWith("Awning_") || n == "Frame") cc = LastAccent;
+                else if (n == "Door") cc = LastAccent * new Color(0.82f, 0.78f, 0.78f, 1f);
+                else if (n == "Trim" || n == "AwningB") cc = Color.white;
                 else continue;
                 r.GetPropertyBlock(_wallMpb);
                 _wallMpb.SetColor(_baseColorId, cc);
@@ -193,16 +219,19 @@ namespace CoastRun
             return m;
         }
 
+        /// 14차-13: 파스텔용 라이팅 — 그늘 면이 탁한 남색으로 죽지 않게 그림자 틴트를 밝은 라벤더로, 문턱을 낮춘다.
+        private static Material PastelLit()
+        {
+            var m = CoastMaterials.CreateLit(Color.white, 0.05f);
+            if (m.HasProperty("_ShadowColor")) m.SetColor("_ShadowColor", new Color(0.80f, 0.80f, 0.90f, 1f));
+            if (m.HasProperty("_ShadowThreshold")) m.SetFloat("_ShadowThreshold", 0.25f);
+            return m;
+        }
+
         private static Material RoofMat(string tex, System.Func<Color> fallback)
         {
             // 14차-12: 지붕도 단색(포인트 색을 MPB 로 곱한다) — 사진 기와 위에 색을 얹으면 탁해진다.
-            var t = (Texture2D)null;
-            if (t == null) return CoastMaterials.CreateLit(Color.white, 0.05f);
-            var m = ArtAssets.CreateTexturedLit(t, Color.white, 0.05f);
-            // 지붕 UV는 미터 단위 → 타일 1장 = 1.5m
-            if (m.HasProperty("_BaseMap")) m.SetTextureScale("_BaseMap", new Vector2(0.66f, 0.66f));
-            else m.mainTextureScale = new Vector2(0.66f, 0.66f);
-            return m;
+            return PastelLit();
         }
 
         private static Material Build(string name)
@@ -222,7 +251,7 @@ namespace CoastRun
                 case "Wall":
                 case "WallCool":
                     // 14차-12: 옆벽·뒷벽은 단색 흰 바탕(파스텔 MPB) — 사진 벽 텍스처 OFF
-                    return CoastMaterials.CreateLit(Color.white, 0.03f);
+                    return PastelLit();
                 case "Roof_Terracotta": return RoofMat("Tex_Roof_Terracotta", () => CoastPalette.Roof);
                 case "Roof_Slate": return RoofMat("Tex_Roof_Slate", () => Color.Lerp(CoastPalette.SkyBlue, CoastPalette.RoadGrey, 0.55f));
                 case "Roof_Basalt": return RoofMat("Tex_Roof_Basalt", () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.55f));
@@ -247,6 +276,10 @@ namespace CoastRun
                 case "Grip": return CoastMaterials.CreateToon(new Color(0.30f, 0.62f, 0.56f));
                 case "Wheel": return CoastMaterials.CreateToon(CoastPalette.WheelOrange, () => CoastPalette.WheelOrange, null, 0.3f);
                 case "Concrete": return CoastMaterials.CreateLit(() => CoastPalette.Sidewalk);
+                // 14차-13: 상가 파트 키트(Shop_*) — 색은 MPB 로 들어오므로 흰 바탕
+                case "Trim": case "Frame": case "Door": case "AwningA": case "AwningB": case "Roof":
+                    return PastelLit();
+                case "Dark": return CoastMaterials.CreateToon(new Color(0.12f, 0.10f, 0.12f), null, null, 0.1f);
                 // 14차-11: 장애물·차량 3D 키트(Obs3_*)
                 case "SlimeBody": return CoastMaterials.CreateToon(new Color(0.95f, 0.36f, 0.30f), null, null, 0.45f);
                 case "SlimeDark": return CoastMaterials.CreateToon(new Color(0.72f, 0.20f, 0.17f), null, null, 0.35f);

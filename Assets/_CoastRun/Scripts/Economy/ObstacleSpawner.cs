@@ -27,24 +27,24 @@ namespace CoastRun
 
         [Header("Pacing")]
         [Tooltip("Seconds the player gets to see a row and react before reaching it.")]
-        [SerializeField] private float reactionSeconds = 0.55f;
+        [SerializeField] private float reactionSeconds = 0.45f;   // 14차-13: 관용 판정이 커져서 반응 창을 줄인다
         [Tooltip("Extra seconds allowed per lane change needed to reach a safe lane.")]
         [SerializeField] private float laneChangeSeconds = 0.22f;   // 14차-9: 레인 이동 0.20s ease-out 에 맞춤
         [Tooltip("Base gap between rows at the start of a stage, in seconds of travel.")]
-        [SerializeField] private float rowGapSecondsStart = 1.4f;
+        [SerializeField] private float rowGapSecondsStart = 1.0f;   // 14차-13: 골드런 밀도
         [Tooltip("Base gap at the end of a stage. Never goes below the reaction floor.")]
-        [SerializeField] private float rowGapSecondsEnd = 0.85f;
+        [SerializeField] private float rowGapSecondsEnd = 0.62f;
         [Tooltip("Chance of a two-lane row at stage start / end.")]
-        [SerializeField, Range(0f, 1f)] private float doubleRowChanceStart = 0.10f;
-        [SerializeField, Range(0f, 1f)] private float doubleRowChanceEnd = 0.32f;
+        [SerializeField, Range(0f, 1f)] private float doubleRowChanceStart = 0.22f;
+        [SerializeField, Range(0f, 1f)] private float doubleRowChanceEnd = 0.50f;
 
         [Header("Oncoming cars (chapter 3+)")]
         [Tooltip("First chapter (1-based) in which cars drive toward the player.")]
         [SerializeField] private int carFromChapter = 3;
         [SerializeField] private int scooterFromChapter = 1;
         [Tooltip("Rows between cars, at stage start / end.")]
-        [SerializeField] private int carEveryRowsStart = 9;
-        [SerializeField] private int carEveryRowsEnd = 5;
+        [SerializeField] private int carEveryRowsStart = 7;
+        [SerializeField] private int carEveryRowsEnd = 4;
         [Tooltip("The car's own speed along the road (it closes at this + player speed).")]
         [SerializeField] private float carSpeed = 9f;
         [Tooltip("Seconds of travel around the meeting point kept free of other rows.")]
@@ -179,6 +179,12 @@ namespace CoastRun
 
                 if (blocked != 0)
                     SpawnRow(_nextSpawnZ, blocked, season, weather);
+
+                // 14차-13: 손에 땀 — 열린 레인에도 '점프로 넘는' 낮은 장애물을 깔아 세 레인이 다 막힌 것처럼
+                // 보이게 한다(골드런의 가장 흔한 줄). 열린 레인은 여전히 '열린' 것으로 계산해 도달 가능성은 지킨다.
+                float lowFill = Mathf.Lerp(0.18f, 0.40f, progress) + (RunRhythm.At(_nextSpawnZ) == RunRhythm.Phase.Crisis ? 0.15f : 0f);
+                if (blocked != 0 && _carLaneMask == 0 && _rng.NextDouble() < lowFill)
+                    SpawnLowFill(_nextSpawnZ, 0b111 & ~blocked);
 
                 int open = 0b111 & ~blocked;
                 float gap = RowGap(speed, progress, _prevOpen, open);
@@ -384,6 +390,18 @@ namespace CoastRun
                         RoadPlacement.Snap(go, rz, l * laneWidth);
                 }
             }
+        }
+
+        /// 열린 레인 중 하나(둘 열렸으면 하나만)에 점프로 넘는 낮은 장애물.
+        private void SpawnLowFill(float z, int openMask)
+        {
+            ObstacleId[] low = { ObstacleId.TrafficCone, ObstacleId.Slime, ObstacleId.WetFloorSign, ObstacleId.BikeFallen };
+            var lanes = new System.Collections.Generic.List<int>();
+            for (int lane = 0; lane < 3; lane++) if ((openMask & (1 << lane)) != 0) lanes.Add(lane - 1);
+            if (lanes.Count == 0) return;
+            int l = lanes[_rng.Next(lanes.Count)];
+            var go = ObstacleCatalog.Spawn(low[_rng.Next(low.Length)], _root, RoadPlacement.OnRoad(z, l * laneWidth), l);
+            if (go != null) RoadPlacement.Snap(go, z, l * laneWidth);
         }
 
         private void SpawnRow(float z, int blocked, SeasonKind season, WeatherKind weather)

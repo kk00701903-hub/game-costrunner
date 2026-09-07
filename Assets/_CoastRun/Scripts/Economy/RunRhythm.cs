@@ -32,9 +32,9 @@ namespace CoastRun
         {
             switch (At(pathDistance))
             {
-                case Phase.Easy: return 1.35f;
-                case Phase.CoinLine: return 1.9f;
-                default: return Mathf.Lerp(0.85f, 0.7f, PhaseT(pathDistance));
+                case Phase.Easy: return 1.1f;    // 14차-13: 밀도 ↑
+                case Phase.CoinLine: return 1.45f;
+                default: return Mathf.Lerp(0.72f, 0.55f, PhaseT(pathDistance));
             }
         }
 

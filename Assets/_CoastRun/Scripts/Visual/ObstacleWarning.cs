@@ -61,6 +61,7 @@ namespace CoastRun
         {
             if (_player == null) _player = FindFirstObjectByType<PlayerController>();
             if (_player == null || _targets == null) return;
+            _mpb ??= new MaterialPropertyBlock();
             if (!_fired)
             {
                 float ahead = DownhillPath.DistanceAlong(transform.position) - _player.PathDistance;
