@@ -91,6 +91,6 @@ namespace CoastRun
         // into a navy slab; a lighter, bluer shade keeps the cel look but stays readable.
         public static Color ShadowCool => Color.Lerp(SkyBlue, Color.black, 0.22f);
         public static Color Sun => Color.Lerp(TownCream, CoinYellow, 0.2f);
-        public static Color BlobShadow => new Color(ShadowCool.r, ShadowCool.g, ShadowCool.b, 0.42f);
+        public static Color BlobShadow => new Color(ShadowCool.r * 0.8f, ShadowCool.g * 0.8f, ShadowCool.b * 0.85f, 0.58f);
     }
 }

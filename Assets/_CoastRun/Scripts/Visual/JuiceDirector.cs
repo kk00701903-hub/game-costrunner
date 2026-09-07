@@ -482,7 +482,7 @@ namespace CoastRun
             _cheerCg.blocksRaycasts = false;
             _cheerPopup = go.AddComponent<Text>();
             _cheerPopup.font = CoastHudLayout.Font();
-            _cheerPopup.fontSize = 34;
+            _cheerPopup.fontSize = CoastHudLayout.Scaled(34);
             _cheerPopup.fontStyle = FontStyle.Bold;
             _cheerPopup.alignment = TextAnchor.MiddleCenter;
             _cheerPopup.color = Color.white;

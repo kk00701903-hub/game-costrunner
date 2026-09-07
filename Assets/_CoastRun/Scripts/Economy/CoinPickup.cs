@@ -68,6 +68,7 @@ namespace CoastRun
             var col = go.AddComponent<SphereCollider>();
             col.isTrigger = true;
             col.radius = 0.5f;
+            BlobShadow.Attach(go.transform, 0.36f);   // 10차: 코인도 바닥에 붙어 보이게
             col.center = new Vector3(0f, 0.2f, 0f);
 
             BlobShadow.Attach(go.transform, 0.55f);

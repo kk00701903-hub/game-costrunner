@@ -15,6 +15,8 @@ namespace CoastRun
 
             urp.shadowDistance = 60f;
             urp.shadowCascadeCount = 2;
+            urp.shadowDepthBias = 1.0f;    // 10차: 벽면 아크네 방지
+            urp.shadowNormalBias = 1.0f;
             // Soft shadows enabled on UniversalRP.asset (supportsSoftShadows is read-only at runtime).
         }
     }

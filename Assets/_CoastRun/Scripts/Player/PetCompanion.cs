@@ -122,7 +122,13 @@ namespace CoastRun
             if (prefab != null)
             {
                 _body = prefab.transform;
-                RoadPlacement.FitHeight(prefab, 0.6f);
+                RoadPlacement.FitHeight(prefab, _kind == PetKind.WildGoose ? 0.7f : 0.45f);
+                // 8차: Blender 새(Tools/blender/bird_pet.py) — 날개 오브젝트를 이름으로 찾아 날갯짓
+                foreach (var t in prefab.GetComponentsInChildren<Transform>(true))
+                {
+                    if (t.name.StartsWith("WingL")) _wingL = t;
+                    else if (t.name.StartsWith("WingR")) _wingR = t;
+                }
                 return;
             }
 

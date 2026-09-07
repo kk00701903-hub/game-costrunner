@@ -54,7 +54,7 @@ namespace CoastRun
             if (_roadMat.HasProperty("_BaseMap"))
             {
                 _roadMat.SetTexture("_BaseMap", tex);
-                _roadMat.SetTextureScale("_BaseMap", new Vector2(2f, 8f));
+                _roadMat.SetTextureScale("_BaseMap", new Vector2(3f, 12f));   // 8차: 돌 무늬 촘촘히
             }
             else
             {

@@ -9,15 +9,15 @@ namespace CoastRun
         [SerializeField] private PlayerController target;
 
         [Header("Framing")]
-        [SerializeField] private Vector3 offset = new Vector3(0.12f, 2.95f, -10.8f);
+        [SerializeField] private Vector3 offset = new Vector3(0.12f, 2.35f, -8.6f);   // 8차: 낮고 가깝게 — 주인공이 화면의 11%
         [SerializeField] private float lookAhead = 20f;
-        [SerializeField] private float lookHeight = 3.4f;
+        [SerializeField] private float lookHeight = 2.7f;
         [SerializeField] private float pitchUp = -1.5f;
         [SerializeField] private float lateralDamping = 0.14f;
 
         [Header("FOV kick")]
-        [SerializeField] private float baseFov = 55f;
-        [SerializeField] private float maxFov = 74f;
+        [SerializeField] private float baseFov = 58f;
+        [SerializeField] private float maxFov = 78f;
         [SerializeField] private float fovAccelSeconds = 0.4f;
         [SerializeField] private float fovDecelSeconds = 0.25f;
 

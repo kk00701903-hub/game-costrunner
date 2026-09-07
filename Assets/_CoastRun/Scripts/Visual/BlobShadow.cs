@@ -9,10 +9,11 @@ namespace CoastRun
         [SerializeField] private Transform follow;
         [SerializeField] private float baseScale = 0.95f;
         [SerializeField] private float maxLift = 2.4f;
-        [SerializeField] private float groundedAlpha = 0.42f;
+        [SerializeField] private float groundedAlpha = 0.58f;   // 10차: 0.42 → 0.58, 바닥에 붙어 보이게
         [SerializeField] private float airborneAlpha = 0.08f;
 
         private Transform _quad;
+        private bool _groundCached; private float _groundLocal;
         private Material _mat;
         private static Material _sharedMat;
 
@@ -119,7 +120,16 @@ namespace CoastRun
             }
             else
             {
-                groundY = SampleGroundY(follow.position);
+                // 10차: 소품·아이템은 매 프레임 레이캐스트 대신 세그먼트 기준 높이를 한 번만 잰다(코인 수십 개도 싸게).
+                if (!_groundCached)
+                {
+                    float g = SampleGroundY(follow.position);
+                    var anchor = follow.parent != null ? follow.parent : follow;
+                    _groundLocal = g - anchor.position.y;
+                    _groundCached = true;
+                }
+                var anc = follow.parent != null ? follow.parent : follow;
+                groundY = anc.position.y + _groundLocal;
                 lift = Mathf.Max(0f, follow.position.y - groundY);
             }
 

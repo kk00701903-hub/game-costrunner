@@ -60,9 +60,10 @@ namespace CoastRun
         {
             switch (s)
             {
-                case SeasonKind.Spring: return new Color(0.98f, 0.97f, 0.95f);
-                case SeasonKind.Autumn: return new Color(0.92f, 0.82f, 0.70f);
-                case SeasonKind.Winter: return new Color(0.90f, 0.93f, 1.0f);
+                // 11차: 바닥이 제주 현무암 돌길(어두운 회색)로 바뀌어 더 누르지 않는다. 계절은 색조만.
+                case SeasonKind.Spring: return new Color(1.0f, 0.99f, 0.97f);
+                case SeasonKind.Autumn: return new Color(1.0f, 0.92f, 0.82f);
+                case SeasonKind.Winter: return new Color(0.92f, 0.95f, 1.0f);
                 default: return Color.white;
             }
         }
