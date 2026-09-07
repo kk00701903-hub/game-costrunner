@@ -18,6 +18,16 @@ namespace CoastRun.Editor
         [MenuItem("Coast Run/Build/Android APK — quick (Mono, ARMv7, dev)")]
         public static void BuildAndroidApkQuick() => Build(true);
 
+        /// 9차: 스토어 스크린샷 — 플레이 중 게임 뷰를 3배로 캡쳐해 Builds/shots/ 에 저장. (Ctrl+Shift+Alt+S)
+        [MenuItem("Coast Run/Screenshot x3 (play mode) %#&s")]
+        public static void ShotX3()
+        {
+            Directory.CreateDirectory("Builds/shots");
+            string path = $"Builds/shots/shot_{System.DateTime.Now:HHmmss}.png";
+            ScreenCapture.CaptureScreenshot(path, 3);
+            Debug.Log("[Screenshot] " + path);
+        }
+
         private static void Build(bool quick)
         {
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
