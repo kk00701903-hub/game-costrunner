@@ -196,15 +196,97 @@ namespace CoastRun
 
         /// Called by CoinPickup when collect VFX starts (after wallet Add).
         public void PlayCoinCollect(Transform coinVisual, Vector3 worldPos, int amount)
+            => PlayCoinCollect(coinVisual, worldPos, amount, CoastPalette.CoinYellow);
+
+        /// 14차-5: '팍' 터지는 수집 연출 — 스케일 팝 + 반짝이 별 버스트 + 퍼지는 링 플래시.
+        /// tint 는 아이템 색(코인 금색, 하트 분홍, 별 노랑, 포션 하늘색).
+        public void PlayCoinCollect(Transform coinVisual, Vector3 worldPos, int amount, Color tint)
         {
             if (coinVisual != null)
                 StartCoroutine(CoinScalePop(coinVisual));
 
-            // amount 0 = jelly: a trail spawns ten of these a second, so no burst — the
-            // scale pop and the SFX carry it. (Bursts also leaked a full-screen tint.)
+            // amount 0 = jelly: a trail spawns ten of these a second, so a light touch —
+            // small ring only. Everything else gets the full pop.
             if (amount > 0)
-                SpawnCoinBurst(worldPos);
+            {
+                SpawnCoinBurst(worldPos, tint, amount >= 2 ? 22 : 16);
+                StartCoroutine(FlashRing(worldPos, tint, amount >= 2 ? 1.9f : 1.4f));
+            }
+            else
+                StartCoroutine(FlashRing(worldPos, tint, 0.9f));
             audio?.PlaySfx(CoastSfx.Coin);
+        }
+
+        private Material _ringMat;
+        private static readonly int RingColorId = Shader.PropertyToID("_BaseColor");
+
+        /// 얇은 가산 링이 0.28초 동안 커지며 사라진다(카메라를 보는 쿼드).
+        private IEnumerator FlashRing(Vector3 pos, Color tint, float size)
+        {
+            _ringMat ??= CoastMaterials.CreateTexturedTransparentCurved(RingTexture(), Color.white, additive: true);
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            q.name = "CollectRing";
+            CoastEditUtil.DestroyCollider(q);
+            var mr = q.GetComponent<Renderer>();
+            mr.sharedMaterial = _ringMat;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            var mpb = new MaterialPropertyBlock();
+            var cam = Camera.main != null ? Camera.main.transform : null;
+            float t = 0f; const float dur = 0.28f;
+            while (t < dur && q != null)
+            {
+                t += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(t / dur);
+                float s = Mathf.Lerp(0.25f, size, 1f - (1f - u) * (1f - u));
+                q.transform.position = pos;
+                if (cam != null) q.transform.rotation = Quaternion.LookRotation(q.transform.position - cam.position);
+                q.transform.localScale = new Vector3(s, s, 1f);
+                var c = tint; c.a = (1f - u) * 0.9f;
+                mpb.SetColor(RingColorId, c);
+                mr.SetPropertyBlock(mpb);
+                yield return null;
+            }
+            if (q != null) Object.Destroy(q);
+        }
+
+        private static Texture2D _ringTex;
+        private static Texture2D RingTexture()
+        {
+            if (_ringTex != null) return _ringTex;
+            const int n = 64;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            var px = new Color[n * n];
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dx = (x + 0.5f) / n - 0.5f, dy = (y + 0.5f) / n - 0.5f;
+                    float r = Mathf.Sqrt(dx * dx + dy * dy) * 2f;           // 0 centre, 1 edge
+                    float ring = 1f - Mathf.Clamp01(Mathf.Abs(r - 0.82f) / 0.14f);
+                    px[y * n + x] = new Color(1f, 1f, 1f, ring * ring);
+                }
+            tex.SetPixels(px); tex.Apply();
+            _ringTex = tex;
+            return tex;
+        }
+
+        private static Texture2D _sparkleTex;
+        /// 4각 별 반짝이(파티클용).
+        private static Texture2D SparkleTexture()
+        {
+            if (_sparkleTex != null) return _sparkleTex;
+            const int n = 32;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            var px = new Color[n * n];
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dx = Mathf.Abs((x + 0.5f) / n - 0.5f) * 2f, dy = Mathf.Abs((y + 0.5f) / n - 0.5f) * 2f;
+                    float star = Mathf.Clamp01(1f - (dx + dy) * 1.15f) + Mathf.Clamp01(1f - (dx * dx + dy * dy) * 6f) * 0.8f;
+                    px[y * n + x] = new Color(1f, 1f, 1f, Mathf.Clamp01(star));
+                }
+            tex.SetPixels(px); tex.Apply();
+            _sparkleTex = tex;
+            return tex;
         }
 
         private static IEnumerator CoinScalePop(Transform visual)
@@ -249,12 +331,18 @@ namespace CoastRun
                 Object.Destroy(visual.gameObject);
         }
 
-        private void SpawnCoinBurst(Vector3 worldPos)
+        private void SpawnCoinBurst(Vector3 worldPos) => SpawnCoinBurst(worldPos, CoastPalette.CoinYellow, 14);
+
+        private void SpawnCoinBurst(Vector3 worldPos, Color tint, int count)
         {
             EnsureCoinBurst();
             var go = Object.Instantiate(_coinBurstPrefab.gameObject, worldPos, Quaternion.identity);
             go.SetActive(true);
             var ps = go.GetComponent<ParticleSystem>();
+            var main = ps.main;
+            main.startColor = new ParticleSystem.MinMaxGradient(tint * 1.6f, Color.Lerp(tint, Color.white, 0.7f) * 1.4f);
+            var em = ps.emission;
+            em.SetBursts(new[] { new ParticleSystem.Burst(0f, (short)count) });
             ps.Play();
             Object.Destroy(go, 1.2f);
         }
@@ -644,13 +732,15 @@ namespace CoastRun
             var main = _coinBurstPrefab.main;
             main.loop = false;
             main.playOnAwake = false;
-            main.startLifetime = 0.4f;
-            main.startSpeed = new ParticleSystem.MinMaxCurve(2f, 5f);
-            main.startSize = new ParticleSystem.MinMaxCurve(0.06f, 0.14f);
-            main.startColor = CoastPalette.CoinYellow;
-            main.gravityModifier = 0.8f;
+            // 14차-5: 더 크고 빠르게, 별 모양으로 — '팍' 터지는 느낌.
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.6f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(3f, 7.5f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.14f, 0.34f);
+            main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
+            main.startColor = CoastPalette.CoinYellow * 1.5f;
+            main.gravityModifier = 1.1f;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.maxParticles = 20;
+            main.maxParticles = 40;
             main.useUnscaledTime = true;
 
             var emission = _coinBurstPrefab.emission;
@@ -666,6 +756,16 @@ namespace CoastRun
             // ParticleSystemRenderer hands the curved shader vertices it does not expect
             // and the burst smeared as screen-sized yellow blobs (even into the letterbox).
             renderer.material = CoastMaterials.CreateParticle(CoastPalette.CoinYellow);
+            if (renderer.material.HasProperty("_BaseMap")) renderer.material.SetTexture("_BaseMap", SparkleTexture());
+            var sol = _coinBurstPrefab.sizeOverLifetime;
+            sol.enabled = true;
+            sol.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(new Keyframe(0f, 0.4f), new Keyframe(0.15f, 1f), new Keyframe(1f, 0f)));
+            var col = _coinBurstPrefab.colorOverLifetime;
+            col.enabled = true;
+            var g = new Gradient();
+            g.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                      new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.6f), new GradientAlphaKey(0f, 1f) });
+            col.color = g;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
 

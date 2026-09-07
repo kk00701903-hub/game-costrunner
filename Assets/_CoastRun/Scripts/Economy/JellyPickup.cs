@@ -344,7 +344,13 @@ namespace CoastRun
             if (_visualRoot != null)
                 _visualRoot.SetParent(null, true);
             if (juice != null)
-                juice.PlayCoinCollect(_visualRoot, pos, _kind == PickupKind.Jelly ? 0 : 1);
+            {
+                Color tint = _kind == PickupKind.Heart ? new Color(1f, 0.35f, 0.5f)
+                           : _kind == PickupKind.Potion ? new Color(0.45f, 0.8f, 1f)
+                           : _kind == PickupKind.BonusStar ? new Color(1f, 0.9f, 0.3f)
+                           : new Color(0.6f, 1f, 0.5f);
+                juice.PlayCoinCollect(_visualRoot, pos, _kind == PickupKind.Jelly ? 0 : 2, tint);
+            }
             else if (_visualRoot != null)
                 Destroy(_visualRoot.gameObject);
             Destroy(gameObject);

@@ -91,14 +91,15 @@ namespace CoastRun
             string paintedKey = silver ? "Coin_Silver" : "Coin_Gold";
             if (PaintedProp.Available(paintedKey))
             {
-                coin._painted = PaintedProp.Attach(visRoot, paintedKey, 0.62f, replace: false, groundLift: -0.11f);
+                // 14차-5: 더 크게(0.8 m) + 흰 테두리 — 돌길 위에서 금색이 또렷하게 떨어져 보이게.
+                coin._painted = PaintedProp.Attach(visRoot, paintedKey, 0.8f, replace: false, groundLift: -0.15f, outline: true);
                 if (coin._painted != null) coin._paintedScale = coin._painted.localScale;
                 var pcol = go.AddComponent<SphereCollider>();
                 pcol.isTrigger = true;
                 pcol.radius = 0.5f;
                 pcol.center = new Vector3(0f, 0.2f, 0f);
                 BlobShadow.Attach(go.transform, 0.45f);
-                PickupGlow.Attach(go.transform, silver ? new Color(0.8f, 0.92f, 1f) : new Color(1f, 0.8f, 0.25f), 0.7f, 0.14f);
+                PickupGlow.Attach(go.transform, silver ? new Color(0.8f, 0.92f, 1f) : new Color(1f, 0.75f, 0.2f), 1.0f, 0.22f);
                 coin._bobPhase = Random.value * Mathf.PI * 2f;
                 return coin;
             }
