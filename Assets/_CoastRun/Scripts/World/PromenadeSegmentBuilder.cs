@@ -73,11 +73,16 @@ namespace CoastRun
 
             // Lane guides sit on the lane *boundaries* (lanes are 2.2 m apart), so on a
             // curve the player still reads three lanes at a glance.
+            // 14차: 노란 점선 — 3레인이 한눈에 보이고, 점선이 흘러가며 속도를 알려 준다(서브웨이 서퍼의 레일).
+            _laneDashMat ??= CoastMaterials.CreateUnlit(() => new Color(1f, 0.86f, 0.32f, 1f));
             for (int side = -1; side <= 1; side += 2)
             {
-                CreateBox(root, "LaneGuide", new Vector3(side * 1.1f, 0.005f, Length * 0.5f),
-                    new Vector3(0.09f, 0.012f, Length),
-                    () => Color.Lerp(CoastPalette.Road, CoastPalette.RoadGrey, 0.45f));
+                for (float z = 0.6f; z < Length; z += 2.4f)
+                {
+                    var dash = CreateBox(root, "LaneDash", new Vector3(side * 1.1f, 0.006f, z + 0.6f),
+                        new Vector3(0.13f, 0.012f, 1.2f), null, _laneDashMat);
+                    dash.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                }
             }
 
             // Terracotta curbs and a warm sidewalk on the town side.
@@ -334,6 +339,7 @@ namespace CoastRun
             return _facadeMats[variant];
         }
 
+        private static Material _laneDashMat;
         private static Material[] _plainWallMats;
         private static readonly int BaseMapStId = Shader.PropertyToID("_BaseMap_ST");
 

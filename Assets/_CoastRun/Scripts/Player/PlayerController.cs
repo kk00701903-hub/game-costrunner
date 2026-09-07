@@ -56,7 +56,7 @@ namespace CoastRun
         /// 레인 이동 속도(m/s, +우). 리그가 몸을 기울이는 데 쓴다.
         public float LateralVelocity { get; private set; }
         /// 레인 이동 시간 배율 (config.laneChangeSeconds × 이 값). 0.15s 기본에 2.0 → 0.30s.
-        public const float LaneEaseScale = 2.0f;
+        public const float LaneEaseScale = 1.2f;   // 14차: 0.30s → 0.18s — 스와이프에 '착' 붙는 스냅
 
         private CapsuleCollider _bodyCollider;
 
