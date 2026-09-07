@@ -10,6 +10,34 @@ namespace CoastRun
 
         private void Start()
         {
+            // 14차-3: 스킨드 메시(Mixamo 리그)는 셸을 트랜스폼으로 키울 수 없다 — 노멀 방향으로
+            // 정점을 미는 잉크 셰이더를 추가 머티리얼 슬롯으로 붙인다(서브메시가 1개면 같은 메시를
+            // 남은 머티리얼로 한 번 더 그린다).
+            var skinned = GetComponent<SkinnedMeshRenderer>();
+            if (skinned != null)
+            {
+                var inkShader = Shader.Find("CoastRun/InkOutline");
+                if (inkShader == null) return;
+                if (skinned.sharedMesh == null) return;
+                var inkMat = new Material(inkShader);
+                inkMat.SetColor("_OutlineColor", Color.Lerp(CoastPalette.ShadowCool, Color.black, 0.6f));
+                inkMat.SetFloat("_Width", 0.012f);
+                var shell = new GameObject("Outline");
+                shell.transform.SetParent(transform, false);
+                var smr = shell.AddComponent<SkinnedMeshRenderer>();
+                smr.sharedMesh = skinned.sharedMesh;
+                smr.bones = skinned.bones;
+                smr.rootBone = skinned.rootBone;
+                smr.localBounds = skinned.localBounds;
+                var inks = new Material[Mathf.Max(1, skinned.sharedMesh.subMeshCount)];
+                for (int i = 0; i < inks.Length; i++) inks[i] = inkMat;
+                smr.sharedMaterials = inks;
+                smr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                smr.receiveShadows = false;
+                smr.updateWhenOffscreen = skinned.updateWhenOffscreen;
+                return;
+            }
+
             var filter = GetComponent<MeshFilter>();
             var renderer = GetComponent<MeshRenderer>();
             if (filter == null || renderer == null || filter.sharedMesh == null)

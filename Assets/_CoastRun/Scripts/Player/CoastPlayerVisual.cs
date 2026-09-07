@@ -41,6 +41,7 @@ namespace CoastRun
 
         // Lane lean — same sign as camera roll (opposite to lane motion). Character leads camera.
         private float _leanZ;
+        private float _hitStartTime = -1f;   // 14차-3: 피격 연출 타이머
         private float _leanTarget;
         private float _leanVel;
         private float _boardLeanZ;
@@ -508,6 +509,8 @@ namespace CoastRun
         {
             if (_player == null || _body == null)
                 return;
+            if (_player.State != SkateState.SoftHit)
+                _hitStartTime = -1f;
 
             switch (_player.State)
             {
@@ -525,11 +528,25 @@ namespace CoastRun
                         _board.localRotation = Quaternion.Euler(-6f, 0f, 0f);
                     break;
                 case SkateState.SoftHit:
-                    _body.localScale = _bodyBaseScale;
-                    _body.localPosition = _bodyBasePos;
-                    _body.localRotation = Quaternion.Euler(0f, 0f,
-                        Mathf.Sin(Time.time * 22f) * 6f);
+                {
+                    // 14차-3: 예전엔 좌우로 6도 떠는 게 전부라 '부딪힌' 느낌이 없었다.
+                    // Trip: 앞으로 확 고꾸라졌다가(28도) 서서히 일어나며 무릎이 꺾인다(스쿼시).
+                    // Bounce: 튕겨난 반대쪽으로 몸이 젖혀지며 살짝 돈다.
+                    if (_hitStartTime < 0f) _hitStartTime = Time.time;
+                    float el = Time.time - _hitStartTime;
+                    float tau = Mathf.Clamp01(el / 0.55f);
+                    float k = (1f - tau) * (1f - tau);                  // 빠르게 꺾이고 천천히 회복
+                    float wob = Mathf.Sin(el * 26f) * 4f * k;           // 잔떨림은 점점 사라진다
+                    bool bounce = _player.LastHitKind == HitKind.Bounce;
+                    float pitch = bounce ? -10f * k : 28f * k + wob;
+                    float roll = bounce ? -_player.LastBounceDir * 22f * k : wob * 0.5f;
+                    float yaw = bounce ? -_player.LastBounceDir * 30f * k : 0f;
+                    float squash = 1f - 0.12f * k;
+                    _body.localScale = new Vector3(_bodyBaseScale.x * (2f - squash), _bodyBaseScale.y * squash, _bodyBaseScale.z);
+                    _body.localPosition = _bodyBasePos + new Vector3(0f, -0.10f * k, 0.06f * k);
+                    _body.localRotation = Quaternion.Euler(pitch, yaw, roll);
                     break;
+                }
                 default:
                     _body.localScale = _bodyBaseScale;
                     _body.localPosition = _bodyBasePos;

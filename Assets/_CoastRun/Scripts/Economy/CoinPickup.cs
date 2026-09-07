@@ -21,6 +21,8 @@ namespace CoastRun
         private Vector3 _magnetStart;
         private float _magnetBend;
         private Transform _visualRoot;
+        private Transform _painted;        // 14차-3: 그림 코인 빌보드
+        private Vector3 _paintedScale;
 
         // 14차 최적화: 지나친 코인은 파괴하지 않고 풀에 넣었다가 다시 쓴다(금/은 따로).
         // 런 한 번에 코인 수백 개 — 프리미티브 3개 + 셰이더 머티리얼을 매번 만들면 GC 스파이크가 났다.
@@ -84,6 +86,23 @@ namespace CoastRun
             visRoot.SetParent(go.transform, false);
             coin._visualRoot = visRoot;
 
+            // 14차-3: Kling 코인 그림(별 엠블럼)이 있으면 또렷한 빌보드로. 프리미티브 원통 + HDR 색은
+            // 블룸에 먹혀 노란 얼룩으로 보였다. 회전은 빌보드 가로 스케일로 흉내 낸다.
+            string paintedKey = silver ? "Coin_Silver" : "Coin_Gold";
+            if (PaintedProp.Available(paintedKey))
+            {
+                coin._painted = PaintedProp.Attach(visRoot, paintedKey, 0.62f, replace: false, groundLift: -0.11f);
+                if (coin._painted != null) coin._paintedScale = coin._painted.localScale;
+                var pcol = go.AddComponent<SphereCollider>();
+                pcol.isTrigger = true;
+                pcol.radius = 0.5f;
+                pcol.center = new Vector3(0f, 0.2f, 0f);
+                BlobShadow.Attach(go.transform, 0.45f);
+                PickupGlow.Attach(go.transform, silver ? new Color(0.8f, 0.92f, 1f) : new Color(1f, 0.8f, 0.25f), 0.7f, 0.14f);
+                coin._bobPhase = Random.value * Mathf.PI * 2f;
+                return coin;
+            }
+
             var vis = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             vis.name = "Visual";
             vis.transform.SetParent(visRoot, false);
@@ -126,7 +145,13 @@ namespace CoastRun
                 return;
 
             _spin += Time.deltaTime * 180f;
-            if (_visualRoot != null)
+            if (_painted != null)
+            {
+                float w = Mathf.Max(0.18f, Mathf.Abs(Mathf.Cos(_spin * Mathf.Deg2Rad)));
+                _painted.localScale = new Vector3(_paintedScale.x * w, _paintedScale.y, _paintedScale.z);
+                _visualRoot.localPosition = new Vector3(0f, Mathf.Sin(Time.time * 3.2f + _bobPhase) * 0.07f, 0f);
+            }
+            else if (_visualRoot != null)
             {
                 _visualRoot.localRotation = Quaternion.Euler(0f, _spin, 0f);
                 _visualRoot.localPosition = new Vector3(0f, Mathf.Sin(Time.time * 3.2f + _bobPhase) * 0.07f, 0f);
