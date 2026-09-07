@@ -33,9 +33,9 @@ ModelImporter:
     clipAnimations:
     - serializedVersion: 16
       name: Run
-      takeName: Scene
+      takeName: mixamo.com
       internalID: -623603649343465320
-      firstFrame: 1
+      firstFrame: 0
       lastFrame: 21
       wrapMode: 0
       orientationOffsetY: 0
