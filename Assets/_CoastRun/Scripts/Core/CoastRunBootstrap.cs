@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 namespace CoastRun
@@ -126,9 +127,12 @@ namespace CoastRun
             light.color = CoastPalette.Sun;
             light.intensity = 1.55f;
             light.shadows = LightShadows.Soft;
-            light.shadowStrength = 0.88f;
-            light.shadowBias = 0.04f;
-            light.shadowNormalBias = 0.35f;
+            light.shadowStrength = 0.78f;
+            // 10차: 건물 벽면의 검은 얼룩 = 셀프 섀도 아크네(바이어스가 너무 작았다). URP 라이트 바이어스는 0~10 스케일.
+            light.shadowBias = 0.7f;
+            light.shadowNormalBias = 0.9f;
+            var addl = lightGo.GetComponent<UniversalAdditionalLightData>() ?? lightGo.AddComponent<UniversalAdditionalLightData>();
+            addl.usePipelineSettings = false;   // 위 바이어스를 실제로 쓰게(기본은 파이프라인 값)
             lightGo.transform.rotation = Quaternion.Euler(52f, -42f, 0f);
             CoastUrpShadows.Apply();
             EnsureRimLight(lightGo.transform.rotation);
@@ -238,6 +242,14 @@ namespace CoastRun
             cam.backgroundColor = CoastPalette.SkyTop;
             cam.nearClipPlane = 0.15f;
             cam.farClipPlane = 320f;
+            // 8차: 포스트프로세싱(블룸·비네트·컬러 그레이딩)은 카메라에서 켜야 돈다 — 지금까지 꺼져 있어 화면이 밋밋했다.
+            var camData = cam.GetUniversalAdditionalCameraData();
+            if (camData != null)
+            {
+                camData.renderPostProcessing = true;
+                camData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.FastApproximateAntialiasing;
+                camData.renderShadows = true;
+            }
 
             var ctrl = cam.GetComponent<CameraController>();
             if (ctrl == null)

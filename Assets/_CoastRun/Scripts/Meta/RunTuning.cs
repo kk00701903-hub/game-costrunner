@@ -20,6 +20,10 @@ namespace CoastRun
         public static bool BurnoutStart;            // 번아웃이면 시작 HP 70%
         public static PetKind Pet = PetKind.None;
         public static bool HasSeason;
+        /// 8차 노을 규칙: 해가 지기까지의 여유(파 타임 배율). 체력 ↑ → 노을이 늦게 진다.
+        public static float SunsetGrace = 1.25f;
+        /// 8차: 레인 이동 시간 배율. 순발력 ↑ → 옆으로 더 빨리.
+        public static float LaneMul = 1f;
         public static SeasonKind Season = SeasonKind.Summer;
 
         public static void Reset()
@@ -35,6 +39,8 @@ namespace CoastRun
             BurnoutStart = false;
             Pet = PetKind.None;
             HasSeason = false;
+            SunsetGrace = 1.25f;
+            LaneMul = 1f;
         }
 
         public static void Configure(SaveData s)
@@ -51,6 +57,8 @@ namespace CoastRun
             DashInvincible = 0.8f + 1.2f * agility01;               // 0.8 ~ 2.0 s
             HitFreezeMul = 1f - 0.5f * agility01;                   // 경직 최대 절반
             NearMissBonus = 1f + charm01;                           // 최대 ×2
+            SunsetGrace = 1.12f + 0.45f * stamina01;                // 1.12 ~ 1.57 (체력이 곧 노을까지의 시간)
+            LaneMul = 1f - 0.38f * agility01;                       // 순발력 100 → 레인 이동 38% 빠름
             BurnoutStart = st.Burnout;
             Pet = s.equippedPet;
             HasSeason = true;

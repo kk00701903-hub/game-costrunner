@@ -53,6 +53,10 @@ namespace CoastRun
         public event Action OnLanded;
         public event Action OnJumped;
         public event Action<int> OnLaneChanged;
+        /// 레인 이동 속도(m/s, +우). 리그가 몸을 기울이는 데 쓴다.
+        public float LateralVelocity { get; private set; }
+        /// 레인 이동 시간 배율 (config.laneChangeSeconds × 이 값). 0.15s 기본에 2.0 → 0.30s.
+        public const float LaneEaseScale = 2.0f;
 
         private CapsuleCollider _bodyCollider;
 
@@ -397,16 +401,22 @@ namespace CoastRun
             // Ease into the lane instead of sliding at constant speed. A constant-rate
             // MoveTowards reads as a conveyor belt; an ease-out reads as a body leaning.
             float laneTarget = _lane * config.laneOffset;
+            float prevLateral = _lateral;
             if (_laneT < 1f)
             {
-                _laneT = Mathf.Min(1f, _laneT + Time.deltaTime / Mathf.Max(0.05f, config.laneChangeSeconds));
-                float e = 1f - (1f - _laneT) * (1f - _laneT) * (1f - _laneT);   // ease-out cubic
+                // 7차: 부드럽게 — 시간을 늘리고(0.15→0.30s) ease-in-out(smootherstep)으로 출발·도착이 둘 다 완만하게.
+                // 이동 중 다시 스와이프하면 _laneFrom이 현재 위치라 꺾이지 않고 이어서 휜다.
+                float dur = Mathf.Max(0.12f, config.laneChangeSeconds * LaneEaseScale * RunTuning.LaneMul);
+                _laneT = Mathf.Min(1f, _laneT + Time.deltaTime / dur);
+                float t = _laneT;
+                float e = t * t * t * (t * (t * 6f - 15f) + 10f);   // smootherstep
                 _lateral = Mathf.Lerp(_laneFrom, laneTarget, e);
             }
             else
             {
                 _lateral = laneTarget;
             }
+            LateralVelocity = Time.deltaTime > 0f ? (_lateral - prevLateral) / Time.deltaTime : 0f;
 
             bool wasGrounded = _state != SkateState.Air;
             _verticalVelocity += config.gravity * Time.deltaTime;

@@ -26,6 +26,16 @@ namespace CoastRun
         private CutsceneKind _cutsceneKind = CutsceneKind.Prologue;
         private int _cutsceneChapter = 1;
         private bool _busy;
+        private float _busySince;
+        public bool IsBusy => _busy;
+        /// 11차: 워치독이 막힌 플로우를 강제로 푼다.
+        public void ForceIdle() { StopAllCoroutines(); _busy = false; _awaitingPrologueHandoff = false; _director?.UI?.SetLoader(false); }
+        /// 10차: 전환 코루틴이 예외 등으로 끝나지 못하면 _busy 가 영원히 true → 이후 모든 전환이 조용히 무시된다(컷씬만 나오고 런 진입 안 됨). 12초 넘게 바쁘면 풀어준다.
+        private bool BusyGuard()
+        {
+            if (_busy && Time.unscaledTime - _busySince > 12f) { Debug.LogWarning("[SceneFlow] busy for too long — releasing"); _busy = false; }
+            return _busy;
+        }
         private bool _awaitingPrologueHandoff;
 
         public FlowState State => _state;
@@ -61,10 +71,13 @@ namespace CoastRun
 
         private IEnumerator GoToRoutine(FlowState next, TransitionType transition)
         {
-            if (_busy && next != FlowState.StageClear)
+            if (BusyGuard() && next != FlowState.StageClear)
+            {
+                Debug.LogWarning($"[SceneFlow] GoTo({next}) ignored — busy ({_state})");
                 yield break;
+            }
 
-            _busy = true;
+            _busy = true; _busySince = Time.unscaledTime;
             var prev = _state;
 
             yield return PlayTransitionOut(transition, next);
@@ -187,9 +200,9 @@ namespace CoastRun
         /// Title → Run suspended → Cutscene additive → Timeline. P4 handoff has no fade/cut/lerp.
         private IEnumerator PlayPrologueSequence()
         {
-            if (_busy)
+            if (BusyGuard())
                 yield break;
-            _busy = true;
+            _busy = true; _busySince = Time.unscaledTime;
             var prev = _state;
 
             yield return PlayTransitionOut(TransitionType.Fade, FlowState.Cutscene);

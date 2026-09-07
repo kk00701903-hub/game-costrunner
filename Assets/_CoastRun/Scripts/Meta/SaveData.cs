@@ -90,6 +90,8 @@ namespace CoastRun
         public PlayerStats stats = new PlayerStats();
         public ChapterRecord[] chapters = new ChapterRecord[Timeline.Chapters];
         public int chapterHearts;            // 진행 중 챕터에서 지금까지 모은 하트
+        public int lateRuns;                 // 8차: 해가 진 뒤 도착한 횟수(누적) — 대본 [늦음>=N]
+        public bool lastRunLate;             // 8차: 직전 런이 늦었는지 — 대본 [늦음==1] 은 이걸 본다
         // v3
         public LifeRhythm rhythm = LifeRhythm.Normal;
         public int burnoutWeeks;             // 연속 번아웃 주 수 (1 지침 / 2 앓아눕기 / 3 잠수)

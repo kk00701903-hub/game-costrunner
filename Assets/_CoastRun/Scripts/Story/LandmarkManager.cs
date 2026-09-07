@@ -127,8 +127,8 @@ namespace CoastRun
             rt.anchoredPosition = pos;
             rt.sizeDelta = new Vector2(520f, 36f);
             var text = go.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.fontSize = size;
+            text.font = CoastHudLayout.Font();
+            text.fontSize = CoastHudLayout.Scaled(size);
             text.fontStyle = style;
             text.color = color;
             text.alignment = TextAnchor.MiddleCenter;

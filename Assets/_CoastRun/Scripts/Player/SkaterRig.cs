@@ -24,6 +24,7 @@ namespace CoastRun
         private static readonly int HashHitMirror = Animator.StringToHash("HitMirror");
         // Sideways knock: the whole rig tips away from the impact and eases back.
         private float _tilt, _tiltVel;
+        private float _lean, _leanVel, _yaw, _yawVel;
 
         private Animator _anim;
         private PlayerController _player;
@@ -243,7 +244,13 @@ namespace CoastRun
             _collectCooldown -= dt;
 
             _tilt = Mathf.SmoothDamp(_tilt, 0f, ref _tiltVel, 0.28f, 400f, dt);
-            transform.localRotation = Quaternion.Euler(0f, 0f, _tilt);
+            // 7차: 레인 이동 중 몸을 진행 방향으로 살짝 기울이고(roll) 고개를 돌린다(yaw) — 미끄러지듯 옆으로.
+            float lv = _player.LateralVelocity;
+            float leanTarget = Mathf.Clamp(-lv * 2.2f, -14f, 14f);
+            float yawTarget = Mathf.Clamp(lv * 3.0f, -18f, 18f);
+            _lean = Mathf.SmoothDamp(_lean, leanTarget, ref _leanVel, 0.10f, 800f, dt);
+            _yaw = Mathf.SmoothDamp(_yaw, yawTarget, ref _yawVel, 0.10f, 800f, dt);
+            transform.localRotation = Quaternion.Euler(0f, _yaw, _tilt + _lean);
 
             bool grounded = _player.State != SkateState.Air;
             _anim.SetBool(HashGrounded, grounded);

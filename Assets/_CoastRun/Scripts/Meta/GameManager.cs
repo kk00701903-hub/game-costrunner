@@ -27,6 +27,11 @@ namespace CoastRun
         /// 엔딩 씬이 읽는 분기. Resolve 시점에 채워진다.
         public EndingKind PendingEnding { get; private set; } = EndingKind.None;
         public bool OpenTimelineOnRaising { get; set; }
+        /// 10차: 챕터 선택에서 '다시 달리기' — 재도전 육성 화면이 뜨자마자 런으로 넘어간다.
+        public bool RetryRunPending { get; set; }
+        public bool FlowBusy => Flow != null && Flow.IsBusy;
+        public bool LastRunLate { get; private set; }
+        public bool LastRunEarly { get; private set; }
         /// 마지막 챕터 정산 결과(StageClearUI 표시용).
         public ChapterGrade LastGrade { get; private set; } = ChapterGrade.None;
         public bool LastImproved { get; private set; }
@@ -175,20 +180,54 @@ namespace CoastRun
             if (Save == null) return;
             SetPhase(GamePhase.Run);
             RunTuning.Configure(Save);
-            WriteMain();
             // v5 컷씬: 회차 첫 돌입이면 프롤로그(VN) → 챕터 오프닝(VN) → 런. 재도전은 컷씬 생략.
             bool prologue = Save.chapter == 1 && !Save.prologueSeen && !IsRetry;
-            Save.prologueSeen = true;
+            Save.prologueSeen = true;   // 9차: 저장 전에 찍어야 런 실패 후 돌아와도 프롤로그가 다시 안 나온다
+            WriteMain();
             int chapter = Save.chapter;
             if (IsRetry)
             {
                 Flow?.StartStoryRun(chapter, false);
+                StartCoroutine(RunLaunchWatchdog(chapter));
                 return;
             }
-            System.Action launch = () => Flow?.StartStoryRun(chapter, false);
+            System.Action launch = () =>
+            {
+                Debug.Log($"[GameManager] launch run CH{chapter} (flow={(Flow != null)}, busy={FlowBusy})");
+                Flow?.StartStoryRun(chapter, false);
+                StartCoroutine(RunLaunchWatchdog(chapter));
+            };
             System.Action opening = () => ChapterVN.PlayChapterOpening(chapter, launch);
             if (prologue) ChapterVN.Play("PRO", opening);
             else opening();
+        }
+
+        /// 11차: 실기기에서 오프닝 뒤 런으로 못 넘어가는 보고 → 자가 복구. 8초 안에 02_Run 이 활성 씬이 안 되면
+        /// 플로우를 풀고 한 번 더, 그래도 안 되면 씬을 직접 연다. (에디터에선 정상 경로가 3초 안에 끝난다)
+        private System.Collections.IEnumerator RunLaunchWatchdog(int chapter)
+        {
+            string run = SceneFlowController.ResolveRunScene();
+            float t = 0f;
+            while (t < 8f)
+            {
+                t += Time.unscaledDeltaTime;
+                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == run || Phase != GamePhase.Run) yield break;
+                yield return null;
+            }
+            Debug.LogWarning("[GameManager] run scene not active after 8s — retrying via flow");
+            Flow?.ForceIdle();
+            Flow?.StartStoryRun(chapter, false);
+            t = 0f;
+            while (t < 8f)
+            {
+                t += Time.unscaledDeltaTime;
+                if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == run || Phase != GamePhase.Run) yield break;
+                yield return null;
+            }
+            Debug.LogWarning("[GameManager] still stuck — loading run scene directly");
+            Time.timeScale = 1f; AudioListener.pause = false;
+            Flow?.ForceIdle();
+            UnityEngine.SceneManagement.SceneManager.LoadScene(run, UnityEngine.SceneManagement.LoadSceneMode.Single);
         }
 
         /// 챕터 선택 '다시 보기': 오프닝 컷씬만 재생(진행 영향 없음).
@@ -205,6 +244,13 @@ namespace CoastRun
         {
             if (Save == null) return;
             LastRunHearts = stats != null ? stats.Hearts : 0;
+            // 8차 노을 규칙: 해가 진 뒤 도착 = 하트 40% 감소, 여유 있게 도착(노을 30% 이상 남음) = +10%
+            LastRunLate = StageManager.LastRunLate;
+            LastRunEarly = !LastRunLate && StageManager.LastRunSunsetT < 0.7f;
+            if (LastRunLate) LastRunHearts = Mathf.RoundToInt(LastRunHearts * 0.6f);
+            else if (LastRunEarly) LastRunHearts = Mathf.RoundToInt(LastRunHearts * 1.1f);
+            Save.lateRuns += LastRunLate ? 1 : 0;
+            Save.lastRunLate = LastRunLate;
             Save.chapterHearts += LastRunHearts;
             Save.stats.money += stats != null ? stats.CoinValue + stats.NearMissValue : 0;
             Save.stats.Clamp();

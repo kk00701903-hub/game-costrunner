@@ -65,6 +65,8 @@ namespace CoastRun
                 case "돈": case "money": return st?.money ?? 999;
                 case "하트": case "hearts": return s?.chapterHearts ?? 999;
                 case "회차": case "playthrough": case "ng": return s?.playthrough ?? 1;
+                case "늦음": case "late": return s != null ? (s.lastRunLate ? 1 : 0) : 0;
+                case "늦은날": case "laterun": case "lateruns": return s?.lateRuns ?? 0;
                 case "루아": case "rua": return Affinity.Get(s, Affinity.Rua);
                 case "만수": case "mansu": return Affinity.Get(s, Affinity.Mansu);
                 case "할머니": case "grandma": return Affinity.Get(s, Affinity.Grandma);

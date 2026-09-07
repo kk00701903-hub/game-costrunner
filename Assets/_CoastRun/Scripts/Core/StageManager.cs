@@ -165,6 +165,7 @@ namespace CoastRun
 
             // Snap lighting to this stage's start — never earlier than that start for this load.
             environment?.ResetLightingTo(def.lightingTStart);
+            BeginSunsetClock();
 
             if (player != null && !player.enabled)
                 player.enabled = true;
@@ -194,6 +195,7 @@ namespace CoastRun
             _stageActive = true;
 
             environment?.ResetLightingTo(_current.lightingTStart);
+            BeginSunsetClock();
             OnStageStart?.Invoke(_current);
         }
 
@@ -219,15 +221,57 @@ namespace CoastRun
             LoadStage(next);
         }
 
+        // ── 8차 노을 규칙 ───────────────────────────────────────────
+        /// 해가 지기까지 걸리는 시간(초). 코스 거리/평균 속도 × RunTuning.SunsetGrace(체력).
+        public float SunsetSeconds { get; private set; } = 90f;
+        /// 0 = 해가 높다, 1 = 해가 졌다.
+        public float SunsetT { get; private set; }
+        /// 해가 진 뒤에도 아직 도착 못 함(늦음). 정산·컷씬 분기에 쓴다.
+        public bool SunsetLate { get; private set; }
+        /// 마지막으로 끝난 스테이지가 늦었는지(정산용, 씬을 넘어도 유지).
+        public static bool LastRunLate;
+        public static float LastRunSunsetT;
+        const float SunsetLightT = 0.90f;   // 이 t에서 해가 수평선에 닿는다
+
+        void BeginSunsetClock()
+        {
+            float avgSpeed = 15.5f * Mathf.Max(0.8f, RunTuning.SpeedMul);
+            float par = _current != null ? _current.targetDistance / avgSpeed : 60f;
+            SunsetSeconds = Mathf.Max(20f, par * RunTuning.SunsetGrace);
+            SunsetT = 0f; SunsetLate = false;
+        }
+
         private void Update()
         {
             if (!_stageActive || _awaitingContinue || _current == null || player == null)
                 return;
 
             _stageElapsed += Time.deltaTime;
+#if UNITY_EDITOR
+            // 에디터 검증용: Home = 노을 5초 전으로, End = 스테이지 즉시 클리어(정산 화면 확인). (F키는 에디터 단축키와 겹친다)
+            if (Input.GetKeyDown(KeyCode.Home) && !ArcadeRun.Active) _stageElapsed = Mathf.Max(_stageElapsed, SunsetSeconds - 5f);
+            if (Input.GetKeyDown(KeyCode.End) && !ArcadeRun.Active) { ClearCurrent(); return; }
+#endif
 
             float u = StageProgress01;
-            float t = Mathf.Lerp(_current.lightingTStart, _current.lightingTEnd, u);
+            float t;
+            if (ArcadeRun.Active)
+            {
+                t = Mathf.Lerp(_current.lightingTStart, _current.lightingTEnd, u);
+            }
+            else
+            {
+                // 노을 규칙: 조명은 거리가 아니라 '시간'으로 저문다. 늦으면 해가 진 뒤(블루아워)까지 간다.
+                SunsetT = Mathf.Clamp01(_stageElapsed / SunsetSeconds);
+                float sun = Mathf.SmoothStep(0f, 1f, SunsetT);
+                t = Mathf.Lerp(_current.lightingTStart, SunsetLightT, sun);
+                if (_stageElapsed > SunsetSeconds)
+                {
+                    if (!SunsetLate) { SunsetLate = true; RunHudChrome.Instance?.OnSunsetPassed(); }
+                    t = Mathf.Lerp(SunsetLightT, 1f, Mathf.Clamp01((_stageElapsed - SunsetSeconds) / 18f));
+                }
+                RunHudChrome.Instance?.SetSunset(SunsetT, SunsetLate);
+            }
             // Monotonic within the stage; retry uses ResetLightingTo instead.
             environment?.SetTime(t);
 
@@ -256,9 +300,12 @@ namespace CoastRun
 
             _stageActive = false;
             _awaitingContinue = true;
+            LastRunLate = SunsetLate;
+            LastRunSunsetT = SunsetT;
 
-            // Lock lighting at stage end (do not dip).
-            environment?.SetTime(_current.lightingTEnd);
+            // Lock lighting where the sun is now (노을 규칙: 도착 시각이 곧 하늘색).
+            if (!ArcadeRun.Active) environment?.SetTime(Mathf.Lerp(_current.lightingTStart, SunsetLightT, Mathf.SmoothStep(0f, 1f, SunsetT)));
+            else environment?.SetTime(_current.lightingTEnd);
 
             var cleared = _current;
             bool chapterEnd = IsLastStageOfChapter(cleared);
