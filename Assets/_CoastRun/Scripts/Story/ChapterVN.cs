@@ -13,6 +13,9 @@ namespace CoastRun
         public static bool IsPlaying { get; private set; }
         private static ChapterVN _active;
 
+        /// 씬이 끝난 뒤 다른 씬(러너)으로 넘어가는 경우 — 넘어가는 동안 육성 화면이 비치지 않게 검정을 붙잡아 둔다.
+        public static bool HoldBlackOnNext;
+
         public static void Play(string sceneId, Action onDone, string titleCard = null)
         {
             if (!ChapterScript.Has(sceneId))
@@ -31,6 +34,7 @@ namespace CoastRun
         public static void PlayChapterOpening(int chapter, Action onDone)
         {
             string title = chapter >= 1 ? $"CHAPTER {chapter}\n「{ChapterScript.Title(chapter)}」\n<size=18>{ChapterLocation.Get(chapter).Name}</size>" : null;
+            HoldBlackOnNext = true;   // 오프닝 뒤에는 런 씬으로 넘어간다
             Play(ChapterScript.OpenId(chapter), onDone, title);
         }
 
@@ -51,6 +55,8 @@ namespace CoastRun
         private Image _cg;
         private Image _standL, _standR;
         private RectTransform _artArea;
+        private RectTransform _fxLayer;   // 8차: 계절 파티클(꽃잎·반딧불·낙엽·눈)
+        private float _kenT;               // 8차: 켄번즈(느린 줌)
         private Image _box;
         private Text _nameTag;
         private Image _namePlate;
@@ -76,6 +82,86 @@ namespace CoastRun
             PlayerPrefs.SetInt("CoastRun_VN_" + sceneId, 1);
             BuildUi();
             StartCoroutine(Run());
+            StartCoroutine(Ambient());
+        }
+
+        // ── 8차: 감정 연출 — 켄번즈 + 계절 파티클 ─────────────────────────
+        enum FxKind { None, Petal, Firefly, Leaf, Snow }
+        FxKind FxFor(string id)
+        {
+            if (string.IsNullOrEmpty(id) || id == "PRO") return FxKind.None;
+            if (id.StartsWith("END_B")) return FxKind.Snow;
+            if (id.StartsWith("END_TRUE") || id.StartsWith("END_A")) return FxKind.Petal;
+            var m = System.Text.RegularExpressions.Regex.Match(id, @"CH(\d+)");
+            if (m.Success)
+            {
+                int ch = int.Parse(m.Groups[1].Value);
+                if (ch <= 5) return FxKind.Petal;
+                if (ch <= 10) return FxKind.Firefly;
+                if (ch <= 15) return FxKind.Leaf;
+                return FxKind.Snow;
+            }
+            if (id.StartsWith("SIDE_")) return FxKind.Firefly;
+            return FxKind.None;
+        }
+
+        IEnumerator Ambient()
+        {
+            var kind = FxFor(_sceneId);
+            var sprite = CoastUiArt.RoundedRect(6);
+            var pool = new System.Collections.Generic.List<(RectTransform rt, Image img, float vx, float vy, float phase, float life)>();
+            int max = kind == FxKind.Snow ? 46 : kind == FxKind.Firefly ? 22 : kind == FxKind.None ? 0 : 26;
+            float w = 760f, h = 1340f;
+            while (true)
+            {
+                float dt = Time.unscaledDeltaTime;
+                // 켄번즈: 12초 주기로 1.00 ↔ 1.06 — 그림이 숨을 쉰다
+                _kenT += dt / 12f;
+                float k = 1f + 0.06f * (0.5f - 0.5f * Mathf.Cos(_kenT * Mathf.PI));
+                if (_bg != null) _bg.rectTransform.localScale = new Vector3(k, k, 1f);
+                if (_cg != null) _cg.rectTransform.localScale = new Vector3(k, k, 1f);
+
+                if (kind != FxKind.None && _fxLayer != null)
+                {
+                    if (pool.Count < max && UnityEngine.Random.value < 0.35f)
+                    {
+                        var go = new GameObject("p", typeof(RectTransform), typeof(Image));
+                        go.transform.SetParent(_fxLayer, false);
+                        var rt = go.GetComponent<RectTransform>(); var img = go.GetComponent<Image>();
+                        img.sprite = sprite; img.type = Image.Type.Sliced; img.raycastTarget = false;
+                        float size, vx, vy; Color c;
+                        switch (kind)
+                        {
+                            case FxKind.Petal: size = UnityEngine.Random.Range(7f, 13f); c = new Color(1f, 0.92f, 0.45f, 0.85f); vx = UnityEngine.Random.Range(-30f, 50f); vy = UnityEngine.Random.Range(-70f, -35f); break;
+                            case FxKind.Firefly: size = UnityEngine.Random.Range(4f, 8f); c = new Color(1f, 0.85f, 0.45f, 0.9f); vx = UnityEngine.Random.Range(-20f, 20f); vy = UnityEngine.Random.Range(12f, 40f); break;
+                            case FxKind.Leaf: size = UnityEngine.Random.Range(9f, 15f); c = new Color(0.95f, 0.55f, 0.25f, 0.9f); vx = UnityEngine.Random.Range(-60f, 30f); vy = UnityEngine.Random.Range(-90f, -50f); break;
+                            default: size = UnityEngine.Random.Range(5f, 10f); c = new Color(1f, 1f, 1f, 0.9f); vx = UnityEngine.Random.Range(-15f, 15f); vy = UnityEngine.Random.Range(-60f, -30f); break;
+                        }
+                        rt.sizeDelta = new Vector2(size, kind == FxKind.Petal ? size * 0.6f : size);
+                        img.color = c;
+                        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+                        rt.anchoredPosition = new Vector2(UnityEngine.Random.Range(-w * 0.5f, w * 0.5f), kind == FxKind.Firefly ? UnityEngine.Random.Range(-h * 0.5f, 0f) : h * 0.5f + 20f);
+                        rt.localRotation = Quaternion.Euler(0f, 0f, UnityEngine.Random.Range(0f, 360f));
+                        pool.Add((rt, img, vx, vy, UnityEngine.Random.Range(0f, 6.28f), 0f));
+                    }
+                    for (int i = pool.Count - 1; i >= 0; i--)
+                    {
+                        var p2 = pool[i];
+                        if (p2.rt == null) { pool.RemoveAt(i); continue; }
+                        float life = p2.life + dt;
+                        var pos = p2.rt.anchoredPosition;
+                        pos.x += (p2.vx + Mathf.Sin(life * 1.7f + p2.phase) * 22f) * dt;
+                        pos.y += p2.vy * dt;
+                        p2.rt.anchoredPosition = pos;
+                        if (kind == FxKind.Leaf || kind == FxKind.Petal) p2.rt.localRotation = Quaternion.Euler(0f, 0f, life * 90f + p2.phase * 40f);
+                        if (kind == FxKind.Firefly) { var c2 = p2.img.color; c2.a = 0.35f + 0.55f * (0.5f + 0.5f * Mathf.Sin(life * 3f + p2.phase)); p2.img.color = c2; }
+                        bool dead = pos.y < -h * 0.5f - 30f || pos.y > h * 0.5f + 30f || Mathf.Abs(pos.x) > w * 0.5f + 40f || life > 14f;
+                        if (dead) { UnityEngine.Object.Destroy(p2.rt.gameObject); pool.RemoveAt(i); }
+                        else pool[i] = (p2.rt, p2.img, p2.vx, p2.vy, p2.phase, life);
+                    }
+                }
+                yield return null;
+            }
         }
 
         private void BuildUi()
@@ -108,6 +194,10 @@ namespace CoastRun
             _standR = MakeStanding(_artArea, "StandR", 0.75f);
             _cg = MakeCover(_artArea, "CG");
             _cg.gameObject.SetActive(false);
+            var fxGo = new GameObject("Fx", typeof(RectTransform));
+            fxGo.transform.SetParent(_artArea, false);
+            _fxLayer = fxGo.GetComponent<RectTransform>();
+            _fxLayer.anchorMin = Vector2.zero; _fxLayer.anchorMax = Vector2.one; _fxLayer.offsetMin = Vector2.zero; _fxLayer.offsetMax = Vector2.zero;
 
             // 텍스트박스 — 프린세스 메이커식: 그림 위에 반투명 창. 기본은 아래, 씬이 '위'를 요구하면 위로(인물을 가리지 않게).
             _box = CoastUiArt.Panel(root, "TextBox", new Color(0.05f, 0.04f, 0.07f, 0.66f), 22);
@@ -122,10 +212,10 @@ namespace CoastRun
             inner.color = new Color(0.05f, 0.04f, 0.07f, 0.72f);
             _box.color = new Color(0f, 0f, 0f, 0f);
             _body = CoastOrnate.Label(_box.transform, "Body", "", 24, CoastOrnate.Ivory, TextAnchor.UpperLeft);
-            CoastOrnate.Stretch(_body.rectTransform, 28f, 22f, -28f, -46f);
+            CoastOrnate.Stretch(_body.rectTransform, 28f, 26f, -28f, -50f);
             _body.horizontalOverflow = HorizontalWrapMode.Wrap;
             _body.verticalOverflow = VerticalWrapMode.Truncate;
-            _body.lineSpacing = 1.25f;
+            _body.lineSpacing = 1.3f;
             CoastUiArt.OutlineText(_body, new Color(0f, 0f, 0f, 0.55f), 1f);
 
             _namePlate = CoastUiArt.Panel(_box.transform, "NamePlate", CoastOrnate.WoodDark, 12);
@@ -133,9 +223,9 @@ namespace CoastRun
             nrt.anchorMin = nrt.anchorMax = new Vector2(0f, 1f);
             nrt.pivot = new Vector2(0f, 0.5f);
             nrt.anchoredPosition = new Vector2(22f, 0f);
-            nrt.sizeDelta = new Vector2(150f, 44f);
+            nrt.sizeDelta = new Vector2(176f, 50f);
             _namePlate.raycastTarget = false;
-            _nameTag = CoastOrnate.Label(_namePlate.transform, "Name", "", 22, CoastOrnate.GoldLight);
+            _nameTag = CoastOrnate.Label(_namePlate.transform, "Name", "", 24, CoastOrnate.GoldLight);
             CoastUiArt.OutlineText(_nameTag, new Color(0f, 0f, 0f, 0.4f), 1.2f);
 
             _cursor = CoastOrnate.Label(_box.transform, "Cursor", "▼", 20, CoastOrnate.GoldLight);
@@ -175,8 +265,8 @@ namespace CoastRun
         {
             var rt = _box.rectTransform;
             // 위: SKIP 버튼(우상단 44px) 아래부터. 아래: 홈 제스처 영역 위.
-            if (top) { rt.anchorMin = new Vector2(0f, 0.715f); rt.anchorMax = new Vector2(1f, 0.935f); }
-            else { rt.anchorMin = new Vector2(0f, 0.03f); rt.anchorMax = new Vector2(1f, 0.25f); }
+            if (top) { rt.anchorMin = new Vector2(0f, 0.65f); rt.anchorMax = new Vector2(1f, 0.935f); }
+            else { rt.anchorMin = new Vector2(0f, 0.03f); rt.anchorMax = new Vector2(1f, 0.315f); }
             rt.offsetMin = new Vector2(12f, 0f);
             rt.offsetMax = new Vector2(-12f, 0f);
             if (_namePlate != null)
@@ -441,7 +531,7 @@ namespace CoastRun
             _body.fontStyle = hasName ? FontStyle.Normal : FontStyle.Italic;
             _body.color = hasName ? CoastOrnate.Ivory : new Color(0.93f, 0.90f, 0.84f, 0.92f);
             _body.alignment = letter ? TextAnchor.MiddleCenter : TextAnchor.UpperLeft;
-            _body.fontSize = letter ? 28 : (hasName ? 25 : 23);
+            _body.fontSize = letter ? 38 : (hasName ? 34 : 32);   // 11차: 갤럭시 S 기준 가독성 — 창도 같이 키움(PlaceBox)
             _cursor.gameObject.SetActive(false);
         }
 
@@ -487,10 +577,45 @@ namespace CoastRun
             IsPlaying = false;
             var cb = _onDone;
             _onDone = null;
+            if (HoldBlackOnNext && _canvas != null)
+            {
+                // 8차: 캔버스를 바로 지우지 않고 검정만 남겨 씬이 바뀔 때까지 붙잡는다(육성 화면 재노출 방지).
+                HoldBlackOnNext = false;
+                var hold = _canvas.gameObject.AddComponent<VnBlackHold>();
+                hold.fader = _fader;
+                _canvas = null;
+            }
             if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject);
             if (_active == this) _active = null;
             UnityEngine.Object.Destroy(gameObject);
             cb?.Invoke();
+        }
+    }
+
+    /// 씬 전환이 끝날 때까지 검정을 유지했다가 걷는다.
+    public class VnBlackHold : MonoBehaviour
+    {
+        public Image fader;
+        IEnumerator Start()
+        {
+            foreach (var g in GetComponentsInChildren<Graphic>(true))
+                if (g.name != "Black" && g.name != "Fader") g.enabled = false;
+            if (fader != null) fader.color = Color.black;
+            var from = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            float t = 0f;
+            while (t < 4f && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == from) { t += Time.unscaledDeltaTime; yield return null; }
+            yield return new WaitForSecondsRealtime(0.25f);
+            var imgs = new System.Collections.Generic.List<Image>();
+            foreach (var im in GetComponentsInChildren<Image>(true)) if (im.enabled) imgs.Add(im);
+            float f = 0f;
+            while (f < 0.45f)
+            {
+                f += Time.unscaledDeltaTime;
+                float a = 1f - Mathf.Clamp01(f / 0.45f);
+                foreach (var im in imgs) { var c = im.color; c.a = a; im.color = c; }
+                yield return null;
+            }
+            Destroy(gameObject);
         }
     }
 }

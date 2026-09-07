@@ -14,11 +14,15 @@ namespace CoastRun
         public const string SeenKey = "CoastRun_OpeningSeen";
         public static bool IsPlaying { get; private set; }
 
+        // 11차: 6컷 (스틸 3 + 컷씬 CG 3). 영상(open_N.mp4)이 있으면 그 길이만큼(10초), 없으면 dur 초 켄번즈.
         private static readonly (string tex, string caption, float dur, Vector2 from, Vector2 to)[] Shots =
         {
             ("Cut_Open_1", "열두 살 봄, 송전탑 아래서 처음 만났다.", 4.4f, new Vector2(1.08f, 0.02f), new Vector2(1.18f, -0.02f)),
             ("Cut_Open_2", "그 애는 늘 내 앞에 섰다.\n한 번도 이유를 말하지 않고.", 4.4f, new Vector2(1.16f, -0.02f), new Vector2(1.06f, 0.02f)),
             ("Cut_Open_3", "여섯 해 뒤, 그가 돌아왔다.\n딱 1년만.", 3.8f, new Vector2(1.05f, 0.0f), new Vector2(1.16f, 0.03f)),
+            ("Cut_CH01_Close", "노을이 지기 전에 송전탑까지 달리면\n들린다는 목소리가 있다.", 4.4f, new Vector2(1.14f, 0.0f), new Vector2(1.04f, 0.02f)),
+            ("Cut_CH06_Close", "그 여름, 우리는 같은 주파수를 찾았다.", 4.4f, new Vector2(1.06f, 0.02f), new Vector2(1.16f, -0.02f)),
+            ("Cut_END_A3", "열아홉 살, 마지막 1년의 이야기.", 4.4f, new Vector2(1.04f, 0.0f), new Vector2(1.14f, 0.0f)),
         };
 
         public static void Play(Action onDone)
@@ -39,6 +43,7 @@ namespace CoastRun
         private VideoPlayer _player;
         private RenderTexture _rt;
         private bool _skip;
+        private Button _skipBtn;
         private float _hold;
 
         private void Begin(Action onDone)
@@ -109,8 +114,8 @@ namespace CoastRun
             _fader = CoastHudLayout.MakeImage(root, "Fader", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), Color.black);
             _fader.raycastTarget = false;
 
-            var skip = CoastOrnate.Label(root, "SkipHint", "길게 누르면 건너뛰기", 16, new Color(1f, 1f, 1f, 0.55f));
-            var srt = skip.rectTransform; srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 0.025f); srt.sizeDelta = new Vector2(400f, 24f);
+            // 11차: 매 실행마다 나오므로 '건너뛰기' 버튼(우상단) — 길게 누르기도 그대로.
+            _skipBtn = CoastOrnate.MenuButton(root, "Skip", Loc.T("건너뛰기", "Skip"), new Vector2(1f, 1f), new Vector2(-70f, -40f), new Vector2(120f, 46f), () => _skip = true, CoastOrnate.WoodDark, 18);
 
             var music = new GameObject("OpeningMusic");
             music.transform.SetParent(transform, false);
@@ -166,12 +171,13 @@ namespace CoastRun
                 _fader.transform.SetAsLastSibling();
                 _caption.transform.parent.SetAsLastSibling();
                 _titleCg.transform.SetAsLastSibling();
+                if (_skipBtn != null) _skipBtn.transform.SetAsLastSibling();
                 _caption.text = "";
 
                 // 첫 컷은 암전에서 열고, 이후는 크로스페이드
                 float t = 0f;
                 bool isLast = i == Shots.Length - 1;
-                float dur = useVideo ? 5.0f : s.dur;
+                float dur = useVideo ? Mathf.Max(3f, (float)_player.length - 0.15f) : s.dur;
                 while (t < dur && !_skip)
                 {
                     t += Time.unscaledDeltaTime;
