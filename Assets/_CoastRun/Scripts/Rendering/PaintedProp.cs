@@ -40,7 +40,7 @@ namespace CoastRun
             var mat = new Material(shader);
             if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", tex); else mat.mainTexture = tex;
             // 하트처럼 분홍이 본체인 스프라이트는 핑크 에지 제거를 끈다(키 거리만으로 자른다).
-            if (mat.HasProperty("_PinkKill") && key == "Heart") mat.SetFloat("_PinkKill", 0f);
+            // 14차-3: 하트도 Kling 빨간 하트로 바뀌어 핑크 에지 제거를 그대로 둔다(예전 분홍 하트 예외 삭제).
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
             if (mat.HasProperty("_KeyColor")) mat.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
             // 14차: 장애물은 흰 테두리 — 그림 크기에 맞춰 두께를 잡는다(1024px 기준 5텍셀 ≈ 화면에서 2px).

@@ -73,6 +73,14 @@ namespace CoastRun
         /// While true obstacle hits are ignored (Bonus Time). Hazards still fire
         /// OnSoftHit-free feedback through JuiceDirector if they want to.
         public bool Invincible { get; set; }
+
+        /// 에디터 디버그(Coast Run/Debug/God mode): 피격 무시. PlayerPrefs에 남는다.
+        public const string DebugGodKey = "CoastRun.Debug.God";
+        public static bool DebugGod
+        {
+            get => PlayerPrefs.GetInt(DebugGodKey, 0) != 0;
+            set { PlayerPrefs.SetInt(DebugGodKey, value ? 1 : 0); PlayerPrefs.Save(); }
+        }
         public float NormalizedSpeed
         {
             get
@@ -148,6 +156,7 @@ namespace CoastRun
             _speed = config.baseSpeed;
             _bodyHeight = config.standHeight;
             _groundY = 0f;
+            if (DebugGod) Invincible = true;
             _hop = _bodyHeight * 0.5f;
             SnapToPath();
         }
@@ -325,6 +334,23 @@ namespace CoastRun
             }
 
             _verticalVelocity = config.jumpForce;
+            _state = SkateState.Air;
+            _coyoteTimer = 0f;
+            OnJumped?.Invoke();
+        }
+
+        /// 14차-3: 점프 패드 — 입력 없이 큰 점프. 웅크린 중이면 일으켜 세우고, 피격 상태는 풀어 준다.
+        public void LaunchFromPad(float velocityMul)
+        {
+            if (_state == SkateState.Finish)
+                return;
+            if (_state == SkateState.Crouch)
+            {
+                _bodyHeight = config.standHeight;
+                _crouchTimer = 0f;
+            }
+            _softHitTimer = 0f;
+            _verticalVelocity = Mathf.Max(_verticalVelocity, config.jumpForce * velocityMul);
             _state = SkateState.Air;
             _coyoteTimer = 0f;
             OnJumped?.Invoke();

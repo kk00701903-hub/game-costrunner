@@ -102,11 +102,18 @@ namespace CoastRun
             return p;
         }
 
+        private static readonly string[] JellyKeys = { "Jelly_Strawberry", "Jelly_Soda", "Jelly_Lemon", "Jelly_Lime", "Jelly_Grape" };
+
         private static void BuildJelly(Transform root, int colorIndex, float size, bool rainbow)
         {
-            Color c = colorIndex >= 0
-                ? JellyColors[colorIndex % JellyColors.Length]
-                : JellyColors[Random.Range(0, JellyColors.Length)];
+            int ci = colorIndex >= 0 ? colorIndex % JellyColors.Length : Random.Range(0, JellyColors.Length);
+            // 14차-3: Kling 젤리(얼굴 있는 슬라임)를 색상별로 돌려 쓴다 — 캡슐 덩어리는 노란 상자처럼 보였다.
+            if (PaintedProp.Available(JellyKeys[ci]))
+            {
+                var q = PaintedProp.Attach(root, JellyKeys[ci], size * 1.7f, replace: false, groundLift: 0.05f);
+                if (q != null) return;
+            }
+            Color c = JellyColors[ci];
             var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             body.name = "Jelly";
             body.transform.SetParent(root, false);

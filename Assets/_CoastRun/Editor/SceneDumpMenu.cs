@@ -164,6 +164,23 @@ namespace CoastRun.EditorTools
             Debug.Log("Force bus " + (ObstacleSpawner.DebugForceBus ? "on" : "off"));
         }
 
+        [MenuItem("Coast Run/Debug/Spawn jump pad ahead (play) %#&j")]
+        public static void SpawnPadAhead()
+        {
+            if (!EditorApplication.isPlaying) return;
+            var sp = Object.FindFirstObjectByType<ObstacleSpawner>();
+            if (sp != null) sp.DebugSpawnPadAhead();
+        }
+
+        [MenuItem("Coast Run/Debug/God mode (toggle) %#&g")]
+        public static void ToggleGod()
+        {
+            PlayerController.DebugGod = !PlayerController.DebugGod;
+            foreach (var p in Object.FindObjectsByType<PlayerController>(FindObjectsSortMode.None))
+                p.Invincible = PlayerController.DebugGod;
+            Debug.Log("God mode " + (PlayerController.DebugGod ? "on" : "off"));
+        }
+
         [MenuItem("Coast Run/Debug/Warp to stage finish (play) %#&w")]
         public static void WarpToFinish()
         {

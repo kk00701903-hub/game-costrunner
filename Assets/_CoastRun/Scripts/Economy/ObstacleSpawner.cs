@@ -41,6 +41,7 @@ namespace CoastRun
         [Header("Oncoming cars (chapter 3+)")]
         [Tooltip("First chapter (1-based) in which cars drive toward the player.")]
         [SerializeField] private int carFromChapter = 3;
+        [SerializeField] private int scooterFromChapter = 1;
         [Tooltip("Rows between cars, at stage start / end.")]
         [SerializeField] private int carEveryRowsStart = 9;
         [SerializeField] private int carEveryRowsEnd = 5;
@@ -142,15 +143,29 @@ namespace CoastRun
 
             while (_nextSpawnZ < z + spawnAhead)
             {
-                bool carsAllowed = chapter >= carFromChapter && progress > 0.06f && progress < 0.93f;
+                // 14차-3: 킥보드 아이는 1챕터부터 마주 온다(목표 이미지). 밴·버스는 carFromChapter부터.
+                bool carsAllowed = (chapter >= carFromChapter || chapter >= scooterFromChapter) && progress > 0.06f && progress < 0.93f;
                 if (carsAllowed && _car == null && _rowsUntilCar <= 0)
                 {
                     PlanCar(z, speed, progress);
                     continue;
                 }
 
+                // 14차-3: 점프 패드 구간 — 패드 하나 + 4 m 간격 낮은 장애물 세 줄. 패드를 밟으면 한 번에 넘고,
+                // 안 밟아도 한 레인은 늘 비어 있다. 차가 오는 중엔 넣지 않는다.
+                bool carFar = _carLaneMask == 0 || Mathf.Abs(_nextSpawnZ + 8f - _carMeetZ) > speed * carClearSeconds + 10f;
+                if (carFar && progress > 0.04f && _rowsUntilPad <= 0 && _rng.NextDouble() < 0.7)
+                {
+                    SpawnJumpPadSection(_nextSpawnZ, speed);
+                    _rowsUntilPad = 5 + _rng.Next(5);
+                    _prevOpen = 0b111;
+                    _nextSpawnZ += 14f + RowGap(speed, progress, 0b111, 0b111);
+                    continue;
+                }
+
                 int blocked = PlanRow(progress);
                 _rowsUntilCar--;
+                _rowsUntilPad--;
 
                 if (_carLaneMask != 0)
                 {
@@ -256,6 +271,8 @@ namespace CoastRun
             // 14차-2: 킥보드 탄 아이 — 봄부터 나온다. 마주 오는 차량 셋 중 하나꼴, 속도는 밴의 절반.
             if (kind == OncomingCar.Kind.Van && !DebugForceBus && _rng.NextDouble() < 0.35)
                 kind = OncomingCar.Kind.Scooter;
+            if (chapterNow < carFromChapter && !DebugForceBus)
+                kind = OncomingCar.Kind.Scooter;   // 초반 챕터엔 킥보드만
             float vSpeed = (kind == OncomingCar.Kind.Bus ? carSpeed * 0.8f : kind == OncomingCar.Kind.Orange ? carSpeed * 0.55f
                           : kind == OncomingCar.Kind.Scooter ? carSpeed * 0.5f : carSpeed)
                            * ChapterDifficulty.CarSpeedMul;
@@ -322,6 +339,49 @@ namespace CoastRun
         }
 
         // ────────────────────────────────────────────────────────────────
+
+        private int _rowsUntilPad = 2;
+
+        /// 에디터 디버그: 플레이어 20 m 앞, 현재 레인에 점프 패드 구간을 깐다.
+        public void DebugSpawnPadAhead()
+        {
+            if (player == null || _root == null) return;
+            float z = player.PathDistance + 20f;
+            int lane = player.Lane;
+            JumpPad.Spawn(_root, RoadPlacement.OnRoad(z, lane * laneWidth));
+            ObstacleId[] low = { ObstacleId.TrafficCone, ObstacleId.Slime, ObstacleId.WetFloorSign };
+            for (int row = 0; row < 3; row++)
+            {
+                float rz = z + 6f + row * 4f;
+                var go = ObstacleCatalog.Spawn(low[row], _root, RoadPlacement.OnRoad(rz, lane * laneWidth), lane);
+                if (go != null) RoadPlacement.Snap(go, rz, lane * laneWidth);
+            }
+            _nextSpawnZ = Mathf.Max(_nextSpawnZ, z + 24f);
+        }
+
+        private void SpawnJumpPadSection(float z, float speed)
+        {
+            // 차가 달려오는 레인은 비워 둔다(패드도 장애물도).
+            int padLane = _rng.Next(3) - 1;
+            for (int k = 0; k < 3 && (_carLaneMask & (1 << (padLane + 1))) != 0; k++)
+                padLane = ((padLane + 2) % 3) - 1;
+            JumpPad.Spawn(_root, RoadPlacement.OnRoad(z, padLane * laneWidth));
+            // 낮은(점프로 넘는) 장애물만. 패드 레인 + 옆 레인 하나를 막고 나머지 하나는 비운다.
+            ObstacleId[] low = { ObstacleId.TrafficCone, ObstacleId.Slime, ObstacleId.WetFloorSign, ObstacleId.BikeFallen };
+            int other = padLane == 0 ? (_rng.Next(2) == 0 ? -1 : 1) : 0;
+            if ((_carLaneMask & (1 << (other + 1))) != 0) other = padLane;
+            for (int row = 0; row < 3; row++)
+            {
+                float rz = z + 6f + row * 4f;
+                foreach (int l in (other == padLane ? new[] { padLane } : new[] { padLane, other }))
+                {
+                    var id = low[_rng.Next(low.Length)];
+                    var go = ObstacleCatalog.Spawn(id, _root, RoadPlacement.OnRoad(rz, l * laneWidth), l);
+                    if (go != null)
+                        RoadPlacement.Snap(go, rz, l * laneWidth);
+                }
+            }
+        }
 
         private void SpawnRow(float z, int blocked, SeasonKind season, WeatherKind weather)
         {

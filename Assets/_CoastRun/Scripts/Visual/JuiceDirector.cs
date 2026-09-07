@@ -177,6 +177,15 @@ namespace CoastRun
         }
 
         /// 펫(오토바이탄 깡패)이 장애물을 부술 때: 흔들림 + 파편 버스트 + 타격음.
+        /// 14차-3: 점프 패드 — 짧은 흔들림 + 스피드라인 + 코인 버스트 하나.
+        public void OnJumpPad(Vector3 worldPos)
+        {
+            cameraRig?.Shake(0.18f, 0.12f);
+            speedLines?.Burst(36);
+            SpawnCoinBurst(worldPos);
+            CoastPrefs.Vibrate();
+        }
+
         public void PlaySmash(Vector3 worldPos)
         {
             cameraRig?.Shake(0.25f, 0.14f);
