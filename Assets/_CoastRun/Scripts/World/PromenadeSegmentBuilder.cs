@@ -453,6 +453,12 @@ namespace CoastRun
             StreetDressing.Bunting(root, new Vector3(-RoadHalfWidth - 1.0f, 4.3f, bz), new Vector3(railX + 0.2f, 4.0f, bz + 1.5f), drng);
             CreateBox(root, "BuntingPost", new Vector3(railX + 0.2f, 2.0f, bz + 1.5f), new Vector3(0.12f, 4.0f, 0.12f),
                 () => Color.Lerp(CoastPalette.TownCream, CoastPalette.RoadGrey, 0.5f));
+            // 14차: 난간 너머 야자수 — 목표 이미지의 오른쪽 실루엣. 절벽 상판(y=0) 위, 타일당 2그루.
+            for (int i = 0; i < 2; i++)
+            {
+                float pz = 4f + i * 15f + (float)drng.NextDouble() * 5f;
+                JejuKit.Spawn("Prop_Palm", root, new Vector3(railX + 1.7f, 0f, pz), (float)drng.NextDouble() * 360f, 1.05f + (float)drng.NextDouble() * 0.35f);
+            }
             // 난간 앞 화단 두 개.
             StreetDressing.Planter(root, new Vector3(railX - 0.75f, 0f, 4.5f + (float)drng.NextDouble() * 3f), drng);
             StreetDressing.Planter(root, new Vector3(railX - 0.75f, 0f, 19f + (float)drng.NextDouble() * 4f), drng);

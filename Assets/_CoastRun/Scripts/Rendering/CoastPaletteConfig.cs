@@ -8,7 +8,7 @@ namespace CoastRun
     {
         [Header("Core (StyleBible)")]
         public Color skyBlue = new Color(0.310f, 0.659f, 0.847f);      // #4FA8D8
-        public Color seaTeal = new Color(0.122f, 0.620f, 0.780f);      // #1F9EC7
+        public Color seaTeal = new Color(0.160f, 0.720f, 0.730f);      // #29B8BA 14차: 목표 이미지의 청록 바다
         public Color roadGrey = new Color(0.541f, 0.522f, 0.471f);     // #8A8578
         public Color townCream = new Color(0.949f, 0.902f, 0.816f);    // #F2E6D0
         public Color accentOrange = new Color(0.910f, 0.392f, 0.184f); // #E8642F
