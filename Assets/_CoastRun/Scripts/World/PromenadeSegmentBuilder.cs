@@ -400,8 +400,9 @@ namespace CoastRun
             SetTiling(quad, uw, uh, ox, oy);
         }
 
-        /// Storeys per facade: the painting's own floor count where it is obvious
-        /// (A/B are 3–4 storey blocks), otherwise 1–2 for shops and guesthouses.
+        /// Storeys per facade: the painting's own floor count where it is obvious.
+        /// A/B are the old 3–4 storey blocks; C–I are the 14차 reference-style shophouses
+        /// (three floors, awning over the shop), J–L the low two-floor seaside shops.
         private static int FacadeStoreys(int variant, System.Random rng)
         {
             if (FacadeCount() == 0)
@@ -410,7 +411,10 @@ namespace CoastRun
             {
                 case 0: return 2 + rng.Next(2);   // cream block: 2–3
                 case 1: return 2;                 // mint block
-                default: return 1 + rng.Next(2);  // Jeju shops/houses: 1–2
+                case 9:
+                case 10:
+                case 11: return 2;                // low shophouses (shop_0 sheet)
+                default: return 2 + rng.Next(2);  // shophouse rows: 2–3
             }
         }
 
