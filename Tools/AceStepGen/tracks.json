@@ -15,6 +15,7 @@
   },
   {
    "name": "BGM_Opening",
+   "note": "12차부터 ACE-Step 결과 대신 Suno 「돌아온 제주 (Remastered)」 0:00~1:37(1:33 페이드아웃) 을 쓴다 — --redo 로 덮어쓰지 말 것",
    "group": "cine",
    "priority": "P0",
    "prompt": "15 second cinematic opening cue, childhood memory, bright piano and glockenspiel, a tender build with light strings, a sudden protective brave swell with taiko-like low drum, then resolves into a warm held chord for a title card, D E F# motif in the piano, no fade in",
