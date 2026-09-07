@@ -254,6 +254,7 @@ namespace CoastRun
 
         private void HandleNearMiss(int reward, int combo, Vector3 worldPos)
         {
+            CoastPrefs.Vibrate();   // 14차 게임필: 아슬아슬 통과에 짧은 진동
             StartCoroutine(NearMissSequence(combo));
         }
 
@@ -301,6 +302,7 @@ namespace CoastRun
 
         private void HandleSoftHit()
         {
+            CoastPrefs.Vibrate();
             StartCoroutine(SoftHitSequence());
         }
 

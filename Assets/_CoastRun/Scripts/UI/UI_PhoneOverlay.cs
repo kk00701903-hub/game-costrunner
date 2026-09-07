@@ -89,8 +89,8 @@ namespace CoastRun
             _iconRt.anchorMax = new Vector2(0f, 1f);
             _iconRt.pivot = new Vector2(0f, 1f);
             // Below the HP bar (pause 6..78, bar 88..128) so nothing overlaps the chrome.
-            _iconRt.anchoredPosition = new Vector2(8f, -138f);
-            _iconRt.sizeDelta = new Vector2(52f, 52f);
+            _iconRt.anchoredPosition = new Vector2(8f, -140f);   // 14차: 하트 3개 아래
+            _iconRt.sizeDelta = new Vector2(48f, 48f);
             _iconCg = go.GetComponent<CanvasGroup>();
 
             var img = go.GetComponent<Image>();

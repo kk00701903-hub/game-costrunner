@@ -231,7 +231,7 @@ namespace CoastRun
             if (_towerIcon != null)
             {
                 _towerIcon.anchorMin = _towerIcon.anchorMax = new Vector2(1f, 0.5f);
-                _towerIcon.anchoredPosition = new Vector2(8f, 10f);
+                _towerIcon.anchoredPosition = new Vector2(-2f, 6f);
             }
 
             if (_himIcon != null && _himIcon.gameObject.activeSelf)
@@ -432,11 +432,12 @@ namespace CoastRun
             wrap.transform.SetParent(_root, false);
             var wrt = wrap.GetComponent<RectTransform>();
             // Below the pause / score / coin row so the top corners stay clean.
-            wrt.anchorMin = new Vector2(0.10f, 1f);
-            wrt.anchorMax = new Vector2(0.90f, 1f);
+            // 14차: 상단 중앙 타임바 하나 — 좌(하트) / 중(노을·여정) / 우(점수·코인) 세 덩어리로 정리.
+            wrt.anchorMin = new Vector2(0.265f, 1f);
+            wrt.anchorMax = new Vector2(0.72f, 1f);
             wrt.pivot = new Vector2(0.5f, 1f);
-            wrt.anchoredPosition = new Vector2(0f, -140f);
-            wrt.sizeDelta = new Vector2(0f, 44f);
+            wrt.anchoredPosition = new Vector2(0f, -84f);   // 하트·코인과 같은 둘째 줄 → 상단 2줄로 끝
+            wrt.sizeDelta = new Vector2(0f, 42f);
             _progressCg = wrap.GetComponent<CanvasGroup>();
 
             var start = MakeText(wrap.transform, "Start", "◀", 14,
@@ -497,15 +498,15 @@ namespace CoastRun
             var tbRt = towerBadge.rectTransform;
             tbRt.anchorMin = tbRt.anchorMax = new Vector2(1f, 0.5f);
             tbRt.pivot = new Vector2(0.5f, 0.5f);
-            tbRt.anchoredPosition = new Vector2(8f, 10f);
-            tbRt.sizeDelta = new Vector2(46f, 46f);
+            tbRt.anchoredPosition = new Vector2(-2f, 6f);
+            tbRt.sizeDelta = new Vector2(42f, 42f);
             towerBadge.raycastTarget = false;
             var tbRing = CoastUiArt.Panel(tbRt, "Ring", CoastUiArt.CreamOutline, 22);
             var tbrRt = tbRing.rectTransform; tbrRt.anchorMin = Vector2.zero; tbrRt.anchorMax = Vector2.one;
             tbrRt.offsetMin = new Vector2(-2f, -2f); tbrRt.offsetMax = new Vector2(2f, 2f);
             tbRing.raycastTarget = false; tbRing.transform.SetAsFirstSibling();
             _towerIcon = CreateMarker(trackRt, "Tower", new Color(0.75f, 0.8f, 0.85f), null, "Icon_Tower");
-            _towerIcon.sizeDelta = new Vector2(38f, 38f);
+            _towerIcon.sizeDelta = new Vector2(34f, 34f);
             var towerImg = _towerIcon.GetComponent<Image>();
             if (towerImg != null)
                 towerImg.color = new Color(1f, 1f, 1f, 1f);
@@ -534,7 +535,7 @@ namespace CoastRun
             _timerLabel = textGo.AddComponent<Text>();
             CoastUiArt.OutlineText(_timerLabel, new Color(0.05f, 0.07f, 0.18f, 0.95f), 1.5f);
             _timerLabel.font = CoastHudLayout.Font();
-            _timerLabel.fontSize = CoastHudLayout.Scaled(17);
+            _timerLabel.fontSize = CoastHudLayout.Scaled(18);
             _timerLabel.fontStyle = FontStyle.Bold;
             _timerLabel.alignment = TextAnchor.MiddleCenter;
             _timerLabel.color = new Color(0.9f, 0.95f, 1f);
