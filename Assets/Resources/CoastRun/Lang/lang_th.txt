@@ -547,3 +547,5 @@ Your trucks don't wobble anymore. You fixed them?	ทรัคเธอไม่
 …You kept saying the hospital.	…เธอพูดแต่โรงพยาบาลตลอด
 …You look pale lately. On the last day, you can walk instead of run.	…ช่วงนี้หน้าซีดนะ วันสุดท้ายเดินแทนวิ่งก็ได้
 …Your phone?	…มือถือเธอล่ะ
+Our Frequency	ความถี่ของเรา
+More	เพิ่มเติม

@@ -28,7 +28,7 @@ namespace CoastRun
         [SerializeField] private float rollReturnSeconds = 0.25f;
 
         [Header("Bob")]
-        [SerializeField] private float bobAmplitude = 0.03f;
+        [SerializeField] private float bobAmplitude = 0.045f;   // 14차-8: 발걸음 체감
         [SerializeField] private float bobCyclesPerUnitSpeed = 0.55f;
 
         [Header("Feel")]

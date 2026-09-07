@@ -262,47 +262,58 @@ namespace CoastRun
             }
             // 9차: 키아트는 위 45%가 그림, 아래 55%가 UI 자리(일부러 비워 그린 영역). 제목·시놉시스는 그림 바로 아래, 카드는 그 아래 남는 높이의 가운데.
             const float ArtBottom = 0.555f;
-            var t = Label(panel, "Title", ActName(_actTab), 28, Color.white);
+            var t = Label(panel, "Title", ActName(_actTab), 32, Color.white);
             CoastUiArt.OutlineText(t, new Color(0.1f, 0.08f, 0.12f, 0.85f), 1.6f);
             Place(t.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -4f), new Vector2(0f, 38f), new Vector2(0.5f, 1f));
             int sCount = ChapterGrading.CountS(Save);
             string sub = _gm.IsRetry ? Loc.T($"재도전 중 · CH {Save.chapter}", $"Retrying · CH {Save.chapter}")
                 : $"{ActSeason(_actTab)}  ·  " + Loc.T($"S급 {sCount} / {Timeline.Chapters}", $"Rank S {sCount} / {Timeline.Chapters}");
-            var sl = Label(panel, "Sub", sub, 15, new Color(1f, 0.96f, 0.88f));
+            var sl = Label(panel, "Sub", sub, 18, new Color(1f, 0.96f, 0.88f));
             CoastUiArt.OutlineText(sl, new Color(0.1f, 0.08f, 0.12f, 0.8f), 1.2f);
             Place(sl.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -44f), new Vector2(0f, 22f), new Vector2(0.5f, 1f));
-            var syn = Label(panel, "Synopsis", ActSynopsis(_actTab), 14, new Color(1f, 0.97f, 0.92f, 0.95f));
+            var syn = Label(panel, "Synopsis", ActSynopsis(_actTab), 17, new Color(1f, 0.97f, 0.92f, 0.95f));
             syn.horizontalOverflow = HorizontalWrapMode.Wrap; syn.alignment = TextAnchor.UpperCenter;
             CoastUiArt.OutlineText(syn, new Color(0.1f, 0.08f, 0.12f, 0.7f), 1f);
-            Place(syn.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -70f), new Vector2(-80f, 44f), new Vector2(0.5f, 1f));
+            Place(syn.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -74f), new Vector2(-60f, 54f), new Vector2(0.5f, 1f));
 
-            // 챕터 카드 — 5열, 막 2는 2줄. 시놉시스 아래 ~ 닫기 버튼 위 사이 가운데.
+            // 14차-8: 챕터 카드 — 가로 스크롤 큰 카드(챕터 번호 + 그림만). 5열 작은 카드는 폰에서 안 읽혔다.
             int first = ActStart[_actTab], last = ActEnd[_actTab];
-            int count = last - first + 1, rows = (count + 4) / 5;
-            const float cellW = 132f, cellH = 192f, gap = 6f;   // 5열 = 684 (기준 폭 720)
-            float startX = -(cellW * 5 + gap * 4) * 0.5f + cellW * 0.5f;
-            float zoneBottom = 96f, zoneTop = ArtBottom * 1280f - 124f;   // 기준 높이 1280
-            float blockH = rows * cellH + (rows - 1) * gap;
-            float bottomY = zoneBottom + Mathf.Max(0f, (zoneTop - zoneBottom - blockH) * 0.5f);
+            int count = last - first + 1;
+            const float cellW = 250f, cellH = 320f, gap = 14f;
+            float zoneBottom = 96f, zoneTop = ArtBottom * 1280f - 124f;
+            float zoneH = Mathf.Max(cellH + 20f, zoneTop - zoneBottom);
+            var scrollGo = new GameObject("ChapterScroll", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(RectMask2D));
+            scrollGo.transform.SetParent(panel, false);
+            var srt = scrollGo.GetComponent<RectTransform>();
+            Place(srt, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, zoneBottom + (zoneH - cellH) * 0.5f - 10f), new Vector2(0f, cellH + 20f), new Vector2(0.5f, 0f));
+            scrollGo.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
+            var sr = scrollGo.GetComponent<ScrollRect>();
+            sr.horizontal = true; sr.vertical = false; sr.movementType = ScrollRect.MovementType.Clamped; sr.inertia = true;
+            var content = new GameObject("Cards", typeof(RectTransform)).GetComponent<RectTransform>();
+            content.SetParent(srt, false);
+            content.anchorMin = new Vector2(0f, 0f); content.anchorMax = new Vector2(0f, 1f); content.pivot = new Vector2(0f, 0.5f);
+            float contentW = 20f + count * (cellW + gap) - gap + 20f;
+            content.sizeDelta = new Vector2(contentW, 0f);
+            sr.content = content; sr.viewport = srt;
             for (int c = first; c <= last; c++)
             {
                 var rec = Save.chapters[c - 1];
-                int idx = c - first, row = idx / 5, col = idx % 5;
+                int idx = c - first;
                 bool current = c == Save.chapter;
                 bool cleared = rec != null && rec.cleared;
                 bool locked = c > Save.chapter;
                 Color fill = cleared ? ChapterGrading.GradeColor(rec.grade) : current ? Coral : Hex("#EFE6D6");
-                var cell = CoastUiArt.CutePill(panel, "CH" + c, fill, 14, current ? 5 : 3);
-                float y = bottomY + (rows - 1 - row) * (cellH + gap);
-                Place(cell.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(startX + col * (cellW + gap), y), new Vector2(cellW, cellH), new Vector2(0.5f, 0f));
+                var cell = CoastUiArt.CutePill(content, "CH" + c, fill, 18, current ? 6 : 3);
+                Place(cell.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(20f + idx * (cellW + gap), 0f), new Vector2(cellW, cellH), new Vector2(0f, 0.5f));
 
-                // 썸네일(컷씬 클로징 CG 위쪽을 잘라 보여준다)
+                // 그림: 카드 위쪽 대부분
+                const float bandH = 74f;
                 var thGo = new GameObject("Thumb", typeof(RectTransform), typeof(Image), typeof(Mask));
                 thGo.transform.SetParent(cell.transform, false);
                 var thr = thGo.GetComponent<RectTransform>();
-                thr.anchorMin = new Vector2(0f, 1f); thr.anchorMax = new Vector2(1f, 1f); thr.pivot = new Vector2(0.5f, 1f);
-                thr.anchoredPosition = new Vector2(0f, -6f); thr.sizeDelta = new Vector2(-12f, 112f);
-                var thMask = thGo.GetComponent<Image>(); thMask.sprite = CoastUiArt.RoundedRect(10); thMask.type = Image.Type.Sliced; thMask.color = Color.white; thMask.raycastTarget = false;
+                thr.anchorMin = new Vector2(0f, 0f); thr.anchorMax = new Vector2(1f, 1f);
+                thr.offsetMin = new Vector2(8f, bandH); thr.offsetMax = new Vector2(-8f, -8f);
+                var thMask = thGo.GetComponent<Image>(); thMask.sprite = CoastUiArt.RoundedRect(14); thMask.type = Image.Type.Sliced; thMask.color = Color.white; thMask.raycastTarget = false;
                 thGo.GetComponent<Mask>().showMaskGraphic = false;
                 var tt = locked ? null : ChapterThumb(c);
                 if (tt != null)
@@ -310,36 +321,37 @@ namespace CoastRun
                     var ti = new GameObject("Img", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter)).GetComponent<Image>();
                     ti.transform.SetParent(thGo.transform, false);
                     ti.sprite = CoastUiArt.AsSprite(tt); ti.raycastTarget = false;
-                    var tir = ti.rectTransform; tir.anchorMin = new Vector2(0f, 1f); tir.anchorMax = new Vector2(1f, 1f); tir.pivot = new Vector2(0.5f, 1f);
-                    tir.anchoredPosition = Vector2.zero; tir.sizeDelta = Vector2.zero;
-                    var tf = ti.GetComponent<AspectRatioFitter>(); tf.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight; tf.aspectRatio = 810f / 1440f;
+                    var tir = ti.rectTransform; tir.anchorMin = Vector2.zero; tir.anchorMax = Vector2.one; tir.offsetMin = Vector2.zero; tir.offsetMax = Vector2.zero;
+                    var tf = ti.GetComponent<AspectRatioFitter>(); tf.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; tf.aspectRatio = 810f / 1440f;
                     if (!cleared && !current) ti.color = new Color(0.8f, 0.8f, 0.82f, 1f);
                 }
                 else
                 {
                     var lockBg = CoastHudLayout.MakeImage(thGo.transform, "LockBg", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.55f, 0.52f, 0.5f, 1f));
                     lockBg.raycastTarget = false;
-                    // 9차: 이모지 자물쇠는 폰트에 없어 빈칸으로 나왔다 → 그린 자물쇠(고리+몸통) + 글자
-                    var shackle = CoastUiArt.Panel(thGo.transform, "Shackle", new Color(1f, 1f, 1f, 0.85f), 9);
+                    var shackle = CoastUiArt.Panel(thGo.transform, "Shackle", new Color(1f, 1f, 1f, 0.85f), 14);
                     shackle.raycastTarget = false;
-                    Place(shackle.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 16f), new Vector2(22f, 24f), new Vector2(0.5f, 0.5f));
-                    var shackleHole = CoastUiArt.Panel(shackle.transform, "Hole", new Color(0.55f, 0.52f, 0.5f, 1f), 5);
+                    Place(shackle.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 30f), new Vector2(44f, 48f), new Vector2(0.5f, 0.5f));
+                    var shackleHole = CoastUiArt.Panel(shackle.transform, "Hole", new Color(0.55f, 0.52f, 0.5f, 1f), 9);
                     shackleHole.raycastTarget = false;
-                    Place(shackleHole.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -2f), new Vector2(10f, 14f), new Vector2(0.5f, 0.5f));
-                    var body = CoastUiArt.Panel(thGo.transform, "LockBody", new Color(1f, 1f, 1f, 0.9f), 5);
+                    Place(shackleHole.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -4f), new Vector2(20f, 28f), new Vector2(0.5f, 0.5f));
+                    var body = CoastUiArt.Panel(thGo.transform, "LockBody", new Color(1f, 1f, 1f, 0.9f), 8);
                     body.raycastTarget = false;
-                    Place(body.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(30f, 24f), new Vector2(0.5f, 0.5f));
-                    var lk = Label(thGo.transform, "Lock", Loc.T("잠김", "Locked"), 12, new Color(1f, 1f, 1f, 0.85f));
-                    Place(lk.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -22f), new Vector2(80f, 18f), new Vector2(0.5f, 0.5f));
+                    Place(body.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(60f, 48f), new Vector2(0.5f, 0.5f));
+                    var lk = Label(thGo.transform, "Lock", Loc.T("잠김", "Locked"), 20, new Color(1f, 1f, 1f, 0.9f));
+                    Place(lk.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -46f), new Vector2(160f, 30f), new Vector2(0.5f, 0.5f));
                 }
 
-                var num = Label(cell.transform, "Num", $"CH {c}", 13, current ? Color.white : Navy);
-                Place(num.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 46f), new Vector2(0f, 18f), new Vector2(0.5f, 0f));
-                var chTitle = Label(cell.transform, "ChTitle", locked ? "???" : (Loc.IsKo ? ChapterScript.Title(c) : Loc.Data("ch." + c, ChapterScript.Title(c))), 11, current ? Color.white : Ink);
-                Place(chTitle.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 30f), new Vector2(-6f, 16f), new Vector2(0.5f, 0f));
-                string foot = cleared ? $"{ChapterGrading.GradeLabel(rec.grade)}  ♥{rec.heartsEarned}/{rec.heartsTarget}" : current ? Loc.T("▶ 지금", "▶ Now") : (rec != null ? $"{rec.weekStart}~{rec.weekEnd}" + Loc.T("주", "w") : "");
-                var hearts = Label(cell.transform, "Foot", foot, 12, current ? Color.white : Navy);
-                Place(hearts.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 8f), new Vector2(0f, 20f), new Vector2(0.5f, 0f));
+                // 아래 띠: 챕터 번호 크게 (+ 클리어 등급/지금 표시)
+                var num = Label(cell.transform, "Num", $"CH {c}", 30, current ? Color.white : Navy);
+                num.fontStyle = FontStyle.Bold;
+                Place(num.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 30f), new Vector2(0f, 40f), new Vector2(0.5f, 0f));
+                string foot = cleared ? $"{ChapterGrading.GradeLabel(rec.grade)}  ♥{rec.heartsEarned}/{rec.heartsTarget}" : current ? Loc.T("▶ 지금", "▶ Now") : "";
+                if (!string.IsNullOrEmpty(foot))
+                {
+                    var hearts = Label(cell.transform, "Foot", foot, 16, current ? Color.white : Navy);
+                    Place(hearts.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f), new Vector2(0f, 24f), new Vector2(0.5f, 0f));
+                }
                 if (locked) cell.color = Hex("#C9C2B8");
 
                 int chapter = c;
@@ -354,8 +366,6 @@ namespace CoastRun
                 }
                 else if (cleared || _gm.IsRetry && current)
                 {
-                    // 10차: 클리어한 챕터를 누르면 '오프닝만 다시 보기'가 떠서 런으로 못 가는 것처럼 보였다.
-                    // → 선택지: [바로 달리기(재도전)] [오프닝 다시 보기] [닫기]
                     AddCellButton(cell, () =>
                     {
                         Destroy(_timelineModal); _timelineModal = null;
@@ -363,9 +373,9 @@ namespace CoastRun
                     });
                     if (canRetry)
                     {
-                        var retry = CoastUiArt.CutePill(cell.transform, "Retry", Coral, 8, 2);
-                        Place(retry.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-4f, -4f), new Vector2(54f, 22f), new Vector2(1f, 1f));
-                        var rl = Label(retry.transform, "T", Loc.T("재도전", "Retry"), 11, Color.white);
+                        var retry = CoastUiArt.CutePill(cell.transform, "Retry", Coral, 10, 2);
+                        Place(retry.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -12f), new Vector2(84f, 32f), new Vector2(1f, 1f));
+                        var rl = Label(retry.transform, "T", Loc.T("재도전", "Retry"), 16, Color.white);
                         AddCellButton(retry, () =>
                         {
                             Destroy(_timelineModal); _timelineModal = null;
@@ -374,6 +384,14 @@ namespace CoastRun
                         });
                     }
                 }
+            }
+            // 현재 챕터가 보이도록 스크롤
+            if (Save.chapter >= first && Save.chapter <= last)
+            {
+                float viewW = 720f - CoastUiCanvas.HudPad * 2f;
+                float target = 20f + (Save.chapter - first) * (cellW + gap) - (viewW - cellW) * 0.5f;
+                float maxScroll = Mathf.Max(0f, contentW - viewW);
+                sr.horizontalNormalizedPosition = maxScroll > 0f ? Mathf.Clamp01(target / maxScroll) : 0f;
             }
 
             Action closeTimeline = () =>

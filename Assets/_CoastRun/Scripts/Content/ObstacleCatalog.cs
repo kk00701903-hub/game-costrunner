@@ -55,7 +55,7 @@ namespace CoastRun
                         new Vector3(0.95f, 0.48f, 0.22f), () => CoastPalette.AccentOrange, 0.32f, 0.55f, 0.55f, "Barrier", 0.9f);
                 case ObstacleId.Slime:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Slime",
-                        new Vector3(0.8f, 0.7f, 0.8f), () => new Color(0.45f, 0.82f, 0.38f), 0.36f, 0.62f, 0.75f, "Slime", 0.9f);
+                        new Vector3(0.95f, 0.85f, 0.95f), () => new Color(0.45f, 0.82f, 0.38f), 0.42f, 0.75f, 0.9f, "Slime", 1.15f);   // 14차-8: 말랑이 1.2배(무릎 높이 이상, 코인보다 크게)
                 case ObstacleId.CrateStack:
                 case ObstacleId.DeliveryBox:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Crate",

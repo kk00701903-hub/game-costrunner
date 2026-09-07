@@ -112,10 +112,48 @@ namespace CoastRun
             // 계절 색조 + 건물별 미세 변주(위치 해시): 밝기 ±6%, 따뜻/차가운 쪽으로 ±4%
             float h = Mathf.Abs(Mathf.Sin(localPos.z * 12.9898f + variant * 78.233f + (parent != null ? parent.position.z * 0.37f : 0f)) * 43758.5453f) % 1f;
             float h2 = Mathf.Abs(Mathf.Sin(h * 91.7f + 3.1f) * 24634.63f) % 1f;
-            float br = 0.94f + h * 0.12f;
-            var extra = new Color(br * (1f + (h2 - 0.5f) * 0.08f), br, br * (1f - (h2 - 0.5f) * 0.08f), 1f);
+            float br = 0.96f + h * 0.08f;
+            var extra = new Color(br * (1f + (h2 - 0.5f) * 0.06f), br, br * (1f - (h2 - 0.5f) * 0.06f), 1f);
             SeasonLook.Tint(b, 1f, extra);
+            // 14차-8: 목표 이미지의 '벽 3색 규칙' — 민트 / 베이지 / 블루가 순서대로 돌아 거리에 리듬이 생긴다.
+            // 파사드 그림은 그대로 두고 옆벽·뒷벽(Wall 재질)만 물들인다.
+            WallColorRule(b, parent);
             return b;
+        }
+
+        private static readonly Color[] WallRule =
+        {
+            new Color(0.74f, 0.92f, 0.86f),   // 민트
+            new Color(0.97f, 0.91f, 0.78f),   // 베이지
+            new Color(0.72f, 0.83f, 0.97f),   // 블루
+        };
+        private static MaterialPropertyBlock _wallMpb;
+        private static readonly int _baseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int _colorId = Shader.PropertyToID("_Color");
+
+        private static void WallColorRule(GameObject b, Transform parent)
+        {
+            if (b == null) return;
+            float z = parent != null ? DownhillPath.DistanceAlong(parent.position) : 0f;
+            int ix = Mathf.Abs(Mathf.FloorToInt(z / 10f)) % WallRule.Length;
+            Color c = WallRule[ix];
+            _wallMpb ??= new MaterialPropertyBlock();
+            foreach (var r in b.GetComponentsInChildren<Renderer>(true))
+            {
+                var m = r.sharedMaterial;
+                if (m == null) continue;
+                string n = m.name;
+                // 키트 건물은 재질 하나(Facade_X)에 옆벽까지 들어 있다 → 파사드 그림엔 색을 옅게(55%), 나머지엔 진하게.
+                bool facade = n.StartsWith("Facade");
+                if (!(facade || n.StartsWith("Wall") || n.StartsWith("Concrete"))) continue;
+                Color cc = facade ? Color.Lerp(Color.white, c, 0.55f) : c;
+                r.GetPropertyBlock(_wallMpb);
+                Color prev = _wallMpb.GetColor(_baseColorId);
+                if (prev == default) prev = Color.white;
+                _wallMpb.SetColor(_baseColorId, prev * cc);
+                _wallMpb.SetColor(_colorId, prev * cc);
+                r.SetPropertyBlock(_wallMpb);
+            }
         }
 
         private static Material MaterialFor(string rawName)
@@ -130,6 +168,7 @@ namespace CoastRun
             if (Mats.TryGetValue(name, out var m) && m != null)
                 return m;
             m = Build(name);
+            if (m != null) m.name = name;   // 14차-8: WallColorRule 이 이름으로 벽 재질을 고른다
             Mats[name] = m;
             return m;
         }

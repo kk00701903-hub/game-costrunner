@@ -546,3 +546,5 @@ Your trucks don't wobble anymore. You fixed them?	トラック、もうぐらつ
 …You kept saying the hospital.	…病院って言い続けてたじゃない。
 …You look pale lately. On the last day, you can walk instead of run.	…最近、顔色が悪い。最後の日は走らずに歩いてもいいよ。
 …Your phone?	…スマホは？
+Our Frequency	僕らの周波数
+More	もっと見る

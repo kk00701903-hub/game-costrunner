@@ -36,8 +36,8 @@ namespace CoastRun
 
             _gm = GameManager.Ensure();
             _audio = gameObject.GetComponent<TitleAudio>() ?? gameObject.AddComponent<TitleAudio>();
-            _gateArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + Loc.ResName("UI_Title_Gate"))
-                       ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Gate");
+            // 14차-8: 키아트 한 장(로고 없음) + 제목은 글자로 언어별 표시
+            _gateArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Gate");
             if (_gateArt == null)
             {
                 // 대문 아트가 없을 때만 옛 3D 배경을 세운다(모바일 메모리 절약).
@@ -367,36 +367,68 @@ namespace CoastRun
             _uiCg.alpha = 0f;
             ui.SetActive(false);
 
-            // 로고는 키아트(UI_Title_Gate)에 구워져 있다 — 별도 텍스트 없음.
+            // 14차-8: 제목은 글자로(언어별) — 키아트엔 로고가 없다. 상단 하늘 영역, 크림색 + 짙은 테두리.
+            string title = Loc.T(AlbumTable.AlbumKo, AlbumTable.AlbumEn);
+            var titleLbl = CreateLabel(ui.transform, "Title", title, 60, FontStyle.Bold,
+                new Color(1f, 0.96f, 0.86f), new Vector2(0.5f, 0.905f), new Vector2(680f, 90f));
+            CoastUiArt.OutlineText(titleLbl, new Color(0.22f, 0.10f, 0.06f, 0.95f), 3f);
+            var sub = CreateLabel(ui.transform, "TitleSub", Loc.IsKo ? "COAST RUN · JEJU" : "너와 나의 주파수 · COAST RUN", 20, FontStyle.Normal,
+                new Color(1f, 0.93f, 0.78f, 0.9f), new Vector2(0.5f, 0.855f), new Vector2(600f, 30f));
+            CoastUiArt.OutlineText(sub, new Color(0.22f, 0.10f, 0.06f, 0.8f), 1.5f);
 
-            // 메뉴 — 오른쪽 세로 열, 작고 반투명하게. 그림(왼쪽 두 사람·송전탑)을 가리지 않는다.
+            // 메뉴 3개(이어하기 / 새로하기 / 더보기) — 화면 아래 가로 한 줄. 나머지는 '더보기'로 옆에서 슬라이드.
             bool hasSave = _gm != null && _gm.HasSave;
-            var items = new System.Collections.Generic.List<(string, System.Action)>();
-            if (hasSave) items.Add((Loc.T("이어하기", "Continue"), OnContinue));
-            items.Add((hasSave ? Loc.T("새로 시작", "New Game") : Loc.T("시작하기", "Start"), () => { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }));
-            if (hasSave) items.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
-            items.Add((Loc.T("노을 달리기", "Sunset Run"), () => { _audio?.PlayClick(); ArcadeUI.Open(false); }));
-            items.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
-            items.Add((Loc.T("오프닝", "Opening"), () =>
+            float btnW = 200f, btnH = 62f, gapX = 14f;
+            float rowY = 92f;
+            var contBtn = CoastOrnate.GlassButton(ui.transform, "ContinueBtn", Loc.T("이어하기", "Continue"), new Vector2(0.5f, 0f),
+                new Vector2(-(btnW + gapX), rowY), new Vector2(btnW, btnH), () => { if (_ready) OnContinue(); }, 0.4f, 26, hasSave);
+            if (!hasSave)
+            {
+                contBtn.interactable = false;
+                var cg = contBtn.gameObject.AddComponent<CanvasGroup>(); cg.alpha = 0.45f;
+            }
+            CoastOrnate.GlassButton(ui.transform, "NewBtn", Loc.T("새로하기", "New Game"), new Vector2(0.5f, 0f),
+                new Vector2(0f, rowY), new Vector2(btnW, btnH), () => { if (_ready) { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); } }, 0.4f, 26, !hasSave);
+            _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
+                new Vector2(btnW + gapX, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
+            _moreLabel = _moreBtn.GetComponentInChildren<Text>();
+
+            // 더보기 열: 오른쪽 가장자리에서 슬라이드 인. 챕터 선택 / 노을 달리기 / 컬렉션 / 오프닝 / 설정.
+            var more = new System.Collections.Generic.List<(string, System.Action)>();
+            if (hasSave) more.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
+            more.Add((Loc.T("노을 달리기", "Sunset Run"), () => { _audio?.PlayClick(); ArcadeUI.Open(false); }));
+            more.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
+            more.Add((Loc.T("오프닝", "Opening"), () =>
             {
                 _audio?.PlayClick();
                 _audio?.StopMenu();
                 _ready = false;
                 OpeningCinematic.Play(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; });
             }));
-            items.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
+            more.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
 
-            // 오른쪽 가장자리, 화면 세로 중앙보다 조금 아래(그림의 언덕·도로 위 빈 영역). 유리 버튼, 패널 없음.
-            float rowH = 52f, gap = 9f, btnW = 228f;   // 8차: 10px대 글자 → 손가락 크기(52px)·22px 글자
-            float total = items.Count * rowH + (items.Count - 1) * gap;
-            float topY = total * 0.5f;
-            for (int i = 0; i < items.Count; i++)
+            var col = new GameObject("MoreColumn", typeof(RectTransform), typeof(CanvasGroup));
+            col.transform.SetParent(ui.transform, false);
+            _moreRt = col.GetComponent<RectTransform>();
+            _moreCg = col.GetComponent<CanvasGroup>();
+            float mW = 236f, mH = 58f, mGap = 10f;
+            float total = more.Count * mH + (more.Count - 1) * mGap;
+            _moreRt.anchorMin = _moreRt.anchorMax = new Vector2(1f, 0f);
+            _moreRt.pivot = new Vector2(1f, 0f);
+            _moreRt.sizeDelta = new Vector2(mW + 24f, total + 24f);
+            _moreHidden = new Vector2(mW + 60f, rowY + btnH * 0.5f + 26f);
+            _moreShown = new Vector2(-10f, rowY + btnH * 0.5f + 26f);
+            _moreRt.anchoredPosition = _moreHidden;
+            _moreCg.alpha = 0f; _moreCg.interactable = false; _moreCg.blocksRaycasts = false;
+            var backing = CoastUiArt.Panel(col.transform, "Backing", new Color(0.05f, 0.04f, 0.08f, 0.35f), 16);
+            CoastOrnate.Stretch(backing.rectTransform, 0f, 0f, 0f, 0f);
+            backing.raycastTarget = false;
+            for (int i = 0; i < more.Count; i++)
             {
-                float y = topY - rowH * 0.5f - i * (rowH + gap);
-                var (label, act) = items[i];
-                bool primary = i == 0;
-                CoastOrnate.GlassButton(ui.transform, label + "Btn", label, new Vector2(1f, 0.56f), new Vector2(-(btnW * 0.5f + 18f), y),
-                    new Vector2(btnW, rowH), () => { if (_ready) act(); }, 0.34f, primary ? 24 : 21, primary);
+                var (label, act) = more[i];
+                float y = 12f + mH * 0.5f + (more.Count - 1 - i) * (mH + mGap);
+                CoastOrnate.GlassButton(col.transform, label + "Btn", label, new Vector2(0.5f, 0f), new Vector2(0f, y),
+                    new Vector2(mW, mH), () => { if (_ready) act(); }, 0.42f, 24, false);
             }
 
             var ver = CreateLabel(ui.transform, "Version", "v" + Application.version, 14, FontStyle.Normal,
@@ -510,6 +542,7 @@ namespace CoastRun
 
         private void Update()
         {
+            AnimateMore();
             if (_tapLabel != null && _ready)
             {
                 float a = 0.55f + 0.45f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 2.2f));
@@ -521,6 +554,26 @@ namespace CoastRun
             // 에디터 검증용: N = 캐릭터 선택, 1 = 러닝, 2 = 스케이트보드, C = 이어하기, Escape = 닫기.
             if (_aiNoticeOk != null && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))) { _aiNoticeOk(); return; }
             if (!_ready) return;
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                // 14차-8 디버그: 마우스 아래 UI 레이캐스트 결과
+                var es = UnityEngine.EventSystems.EventSystem.current;
+                var pd = new UnityEngine.EventSystems.PointerEventData(es) { position = Input.mousePosition };
+                var hits = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+                es.RaycastAll(pd, hits);
+                var sb = new System.Text.StringBuilder("[UI raycast] " + Input.mousePosition + " es=" + es.name + " module=" + es.currentInputModule);
+                foreach (var h in hits) sb.Append("\n  ").Append(h.gameObject.name).Append(" <- ").Append(h.gameObject.transform.parent ? h.gameObject.transform.parent.name : "");
+                if (_moreBtn != null)
+                {
+                    var brt = _moreBtn.GetComponent<RectTransform>();
+                    var c = new Vector3[4]; brt.GetWorldCorners(c);
+                    sb.Append("\n moreBtn corners ").Append(c[0]).Append(" .. ").Append(c[2])
+                      .Append(" contains=").Append(RectTransformUtility.RectangleContainsScreenPoint(brt, Input.mousePosition))
+                      .Append(" active=").Append(_moreBtn.gameObject.activeInHierarchy).Append(" screen=").Append(Screen.width).Append("x").Append(Screen.height)
+                      .Append(" raycaster=").Append(_canvas.GetComponent<UnityEngine.UI.GraphicRaycaster>() != null).Append(" canvasEnabled=").Append(_canvas.enabled);
+                }
+                Debug.Log(sb.ToString());
+            }
             if (Input.GetKeyDown(KeyCode.N)) ShowPanel(_charSelectPanel, true);
             if (Input.GetKeyDown(KeyCode.C)) OnContinue();
             if (Input.GetKeyDown(KeyCode.L)) { Loc.Toggle(); UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
@@ -814,6 +867,30 @@ namespace CoastRun
             string name = Loc.Data("pet." + PetCompanion.Names[k], PetCompanion.Names[k]);
             string[] blurbsEn = { "no pet", "coins ×1.2 while running", "smashes blocking obstacles (12 s cooldown, ×3)", "pulls coins & hearts within 7 m", "saves you once per run (40% HP)" };
             return (Loc.IsKo ? "펫: " : "Pet: ") + name + "  ▸  " + (Loc.IsKo ? PetCompanion.Blurbs[k] : blurbsEn[Mathf.Clamp(k, 0, blurbsEn.Length - 1)]);
+        }
+
+        // 14차-8: 더보기 슬라이드
+        private Button _moreBtn; private Text _moreLabel;
+        private RectTransform _moreRt; private CanvasGroup _moreCg;
+        private Vector2 _moreHidden, _moreShown; private bool _moreOpen; private float _moreT;
+
+        private void ToggleMore()
+        {
+            _audio?.PlayClick();
+            _moreOpen = !_moreOpen;
+            if (_moreLabel != null) _moreLabel.text = _moreOpen ? Loc.T("닫기", "Close") : Loc.T("더보기", "More");
+            if (_moreCg != null) { _moreCg.interactable = _moreOpen; _moreCg.blocksRaycasts = _moreOpen; }
+        }
+
+        private void AnimateMore()
+        {
+            if (_moreRt == null) return;
+            float goal = _moreOpen ? 1f : 0f;
+            if (Mathf.Approximately(_moreT, goal)) return;
+            _moreT = Mathf.MoveTowards(_moreT, goal, Time.unscaledDeltaTime * 4.5f);
+            float e = 1f - Mathf.Pow(1f - _moreT, 3f);   // ease-out
+            _moreRt.anchoredPosition = Vector2.LerpUnclamped(_moreHidden, _moreShown, e);
+            _moreCg.alpha = _moreT;
         }
 
         private void ShowPanel(GameObject panel, bool on)

@@ -270,9 +270,11 @@ namespace CoastRun
                 // Blender) imports facing -X, so a half turn puts the shopfront on the
                 // road side with the body extending away from it.
                 JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 180f);
-                // 14차-2: 목표 이미지의 줄무늬 차양 + 한글 간판 — 두 집에 하나.
-                if (rng.Next(2) == 0)
-                    StreetDressing.ShopFront(pivot, rng, 2.6f + (float)rng.NextDouble() * 0.8f);
+                // 14차-8: 목표 이미지 규칙 — 집마다 간판·차양(소품1), 2층 난간+화분(소품2), 바닥 접지 그림자(AO).
+                StreetDressing.ShopFront(pivot, rng, 2.8f + (float)rng.NextDouble() * 0.9f);
+                if (rng.Next(3) != 0)
+                    StreetDressing.Balcony(pivot, rng, 3.6f + (float)rng.NextDouble() * 0.6f, 5.4f);
+                StreetDressing.ContactShadow(pivot, 9.5f, 1.4f);
 
                 // 돌담 either side of the entrance.
                 for (int side = -1; side <= 1; side += 2)

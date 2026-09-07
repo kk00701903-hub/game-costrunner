@@ -194,6 +194,84 @@ namespace CoastRun
             }
         }
 
+        private static Material _rail, _railDark, _shadowMat;
+        private static Texture2D _shadowTex;
+
+        /// 14차-8: 2층 발코니 — 흰 난간 + 난간 위 수국 화분 2개. 도로 쪽(+X)으로 0.6 m 튀어나와
+        /// 비스듬한 카메라에서도 건물이 '입체'로 읽힌다.
+        public static void Balcony(Transform pivot, System.Random rng, float width, float floorY)
+        {
+            Ensure();
+            _rail ??= CoastMaterials.CreateLit(() => new Color(0.96f, 0.96f, 0.94f), 0.15f);
+            _railDark ??= CoastMaterials.CreateLit(() => new Color(0.32f, 0.36f, 0.42f), 0.1f);
+            var root = new GameObject("Balcony").transform;
+            root.SetParent(pivot, false);
+            root.localPosition = new Vector3(0.35f, floorY, 0f);
+            // 바닥판
+            Box(root, "Slab", new Vector3(0.3f, -0.08f, 0f), new Vector3(0.7f, 0.16f, width), _railDark);
+            // 손잡이 + 기둥
+            Box(root, "Top", new Vector3(0.62f, 0.95f, 0f), new Vector3(0.07f, 0.07f, width), _rail);
+            int posts = Mathf.Max(3, Mathf.RoundToInt(width / 0.45f));
+            for (int i = 0; i < posts; i++)
+            {
+                float z = -width * 0.5f + (width / (posts - 1)) * i;
+                Box(root, "Post", new Vector3(0.62f, 0.48f, z), new Vector3(0.05f, 0.95f, 0.05f), _rail);
+            }
+            for (int s = -1; s <= 1; s += 2)
+                Box(root, "SideRail", new Vector3(0.3f, 0.95f, s * width * 0.5f), new Vector3(0.65f, 0.07f, 0.07f), _rail);
+            // 화분 + 수국
+            int pots = width > 4.2f ? 3 : 2;
+            for (int i = 0; i < pots; i++)
+            {
+                float z = -width * 0.35f + (width * 0.7f / Mathf.Max(1, pots - 1)) * i;
+                Box(root, "Pot", new Vector3(0.42f, 0.16f, z), new Vector3(0.42f, 0.32f, 0.42f), _stem);
+                Hydrangea(root, new Vector3(0.42f, 0.22f, z), rng, 0.5f);
+            }
+        }
+
+        /// 14차-8: 건물 밑동 접지 그림자 — 도로 쪽으로 퍼지는 반투명 검정 그라디언트(가짜 AO).
+        /// 건물이 바닥에 '붙어' 보이게 한다. 조명·SSAO 와 무관하게 늘 보인다.
+        public static void ContactShadow(Transform pivot, float length, float reach)
+        {
+            if (_shadowTex == null)
+            {
+                _shadowTex = new Texture2D(64, 4, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+                for (int x = 0; x < 64; x++)
+                {
+                    float t = x / 63f;
+                    float a = Mathf.Pow(1f - t, 2.2f) * 0.55f;
+                    for (int y = 0; y < 4; y++) _shadowTex.SetPixel(x, y, new Color(0.05f, 0.06f, 0.10f, a));
+                }
+                _shadowTex.Apply();
+                _shadowMat = CoastMaterials.CreateTransparent(Color.white);
+                if (_shadowMat.HasProperty("_BaseMap")) _shadowMat.SetTexture("_BaseMap", _shadowTex); else _shadowMat.mainTexture = _shadowTex;
+                _shadowMat.renderQueue = 2460;
+            }
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            q.name = "ContactShadow";
+            q.transform.SetParent(pivot, false);
+            // Quad 는 XY 평면(법선 -Z) → X축 90° 로 눕히면 법선 +Y. U(그라디언트)=로컬 X=도로 쪽.
+            q.transform.localPosition = new Vector3(0.55f + reach * 0.5f, 0.02f, 0f);
+            q.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            q.transform.localScale = new Vector3(reach, length, 1f);
+            CoastEditUtil.DestroyCollider(q);
+            var r = q.GetComponent<Renderer>();
+            r.sharedMaterial = _shadowMat;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
+        }
+
+        private static void Box(Transform parent, string name, Vector3 pos, Vector3 scale, Material m)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.name = name;
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = pos;
+            go.transform.localScale = scale;
+            go.GetComponent<Renderer>().sharedMaterial = m;
+            CoastEditUtil.DestroyCollider(go);
+        }
+
         /// 바다 쪽 난간 앞 화단: 낮은 돌 화분 + 수국.
         public static void Planter(Transform parent, Vector3 localPos, System.Random rng)
         {

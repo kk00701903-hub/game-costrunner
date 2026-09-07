@@ -32,6 +32,7 @@ namespace CoastRun
         private CoinWallet _wallet;
         private float _pushClock;
         private float _stepClock;
+        private float _pitch, _pitchVel, _bounce, _bounceVel;   // 14차-8: 달리기 기울기·튐
         private int _stepSide = 1;
         private float _collectCooldown;
         private bool _hasPush;
@@ -293,28 +294,37 @@ namespace CoastRun
             float yawTarget = Mathf.Clamp(lv * 3.0f, -18f, 18f);
             _lean = Mathf.SmoothDamp(_lean, leanTarget, ref _leanVel, 0.10f, 800f, dt);
             _yaw = Mathf.SmoothDamp(_yaw, yawTarget, ref _yawVel, 0.10f, 800f, dt);
-            transform.localRotation = Quaternion.Euler(0f, _yaw, _tilt + _lean);
-
             bool grounded = _player.State != SkateState.Air;
+            bool running = grounded && _player.State == SkateState.Run;
             _anim.SetBool(HashGrounded, grounded);
             _anim.SetFloat(HashSpeed, _player.NormalizedSpeed);
-            // 14차-6: 발이 땅을 미끄러지면 '떠다니는' 느낌이 난다 — 달리기 재생 속도를 이동 속도에 맞춘다
-            // (기준 11 m/s에서 1.0, 최고속에서 ~1.55). 공중·피격 중엔 1.0.
-            if (grounded && _player.State == SkateState.Run)
-                _anim.speed = Mathf.Clamp(_player.Speed / 11f, 0.9f, 1.55f);
+            // 14차-8: 발이 땅을 '차고' 나가는 느낌 — 클립(조깅 보폭 ≈ 3 m/s)을 실제 속도에 맞춰 더 빨리 돌리고,
+            // 속도에 따라 몸을 앞으로 기울이며, 발 디딜 때마다 몸이 위아래로 튄다. 공중·피격 중엔 1.0.
+            if (running)
+                _anim.speed = Mathf.Clamp(_player.Speed / 7.5f, 1.0f, 1.9f);
             else
                 _anim.speed = 1f;
-            // 발 디딤 먼지: 달리기 주기(≈0.73 s / 재생속도)의 절반마다 한 번씩 발밑에 '퍽'.
-            if (grounded && _player.State == SkateState.Run)
+            float pitch = running ? 5f + 7f * _player.NormalizedSpeed : 0f;   // 앞으로 기울기
+            _pitch = Mathf.SmoothDamp(_pitch, pitch, ref _pitchVel, 0.25f, 200f, dt);
+            // 발 디딤: 주기(클립 0.73 s)의 절반마다 — 먼지 + 튐(스텝 직후 살짝 내려앉았다 올라온다)
+            float stepPeriod = 0.365f;
+            if (running)
             {
                 _stepClock += Time.deltaTime * _anim.speed;
-                if (_stepClock >= 0.365f)
+                if (_stepClock >= stepPeriod)
                 {
-                    _stepClock = 0f;
+                    _stepClock -= stepPeriod;
                     _stepSide = -_stepSide;
-                    JuiceDirector.Instance?.PuffStep(transform.position + transform.right * (0.12f * _stepSide));
+                    JuiceDirector.Instance?.PuffStep(transform.position + transform.right * (0.14f * _stepSide));
+                    _bounceVel = -0.55f;   // 착지 충격: 아래로
                 }
             }
+            // 스프링: 착지 → 살짝 내려앉음 → 튕겨 올라옴
+            _bounceVel += (-_bounce * 260f - _bounceVel * 18f) * dt;
+            _bounce += _bounceVel * dt;
+            float side = running ? Mathf.Sin(_stepClock / stepPeriod * Mathf.PI) * 0.6f * _stepSide : 0f;   // 어깨 좌우 흔들림(°)
+            transform.localRotation = Quaternion.Euler(_pitch, _yaw, _tilt + _lean + side);
+            transform.localPosition = new Vector3(0f, running ? Mathf.Clamp(_bounce, -0.05f, 0.04f) : 0f, 0f);
 
             // Kick every 1.2–1.8 s while cruising on the ground (slower when fast).
             if (_hasPush && grounded && _player.State == SkateState.Run && !_player.IsCrouching)

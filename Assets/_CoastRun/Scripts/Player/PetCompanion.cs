@@ -105,10 +105,11 @@ namespace CoastRun
             // 새들은 바다 쪽 공중, 깡패는 스쿠터로 뒤쪽 레인 옆을 달린다.
             switch (kind)
             {
-                case PetKind.Sparrow: _offset = new Vector3(1.1f, 1.7f, -0.3f); break;
-                case PetKind.WildGoose: _offset = new Vector3(1.5f, 2.2f, -0.6f); break;
-                case PetKind.BlackPig: _offset = new Vector3(1.25f, 0f, -0.9f); break;   // 옆에서 종종걸음
-                default: _offset = new Vector3(-1.6f, 0.3f, -1.4f); break;
+                // 14차-8: 펫은 주인공 '옆·살짝 앞'(화면 안). 뒤(-z)에 두면 카메라에 가까워 거대하게 잘려 보였다.
+                case PetKind.Sparrow: _offset = new Vector3(0.9f, 1.6f, 0.5f); break;
+                case PetKind.WildGoose: _offset = new Vector3(1.15f, 1.9f, 0.4f); break;
+                case PetKind.BlackPig: _offset = new Vector3(0.95f, 0f, 0.7f); break;   // 옆에서 종종걸음
+                default: _offset = new Vector3(-1.2f, 0.3f, 0.4f); break;
             }
             Build();
             if (_player != null)
@@ -150,7 +151,7 @@ namespace CoastRun
             _body.SetParent(transform, false);
             if (PaintedProp.Available("Pet_" + _kind))
             {
-                float h = _kind == PetKind.BikerThug ? 1.2f : _kind == PetKind.WildGoose ? 0.8f : 0.45f;
+                float h = _kind == PetKind.BikerThug ? 1.1f : _kind == PetKind.WildGoose ? 0.65f : 0.34f;   // 14차-8: 조금 작게
                 PaintedProp.Attach(_body, "Pet_" + _kind, h, replace: false);
                 return;
             }
@@ -301,7 +302,13 @@ namespace CoastRun
                 return;
             }
 
-            transform.position = Vector3.SmoothDamp(transform.position, target, ref _vel, 0.18f);
+            // 14차-8: 진행 방향은 스무딩 없이 따라간다 — 11 m/s 에서 SmoothDamp 지연(≈2 m)으로 펫이
+            // 주인공 뒤·카메라 앞까지 처져 거대하게 잘려 보였다. 좌우·상하만 부드럽게.
+            Vector3 tangent = DownhillPath.Tangent;
+            Vector3 delta = transform.position - target;
+            delta -= tangent * Vector3.Dot(delta, tangent);
+            delta = Vector3.SmoothDamp(delta, Vector3.zero, ref _vel, 0.18f);
+            transform.position = target + delta;
             transform.rotation = frame;
 
             bool bird = _kind != PetKind.BikerThug && _kind != PetKind.BlackPig;

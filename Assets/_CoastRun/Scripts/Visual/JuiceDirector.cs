@@ -184,7 +184,7 @@ namespace CoastRun
             EnsureRunDust();
             if (_runDust == null) return;
             var ep = new ParticleSystem.EmitParams { position = footPos + Vector3.up * 0.03f };
-            _runDust.Emit(ep, 5);
+            _runDust.Emit(ep, 9);   // 14차-8: 발 디딤 먼지 더 또렷하게
         }
 
         public void OnJumpPad(Vector3 worldPos)
@@ -643,8 +643,8 @@ namespace CoastRun
             main.playOnAwake = false;
             main.startLifetime = new ParticleSystem.MinMaxCurve(0.28f, 0.5f);
             main.startSpeed = new ParticleSystem.MinMaxCurve(0.4f, 1.4f);
-            main.startSize = new ParticleSystem.MinMaxCurve(0.10f, 0.26f);
-            main.startColor = new Color(0.86f, 0.82f, 0.74f, 0.42f);
+            main.startSize = new ParticleSystem.MinMaxCurve(0.14f, 0.36f);
+            main.startColor = new Color(0.9f, 0.86f, 0.78f, 0.55f);
             main.gravityModifier = -0.05f;   // 살짝 떠오르며 흩어진다
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.maxParticles = 60;

@@ -110,7 +110,7 @@ namespace CoastRun
             // 14차-3: Kling 젤리(얼굴 있는 슬라임)를 색상별로 돌려 쓴다 — 캡슐 덩어리는 노란 상자처럼 보였다.
             if (PaintedProp.Available(JellyKeys[ci]))
             {
-                var q = PaintedProp.Attach(root, JellyKeys[ci], size * 1.7f, replace: false, groundLift: 0.05f);
+                var q = PaintedProp.Attach(root, JellyKeys[ci], size * 2.05f, replace: false, groundLift: 0.05f, outline: true);   // 14차-8: 1.2배 + 흰 테두리
                 if (q != null) return;
             }
             Color c = JellyColors[ci];

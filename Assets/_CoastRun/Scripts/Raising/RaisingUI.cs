@@ -755,13 +755,13 @@ namespace CoastRun
             var season = Timeline.SeasonOf(Save.week);
             ScheduleJudge.Rhythm = Save.rhythm; ScheduleJudge.SnackOn = Save.snackOn;
             var defs = ScheduleTable.ByCategory(_tab, season);
-            const float h = 122f, gap = 8f;
+            // 14차-8: 카드 = 큰 삽화 + 항목 이름만. 수치 설명은 폰에서 안 읽히니 카드에서 뺐다(탭하면 확인 팝업).
+            const float h = 214f, gap = 10f;
             for (int i = 0; i < defs.Count; i++)
             {
                 var d = defs[i];
                 int col = i % 2, row = i / 2;
-                var card = CoastUiArt.CutePill(_cardRow, "Card_" + d.id, CardColor(d), 14, 3);
-                // 2열: 컨테이너 너비의 절반씩 (고정 폭이면 좁은 안전 영역에서 오른쪽으로 삐져나간다)
+                var card = CoastUiArt.CutePill(_cardRow, "Card_" + d.id, CardColor(d), 16, 3);
                 card.rectTransform.anchorMin = new Vector2(col * 0.5f, 1f); card.rectTransform.anchorMax = new Vector2(col * 0.5f + 0.5f, 1f);
                 card.rectTransform.pivot = new Vector2(0.5f, 1f);
                 card.rectTransform.offsetMin = new Vector2(col == 0 ? 0f : gap * 0.5f, -row * (h + gap) - h);
@@ -774,16 +774,17 @@ namespace CoastRun
                 if (lockReason != null) card.color = Color.Lerp(card.color, new Color(0.45f, 0.45f, 0.5f), 0.7f);
                 btn.onClick.AddListener(() => { Haptic(); if (lockReason != null) Toast(lockReason); else OnCardTapped(def); });
 
-                // 8차: 카드 왼쪽에 활동 삽화(Sched_<id>, 4:3) — 글자 벽 대신 그림으로 고른다
+                // 삽화(Sched_<id>, 4:3): 카드 위쪽을 가득 채운다
                 var schedTex = ArtAssets.LoadTexture("Sched_" + d.id);
+                float nameH = 62f;
                 if (schedTex != null)
                 {
                     var thGo = new GameObject("Thumb", typeof(RectTransform), typeof(Image), typeof(Mask));
                     thGo.transform.SetParent(card.transform, false);
                     var thr = thGo.GetComponent<RectTransform>();
-                    thr.anchorMin = new Vector2(0f, 0f); thr.anchorMax = new Vector2(0f, 1f); thr.pivot = new Vector2(0f, 0.5f);
-                    thr.anchoredPosition = new Vector2(6f, 0f); thr.sizeDelta = new Vector2(96f, -12f);
-                    var thMask = thGo.GetComponent<Image>(); thMask.sprite = CoastUiArt.RoundedRect(10); thMask.type = Image.Type.Sliced; thMask.raycastTarget = false;
+                    thr.anchorMin = new Vector2(0f, 0f); thr.anchorMax = new Vector2(1f, 1f);
+                    thr.offsetMin = new Vector2(6f, nameH); thr.offsetMax = new Vector2(-6f, -6f);
+                    var thMask = thGo.GetComponent<Image>(); thMask.sprite = CoastUiArt.RoundedRect(12); thMask.type = Image.Type.Sliced; thMask.raycastTarget = false;
                     thGo.GetComponent<Mask>().showMaskGraphic = false;
                     var ti = new GameObject("Img", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter)).GetComponent<Image>();
                     ti.transform.SetParent(thGo.transform, false);
@@ -792,26 +793,26 @@ namespace CoastRun
                     var tf = ti.GetComponent<AspectRatioFitter>(); tf.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; tf.aspectRatio = 4f / 3f;
                     if (lockReason != null) ti.color = new Color(0.6f, 0.6f, 0.65f, 1f);
                 }
-                // 9차: 분류 글자는 삽화 왼쪽 위 작은 배지로(그림 위에 흰 글자만 떠 있던 것 정리), 본문은 14px·두 줄
-                var badge = CoastUiArt.Panel(card.transform, "Badge", new Color(0.12f, 0.08f, 0.06f, 0.62f), 8);
+                // 분류 배지(삽화 왼쪽 위)
+                var badge = CoastUiArt.Panel(card.transform, "Badge", new Color(0.12f, 0.08f, 0.06f, 0.66f), 9);
                 badge.raycastTarget = false;
-                Place(badge.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(schedTex != null ? 8f : 10f, -8f), new Vector2(Mathf.Max(34f, d.glyph.Length * 13f + 12f), 22f), new Vector2(0f, 1f));
-                var glyph = Label(badge.transform, "Glyph", d.glyph, 12, Color.white);
-                var name = Label(card.transform, "Name", d.Name, 19, Color.white);
-                name.alignment = TextAnchor.MiddleLeft;
-                CoastUiArt.OutlineText(name, new Color(0f, 0f, 0f, 0.4f), 1.5f);
-                Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 32f), new Vector2(0.5f, 1f));
-                name.rectTransform.offsetMin = new Vector2(schedTex != null ? 110f : 12f, -40f);
-                name.rectTransform.offsetMax = new Vector2(-10f, -8f);
-                var desc = Label(card.transform, "Desc", Describe(d, season), 14, Color.white);
-                desc.alignment = TextAnchor.UpperLeft;
-                desc.horizontalOverflow = HorizontalWrapMode.Wrap;
-                desc.verticalOverflow = VerticalWrapMode.Truncate;
-                desc.lineSpacing = 1.1f;
-                CoastUiArt.OutlineText(desc, new Color(0f, 0f, 0f, 0.28f), 1f);
-                Place(desc.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
-                desc.rectTransform.offsetMin = new Vector2(schedTex != null ? 110f : 12f, 8f);
-                desc.rectTransform.offsetMax = new Vector2(-10f, -42f);
+                Place(badge.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(12f, -12f), new Vector2(Mathf.Max(44f, d.glyph.Length * 17f + 16f), 30f), new Vector2(0f, 1f));
+                var glyph = Label(badge.transform, "Glyph", d.glyph, 16, Color.white);
+                // 이름: 아래 띠, 크게
+                var name = Label(card.transform, "Name", d.Name, 24, Color.white);
+                name.fontStyle = FontStyle.Bold;
+                name.alignment = TextAnchor.MiddleCenter;
+                name.horizontalOverflow = HorizontalWrapMode.Wrap;
+                name.resizeTextForBestFit = true; name.resizeTextMinSize = 16; name.resizeTextMaxSize = CoastHudLayout.Scaled(24);
+                CoastUiArt.OutlineText(name, new Color(0f, 0f, 0f, 0.45f), 1.8f);
+                Place(name.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 4f), new Vector2(0f, nameH - 8f), new Vector2(0.5f, 0f));
+                name.rectTransform.offsetMin = new Vector2(8f, 4f); name.rectTransform.offsetMax = new Vector2(-8f, nameH - 4f);
+                if (lockReason != null)
+                {
+                    var lk = Label(card.transform, "Lock", Loc.T("잠김", "Locked"), 15, new Color(1f, 0.9f, 0.6f));
+                    CoastUiArt.OutlineText(lk, new Color(0f, 0f, 0f, 0.5f), 1.5f);
+                    Place(lk.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -12f), new Vector2(70f, 26f), new Vector2(1f, 1f));
+                }
             }
             int rowsN = (defs.Count + 1) / 2;
             _cardRow.sizeDelta = new Vector2(0f, rowsN * (h + gap));
@@ -1199,6 +1200,10 @@ namespace CoastRun
             _gm.SetQueued(slot, def.id);
             _selectedSlot = -1;
             RefreshSlots();
+            // 14차-8: 카드에서 뺀 수치는 고른 순간 토스트로 한 줄 보여 준다.
+            string info = Describe(def, Timeline.SeasonOf(Save.week));
+            int nl = info.IndexOf('\n');
+            Toast(def.Name + " · " + (nl > 0 ? info.Substring(0, nl) : info));
         }
 
         /// [스토리] 버튼: 남은 칸을 스토리로 채우고 바로 실행.
