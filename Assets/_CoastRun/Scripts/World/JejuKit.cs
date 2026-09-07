@@ -107,7 +107,7 @@ namespace CoastRun
             variant = ((variant % n) + n) % n;
             // 14차-3: 목표 이미지의 2~3층 상가 벽. 키트의 낮은 집(C~H, 4~4.8 m)은 1.3배로 키워
             // 옆집과 거의 붙은 연속 파사드가 되게 한다. A/B(7~10 m 블록)는 그대로.
-            float scale = variant < 2 ? 1f : 1.3f;
+            float scale = variant < 2 ? 1.05f : 1.5f;   // 14차-6: 2~3층 높이(7 m 안팎)로
             var b = Spawn("Bldg_" + (char)('A' + variant), parent, localPos, yawDegrees, scale);
             // 계절 색조 + 건물별 미세 변주(위치 해시): 밝기 ±6%, 따뜻/차가운 쪽으로 ±4%
             float h = Mathf.Abs(Mathf.Sin(localPos.z * 12.9898f + variant * 78.233f + (parent != null ? parent.position.z * 0.37f : 0f)) * 43758.5453f) % 1f;

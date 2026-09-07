@@ -248,7 +248,9 @@ namespace CoastRun
             if (camData != null)
             {
                 camData.renderPostProcessing = true;
-                camData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.FastApproximateAntialiasing;
+                // 14차-6: FXAA는 테두리를 뭉갠다 — SMAA(High)로. 캐릭터 윤곽이 또렷해진다.
+                camData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.SubpixelMorphologicalAntiAliasing;
+                camData.antialiasingQuality = UnityEngine.Rendering.Universal.AntialiasingQuality.High;
                 camData.renderShadows = true;
             }
 

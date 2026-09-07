@@ -21,7 +21,7 @@ namespace CoastRun
                 if (skinned.sharedMesh == null) return;
                 var inkMat = new Material(inkShader);
                 inkMat.SetColor("_OutlineColor", Color.Lerp(CoastPalette.ShadowCool, Color.black, 0.6f));
-                inkMat.SetFloat("_Width", 0.012f);
+                inkMat.SetFloat("_Width", 0.017f);
                 var shell = new GameObject("Outline");
                 shell.transform.SetParent(transform, false);
                 var smr = shell.AddComponent<SkinnedMeshRenderer>();

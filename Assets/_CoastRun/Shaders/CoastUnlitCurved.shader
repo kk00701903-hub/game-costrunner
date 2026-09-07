@@ -17,6 +17,8 @@ Shader "CoastRun/UnlitCurved"
         [HideInInspector] _ZWrite ("ZWrite", Float) = 1
         // 0 Off (billboards), 1 Front (ink outline shells), 2 Back
         [HideInInspector] _Cull ("Cull", Float) = 0
+        // 4 = LEqual(기본). 8 = Always: 수집 링처럼 항상 앞에 보여야 하는 이펙트용.
+        [HideInInspector] _ZTest ("ZTest", Float) = 4
     }
     SubShader
     {
@@ -45,6 +47,7 @@ Shader "CoastRun/UnlitCurved"
             Tags { "LightMode"="UniversalForward" }
             Blend [_SrcBlend] [_DstBlend]
             ZWrite [_ZWrite]
+            ZTest [_ZTest]
             Cull [_Cull]
 
             HLSLPROGRAM

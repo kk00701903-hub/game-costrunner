@@ -78,9 +78,9 @@ namespace CoastRun
             if (!profile.TryGet(out Bloom bloom))
                 bloom = profile.Add<Bloom>(true);
             bloom.active = true;
-            bloom.threshold.Override(1.0f);
-            bloom.intensity.Override(0.85f);   // 14차: 목표 이미지의 햇빛 번짐
-            bloom.scatter.Override(0.7f);
+            bloom.threshold.Override(1.2f);    // 14차-6: 캐릭터·코인이 뿌옇게 번지지 않게 문턱을 올리고 세기를 낮춘다
+            bloom.intensity.Override(0.55f);
+            bloom.scatter.Override(0.6f);
 
             if (!profile.TryGet(out ColorAdjustments color))
                 color = profile.Add<ColorAdjustments>(true);

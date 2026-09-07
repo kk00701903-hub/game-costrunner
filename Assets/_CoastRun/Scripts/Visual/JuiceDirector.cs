@@ -178,6 +178,15 @@ namespace CoastRun
 
         /// 펫(오토바이탄 깡패)이 장애물을 부술 때: 흔들림 + 파편 버스트 + 타격음.
         /// 14차-3: 점프 패드 — 짧은 흔들림 + 스피드라인 + 코인 버스트 하나.
+        /// 14차-6: 발 디딤 먼지 한 번(RunDust 파티클 4~6개를 그 자리에서 터뜨린다).
+        public void PuffStep(Vector3 footPos)
+        {
+            EnsureRunDust();
+            if (_runDust == null) return;
+            var ep = new ParticleSystem.EmitParams { position = footPos + Vector3.up * 0.03f };
+            _runDust.Emit(ep, 5);
+        }
+
         public void OnJumpPad(Vector3 worldPos)
         {
             cameraRig?.Shake(0.18f, 0.12f);
@@ -207,13 +216,22 @@ namespace CoastRun
 
             // amount 0 = jelly: a trail spawns ten of these a second, so a light touch —
             // small ring only. Everything else gets the full pop.
+            // 14차-6: 먹는 순간 아이템은 이미 몸에 겹쳐 있어 터짐이 몸 뒤로 지나갔다 —
+            // 카메라 쪽으로 0.9 m, 위로 0.45 m 당겨서 주인공 앞에서 터지게 한다.
+            var cam = Camera.main != null ? Camera.main.transform : null;
+            Vector3 popPos = worldPos + Vector3.up * 0.45f;
+            if (cam != null)
+            {
+                Vector3 toCam = cam.position - worldPos; toCam.y = 0f;
+                popPos += toCam.normalized * 0.9f;
+            }
             if (amount > 0)
             {
-                SpawnCoinBurst(worldPos, tint, amount >= 2 ? 22 : 16);
-                StartCoroutine(FlashRing(worldPos, tint, amount >= 2 ? 1.9f : 1.4f));
+                SpawnCoinBurst(popPos, tint, amount >= 2 ? 22 : 16);
+                StartCoroutine(FlashRing(popPos, tint, amount >= 2 ? 1.9f : 1.4f));
             }
             else
-                StartCoroutine(FlashRing(worldPos, tint, 0.9f));
+                StartCoroutine(FlashRing(popPos, tint, 0.9f));
             audio?.PlaySfx(CoastSfx.Coin);
         }
 
@@ -223,7 +241,12 @@ namespace CoastRun
         /// 얇은 가산 링이 0.28초 동안 커지며 사라진다(카메라를 보는 쿼드).
         private IEnumerator FlashRing(Vector3 pos, Color tint, float size)
         {
-            _ringMat ??= CoastMaterials.CreateTexturedTransparentCurved(RingTexture(), Color.white, additive: true);
+            if (_ringMat == null)
+            {
+                _ringMat = CoastMaterials.CreateTexturedTransparentCurved(RingTexture(), Color.white, additive: true);
+                if (_ringMat.HasProperty("_ZTest")) _ringMat.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
+                _ringMat.renderQueue = 3500;   // 주인공보다 나중에, 깊이 무시 — 항상 앞에서 보인다
+            }
             var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
             q.name = "CollectRing";
             CoastEditUtil.DestroyCollider(q);
@@ -757,6 +780,8 @@ namespace CoastRun
             // and the burst smeared as screen-sized yellow blobs (even into the letterbox).
             renderer.material = CoastMaterials.CreateParticle(CoastPalette.CoinYellow);
             if (renderer.material.HasProperty("_BaseMap")) renderer.material.SetTexture("_BaseMap", SparkleTexture());
+            if (renderer.material.HasProperty("_ZTest")) renderer.material.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
+            renderer.material.renderQueue = 3500;
             var sol = _coinBurstPrefab.sizeOverLifetime;
             sol.enabled = true;
             sol.size = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(new Keyframe(0f, 0.4f), new Keyframe(0.15f, 1f), new Keyframe(1f, 0f)));

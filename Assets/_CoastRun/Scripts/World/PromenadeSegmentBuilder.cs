@@ -259,7 +259,7 @@ namespace CoastRun
 
             for (int lot = 0; lot < 3; lot++)
             {
-                float z = 5.5f + lot * 9.5f + (float)rng.NextDouble() * 0.8f;
+                float z = 5.0f + lot * 10f + (float)rng.NextDouble() * 0.5f;
                 int variant = rng.Next(n);
                 if (variant == prev) variant = (variant + 1) % n;
                 prev = variant;
@@ -483,28 +483,30 @@ namespace CoastRun
             for (int i = 0; i < 2; i++)
             {
                 float pz = 4f + i * 15f + (float)drng.NextDouble() * 5f;
-                JejuKit.Spawn("Prop_Palm", root, new Vector3(railX + 1.7f, 0f, pz), (float)drng.NextDouble() * 360f, 1.05f + (float)drng.NextDouble() * 0.35f);
+                if (i == 0 || drng.Next(2) == 0)
+                    JejuKit.Spawn("Prop_Palm", root, new Vector3(railX + 2.6f, -0.2f, pz), (float)drng.NextDouble() * 360f, 1.05f + (float)drng.NextDouble() * 0.35f);
             }
             // 난간 앞 화단 두 개.
             StreetDressing.Planter(root, new Vector3(railX - 0.75f, 0f, 4.5f + (float)drng.NextDouble() * 3f), drng);
             StreetDressing.Planter(root, new Vector3(railX - 0.75f, 0f, 19f + (float)drng.NextDouble() * 4f), drng);
 
-            CreateBox(root, "WoodRailBase", new Vector3(railX, 0.4f, Length * 0.5f),
-                new Vector3(0.35f, 0.8f, Length),
-                () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.AccentOrange, 0.45f));
-            CreateBox(root, "WoodRailTop", new Vector3(railX, 1.05f, Length * 0.5f),
-                new Vector3(0.28f, 0.14f, Length),
-                () => Color.Lerp(CoastPalette.TownCream, CoastPalette.AccentOrange, 0.35f));
+            // 14차-6: 목표 이미지의 바다 쪽 — 현무암 돌 방파제(낮은 벽) + 그 위 가는 하늘색 철난간.
+            // 예전 주황 나무 난간은 사진과 달랐다. 돌담 텍스처(Tex_Stonewall_Jeju)를 실제 크기로 타일링.
+            var stone = StoneWallMaterial();
+            var wall = CreateBox(root, "SeaWall", new Vector3(railX, 0.45f, Length * 0.5f),
+                new Vector3(0.55f, 0.9f, Length), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.35f), stone);
+            if (stone != null) SetTiling(wall, Length / 2.4f, 0.9f / 2.4f);
+            CreateBox(root, "SeaWallCap", new Vector3(railX, 0.93f, Length * 0.5f),
+                new Vector3(0.7f, 0.08f, Length), () => Color.Lerp(CoastPalette.TownCream, Color.white, 0.4f));
+            var railCol = new System.Func<Color>(() => Color.Lerp(CoastPalette.SkyBlue, Color.white, 0.55f));
+            CreateBox(root, "RailTop", new Vector3(railX, 1.75f, Length * 0.5f), new Vector3(0.07f, 0.07f, Length), railCol);
+            CreateBox(root, "RailMid", new Vector3(railX, 1.35f, Length * 0.5f), new Vector3(0.05f, 0.05f, Length), railCol);
+            for (float z = 1.2f; z < Length; z += 2.4f)
+                CreateBox(root, "RailPost", new Vector3(railX, 1.36f, z), new Vector3(0.07f, 0.78f, 0.07f), railCol);
 
-            for (float z = 1.5f; z < Length; z += 2.2f)
-            {
-                CreateBox(root, "WoodPost", new Vector3(railX, 0.55f, z),
-                    new Vector3(0.16f, 1.1f, 0.16f),
-                    () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.AccentOrange, 0.45f));
-            }
-
-            CreateBox(root, "Cliff", new Vector3(railX + 3.5f, -4f, Length * 0.5f),
-                new Vector3(6f, 8f, Length), () => CoastPalette.RoadGrey);
+            var cliff = CreateBox(root, "Cliff", new Vector3(railX + 3.5f, -4f, Length * 0.5f),
+                new Vector3(6f, 8f, Length), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.3f), stone);
+            if (stone != null) SetTiling(cliff, Length / 2.4f, 8f / 2.4f);
 
             for (int i = 0; i < 2; i++)
             {

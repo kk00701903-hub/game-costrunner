@@ -31,6 +31,8 @@ namespace CoastRun
         private HealthSystem _health;
         private CoinWallet _wallet;
         private float _pushClock;
+        private float _stepClock;
+        private int _stepSide = 1;
         private float _collectCooldown;
         private bool _hasPush;
 
@@ -296,6 +298,23 @@ namespace CoastRun
             bool grounded = _player.State != SkateState.Air;
             _anim.SetBool(HashGrounded, grounded);
             _anim.SetFloat(HashSpeed, _player.NormalizedSpeed);
+            // 14차-6: 발이 땅을 미끄러지면 '떠다니는' 느낌이 난다 — 달리기 재생 속도를 이동 속도에 맞춘다
+            // (기준 11 m/s에서 1.0, 최고속에서 ~1.55). 공중·피격 중엔 1.0.
+            if (grounded && _player.State == SkateState.Run)
+                _anim.speed = Mathf.Clamp(_player.Speed / 11f, 0.9f, 1.55f);
+            else
+                _anim.speed = 1f;
+            // 발 디딤 먼지: 달리기 주기(≈0.73 s / 재생속도)의 절반마다 한 번씩 발밑에 '퍽'.
+            if (grounded && _player.State == SkateState.Run)
+            {
+                _stepClock += Time.deltaTime * _anim.speed;
+                if (_stepClock >= 0.365f)
+                {
+                    _stepClock = 0f;
+                    _stepSide = -_stepSide;
+                    JuiceDirector.Instance?.PuffStep(transform.position + transform.right * (0.12f * _stepSide));
+                }
+            }
 
             // Kick every 1.2–1.8 s while cruising on the ground (slower when fast).
             if (_hasPush && grounded && _player.State == SkateState.Run && !_player.IsCrouching)
