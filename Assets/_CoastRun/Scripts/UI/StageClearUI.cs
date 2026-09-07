@@ -57,7 +57,7 @@ namespace CoastRun
             _onRetry = onRetry;
 
             _title.text = chapterComplete ? $"CHAPTER {stage.chapterIndex} COMPLETE" : "STAGE CLEAR";
-            _title.color = chapterComplete ? CoastHudLayout.AccentWarm : CoastHudLayout.AccentCyan;
+            _title.color = new Color(0.24f, 0.15f, 0.12f);
             _stageLabel.text = $"S{stage.stageIndex:00}  {stage.stageName}";
 
             string continueLabel = stage.stageIndex >= 20 ? Loc.T("도착", "Arrived") : Loc.T("다음 스테이지", "Next stage");
@@ -68,11 +68,14 @@ namespace CoastRun
                 var rec = gm.Save.CurrentChapter;
                 var grade = gm.LastGrade;
                 _title.text = Loc.T($"CHAPTER {gm.Save.chapter}  ·  {ChapterGrading.GradeLabel(grade)}급", $"CHAPTER {gm.Save.chapter}  ·  RANK {ChapterGrading.GradeLabel(grade)}");
-                _title.color = grade == ChapterGrade.S ? new Color(1f, 0.85f, 0.3f) : CoastHudLayout.AccentCyan;
+                _title.color = grade == ChapterGrade.S ? new Color(0.72f, 0.52f, 0.05f) : new Color(0.24f, 0.15f, 0.12f);
                 CoastAudioManager.PlayAnywhere(grade == ChapterGrade.S ? CoastSfx.RankS : CoastSfx.ChapterClear);
                 string heartLine = rec != null
                     ? Loc.T($"말랑이 하트 {rec.heartsEarned} / {rec.heartsTarget}  (런닝 +{gm.LastRunHearts})", $"Hearts {rec.heartsEarned} / {rec.heartsTarget}  (run +{gm.LastRunHearts})")
                     : Loc.T($"말랑이 하트 +{gm.LastRunHearts}", $"Hearts +{gm.LastRunHearts}");
+                // 8차 노을 규칙
+                if (gm.LastRunLate) heartLine = Loc.T("해가 진 뒤에 도착했어… 하트 −40%   ·   ", "Arrived after sunset… hearts −40%   ·   ") + heartLine;
+                else if (gm.LastRunEarly) heartLine = Loc.T("노을 안에 도착! 하트 +10%   ·   ", "Made it before sunset! hearts +10%   ·   ") + heartLine;
                 if (grade != ChapterGrade.S)
                 {
                     int need = Mathf.CeilToInt((rec != null ? rec.heartsTarget : 0) * ChapterGrading.S_Ratio) - (rec != null ? rec.heartsEarned : 0);
@@ -99,11 +102,42 @@ namespace CoastRun
                     label.text = continueLabel;
             }
 
+            // 9차: 등급 배지(큰 글자 원) — S 금, A 코랄, 그 외 하늘색
+            if (_gradeBadge != null && GameManager.Active)
+            {
+                var g = GameManager.I.LastGrade;
+                _gradeText.text = ChapterGrading.GradeLabel(g);
+                _gradeBadge.color = g == ChapterGrade.S ? new Color(1f, 0.80f, 0.25f) : g == ChapterGrade.A ? new Color(1f, 0.44f, 0.57f) : new Color(0.45f, 0.68f, 0.90f);
+                _gradeBadge.gameObject.SetActive(true);
+            }
+            else if (_gradeBadge != null) _gradeBadge.gameObject.SetActive(false);
+
+            HideRunHud(true);
             _root.SetActive(true);
 
             if (_settle != null)
                 StopCoroutine(_settle);
             _settle = StartCoroutine(Settle(stage));
+        }
+
+        // 9차: 정산 카드가 뜰 때 런 HUD(체력·점수·여정 바)를 숨긴다 — 겹쳐 보이던 것 정리.
+        private readonly System.Collections.Generic.List<Canvas> _hiddenHud = new System.Collections.Generic.List<Canvas>();
+        private void HideRunHud(bool hide)
+        {
+            if (hide)
+            {
+                _hiddenHud.Clear();
+                foreach (var c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+                {
+                    if (c == null || c == _canvas || !c.enabled || c.sortingOrder >= 200) continue;
+                    c.enabled = false; _hiddenHud.Add(c);
+                }
+            }
+            else
+            {
+                foreach (var c in _hiddenHud) if (c != null) c.enabled = true;
+                _hiddenHud.Clear();
+            }
         }
 
         public void ShowFinal(StageDef stage, Action onContinue, Action onRetry)
@@ -132,6 +166,7 @@ namespace CoastRun
             }
             if (_root != null)
                 _root.SetActive(false);
+            HideRunHud(false);
             shop?.HidePanel();
         }
 
@@ -283,92 +318,119 @@ namespace CoastRun
             var rt = _root.GetComponent<RectTransform>();
             rt.anchorMin = Vector2.zero;
             rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            _root.GetComponent<Image>().color = new Color(0.02f, 0.06f, 0.12f, 0.86f);
+            rt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
+            rt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+            // 9차: 남색 반투명 판 → 딤 + 금테 크림 카드(육성 로그 패널과 같은 언어). 글은 잉크색.
+            _root.GetComponent<Image>().color = new Color(0.08f, 0.04f, 0.08f, 0.72f);
+            var frame = CoastUiArt.Panel(_root.transform, "Card", new Color(0.83f, 0.69f, 0.22f, 1f), 26);
+            var frt = frame.rectTransform; frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0.5f); frt.sizeDelta = new Vector2(620f, 860f); frt.anchoredPosition = new Vector2(0f, 10f);
+            frame.raycastTarget = false;
+            var paper = CoastUiArt.Panel(frame.transform, "Paper", new Color(0.99f, 0.96f, 0.90f, 1f), 23);
+            var prt = paper.rectTransform; prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one; prt.offsetMin = new Vector2(4f, 4f); prt.offsetMax = new Vector2(-4f, -4f);
+            paper.raycastTarget = false;
+            _card = prt;
 
-            _title = Label("Title", "STAGE CLEAR", 34, 0.86f, 0.94f);
-            _title.color = CoastHudLayout.AccentCyan;
+            // 등급 배지(원) + 제목
+            _gradeBadge = CoastUiArt.Panel(_card, "Grade", new Color(1f, 0.80f, 0.25f), 46);
+            var grt = _gradeBadge.rectTransform; grt.anchorMin = grt.anchorMax = new Vector2(0.5f, 1f); grt.pivot = new Vector2(0.5f, 1f);
+            grt.anchoredPosition = new Vector2(0f, -22f); grt.sizeDelta = new Vector2(92f, 92f);
+            _gradeBadge.raycastTarget = false;
+            var ring = CoastUiArt.Panel(_gradeBadge.transform, "Ring", new Color(1f, 1f, 1f, 0.55f), 42);
+            var rrt = ring.rectTransform; rrt.anchorMin = Vector2.zero; rrt.anchorMax = Vector2.one; rrt.offsetMin = new Vector2(5f, 5f); rrt.offsetMax = new Vector2(-5f, -5f);
+            ring.raycastTarget = false;
+            var core = CoastUiArt.Panel(ring.transform, "Core", new Color(1f, 1f, 1f, 0f), 38);
+            core.raycastTarget = false;
+            _gradeText = CoastHudLayout.MakeText(_gradeBadge.rectTransform, "T", "S", 46, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, new Vector2(0f, 2f));
+            _gradeText.color = Color.white; _gradeText.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_gradeText, new Color(0.3f, 0.15f, 0.05f, 0.6f), 1.6f);
 
-            _stageLabel = Label("Stage", "", 20, 0.775f, 0.865f);
-            _stageLabel.resizeTextForBestFit = true; _stageLabel.resizeTextMinSize = 12; _stageLabel.resizeTextMaxSize = 20;
+            _title = CardLabel("Title", "STAGE CLEAR", 30, -122f, 40f);
+            _title.color = new Color(0.24f, 0.15f, 0.12f); _title.fontStyle = FontStyle.Bold;
+
+            _stageLabel = CardLabel("Stage", "", 16, -166f, 96f);
+            _stageLabel.resizeTextForBestFit = true; _stageLabel.resizeTextMinSize = 13; _stageLabel.resizeTextMaxSize = 19;
             _stageLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
-            _stageLabel.color = new Color(0.75f, 0.82f, 0.88f);
+            _stageLabel.color = new Color(0.36f, 0.30f, 0.28f);
 
-            _lineCoins = Label("Coins", "", 21, 0.705f, 0.755f);
-            _lineNearMiss = Label("NearMiss", "", 21, 0.655f, 0.705f);
-            _lineCombo = Label("Combo", "", 19, 0.61f, 0.655f);
-            _lineCombo.color = CoastHudLayout.AccentWarm;
+            var divider = CoastUiArt.Panel(_card, "Div", new Color(0.83f, 0.69f, 0.22f, 0.5f), 2);
+            var drt = divider.rectTransform; drt.anchorMin = new Vector2(0.1f, 1f); drt.anchorMax = new Vector2(0.9f, 1f); drt.pivot = new Vector2(0.5f, 1f);
+            drt.anchoredPosition = new Vector2(0f, -272f); drt.sizeDelta = new Vector2(0f, 2f); divider.raycastTarget = false;
 
-            _lineTotal = Label("Total", "", 26, 0.545f, 0.605f);
-            _lineTotal.color = CoastHudLayout.AccentCyan;
-
-            _lineHeld = Label("Held", "", 17, 0.505f, 0.545f);
-            _lineHeld.color = new Color(0.62f, 0.68f, 0.74f);
+            _lineCoins = CardLabel("Coins", "", 20, -286f, 40f);
+            _lineNearMiss = CardLabel("NearMiss", "", 20, -326f, 40f);
+            _lineCombo = CardLabel("Combo", "", 18, -366f, 36f);
+            _lineCombo.color = new Color(0.85f, 0.45f, 0.20f);
+            _lineTotal = CardLabel("Total", "", 28, -412f, 48f);
+            _lineTotal.color = new Color(1f, 0.44f, 0.57f); _lineTotal.fontStyle = FontStyle.Bold;
+            _lineHeld = CardLabel("Held", "", 15, -462f, 30f);
+            _lineHeld.color = new Color(0.55f, 0.50f, 0.48f);
+            foreach (var l in new[] { _lineCoins, _lineNearMiss }) l.color = new Color(0.24f, 0.15f, 0.12f);
 
             BuildJourneyBar();
 
             _shopHost = new GameObject("UpgradeHost", typeof(RectTransform));
-            _shopHost.transform.SetParent(_root.transform, false);
+            _shopHost.transform.SetParent(_card, false);
             var sht = _shopHost.GetComponent<RectTransform>();
-            sht.anchorMin = new Vector2(0.06f, 0.24f);
-            sht.anchorMax = new Vector2(0.94f, 0.44f);
+            sht.anchorMin = new Vector2(0.06f, 0.16f);
+            sht.anchorMax = new Vector2(0.94f, 0.36f);
             sht.offsetMin = Vector2.zero;
             sht.offsetMax = Vector2.zero;
 
-            _continueBtn = MakeButton(_root.transform, "Continue", new Vector2(0.52f, 0.08f),
-                new Vector2(0.92f, 0.185f), Loc.T("다음 스테이지", "Next stage"), () => _onContinue?.Invoke());
-            _retryBtn = MakeButton(_root.transform, "Retry", new Vector2(0.08f, 0.08f),
-                new Vector2(0.48f, 0.185f), Loc.T("다시", "Retry"), () => _onRetry?.Invoke());
+            _continueBtn = MakeButton(_card, "Continue", new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(520f, 60f),
+                Loc.T("다음 스테이지", "Next stage"), new Color(1f, 0.44f, 0.57f), () => _onContinue?.Invoke());
+            _retryBtn = MakeButton(_card, "Retry", new Vector2(0.5f, 0f), new Vector2(0f, 28f), new Vector2(520f, 56f),
+                Loc.T("다시 달리기", "Run again"), new Color(0.62f, 0.60f, 0.66f), () => _onRetry?.Invoke());
         }
+
+        private RectTransform _card; private Image _gradeBadge; private Text _gradeText;
 
         private void BuildJourneyBar()
         {
-            var track = new GameObject("JourneyTrack", typeof(RectTransform), typeof(Image));
-            track.transform.SetParent(_root.transform, false);
-            var trt = track.GetComponent<RectTransform>();
-            trt.anchorMin = new Vector2(0.1f, 0.475f);
-            trt.anchorMax = new Vector2(0.9f, 0.487f);
-            trt.offsetMin = Vector2.zero;
-            trt.offsetMax = Vector2.zero;
-            track.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.12f);
+            var track = CoastUiArt.CutePill(_card, "JourneyTrack", new Color(0.86f, 0.80f, 0.68f, 1f), 8, 2);
+            var trt = track.rectTransform;
+            trt.anchorMin = new Vector2(0.1f, 1f); trt.anchorMax = new Vector2(0.9f, 1f); trt.pivot = new Vector2(0.5f, 1f);
+            trt.anchoredPosition = new Vector2(0f, -500f); trt.sizeDelta = new Vector2(0f, 16f);
+            track.raycastTarget = false;
 
             var fill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
             fill.transform.SetParent(track.transform, false);
             _journeyFill = fill.GetComponent<Image>();
-            _journeyFill.color = CoastHudLayout.AccentCyan;
+            _journeyFill.sprite = CoastUiArt.RoundedRect(6); _journeyFill.type = Image.Type.Sliced;
+            _journeyFill.color = new Color(1f, 0.55f, 0.28f, 1f);
+            _journeyFill.raycastTarget = false;
             var frt = _journeyFill.rectTransform;
             frt.anchorMin = Vector2.zero;
             frt.anchorMax = new Vector2(0f, 1f);
-            frt.offsetMin = Vector2.zero;
-            frt.offsetMax = Vector2.zero;
+            frt.offsetMin = new Vector2(3f, 3f);
+            frt.offsetMax = new Vector2(0f, -3f);
 
-            _journey = Label("Journey", "", 15, 0.44f, 0.472f);
-            _journey.color = new Color(0.68f, 0.75f, 0.82f);
+            _journey = CardLabel("Journey", "", 14, -522f, 26f);
+            _journey.color = new Color(0.50f, 0.44f, 0.42f);
         }
 
-        private Text Label(string name, string value, int size, float yMin, float yMax)
+        /// 카드 상단 기준 y(음수)·높이로 놓는 가운데 정렬 글자.
+        private Text CardLabel(string name, string value, int size, float y, float h)
         {
-            return CoastHudLayout.MakeText(_root.transform, name, value, size,
-                TextAnchor.MiddleCenter,
-                new Vector2(0.08f, yMin), new Vector2(0.92f, yMax), Vector2.zero, Vector2.zero);
+            var t = CoastHudLayout.MakeText(_card, name, value, size, TextAnchor.MiddleCenter,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(28f, y - h), new Vector2(-28f, y));
+            return t;
         }
 
-        private static Button MakeButton(Transform parent, string name, Vector2 aMin, Vector2 aMax,
-            string label, Action onClick)
+        private static Button MakeButton(Transform parent, string name, Vector2 anchor, Vector2 pos, Vector2 size,
+            string label, Color color, Action onClick)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
-            go.transform.SetParent(parent, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = aMin;
-            rt.anchorMax = aMax;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            go.GetComponent<Image>().color = new Color(0.12f, 0.28f, 0.42f, 0.95f);
-            var btn = go.GetComponent<Button>();
+            var pill = CoastUiArt.CutePill(parent, name, color, 18, 4);
+            var rt = pill.rectTransform;
+            rt.anchorMin = rt.anchorMax = anchor; rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = pos; rt.sizeDelta = size;
+            pill.raycastTarget = true;
+            var btn = pill.gameObject.AddComponent<Button>();
+            btn.transition = Selectable.Transition.None;
             btn.onClick.AddListener(() => onClick?.Invoke());
-            CoastHudLayout.MakeText(go.transform, "Label", label, 19, TextAnchor.MiddleCenter,
+            var t = CoastHudLayout.MakeText(pill.transform, "Label", label, 21, TextAnchor.MiddleCenter,
                 Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            t.color = Color.white; t.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.5f);
             return btn;
         }
     }

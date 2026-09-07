@@ -126,6 +126,29 @@ namespace CoastRun
             Refresh();
             _gm.OnSaveChanged -= HandleSaveChanged;
             _gm.OnSaveChanged += HandleSaveChanged;
+            if (_gm.IsRetry && _gm.RetryRunPending) { StartCoroutine(RetryThenRun()); return; }
+            // 9차 온보딩: 첫 주에 한 번 — 뭘 눌러야 하는지(스케줄 3칸 → 실행) 손가락 대신 말풍선+버튼 펄스로.
+            if (Save != null && Save.week == 1 && Save.phaseIndex == 0 && PlayerPrefs.GetInt("coast.tut.raise", 0) == 0)
+            {
+                PlayerPrefs.SetInt("coast.tut.raise", 1);
+                StartCoroutine(OnboardRaise());
+            }
+        }
+
+        private IEnumerator OnboardRaise()
+        {
+            yield return new WaitForSecondsRealtime(0.6f);
+            _bubble.text = Loc.T("먼저 스케줄 3칸을 채우고 「실행」! 챕터 마지막 주엔 송전탑까지 달려.", "Fill 3 schedule slots, then Go! Last week of a chapter: run to the tower.");
+            Toast(Loc.T("스케줄 → 3칸 채우기 → 실행", "Plan → fill 3 slots → Go"));
+            var rt = _scheduleBtn != null ? _scheduleBtn.GetComponent<RectTransform>() : null;
+            float t = 0f;
+            while (t < 3.2f && rt != null)
+            {
+                t += Time.unscaledDeltaTime;
+                rt.localScale = Vector3.one * (1f + 0.07f * Mathf.Max(0f, Mathf.Sin(t * 5f)));
+                yield return null;
+            }
+            if (rt != null) rt.localScale = Vector3.one;
         }
 
         private void OnDestroy()
@@ -241,15 +264,15 @@ namespace CoastRun
             var inner = bar.transform;
 
             // [2월 2일 화 📅] 자리 → 주차·계절·요일(챕터 남은 주)
-            _dateLabel = Pill(inner, "Date", "1주차 · 봄", 20, new Vector2(0f, 0.5f), new Vector2(10f, 0f), new Vector2(236f, 52f), Wood, GoldLight);
+            _dateLabel = Pill(inner, "Date", "1주차 · 봄", 20, new Vector2(0f, 0.5f), new Vector2(10f, 0f), new Vector2(236f, 52f), Wood, Ivory);
             AddHit(_dateLabel.transform.parent.gameObject, OpenTimeline);
             // [💰 500G]
-            _moneyLabel = Pill(inner, "Money", "300", 20, new Vector2(0f, 0.5f), new Vector2(256f, 0f), new Vector2(160f, 52f), Wood, GoldLight, iconTex: CoastUiArt.CoinIcon);
+            _moneyLabel = Pill(inner, "Money", "300", 20, new Vector2(0f, 0.5f), new Vector2(256f, 0f), new Vector2(160f, 52f), Wood, Ivory, iconTex: CoastUiArt.CoinIcon);
             AddHit(_moneyLabel.transform.parent.gameObject, OpenShop);
             // [⭐ Lv.10] → 챕터
-            _levelLabel = Pill(inner, "Level", "CH 1", 20, new Vector2(0f, 0.5f), new Vector2(426f, 0f), new Vector2(136f, 52f), Wood, GoldLight, iconSprite: CoastUiArt.Icon("Star"));
+            _levelLabel = Pill(inner, "Level", "CH 1", 20, new Vector2(0f, 0.5f), new Vector2(426f, 0f), new Vector2(136f, 52f), Wood, Ivory, iconSprite: CoastUiArt.Icon("Star"));
             // [컨디션 ❤️]
-            _condLabel = Pill(inner, "Cond", "최상", 18, new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(116f, 52f), Wood, GoldLight, iconSprite: CoastUiArt.Icon("Heart"));
+            _condLabel = Pill(inner, "Cond", "최상", 18, new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(116f, 52f), Wood, Ivory, iconSprite: CoastUiArt.Icon("Heart"));
             _condHeart = _condLabel.transform.parent.Find("Icon")?.GetComponent<Image>();
         }
 
@@ -261,9 +284,20 @@ namespace CoastRun
             var host = frame.transform.Find("Inner") as RectTransform;
 
             // 배경: Resources/CoastRun/UI_Raising_Room(계절별 _<Season> 우선). 없으면 우드 그라데이션 + 소품 실루엣.
-            _roomBg = new GameObject("RoomBg", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-            _roomBg.transform.SetParent(host, false);
-            Stretch(_roomBg.rectTransform, 0f, 0f, 0f, 0f);
+            // 8차: 그림은 세로(810×1440) — 방 영역을 마스크로 두고 그림은 cover(EnvelopeParent)로 채운다(위쪽 창문이 보이게 상단 정렬).
+            var bgMaskGo = new GameObject("RoomBgMask", typeof(RectTransform), typeof(Image), typeof(Mask));
+            bgMaskGo.transform.SetParent(host, false);
+            Stretch(bgMaskGo.GetComponent<RectTransform>(), 0f, 0f, 0f, 0f);
+            var bgMaskImg = bgMaskGo.GetComponent<Image>();
+            bgMaskImg.color = Hex("#A1887F"); bgMaskImg.raycastTarget = false;
+            bgMaskGo.GetComponent<Mask>().showMaskGraphic = true;
+            _roomBg = new GameObject("RoomBg", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter)).GetComponent<Image>();
+            _roomBg.transform.SetParent(bgMaskGo.transform, false);
+            var rbr = _roomBg.rectTransform;
+            rbr.anchorMin = new Vector2(0f, 1f); rbr.anchorMax = new Vector2(1f, 1f); rbr.pivot = new Vector2(0.5f, 1f);
+            rbr.anchoredPosition = Vector2.zero; rbr.sizeDelta = Vector2.zero;
+            var rbf = _roomBg.GetComponent<AspectRatioFitter>();
+            rbf.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight; rbf.aspectRatio = 810f / 1440f;
             _roomBg.color = Hex("#A1887F");
             _roomBg.raycastTarget = false;
             _roomBg.preserveAspect = false;
@@ -310,26 +344,27 @@ namespace CoastRun
                 _heartsLabel.rectTransform.offsetMin = new Vector2(40f, 0f);
             }
 
-            // 우상단 미니 버튼: 상점 / 타임라인 / 저장·타이틀
-            SmallButton(host, "ShopBtn", Loc.T("상점", "Shop"), Sun, new Vector2(1f, 1f), new Vector2(-10f, -10f), 96f, OpenShop);
-            SmallButton(host, "TimelineBtn", Loc.T("타임라인", "Chapters"), Sky, new Vector2(1f, 1f), new Vector2(-112f, -10f), 120f, OpenTimeline);
-            SmallButton(host, "TitleBtn", Loc.T("저장", "Save"), new Color(0.55f, 0.50f, 0.48f), new Vector2(1f, 1f), new Vector2(-10f, -60f), 96f,
-                () => Confirm(Loc.T("타이틀로 돌아갈까?", "Back to title?"), Loc.T("진행은 자동 저장돼.", "Progress is auto-saved."), () => _gm.ToTitle()));
-            SmallButton(host, "CollBtn", Loc.T("컬렉션", "Collection"), new Color(0.80f, 0.45f, 0.55f), new Vector2(1f, 1f), new Vector2(-214f, -10f), 96f, () => { if (!_busy) CollectionUI.Open(Refresh); });
-            SmallButton(host, "ArcadeBtn", Loc.T("달리기", "Run"), new Color(0.95f, 0.55f, 0.25f), new Vector2(1f, 1f), new Vector2(-316f, -10f), 90f, () => { if (!_busy) ArcadeUI.Open(true); });
-            // v3 생활 리듬(프메 식단): 보통 → 빡세게 → 무리 안 함 순환. 간식비 토글은 길게가 아닌 두 번째 버튼.
+            // 9차: 우측 세로 아이콘 독(모바일 표준) — 작은 알약 6개가 캐릭터 위를 덮던 것을 정리.
+            int di = 0;
+            DockButton(host, "ArcadeBtn", "Speed", Loc.T("달리기", "Run"), new Color(0.95f, 0.55f, 0.25f), di++, () => { if (!_busy) ArcadeUI.Open(true); });
+            DockButton(host, "TimelineBtn", "Tower", Loc.T("챕터", "Chapters"), Sky, di++, OpenTimeline);
+            DockButton(host, "CollBtn", "Star", Loc.T("컬렉션", "Album"), new Color(0.80f, 0.45f, 0.55f), di++, () => { if (!_busy) CollectionUI.Open(Refresh); });
+            DockButton(host, "ShopBtn", "Coin", Loc.T("상점", "Shop"), Sun, di++, OpenShop);
+            // v3 생활 리듬(프메 식단): 보통 → 빡세게 → 무리 안 함 순환.
             Button rhythmBtn = null;
-            rhythmBtn = SmallButton(host, "RhythmBtn", RhythmLabel(), new Color(0.62f, 0.52f, 0.80f), new Vector2(1f, 1f), new Vector2(-112f, -60f), 120f, () =>
+            rhythmBtn = DockButton(host, "RhythmBtn", "Heart", RhythmLabel(), new Color(0.62f, 0.52f, 0.80f), di++, () =>
             {
                 if (Save == null) return;
                 Save.rhythm = (LifeRhythm)(((int)Save.rhythm + 1) % 3);
                 _gm.Persist();
-                var t = rhythmBtn.GetComponentInChildren<Text>(); if (t != null) t.text = RhythmLabel();
+                var t = rhythmBtn.transform.parent.Find("Label")?.GetComponent<Text>(); if (t != null) t.text = RhythmLabel();
                 Toast(Save.rhythm == LifeRhythm.Hard ? Loc.T("빡세게: 체력 성장 ×1.3, 스트레스 ×1.3", "Hard: stamina ×1.3, stress ×1.3")
                     : Save.rhythm == LifeRhythm.Easy ? Loc.T("무리 안 함: 체력 성장 ×0.8, 스트레스 ×0.7", "Easy: stamina ×0.8, stress ×0.7")
                     : Loc.T("보통 리듬", "Normal rhythm"));
                 RefreshCards();
             });
+            DockButton(host, "TitleBtn", null, Loc.T("홈", "Home"), new Color(0.55f, 0.50f, 0.48f), di++,
+                () => Confirm(Loc.T("타이틀로 돌아갈까?", "Back to title?"), Loc.T("진행은 자동 저장돼.", "Progress is auto-saved."), () => _gm.ToTitle()));
         }
 
         // ── 3. Stats Tab Area ───────────────────────────────────────────
@@ -602,12 +637,7 @@ namespace CoastRun
         }
 
         /// 버튼 탭 햅틱. 모바일에서만 진동 — 에디터/데스크톱은 무시.
-        private static void Haptic()
-        {
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
-            Handheld.Vibrate();
-#endif
-        }
+        private static void Haptic() => CoastPrefs.Vibrate();
 
         // ── 스케줄 시트 (하단 모달) ────────────────────────────────────
 
@@ -725,7 +755,7 @@ namespace CoastRun
             var season = Timeline.SeasonOf(Save.week);
             ScheduleJudge.Rhythm = Save.rhythm; ScheduleJudge.SnackOn = Save.snackOn;
             var defs = ScheduleTable.ByCategory(_tab, season);
-            const float h = 112f, gap = 8f;
+            const float h = 122f, gap = 8f;
             for (int i = 0; i < defs.Count; i++)
             {
                 var d = defs[i];
@@ -744,22 +774,44 @@ namespace CoastRun
                 if (lockReason != null) card.color = Color.Lerp(card.color, new Color(0.45f, 0.45f, 0.5f), 0.7f);
                 btn.onClick.AddListener(() => { Haptic(); if (lockReason != null) Toast(lockReason); else OnCardTapped(def); });
 
-                var glyph = Label(card.transform, "Glyph", d.glyph, 20, Color.white);
-                CoastUiArt.OutlineText(glyph, new Color(0f, 0f, 0f, 0.35f), 1.5f);
-                Place(glyph.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -8f), new Vector2(64f, 32f), new Vector2(0f, 1f));
-                var name = Label(card.transform, "Name", d.Name, 18, Color.white);
+                // 8차: 카드 왼쪽에 활동 삽화(Sched_<id>, 4:3) — 글자 벽 대신 그림으로 고른다
+                var schedTex = ArtAssets.LoadTexture("Sched_" + d.id);
+                if (schedTex != null)
+                {
+                    var thGo = new GameObject("Thumb", typeof(RectTransform), typeof(Image), typeof(Mask));
+                    thGo.transform.SetParent(card.transform, false);
+                    var thr = thGo.GetComponent<RectTransform>();
+                    thr.anchorMin = new Vector2(0f, 0f); thr.anchorMax = new Vector2(0f, 1f); thr.pivot = new Vector2(0f, 0.5f);
+                    thr.anchoredPosition = new Vector2(6f, 0f); thr.sizeDelta = new Vector2(96f, -12f);
+                    var thMask = thGo.GetComponent<Image>(); thMask.sprite = CoastUiArt.RoundedRect(10); thMask.type = Image.Type.Sliced; thMask.raycastTarget = false;
+                    thGo.GetComponent<Mask>().showMaskGraphic = false;
+                    var ti = new GameObject("Img", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter)).GetComponent<Image>();
+                    ti.transform.SetParent(thGo.transform, false);
+                    ti.sprite = CoastUiArt.AsSprite(schedTex); ti.raycastTarget = false;
+                    var tir = ti.rectTransform; tir.anchorMin = Vector2.zero; tir.anchorMax = Vector2.one; tir.offsetMin = Vector2.zero; tir.offsetMax = Vector2.zero;
+                    var tf = ti.GetComponent<AspectRatioFitter>(); tf.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; tf.aspectRatio = 4f / 3f;
+                    if (lockReason != null) ti.color = new Color(0.6f, 0.6f, 0.65f, 1f);
+                }
+                // 9차: 분류 글자는 삽화 왼쪽 위 작은 배지로(그림 위에 흰 글자만 떠 있던 것 정리), 본문은 14px·두 줄
+                var badge = CoastUiArt.Panel(card.transform, "Badge", new Color(0.12f, 0.08f, 0.06f, 0.62f), 8);
+                badge.raycastTarget = false;
+                Place(badge.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(schedTex != null ? 8f : 10f, -8f), new Vector2(Mathf.Max(34f, d.glyph.Length * 13f + 12f), 22f), new Vector2(0f, 1f));
+                var glyph = Label(badge.transform, "Glyph", d.glyph, 12, Color.white);
+                var name = Label(card.transform, "Name", d.Name, 19, Color.white);
                 name.alignment = TextAnchor.MiddleLeft;
-                CoastUiArt.OutlineText(name, new Color(0f, 0f, 0f, 0.35f), 1.5f);
+                CoastUiArt.OutlineText(name, new Color(0f, 0f, 0f, 0.4f), 1.5f);
                 Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 32f), new Vector2(0.5f, 1f));
-                name.rectTransform.offsetMin = new Vector2(78f, -40f);
+                name.rectTransform.offsetMin = new Vector2(schedTex != null ? 110f : 12f, -40f);
                 name.rectTransform.offsetMax = new Vector2(-10f, -8f);
-                var desc = Label(card.transform, "Desc", Describe(d, season), 13, Color.white);
+                var desc = Label(card.transform, "Desc", Describe(d, season), 14, Color.white);
                 desc.alignment = TextAnchor.UpperLeft;
                 desc.horizontalOverflow = HorizontalWrapMode.Wrap;
                 desc.verticalOverflow = VerticalWrapMode.Truncate;
+                desc.lineSpacing = 1.1f;
+                CoastUiArt.OutlineText(desc, new Color(0f, 0f, 0f, 0.28f), 1f);
                 Place(desc.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
-                desc.rectTransform.offsetMin = new Vector2(12f, 8f);
-                desc.rectTransform.offsetMax = new Vector2(-10f, -44f);
+                desc.rectTransform.offsetMin = new Vector2(schedTex != null ? 110f : 12f, 8f);
+                desc.rectTransform.offsetMax = new Vector2(-10f, -42f);
             }
             int rowsN = (defs.Count + 1) / 2;
             _cardRow.sizeDelta = new Vector2(0f, rowsN * (h + gap));
@@ -800,7 +852,7 @@ namespace CoastRun
             if (d.dStress != 0) parts.Add($"{Loc.T("스트레스", "STR")} {Signed(d.dStress)}");
             string line1 = string.Join("  ", parts);
             string lockR = d.LockReason(Save?.stats);
-            string line2 = lockR != null ? "🔒 " + lockR
+            string line2 = lockR != null ? Loc.T("잠김 · ", "Locked · ") + lockR
                 : d.category == ScheduleCategory.Rest ? Loc.T("판정 없음 · 항상 성공", "No roll · always succeeds")
                 : d.deterministic ? Loc.T("수업료 지불 · 확정 상승", "Tuition · guaranteed gain")
                 : Loc.IsKo ? $"{StatName(d.primaryStat)} 판정 · 성공률 {ScheduleJudge.SuccessChance(d, Save.stats):P0}"
@@ -1173,10 +1225,22 @@ namespace CoastRun
             StartCoroutine(ExecuteWeek());
         }
 
+        // 9차 주간 정산: 주 시작 시점 스냅샷과 비교해 스탯·돈·하트 변화를 애니메이션으로 보여준다.
+        private struct WeekSnap { public int stamina, agility, charm, sense, trust, stress, money, hearts, week; }
+        private WeekSnap _weekSnap; private bool _weekSnapValid;
+        private int _weekGreat, _weekFail;
+
+        private WeekSnap TakeSnap()
+        {
+            var s = Save.stats;
+            return new WeekSnap { stamina = s.stamina, agility = s.agility, charm = s.charm, sense = s.sense, trust = s.trust, stress = s.stress, money = s.money, hearts = Save.chapterHearts, week = Save.week };
+        }
+
         private IEnumerator ExecuteWeek()
         {
             _busy = true;
             _runButton.interactable = false;
+            if (!_weekSnapValid || _weekSnap.week != Save.week) { _weekSnap = TakeSnap(); _weekSnapValid = true; _weekGreat = _weekFail = 0; }
             for (int i = Save.phaseIndex; i < Timeline.PhasesPerWeek; i++)
             {
                 var def = ScheduleTable.Get(Save.queuedSchedule[i]);
@@ -1195,12 +1259,16 @@ namespace CoastRun
                 RefreshSlots();
                 RefreshCharacter(r.outcome == Outcome.GreatSuccess ? Mood.Great : r.outcome == Outcome.Fail ? Mood.Fail : (Mood?)null);
                 _bubble.text = r.outcome == Outcome.GreatSuccess ? "해냈다!" : r.outcome == Outcome.Fail ? "으으… 망했어." : "그럭저럭.";
+                if (r.outcome == Outcome.GreatSuccess) _weekGreat++; else if (r.outcome == Outcome.Fail) _weekFail++;
                 yield return ShowLogTyped($"{i + 1}페이즈 · {r.def.Name}", r.logLines, r.outcome, r.def.id);
                 RefreshStats();
             }
 
+            var endSnap = TakeSnap();
             bool forced = _gm.AdvanceWeek();
             Refresh();
+            yield return ShowWeekSummary(_weekSnap, endSnap, _weekGreat, _weekFail);
+            _weekSnapValid = false;
             if (!string.IsNullOrEmpty(_gm.PendingSideScene))
             {
                 // 6차: NPC 호감도 문턱 사이드 씬
@@ -1286,6 +1354,109 @@ namespace CoastRun
             float idle = 0f;
             while (!_tapped && idle < 2.5f) { idle += Time.unscaledDeltaTime; yield return null; }
             _logPanel.SetActive(false);
+        }
+
+        /// 9차: 주간 정산 카드 — 스탯 8줄이 전 → 후로 차오르고, 변화량이 색으로 뜬다. 터치로 넘김.
+        private IEnumerator ShowWeekSummary(WeekSnap a, WeekSnap b, int great, int fail)
+        {
+            var dimGo = new GameObject("WeekSummary", typeof(RectTransform), typeof(Image));
+            dimGo.transform.SetParent(_overlay, false);
+            var dim = dimGo.GetComponent<Image>(); dim.color = new Color(0.15f, 0.08f, 0.05f, 0.6f); dim.raycastTarget = true;
+            var drt = dimGo.GetComponent<RectTransform>(); drt.anchorMin = Vector2.zero; drt.anchorMax = Vector2.one;
+            drt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad); drt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+
+            var panel = OrnatePanel(dimGo.transform, "Panel", Gold, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(600f, 700f), anchoredSize: true, centered: true);
+            var host = panel.transform.Find("Inner");
+            string season = Timeline.SeasonName(Timeline.SeasonOf(a.week));
+            var title = Label(host, "Title", Loc.T($"{a.week}주차 정산 · {season}", $"Week {a.week} · {season}"), 26, Navy);
+            Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -14f), new Vector2(0f, 40f), new Vector2(0.5f, 1f));
+            string verdict = great >= 2 ? Loc.T("최고의 한 주!", "Best week!") : fail >= 2 ? Loc.T("힘든 한 주였어…", "A rough week…") : Loc.T("무난한 한 주.", "A steady week.");
+            var sub = Label(host, "Sub", $"{verdict}   " + Loc.T($"대성공 {great} · 실패 {fail}", $"Great {great} · Fail {fail}"), 15, great >= 2 ? Hex("#B8860B") : fail >= 2 ? Red : Ink);
+            Place(sub.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -54f), new Vector2(0f, 24f), new Vector2(0.5f, 1f));
+
+            var rows = new (string label, string glyph, int from, int to, int max, bool invert)[]
+            {
+                (Loc.T("체력", "Stamina"), "♥", a.stamina, b.stamina, PlayerStats.StatMax, false),
+                (Loc.T("순발력", "Agility"), "⚡", a.agility, b.agility, PlayerStats.StatMax, false),
+                (Loc.T("매력", "Charm"), "★", a.charm, b.charm, PlayerStats.StatMax, false),
+                (Loc.T("감성", "Sense"), "♪", a.sense, b.sense, PlayerStats.StatMax, false),
+                (Loc.T("평판", "Trust"), "◎", a.trust, b.trust, 100, false),
+                (Loc.T("스트레스", "Stress"), "~", a.stress, b.stress, PlayerStats.StatMax, true),
+                (Loc.T("돈", "Money"), "G", a.money, b.money, Mathf.Max(1000, Mathf.Max(a.money, b.money)), false),
+                (Loc.T("하트", "Hearts"), "♥", a.hearts, b.hearts, Mathf.Max(41, Save.CurrentChapter?.heartsTarget ?? 41), false),
+            };
+            const float rowH = 60f; float top = -92f;
+            var blocks = new Image[rows.Length][]; var values = new Text[rows.Length]; var deltas = new Text[rows.Length];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                var r = rows[i];
+                var row = new GameObject("Row" + i, typeof(RectTransform), typeof(Image)).GetComponent<RectTransform>();
+                row.SetParent(host, false);
+                Place(row, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, top - i * rowH), new Vector2(-24f, rowH - 6f), new Vector2(0.5f, 1f));
+                var rowImg = row.GetComponent<Image>(); rowImg.sprite = CoastUiArt.RoundedRect(12); rowImg.type = Image.Type.Sliced;
+                rowImg.color = i % 2 == 0 ? new Color(1f, 1f, 1f, 0.35f) : new Color(1f, 1f, 1f, 0.18f); rowImg.raycastTarget = false;
+                var glyph = Label(row, "Glyph", r.glyph, 20, r.invert ? Grape : Red);
+                Place(glyph.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(10f, 0f), new Vector2(30f, 36f), new Vector2(0f, 0.5f));
+                var label = Label(row, "Label", r.label, 18, Navy); label.alignment = TextAnchor.MiddleLeft;
+                Place(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(44f, 0f), new Vector2(110f, 36f), new Vector2(0f, 0.5f));
+                var bar = new GameObject("Bar", typeof(RectTransform)).GetComponent<RectTransform>();
+                bar.SetParent(row, false);
+                Place(bar, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(0f, 22f), new Vector2(0.5f, 0.5f));
+                bar.offsetMin = new Vector2(160f, -11f); bar.offsetMax = new Vector2(-150f, 11f);
+                blocks[i] = new Image[10];
+                for (int bI = 0; bI < 10; bI++)
+                {
+                    var block = new GameObject("B" + bI, typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    block.transform.SetParent(bar, false);
+                    var brt = block.rectTransform; brt.anchorMin = new Vector2(bI / 10f, 0f); brt.anchorMax = new Vector2((bI + 1) / 10f, 1f);
+                    brt.offsetMin = new Vector2(2f, 0f); brt.offsetMax = new Vector2(-2f, 0f);
+                    block.sprite = CoastUiArt.RoundedRect(4); block.type = Image.Type.Sliced; block.raycastTarget = false; block.color = RedEmpty;
+                    blocks[i][bI] = block;
+                }
+                values[i] = Label(row, "Value", r.from.ToString(), 19, Navy); values[i].alignment = TextAnchor.MiddleRight;
+                Place(values[i].rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-70f, 0f), new Vector2(76f, 36f), new Vector2(1f, 0.5f));
+                int d = r.to - r.from;
+                bool good = r.invert ? d < 0 : d > 0;
+                deltas[i] = Label(row, "Delta", d == 0 ? "—" : (d > 0 ? "+" : "") + d, 17, d == 0 ? new Color(0.55f, 0.5f, 0.48f) : good ? Hex("#2E9E6B") : Red);
+                deltas[i].alignment = TextAnchor.MiddleRight;
+                Place(deltas[i].rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(56f, 36f), new Vector2(1f, 0.5f));
+                deltas[i].color = new Color(deltas[i].color.r, deltas[i].color.g, deltas[i].color.b, 0f);
+            }
+            var hint = Label(host, "Hint", Loc.T("화면을 터치하면 계속", "Tap to continue"), 15, new Color(0.5f, 0.45f, 0.4f));
+            Place(hint.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 14f), new Vector2(0f, 30f), new Vector2(0.5f, 0f));
+
+            CoastAudioManager.PlayAnywhere(CoastSfx.Purchase);
+            _tapped = false;
+            float t = 0f; const float dur = 0.9f;
+            while (t < dur)
+            {
+                t += Time.unscaledDeltaTime;
+                float k = _tapped ? 1f : Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / dur));
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    var r = rows[i];
+                    float v = Mathf.Lerp(r.from, r.to, k);
+                    int filled = Mathf.Clamp(Mathf.RoundToInt(10f * v / Mathf.Max(1, r.max)), 0, 10);
+                    for (int bI = 0; bI < 10; bI++) blocks[i][bI].color = bI < filled ? (r.invert ? Grape : Red) : RedEmpty;
+                    values[i].text = Mathf.RoundToInt(v).ToString();
+                    var c = deltas[i].color; c.a = Mathf.Clamp01((k - 0.5f) * 2f); deltas[i].color = c;
+                }
+                if (_tapped) break;
+                yield return null;
+            }
+            for (int i = 0; i < rows.Length; i++)
+            {
+                var r = rows[i];
+                int filled = Mathf.Clamp(Mathf.RoundToInt(10f * r.to / Mathf.Max(1, r.max)), 0, 10);
+                for (int bI = 0; bI < 10; bI++) blocks[i][bI].color = bI < filled ? (r.invert ? Grape : Red) : RedEmpty;
+                values[i].text = r.to.ToString();
+                var c = deltas[i].color; c.a = 1f; deltas[i].color = c;
+            }
+            yield return null;
+            _tapped = false;
+            float idle = 0f;
+            while (!_tapped && idle < 6f) { idle += Time.unscaledDeltaTime; yield return null; }
+            Destroy(dimGo);
         }
 
         public void Toast(string text)
@@ -1445,6 +1616,38 @@ namespace CoastRun
             btn.onClick.AddListener(() => { Haptic(); onClick?.Invoke(); });
             var t = Label(pill.transform, "Text", label, 16, Color.white);
             CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+            return btn;
+        }
+
+        /// 9차: 룸 오른쪽 세로 독 — 둥근 알약(54) 안에 아이콘, 아래 작은 라벨. index 순으로 위에서 아래.
+        private Button DockButton(Transform parent, string name, string icon, string label, Color color, int index, Action onClick)
+        {
+            var slot = new GameObject(name + "Slot", typeof(RectTransform)).GetComponent<RectTransform>();
+            slot.SetParent(parent, false);
+            Place(slot, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-6f, -6f - index * 82f), new Vector2(66f, 80f), new Vector2(1f, 1f));
+            var pill = CoastUiArt.CutePill(slot, name, color, 27, 3);
+            Place(pill.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(54f, 54f), new Vector2(0.5f, 1f));
+            var btn = pill.gameObject.AddComponent<Button>();
+            pill.raycastTarget = true;
+            btn.transition = Selectable.Transition.None;
+            btn.onClick.AddListener(() => { Haptic(); onClick?.Invoke(); });
+            var sp = string.IsNullOrEmpty(icon) ? null : CoastUiArt.Icon(icon);
+            if (sp != null)
+            {
+                var ic = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                ic.transform.SetParent(pill.transform, false);
+                ic.sprite = sp; ic.preserveAspect = true; ic.raycastTarget = false;
+                Place(ic.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 1f), new Vector2(32f, 32f), new Vector2(0.5f, 0.5f));
+            }
+            else
+            {
+                var g = Label(pill.transform, "Glyph", label, 14, Color.white);
+                CoastUiArt.OutlineText(g, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+                return btn;
+            }
+            var t = Label(slot, "Label", label, 11, Color.white);
+            CoastUiArt.OutlineText(t, new Color(0.1f, 0.06f, 0.04f, 0.8f), 1.4f);
+            Place(t.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(20f, 16f), new Vector2(0.5f, 0f));
             return btn;
         }
 

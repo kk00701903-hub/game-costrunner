@@ -65,10 +65,12 @@ namespace CoastRun
             }
 
             BuildSplashAndUi();
-            bool firstLaunch = PlayerPrefs.GetInt(OpeningCinematic.SeenKey, 0) == 0;
+            // 11차: 오프닝은 게임을 켤 때마다 타이틀 앞에서(건너뛰기 버튼). 씬 재로드(언어 전환 등)에는 안 나온다.
+            bool firstLaunch = !_openingShownThisSession;
+            _openingShownThisSession = true;
             if (firstLaunch && _gateArt != null)
             {
-                // 첫 실행: 15초 오프닝 → 타이틀. 메뉴 음악은 오프닝이 끝나고 시작.
+                // 앱 시작: 오프닝 영상(최대 60초) → 타이틀. 메뉴 음악은 오프닝이 끝나고 시작.
                 OpeningCinematic.Play(() =>
                 {
                     if (this == null) return;
@@ -84,6 +86,7 @@ namespace CoastRun
         }
 
         private Texture2D _gateArt;
+        private static bool _openingShownThisSession;
 
         private IEnumerator SplashThenUi(float splashSeconds)
         {
@@ -384,7 +387,7 @@ namespace CoastRun
             items.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
 
             // 오른쪽 가장자리, 화면 세로 중앙보다 조금 아래(그림의 언덕·도로 위 빈 영역). 유리 버튼, 패널 없음.
-            float rowH = 40f, gap = 7f, btnW = 150f;
+            float rowH = 52f, gap = 9f, btnW = 228f;   // 8차: 10px대 글자 → 손가락 크기(52px)·22px 글자
             float total = items.Count * rowH + (items.Count - 1) * gap;
             float topY = total * 0.5f;
             for (int i = 0; i < items.Count; i++)
@@ -393,7 +396,7 @@ namespace CoastRun
                 var (label, act) = items[i];
                 bool primary = i == 0;
                 CoastOrnate.GlassButton(ui.transform, label + "Btn", label, new Vector2(1f, 0.56f), new Vector2(-(btnW * 0.5f + 18f), y),
-                    new Vector2(btnW, rowH), () => { if (_ready) act(); }, 0.30f, primary ? 19 : 17, primary);
+                    new Vector2(btnW, rowH), () => { if (_ready) act(); }, 0.34f, primary ? 24 : 21, primary);
             }
 
             var ver = CreateLabel(ui.transform, "Version", "v" + Application.version, 14, FontStyle.Normal,
@@ -429,12 +432,13 @@ namespace CoastRun
                 CreateLabel(_charSelectPanel.transform, "Warn", Loc.T("새로 시작하면 지금 진행 중인 회차는 지워져.", "Starting over erases the current playthrough."), 16, FontStyle.Normal,
                     new Color(1f, 0.6f, 0.6f), new Vector2(0.5f, 0.81f), new Vector2(600f, 30f));
 
-            BuildCharCard(_charSelectPanel.transform, "러닝", "달려서 송전탑까지.\n속도 ×1.0 · 코인 ×1.0\n처음이라면 이쪽.",
-                new Color(0.30f, 0.72f, 0.36f), 0.60f, true, () => StartNewPlaythrough(RunMode.Running));
-            BuildCharCard(_charSelectPanel.transform, "스케이트보드",
-                unlocked ? "보드로 질주. 속도 ×1.3 · 코인 ×1.3\n반응 시간이 짧은 고급 난이도." : "잠김 — 엔딩을 한 번 보면 열려.\n속도 ×1.3 · 코인 ×1.3 (고급)",
+            BuildCharCard(_charSelectPanel.transform, Loc.T("러닝", "Running"), Loc.T("달려서 송전탑까지.\n속도 ×1.0 · 코인 ×1.0\n처음이라면 이쪽.", "Run to the tower.\nSpeed ×1.0 · Coins ×1.0\nStart here."),
+                new Color(0.30f, 0.72f, 0.36f), 0.60f, true, () => StartNewPlaythrough(RunMode.Running), "Raise_Girl_Happy", false);
+            BuildCharCard(_charSelectPanel.transform, Loc.T("스케이트보드", "Skateboard"),
+                unlocked ? Loc.T("보드로 질주. 속도 ×1.3 · 코인 ×1.3\n반응 시간이 짧은 고급 난이도.", "Ride the board. Speed ×1.3 · Coins ×1.3\nShorter reaction time — advanced.")
+                         : Loc.T("잠김 — 엔딩을 한 번 보면 열려.\n속도 ×1.3 · 코인 ×1.3 (고급)", "Locked — see one ending to unlock.\nSpeed ×1.3 · Coins ×1.3 (advanced)"),
                 unlocked ? new Color(1f, 0.55f, 0.15f) : new Color(0.35f, 0.36f, 0.42f), 0.36f, unlocked,
-                () => StartNewPlaythrough(RunMode.Skateboard));
+                () => StartNewPlaythrough(RunMode.Skateboard), "Sched_dev_skate", true);
 
             CreateMenuButton(_charSelectPanel.transform, "닫기", 0.12f, () =>
             {
@@ -445,7 +449,7 @@ namespace CoastRun
         }
 
         private void BuildCharCard(Transform parent, string title, string body, Color color, float anchorY, bool enabled,
-            UnityEngine.Events.UnityAction onClick)
+            UnityEngine.Events.UnityAction onClick, string artName = null, bool cover = false)
         {
             var card = CoastUiArt.CutePill(parent, title + "Card", color, 24, 5);
             var rt = card.rectTransform;
@@ -460,11 +464,43 @@ namespace CoastRun
                 if (!enabled) { _audio?.PlayClick(); return; }
                 onClick?.Invoke();
             });
-            var t = CreateLabel(card.transform, "T", title + (enabled ? "" : "  (잠김)"), 30, FontStyle.Bold, Color.white,
+            // 9차: 카드 왼쪽에 그림(투명 PNG는 그대로, 삽화는 둥근 마스크 cover) — 글자만 있던 첫 선택 화면에 얼굴을.
+            var tex = string.IsNullOrEmpty(artName) ? null : ArtAssets.LoadTexture(artName);
+            float left = 24f;
+            if (tex != null)
+            {
+                left = 190f;
+                var frameGo = new GameObject("Art", typeof(RectTransform), typeof(Image), typeof(Mask));
+                frameGo.transform.SetParent(card.transform, false);
+                var frt = frameGo.GetComponent<RectTransform>();
+                frt.anchorMin = new Vector2(0f, 0f); frt.anchorMax = new Vector2(0f, 1f); frt.pivot = new Vector2(0f, 0.5f);
+                frt.anchoredPosition = new Vector2(12f, 0f); frt.sizeDelta = new Vector2(160f, -16f);
+                var fi = frameGo.GetComponent<Image>(); fi.sprite = CoastUiArt.RoundedRect(18); fi.type = Image.Type.Sliced;
+                fi.color = cover ? Color.white : new Color(1f, 1f, 1f, 0.16f); fi.raycastTarget = false;
+                frameGo.GetComponent<Mask>().showMaskGraphic = true;
+                var pic = new GameObject("Img", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                pic.transform.SetParent(frameGo.transform, false);
+                pic.sprite = CoastUiArt.AsSprite(tex); pic.raycastTarget = false;
+                var prt = pic.rectTransform; prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one; prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;
+                if (cover)
+                {
+                    var fit = pic.gameObject.AddComponent<AspectRatioFitter>();
+                    fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; fit.aspectRatio = tex.width / (float)tex.height;
+                }
+                else { pic.preserveAspect = true; prt.offsetMin = new Vector2(4f, 4f); prt.offsetMax = new Vector2(-4f, -4f); }
+                if (!enabled) pic.color = new Color(0.6f, 0.6f, 0.65f, 1f);
+            }
+            var t = CreateLabel(card.transform, "T", title + (enabled ? "" : Loc.T("  (잠김)", "  (locked)")), 28, FontStyle.Bold, Color.white,
                 new Vector2(0.5f, 0.74f), new Vector2(520f, 44f));
+            t.alignment = TextAnchor.MiddleLeft;
+            t.rectTransform.anchorMin = new Vector2(0f, 0.74f); t.rectTransform.anchorMax = new Vector2(1f, 0.74f);
+            t.rectTransform.sizeDelta = new Vector2(0f, 44f); t.rectTransform.offsetMin = new Vector2(left, -22f); t.rectTransform.offsetMax = new Vector2(-16f, 22f);
             CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.5f);
-            var b = CreateLabel(card.transform, "B", body, 17, FontStyle.Normal, new Color(1f, 1f, 1f, enabled ? 0.95f : 0.7f),
+            var b = CreateLabel(card.transform, "B", body, 16, FontStyle.Normal, new Color(1f, 1f, 1f, enabled ? 0.95f : 0.7f),
                 new Vector2(0.5f, 0.36f), new Vector2(520f, 90f));
+            b.alignment = TextAnchor.MiddleLeft;
+            b.rectTransform.anchorMin = new Vector2(0f, 0.36f); b.rectTransform.anchorMax = new Vector2(1f, 0.36f);
+            b.rectTransform.sizeDelta = new Vector2(0f, 90f); b.rectTransform.offsetMin = new Vector2(left, -45f); b.rectTransform.offsetMax = new Vector2(-16f, 45f);
             b.horizontalOverflow = HorizontalWrapMode.Wrap;
         }
 
@@ -706,25 +742,30 @@ namespace CoastRun
         private void BuildSettingsPanel(Transform root)
         {
             _settingsPanel = CreateOverlayPanel(root, "Settings");
-            CreateLabel(_settingsPanel.transform, "T", Loc.T("설정", "Settings"), 28, FontStyle.Bold,
-                Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
-            // 언어 토글: 바꾸면 타이틀을 다시 열어 모든 문구·대문 아트를 새 언어로 만든다.
-            CreateMenuButton(_settingsPanel.transform, Loc.T($"언어: 한국어  →  {Loc.Native(Loc.NextLang)}", Loc.Tr("Language") + $": {Loc.Native(Loc.Lang)}  →  {Loc.Native(Loc.NextLang)}"), 0.48f, () =>
+            CreateLabel(_settingsPanel.transform, "T", Loc.T("설정", "Settings"), 32, FontStyle.Bold,
+                Color.white, new Vector2(0.5f, 0.80f), new Vector2(400f, 44f));
+            // 9차: 볼륨·진동을 추가하고 줄 간격을 좁혀 카드가 비어 보이지 않게. (위에서부터 소리 → 진동 → 펫 → 언어 → 크레딧)
+            Text volLabel = null;
+            var volBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("소리", "Sound"), 0.70f, () =>
             {
-                _audio?.PlayClick();
-                Loc.Toggle();
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+                CoastPrefs.VolumeStep = (CoastPrefs.VolumeStep + 4) % 5;   // 100 → 75 → 50 → 25 → OFF → 100
+                if (volLabel != null) volLabel.text = VolumeText();
             });
-            CreateMenuButton(_settingsPanel.transform, Loc.T("크레딧", "Credits"), 0.36f, () =>
+            volLabel = volBtn.GetComponentInChildren<Text>();
+            if (volLabel != null) volLabel.text = VolumeText();
+            Text hapLabel = null;
+            var hapBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("진동", "Vibration"), 0.62f, () =>
             {
-                ShowPanel(_settingsPanel, false);
-                ShowPanel(_creditsPanel, true);
+                CoastPrefs.Haptic = !CoastPrefs.Haptic;
+                if (hapLabel != null) hapLabel.text = HapticText();
             });
+            hapLabel = hapBtn.GetComponentInChildren<Text>();
+            if (hapLabel != null) hapLabel.text = HapticText();
 
             // Pet picker — cycles through the three companions; the run reads
             // PetCompanion.Selected when it builds the pet.
             Text petLabel = null;
-            var petBtn = CreateMenuButton(_settingsPanel.transform, "펫", 0.6f, () =>
+            var petBtn = CreateMenuButton(_settingsPanel.transform, "펫", 0.54f, () =>
             {
                 PetCompanion.Selected = (PetKind)(((int)PetCompanion.Selected + 1) % 4);
                 if (petLabel != null)
@@ -734,8 +775,22 @@ namespace CoastRun
             if (petLabel != null)
             {
                 petLabel.text = PetLabel();
-                petLabel.fontSize = 18;
+                petLabel.fontSize = CoastHudLayout.Scaled(17);
             }
+            // 언어 토글: 바꾸면 타이틀을 다시 열어 모든 문구·대문 아트를 새 언어로 만든다.
+            CreateMenuButton(_settingsPanel.transform, Loc.T($"언어: 한국어  →  {Loc.Native(Loc.NextLang)}", Loc.Tr("Language") + $": {Loc.Native(Loc.Lang)}  →  {Loc.Native(Loc.NextLang)}"), 0.46f, () =>
+            {
+                _audio?.PlayClick();
+                Loc.Toggle();
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            });
+            CreateMenuButton(_settingsPanel.transform, Loc.T("크레딧", "Credits"), 0.38f, () =>
+            {
+                ShowPanel(_settingsPanel, false);
+                ShowPanel(_creditsPanel, true);
+            });
+            CreateLabel(_settingsPanel.transform, "Ver", "v0.9  ·  Coast Run · Jeju", 14, FontStyle.Normal,
+                new Color(1f, 0.95f, 0.85f, 0.55f), new Vector2(0.5f, 0.27f), new Vector2(400f, 24f));
             CreateMenuButton(_settingsPanel.transform, Loc.T("닫기", "Close"), 0.12f, () =>
             {
                 _audio?.PlayClick();
@@ -743,6 +798,15 @@ namespace CoastRun
             }, absoluteBottom: true);
             _settingsPanel.SetActive(false);
         }
+
+        private static string VolumeText()
+        {
+            int s = CoastPrefs.VolumeStep;
+            string bar = new string('■', s) + new string('□', 4 - s);
+            return (Loc.IsKo ? "소리  " : "Sound  ") + bar + "  " + CoastPrefs.VolumeLabel(s);
+        }
+
+        private static string HapticText() => (Loc.IsKo ? "진동  " : "Vibration  ") + (CoastPrefs.Haptic ? "ON" : "OFF");
 
         private static string PetLabel()
         {
@@ -767,7 +831,14 @@ namespace CoastRun
             rt.anchorMax = Vector2.one;
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
-            go.GetComponent<Image>().color = new Color(0.03f, 0.05f, 0.1f, 0.92f);
+            // 8차: 검정 반투명 → 반투명 딤 + 가운데 크라프트지 카드(금테). 글은 그대로 흰색.
+            go.GetComponent<Image>().color = new Color(0.05f, 0.04f, 0.06f, 0.55f);
+            var card = CoastUiArt.Panel(go.transform, "Card", new Color(0.83f, 0.69f, 0.22f, 0.9f), 26);
+            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.sizeDelta = new Vector2(620f, 1100f);
+            card.raycastTarget = false;
+            var inner = CoastUiArt.Panel(card.transform, "Inner", new Color(0.24f, 0.17f, 0.13f, 0.96f), 24);
+            var irt = inner.rectTransform; irt.anchorMin = Vector2.zero; irt.anchorMax = Vector2.one; irt.offsetMin = new Vector2(3f, 3f); irt.offsetMax = new Vector2(-3f, -3f);
+            inner.raycastTarget = false;
             return go;
         }
 
@@ -782,7 +853,7 @@ namespace CoastRun
                 rt.anchorMin = new Vector2(0.5f, 0f);
                 rt.anchorMax = new Vector2(0.5f, 0f);
                 rt.pivot = new Vector2(0.5f, 0f);
-                rt.anchoredPosition = new Vector2(0f, 48f);
+                rt.anchoredPosition = new Vector2(0f, 118f);
             }
             else
             {
@@ -792,9 +863,10 @@ namespace CoastRun
                 rt.anchoredPosition = Vector2.zero;
             }
 
-            rt.sizeDelta = new Vector2(360f, 56f);
+            rt.sizeDelta = new Vector2(400f, 58f);
             var img = go.GetComponent<Image>();
-            img.color = new Color(1f, 1f, 1f, 0.1f);
+            img.sprite = CoastUiArt.RoundedRect(16); img.type = Image.Type.Sliced;
+            img.color = new Color(1f, 0.92f, 0.72f, 0.16f);
             var btn = go.GetComponent<Button>();
             btn.onClick.AddListener(() =>
             {
@@ -832,12 +904,13 @@ namespace CoastRun
             rt.anchoredPosition = Vector2.zero;
             var label = go.AddComponent<Text>();
             label.font = CoastHudLayout.Font();
-            label.fontSize = size;
+            label.fontSize = CoastHudLayout.Scaled(size);
             label.fontStyle = style;
             label.color = color;
             label.alignment = TextAnchor.MiddleCenter;
             label.text = text;
             label.raycastTarget = false;
+            label.verticalOverflow = VerticalWrapMode.Overflow;   // 11차: 글자를 키우면서 세로 잘림 방지
             return label;
         }
     }

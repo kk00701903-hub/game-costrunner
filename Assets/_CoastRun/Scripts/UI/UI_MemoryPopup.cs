@@ -341,6 +341,14 @@ namespace CoastRun
             if (!string.IsNullOrEmpty(key))
                 tex = Resources.Load<Texture2D>("CoastRun/Memory/" + key);
 
+            // 9차: 전용 스틸이 없으면 그 챕터 컷씬 CG(클로징 → 중간 → 오프닝)로 — 빈 남색 판이 뜨던 것.
+            if (tex == null)
+            {
+                int ch = Mathf.Clamp(def.chapter > 0 ? def.chapter : def.Index0Based + 1, 1, 20);
+                string n = ch.ToString("00");
+                tex = ArtAssets.LoadTexture($"Cut_CH{n}_Close") ?? ArtAssets.LoadTexture($"Cut_CH{n}_Mid") ?? ArtAssets.LoadTexture($"Cut_CH{n}_Open")
+                      ?? ArtAssets.LoadTexture(ch <= 5 ? "BG_TowerSunset" : ch <= 10 ? "BG_Beach" : ch <= 15 ? "BG_OrangeFarm" : "BG_TowerSnow");
+            }
             if (tex == null)
                 tex = MakePlaceholderStill(def, stillIndex);
 

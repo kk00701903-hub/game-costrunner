@@ -99,7 +99,7 @@ namespace CoastRun
 
             var titleText = CoastHudLayout.MakeText(go.transform, "Title", title, 14, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0.78f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
-            titleText.fontSize = 13;
+            titleText.fontSize = CoastHudLayout.Scaled(13);
             titleText.color = new Color(0.85f, 0.92f, 1f, 0.9f);
 
             return CoastHudLayout.MakeText(go.transform, "Label", "Lv.0", 16, TextAnchor.MiddleCenter,

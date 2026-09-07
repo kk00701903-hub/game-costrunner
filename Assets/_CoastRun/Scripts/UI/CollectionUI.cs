@@ -131,20 +131,45 @@ namespace CoastRun
                 var row = CoastUiArt.Panel(list, "T" + c, owned ? Paper : new Color(0.25f, 0.22f, 0.24f, 0.8f), 14);
                 Top(row.rectTransform, y, rowH - 6f, 0f); y += rowH;
                 row.raycastTarget = true;
-                var num = CoastOrnate.Label(row.transform, "N", c.ToString("00"), 20, owned ? CoastOrnate.Red : new Color(0.6f, 0.55f, 0.55f));
-                Place(num.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(28f, 0f), new Vector2(44f, 40f));
-                string title = owned ? t.Title : (paywalled ? Loc.T("앨범 구매 시 해금", "Unlock with the album") : "???");
-                var name = CoastOrnate.Label(row.transform, "T", title, 18, owned ? Ink : new Color(0.75f, 0.72f, 0.72f), TextAnchor.MiddleLeft);
+                // 9차: 번호 대신 레코드 디스크(계절색 라벨) — 리스트가 '앨범'처럼 읽히게
+                Color seasonCol = c <= 5 ? new Color(0.98f, 0.80f, 0.30f) : c <= 10 ? new Color(0.30f, 0.65f, 0.90f) : c <= 15 ? new Color(0.96f, 0.55f, 0.28f) : new Color(0.62f, 0.72f, 0.95f);
+                var disc = CoastUiArt.Panel(row.transform, "Disc", owned ? new Color(0.13f, 0.11f, 0.12f) : new Color(0.35f, 0.33f, 0.34f), 23);
+                disc.raycastTarget = false;
+                Place(disc.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(29f, 0f), new Vector2(46f, 46f));
+                var groove = CoastUiArt.Panel(disc.transform, "Groove", new Color(1f, 1f, 1f, 0.08f), 18);
+                groove.raycastTarget = false;
+                Place(groove.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(36f, 36f));
+                var lbl = CoastUiArt.Panel(disc.transform, "Label", owned ? seasonCol : new Color(0.55f, 0.52f, 0.52f), 11);
+                lbl.raycastTarget = false;
+                Place(lbl.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(22f, 22f));
+                var hole = CoastUiArt.Panel(lbl.transform, "Hole", new Color(0.13f, 0.11f, 0.12f), 3);
+                hole.raycastTarget = false;
+                Place(hole.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(6f, 6f));
+                string title = (owned ? t.Title : (paywalled ? Loc.T("앨범 구매 시 해금", "Unlock with the album") : "???"));
+                var name = CoastOrnate.Label(row.transform, "T", $"{c:00}  {title}", 18, owned ? Ink : new Color(0.75f, 0.72f, 0.72f), TextAnchor.MiddleLeft);
                 Place(name.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(0f, 26f));
-                name.rectTransform.offsetMin = new Vector2(58f, -2f); name.rectTransform.offsetMax = new Vector2(-120f, 26f);
+                name.rectTransform.offsetMin = new Vector2(62f, -2f); name.rectTransform.offsetMax = new Vector2(-120f, 26f);
                 string sub = owned
                     ? $"{t.KindLabel} · {(AlbumTable.FullVersion(grade) ? Loc.T("풀버전", "Full") : Loc.T("1절 (A급 이상이면 풀버전)", "Verse 1 (rank A+ for full)"))}"
                     : (paywalled ? "" : (t.kind == TrackKind.Duet ? Loc.T($"{c}챕터 S급", $"Chapter {c} rank S") : Loc.T($"{c}챕터 클리어", $"Clear chapter {c}")));
                 var subL = CoastOrnate.Label(row.transform, "Sub", sub, 12, owned ? new Color(0.4f, 0.35f, 0.32f) : new Color(0.7f, 0.66f, 0.66f), TextAnchor.MiddleLeft);
                 Place(subL.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(0f, 20f));
-                subL.rectTransform.offsetMin = new Vector2(58f, -26f); subL.rectTransform.offsetMax = new Vector2(-120f, -6f);
-                var g = CoastOrnate.Label(row.transform, "G", owned ? GradeText(grade) : (paywalled ? "🔒" : ""), 16, owned ? new Color(0.83f, 0.66f, 0.2f) : new Color(0.7f, 0.66f, 0.66f));
-                Place(g.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-60f, 0f), new Vector2(100f, 30f));
+                subL.rectTransform.offsetMin = new Vector2(62f, -26f); subL.rectTransform.offsetMax = new Vector2(-120f, -6f);
+                // 오른쪽: 등급 배지(금테 알약) 또는 잠금. 소유곡은 ▶ 힌트로 '탭하면 재생' 을 알린다.
+                if (owned)
+                {
+                    var gp = CoastUiArt.CutePill(row.transform, "GradePill", new Color(0.98f, 0.86f, 0.45f), 12, 2);
+                    gp.raycastTarget = false;
+                    Place(gp.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-64f, 0f), new Vector2(52f, 26f));
+                    var g = CoastOrnate.Label(gp.transform, "G", GradeText(grade), 14, new Color(0.35f, 0.25f, 0.05f));
+                    var play = CoastOrnate.Label(row.transform, "Play", "▶", 16, new Color(0.83f, 0.66f, 0.2f));
+                    Place(play.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-24f, 0f), new Vector2(30f, 30f));
+                }
+                else
+                {
+                    var g = CoastOrnate.Label(row.transform, "G", paywalled ? Loc.T("잠김", "Locked") : "", 14, new Color(0.7f, 0.66f, 0.66f));
+                    Place(g.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-60f, 0f), new Vector2(100f, 30f));
+                }
                 int ch = c;
                 var btn = row.gameObject.AddComponent<Button>(); btn.transition = Selectable.Transition.None;
                 btn.onClick.AddListener(() => { if (paywalled) ShowPaywall(); else if (owned) OpenTrack(ch); else Toast(sub); });
@@ -250,7 +275,7 @@ namespace CoastRun
                 }
                 else
                 {
-                    var q = CoastOrnate.Label(img.transform, "Q", paywalled ? "🔒" : "?", 40, new Color(1f, 1f, 1f, 0.35f));
+                    var q = CoastOrnate.Label(img.transform, "Q", paywalled ? Loc.T("잠김", "Locked") : "?", paywalled ? 18 : 40, new Color(1f, 1f, 1f, 0.35f));
                     Place(q.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(80f, 60f));
                 }
                 var cap = CoastOrnate.Label(slot.transform, "Cap", has ? (Collection.CardSigned(id) ? "★ " : "") + card.Name : (paywalled ? Loc.T("앨범 구매", "Album") : card.Hint), 11, has ? Color.white : new Color(1f, 1f, 1f, 0.6f));
@@ -392,7 +417,7 @@ namespace CoastRun
                 {
                     var lockF = CoastUiArt.Panel(list, "L" + i, new Color(0.2f, 0.17f, 0.2f, 0.9f), 12);
                     Top(lockF.rectTransform, y, 90f, 10f);
-                    var lt = CoastOrnate.Label(lockF.transform, "T", Loc.T($"🔒 팬아트 #{i:00} — 별 {i * MissionTable.StarsPerFanArt}개에 열려요", $"🔒 Fan art #{i:00} — opens at {i * MissionTable.StarsPerFanArt} stars"), 16, new Color(1f, 0.92f, 0.75f));
+                    var lt = CoastOrnate.Label(lockF.transform, "T", Loc.T($"잠김 · 팬아트 #{i:00} — 별 {i * MissionTable.StarsPerFanArt}개에 열려요", $"Locked · Fan art #{i:00} — opens at {i * MissionTable.StarsPerFanArt} stars"), 16, new Color(1f, 0.92f, 0.75f));
                     CoastOrnate.Stretch(lt.rectTransform, 0f, 0f, 0f, 0f);
                     y += 102f;
                     continue;

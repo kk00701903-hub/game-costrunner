@@ -240,20 +240,40 @@ namespace CoastRun
                 _himIcon.anchoredPosition = new Vector2(8f, 28f);
             }
 
-            // Distance-linked D-Day (not wall-clock).
-            float remaining = (1f - progress) * SunsetSpanSeconds;
+            // 8차 노을 규칙: 진짜 시간으로 해가 진다. 남은 초를 보여주고, 지나면 '해가 졌어'.
+            var sm = StageManager.Instance;
             if (_timerLabel != null && (_timerCg == null || _timerCg.gameObject.activeSelf))
             {
-                int sec = Mathf.CeilToInt(remaining);
-                int h = sec / 3600;
-                int m = (sec % 3600) / 60;
-                int s = sec % 60;
-                _timerLabel.text = h > 0
-                    ? string.Format("노을까지  {0}:{1:00}:{2:00}", h, m, s)
-                    : string.Format("노을까지  {0:00}:{1:00}", m, s);
-                _timerLabel.color = remaining < 1200f
-                    ? new Color(1f, 0.55f, 0.35f)
-                    : new Color(0.9f, 0.95f, 1f);
+                if (sm != null && !ArcadeRun.Active)
+                {
+                    float left = sm.SunsetSeconds * (1f - sm.SunsetT);
+                    if (!sm.SunsetLate)
+                    {
+                        int sec = Mathf.CeilToInt(left);
+                        _timerLabel.text = Loc.T("노을까지  ", "sunset in  ") + string.Format("{0}:{1:00}", sec / 60, sec % 60);
+                        _timerLabel.color = left < 12f ? new Color(1f, 0.55f, 0.35f) : new Color(0.9f, 0.95f, 1f);
+                    }
+                    else
+                    {
+                        _timerLabel.text = Loc.T("해가 졌어…", "sun is down…");
+                        _timerLabel.color = Color.Lerp(new Color(1f, 0.4f, 0.4f), new Color(1f, 0.8f, 0.8f), 0.5f + 0.5f * Mathf.Sin(Time.time * 6f));
+                    }
+                }
+                else if (ArcadeRun.Active)
+                {
+                    // 9차: 무한 모드엔 노을 시계가 없다 — 달린 거리를 보여준다.
+                    float d = sm != null ? sm.StageLocalDistance : (player != null ? player.PathDistance : 0f);
+                    _timerLabel.text = Loc.T("거리  ", "dist  ") + Mathf.RoundToInt(d) + " m";
+                    _timerLabel.color = new Color(0.9f, 0.95f, 1f);
+                }
+                else
+                {
+                    float remaining = (1f - progress) * SunsetSpanSeconds;
+                    int sec = Mathf.CeilToInt(remaining);
+                    int h = sec / 3600, m = (sec % 3600) / 60, s2 = sec % 60;
+                    _timerLabel.text = h > 0 ? string.Format("노을까지  {0}:{1:00}:{2:00}", h, m, s2) : string.Format("노을까지  {0:00}:{1:00}", m, s2);
+                    _timerLabel.color = new Color(0.9f, 0.95f, 1f);
+                }
             }
 
             if (_remainingLabel != null && _remainingLabel.gameObject.activeSelf && stages != null)
@@ -415,31 +435,31 @@ namespace CoastRun
             wrt.anchorMin = new Vector2(0.10f, 1f);
             wrt.anchorMax = new Vector2(0.90f, 1f);
             wrt.pivot = new Vector2(0.5f, 1f);
-            wrt.anchoredPosition = new Vector2(0f, -138f);
-            wrt.sizeDelta = new Vector2(0f, 40f);
+            wrt.anchoredPosition = new Vector2(0f, -140f);
+            wrt.sizeDelta = new Vector2(0f, 44f);
             _progressCg = wrap.GetComponent<CanvasGroup>();
 
             var start = MakeText(wrap.transform, "Start", "◀", 14,
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(8f, 0f), new Vector2(24f, 24f));
             start.alignment = TextAnchor.MiddleLeft;
 
+            // 10차: 크림 테두리를 자식이 아니라 '바깥 알약'으로 — 자식이던 테두리가 남색 트랙을 덮어 바 전체가 크림색으로 보였다.
+            var ring = CoastUiArt.Panel(wrap.transform, "Ring", CoastUiArt.CreamOutline, 16);
+            var ringRt = ring.rectTransform;
+            ringRt.anchorMin = new Vector2(0.06f, 0.06f);
+            ringRt.anchorMax = new Vector2(0.90f, 0.94f);
+            ringRt.offsetMin = Vector2.zero; ringRt.offsetMax = Vector2.zero;
+            ring.raycastTarget = false;
             var track = new GameObject("Track", typeof(RectTransform), typeof(Image));
-            track.transform.SetParent(wrap.transform, false);
+            track.transform.SetParent(ring.transform, false);
             var trackRt = track.GetComponent<RectTransform>();
-            trackRt.anchorMin = new Vector2(0.06f, 0.25f);
-            trackRt.anchorMax = new Vector2(0.88f, 0.65f);
-            trackRt.offsetMin = Vector2.zero;
-            trackRt.offsetMax = Vector2.zero;
+            trackRt.anchorMin = Vector2.zero; trackRt.anchorMax = Vector2.one;
+            trackRt.offsetMin = new Vector2(3f, 3f); trackRt.offsetMax = new Vector2(-3f, -3f);
             _track = track.GetComponent<Image>();
-            // Same chunky pill language as the top bar: cream ring around a navy track.
-            _track.sprite = CoastUiArt.RoundedRect(12);
+            _track.sprite = CoastUiArt.RoundedRect(13);
             _track.type = Image.Type.Sliced;
             _track.color = new Color(0.08f, 0.12f, 0.26f, 0.95f);
-            var ring = CoastUiArt.Panel(track.transform, "Ring", CoastUiArt.CreamOutline, 14);
-            var ringRt = ring.rectTransform;
-            ringRt.anchorMin = Vector2.zero; ringRt.anchorMax = Vector2.one;
-            ringRt.offsetMin = new Vector2(-3f, -3f); ringRt.offsetMax = new Vector2(3f, 3f);
-            ring.transform.SetAsFirstSibling();
+            _track.raycastTarget = false;
 
             var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
             fillGo.transform.SetParent(track.transform, false);
@@ -472,10 +492,10 @@ namespace CoastRun
 
             // Tower always at RIGHT end — empty/unfilled silhouette.
             _towerIcon = CreateMarker(trackRt, "Tower", new Color(0.75f, 0.8f, 0.85f), null, "Icon_Tower");
-            _towerIcon.sizeDelta = new Vector2(26f, 26f);
+            _towerIcon.sizeDelta = new Vector2(34f, 34f);
             var towerImg = _towerIcon.GetComponent<Image>();
             if (towerImg != null)
-                towerImg.color = new Color(1f, 1f, 1f, 0.55f); // "empty" look
+                towerImg.color = new Color(1f, 1f, 1f, 0.95f); // 9차: 목적지가 보여야 바가 읽힌다
 
             _himIcon = CreateMarker(trackRt, "Him", new Color(0.95f, 0.55f, 0.45f), null, "Icon_Him");
             _himIcon.sizeDelta = new Vector2(22f, 22f);
@@ -486,32 +506,27 @@ namespace CoastRun
 
         private void BuildTimer()
         {
+            // 10차: 별도 알약을 없애고 여정 바 '안'에 노을 시계를 넣는다 — 상단 3줄 → 2줄, 스타일 통일.
             var go = new GameObject("DDay", typeof(RectTransform), typeof(CanvasGroup));
-            go.transform.SetParent(_root, false);
+            go.transform.SetParent(_track != null ? _track.transform : _root, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 1f);
-            rt.anchorMax = new Vector2(0.5f, 1f);
-            rt.pivot = new Vector2(0.5f, 1f);
-            rt.anchoredPosition = new Vector2(0f, -176f);
-            rt.sizeDelta = new Vector2(260f, 28f);
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
             _timerCg = go.GetComponent<CanvasGroup>();
-            var pill = CoastUiArt.CutePill(go.transform, "Pill", new Color(0.10f, 0.14f, 0.30f, 0.92f), 14, 3);
-            var prt = pill.rectTransform;
-            prt.anchorMin = new Vector2(0.5f, 0.5f); prt.anchorMax = new Vector2(0.5f, 0.5f);
-            prt.sizeDelta = new Vector2(190f, 30f);
             var textGo = new GameObject("Label", typeof(RectTransform));
             textGo.transform.SetParent(go.transform, false);
             var trt = textGo.GetComponent<RectTransform>();
             trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
-            trt.offsetMin = Vector2.zero; trt.offsetMax = new Vector2(0f, -2f);
+            trt.offsetMin = new Vector2(40f, 0f); trt.offsetMax = new Vector2(-44f, -1f);
             _timerLabel = textGo.AddComponent<Text>();
-            CoastUiArt.OutlineText(_timerLabel, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.2f);
+            CoastUiArt.OutlineText(_timerLabel, new Color(0.05f, 0.07f, 0.18f, 0.95f), 1.5f);
             _timerLabel.font = CoastHudLayout.Font();
-            _timerLabel.fontSize = 16;
+            _timerLabel.fontSize = CoastHudLayout.Scaled(17);
             _timerLabel.fontStyle = FontStyle.Bold;
             _timerLabel.alignment = TextAnchor.MiddleCenter;
             _timerLabel.color = new Color(0.9f, 0.95f, 1f);
             _timerLabel.raycastTarget = false;
+            _timerLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
             _timerLabel.text = "노을까지  --:--";
         }
 
@@ -524,7 +539,7 @@ namespace CoastRun
             _cheerRt.sizeDelta = new Vector2(360f, 40f);
             _cheerLabel = go.AddComponent<Text>();
             _cheerLabel.font = CoastHudLayout.Font();
-            _cheerLabel.fontSize = 22;
+            _cheerLabel.fontSize = CoastHudLayout.Scaled(22);
             _cheerLabel.fontStyle = FontStyle.Bold;
             _cheerLabel.alignment = TextAnchor.MiddleCenter;
             _cheerLabel.color = new Color(1f, 0.92f, 0.55f);
@@ -545,7 +560,7 @@ namespace CoastRun
             _monologueCg = go.GetComponent<CanvasGroup>();
             _monologueLabel = go.AddComponent<Text>();
             _monologueLabel.font = CoastHudLayout.Font();
-            _monologueLabel.fontSize = 20;
+            _monologueLabel.fontSize = CoastHudLayout.Scaled(20);
             _monologueLabel.fontStyle = FontStyle.Bold;
             _monologueLabel.alignment = TextAnchor.MiddleCenter;
             _monologueLabel.color = new Color(0.92f, 0.95f, 1f);
@@ -566,7 +581,7 @@ namespace CoastRun
             rt.sizeDelta = new Vector2(240f, 40f);
             _remainingLabel = go.AddComponent<Text>();
             _remainingLabel.font = CoastHudLayout.Font();
-            _remainingLabel.fontSize = 28;
+            _remainingLabel.fontSize = CoastHudLayout.Scaled(28);
             _remainingLabel.fontStyle = FontStyle.Bold;
             _remainingLabel.alignment = TextAnchor.MiddleCenter;
             _remainingLabel.color = new Color(0.85f, 0.9f, 1f);

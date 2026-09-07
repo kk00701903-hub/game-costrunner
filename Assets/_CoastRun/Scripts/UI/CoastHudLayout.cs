@@ -52,11 +52,19 @@ namespace CoastRun
             return rt;
         }
 
+        static Font _bold, _medium;
+        /// 8차: Pretendard(본문 Bold) — 없으면 내장 폰트. 일·태국어 등은 OS 폴백.
         public static Font Font()
         {
+            if (_bold == null) _bold = Resources.Load<Font>("CoastRun/Fonts/Pretendard-Bold");
+            if (_bold != null) return _bold;
             return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
                    ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
         }
+
+        /// 10차: 모바일 가독성 — 모든 헬퍼 글자를 한 번에 키운다(×1.15, 최소 14). 레이아웃 숫자는 그대로, Overflow 로 넘친다.
+        public const float TextScale = 1.3f;   // 11차: 갤럭시 S(6.7", 2340×1080) 기준 본문 16sp ≈ 기준 캔버스 22 → 최소 16
+        public static int Scaled(int size) => Mathf.Max(size >= 10 ? 16 : size, Mathf.RoundToInt(size * TextScale));
 
         public static Text MakeText(Transform parent, string name, string content, int size, TextAnchor align,
             Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
@@ -70,8 +78,8 @@ namespace CoastRun
             rt.offsetMax = offsetMax;
             var text = go.AddComponent<Text>();
             text.font = Font();
-            text.fontSize = size;
-            text.fontStyle = FontStyle.Bold;
+            text.fontSize = Scaled(size);
+            text.fontStyle = _bold != null ? FontStyle.Normal : FontStyle.Bold;   // 8차: 볼드 폰트면 가짜 볼드 끔
             text.color = Color.white;
             text.alignment = align;
             text.text = content;

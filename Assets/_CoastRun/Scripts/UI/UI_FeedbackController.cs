@@ -110,13 +110,13 @@ namespace CoastRun
             var cg = go.AddComponent<CanvasGroup>();
             var label = go.AddComponent<Text>();
             label.alignment = TextAnchor.MiddleCenter;
-            label.fontSize = 36;
+            label.fontSize = CoastHudLayout.Scaled(36);
             label.fontStyle = FontStyle.Bold;
             label.raycastTarget = false;
             if (font != null)
                 label.font = font;
             else
-                label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                label.font = CoastHudLayout.Font();
 
             var item = go.AddComponent<FloatingText>();
             item.Bind(rt, cg, label);
@@ -235,11 +235,11 @@ namespace CoastRun
             rt.sizeDelta = new Vector2(400f, 36f);
             var text = go.AddComponent<Text>();
             text.alignment = TextAnchor.MiddleCenter;
-            text.fontSize = size;
+            text.fontSize = CoastHudLayout.Scaled(size);
             text.fontStyle = style;
             text.color = color;
             text.raycastTarget = false;
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = CoastHudLayout.Font();
             return text;
         }
 
@@ -425,7 +425,7 @@ namespace CoastRun
             trt.offsetMax = Vector2.zero;
             coinHud = textGo.AddComponent<Text>();
             coinHud.font = CoastHudLayout.Font();
-            coinHud.fontSize = 24;
+            coinHud.fontSize = CoastHudLayout.Scaled(24);
             coinHud.fontStyle = FontStyle.Bold;
             coinHud.color = Color.white;
             coinHud.alignment = TextAnchor.MiddleLeft;

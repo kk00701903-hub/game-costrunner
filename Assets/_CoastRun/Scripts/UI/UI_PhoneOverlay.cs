@@ -192,7 +192,7 @@ namespace CoastRun
 
             if (twistStage < 2)
             {
-                _sendTimeLabel.fontSize = 10;
+                _sendTimeLabel.fontSize = CoastHudLayout.Scaled(10);
                 var c = _sendTimeLabel.color;
                 c.a = 0.35f;
                 _sendTimeLabel.color = c;
@@ -200,7 +200,7 @@ namespace CoastRun
             }
             else
             {
-                _sendTimeLabel.fontSize = 22;
+                _sendTimeLabel.fontSize = CoastHudLayout.Scaled(22);
                 var c = _sendTimeLabel.color;
                 c.a = 1f;
                 _sendTimeLabel.color = c;
