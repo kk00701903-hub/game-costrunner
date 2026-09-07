@@ -290,7 +290,8 @@ namespace CoastRun
         /// reaction floor plus however many lane changes the escape actually needs.
         private float RowGap(float speed, float progress, int prevOpen, int nextOpen)
         {
-            float pacing = Mathf.Lerp(rowGapSecondsStart, rowGapSecondsEnd, progress) * ChapterDifficulty.GapMul;
+            float pacing = Mathf.Lerp(rowGapSecondsStart, rowGapSecondsEnd, progress) * ChapterDifficulty.GapMul
+                           * RunRhythm.ObstacleGapMul(_nextSpawnZ);   // 14차: 30초 마디(쉬움/코인/위기)
 
             int swipes = MinSwipes(prevOpen, nextOpen);
             float floor = reactionSeconds + swipes * laneChangeSeconds;

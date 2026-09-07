@@ -42,7 +42,7 @@ namespace CoastRun
             while (_nextSpawnZ < z + spawnAhead)
             {
                 SpawnPattern(_nextSpawnZ);
-                _nextSpawnZ += spawnInterval + Random.Range(-1.5f, 2.5f);
+                _nextSpawnZ += (spawnInterval + Random.Range(-1.5f, 2.5f)) * RunRhythm.CoinIntervalMul(_nextSpawnZ);
             }
 
             for (int i = _root.childCount - 1; i >= 0; i--)
@@ -53,11 +53,28 @@ namespace CoastRun
             }
         }
 
+        private int _lineLane;   // 코인 라인 구간: 줄이 레인을 옮겨 가며 이어진다(S자)
+
         private void SpawnPattern(float z)
         {
             int lane = Random.Range(-1, 2);
             int pattern = Random.Range(0, 4);
             Transform follow = player != null ? player.transform : null;
+
+            // 14차 리듬: 코인 라인 구간엔 한 레인에 길게, 다음 줄은 옆 레인으로 — '따라가면 되는' 길.
+            var phase = RunRhythm.At(z);
+            if (phase == RunRhythm.Phase.CoinLine)
+            {
+                int count = 9 + Random.Range(0, 4);
+                for (int i = 0; i < count; i++)
+                    Place(z + i * 2.0f, _lineLane, i % 5 == 4, follow);
+                int step = Random.Range(0, 2) == 0 ? -1 : 1;
+                _lineLane = Mathf.Clamp(_lineLane + step, -1, 1);
+                if (_lineLane == 0 && Random.Range(0, 3) == 0) _lineLane = step;   // 가운데에만 머물지 않게
+                return;
+            }
+            if (phase == RunRhythm.Phase.Crisis)
+                pattern = Random.Range(0, 2) == 0 ? 3 : 1;   // 위기 구간: 점프 아치·지그재그 위주
 
             if (pattern == 0)
             {
