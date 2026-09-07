@@ -133,9 +133,33 @@ namespace CoastRun
         }
 
         /// 상가 정면 차양(줄무늬, 20° 기울기) + 그 위 간판(한글). 피벗 = 상가 lot(도로 쪽 +x).
+        // 14차-12: 팔레트 규칙 — 차양은 '건물 포인트 색 + 흰색' 줄무늬, 간판 테두리도 포인트 색. 계열별로 캐시.
+        private static readonly System.Collections.Generic.Dictionary<Color, Material> _awningByAccent = new();
+        private static readonly System.Collections.Generic.Dictionary<Color, Material> _edgeByAccent = new();
+        private static Material AwningFor(Color accent)
+        {
+            if (!_awningByAccent.TryGetValue(accent, out var m) || m == null)
+            {
+                m = ArtAssets.CreateTexturedLit(Stripes(accent, new Color(0.99f, 0.98f, 0.95f)), Color.white, 0.05f);
+                _awningByAccent[accent] = m;
+            }
+            return m;
+        }
+        private static Material EdgeFor(Color accent)
+        {
+            if (!_edgeByAccent.TryGetValue(accent, out var m) || m == null)
+            {
+                Color c = accent;
+                m = CoastMaterials.CreateLit(() => c, 0.05f);
+                _edgeByAccent[accent] = m;
+            }
+            return m;
+        }
+
         public static void ShopFront(Transform pivot, System.Random rng, float width = 3.0f)
         {
             EnsureAwnings();
+            Color accent = JejuKit.LastAccent;
             var awn = GameObject.CreatePrimitive(PrimitiveType.Cube);
             awn.name = "Awning";
             awn.transform.SetParent(pivot, false);
@@ -144,7 +168,7 @@ namespace CoastRun
             awn.transform.localScale = new Vector3(1.15f, 0.05f, width);
             CoastEditUtil.DestroyCollider(awn);
             var ar = awn.GetComponent<Renderer>();
-            ar.sharedMaterial = _awnings[rng.Next(_awnings.Length)];
+            ar.sharedMaterial = AwningFor(accent);
             var mpb = new MaterialPropertyBlock(); ar.GetPropertyBlock(mpb);
             mpb.SetVector(Shader.PropertyToID("_BaseMap_ST"), new Vector4(1f, width * 1.6f, 0f, 0f));
             ar.SetPropertyBlock(mpb);
@@ -171,7 +195,7 @@ namespace CoastRun
             edge.transform.localPosition = new Vector3(-0.2f, 0f, 0f);
             edge.transform.localScale = new Vector3(0.9f, 1.12f, 1.06f);
             CoastEditUtil.DestroyCollider(edge);
-            edge.GetComponent<Renderer>().sharedMaterial = _plateEdge;
+            edge.GetComponent<Renderer>().sharedMaterial = EdgeFor(accent);
 
             if (_signFont != null)
             {
@@ -204,6 +228,7 @@ namespace CoastRun
             Ensure();
             _rail ??= CoastMaterials.CreateLit(() => new Color(0.96f, 0.96f, 0.94f), 0.15f);
             _railDark ??= CoastMaterials.CreateLit(() => new Color(0.32f, 0.36f, 0.42f), 0.1f);
+            var potMat = EdgeFor(JejuKit.LastAccent);   // 14차-12: 화분도 건물 포인트 색
             var root = new GameObject("Balcony").transform;
             root.SetParent(pivot, false);
             root.localPosition = new Vector3(0.35f, floorY, 0f);
@@ -224,7 +249,7 @@ namespace CoastRun
             for (int i = 0; i < pots; i++)
             {
                 float z = -width * 0.35f + (width * 0.7f / Mathf.Max(1, pots - 1)) * i;
-                Box(root, "Pot", new Vector3(0.42f, 0.16f, z), new Vector3(0.42f, 0.32f, 0.42f), _stem);
+                Box(root, "Pot", new Vector3(0.42f, 0.16f, z), new Vector3(0.42f, 0.32f, 0.42f), potMat);
                 Hydrangea(root, new Vector3(0.42f, 0.22f, z), rng, 0.5f);
             }
         }

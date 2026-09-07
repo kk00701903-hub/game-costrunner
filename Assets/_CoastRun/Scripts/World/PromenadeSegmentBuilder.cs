@@ -74,14 +74,17 @@ namespace CoastRun
             // Lane guides sit on the lane *boundaries* (lanes are 2.2 m apart), so on a
             // curve the player still reads three lanes at a glance.
             // 14차: 노란 점선 — 3레인이 한눈에 보이고, 점선이 흘러가며 속도를 알려 준다(서브웨이 서퍼의 레일).
-            _laneDashMat ??= CoastMaterials.CreateUnlit(() => new Color(1f, 0.86f, 0.32f, 1f));
+            // 14차-12: 점선 채도 올리고(레몬), 다섯 칸에 한 번 스카이 — 바닥에 노랑/하늘 물감이 번진 느낌
+            _laneDashMat ??= CoastMaterials.CreateUnlit(() => new Color(1f, 0.90f, 0.30f, 1f));
+            _laneDashMat2 ??= CoastMaterials.CreateUnlit(() => new Color(0.55f, 0.82f, 0.96f, 1f));
+            int di = 0;
             for (int side = -1; side <= 1; side += 2)
             {
                 for (float z = 0.6f; z < Length; z += 2.4f)
                 {
                     // 14차-7: 바닥과 같은 높이라 z-파이팅으로 아른거렸다 — 1 cm 띄우고 조금 굵게.
                     var dash = CreateBox(root, "LaneDash", new Vector3(side * 1.1f, 0.016f, z + 0.6f),
-                        new Vector3(0.16f, 0.012f, 1.2f), null, _laneDashMat);
+                        new Vector3(0.16f, 0.012f, 1.2f), null, (di++ % 5 == 4) ? _laneDashMat2 : _laneDashMat);
                     dash.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 }
             }
@@ -367,7 +370,7 @@ namespace CoastRun
             return _facadeMats[variant];
         }
 
-        private static Material _laneDashMat;
+        private static Material _laneDashMat, _laneDashMat2;
         private static Material[] _plainWallMats;
         private static readonly int BaseMapStId = Shader.PropertyToID("_BaseMap_ST");
 

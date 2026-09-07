@@ -123,12 +123,27 @@ namespace CoastRun
             return b;
         }
 
-        private static readonly Color[] WallRule =
+        // 14차-12: 팔레트 5+1 고정(파스텔 S 60~75% · V 95~100%). 베이스 70%(크림·스카이), 포인트 30%.
+        // 건물 하나 = 벽 파스텔 1색 + 같은 계열의 진한 색 1개(차양·간판·지붕). 그 이상 쓰지 않는다.
+        public static readonly Color Cream = Hex("#FFF5E1"), Sky = Hex("#A0D2EB"),
+            Pink = Hex("#FF8E9E"), Mint = Hex("#A8E6CF"), Lemon = Hex("#FFEB7A"), Coral = Hex("#FF8A65");
+        private static readonly Color[] Base = { Cream, Sky, Cream, Sky, Cream, Cream, Sky };   // 7 중 7 = 베이스(70%)
+        private static readonly Color[] Point = { Pink, Mint, Lemon, Coral };
+        /// 마지막으로 스폰한 건물의 벽색 / 포인트(진한 같은 계열) — 차양·간판·화분이 같은 계열을 쓴다.
+        public static Color LastWall { get; private set; } = Cream;
+        public static Color LastAccent { get; private set; } = Hex("#E0956B");
+        public static int LastFamily { get; private set; }
+
+        private static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out var c); return c; }
+
+        /// 같은 계열의 '진한 색': 채도 +0.28, 밝기 −0.18 (크림은 코랄 계열, 스카이는 진한 하늘색).
+        public static Color Accent(Color wall)
         {
-            new Color(0.74f, 0.92f, 0.86f),   // 민트
-            new Color(0.97f, 0.91f, 0.78f),   // 베이지
-            new Color(0.72f, 0.83f, 0.97f),   // 블루
-        };
+            if (wall == Cream) return Hex("#F2A56C");
+            Color.RGBToHSV(wall, out float h, out float sv, out float v);
+            return Color.HSVToRGB(h, Mathf.Clamp01(sv + 0.28f), Mathf.Clamp01(v - 0.18f));
+        }
+
         private static MaterialPropertyBlock _wallMpb;
         private static readonly int _baseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int _colorId = Shader.PropertyToID("_Color");
@@ -137,23 +152,26 @@ namespace CoastRun
         {
             if (b == null) return;
             float z = parent != null ? DownhillPath.DistanceAlong(parent.position) : 0f;
-            int ix = Mathf.Abs(Mathf.FloorToInt(z / 10f)) % WallRule.Length;
-            Color c = WallRule[ix];
+            int lot = Mathf.Abs(Mathf.FloorToInt(z / 10f));
+            // 10집 중 7집 베이스, 3집 포인트 — 순서는 해시로 섞되 같은 색이 연달아 서지 않게
+            int h = Mathf.Abs((lot * 7919 + 13) % 10);
+            Color wall = h < 7 ? Base[h] : Point[(lot * 31 + h) % Point.Length];
+            LastWall = wall; LastAccent = Accent(wall); LastFamily = lot;
+            Color roof = LastAccent;
             _wallMpb ??= new MaterialPropertyBlock();
             foreach (var r in b.GetComponentsInChildren<Renderer>(true))
             {
                 var m = r.sharedMaterial;
                 if (m == null) continue;
                 string n = m.name;
-                // 키트 건물은 재질 하나(Facade_X)에 옆벽까지 들어 있다 → 파사드 그림엔 색을 옅게(55%), 나머지엔 진하게.
-                bool facade = n.StartsWith("Facade");
-                if (!(facade || n.StartsWith("Wall") || n.StartsWith("Concrete"))) continue;
-                Color cc = facade ? Color.Lerp(Color.white, c, 0.55f) : c;
+                Color cc;
+                if (n.StartsWith("Facade") || n.StartsWith("Wall") || n.StartsWith("Concrete")) cc = wall;
+                else if (n.StartsWith("Roof")) cc = roof;
+                else if (n.StartsWith("Awning")) cc = LastAccent;
+                else continue;
                 r.GetPropertyBlock(_wallMpb);
-                Color prev = _wallMpb.GetColor(_baseColorId);
-                if (prev == default) prev = Color.white;
-                _wallMpb.SetColor(_baseColorId, prev * cc);
-                _wallMpb.SetColor(_colorId, prev * cc);
+                _wallMpb.SetColor(_baseColorId, cc);
+                _wallMpb.SetColor(_colorId, cc);
                 r.SetPropertyBlock(_wallMpb);
             }
         }
@@ -177,8 +195,9 @@ namespace CoastRun
 
         private static Material RoofMat(string tex, System.Func<Color> fallback)
         {
-            var t = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + tex);
-            if (t == null) return CoastMaterials.CreateLit(fallback);
+            // 14차-12: 지붕도 단색(포인트 색을 MPB 로 곱한다) — 사진 기와 위에 색을 얹으면 탁해진다.
+            var t = (Texture2D)null;
+            if (t == null) return CoastMaterials.CreateLit(Color.white, 0.05f);
             var m = ArtAssets.CreateTexturedLit(t, Color.white, 0.05f);
             // 지붕 UV는 미터 단위 → 타일 1장 = 1.5m
             if (m.HasProperty("_BaseMap")) m.SetTextureScale("_BaseMap", new Vector2(0.66f, 0.66f));
@@ -190,7 +209,9 @@ namespace CoastRun
         {
             if (name.StartsWith("Facade_"))
             {
-                var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_" + name);
+                // 14차-12: 사진 파사드 대신 '선화' 파사드(흰 바탕 + 창·문·간판 잉크) — 파스텔을 곱해도 탁해지지 않는다.
+                var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_FacadeLine_" + name.Substring(7))
+                          ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_" + name);
                 if (tex != null)
                     return ArtAssets.CreateTexturedLit(tex, Color.white, 0.05f);
                 return CoastMaterials.CreateLit(() => CoastPalette.TownCream);
@@ -199,18 +220,9 @@ namespace CoastRun
             {
                 // 6차: 옆벽·지붕도 그려진 텍스처(Firefly). 없으면 예전 단색/스투코.
                 case "Wall":
-                {
-                    var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Side")
-                              ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Stucco");
-                    return tex != null ? ArtAssets.CreateTexturedLit(tex, Color.white, 0.03f)
-                                       : CoastMaterials.CreateLit(() => CoastPalette.TownCream);
-                }
                 case "WallCool":
-                {
-                    var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Wall_Cool");
-                    return tex != null ? ArtAssets.CreateTexturedLit(tex, Color.white, 0.03f)
-                                       : CoastMaterials.CreateLit(() => CoastPalette.BuildingCool);
-                }
+                    // 14차-12: 옆벽·뒷벽은 단색 흰 바탕(파스텔 MPB) — 사진 벽 텍스처 OFF
+                    return CoastMaterials.CreateLit(Color.white, 0.03f);
                 case "Roof_Terracotta": return RoofMat("Tex_Roof_Terracotta", () => CoastPalette.Roof);
                 case "Roof_Slate": return RoofMat("Tex_Roof_Slate", () => Color.Lerp(CoastPalette.SkyBlue, CoastPalette.RoadGrey, 0.55f));
                 case "Roof_Basalt": return RoofMat("Tex_Roof_Basalt", () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.55f));
