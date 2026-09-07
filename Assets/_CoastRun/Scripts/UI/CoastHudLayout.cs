@@ -63,8 +63,8 @@ namespace CoastRun
         }
 
         /// 10차: 모바일 가독성 — 모든 헬퍼 글자를 한 번에 키운다(×1.15, 최소 14). 레이아웃 숫자는 그대로, Overflow 로 넘친다.
-        public const float TextScale = 1.3f;   // 11차: 갤럭시 S(6.7", 2340×1080) 기준 본문 16sp ≈ 기준 캔버스 22 → 최소 16
-        public static int Scaled(int size) => Mathf.Max(size >= 10 ? 16 : size, Mathf.RoundToInt(size * TextScale));
+        public const float TextScale = 1.4f;   // 14차-8: 폰 기준 한 단계 더(최소 19) // 11차: 갤럭시 S(6.7", 2340×1080) 기준 본문 16sp ≈ 기준 캔버스 22 → 최소 16
+        public static int Scaled(int size) => Mathf.Max(size >= 10 ? 19 : size, Mathf.RoundToInt(size * TextScale));
 
         public static Text MakeText(Transform parent, string name, string content, int size, TextAnchor align,
             Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
