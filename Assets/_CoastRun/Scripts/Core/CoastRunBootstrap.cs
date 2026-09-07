@@ -90,6 +90,7 @@ namespace CoastRun
             EnsureWorld();
             var player = EnsurePlayer();
             var cam = EnsureCamera(player);
+            SkyDressing.Attach(cam);   // 14차-2: 해 플레어·갈매기
             WireWorldFollow(player.transform);
             EnsureSession(player, cam);
         }

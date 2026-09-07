@@ -97,6 +97,103 @@ namespace CoastRun
             return root;
         }
 
+        // ── 14차-2: 차양·간판 ─────────────────────────────────────────
+        private static Material[] _awnings;
+        private static Material _plate, _plateEdge;
+        private static Font _signFont;
+        private static readonly string[] SignTexts = { "귤주스", "해녀의 집", "카페 노을", "제주 흑돼지", "바다 민박", "한라봉 아이스" };
+        private static int _signIx;
+
+        private static Texture2D Stripes(Color a, Color b)
+        {
+            var t = new Texture2D(4, 64, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Repeat, filterMode = FilterMode.Bilinear };
+            var px = new Color32[4 * 64];
+            for (int y = 0; y < 64; y++)
+            {
+                Color c = (y / 8) % 2 == 0 ? a : b;
+                for (int x = 0; x < 4; x++) px[y * 4 + x] = c;
+            }
+            t.SetPixels32(px); t.Apply(false, true);
+            return t;
+        }
+
+        private static void EnsureAwnings()
+        {
+            if (_awnings != null) return;
+            var white = new Color(0.98f, 0.97f, 0.93f);
+            _awnings = new[]
+            {
+                ArtAssets.CreateTexturedLit(Stripes(new Color(1.0f, 0.52f, 0.36f), white), Color.white, 0.05f),   // 코랄
+                ArtAssets.CreateTexturedLit(Stripes(new Color(0.22f, 0.66f, 0.66f), white), Color.white, 0.05f),  // 청록
+                ArtAssets.CreateTexturedLit(Stripes(new Color(1.0f, 0.80f, 0.32f), white), Color.white, 0.05f),   // 노랑
+            };
+            _plate = CoastMaterials.CreateLit(() => new Color(0.99f, 0.96f, 0.86f), 0.05f);
+            _plateEdge = CoastMaterials.CreateLit(() => new Color(0.85f, 0.35f, 0.22f), 0.05f);
+            _signFont = Resources.Load<Font>("CoastRun/Fonts/Pretendard-Bold");
+        }
+
+        /// 상가 정면 차양(줄무늬, 20° 기울기) + 그 위 간판(한글). 피벗 = 상가 lot(도로 쪽 +x).
+        public static void ShopFront(Transform pivot, System.Random rng, float width = 3.0f)
+        {
+            EnsureAwnings();
+            var awn = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            awn.name = "Awning";
+            awn.transform.SetParent(pivot, false);
+            awn.transform.localPosition = new Vector3(0.62f, 2.55f, 0f);
+            awn.transform.localRotation = Quaternion.Euler(0f, 0f, -20f);
+            awn.transform.localScale = new Vector3(1.15f, 0.05f, width);
+            CoastEditUtil.DestroyCollider(awn);
+            var ar = awn.GetComponent<Renderer>();
+            ar.sharedMaterial = _awnings[rng.Next(_awnings.Length)];
+            var mpb = new MaterialPropertyBlock(); ar.GetPropertyBlock(mpb);
+            mpb.SetVector(Shader.PropertyToID("_BaseMap_ST"), new Vector4(1f, width * 1.6f, 0f, 0f));
+            ar.SetPropertyBlock(mpb);
+            // 차양 앞 스캘럽(늘어진 단)
+            var hem = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            hem.name = "AwningHem";
+            hem.transform.SetParent(awn.transform, false);
+            hem.transform.localPosition = new Vector3(0.5f, -1.6f, 0f);
+            hem.transform.localScale = new Vector3(0.04f, 3.2f, 1f);
+            CoastEditUtil.DestroyCollider(hem);
+            hem.GetComponent<Renderer>().sharedMaterial = ar.sharedMaterial;
+
+            // 간판
+            var plate = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            plate.name = "Sign";
+            plate.transform.SetParent(pivot, false);
+            plate.transform.localPosition = new Vector3(0.14f, 3.35f, 0f);
+            plate.transform.localScale = new Vector3(0.08f, 0.62f, width * 0.8f);
+            CoastEditUtil.DestroyCollider(plate);
+            plate.GetComponent<Renderer>().sharedMaterial = _plate;
+            var edge = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            edge.name = "SignEdge";
+            edge.transform.SetParent(plate.transform, false);
+            edge.transform.localPosition = new Vector3(-0.2f, 0f, 0f);
+            edge.transform.localScale = new Vector3(0.9f, 1.12f, 1.06f);
+            CoastEditUtil.DestroyCollider(edge);
+            edge.GetComponent<Renderer>().sharedMaterial = _plateEdge;
+
+            if (_signFont != null)
+            {
+                var tgo = new GameObject("SignText");
+                tgo.transform.SetParent(pivot, false);
+                tgo.transform.localPosition = new Vector3(0.20f, 3.35f, 0f);
+                tgo.transform.localRotation = Quaternion.Euler(0f, -90f, 0f);
+                tgo.transform.localScale = Vector3.one * 0.06f;
+                var tm = tgo.AddComponent<TextMesh>();
+                tm.font = _signFont;
+                tm.text = SignTexts[(_signIx++) % SignTexts.Length];
+                tm.fontSize = 64;
+                tm.characterSize = 1f;
+                tm.anchor = TextAnchor.MiddleCenter;
+                tm.alignment = TextAlignment.Center;
+                tm.color = new Color(0.25f, 0.20f, 0.18f);
+                var tr = tgo.GetComponent<MeshRenderer>();
+                tr.sharedMaterial = _signFont.material;
+                tr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+        }
+
         /// 바다 쪽 난간 앞 화단: 낮은 돌 화분 + 수국.
         public static void Planter(Transform parent, Vector3 localPos, System.Random rng)
         {

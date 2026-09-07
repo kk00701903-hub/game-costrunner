@@ -28,7 +28,8 @@ namespace CoastRun
             if (stage >= ChapterDifficulty.ScooterFrom && r2 < 0.26) return ObstacleId.ScooterParked;
             if (stage >= ChapterDifficulty.StatueFrom && r2 < 0.40) return ObstacleId.StoneStatue;
 
-            if (r < 0.28) return ObstacleId.TrafficCone;
+            if (r < 0.16) return ObstacleId.TrafficCone;
+            if (r < 0.28) return ObstacleId.Slime;         // 14차-2: 슬라임이 콘 절반을 대신한다
             if (r < 0.4) return ObstacleId.OverheadBar;
             if (r < 0.5) return ObstacleId.Clothesline;
             if (r < 0.6) return ObstacleId.Barrier;
@@ -52,6 +53,9 @@ namespace CoastRun
                 case ObstacleId.Barrier:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Barrier",
                         new Vector3(0.95f, 0.48f, 0.22f), () => CoastPalette.AccentOrange, 0.32f, 0.55f, 0.55f, "Barrier", 0.9f);
+                case ObstacleId.Slime:
+                    return CreateSimple(parent, worldPos, lane, "Obstacle_Slime",
+                        new Vector3(0.8f, 0.7f, 0.8f), () => new Color(0.45f, 0.82f, 0.38f), 0.36f, 0.62f, 0.75f, "Slime", 0.9f);
                 case ObstacleId.CrateStack:
                 case ObstacleId.DeliveryBox:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Crate",

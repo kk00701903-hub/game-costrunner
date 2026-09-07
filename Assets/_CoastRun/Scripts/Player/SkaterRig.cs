@@ -101,11 +101,52 @@ namespace CoastRun
             }
 
             AttachBackpack(go, anim, height, runner);
+            AttachBucketHat(go, anim, height);
 
             var rig = go.AddComponent<SkaterRig>();
             rig._anim = anim;
             rig._hasPush = HasParameter(anim, "Push");
             return rig;
+        }
+
+        /// 14차-2: 목표 이미지의 초록 벙거지(해녀 모자 느낌) — 머리 뼈에 얹는다. 크라운 + 챙 + 분홍 띠.
+        private static void AttachBucketHat(GameObject go, Animator anim, float height)
+        {
+            if (anim == null || anim.avatar == null || !anim.avatar.isHuman)
+                return;
+            var head = anim.GetBoneTransform(HumanBodyBones.Head);
+            if (head == null || head.Find("BucketHat") != null)
+                return;
+            float k = height / 1.62f;
+            var hat = new GameObject("BucketHat");
+            hat.transform.SetParent(head, false);
+            Vector3 up = go.transform.up;
+            hat.transform.position = head.position + up * (0.16f * k) + go.transform.forward * (0.01f * k);
+            hat.transform.rotation = go.transform.rotation * Quaternion.Euler(-6f, 0f, 0f);
+
+            var green = new Color(0.52f, 0.68f, 0.38f);
+            var greenDark = new Color(0.40f, 0.55f, 0.30f);
+            var pink = new Color(0.98f, 0.62f, 0.72f);
+            Material crown = CoastMaterials.CreateToon(green, null, 0.05f);
+            Material brim = CoastMaterials.CreateToon(greenDark, null, 0.05f);
+            Material band = CoastMaterials.CreateUnlit(pink);
+            void Part(string name, PrimitiveType type, Vector3 pos, Vector3 size, Material m)
+            {
+                var b = GameObject.CreatePrimitive(type);
+                b.name = name;
+                b.transform.SetParent(hat.transform, false);
+                b.transform.localPosition = pos * k;
+                b.transform.localScale = size * k;
+                CoastEditUtil.DestroyCollider(b);
+                var r = b.GetComponent<Renderer>();
+                r.sharedMaterial = m;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+                b.AddComponent<CelOutlineHint>();
+            }
+            Part("Crown", PrimitiveType.Cylinder, new Vector3(0f, 0.02f, 0f), new Vector3(0.23f, 0.055f, 0.23f), crown);
+            Part("Top", PrimitiveType.Sphere, new Vector3(0f, 0.07f, 0f), new Vector3(0.23f, 0.10f, 0.23f), crown);
+            Part("Band", PrimitiveType.Cylinder, new Vector3(0f, -0.02f, 0f), new Vector3(0.235f, 0.012f, 0.235f), band);
+            Part("Brim", PrimitiveType.Cylinder, new Vector3(0f, -0.045f, 0.01f), new Vector3(0.34f, 0.008f, 0.34f), brim);
         }
 
         /// The blue school backpack is part of her silhouette in every painting; the

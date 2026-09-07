@@ -78,21 +78,21 @@ namespace CoastRun
             if (!profile.TryGet(out Bloom bloom))
                 bloom = profile.Add<Bloom>(true);
             bloom.active = true;
-            bloom.threshold.Override(1.1f);
-            bloom.intensity.Override(0.6f);
+            bloom.threshold.Override(1.0f);
+            bloom.intensity.Override(0.85f);   // 14차: 목표 이미지의 햇빛 번짐
             bloom.scatter.Override(0.7f);
 
             if (!profile.TryGet(out ColorAdjustments color))
                 color = profile.Add<ColorAdjustments>(true);
             color.active = true;
             color.postExposure.Override(0.2f);
-            color.contrast.Override(12f);
-            color.saturation.Override(18f);
+            color.contrast.Override(16f);
+            color.saturation.Override(26f);
 
             if (!profile.TryGet(out Vignette vignette))
                 vignette = profile.Add<Vignette>(true);
             vignette.active = true;
-            vignette.intensity.Override(0.28f);
+            vignette.intensity.Override(0.22f);
             vignette.smoothness.Override(0.5f);
 
             if (!profile.TryGet(out ShadowsMidtonesHighlights smh))
@@ -118,23 +118,23 @@ namespace CoastRun
             float exposure;
             switch (chapter1Based)
             {
-                case 1: // noon — high sat, cool
-                    filter = new Color(0.92f, 0.96f, 1f);
-                    sat = 22f;
-                    contrast = 14f;
-                    exposure = 0.22f;
+                case 1: // noon — 14차: 목표 이미지(한낮, 채도 높고 살짝 따뜻한 햇빛)
+                    filter = new Color(1f, 0.99f, 0.96f);
+                    sat = 32f;
+                    contrast = 18f;
+                    exposure = 0.26f;
                     break;
                 case 2: // afternoon
                     filter = new Color(1f, 0.98f, 0.95f);
-                    sat = 18f;
-                    contrast = 12f;
-                    exposure = 0.18f;
+                    sat = 28f;
+                    contrast = 16f;
+                    exposure = 0.22f;
                     break;
                 case 3: // low sun — sat down
-                    filter = new Color(1f, 0.94f, 0.88f);
-                    sat = 12f;
-                    contrast = 11f;
-                    exposure = 0.12f;
+                    filter = new Color(1f, 0.95f, 0.90f);
+                    sat = 20f;
+                    contrast = 14f;
+                    exposure = 0.16f;
                     break;
                 case 4: // golden
                     filter = new Color(1f, 0.88f, 0.72f);
