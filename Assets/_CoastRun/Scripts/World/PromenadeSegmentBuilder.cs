@@ -296,8 +296,9 @@ namespace CoastRun
                     {
                         // 14차-3: Kling으로 그린 거리 소품(마젠타 키 빌보드) — 귤 좌판·파라솔·서프보드
                         // 걸이·아이스크림 카트·우체통·수국 화분. 그림이 없으면 귤나무로.
-                        string[] painted = { "Stall_Tangerine", "Parasol", "SurfRack", "IceCreamCart", "Postbox", "HydrangeaPot" };
-                        float[] heights = { 2.4f, 2.3f, 2.2f, 2.2f, 1.5f, 1.1f };
+                        string[] painted = { "Stall_Tangerine", "Parasol", "SurfRack", "IceCreamCart", "Postbox", "HydrangeaPot",
+                                             "Haenyeo", "Hareubang2", "PlantPot", "RopeCoil", "Cone2" };
+                        float[] heights = { 2.4f, 2.3f, 2.2f, 2.2f, 1.5f, 1.1f, 2.3f, 1.3f, 0.9f, 0.55f, 1.2f };
                         int pk = rng.Next(painted.Length);
                         var pivot2 = new GameObject("PaintedProp").transform;
                         pivot2.SetParent(gap, false);
