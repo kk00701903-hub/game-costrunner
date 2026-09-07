@@ -28,7 +28,7 @@ namespace CoastRun
 
         [Header("Buffering")]
         [Tooltip("How long a swipe stays valid waiting for the player to be able to act on it.")]
-        [SerializeField] private float bufferSeconds = 0.15f;
+        [SerializeField] private float bufferSeconds = 0.25f;   // 14차-9: 선입력 버퍼 넉넉히
 
         private Vector2 _anchor;
         private Vector2 _lastPos;

@@ -66,7 +66,9 @@ namespace CoastRun
 
             BuildSplashAndUi();
             // 11차: 오프닝은 게임을 켤 때마다 타이틀 앞에서(건너뛰기 버튼). 씬 재로드(언어 전환 등)에는 안 나온다.
-            bool firstLaunch = !_openingShownThisSession;
+            // 14차-9: 오프닝 강제 재생 제거 — 첫 실행에서 1분 37초 영상은 글로벌 캐주얼 기준 이탈 1순위.
+            // 오프닝은 더보기 > 오프닝, 또는 첫 런을 마친 뒤 제안(GameSession)으로만 본다.
+            bool firstLaunch = false;
             _openingShownThisSession = true;
             if (firstLaunch && _gateArt != null)
             {
@@ -392,6 +394,14 @@ namespace CoastRun
             _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
                 new Vector2(btnW + gapX, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
             _moreLabel = _moreBtn.GetComponentInChildren<Text>();
+            // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
+            if (PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
+            {
+                _openingHint = CreateLabel(ui.transform, "OpeningHint", Loc.T("이야기가 궁금하면  더보기 › 오프닝", "Curious about the story?  More › Opening"), 17, FontStyle.Normal,
+                    new Color(1f, 0.96f, 0.86f, 0.9f), new Vector2(0.5f, 0f), new Vector2(600f, 26f));
+                _openingHint.rectTransform.anchoredPosition = new Vector2(0f, rowY + btnH * 0.5f + 20f);
+                CoastUiArt.OutlineText(_openingHint, new Color(0.2f, 0.1f, 0.06f, 0.85f), 1.5f);
+            }
 
             // 더보기 열: 오른쪽 가장자리에서 슬라이드 인. 챕터 선택 / 노을 달리기 / 컬렉션 / 오프닝 / 설정.
             var more = new System.Collections.Generic.List<(string, System.Action)>();
@@ -402,6 +412,8 @@ namespace CoastRun
             {
                 _audio?.PlayClick();
                 _audio?.StopMenu();
+                PlayerPrefs.SetInt("CoastRun_OpeningSeen", 1);
+                if (_openingHint != null) _openingHint.gameObject.SetActive(false);
                 _ready = false;
                 OpeningCinematic.Play(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; });
             }));
@@ -870,7 +882,7 @@ namespace CoastRun
         }
 
         // 14차-8: 더보기 슬라이드
-        private Button _moreBtn; private Text _moreLabel;
+        private Button _moreBtn; private Text _moreLabel; private Text _openingHint;
         private RectTransform _moreRt; private CanvasGroup _moreCg;
         private Vector2 _moreHidden, _moreShown; private bool _moreOpen; private float _moreT;
 

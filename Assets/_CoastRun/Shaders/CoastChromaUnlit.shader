@@ -94,7 +94,7 @@ Shader "CoastRun/ChromaUnlit"
                 half3 lit = sun.color * 0.9 + half3(unity_AmbientSky.rgb) * 0.6 + 0.35;
                 c.rgb *= lit;
                 // 알파 가장자리는 0.5 를 중심으로 짧게 섞는다(밉맵에서 부드러운 윤곽, 멀리서 도트 반짝임 없음)
-                c.a = saturate((c.a - 0.5) * 4.0 + 0.5);
+                c.a = saturate((c.a - 0.5) * 8.0 + 0.5);   // 14차-9: 가장자리 더 또렷하게(뿌연 페더 제거)
                 return c;
             }
             ENDHLSL

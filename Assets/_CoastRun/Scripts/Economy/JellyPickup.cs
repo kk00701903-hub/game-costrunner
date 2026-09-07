@@ -63,12 +63,12 @@ namespace CoastRun
             switch (kind)
             {
                 case PickupKind.Potion:
-                    if (PaintedProp.Available("Potion")) PaintedProp.Attach(vis, "Potion", 0.9f, replace: false);
+                    if (PaintedProp.Available("Potion")) PaintedProp.Attach(vis, "Potion", 0.9f, replace: false, outline: true);
                     else BuildPotion(vis);
                     radius = 0.6f;
                     break;
                 case PickupKind.BonusStar:
-                    if (PaintedProp.Available("Star")) PaintedProp.Attach(vis, "Star", 1.1f, replace: false);
+                    if (PaintedProp.Available("Star")) PaintedProp.Attach(vis, "Star", 1.1f, replace: false, outline: true);
                     else BuildStar(vis);
                     radius = 0.8f;
                     break;
@@ -77,7 +77,7 @@ namespace CoastRun
                     radius = 0.6f;
                     break;
                 case PickupKind.Heart:
-                    if (PaintedProp.Available("Heart")) PaintedProp.Attach(vis, "Heart", 0.8f, replace: false);
+                    if (PaintedProp.Available("Heart")) PaintedProp.Attach(vis, "Heart", 0.8f, replace: false, outline: true);
                     else BuildHeart(vis);
                     radius = 0.7f;
                     break;

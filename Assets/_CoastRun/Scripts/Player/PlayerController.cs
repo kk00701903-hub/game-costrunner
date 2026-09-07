@@ -44,6 +44,7 @@ namespace CoastRun
         private float _softHitTimer;
         private float _inputFreezeTimer;
         private float _coyoteTimer;     // grace after leaving ground where a jump still counts
+        private float _runClock;        // 14차-9: 계단식 가속용 런 경과 시간
         private float _laneFrom;        // lane easing: where the last change started
         private float _laneT = 1f;      // 0..1 progress of the current lane change
         private bool _tucking;
@@ -56,7 +57,7 @@ namespace CoastRun
         /// 레인 이동 속도(m/s, +우). 리그가 몸을 기울이는 데 쓴다.
         public float LateralVelocity { get; private set; }
         /// 레인 이동 시간 배율 (config.laneChangeSeconds × 이 값). 0.15s 기본에 2.0 → 0.30s.
-        public const float LaneEaseScale = 1.2f;   // 14차: 0.30s → 0.18s — 스와이프에 '착' 붙는 스냅
+        public const float LaneEaseScale = 1.35f;   // 14차-9: 0.20s ease-out (골드런 0.18~0.22s)
 
         private CapsuleCollider _bodyCollider;
 
@@ -125,6 +126,7 @@ namespace CoastRun
             {
                 _bodyHeight = config.standHeight;
                 _speed = config.baseSpeed;
+            _runClock = 0f;
                 _hop = _groundY + _bodyHeight * 0.5f;
             }
 
@@ -154,6 +156,7 @@ namespace CoastRun
             }
 
             _speed = config.baseSpeed;
+            _runClock = 0f;
             _bodyHeight = config.standHeight;
             _groundY = 0f;
             if (DebugGod) Invincible = true;
@@ -254,7 +257,12 @@ namespace CoastRun
             // v2 이동 모드: 스케이트보드는 기본·최대·가속 모두 ×1.3 (규칙은 동일, 반응 시간만 짧다).
             float mode = RunTuning.SpeedMul * ChapterDifficulty.SpeedMul;
             float maxSpeed = (upgrades != null ? upgrades.GetMaxSpeed() : config.maxSpeed) * mode;
-            float target = Mathf.Min(maxSpeed, _speed + config.accelPerSecond * mode * Time.deltaTime);
+            // 14차-9: 선형 가속 → 30초마다 +6% 계단(골드런/서브웨이 방식). 후반이 '반응 불가'로 치닫지 않고,
+            // 속도 상한은 기본의 1.7배(≈18.7 m/s)에서 멈춘다. 계단 사이는 1.5 m/s² 로 부드럽게 붙는다.
+            _runClock += Time.deltaTime;
+            int tier = Mathf.FloorToInt(_runClock / 30f);
+            float stepped = config.baseSpeed * mode * Mathf.Min(1.7f, 1f + 0.06f * tier);
+            float target = Mathf.Min(maxSpeed, stepped);
             if (_state == SkateState.SoftHit)
                 target = config.baseSpeed * mode * config.softHitSlowFactor;
 
@@ -263,7 +271,9 @@ namespace CoastRun
                 target *= config.tuckMultiplier;
             target *= Mathf.Max(0.1f, SpeedBoost);
 
-            _speed = Mathf.MoveTowards(_speed, target, 20f * Time.deltaTime);
+            // 계단 사이는 1.5 m/s² 로 붙고, 부스터 아이템·감속은 즉시.
+            float rate = (target > _speed && SpeedBoost <= 1.01f) ? 1.5f : 20f;
+            _speed = Mathf.MoveTowards(_speed, target, rate * Time.deltaTime);
         }
 
         private void HandleInput()
@@ -405,17 +415,19 @@ namespace CoastRun
             //
             // Crouching drops the capsule instead of shrinking it in place, so ducking
             // actually moves the body under an overhead bar.
+            // 14차-9: 골드런식 관용 — 몸 판정을 그림의 65% 폭으로, 슬라이드 중엔 절반 높이.
+            // "안 닿은 것 같은데 죽었다"가 사라지고, 니어미스가 자주 나며 손맛이 붙는다.
             if (_state == SkateState.Crouch)
             {
-                _bodyCollider.height = 0.7f;
-                _bodyCollider.center = new Vector3(0f, -0.40f, 0f);
-                _bodyCollider.radius = 0.3f;
+                _bodyCollider.height = 0.55f;
+                _bodyCollider.center = new Vector3(0f, -0.47f, 0f);
+                _bodyCollider.radius = 0.2f;
             }
             else
             {
-                _bodyCollider.height = 1.5f;
-                _bodyCollider.center = Vector3.zero;
-                _bodyCollider.radius = 0.32f;
+                _bodyCollider.height = 1.3f;
+                _bodyCollider.center = new Vector3(0f, -0.05f, 0f);
+                _bodyCollider.radius = 0.21f;
             }
         }
 
@@ -435,7 +447,8 @@ namespace CoastRun
                 float dur = Mathf.Max(0.12f, config.laneChangeSeconds * LaneEaseScale * RunTuning.LaneMul);
                 _laneT = Mathf.Min(1f, _laneT + Time.deltaTime / dur);
                 float t = _laneT;
-                float e = t * t * t * (t * (t * 6f - 15f) + 10f);   // smootherstep
+                // 14차-9: ease-out(즉시 출발, 부드럽게 도착) — 스와이프 직후 몸이 바로 움직여 반응이 '붙는다'.
+                float e = 1f - (1f - t) * (1f - t) * (1f - t);
                 _lateral = Mathf.Lerp(_laneFrom, laneTarget, e);
             }
             else
@@ -458,7 +471,7 @@ namespace CoastRun
                     _state = SkateState.Run;
                     OnLanded?.Invoke();
                 }
-                _coyoteTimer = 0.1f;
+                _coyoteTimer = 0.12f;
             }
             else if (wasGrounded && _state != SkateState.Air)
             {
@@ -494,6 +507,7 @@ namespace CoastRun
             _bodyHeight = config.standHeight;
             _hop = _bodyHeight * 0.5f;
             _speed = config.baseSpeed;
+            _runClock = 0f;
             SnapToPath();
         }
 

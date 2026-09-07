@@ -47,8 +47,9 @@ namespace CoastRun
             if (outline && mat.HasProperty("_OutlineOn"))
             {
                 mat.SetFloat("_OutlineOn", 1f);
-                mat.SetColor("_OutlineColor", Color.white);
-                mat.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 180f, 3f, 9f));
+                // 14차-9: 흰 테두리는 밝은 배경에서 뿌옇게 번져 보였다 → 짙은 남색 굵은 선(레퍼런스의 볼드 아웃라인).
+                mat.SetColor("_OutlineColor", new Color(0.10f, 0.08f, 0.16f, 1f));
+                mat.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 150f, 3f, 8f));
             }
             var mr = quad.GetComponent<Renderer>();
             mr.sharedMaterial = mat;

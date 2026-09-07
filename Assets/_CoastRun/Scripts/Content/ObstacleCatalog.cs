@@ -55,7 +55,7 @@ namespace CoastRun
                         new Vector3(0.95f, 0.48f, 0.22f), () => CoastPalette.AccentOrange, 0.32f, 0.55f, 0.55f, "Barrier", 0.9f);
                 case ObstacleId.Slime:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Slime",
-                        new Vector3(0.95f, 0.85f, 0.95f), () => new Color(0.45f, 0.82f, 0.38f), 0.42f, 0.75f, 0.9f, "Slime", 1.15f);   // 14차-8: 말랑이 1.2배(무릎 높이 이상, 코인보다 크게)
+                        new Vector3(0.95f, 0.85f, 0.95f), () => new Color(0.95f, 0.36f, 0.30f), 0.42f, 0.75f, 0.9f, "Slime", 1.15f);   // 14차-9: 장애물은 빨강 계열(색 규칙)   // 14차-8: 말랑이 1.2배(무릎 높이 이상, 코인보다 크게)
                 case ObstacleId.CrateStack:
                 case ObstacleId.DeliveryBox:
                     return CreateSimple(parent, worldPos, lane, "Obstacle_Crate",
@@ -205,8 +205,9 @@ namespace CoastRun
             hard.transform.localPosition = new Vector3(0f, hardH * 0.5f, 0f);
             var hardCol = hard.AddComponent<CapsuleCollider>();
             hardCol.isTrigger = true;
-            hardCol.radius = hardR;
-            hardCol.height = hardH;
+            // 14차-9: 장애물 판정도 그림의 70% — 가장자리 스침은 '니어미스'로 보상된다.
+            hardCol.radius = hardR * 0.7f;
+            hardCol.height = hardH * 0.9f;
             var hazard = hard.AddComponent<ObstacleHazard>();
 
             var near = new GameObject("NearMiss");
