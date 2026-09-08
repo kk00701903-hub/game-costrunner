@@ -26,7 +26,7 @@ namespace CoastRun
         public static void House(Transform pivot, System.Random rng, bool twoStorey)
         {
             // 15차-3: 그림 파사드 기와집이 있으면 그것(사진풍), 없으면 파트 키트
-            var go = JejuKit.SpawnFHouse(rng.Next(1000), pivot, Vector3.zero, 180f);
+            var go = JejuKit.SpawnFHouse(rng.Next(1000000), pivot, Vector3.zero, 180f);
             if (go == null)
             {
                 go = JejuKit.Spawn(twoStorey ? "House_B" : "House_A", pivot, Vector3.zero, 180f, 1f);

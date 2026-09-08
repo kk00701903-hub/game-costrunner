@@ -255,6 +255,7 @@ namespace CoastRun
         /// Kit street: three lots per 30 m tile. Each lot gets a building drawn from the
         /// kit (never the same as its neighbour), a 돌담 run along the kerb with a gap at
         /// the shop door, and a tree / bench / 감귤 stall between lots.
+        private static int _shopStreak;
         private static void BuildTownSideKit(Transform root, int index, System.Random rng)
         {
             float frontX = -(RoadHalfWidth + 0.9f);
@@ -267,13 +268,17 @@ namespace CoastRun
                 int variant = rng.Next(n);
                 if (variant == prev) variant = (variant + 1) % n;
                 prev = variant;
+                if (JejuKit.FShopAvailable) variant = rng.Next(1000000);   // 16차: 그림 상가는 높이·지붕·그림 조합이 많다 — 넓은 시드
 
                 var pivot = UprightPivot(root, "Lot", new Vector3(frontX, 0f, z));
                 // 14차-14: 실제 제주 해안 마을처럼 — 상가만 줄지어 서지 않는다. 필지 종류를 섞는다:
                 //   상가 50% / 제주 낮은 집 22% / 공터(돌담+감귤나무+귤 상자) 14% / 작은 공원(정자·벤치·야자·파라솔 테라스) 14%
                 int lotRoll = rng.Next(100);
                 bool hasHouse = JejuKit.Load("House_A") != null;
-                if (lotRoll < 50 || !hasHouse)
+                // 16차: 지루함 방지 — 상가가 2채 연속이면 다음은 반드시 집/공터/공원. 상가 45 / 집 22 / 공터 15 / 공원 18
+                if (_shopStreak >= 2 && lotRoll < 50) lotRoll = 50 + rng.Next(50);
+                if (lotRoll < 45 || !hasHouse) _shopStreak++; else _shopStreak = 0;
+                if (lotRoll < 45 || !hasHouse)
                 {
                     // The FBX handedness swap mirrors Blender's X: the kit's front (+X in
                     // Blender) imports facing -X, so a half turn puts the shopfront on the
@@ -289,12 +294,12 @@ namespace CoastRun
                     // 상가 앞 테라스: 파라솔 + 카페 세트(3집 중 1집)
                     if (rng.Next(3) == 0) JejuLots.CafeTerrace(pivot, rng);
                 }
-                else if (lotRoll < 72)
+                else if (lotRoll < 67)
                 {
                     JejuLots.House(pivot, rng, lotRoll % 2 == 0);
                     StreetDressing.ContactShadow(pivot, 8.5f, 1.2f);
                 }
-                else if (lotRoll < 86)
+                else if (lotRoll < 82)
                 {
                     JejuLots.EmptyLot(pivot, rng);
                 }

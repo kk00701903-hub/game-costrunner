@@ -149,16 +149,33 @@ namespace CoastRun
         }
         public static bool FShopAvailable => Load("FShop_Sq") != null;
 
+        // 16차: 제주 지붕 팔레트 — 주황 기와·적갈 기와·현무암 검정·파란 함석·초록 함석·황토·청록·슬레이트
+        private static readonly Color[] JejuRoofs = { Hex("#D9703A"), Hex("#D9703A"), Hex("#B8482E"), Hex("#3A3A42"), Hex("#4A6FA5"), Hex("#3F8F5E"), Hex("#D9A93A"), Hex("#2E9E8E"), Hex("#6E7B8B") };
+        private static readonly Color[] FlatRoofs = { Hex("#E8E2D6"), Hex("#CFE4EA"), Hex("#F2D6D0"), Hex("#DDE8D2") };
+        private static readonly string[] LowTex = { "Q", "W" };
+        private static uint _h(int v, int salt) { uint x = (uint)(v * 374761393 + salt * 668265263); x = (x ^ (x >> 13)) * 1274126177u; return x ^ (x >> 16); }
+        private static string Pick(string[] arr, int v, int salt) => arr[(int)(_h(v, salt) % (uint)arr.Length)];
+        private static Color Pick(Color[] arr, int v, int salt) => arr[(int)(_h(v, salt) % (uint)arr.Length)];
+        private static bool Has(string model) => Load(model) != null;
+
+        /// 16차: 높이 등급(1층 15% / 2층 45% / 3층 25% / 넓은 2층 15%) + 지붕형(기와·평지붕·박공) + 크기 미세 변주.
         private static GameObject SpawnFShop(int variant, Transform parent, Vector3 localPos, float yawDegrees)
         {
-            int total = SqTex.Length + TallTex.Length + WideTex.Length;
-            int r = ((variant % total) + total) % total;
+            uint hc = _h(variant, 1) % 100; uint hr = _h(variant, 2) % 100;
             string model; string k;
-            if (r < SqTex.Length) { model = "FShop_Sq"; k = SqTex[r]; }
-            else if (r < SqTex.Length + TallTex.Length) { model = "FShop_Tall"; k = TallTex[r - SqTex.Length]; }
-            else { model = "FShop_Wide"; k = WideTex[r - SqTex.Length - TallTex.Length]; }
-            var go = Spawn(model, parent, localPos, yawDegrees, 1f);
+            if (hc < 15)      { model = hr < 40 && Has("FShop_Low_Gable") ? "FShop_Low_Gable" : "FShop_Low"; k = Pick(LowTex, variant, 3); }
+            else if (hc < 60) { model = hr < 30 && Has("FShop_Sq_Flat") ? "FShop_Sq_Flat" : hr < 50 && Has("FShop_Sq_Gable") ? "FShop_Sq_Gable" : "FShop_Sq"; k = Pick(SqTex, variant, 3); }
+            else if (hc < 85) { model = hr < 45 && Has("FShop_Tall_Flat") ? "FShop_Tall_Flat" : "FShop_Tall"; k = Pick(TallTex, variant, 3); }
+            else              { model = hr < 40 && Has("FShop_Wide_Flat") ? "FShop_Wide_Flat" : "FShop_Wide"; k = Pick(WideTex, variant, 3); }
+            float scale = 0.92f + (_h(variant, 4) % 100) * 0.0018f;   // 0.92 ~ 1.10
+            var go = Spawn(model, parent, localPos, yawDegrees, scale);
             if (go == null) return null;
+            ApplyFacade(go, k, variant, model.Contains("_Flat"));
+            return go;
+        }
+
+        private static void ApplyFacade(GameObject go, string k, int variant, bool flat)
+        {
             var fm = FacadeMat(k);
             foreach (var rd in go.GetComponentsInChildren<Renderer>(true))
             {
@@ -170,35 +187,22 @@ namespace CoastRun
             Color wall = Color.Lerp(FacadeWall[k], Color.white, 0.12f);
             LastWall = wall; LastAccent = Accent(FacadeWall[k]);
             Recolor(go, "Wall", wall);
-            Recolor(go, "Roof", FacadeRoof.TryGetValue(k, out var rc) ? rc : LastAccent);
+            Recolor(go, "Roof", Pick(JejuRoofs, variant, 5));   // 평지붕 파라펫도 같은 팔레트로 칠해 지붕색이 또렷이 다르게
             Recolor(go, "Frame", LastAccent);
             Recolor(go, "Trim", Color.white);
             BuildingOutline.Attach(go.transform, 0.035f);
-            return go;
         }
 
-        /// 15차-3: 1층 제주 기와집(그림 파사드 Q/W). 없으면 null → 파트 키트 House_A/B 폴백.
-        private static readonly string[] LowTex = { "Q", "W" };
+        /// 15차-3/16차: 1층 제주 기와집(그림 파사드 Q/W, 기와/박공). 없으면 null → 파트 키트 House_A/B 폴백.
         public static GameObject SpawnFHouse(int variant, Transform parent, Vector3 localPos, float yawDegrees)
         {
-            if (Load("FShop_Low") == null) return null;
-            string k = LowTex[((variant % LowTex.Length) + LowTex.Length) % LowTex.Length];
-            var go = Spawn("FShop_Low", parent, localPos, yawDegrees, 1f);
+            if (!Has("FShop_Low")) return null;
+            string k = Pick(LowTex, variant, 3);
+            string model = (_h(variant, 2) % 100) < 45 && Has("FShop_Low_Gable") ? "FShop_Low_Gable" : "FShop_Low";
+            float scale = 0.9f + (_h(variant, 4) % 100) * 0.002f;
+            var go = Spawn(model, parent, localPos, yawDegrees, scale);
             if (go == null) return null;
-            var fm = FacadeMat(k);
-            foreach (var rd in go.GetComponentsInChildren<Renderer>(true))
-            {
-                var mats = rd.sharedMaterials; bool changed = false;
-                for (int i = 0; i < mats.Length; i++)
-                    if (mats[i] != null && mats[i].name.StartsWith("FacadeFront")) { mats[i] = fm; changed = true; }
-                if (changed) rd.sharedMaterials = mats;
-            }
-            LastWall = Color.Lerp(FacadeWall[k], Color.white, 0.12f); LastAccent = Accent(FacadeWall[k]);
-            Recolor(go, "Wall", LastWall);
-            Recolor(go, "Roof", FacadeRoof.TryGetValue(k, out var rc) ? rc : LastAccent);
-            Recolor(go, "Frame", LastAccent);
-            Recolor(go, "Trim", Color.white);
-            BuildingOutline.Attach(go.transform, 0.035f);
+            ApplyFacade(go, k, variant, false);
             return go;
         }
 
@@ -300,8 +304,14 @@ namespace CoastRun
             _wallMpb ??= new MaterialPropertyBlock();
             foreach (var r in go.GetComponentsInChildren<Renderer>(true))
             {
-                var m = r.sharedMaterial; if (m == null || !m.name.StartsWith(matPrefix)) continue;
-                r.GetPropertyBlock(_wallMpb); _wallMpb.SetColor(_baseColorId, c); _wallMpb.SetColor(_colorId, c); r.SetPropertyBlock(_wallMpb);
+                // 16차: 한 렌더러에 재질 여러 개(블렌더 join 메시) — 재질 인덱스별로 칠한다.
+                // 렌더러 전체 MPB를 쓰면 마지막 색이 지붕·벽·트림을 전부 덮어버린다(지붕이 전부 흰색이던 원인).
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    var m = mats[i]; if (m == null || !m.name.StartsWith(matPrefix)) continue;
+                    r.GetPropertyBlock(_wallMpb, i); _wallMpb.SetColor(_baseColorId, c); _wallMpb.SetColor(_colorId, c); r.SetPropertyBlock(_wallMpb, i);
+                }
             }
         }
 

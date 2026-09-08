@@ -224,20 +224,45 @@ def uv_box(name, x0, x1, y0, y1, z0, z1, front_mat, other_mat):
     return ob
 
 # ── 그림 파사드 상가(FShop): 정면은 Kling 파사드 그림, 옆·뒤는 단색, 지붕·코니스·옆창·화분은 3D ──
-def fshop(name, width, height, depth=6.0, storeys=2):
+def fshop(name, width, height, depth=6.0, storeys=2, roof="tile", extra=0.0):
+    """그림 파사드 상가. roof: tile(계단 기와) / flat(파라펫+물탱크) / gable(박공). extra: 위에 얹는 단색 층 높이."""
     parts = [uv_box("Body", -depth, 0.0, -width * 0.5, width * 0.5, 0.0, height, "FacadeFront", "Wall")]
-    # 꼭대기 코니스(흰) + 계단식 기와 지붕(포인트색)
-    parts.append(cube("Trim", 0.10, 0, height + 0.08, 0.34, width + 0.34, 0.18, "Trim"))
-    for i in range(4):
-        t = i / 4.0
-        parts.append(cube("Roof", -depth * 0.5, 0, height + 0.17 + 0.24 * i + 0.12, (depth + 0.5) * (1 - t * 0.85), (width + 0.5) * (1 - t * 0.55), 0.24, "Roof"))
+    top = height
+    if extra > 0:   # 16차: 그림 위에 단색 층 하나 더(3층 상가) — 정면 창 3개 + 층 코니스
+        parts.append(cube("Wall", -depth * 0.5, 0, height + extra * 0.5, depth, width, extra, "Wall"))
+        parts.append(cube("Trim", 0.05, 0, height + 0.02, 0.30, width + 0.30, 0.16, "Trim"))
+        n = 3 if width > 7 else 2
+        for i in range(n):
+            y = -width * 0.5 + width * (i + 0.5) / n
+            parts.append(cube("Frame", 0.03, y, height + extra * 0.55, 0.10, 1.3, 1.5, "Frame"))
+            parts.append(cube("Glass", 0.06, y, height + extra * 0.55, 0.04, 1.1, 1.3, "Glass"))
+        top = height + extra
+    if roof == "tile":
+        parts.append(cube("Trim", 0.10, 0, top + 0.08, 0.34, width + 0.34, 0.18, "Trim"))
+        for i in range(4):
+            t = i / 4.0
+            parts.append(cube("Roof", -depth * 0.5, 0, top + 0.17 + 0.24 * i + 0.12, (depth + 0.5) * (1 - t * 0.85), (width + 0.5) * (1 - t * 0.55), 0.24, "Roof"))
+    elif roof == "gable":
+        parts.append(cube("Trim", 0.10, 0, top + 0.08, 0.34, width + 0.34, 0.18, "Trim"))
+        for i in range(7):
+            t = i / 7.0
+            parts.append(cube("Roof", -depth * 0.5, 0, top + 0.17 + 0.30 * i + 0.15, depth + 0.6, (width + 0.6) * (1 - t * 0.92), 0.30, "Roof"))
+    else:   # flat: 파라펫 + 옥상 물탱크 + 에어컨 실외기
+        for s_ in (-1, 1):
+            parts.append(cube("Roof", -depth * 0.5, s_ * (width * 0.5 + 0.02), top + 0.35, depth + 0.2, 0.25, 0.7, "Roof"))
+        parts.append(cube("Roof", 0.0, 0, top + 0.35, 0.25, width + 0.2, 0.7, "Roof"))
+        parts.append(cube("Roof", -depth, 0, top + 0.35, 0.25, width + 0.2, 0.7, "Roof"))
+        parts.append(cube("Concrete", -depth * 0.5, 0, top + 0.02, depth, width, 0.06, "Concrete"))
+        parts.append(cube("Dark", -depth * 0.35, width * 0.2, top + 0.9, 1.3, 1.3, 1.2, "Dark"))
+        parts.append(cube("Trim", -depth * 0.35, width * 0.2, top + 1.55, 1.4, 1.4, 0.12, "Trim"))
+        parts.append(cube("Trim", -depth * 0.7, -width * 0.25, top + 0.4, 0.8, 0.9, 0.7, "Trim"))
     # 현무암 기단(옆·뒤) — 정면 그림의 돌담이 옆면으로 이어진다
     for s in (-1, 1):
         parts.append(cube("Stone", -depth * 0.5, s * (width * 0.5 + 0.03), 0.55, depth + 0.02, 0.12, 1.1, "Stone"))
     parts.append(cube("Stone", -depth - 0.03, 0, 0.55, 0.12, width + 0.1, 1.1, "Stone"))
     # 모서리 기둥(흰)
     for s in (-1, 1):
-        parts.append(cube("Pilaster", -0.02, s * (width * 0.5 + 0.04), height * 0.5 + 0.55, 0.14, 0.18, height - 1.1, "Trim"))
+        parts.append(cube("Pilaster", -0.02, s * (width * 0.5 + 0.04), top * 0.5 + 0.55, 0.14, 0.18, top - 1.1, "Trim"))
     # 바닥 화분 2개 + 문턱 콘크리트
     for s in (-1, 1):
         parts.append(cube("Frame", 0.35, s * (width * 0.5 - 0.7), 0.25, 0.5, 0.7, 0.5, "Frame"))
@@ -246,10 +271,15 @@ def fshop(name, width, height, depth=6.0, storeys=2):
     return join(parts, name)
 
 MATS["Leaf"] = mat("Leaf", (0.25, 0.55, 0.28))
-EXTRA_F = [("FShop_Sq", lambda: fshop("FShop_Sq", 6.4, 6.4, 6.0, 2)),
-           ("FShop_Tall", lambda: fshop("FShop_Tall", 8.0, 8.0, 6.0, 3)),
-           ("FShop_Wide", lambda: fshop("FShop_Wide", 9.6, 5.6, 6.0, 2)),
-           ("FShop_Low", lambda: fshop("FShop_Low", 8.0, 4.0, 5.0, 1))]   # 15차-3: 1층 기와집(그림 Q/W)
+EXTRA_F = [("FShop_Sq", lambda: fshop("FShop_Sq", 6.4, 6.4, 6.0, 2, "tile")),
+           ("FShop_Sq_Flat", lambda: fshop("FShop_Sq_Flat", 6.4, 6.4, 6.0, 2, "flat")),
+           ("FShop_Sq_Gable", lambda: fshop("FShop_Sq_Gable", 6.4, 6.4, 6.0, 2, "gable")),
+           ("FShop_Tall", lambda: fshop("FShop_Tall", 8.0, 6.4, 6.0, 2, "tile", extra=2.7)),      # 3층(9.1 m)
+           ("FShop_Tall_Flat", lambda: fshop("FShop_Tall_Flat", 8.0, 6.4, 6.0, 2, "flat", extra=2.7)),
+           ("FShop_Wide", lambda: fshop("FShop_Wide", 9.6, 5.6, 6.0, 2, "tile")),
+           ("FShop_Wide_Flat", lambda: fshop("FShop_Wide_Flat", 9.6, 5.6, 6.0, 2, "flat")),
+           ("FShop_Low", lambda: fshop("FShop_Low", 8.0, 4.0, 5.0, 1, "tile")),      # 1층 기와집
+           ("FShop_Low_Gable", lambda: fshop("FShop_Low_Gable", 8.0, 3.8, 5.0, 1, "gable"))]
 
 EXTRA = [("House_A", lambda: jeju_house("House_A", 8.5, 6.0, False)),
          ("House_B", lambda: jeju_house("House_B", 8.0, 6.0, True)),
