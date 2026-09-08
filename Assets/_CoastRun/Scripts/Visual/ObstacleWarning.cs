@@ -10,8 +10,59 @@ namespace CoastRun
     ///  본체 색 반짝임은 약하게 남긴다.
     public class ObstacleWarning : MonoBehaviour
     {
-        private const float TriggerAhead = 30f;
+        // 14차-14: '주인공 레인의 가장 가까운 장애물'만 경고한다. 22 m 안(피할 시간이 있을 때)에서 켜지고
+        // 5 m 안이면(이미 늦음) 끈다. 레인을 바꾸면 그 레인의 것으로 바로 옮겨 간다. 한 장애물은 한 번만.
+        private const float WarnFar = 22f, WarnNear = 5f;
         private const float Duration = 1.15f;
+        private static readonly System.Collections.Generic.List<ObstacleWarning> _all = new();
+        private static ObstacleWarning _current;
+        private int _lane;
+
+        private void OnEnable() { _all.Add(this); _lane = Mathf.RoundToInt(Vector3.Dot(transform.position, DownhillPath.Rotation * Vector3.right) / 2.2f); }
+        private void OnDisable() { _all.Remove(this); if (_current == this) _current = null; }
+
+        /// 프레임마다 한 번: 주인공 레인에서 앞쪽 [WarnNear, WarnFar] 안 가장 가까운, 아직 안 울린 장애물을 고른다.
+        private static void Pick(PlayerController player)
+        {
+            // 레인을 바꿨거나 이미 지나쳤으면 지금 경고를 접는다
+            if (_current != null && _current._t >= 0f)
+            {
+                float ca = DownhillPath.DistanceAlong(_current.transform.position) - player.PathDistance;
+                if (_current._lane != player.Lane || ca < WarnNear * 0.6f) _current.Cancel();
+                else return;
+            }
+            float pz = player.PathDistance;
+            ObstacleWarning best = null; float bestAhead = float.MaxValue;
+            foreach (var w in _all)
+            {
+                if (w == null || w._fired || w._lane != player.Lane) continue;
+                float ahead = DownhillPath.DistanceAlong(w.transform.position) - pz;
+                if (ahead < WarnNear || ahead > WarnFar) continue;
+                if (ahead < bestAhead) { bestAhead = ahead; best = w; }
+            }
+            if (best != null) { _current = best; best.Fire(); }
+        }
+
+        private void Cancel()
+        {
+            _t = -1f;
+            WarnHud.Hide(transform);
+            if (_stripe != null) { Destroy(_stripe.gameObject); _stripe = null; _stripeR = null; }
+            if (_targets != null && _mpb != null)
+                for (int i = 0; i < _targets.Length; i++)
+                {
+                    var r = _targets[i]; if (r == null) continue;
+                    r.GetPropertyBlock(_mpb); _mpb.SetColor(BaseColorId, _baseColors[i]); _mpb.SetColor(ColorId, _baseColors[i]); r.SetPropertyBlock(_mpb);
+                }
+            if (_current == this) _current = null;
+        }
+
+        private void Fire()
+        {
+            _fired = true; _t = 0f;
+            WarnHud.Show(transform, _topY + 0.25f, Duration);
+            SpawnStripe();
+        }
         private static PlayerController _player;
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");
@@ -62,14 +113,8 @@ namespace CoastRun
             if (_player == null) _player = FindFirstObjectByType<PlayerController>();
             if (_player == null || _targets == null) return;
             _mpb ??= new MaterialPropertyBlock();
-            if (!_fired)
-            {
-                float ahead = DownhillPath.DistanceAlong(transform.position) - _player.PathDistance;
-                if (ahead > TriggerAhead || ahead < 3f) return;
-                _fired = true; _t = 0f;
-                WarnHud.Show(transform, _topY + 0.25f, Duration);
-                SpawnStripe();
-            }
+            // 첫 번째 인스턴스가 대표로 고른다(프레임당 한 번)
+            if (_all.Count > 0 && _all[0] == this) Pick(_player);
             if (_t < 0f) return;
             _t += Time.deltaTime;
             float k = Mathf.Clamp01(_t / Duration);
@@ -93,7 +138,7 @@ namespace CoastRun
                 _stripeR.SetPropertyBlock(_mpb);
                 if (_t >= Duration) { Destroy(_stripe.gameObject); _stripe = null; _stripeR = null; }
             }
-            if (_t >= Duration) { _t = -1f; enabled = false; }
+            if (_t >= Duration) { _t = -1f; if (_current == this) _current = null; }
         }
 
         private void SpawnStripe()
@@ -160,6 +205,13 @@ namespace CoastRun
             rt.sizeDelta = new Vector2(72f, 72f);
             var img = bgo.GetComponent<Image>(); img.sprite = _inst._badge; img.raycastTarget = false;
             _inst._items.Add((rt, img, target, lift, 0f, duration));
+        }
+
+        public static void Hide(Transform target)
+        {
+            if (_inst == null) return;
+            for (int i = _inst._items.Count - 1; i >= 0; i--)
+                if (_inst._items[i].target == target) { if (_inst._items[i].rt != null) Destroy(_inst._items[i].rt.gameObject); _inst._items.RemoveAt(i); }
         }
 
         private void LateUpdate()

@@ -269,19 +269,39 @@ namespace CoastRun
                 prev = variant;
 
                 var pivot = UprightPivot(root, "Lot", new Vector3(frontX, 0f, z));
-                // The FBX handedness swap mirrors Blender's X: the kit's front (+X in
-                // Blender) imports facing -X, so a half turn puts the shopfront on the
-                // road side with the body extending away from it.
-                JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 180f);
-                // 14차-8: 목표 이미지 규칙 — 집마다 간판·차양(소품1), 2층 난간+화분(소품2), 바닥 접지 그림자(AO).
-                // 14차-13: Shop_ 키트는 차양·간판·발코니를 모델 안에 갖고 있다.
-                if (JejuKit.ShopCount == 0)
+                // 14차-14: 실제 제주 해안 마을처럼 — 상가만 줄지어 서지 않는다. 필지 종류를 섞는다:
+                //   상가 50% / 제주 낮은 집 22% / 공터(돌담+감귤나무+귤 상자) 14% / 작은 공원(정자·벤치·야자·파라솔 테라스) 14%
+                int lotRoll = rng.Next(100);
+                bool hasHouse = JejuKit.Load("House_A") != null;
+                if (lotRoll < 50 || !hasHouse)
                 {
-                    StreetDressing.ShopFront(pivot, rng, 2.8f + (float)rng.NextDouble() * 0.9f);
-                    if (rng.Next(3) != 0)
-                        StreetDressing.Balcony(pivot, rng, 3.6f + (float)rng.NextDouble() * 0.6f, 5.4f);
+                    // The FBX handedness swap mirrors Blender's X: the kit's front (+X in
+                    // Blender) imports facing -X, so a half turn puts the shopfront on the
+                    // road side with the body extending away from it.
+                    JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 180f);
+                    if (JejuKit.ShopCount == 0)
+                    {
+                        StreetDressing.ShopFront(pivot, rng, 2.8f + (float)rng.NextDouble() * 0.9f);
+                        if (rng.Next(3) != 0)
+                            StreetDressing.Balcony(pivot, rng, 3.6f + (float)rng.NextDouble() * 0.6f, 5.4f);
+                    }
+                    StreetDressing.ContactShadow(pivot, 9.5f, 1.4f);
+                    // 상가 앞 테라스: 파라솔 + 카페 세트(3집 중 1집)
+                    if (rng.Next(3) == 0) JejuLots.CafeTerrace(pivot, rng);
                 }
-                StreetDressing.ContactShadow(pivot, 9.5f, 1.4f);
+                else if (lotRoll < 72)
+                {
+                    JejuLots.House(pivot, rng, lotRoll % 2 == 0);
+                    StreetDressing.ContactShadow(pivot, 8.5f, 1.2f);
+                }
+                else if (lotRoll < 86)
+                {
+                    JejuLots.EmptyLot(pivot, rng);
+                }
+                else
+                {
+                    JejuLots.Park(pivot, rng);
+                }
 
                 // 돌담 either side of the entrance.
                 for (int side = -1; side <= 1; side += 2)

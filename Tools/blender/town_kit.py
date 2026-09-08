@@ -150,6 +150,59 @@ def shop(name, width, depth, storeys, roof, balcony_on, win_per_floor, shopfront
         side_window(parts, -depth * 0.5, s * width * 0.5, FLOOR * 0.55, s, w=1.3, h=1.2)
     return join(parts, name)
 
+# ── 제주 낮은 집: 현무암 돌담 기단 + 낮은 벽 + 기와/슬레이트 우진각 지붕 + 나무 문. 실제 제주 해안 마을의 집. ──
+def jeju_house(name, width=8.5, depth=6.0, two_storey=False):
+    H = 3.0 if not two_storey else 5.6
+    parts = [cube("Wall", -depth * 0.5, 0, H * 0.5 + 0.35, depth, width, H - 0.35, "Wall")]
+    parts.append(cube("Stone", -depth * 0.5, 0, 0.35, depth + 0.16, width + 0.16, 0.7, "Stone"))      # 현무암 기단
+    # 지붕: 우진각(4단 계단 근사) — 처마가 넓게 나온다
+    for i in range(5):
+        t = i / 5.0
+        parts.append(cube("Roof", -depth * 0.5, 0, H + 0.35 + 0.26 * i, (depth + 1.2) * (1 - t * 0.85), (width + 1.2) * (1 - t * 0.7), 0.28, "Roof"))
+    parts.append(cube("Trim", 0.62, 0, H + 0.42, 0.12, width + 1.2, 0.16, "Trim"))                    # 처마 밑 흰 띠
+    door(parts, 0, 0, 0.35, w=1.0, h=2.0)
+    for y in (-width * 0.3, width * 0.3):
+        window(parts, 0, y, H * 0.5 + 0.55, w=1.1, h=1.1)
+    for s in (-1, 1):
+        side_window(parts, -depth * 0.5, s * width * 0.5, H * 0.5 + 0.55, s, w=1.0, h=1.0)
+    if two_storey:
+        for y in (-width * 0.3, 0, width * 0.3):
+            window(parts, 0, y, 4.2, w=1.0, h=1.1)
+    # 마당 쪽 돌담 한 토막(문 옆) + 감귤 상자
+    parts.append(cube("Stone", 1.2, -width * 0.42, 0.45, 0.4, 2.2, 0.9, "Stone"))
+    parts.append(cube("Crate", 1.0, width * 0.36, 0.25, 0.5, 0.7, 0.5, "Wood"))
+    return join(parts, name)
+
+# ── 카페 테라스 세트: 둥근 탁자 + 의자 2 (파라솔은 그림 소품) ──
+def cafe_set(name):
+    parts = [cube("Trim", 0, 0, 0.72, 0.9, 0.9, 0.05, "Trim"), cube("Dark", 0, 0, 0.36, 0.06, 0.06, 0.7, "Dark"), cube("Dark", 0, 0, 0.02, 0.5, 0.5, 0.04, "Dark")]
+    for s in (-1, 1):
+        parts.append(cube("Frame", 0, s * 0.85, 0.45, 0.44, 0.44, 0.05, "Frame"))
+        parts.append(cube("Frame", 0, s * 1.05, 0.72, 0.44, 0.05, 0.55, "Frame"))
+        for a in (-1, 1):
+            for b in (-1, 1):
+                parts.append(cube("Dark", a * 0.18, s * 0.85 + b * 0.18, 0.22, 0.04, 0.04, 0.44, "Dark"))
+    return join(parts, name)
+
+# ── 공원 정자/벤치 파빌리온: 네 기둥 + 지붕 ──
+def pavilion(name):
+    parts = [cube("Concrete", 0, 0, 0.1, 3.2, 3.2, 0.2, "Concrete")]
+    for a in (-1, 1):
+        for b in (-1, 1):
+            parts.append(cube("Wood", a * 1.3, b * 1.3, 1.4, 0.16, 0.16, 2.6, "Wood"))
+    for i in range(4):
+        t = i / 4.0
+        parts.append(cube("Roof", 0, 0, 2.75 + 0.25 * i, 3.8 * (1 - t * 0.8), 3.8 * (1 - t * 0.8), 0.26, "Roof"))
+    parts.append(cube("Wood", 0, 0, 0.45, 1.2, 2.6, 0.08, "Wood"))
+    return join(parts, name)
+
+MATS["Stone"] = mat("Stone", (0.22, 0.22, 0.24)); MATS["Wood"] = mat("Wood", (0.55, 0.38, 0.22))
+
+EXTRA = [("House_A", lambda: jeju_house("House_A", 8.5, 6.0, False)),
+         ("House_B", lambda: jeju_house("House_B", 8.0, 6.0, True)),
+         ("Prop_CafeSet", lambda: cafe_set("Prop_CafeSet")),
+         ("Prop_Pavilion", lambda: pavilion("Prop_Pavilion"))]
+
 SPECS = [
     ("Shop_A", 9.6, 6.0, 2, "parapet", False, 3, True),
     ("Shop_B", 9.6, 6.0, 3, "gable",   True,  3, True),
@@ -161,4 +214,6 @@ SPECS = [
 for spec in SPECS:
     ob = shop(*spec)
     export(ob, spec[0])
+for nm, fn in EXTRA:
+    export(fn(), nm)
 print("town kit done")

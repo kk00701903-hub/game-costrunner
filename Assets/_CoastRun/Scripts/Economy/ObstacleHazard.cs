@@ -51,7 +51,28 @@ namespace CoastRun
 
             nearMiss?.NotifyHardHit();
             if (softHit)
+            {
                 player.SoftHit(ClassifyHit(player), BounceSide(player));
+                // 14차-14: 부딪힌 장애물은 '팡' 하고 귀엽게 터진다 — 납작해졌다 별·하트로 흩어지고 사라진다.
+                Pop();
+            }
+        }
+
+        private bool _popped;
+        public void Pop()
+        {
+            if (_popped) return;
+            _popped = true;
+            Transform root = transform;
+            while (root.parent != null && !root.parent.name.StartsWith("Obstacle") && root.parent.name != "Obstacles")
+                root = root.parent;
+            if (root.parent != null && root.parent.name.StartsWith("Obstacle_"))
+                root = root.parent;
+            foreach (var c in root.GetComponentsInChildren<Collider>(true)) c.enabled = false;
+            var w = root.GetComponent<ObstacleWarning>(); if (w != null) w.enabled = false;
+            JuiceDirector.Instance?.PlayObstaclePop(root.position + Vector3.up * 0.45f);
+            var pop = root.gameObject.AddComponent<ObstaclePopAnim>();
+            pop.Begin(root);
         }
 
         /// Anything that reaches above her waist (≈ 0.9 m) is a solid body she cannot
@@ -176,5 +197,29 @@ namespace CoastRun
         }
 
         public void BindNearMiss(NearMissZone zone) => nearMiss = zone;
+    }
+
+    /// 14차-14: 장애물 팡 — 0.08 s 납작(1.35, 0.55) → 0.22 s 로 0 으로 줄며 사라진다.
+    public class ObstaclePopAnim : MonoBehaviour
+    {
+        private Transform _root; private Vector3 _base; private float _t;
+        public void Begin(Transform root) { _root = root; _base = root.localScale; }
+        private void Update()
+        {
+            if (_root == null) { Destroy(this); return; }
+            _t += Time.deltaTime;
+            if (_t < 0.08f)
+            {
+                float k = _t / 0.08f;
+                _root.localScale = new Vector3(_base.x * Mathf.Lerp(1f, 1.35f, k), _base.y * Mathf.Lerp(1f, 0.55f, k), _base.z * Mathf.Lerp(1f, 1.35f, k));
+            }
+            else if (_t < 0.30f)
+            {
+                float k = (_t - 0.08f) / 0.22f;
+                float e = 1f - k * k;
+                _root.localScale = new Vector3(_base.x * 1.35f * e, _base.y * Mathf.Lerp(0.55f, 1.6f, k) * e, _base.z * 1.35f * e);
+            }
+            else Destroy(_root.gameObject);
+        }
     }
 }

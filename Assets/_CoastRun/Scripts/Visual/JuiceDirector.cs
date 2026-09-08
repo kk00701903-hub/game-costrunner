@@ -195,6 +195,17 @@ namespace CoastRun
             CoastPrefs.Vibrate();
         }
 
+        /// 14차-14: 장애물 팡 — 파스텔 별·하트 흩뿌리기 + 흰 링 + 작은 흔들림. 가볍고 귀엽게(실패 연출이 아니라 장난감처럼).
+        public void PlayObstaclePop(Vector3 worldPos)
+        {
+            cameraRig?.Shake(0.12f, 0.06f);
+            SpawnCoinBurst(worldPos, new Color(1f, 0.62f, 0.72f), 10);
+            SpawnCoinBurst(worldPos + Vector3.up * 0.2f, new Color(1f, 0.93f, 0.55f), 8);
+            SpawnCoinBurst(worldPos, Color.white, 6);
+            StartCoroutine(FlashRing(worldPos, new Color(1f, 0.8f, 0.85f, 0.9f), 1.7f));
+            speedLines?.Burst(6);
+        }
+
         public void PlaySmash(Vector3 worldPos)
         {
             cameraRig?.Shake(0.25f, 0.14f);

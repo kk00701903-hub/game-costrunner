@@ -123,7 +123,7 @@ namespace CoastRun
                 int sv = ((variant % sn) + sn) % sn;
                 var sb = Spawn("Shop_" + (char)('A' + sv), parent, localPos, yawDegrees, 1f);
                 WallColorRule(sb, parent);
-                BuildingOutline.Attach(sb.transform, 0.025f);
+                BuildingOutline.Attach(sb.transform, 0.035f);   // 14차-14: 만화 윤곽 3.5 cm
                 return sb;
             }
             int n = BuildingCount;
@@ -199,6 +199,18 @@ namespace CoastRun
                 _wallMpb.SetColor(_baseColorId, cc);
                 _wallMpb.SetColor(_colorId, cc);
                 r.SetPropertyBlock(_wallMpb);
+            }
+        }
+
+        /// 14차-14: 특정 재질(이름 접두)만 색 바꾸기 — 집 지붕색, 카페 의자색 등.
+        public static void Recolor(GameObject go, string matPrefix, Color c)
+        {
+            if (go == null) return;
+            _wallMpb ??= new MaterialPropertyBlock();
+            foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+            {
+                var m = r.sharedMaterial; if (m == null || !m.name.StartsWith(matPrefix)) continue;
+                r.GetPropertyBlock(_wallMpb); _wallMpb.SetColor(_baseColorId, c); _wallMpb.SetColor(_colorId, c); r.SetPropertyBlock(_wallMpb);
             }
         }
 
