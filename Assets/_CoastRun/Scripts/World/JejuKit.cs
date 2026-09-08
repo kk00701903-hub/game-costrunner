@@ -116,13 +116,24 @@ namespace CoastRun
         }
 
         // 14차-15: 그림 파사드 상가(FShop_*) — Kling 파사드를 정면에 그대로, 옆·지붕·화분은 3D.
-        private static readonly string[] SqTex = { "H", "I", "J", "K", "L" }, TallTex = { "A", "B" }, WideTex = { "C", "D", "E", "F", "G" };
+        // 15차-2: 레퍼런스(제주 골드런 거리)에 맞춘 Kling 상가 12장 — 현무암 기단 + 기와지붕 + 한글 간판.
+        private static readonly string[] SqTex = { "M", "N", "O", "P", "R", "T", "V", "X" }, TallTex = { "U", "X" }, WideTex = { "Q", "W", "S", "Q" };
+        /// 파사드별 3D 지붕색(그림의 기와/파라펫 색과 맞춤)
+        private static readonly System.Collections.Generic.Dictionary<string, Color> FacadeRoof = new()
+        {
+            { "M", Hex("#D9703A") }, { "N", Hex("#D9703A") }, { "O", Hex("#3A3A42") }, { "P", Hex("#3A3A42") },
+            { "Q", Hex("#D9703A") }, { "R", Hex("#D9703A") }, { "S", Hex("#E07A62") }, { "T", Hex("#2E9E8E") },
+            { "U", Hex("#E0607F") }, { "V", Hex("#D9557A") }, { "W", Hex("#D9703A") }, { "X", Hex("#E0607F") },
+        };
         private static readonly System.Collections.Generic.Dictionary<string, Color> FacadeWall = new()
         {
             { "A", new Color(0.98f, 0.95f, 0.85f) }, { "B", new Color(0.88f, 0.96f, 0.91f) }, { "C", new Color(0.80f, 0.84f, 0.80f) },
             { "D", new Color(0.92f, 0.83f, 0.74f) }, { "E", new Color(0.90f, 0.84f, 0.76f) }, { "F", new Color(0.86f, 0.80f, 0.72f) },
             { "G", new Color(0.88f, 0.80f, 0.71f) }, { "H", new Color(0.96f, 0.70f, 0.58f) }, { "I", new Color(0.97f, 0.82f, 0.75f) },
             { "J", new Color(0.97f, 0.75f, 0.66f) }, { "K", new Color(0.90f, 0.87f, 0.76f) }, { "L", new Color(0.72f, 0.86f, 0.78f) },
+            { "M", Hex("#7EC8EA") }, { "N", Hex("#6FBFE6") }, { "O", Hex("#A8E6CF") }, { "P", Hex("#A8E6CF") },
+            { "Q", Hex("#F4E9D2") }, { "R", Hex("#F6EBD2") }, { "S", Hex("#F2A08C") }, { "T", Hex("#F6E27A") },
+            { "U", Hex("#F7B7C9") }, { "V", Hex("#F29CB4") }, { "W", Hex("#F0907A") }, { "X", Hex("#F5A6BC") },
         };
         private static readonly System.Collections.Generic.Dictionary<string, Material> _facadeMats = new();
         private static Material FacadeMat(string k)
@@ -140,11 +151,12 @@ namespace CoastRun
 
         private static GameObject SpawnFShop(int variant, Transform parent, Vector3 localPos, float yawDegrees)
         {
-            int r = ((variant % 12) + 12) % 12;
+            int total = SqTex.Length + TallTex.Length + WideTex.Length;
+            int r = ((variant % total) + total) % total;
             string model; string k;
-            if (r < 5) { model = "FShop_Sq"; k = SqTex[r]; }
-            else if (r < 7) { model = "FShop_Tall"; k = TallTex[r - 5]; }
-            else { model = "FShop_Wide"; k = WideTex[r - 7]; }
+            if (r < SqTex.Length) { model = "FShop_Sq"; k = SqTex[r]; }
+            else if (r < SqTex.Length + TallTex.Length) { model = "FShop_Tall"; k = TallTex[r - SqTex.Length]; }
+            else { model = "FShop_Wide"; k = WideTex[r - SqTex.Length - TallTex.Length]; }
             var go = Spawn(model, parent, localPos, yawDegrees, 1f);
             if (go == null) return null;
             var fm = FacadeMat(k);
@@ -155,10 +167,10 @@ namespace CoastRun
                     if (mats[i] != null && mats[i].name.StartsWith("FacadeFront")) { mats[i] = fm; changed = true; }
                 if (changed) rd.sharedMaterials = mats;
             }
-            Color wall = Color.Lerp(FacadeWall[k], Color.white, 0.25f);
+            Color wall = Color.Lerp(FacadeWall[k], Color.white, 0.12f);
             LastWall = wall; LastAccent = Accent(FacadeWall[k]);
             Recolor(go, "Wall", wall);
-            Recolor(go, "Roof", LastAccent);
+            Recolor(go, "Roof", FacadeRoof.TryGetValue(k, out var rc) ? rc : LastAccent);
             Recolor(go, "Frame", LastAccent);
             Recolor(go, "Trim", Color.white);
             BuildingOutline.Attach(go.transform, 0.035f);
@@ -168,7 +180,7 @@ namespace CoastRun
         public static GameObject SpawnBuilding(int variant, Transform parent, Vector3 localPos, float yawDegrees)
         {
             // 14차-15: 그림 파사드 상가가 있으면 3채 중 2채는 그것(사진 같은 정면), 1채는 파트 키트
-            if (FShopAvailable && (((variant * 7 + 3) % 3) != 0 || ShopCount == 0))
+            if (FShopAvailable)   // 15차-2: 상가는 전부 그림 파사드(사진 같은 거리) — 파트 키트는 보조
                 return SpawnFShop(variant, parent, localPos, yawDegrees);
             if (ShopCount > 0)
             {

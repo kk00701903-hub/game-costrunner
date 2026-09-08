@@ -206,8 +206,11 @@ def uv_box(name, x0, x1, y0, y1, z0, z1, front_mat, other_mat):
     V = [(x0,y0,z0),(x1,y0,z0),(x1,y1,z0),(x0,y1,z0),(x0,y0,z1),(x1,y0,z1),(x1,y1,z1),(x0,y1,z1)]
     bv = [bm.verts.new(Vector(v)) for v in V]; bm.verts.ensure_lookup_table()
     uvl = bm.loops.layers.uv.new("UVMap")
+    # 15차-2: 옆면(±Y)에도 같은 그림을 씌운다(골드런식 '사방 그림 상자'). 뒤·위·아래만 단색.
     faces = [([1,2,6,5], front_mat, [(0,0),(1,0),(1,1),(0,1)]),   # +X 정면: y0→y1 = u 0→1, z = v
-             ([3,0,4,7], other_mat, None), ([0,1,5,4], other_mat, None), ([2,3,7,6], other_mat, None),
+             ([0,1,5,4], front_mat, [(0,0),(1,0),(1,1),(0,1)]),   # -Y 옆: x0→x1 = u
+             ([2,3,7,6], front_mat, [(0,0),(1,0),(1,1),(0,1)]),   # +Y 옆: x1→x0 = u
+             ([3,0,4,7], other_mat, None),
              ([4,5,6,7], other_mat, None), ([3,2,1,0], other_mat, None)]
     ob.data.materials.append(MATS[front_mat]); ob.data.materials.append(MATS[other_mat])
     for idx, mname, uv in faces:
@@ -228,19 +231,13 @@ def fshop(name, width, height, depth=6.0, storeys=2):
     for i in range(4):
         t = i / 4.0
         parts.append(cube("Roof", -depth * 0.5, 0, height + 0.17 + 0.24 * i + 0.12, (depth + 0.5) * (1 - t * 0.85), (width + 0.5) * (1 - t * 0.55), 0.24, "Roof"))
-    # 옆면: 층 코니스 + 창
-    for f in range(1, storeys + 1):
-        z = f * (height / storeys)
-        for s in (-1, 1):
-            parts.append(cube("Cornice", -depth * 0.5, s * (width * 0.5 + 0.05), z - 0.08, depth + 0.05, 0.16, 0.14, "Trim"))
-    for f in range(storeys):
-        z = (f + 0.55) * (height / storeys)
-        for s in (-1, 1):
-            for i in range(2):
-                side_window(parts, -depth * (0.3 + 0.4 * i), s * width * 0.5, z, s, w=1.1, h=1.3)
+    # 현무암 기단(옆·뒤) — 정면 그림의 돌담이 옆면으로 이어진다
+    for s in (-1, 1):
+        parts.append(cube("Stone", -depth * 0.5, s * (width * 0.5 + 0.03), 0.55, depth + 0.02, 0.12, 1.1, "Stone"))
+    parts.append(cube("Stone", -depth - 0.03, 0, 0.55, 0.12, width + 0.1, 1.1, "Stone"))
     # 모서리 기둥(흰)
     for s in (-1, 1):
-        parts.append(cube("Pilaster", -0.02, s * (width * 0.5 + 0.04), height * 0.5, 0.14, 0.18, height, "Trim"))
+        parts.append(cube("Pilaster", -0.02, s * (width * 0.5 + 0.04), height * 0.5 + 0.55, 0.14, 0.18, height - 1.1, "Trim"))
     # 바닥 화분 2개 + 문턱 콘크리트
     for s in (-1, 1):
         parts.append(cube("Frame", 0.35, s * (width * 0.5 - 0.7), 0.25, 0.5, 0.7, 0.5, "Frame"))
