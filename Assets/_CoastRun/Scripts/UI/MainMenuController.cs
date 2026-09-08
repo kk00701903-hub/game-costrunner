@@ -380,7 +380,7 @@ namespace CoastRun
 
             // 메뉴 3개(이어하기 / 새로하기 / 더보기) — 화면 아래 가로 한 줄. 나머지는 '더보기'로 옆에서 슬라이드.
             bool hasSave = _gm != null && _gm.HasSave;
-            float btnW = 200f, btnH = 62f, gapX = 14f;
+            float btnW = 188f, btnH = 62f, gapX = 10f;   // 18차-3: 폴드(22:9) 폭 615 안에 3개(188×3+10×2 = 584)
             float rowY = 92f;
             var contBtn = CoastOrnate.GlassButton(ui.transform, "ContinueBtn", Loc.T("이어하기", "Continue"), new Vector2(0.5f, 0f),
                 new Vector2(-(btnW + gapX), rowY), new Vector2(btnW, btnH), () => { if (_ready) OnContinue(); }, 0.4f, 26, hasSave);

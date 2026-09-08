@@ -250,7 +250,7 @@ namespace CoastRun
             binder.rectTransform.anchorMin = new Vector2(0.5f, 1f); binder.rectTransform.anchorMax = new Vector2(0.5f, 1f);
             binder.rectTransform.pivot = new Vector2(0.5f, 1f);
             binder.rectTransform.anchoredPosition = new Vector2(0f, -36f);
-            binder.rectTransform.sizeDelta = new Vector2(660f, 900f);
+            binder.rectTransform.sizeDelta = new Vector2(616f, 900f);   // 18차-3: 폴드(22:9) 폭 안에
             float cw = 196f, chh = 280f, gap = 14f;
             for (int i = 0; i < perPage; i++)
             {

@@ -282,8 +282,10 @@ namespace CoastRun
             // 14차-8: 챕터 카드 — 가로 스크롤 큰 카드(챕터 번호 + 그림만). 5열 작은 카드는 폰에서 안 읽혔다.
             int first = ActStart[_actTab], last = ActEnd[_actTab];
             int count = last - first + 1;
-            const float cellW = 212f, cellH = 290f, gap = 12f;   // 18차: 카드 3장이 잘리지 않고 다 보이게(212×3+12×2+40 = 700 < 720)
-            float canvasH = 720f * Screen.height / Mathf.Max(1, Screen.width);   // 18차: 폭 기준 캔버스 — 20:9 폰이면 1600
+            // 18차-3: 카드 3장이 어떤 비율에서도 다 보이게 — 실제 폭(폴드 22:9면 폭이 620대까지 줄어든다)으로 계산
+            float panelW = Mathf.Clamp(panel.rect.width, 560f, 800f);
+            float gap = 12f, cellW = Mathf.Floor((panelW - 40f - 2f * gap) / 3f), cellH = Mathf.Round(cellW * 1.37f);
+            float canvasH = Mathf.Max(1000f, panel.rect.height);   // 18차-3: 실제 캔버스 높이(디자인 단위)
             float zoneBottom = 96f, zoneTop = ArtBottom * canvasH - 160f;
             float zoneH = Mathf.Max(cellH + 20f, zoneTop - zoneBottom);
             var scrollGo = new GameObject("ChapterScroll", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(RectMask2D));

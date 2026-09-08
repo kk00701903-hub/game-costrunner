@@ -33,6 +33,8 @@ namespace CoastRun
         private Vector2 _anchor;
         private Vector2 _lastPos;
         private bool _touchActive;
+        private bool _touchOnUi;
+        private float _touchStart;
         private bool _gestureLocked;   // fired once for this excursion; unlock when the finger pauses
         private float _thresholdPx;
         private float _settlePx;       // per-frame movement below this counts as "paused"
@@ -153,6 +155,10 @@ namespace CoastRun
                 _lastPos = t.position;
                 _touchActive = true;
                 _gestureLocked = false;
+                _touchStart = Time.unscaledTime;
+                // 18차-3: 일시정지 등 UI 위에서 시작한 터치는 게임 조작으로 쓰지 않는다
+                var es = UnityEngine.EventSystems.EventSystem.current;
+                _touchOnUi = es != null && es.IsPointerOverGameObject(t.fingerId);
                 return;
             }
 
@@ -162,8 +168,19 @@ namespace CoastRun
             if (t.phase == TouchPhase.Canceled || t.phase == TouchPhase.Ended)
             {
                 _touchActive = false;
+                // 18차-3: 탭 폴백 — 스와이프 없이 짧게 톡(0.22 s, 이동 < 임계) 치면 화면 좌 1/3 = 왼쪽 레인,
+                // 우 1/3 = 오른쪽 레인, 가운데 = 점프. 손이 큰 기기·장갑·젖은 손에서도 조작이 먹게.
+                if (t.phase == TouchPhase.Ended && !_gestureLocked && !_touchOnUi
+                    && Time.unscaledTime - _touchStart < 0.22f && (t.position - _anchor).magnitude < _thresholdPx)
+                {
+                    float fx = t.position.x / Mathf.Max(1f, Screen.width);
+                    if (fx < 0.35f) IssueLane(-1);
+                    else if (fx > 0.65f) IssueLane(1);
+                    else IssueJump();
+                }
                 return;
             }
+            if (_touchOnUi) return;
 
             Vector2 delta = t.position - _anchor;
             float mag = delta.magnitude;

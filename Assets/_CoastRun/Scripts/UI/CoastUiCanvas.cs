@@ -10,6 +10,8 @@ namespace CoastRun
         public const string SafeAreaName = "PortraitSafeArea";
         public const string InsetName = "HudInset";
         public const float HudPad = 28f;
+        /// 배치 코드의 단위(720×1280) → 캔버스 기준(1080×1920) 배율
+        public const float DesignScale = 1.5f;
 
         /// Every scene in the flow is an empty shell — the world, the canvases and the
         /// buttons are all built at runtime. Nothing was building the one object Unity UI
@@ -46,9 +48,11 @@ namespace CoastRun
 
             var scaler = go.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(720f, 1280f);
+            // 18차-3: 기준 해상도 1080×1920(FHD 9:16), Match 0.5 — 16:9~22:9 대응 표준 설정.
+            // 화면 배치 코드는 720×1280 단위로 쓰여 있으므로 HudInset을 1.5배로 두어 그대로 맞춘다(DesignScale).
+            scaler.referenceResolution = new Vector2(1080f, 1920f);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 0f;   // 18차: 폭 기준(720). 높이 기준이면 20:9 폰에서 폭이 576으로 줄어 메뉴가 좌우로 잘렸다
+            scaler.matchWidthOrHeight = 0.5f;
 
             var safeGo = new GameObject(SafeAreaName, typeof(RectTransform));
             safeGo.transform.SetParent(canvas.transform, false);
@@ -61,10 +65,11 @@ namespace CoastRun
             var insetGo = new GameObject(InsetName, typeof(RectTransform));
             insetGo.transform.SetParent(safe, false);
             var inset = insetGo.GetComponent<RectTransform>();
-            inset.anchorMin = Vector2.zero;
-            inset.anchorMax = Vector2.one;
-            inset.offsetMin = new Vector2(HudPad, HudPad);
-            inset.offsetMax = new Vector2(-HudPad, -HudPad);
+            inset.anchorMin = inset.anchorMax = new Vector2(0.5f, 0.5f);
+            inset.pivot = new Vector2(0.5f, 0.5f);
+            inset.anchoredPosition = Vector2.zero;
+            inset.localScale = new Vector3(DesignScale, DesignScale, 1f);
+            inset.sizeDelta = new Vector2(720f - 2f * HudPad, 1280f - 2f * HudPad);   // 실제 크기는 CoastPortraitSafeArea가 매 프레임 갱신
 
             if (go.GetComponent<CoastPortraitSafeArea>() == null)
                 go.AddComponent<CoastPortraitSafeArea>();
@@ -91,15 +96,18 @@ namespace CoastRun
 
     public class CoastPortraitSafeArea : MonoBehaviour
     {
-        private RectTransform _safe;
+        private RectTransform _safe, _inset;
 
         private void Awake()
         {
             var t = transform.Find(CoastUiCanvas.SafeAreaName);
             _safe = t as RectTransform;
+            Apply();   // 첫 프레임 배치 코드가 실제 크기를 보게 즉시 한 번
         }
 
-        private void LateUpdate()
+        private void LateUpdate() => Apply();
+
+        public void Apply()
         {
             if (_safe == null)
                 return;
@@ -118,6 +126,16 @@ namespace CoastRun
             _safe.anchorMax = new Vector2((r.x + r.width) / w, (r.y + r.height) / h);
             _safe.offsetMin = Vector2.zero;
             _safe.offsetMax = Vector2.zero;
+            // HudInset: 안전 영역 크기를 디자인 단위(÷1.5)로 환산하고 안쪽 여백(HudPad)을 뺀다
+            if (_inset == null) _inset = _safe.Find(CoastUiCanvas.InsetName) as RectTransform;
+            if (_inset != null)
+            {
+                // CanvasScaler(Match 0.5)와 같은 식으로 배율을 직접 계산 — 첫 프레임에도 정확하다
+                float lw = Mathf.Log(w / 1080f, 2f), lh = Mathf.Log(h / 1920f, 2f);
+                float scale = Mathf.Pow(2f, Mathf.Lerp(lw, lh, 0.5f));
+                var sz = new Vector2(r.width, r.height) / scale / CoastUiCanvas.DesignScale;
+                _inset.sizeDelta = new Vector2(Mathf.Max(100f, sz.x - 2f * CoastUiCanvas.HudPad), Mathf.Max(100f, sz.y - 2f * CoastUiCanvas.HudPad));
+            }
         }
     }
 

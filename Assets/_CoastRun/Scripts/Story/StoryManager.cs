@@ -246,7 +246,7 @@ namespace CoastRun
             _body = CreateText(_captionPanel, "Body", new Vector2(0f, -120f), 20, FontStyle.Normal,
                 new Color(0.95f, 0.97f, 1f));
             var bodyRt = _body.GetComponent<RectTransform>();
-            bodyRt.sizeDelta = new Vector2(640f, 260f);
+            bodyRt.sizeDelta = new Vector2(616f, 260f);
 
             var skipGo = new GameObject("Skip", typeof(RectTransform), typeof(Image), typeof(Button));
             skipGo.transform.SetParent(_captionPanel, false);
@@ -306,7 +306,7 @@ namespace CoastRun
             rt.anchorMax = new Vector2(0.5f, 1f);
             rt.pivot = new Vector2(0.5f, 1f);
             rt.anchoredPosition = pos;
-            rt.sizeDelta = new Vector2(660f, 80f);
+            rt.sizeDelta = new Vector2(616f, 80f);
             var text = go.AddComponent<Text>();
             text.font = CoastHudLayout.Font();
             text.fontSize = size;
