@@ -541,6 +541,7 @@ namespace CoastRun
             _timerLabel.color = new Color(0.9f, 0.95f, 1f);
             _timerLabel.raycastTarget = false;
             _timerLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+            _timerLabel.verticalOverflow = VerticalWrapMode.Overflow;   // 18차-3: 바 높이보다 큰 글자가 잘려 사라지지 않게
             _timerLabel.text = "노을까지  --:--";
         }
 
