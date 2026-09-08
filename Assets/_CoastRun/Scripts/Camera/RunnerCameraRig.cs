@@ -245,7 +245,7 @@ namespace CoastRun
                 float speedFov = Mathf.Lerp(baseFov, maxFov, _speedFovT);
                 if (target.IsTucking)
                     speedFov += 2f;
-                _camera.fieldOfView = speedFov + _fovKick;
+                _camera.fieldOfView = TallFov(speedFov + _fovKick);
             }
 
             _speedLines?.SetSpeedRatio(speedT);
@@ -382,7 +382,23 @@ namespace CoastRun
             if (toAim.sqrMagnitude < 0.001f)
                 return transform.rotation;
             Quaternion look = Quaternion.LookRotation(toAim.normalized, Vector3.up);
-            return look * Quaternion.Euler(pitchUp, 0f, rollZ);
+            return look * Quaternion.Euler(pitchUp + TallScreenPitch(), 0f, rollZ);
+        }
+
+        // ── 18차: 긴 폰(19.5:9 갤럭시 S26, 20:9) 보정 ─────────────────────────
+        // 세로 FOV를 그대로 두면 긴 화면일수록 도로가 좁아지고 하늘이 늘어난다. 9:16에서의 '가로 시야'를 유지하도록
+        // 세로 FOV를 넓히고, 늘어난 만큼 살짝 내려다봐 지평선을 9:16 때와 비슷한 높이에 둔다.
+        private const float RefAspect = 9f / 16f;
+        private static float TallRatio()
+        {
+            float a = (float)Screen.width / Mathf.Max(1, Screen.height);
+            return Mathf.Clamp(RefAspect / Mathf.Max(0.3f, a), 1f, 1.35f);   // 9:16 → 1, S26(19.5:9) → 1.22, 20:9 → 1.25
+        }
+        private static float TallScreenPitch() => (TallRatio() - 1f) * 8f;   // S26 ≈ +1.8°(아래로), 20:9 ≈ +2°
+        public static float TallFov(float vFov)
+        {
+            float r = TallRatio(); if (r <= 1.001f) return vFov;
+            return 2f * Mathf.Atan(Mathf.Tan(vFov * 0.5f * Mathf.Deg2Rad) * r) * Mathf.Rad2Deg;
         }
 
         private static float EaseOut(float t)
