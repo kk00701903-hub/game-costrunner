@@ -25,15 +25,20 @@ namespace CoastRun
         /// 제주 낮은 집: 현무암 기단 + 크림 벽 + 진짜 지붕색 4종. 마당 돌담·감귤나무.
         public static void House(Transform pivot, System.Random rng, bool twoStorey)
         {
-            var go = JejuKit.Spawn(twoStorey ? "House_B" : "House_A", pivot, Vector3.zero, 180f, 1f);
-            if (go == null) return;
-            Color wall = rng.Next(4) == 0 ? JejuKit.Sky : JejuKit.Cream;
-            JejuKit.Recolor(go, "Wall", wall);
-            JejuKit.Recolor(go, "Frame", JejuKit.Accent(wall));
-            JejuKit.Recolor(go, "Door", new Color(0.45f, 0.30f, 0.20f));
-            JejuKit.Recolor(go, "Roof", HouseRoofs[rng.Next(HouseRoofs.Length)]);
-            JejuKit.Recolor(go, "Trim", Color.white);
-            BuildingOutline.Attach(go.transform, 0.03f);
+            // 15차-3: 그림 파사드 기와집이 있으면 그것(사진풍), 없으면 파트 키트
+            var go = JejuKit.SpawnFHouse(rng.Next(1000), pivot, Vector3.zero, 180f);
+            if (go == null)
+            {
+                go = JejuKit.Spawn(twoStorey ? "House_B" : "House_A", pivot, Vector3.zero, 180f, 1f);
+                if (go == null) return;
+                Color wall = rng.Next(4) == 0 ? JejuKit.Sky : JejuKit.Cream;
+                JejuKit.Recolor(go, "Wall", wall);
+                JejuKit.Recolor(go, "Frame", JejuKit.Accent(wall));
+                JejuKit.Recolor(go, "Door", new Color(0.45f, 0.30f, 0.20f));
+                JejuKit.Recolor(go, "Roof", HouseRoofs[rng.Next(HouseRoofs.Length)]);
+                JejuKit.Recolor(go, "Trim", Color.white);
+                BuildingOutline.Attach(go.transform, 0.03f);
+            }
             // 마당: 감귤나무 한두 그루, 돌담
             JejuKit.Spawn("Prop_OrangeTree", pivot, new Vector3(-1.2f, 0f, 3.9f), (float)rng.NextDouble() * 360f, 0.85f);
             if (rng.Next(2) == 0) JejuKit.Spawn("Prop_OrangeTree", pivot, new Vector3(-2.5f, 0f, -4.0f), (float)rng.NextDouble() * 360f, 0.8f);

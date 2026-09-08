@@ -177,6 +177,31 @@ namespace CoastRun
             return go;
         }
 
+        /// 15차-3: 1층 제주 기와집(그림 파사드 Q/W). 없으면 null → 파트 키트 House_A/B 폴백.
+        private static readonly string[] LowTex = { "Q", "W" };
+        public static GameObject SpawnFHouse(int variant, Transform parent, Vector3 localPos, float yawDegrees)
+        {
+            if (Load("FShop_Low") == null) return null;
+            string k = LowTex[((variant % LowTex.Length) + LowTex.Length) % LowTex.Length];
+            var go = Spawn("FShop_Low", parent, localPos, yawDegrees, 1f);
+            if (go == null) return null;
+            var fm = FacadeMat(k);
+            foreach (var rd in go.GetComponentsInChildren<Renderer>(true))
+            {
+                var mats = rd.sharedMaterials; bool changed = false;
+                for (int i = 0; i < mats.Length; i++)
+                    if (mats[i] != null && mats[i].name.StartsWith("FacadeFront")) { mats[i] = fm; changed = true; }
+                if (changed) rd.sharedMaterials = mats;
+            }
+            LastWall = Color.Lerp(FacadeWall[k], Color.white, 0.12f); LastAccent = Accent(FacadeWall[k]);
+            Recolor(go, "Wall", LastWall);
+            Recolor(go, "Roof", FacadeRoof.TryGetValue(k, out var rc) ? rc : LastAccent);
+            Recolor(go, "Frame", LastAccent);
+            Recolor(go, "Trim", Color.white);
+            BuildingOutline.Attach(go.transform, 0.035f);
+            return go;
+        }
+
         public static GameObject SpawnBuilding(int variant, Transform parent, Vector3 localPos, float yawDegrees)
         {
             // 14차-15: 그림 파사드 상가가 있으면 3채 중 2채는 그것(사진 같은 정면), 1채는 파트 키트

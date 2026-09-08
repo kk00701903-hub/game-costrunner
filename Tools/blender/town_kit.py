@@ -248,7 +248,8 @@ def fshop(name, width, height, depth=6.0, storeys=2):
 MATS["Leaf"] = mat("Leaf", (0.25, 0.55, 0.28))
 EXTRA_F = [("FShop_Sq", lambda: fshop("FShop_Sq", 6.4, 6.4, 6.0, 2)),
            ("FShop_Tall", lambda: fshop("FShop_Tall", 8.0, 8.0, 6.0, 3)),
-           ("FShop_Wide", lambda: fshop("FShop_Wide", 9.6, 5.6, 6.0, 2))]
+           ("FShop_Wide", lambda: fshop("FShop_Wide", 9.6, 5.6, 6.0, 2)),
+           ("FShop_Low", lambda: fshop("FShop_Low", 8.0, 4.0, 5.0, 1))]   # 15차-3: 1층 기와집(그림 Q/W)
 
 EXTRA = [("House_A", lambda: jeju_house("House_A", 8.5, 6.0, False)),
          ("House_B", lambda: jeju_house("House_B", 8.0, 6.0, True)),
