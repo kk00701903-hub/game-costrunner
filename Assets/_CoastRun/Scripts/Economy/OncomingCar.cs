@@ -125,18 +125,19 @@ namespace CoastRun
                 return;
             }
             string key = VehicleKind == Kind.Bus ? "BusFront" : "Van";
+            // 22차-2: Kling 정면 그림(택시·버스)을 최우선 — 폴리곤 키트는 그림이 없을 때만.
+            if (PaintedProp.Available(key))
+            {
+                PaintedProp.Attach(_body, key, VehicleKind == Kind.Bus ? 2.6f : 1.8f, replace: false);
+                _wheels = new Transform[0];
+                return;
+            }
             // 14차-11: Blender 3D 버스/밴 — 정면(-Y in Blender = -Z Unity)이 마주 오는 방향(플레이어 쪽).
             string kit = VehicleKind == Kind.Bus ? "Obs3_Bus" : "Obs3_Van";
             if (JejuKit.Load(kit) != null)
             {
                 var m = JejuKit.Spawn(kit, _body, Vector3.zero, 0f, 1f);
                 if (m != null) { _wheels = new Transform[0]; ObstacleOutline.Attach(_body, 1.03f); return; }
-            }
-            if (PaintedProp.Available(key))
-            {
-                PaintedProp.Attach(_body, key, VehicleKind == Kind.Bus ? 2.4f : 1.75f, replace: false);
-                _wheels = new Transform[0];
-                return;
             }
             if (VehicleKind == Kind.Bus)
                 _body.localScale = Vector3.one * 1.9f;   // procedural fallback: a bigger box van
