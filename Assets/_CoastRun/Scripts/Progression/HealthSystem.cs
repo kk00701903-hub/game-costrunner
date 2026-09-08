@@ -20,9 +20,9 @@ namespace CoastRun
         // A middling run (30% jellies, one hit per 10 s, 60% potions) nets about −0.6 HP/s
         // and finishes a long stage in the red; a sloppy one dies near the minute mark.
         [SerializeField] private float drainPerSecond = 1.6f;
-        [SerializeField] private float hitDamage = 14f;
+        [SerializeField] private float hitDamage = 30f;
         [SerializeField] private float jellyHeal = 0.4f;
-        [SerializeField] private float potionHeal = 25f;
+        [SerializeField] private float potionHeal = 40f;   // 17차: 물약 회복 25→40
 
         private PlayerController _player;
         private float _current;

@@ -24,6 +24,7 @@ namespace CoastRun
         /// 프레임마다 한 번: 주인공 레인에서 앞쪽 [WarnNear, WarnFar] 안 가장 가까운, 아직 안 울린 장애물을 고른다.
         private static void Pick(PlayerController player)
         {
+            if (player != null && player.IsGliding) { if (_current != null) _current.Cancel(); return; }   // 17차: 활공 중엔 경고 없음
             // 레인을 바꿨거나 이미 지나쳤으면 지금 경고를 접는다
             if (_current != null && _current._t >= 0f)
             {

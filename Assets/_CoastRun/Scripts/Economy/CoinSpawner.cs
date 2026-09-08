@@ -125,6 +125,26 @@ namespace CoastRun
             }
         }
 
+        /// 17차: 빨래줄 활공 코인 — 줄 높이에 1.8 m 간격, 앞 1/3은 잡은 레인, 그 뒤는 옆 레인으로 물결(조종 유도). 5개마다 은화.
+        public void SpawnGlideLine(float z, int lane, float height, float length)
+        {
+            if (_root == null) return;
+            Transform follow = player != null ? player.transform : null;
+            int n = Mathf.Clamp(Mathf.FloorToInt(length / 1.8f), 6, 40);
+            for (int i = 0; i < n; i++)
+            {
+                float t = (float)i / n;
+                int l = lane;
+                if (t > 0.33f)
+                {
+                    int seg = Mathf.FloorToInt((t - 0.33f) / 0.22f);
+                    l = lane == 0 ? (seg % 2 == 0 ? 1 : -1) : (seg % 2 == 0 ? 0 : lane);
+                }
+                Vector3 pos = RoadPlacement.OnRoad(z + i * 1.8f, l * laneWidth, height);
+                CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, i % 5 == 4);
+            }
+        }
+
         private void Place(float z, int lane, bool silver, Transform follow)
         {
             float lateral = lane * laneWidth;

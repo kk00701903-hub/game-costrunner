@@ -187,6 +187,19 @@ namespace CoastRun
             _runDust.Emit(ep, 9);   // 14차-8: 발 디딤 먼지 더 또렷하게
         }
 
+        /// 17차: 빨래줄 잡기 — 반짝 + 스피드라인 + 진동 + 코인 버스트
+        public void OnLineGrab(Vector3 worldPos)
+        {
+            cameraRig?.Shake(0.15f, 0.1f);
+            cameraRig?.FovKick(+6f, 0.35f);
+            speedLines?.Burst(60);
+            SpawnCoinBurst(worldPos, Color.white, 10);
+            StartCoroutine(FlashRing(worldPos, new Color(1f, 0.95f, 0.7f, 0.9f), 2.2f));
+            PunchSaturation(+25f, 0.3f);
+            CoastPrefs.Vibrate();
+            audio?.PlaySfx(CoastSfx.NearMiss);
+        }
+
         public void OnJumpPad(Vector3 worldPos)
         {
             cameraRig?.Shake(0.18f, 0.12f);
@@ -198,7 +211,12 @@ namespace CoastRun
         /// 14차-14: 장애물 팡 — 파스텔 별·하트 흩뿌리기 + 흰 링 + 작은 흔들림. 가볍고 귀엽게(실패 연출이 아니라 장난감처럼).
         public void PlayObstaclePop(Vector3 worldPos)
         {
-            cameraRig?.Shake(0.12f, 0.06f);
+            // 17차: 타격감 — 순간 정지(0.07 s) + 큰 흔들림 + 진동. 파편은 주인공 좌표계에서 흩어져 뒤에 남지 않는다.
+            if (_hitStopRoutine != null) StopCoroutine(_hitStopRoutine);
+            _hitStopRoutine = StartCoroutine(HitStop(0.04f, 0.07f));
+            cameraRig?.Shake(0.32f, 0.16f);
+            cameraRig?.FovKick(-5f, 0.15f);
+            CoastPrefs.Vibrate();
             EnsurePopBursts();
             SpawnPop(_popStar, worldPos, new Color(1f, 0.93f, 0.45f), 9);
             SpawnPop(_popHeart, worldPos + Vector3.up * 0.15f, new Color(1f, 0.55f, 0.68f), 7);
@@ -232,7 +250,8 @@ namespace CoastRun
             main.startSize = new ParticleSystem.MinMaxCurve(sizeMin, sizeMax);
             main.startRotation = spin ? new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f) : new ParticleSystem.MinMaxCurve(0f);
             main.gravityModifier = gravity;
-            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.simulationSpace = player != null ? ParticleSystemSimulationSpace.Custom : ParticleSystemSimulationSpace.World;
+            if (player != null) main.customSimulationSpace = player.transform;
             main.maxParticles = 32;
             main.useUnscaledTime = true;
             var em = ps.emission; em.rateOverTime = 0f; em.SetBursts(new[] { new ParticleSystem.Burst(0f, 8) });

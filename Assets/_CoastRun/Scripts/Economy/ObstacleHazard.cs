@@ -70,7 +70,13 @@ namespace CoastRun
                 root = root.parent;
             foreach (var c in root.GetComponentsInChildren<Collider>(true)) c.enabled = false;
             var w = root.GetComponent<ObstacleWarning>(); if (w != null) w.enabled = false;
-            JuiceDirector.Instance?.PlayObstaclePop(root.position + Vector3.up * 0.45f);
+            // 17차: '닿는 순간' 터진다 — 파편은 주인공과 장애물 사이(접점)에서, 주인공을 따라오며 흩어진다.
+            // 장애물 자체는 주인공에게 붙여 두고(월드 위치 유지) 0.2 s 안에 납작→펑 사라지므로 뒤에 남지 않는다.
+            var pc = FindAnyObjectByType<PlayerController>();
+            Vector3 at = pc != null ? Vector3.Lerp(pc.transform.position, root.position, 0.45f) + Vector3.up * 0.35f
+                                    : root.position + Vector3.up * 0.45f;
+            JuiceDirector.Instance?.PlayObstaclePop(at);
+            if (pc != null) root.SetParent(pc.transform, true);
             var pop = root.gameObject.AddComponent<ObstaclePopAnim>();
             pop.Begin(root);
         }
@@ -208,14 +214,15 @@ namespace CoastRun
         {
             if (_root == null) { Destroy(this); return; }
             _t += Time.deltaTime;
-            if (_t < 0.08f)
+            _t += Time.unscaledDeltaTime - Time.deltaTime;   // 히트스톱 중에도 연출은 흐른다
+            if (_t < 0.06f)
             {
-                float k = _t / 0.08f;
-                _root.localScale = new Vector3(_base.x * Mathf.Lerp(1f, 1.35f, k), _base.y * Mathf.Lerp(1f, 0.55f, k), _base.z * Mathf.Lerp(1f, 1.35f, k));
+                float k = _t / 0.06f;
+                _root.localScale = new Vector3(_base.x * Mathf.Lerp(1f, 1.45f, k), _base.y * Mathf.Lerp(1f, 0.45f, k), _base.z * Mathf.Lerp(1f, 1.45f, k));
             }
-            else if (_t < 0.30f)
+            else if (_t < 0.22f)
             {
-                float k = (_t - 0.08f) / 0.22f;
+                float k = (_t - 0.06f) / 0.16f;
                 float e = 1f - k * k;
                 _root.localScale = new Vector3(_base.x * 1.35f * e, _base.y * Mathf.Lerp(0.55f, 1.6f, k) * e, _base.z * 1.35f * e);
             }

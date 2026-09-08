@@ -120,6 +120,7 @@ namespace CoastRun
         /// Clear SoftHit / air state for stage retry without destroying the player.
         public void ResetSoftState()
         {
+            EndGlide();
             _softHitTimer = 0f;
             _inputFreezeTimer = 0f;
             _verticalVelocity = 0f;
@@ -367,6 +368,39 @@ namespace CoastRun
             OnJumped?.Invoke();
         }
 
+        // ── 17차: 빨래줄 잡고 활공 ─────────────────────────────────────
+        private bool _gliding;
+        private float _glideTimer, _glideHeight, _glideBoostPrev;
+        public bool IsGliding => _gliding;
+        public float GlideHeight => _glideHeight;
+        public event Action OnGlideStart, OnGlideEnd;
+
+        /// 점프대로 떠서 빨래줄에 닿으면 호출: `seconds` 동안 지면 `height` m 위를 `speedMul` 배속으로 날아간다.
+        /// 날아가는 동안 무적, 레인 이동은 자유. 끝나면 중력으로 내려온다.
+        public void GrabLine(float seconds, float height, float speedMul)
+        {
+            if (_state == SkateState.Finish || _gliding) return;
+            _gliding = true;
+            _glideTimer = seconds;
+            _glideHeight = height;
+            _softHitTimer = 0f; _inputFreezeTimer = 0f;
+            _iFrameTimer = Mathf.Max(_iFrameTimer, seconds + 0.4f);
+            _glideBoostPrev = SpeedBoost;
+            SpeedBoost = Mathf.Max(SpeedBoost, speedMul);
+            if (_state == SkateState.Crouch) { _bodyHeight = config.standHeight; _crouchTimer = 0f; }
+            _state = SkateState.Air;
+            _verticalVelocity = 0f;
+            OnGlideStart?.Invoke();
+        }
+
+        private void EndGlide()
+        {
+            if (!_gliding) return;
+            _gliding = false;
+            SpeedBoost = _glideBoostPrev;
+            OnGlideEnd?.Invoke();
+        }
+
         private void TryCrouch()
         {
             if (!IsGrounded)
@@ -459,8 +493,19 @@ namespace CoastRun
             LateralVelocity = Time.deltaTime > 0f ? (_lateral - prevLateral) / Time.deltaTime : 0f;
 
             bool wasGrounded = _state != SkateState.Air;
-            _verticalVelocity += config.gravity * Time.deltaTime;
-            _hop += _verticalVelocity * Time.deltaTime;
+            if (_gliding)
+            {
+                // 17차: 활공 — 중력 대신 줄 높이로 부드럽게 붙는다.
+                _glideTimer -= Time.deltaTime;
+                _hop = Mathf.MoveTowards(_hop, _groundY + _glideHeight, 9f * Time.deltaTime);
+                _verticalVelocity = 0f;
+                if (_glideTimer <= 0f) EndGlide();
+            }
+            else
+            {
+                _verticalVelocity += config.gravity * Time.deltaTime;
+                _hop += _verticalVelocity * Time.deltaTime;
+            }
             float minHop = _groundY + _bodyHeight * 0.5f;
             if (_hop <= minHop)
             {
@@ -534,7 +579,7 @@ namespace CoastRun
 
         public void SoftHit(HitKind kind, int bounceDir)
         {
-            if (Invincible || _state == SkateState.Finish || _iFrameTimer > 0f)
+            if (Invincible || _state == SkateState.Finish || _iFrameTimer > 0f || _gliding)
                 return;
 
             StageRunStats.Instance?.NotifySoftHit();

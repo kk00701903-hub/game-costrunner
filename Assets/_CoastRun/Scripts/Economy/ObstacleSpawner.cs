@@ -40,7 +40,7 @@ namespace CoastRun
 
         [Header("Oncoming cars (chapter 3+)")]
         [Tooltip("First chapter (1-based) in which cars drive toward the player.")]
-        [SerializeField] private int carFromChapter = 3;
+        [SerializeField] private int carFromChapter = 1;   // 17차: 1챕터부터 차·버스가 마주 온다
         [SerializeField] private int scooterFromChapter = 1;
         [Tooltip("Rows between cars, at stage start / end.")]
         [SerializeField] private int carEveryRowsStart = 7;
@@ -118,6 +118,14 @@ namespace CoastRun
 
             float z = player.PathDistance;
             float speed = Mathf.Max(6f, player.Speed);
+#if UNITY_EDITOR
+            // 17차 디버그: L — 주인공 레인 12 m 앞에 점프대 + 빨래줄
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                JumpPad.Spawn(_root, RoadPlacement.OnRoad(z + 12f, player.Lane * laneWidth));
+                ClothesLine.Spawn(_root, z + 18.5f);
+            }
+#endif
 
             if (_suppressed)
             {
@@ -269,7 +277,7 @@ namespace CoastRun
 
             // From chapter 4 a third of the traffic is a city bus: slower, but a wall.
             int chapterNow = StageManager.Instance != null ? StageManager.Instance.ChapterIndex : 1;
-            var kind = chapterNow >= 4 && _rng.NextDouble() < 0.35 ? OncomingCar.Kind.Bus : OncomingCar.Kind.Van;
+            var kind = _rng.NextDouble() < (chapterNow >= 4 ? 0.35 : 0.22) ? OncomingCar.Kind.Bus : OncomingCar.Kind.Van;   // 17차: 버스도 1챕터부터
             if (DebugForceBus) kind = OncomingCar.Kind.Bus;
             // 11챕터부터 일부는 '구르는 귤' — 작고 느리지만 점프로만 넘는다.
             if (_rng.NextDouble() < ChapterDifficulty.RollingOrangeChance(ChapterDifficulty.Stage) && !DebugForceBus)
@@ -365,6 +373,7 @@ namespace CoastRun
             _nextSpawnZ = Mathf.Max(_nextSpawnZ, z + 24f);
         }
 
+        private int _padsSinceLine;
         private void SpawnJumpPadSection(float z, float speed)
         {
             // 차가 달려오는 레인은 비워 둔다(패드도 장애물도).
@@ -372,8 +381,17 @@ namespace CoastRun
             for (int k = 0; k < 3 && (_carLaneMask & (1 << (padLane + 1))) != 0; k++)
                 padLane = ((padLane + 2) % 3) - 1;
             JumpPad.Spawn(_root, RoadPlacement.OnRoad(z, padLane * laneWidth));
+            // 17차: 점프대 셋 중 하나꼴로 6.5 m 앞에 빨래줄 — 떠오른 채 닿으면 잡고 멀리 활공(코인은 활공 시 깔린다)
+            _padsSinceLine++;
+            bool line = _padsSinceLine >= 2 && _rng.NextDouble() < 0.6;
+            if (line)
+            {
+                _padsSinceLine = 0;
+                ClothesLine.Spawn(_root, z + 6.5f);
+                _nextSpawnZ += 6f;   // 줄 밑 장애물 줄이 활공 진입을 방해하지 않게 한 칸 밀기
+            }
             // 14차-10: 점프대 뒤 하늘 코인 아치(밟으면 포물선을 따라 먹는다)
-            if (player != null && player.Config != null)
+            else if (player != null && player.Config != null)
                 CoinSpawner.Instance?.SpawnAirArc(z + 0.6f, padLane, player.Config.jumpForce * JumpPad.LaunchMul, player.Config.gravity, Mathf.Max(speed, player.Speed));
             // 낮은(점프로 넘는) 장애물만. 패드 레인 + 옆 레인 하나를 막고 나머지 하나는 비운다.
             ObstacleId[] low = { ObstacleId.TrafficCone, ObstacleId.Slime, ObstacleId.WetFloorSign, ObstacleId.BikeFallen };

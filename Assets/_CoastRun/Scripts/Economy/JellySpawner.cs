@@ -19,7 +19,7 @@ namespace CoastRun
         [Header("Pacing (metres)")]
         [SerializeField] private float trailGapMin = 6f;
         [SerializeField] private float trailGapMax = 14f;
-        [SerializeField] private float potionEvery = 180f;
+        [SerializeField] private float potionEvery = 110f;   // 17차: 피해 ↑ 만큼 물약도 자주(180→110 m)
         [SerializeField] private float starEvery = 900f;
 
         private Transform _root;
