@@ -188,6 +188,14 @@ namespace CoastRun
         }
 
         /// 17차: 빨래줄 잡기 — 반짝 + 스피드라인 + 진동 + 코인 버스트
+        /// 19차-1: 세상이 흑백으로 바뀌는 순간 — 긴 링 플래시 + 낮은 카메라 흔들림. 소리는 BGM이 그대로, SFX만.
+        public void OnWorldFade()
+        {
+            cameraRig?.Shake(0.08f, 0.5f);
+            cameraRig?.FovKick(-3f, 1.2f);
+            audio?.PlaySfx(CoastSfx.SoftHit);
+        }
+
         public void OnLineGrab(Vector3 worldPos)
         {
             cameraRig?.Shake(0.15f, 0.1f);

@@ -15,6 +15,7 @@ namespace CoastRun
         [SerializeField] private float lookAhead = 13f;
         [SerializeField] private float lookHeight = 1.9f;   // 14차-2: 지평선을 화면 45% 높이로(목표 이미지 구도)
         [SerializeField] private float pitchUp = -1.0f;
+        private float _glideCam;   // 21차: 활공 카메라 블렌드
         [SerializeField] private float lateralDamping = 0.14f;
 
         [Header("FOV kick")]
@@ -231,6 +232,9 @@ namespace CoastRun
             Vector3 camPos = pivot + frame * offset;
             camPos += frame * Vector3.up * (_bobOffset + _landDip);
             camPos += EvaluateShakeOffset();
+            // 21차: 빨래줄 활공 — 카메라를 조금 더 높이·뒤로 빼고 아래를 내려다봐서 '떠 있음'과 슈퍼맨 자세가 읽히게
+            _glideCam = Mathf.MoveTowards(_glideCam, target.IsGliding ? 1f : 0f, dt * 2.2f);
+            camPos += frame * new Vector3(0f, 0.75f, -0.9f) * _glideCam;
 
             transform.position = camPos;
 
@@ -382,7 +386,7 @@ namespace CoastRun
             if (toAim.sqrMagnitude < 0.001f)
                 return transform.rotation;
             Quaternion look = Quaternion.LookRotation(toAim.normalized, Vector3.up);
-            return look * Quaternion.Euler(pitchUp + TallScreenPitch(), 0f, rollZ);
+            return look * Quaternion.Euler(pitchUp + TallScreenPitch() + 7f * _glideCam, 0f, rollZ);
         }
 
         // ── 18차: 긴 폰(19.5:9 갤럭시 S26, 20:9) 보정 ─────────────────────────

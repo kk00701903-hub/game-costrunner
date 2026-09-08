@@ -587,6 +587,8 @@ namespace CoastRun
                 Stretch(fill.rectTransform, 2f, 2f, -2f, -2f);
                 _slotChipBg[i] = fill;
                 _slotChip[i] = Label(chip.transform, "Text", (i + 1) + "  비어 있음", 15, Ink);
+                _slotChip[i].resizeTextForBestFit = true; _slotChip[i].resizeTextMinSize = 9; _slotChip[i].resizeTextMaxSize = 15;   // 21차: 긴 이름이 칩 밖으로 새지 않게
+                _slotChip[i].horizontalOverflow = HorizontalWrapMode.Wrap; _slotChip[i].verticalOverflow = VerticalWrapMode.Truncate;
                 AddHit(chip.gameObject, () => { _selectedSlot = slot; ToggleSheet(true); });
             }
 
@@ -681,6 +683,8 @@ namespace CoastRun
                 Place(_slotGlyph[i].rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(40f, 0f), new Vector2(50f, 40f), new Vector2(0f, 0.5f));
                 _slotName[i] = Label(card.transform, "Name", "비어 있음", 15, Ink);
                 _slotName[i].alignment = TextAnchor.MiddleLeft;
+                _slotName[i].resizeTextForBestFit = true; _slotName[i].resizeTextMinSize = 9; _slotName[i].resizeTextMaxSize = 15;
+                _slotName[i].horizontalOverflow = HorizontalWrapMode.Wrap; _slotName[i].verticalOverflow = VerticalWrapMode.Truncate;
                 Place(_slotName[i].rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
                 _slotName[i].rectTransform.offsetMin = new Vector2(92f, 0f);
                 _slotName[i].rectTransform.offsetMax = new Vector2(-6f, 0f);
@@ -730,8 +734,10 @@ namespace CoastRun
             _cardRow.pivot = new Vector2(0.5f, 1f);
             sr.content = _cardRow; sr.viewport = srt;
 
-            BigButton(host, "Close", Loc.T("닫기", "Close"), new Color(0.55f, 0.50f, 0.48f), new Vector2(0.5f, 0f), new Vector2(-120f, 10f), new Vector2(220f, 58f), () => ToggleSheet(false));
-            BigButton(host, "RunSheet", Loc.T("실행", "Go"), Mint, new Vector2(0.5f, 0f), new Vector2(120f, 10f), new Vector2(220f, 58f), () => { ToggleSheet(false); OnRunPressed(); });
+            // 21차: 닫기 / 자동 배치 / 실행 — 자동 배치는 빈 칸을 상태에 맞춰 채운다(AutoPlan).
+            BigButton(host, "Close", Loc.T("닫기", "Close"), new Color(0.55f, 0.50f, 0.48f), new Vector2(0.5f, 0f), new Vector2(-215f, 10f), new Vector2(190f, 58f), () => ToggleSheet(false));
+            BigButton(host, "AutoPlan", Loc.T("자동 배치", "Auto"), Sun, new Vector2(0.5f, 0f), new Vector2(0f, 10f), new Vector2(190f, 58f), AutoPlan);
+            BigButton(host, "RunSheet", Loc.T("실행", "Go"), Mint, new Vector2(0.5f, 0f), new Vector2(215f, 10f), new Vector2(190f, 58f), () => { ToggleSheet(false); OnRunPressed(); });
 
             _sheet.SetActive(false);
         }
@@ -1219,6 +1225,65 @@ namespace CoastRun
                 RefreshSlots();
                 OnRunPressed();
             });
+        }
+
+        /// 21차: 자동 배치 — 빈 칸을 지금 상태에 맞춰 채운다.
+        /// 규칙(칸마다 다시 평가): 스트레스 ≥ 70 → 휴식 / 돈 < 60 → 알바(돈 큰 순) /
+        /// 그 외 → 체력·순발력·매력 중 가장 낮은 스탯을 올리는 카드(교육 → 자기계발 → 알바 순으로 후보, 잠긴 카드·중복 제외,
+        /// 시즌 보너스 우선). 이미 채운 칸은 건드리지 않는다.
+        private void AutoPlan()
+        {
+            if (_busy || Save == null) return;
+            var s = Save.stats; var season = Timeline.SeasonOf(Save.week);
+            int filled = 0;
+            int stress = s.stress, money = s.money, stamina = s.stamina, agility = s.agility, charm = s.charm;
+            var used = new HashSet<string>();
+            for (int i = 0; i < Timeline.PhasesPerWeek; i++) if (!string.IsNullOrEmpty(Save.queuedSchedule[i])) used.Add(Save.queuedSchedule[i]);
+            for (int i = Save.phaseIndex; i < Timeline.PhasesPerWeek; i++)
+            {
+                if (!string.IsNullOrEmpty(Save.queuedSchedule[i])) continue;
+                ScheduleDef pick = null;
+                if (stress >= 70) pick = Best(ScheduleCategory.Rest, season, used, d => -d.dStress);
+                else if (money < 60) pick = Best(ScheduleCategory.Job, season, used, d => d.dMoney - d.dStress * 0.5f);
+                if (pick == null)
+                {
+                    // 가장 낮은 스탯 고르기
+                    StatKind low = StatKind.Stamina; int lowV = stamina;
+                    if (agility < lowV) { low = StatKind.Agility; lowV = agility; }
+                    if (charm < lowV) { low = StatKind.Charm; lowV = charm; }
+                    System.Func<ScheduleDef, float> gain = d =>
+                    {
+                        int g = low == StatKind.Stamina ? d.dStamina : low == StatKind.Agility ? d.dAgility : d.dCharm;
+                        if (g <= 0) return float.NegativeInfinity;
+                        float v = g * 10f - d.dStress * 0.4f + (d.hasBonusSeason && d.bonusSeason == season ? 6f : 0f);
+                        if (d.category == ScheduleCategory.Lesson && money + d.dMoney < 40) return float.NegativeInfinity;   // 돈 바닥나는 교육은 금지
+                        return v;
+                    };
+                    pick = Best(ScheduleCategory.Lesson, season, used, gain) ?? Best(ScheduleCategory.SelfDev, season, used, gain) ?? Best(ScheduleCategory.Job, season, used, gain);
+                }
+                pick ??= Best(ScheduleCategory.Rest, season, used, d => -d.dStress);
+                if (pick == null) break;
+                _gm.SetQueued(i, pick.id);
+                used.Add(pick.id); filled++;
+                stress = Mathf.Clamp(stress + pick.dStress, 0, 100); money += pick.dMoney;
+                stamina += pick.dStamina; agility += pick.dAgility; charm += pick.dCharm;
+            }
+            _selectedSlot = -1;
+            RefreshSlots();
+            Toast(filled > 0 ? Loc.T($"자동 배치 {filled}칸 · 마음에 안 들면 칸을 눌러 바꿔", $"Auto-filled {filled} · tap a slot to change")
+                             : Loc.T("이미 다 찼어", "Already full"));
+        }
+
+        private ScheduleDef Best(ScheduleCategory cat, SeasonKind season, HashSet<string> used, System.Func<ScheduleDef, float> score)
+        {
+            ScheduleDef best = null; float bestV = float.NegativeInfinity;
+            foreach (var d in ScheduleTable.ByCategory(cat, season))
+            {
+                if (used.Contains(d.id) || d.LockReason(Save.stats) != null) continue;
+                float v = score(d);
+                if (v > bestV) { bestV = v; best = d; }
+            }
+            return best;
         }
 
         private void OnRunPressed()

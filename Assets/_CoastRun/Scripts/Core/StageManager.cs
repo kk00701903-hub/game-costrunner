@@ -166,6 +166,7 @@ namespace CoastRun
             // Snap lighting to this stage's start — never earlier than that start for this load.
             environment?.ResetLightingTo(def.lightingTStart);
             BeginSunsetClock();
+            MonochromeWorld.Arm(ChapterIndex);   // 19차-1: 20장은 10초 뒤 세상이 흑백
 
             if (player != null && !player.enabled)
                 player.enabled = true;

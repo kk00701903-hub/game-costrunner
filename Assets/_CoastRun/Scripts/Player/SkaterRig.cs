@@ -280,6 +280,55 @@ namespace CoastRun
             _collectCooldown = 0.45f;
         }
 
+        private float _glideBlend;
+        private Vector3 _hipRest;
+
+        private void CacheHipRest()
+        {
+            if (_anim == null || _anim.avatar == null || !_anim.avatar.isHuman) { _hipRest = new Vector3(0f, 0.9f, 0f); return; }
+            var hips = _anim.GetBoneTransform(HumanBodyBones.Hips);
+            _hipRest = hips != null ? transform.InverseTransformPoint(hips.position) : new Vector3(0f, 0.9f, 0f);
+            if (_hipRest.sqrMagnitude < 0.01f) _hipRest = new Vector3(0f, 0.9f, 0f);
+        }
+
+        /// 뼈 방향 강제: 현재 뼈 방향(뼈→자식)을 원하는 월드 방향으로 돌린다 — 리그 축 규약과 무관.
+        private static void Aim(Transform bone, Transform child, Vector3 worldDir, float weight)
+        {
+            if (bone == null || child == null) return;
+            Vector3 cur = child.position - bone.position;
+            if (cur.sqrMagnitude < 1e-6f) return;
+            var target = Quaternion.FromToRotation(cur.normalized, worldDir.normalized) * bone.rotation;
+            bone.rotation = Quaternion.Slerp(bone.rotation, target, weight);
+        }
+
+        private void LateUpdate()
+        {
+            if (_glideBlend <= 0.001f || _anim == null || _anim.avatar == null || !_anim.avatar.isHuman) return;
+            float k = _glideBlend;
+            Vector3 fwd = transform.parent != null ? transform.parent.forward : transform.forward;   // 진행 방향(몸을 눕혀도 변하지 않는 축)
+            Vector3 up = Vector3.up;
+            // 팔: 어깨→팔꿈치→손 모두 진행 방향으로, 양팔은 어깨 폭만큼 살짝 벌어지게
+            var lUp = _anim.GetBoneTransform(HumanBodyBones.LeftUpperArm);  var lLo = _anim.GetBoneTransform(HumanBodyBones.LeftLowerArm);  var lH = _anim.GetBoneTransform(HumanBodyBones.LeftHand);
+            var rUp = _anim.GetBoneTransform(HumanBodyBones.RightUpperArm); var rLo = _anim.GetBoneTransform(HumanBodyBones.RightLowerArm); var rH = _anim.GetBoneTransform(HumanBodyBones.RightHand);
+            Vector3 right = Vector3.Cross(up, fwd).normalized;
+            // 21차: 진짜 슈퍼맨 — 오른팔은 주먹 앞으로 곧게, 왼팔은 옆구리를 따라 뒤로(뒤에서 봐도 실루엣이 읽힌다)
+            Aim(rUp, rLo, (fwd + right * 0.08f + up * 0.16f), k);
+            Aim(rLo, rH, (fwd + right * 0.03f + up * 0.10f), k);
+            Aim(lUp, lLo, (-fwd - right * 0.30f - up * 0.05f), k);
+            Aim(lLo, lH, (-fwd - right * 0.22f - up * 0.02f), k);
+            // 다리: 뒤로 곧게, 발끝은 살짝 위로
+            var lThigh = _anim.GetBoneTransform(HumanBodyBones.LeftUpperLeg);  var lShin = _anim.GetBoneTransform(HumanBodyBones.LeftLowerLeg);  var lFoot = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
+            var rThigh = _anim.GetBoneTransform(HumanBodyBones.RightUpperLeg); var rShin = _anim.GetBoneTransform(HumanBodyBones.RightLowerLeg); var rFoot = _anim.GetBoneTransform(HumanBodyBones.RightFoot);
+            Vector3 back = -fwd - up * 0.12f;
+            Aim(lThigh, lShin, back - right * 0.05f, k);
+            Aim(lShin, lFoot, back - right * 0.03f + up * 0.05f, k);
+            Aim(rThigh, rShin, back + right * 0.05f, k);
+            Aim(rShin, rFoot, back + right * 0.03f + up * 0.05f, k);
+            // 고개: 앞을 본다
+            var head = _anim.GetBoneTransform(HumanBodyBones.Head);
+            if (head != null) head.rotation = Quaternion.Slerp(head.rotation, Quaternion.LookRotation(fwd + up * 0.35f, up), k * 0.8f);
+        }
+
         private void Update()
         {
             if (_anim == null || _player == null)
@@ -323,8 +372,27 @@ namespace CoastRun
             _bounceVel += (-_bounce * 260f - _bounceVel * 18f) * dt;
             _bounce += _bounceVel * dt;
             float side = running ? Mathf.Sin(_stepClock / stepPeriod * Mathf.PI) * 0.6f * _stepSide : 0f;   // 어깨 좌우 흔들림(°)
-            transform.localRotation = Quaternion.Euler(_pitch, _yaw, _tilt + _lean + side);
-            transform.localPosition = new Vector3(0f, running ? Mathf.Clamp(_bounce, -0.05f, 0.04f) : 0f, 0f);
+            // 19차-2: 빨래줄 활공 — 슈퍼맨 자세. 몸을 78° 앞으로 눕히고(엉덩이 기준으로 회전) 살짝 출렁인다.
+            // 팔·다리는 LateUpdate에서 뼈를 직접 펴서 앞으로 뻗는다(믹사모 클립 없이 절차적으로).
+            bool gliding = _player.IsGliding;
+            _glideBlend = Mathf.MoveTowards(_glideBlend, gliding ? 1f : 0f, dt * (gliding ? 5f : 3f));
+            if (_glideBlend > 0.001f)
+            {
+                float k = _glideBlend * _glideBlend * (3f - 2f * _glideBlend);
+                float bob = Mathf.Sin(Time.time * 3.1f) * 3f * k;
+                float glidePitch = Mathf.Lerp(_pitch, 78f + bob, k);
+                var rot = Quaternion.Euler(glidePitch, _yaw, _tilt + _lean * 1.6f);
+                transform.localRotation = rot;
+                // 엉덩이가 제자리에 남도록 회전으로 밀려난 만큼 되돌리고, 조금 띄운다
+                if (_hipRest == Vector3.zero) CacheHipRest();
+                Vector3 shift = _hipRest - rot * _hipRest;
+                transform.localPosition = Vector3.Lerp(Vector3.zero, shift + new Vector3(0f, 0.25f, 0.15f), k);
+            }
+            else
+            {
+                transform.localRotation = Quaternion.Euler(_pitch, _yaw, _tilt + _lean + side);
+                transform.localPosition = new Vector3(0f, running ? Mathf.Clamp(_bounce, -0.05f, 0.04f) : 0f, 0f);
+            }
 
             // Kick every 1.2–1.8 s while cruising on the ground (slower when fast).
             if (_hasPush && grounded && _player.State == SkateState.Run && !_player.IsCrouching)

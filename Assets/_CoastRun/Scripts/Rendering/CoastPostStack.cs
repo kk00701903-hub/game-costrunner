@@ -30,9 +30,14 @@ namespace CoastRun
 
         public static VolumeProfile LoadOrBuildVpBase()
         {
+            // 21차: 렌더러의 PostProcessData가 비어 있어 후처리가 20라운드 동안 한 번도 돌지 않았다(블룸·톤매핑·비네트·주스 채도 전부 무효).
+            // 켜고 보니 예전 수치는 너무 어둡고 진해서, 굽힌 에셋 값 대신 코드 값을 항상 덮어쓴다(코드가 진실).
             var baked = Resources.Load<VolumeProfile>(ResourcePath);
             if (baked != null && baked.components != null && baked.components.Count > 0)
+            {
+                ApplyVpBaseSettings(baked);
                 return baked;
+            }
 
             return BuildVpBase();
         }
@@ -43,7 +48,10 @@ namespace CoastRun
             string res = "CoastRun/Config/Volumes/VP_CH" + chapter1Based;
             var baked = Resources.Load<VolumeProfile>(res);
             if (baked != null && baked.components != null && baked.components.Count > 0)
+            {
+                ApplyChapterGrade(baked, chapter1Based);   // 21차: 코드 값이 진실
                 return baked;
+            }
 
             return BuildChapterProfile(chapter1Based);
         }
@@ -73,34 +81,34 @@ namespace CoastRun
             if (!profile.TryGet(out Tonemapping tonemap))
                 tonemap = profile.Add<Tonemapping>(true);
             tonemap.active = true;
-            tonemap.mode.Override(TonemappingMode.ACES);
+            tonemap.mode.Override(TonemappingMode.Neutral);   // 21차: ACES는 그림자가 눌려 어둡다 — 모바일 카툰 룩은 Neutral
 
             if (!profile.TryGet(out Bloom bloom))
                 bloom = profile.Add<Bloom>(true);
             bloom.active = true;
-            bloom.threshold.Override(1.2f);    // 14차-6: 캐릭터·코인이 뿌옇게 번지지 않게 문턱을 올리고 세기를 낮춘다
-            bloom.intensity.Override(0.55f);
+            bloom.threshold.Override(1.15f);   // 14차-6: 캐릭터·코인이 뿌옇게 번지지 않게 문턱을 올리고 세기를 낮춘다
+            bloom.intensity.Override(0.4f);
             bloom.scatter.Override(0.6f);
 
             if (!profile.TryGet(out ColorAdjustments color))
                 color = profile.Add<ColorAdjustments>(true);
             color.active = true;
-            color.postExposure.Override(0.2f);
-            color.contrast.Override(16f);
-            color.saturation.Override(26f);
+            color.postExposure.Override(0.15f);   // 21차: 밝고 가벼운 카툰 룩 — 대비·채도는 살짝만
+            color.contrast.Override(4f);
+            color.saturation.Override(10f);
 
             if (!profile.TryGet(out Vignette vignette))
                 vignette = profile.Add<Vignette>(true);
             vignette.active = true;
-            vignette.intensity.Override(0.22f);
-            vignette.smoothness.Override(0.5f);
+            vignette.intensity.Override(0.10f);
+            vignette.smoothness.Override(0.6f);
 
             if (!profile.TryGet(out ShadowsMidtonesHighlights smh))
                 smh = profile.Add<ShadowsMidtonesHighlights>(true);
             smh.active = true;
-            smh.shadows.Override(new Vector4(0.72f, 0.84f, 1.18f, 0f));
-            smh.midtones.Override(new Vector4(1f, 1f, 1.02f, 0f));
-            smh.highlights.Override(new Vector4(1.02f, 1.01f, 0.98f, 0f));
+            smh.shadows.Override(new Vector4(0.96f, 0.98f, 1.06f, 0f));   // 그림자만 아주 살짝 푸르게
+            smh.midtones.Override(new Vector4(1f, 1f, 1.01f, 0f));
+            smh.highlights.Override(new Vector4(1.01f, 1f, 0.99f, 0f));
         }
 
         public static void ApplyChapterGrade(VolumeProfile profile, int chapter1Based)
@@ -120,33 +128,33 @@ namespace CoastRun
             {
                 case 1: // noon — 14차: 목표 이미지(한낮, 채도 높고 살짝 따뜻한 햇빛)
                     filter = new Color(1f, 0.99f, 0.96f);
-                    sat = 32f;
-                    contrast = 18f;
-                    exposure = 0.26f;
+                    sat = 12f;
+                    contrast = 6f;
+                    exposure = 0.08f;
                     break;
                 case 2: // afternoon
                     filter = new Color(1f, 0.98f, 0.95f);
-                    sat = 28f;
-                    contrast = 16f;
-                    exposure = 0.22f;
+                    sat = 10f;
+                    contrast = 5f;
+                    exposure = 0.06f;
                     break;
                 case 3: // low sun — sat down
                     filter = new Color(1f, 0.95f, 0.90f);
-                    sat = 20f;
-                    contrast = 14f;
-                    exposure = 0.16f;
+                    sat = 8f;
+                    contrast = 4f;
+                    exposure = 0.03f;
                     break;
                 case 4: // golden
                     filter = new Color(1f, 0.88f, 0.72f);
-                    sat = 16f;
-                    contrast = 13f;
-                    exposure = 0.08f;
+                    sat = 6f;
+                    contrast = 3f;
+                    exposure = 0f;
                     break;
                 default: // blue hour — deep violet, lower contrast
                     filter = new Color(0.78f, 0.82f, 1f);
-                    sat = 6f;
-                    contrast = 8f;
-                    exposure = -0.05f;
+                    sat = 0f;
+                    contrast = 0f;
+                    exposure = -0.06f;
                     break;
             }
 
