@@ -52,11 +52,15 @@ namespace CoastRun
             nearMiss?.NotifyHardHit();
             if (softHit)
             {
+                player.PendingHitDamageMul = DamageMul;   // 22차-7: 장애물별 피해 배율(버스 즉사, 차 큰 피해, 일반 3방)
                 player.SoftHit(ClassifyHit(player), BounceSide(player));
                 // 14차-14: 부딪힌 장애물은 '팡' 하고 귀엽게 터진다 — 납작해졌다 별·하트로 흩어지고 사라진다.
                 Pop();
             }
         }
+
+        /// 22차-7: 피해 배율. 1 = 일반 장애물(3방이면 끝), 2 = 차, 99 = 버스(한 방).
+        public float DamageMul = 1f;
 
         private bool _popped;
         public void Pop()

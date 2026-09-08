@@ -218,8 +218,13 @@ namespace CoastRun
 
         private void Update()
         {
-            if (_state == SkateState.Finish || config == null)
+            if (config == null) return;
+            if (_state == SkateState.Finish)
+            {
+                // 22차-5: 골인 뒤 몇 걸음 더 달리다 멈춘다(리본을 끊고 지나가는 느낌)
+                if (_speed > 0.01f) { _speed = Mathf.MoveTowards(_speed, 0f, 7.5f * Time.deltaTime); Move(); _map?.SetPlayerDistance(_pathDistance); }
                 return;
+            }
 
             ResolveDeps();
             _input?.Tick();
@@ -576,6 +581,8 @@ namespace CoastRun
         /// 피격 직후 무적(순발력 ↑ → 길어짐). 연속 충돌로 HP가 녹는 것을 막는 '무적 대시'.
         private float _iFrameTimer;
         public bool InIFrames => _iFrameTimer > 0f;
+        /// 22차-7: 다음 피격의 피해 배율(장애물이 SoftHit 직전에 넣고, HealthSystem이 쓰고 1로 되돌린다).
+        public float PendingHitDamageMul = 1f;
 
         public void SoftHit(HitKind kind, int bounceDir)
         {
@@ -614,7 +621,7 @@ namespace CoastRun
         public void FinishRun()
         {
             _state = SkateState.Finish;
-            _speed = Mathf.MoveTowards(_speed, 0f, 30f * Time.deltaTime);
+            _gliding = false; _hop = 0f; _laneT = 1f; _laneFrom = _lane * config.laneOffset;
         }
 
 #if UNITY_EDITOR

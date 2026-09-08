@@ -160,6 +160,9 @@ namespace CoastRun
             StageIndex = def.stageIndex;
             ChapterIndex = def.chapterIndex;
             _stageOriginDistance = player != null ? player.PathDistance : 0f;
+            // 22차-5: 골인 연출 되돌리기 + 스테이지 끝에 리본
+            ResetFinishPresentation();
+            if (!ArcadeRun.Active && def.targetDistance > 1f) _ribbon = FinishRibbon.Spawn(_stageOriginDistance + def.targetDistance);
             _stageElapsed = 0f;
             _stageActive = true;
 
@@ -170,6 +173,7 @@ namespace CoastRun
 
             if (player != null && !player.enabled)
                 player.enabled = true;
+            if (player != null && player.State == SkateState.Finish) player.ResetSoftState();   // 22차-5: 골인 상태로 다음 스테이지에 들어오지 않게
 
             OnStageStart?.Invoke(def);
         }
@@ -194,6 +198,8 @@ namespace CoastRun
             player.ResetSoftState();
             _stageElapsed = 0f;
             _stageActive = true;
+            ResetFinishPresentation();
+            if (!ArcadeRun.Active && _current.targetDistance > 1f) _ribbon = FinishRibbon.Spawn(_stageOriginDistance + _current.targetDistance);
 
             environment?.ResetLightingTo(_current.lightingTStart);
             BeginSunsetClock();
@@ -252,6 +258,7 @@ namespace CoastRun
             // 에디터 검증용: Home = 노을 5초 전으로, End = 스테이지 즉시 클리어(정산 화면 확인). (F키는 에디터 단축키와 겹친다)
             if (Input.GetKeyDown(KeyCode.Home) && !ArcadeRun.Active) _stageElapsed = Mathf.Max(_stageElapsed, SunsetSeconds - 5f);
             if (Input.GetKeyDown(KeyCode.End) && !ArcadeRun.Active) { ClearCurrent(); return; }
+            if (Input.GetKeyDown(KeyCode.PageDown) && !ArcadeRun.Active) { DebugWarpToFinish(); return; }   // 22차-5: 골인 30 m 앞으로(리본 확인)
 #endif
 
             float u = StageProgress01;
@@ -315,14 +322,38 @@ namespace CoastRun
             if (chapterEnd)
                 OnChapterComplete?.Invoke(cleared.chapterIndex);
 
+            StartCoroutine(FinishThenClear(cleared, chapterEnd));
+        }
+
+        // 22차-5: 골인 연출 — 리본을 끊고 몇 걸음 더 달리다 멈춰 뒤돌아 포즈, 카메라는 앞에서 잡는다. 그 위에 정산이 인게임으로 뜬다.
+        private FinishRibbon _ribbon;
+        private RunnerCameraRig _finishCam;
+        private SkaterRig _finishRig;
+        private System.Collections.IEnumerator FinishThenClear(StageDef cleared, bool chapterEnd)
+        {
+            _ribbon?.Break();
+            player?.FinishRun();
+            _finishCam = Camera.main != null ? Camera.main.GetComponent<RunnerCameraRig>() : null;
+            _finishRig = player != null ? player.GetComponentInChildren<SkaterRig>() : null;
+            if (_finishCam != null) _finishCam.StartCoroutine(_finishCam.PlayFinishFrame(0.9f));
+            yield return new WaitForSeconds(0.75f);
+            _finishRig?.SetFinishPose(true);
+            yield return new WaitForSeconds(0.8f);
+
             var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
             if (flow != null)
             {
                 flow.NotifyStageCleared(cleared, chapterEnd);
-                return;
+                yield break;
             }
+            yield return LocalClearWithMemory(cleared, chapterEnd);
+        }
 
-            StartCoroutine(LocalClearWithMemory(cleared, chapterEnd));
+        private void ResetFinishPresentation()
+        {
+            _finishRig?.SetFinishPose(false);
+            _finishCam?.EndFinishFrame();
+            if (_ribbon != null) { Destroy(_ribbon.gameObject); _ribbon = null; }
         }
 
         private System.Collections.IEnumerator LocalClearWithMemory(StageDef cleared, bool chapterEnd)

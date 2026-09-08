@@ -13,7 +13,7 @@ namespace CoastRun
         public static float SpeedMul = 1f;          // 스케이트보드 ×1.3
         public static float CoinMul = 1f;           // 스케이트보드 ×1.3 (펫 배율과 곱연산)
         public static float MaxHp = 100f;           // 100 + 체력
-        public static float HitDamage = 30f;        // 17차: 14→30, 장애물이 진짜 아프다(물약으로 회복). 체력 ↑ → 완화
+        public static float HitDamage = 34f;        // 22차-7: 일반 장애물 3방(100/3). 차 ×1.6(2방), 버스 즉사. 체력 ↑ → 완화
         public static float DashInvincible = 0.8f;  // 순발력 ↑ → 무적 대시 길어짐
         public static float HitFreezeMul = 1f;      // 순발력 ↑ → 피격 경직 단축
         public static float NearMissBonus = 1f;     // 매력 → 니어미스 보너스
@@ -32,7 +32,7 @@ namespace CoastRun
             SpeedMul = 1f;
             CoinMul = 1f;
             MaxHp = 100f;
-            HitDamage = 30f;
+            HitDamage = 34f;
             DashInvincible = 0.8f;
             HitFreezeMul = 1f;
             NearMissBonus = 1f;
@@ -53,7 +53,7 @@ namespace CoastRun
             float charm01 = Mathf.Clamp01(st.charm / (float)PlayerStats.StatMax);
 
             MaxHp = 100f + st.stamina * 0.5f;                       // 100 ~ 200
-            HitDamage = 30f * (1f - 0.40f * stamina01);             // 30 → 18
+            HitDamage = MaxHp * 0.34f * (1f - 0.22f * stamina01);   // 항상 3방 기준, 체력 만렙이면 4방
             DashInvincible = 0.8f + 1.2f * agility01;               // 0.8 ~ 2.0 s
             HitFreezeMul = 1f - 0.5f * agility01;                   // 경직 최대 절반
             NearMissBonus = 1f + charm01;                           // 최대 ×2

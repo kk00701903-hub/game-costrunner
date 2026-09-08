@@ -117,14 +117,15 @@ namespace CoastRun
             string[] seasons = { Loc.T("봄 — Spring EP", "Spring EP"), Loc.T("여름 — Summer EP", "Summer EP"), Loc.T("가을 — Autumn EP", "Autumn EP"), Loc.T("겨울 — Winter EP", "Winter EP") };
             float y = 0f;
             const float rowH = 66f, headH = 40f;
-            for (int c = 1; c <= 20; c++)
+            // 22차-8: OST 7곡 — 앨범 헤더 한 줄, 트랙마다 해금 챕터
             {
-                var t = AlbumTable.Get(c);
-                if ((c - 1) % 5 == 0)
-                {
-                    var h = CoastOrnate.Label(list, "S" + c, seasons[(c - 1) / 5], 18, new Color(1f, 0.85f, 0.45f), TextAnchor.MiddleLeft);
-                    Top(h.rectTransform, y, headH, 12f); y += headH;
-                }
+                var h = CoastOrnate.Label(list, "Album", Loc.T($"『{AlbumTable.AlbumKo}』 OST · {AlbumTable.TrackCount}곡", $"“{AlbumTable.AlbumEn}” OST · {AlbumTable.TrackCount} tracks"), 18, new Color(1f, 0.85f, 0.45f), TextAnchor.MiddleLeft);
+                Top(h.rectTransform, y, headH, 12f); y += headH;
+            }
+            for (int ti = 1; ti <= AlbumTable.TrackCount; ti++)
+            {
+                var t = AlbumTable.ByIndex(ti);
+                int c = t.chapter;
                 bool owned = Collection.TrackUnlocked(c);
                 bool paywalled = !Collection.CanPlayChapter(c);
                 var grade = Collection.TrackGrade(c);
@@ -146,7 +147,7 @@ namespace CoastRun
                 hole.raycastTarget = false;
                 Place(hole.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(6f, 6f));
                 string title = (owned ? t.Title : (paywalled ? Loc.T("앨범 구매 시 해금", "Unlock with the album") : "???"));
-                var name = CoastOrnate.Label(row.transform, "T", $"{c:00}  {title}", 18, owned ? Ink : new Color(0.75f, 0.72f, 0.72f), TextAnchor.MiddleLeft);
+                var name = CoastOrnate.Label(row.transform, "T", $"{ti:00}  {title}", 18, owned ? Ink : new Color(0.75f, 0.72f, 0.72f), TextAnchor.MiddleLeft);
                 Place(name.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(0f, 26f));
                 name.rectTransform.offsetMin = new Vector2(62f, -2f); name.rectTransform.offsetMax = new Vector2(-120f, 26f);
                 string sub = owned
@@ -175,7 +176,7 @@ namespace CoastRun
                 btn.onClick.AddListener(() => { if (paywalled) ShowPaywall(); else if (owned) OpenTrack(ch); else Toast(sub); });
             }
             list.sizeDelta = new Vector2(0f, y + 20f);
-            var foot = CoastOrnate.Label(list, "Foot", Loc.T($"{Collection.TracksUnlocked}/20 트랙 · 러닝 중 그 챕터 곡이 흐른다", $"{Collection.TracksUnlocked}/20 tracks · each chapter's track plays while you run"), 13, new Color(1f, 1f, 1f, 0.7f));
+            var foot = CoastOrnate.Label(list, "Foot", Loc.T($"{Collection.TracksUnlocked}/{AlbumTable.TrackCount} 트랙 · 챕터를 깨면 그 곡이 열리고 러닝에 흐른다", $"{Collection.TracksUnlocked}/{AlbumTable.TrackCount} tracks · clear a chapter to unlock its song"), 13, new Color(1f, 1f, 1f, 0.7f));
             Top(foot.rectTransform, y, 20f, 0f);
         }
 

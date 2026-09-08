@@ -329,11 +329,13 @@ namespace CoastRun
                     break;
                 case PickupKind.Potion:
                     health?.HealPotion();
+                    StageRunStats.Instance?.NotifyPotion();
                     hud?.AddScore(50, pos, true);
                     hud?.Flash(new Color(1f, 0.5f, 0.6f, 0.35f));
                     break;
                 case PickupKind.BonusStar:
                     hud?.AddScore(100, pos, true);
+                    StageRunStats.Instance?.NotifyStar();
                     BonusTimeDirector.Instance?.Activate();
                     break;
                 case PickupKind.Heart:

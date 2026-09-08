@@ -63,7 +63,7 @@ namespace CoastRun
             A(35, "첫 카드",        "First Card",          "포토카드 1장",                 "1 photocard",                     p => p.CardCount >= 1),
             A(36, "바인더 반",      "Half the Binder",     "포토카드 15장",                "15 photocards",                   p => p.CardCount >= 15),
             A(37, "바인더 완성",    "Full Binder",         "포토카드 30장",                "All 30 photocards",               p => p.CardCount >= 30),
-            A(38, "전곡",           "Every Track",         "트랙 20개 해금",               "Unlock all 20 tracks",            p => p.TracksUnlocked >= 20),
+            A(38, "전곡",           "Every Track",         "OST 7곡 전부 해금",             "Unlock all 7 tracks",             p => p.TracksUnlocked >= 7),
             A(39, "91.9",           "91.9",                "라디오 편지 대성공 3회",       "3 great radio letters",           p => p.radioGreatCount >= 3),
             A(40, "팬",             "Fan",                 "카드 공유 1회",                "Share a card once",               p => p.shareCount >= 1),
         };

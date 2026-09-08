@@ -20,6 +20,8 @@ namespace CoastRun
         public int Jellies { get; private set; }
         /// 말랑이 하트 — 챕터 호감도. 코인처럼 즉시 반영되지 않고 챕터 정산에서 합산된다.
         public int Hearts { get; private set; }
+        public int Potions { get; private set; }   // 22차-5: 정산 표시용
+        public int Stars { get; private set; }
         public float Seconds { get; private set; }
 
         public int Total => CoinValue + NearMissValue;
@@ -62,6 +64,7 @@ namespace CoastRun
             SoftHits = 0;
             Jellies = 0;
             Hearts = 0;
+            Potions = 0; Stars = 0;
             Seconds = 0f;
             _running = true;
         }
@@ -81,6 +84,9 @@ namespace CoastRun
             if (_running)
                 Jellies += count;
         }
+
+        public void NotifyPotion() { if (_running) Potions++; }
+        public void NotifyStar() { if (_running) Stars++; }
 
         public void NotifyHeart(int count)
         {

@@ -281,6 +281,11 @@ namespace CoastRun
         }
 
         private float _glideBlend;
+        private float _glideT; private bool _wasGliding;
+        private float _finishBlend; private bool _finishPose;
+        /// 22차-5: 골인 포즈 — 뒤돌아서(카메라 쪽) 왼손 옆구리·오른손 치켜들기.
+        public void SetFinishPose(bool on) { _finishPose = on; if (!on) _finishBlend = 0f; }
+        private const float SpinSeconds = 0.6f;
         private Vector3 _hipRest;
 
         private void CacheHipRest()
@@ -301,9 +306,38 @@ namespace CoastRun
             bone.rotation = Quaternion.Slerp(bone.rotation, target, weight);
         }
 
+        [SerializeField] private float leftFootYawFix = 22f;   // 22차-4: 달릴 때 왼발이 바깥(왼쪽)으로 벌어져 보임 → 앞을 보게 안쪽으로
+
         private void LateUpdate()
         {
-            if (_glideBlend <= 0.001f || _anim == null || _anim.avatar == null || !_anim.avatar.isHuman) return;
+            if (_anim == null || _anim.avatar == null || !_anim.avatar.isHuman) return;
+            if (_finishBlend > 0.001f)
+            {
+                FinishPoseLate();
+                return;
+            }
+            if (_glideBlend <= 0.001f)
+            {
+                // 22차-4: 왼발 방향 보정 — 발끝(toes)이 있으면 진행 방향과의 편차를 재서 되돌리고, 없으면 고정 각도.
+                var lf = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
+                if (lf != null && _player != null && _player.Speed > 0.5f)
+                {
+                    Vector3 runFwd = transform.parent != null ? transform.parent.forward : transform.forward;
+                    var toes = _anim.GetBoneTransform(HumanBodyBones.LeftToes);
+                    float fix = leftFootYawFix;
+                    if (toes != null)
+                    {
+                        Vector3 d = toes.position - lf.position; d.y = 0f;
+                        if (d.sqrMagnitude > 1e-6f)
+                        {
+                            float err = Vector3.SignedAngle(runFwd, d.normalized, Vector3.up);   // −: 왼쪽으로 벌어짐
+                            fix = -err * 0.85f;
+                        }
+                    }
+                    lf.rotation = Quaternion.AngleAxis(fix, Vector3.up) * lf.rotation;
+                }
+                return;
+            }
             float k = _glideBlend;
             Vector3 fwd = transform.parent != null ? transform.parent.forward : transform.forward;   // 진행 방향(몸을 눕혀도 변하지 않는 축)
             Vector3 up = Vector3.up;
@@ -311,11 +345,11 @@ namespace CoastRun
             var lUp = _anim.GetBoneTransform(HumanBodyBones.LeftUpperArm);  var lLo = _anim.GetBoneTransform(HumanBodyBones.LeftLowerArm);  var lH = _anim.GetBoneTransform(HumanBodyBones.LeftHand);
             var rUp = _anim.GetBoneTransform(HumanBodyBones.RightUpperArm); var rLo = _anim.GetBoneTransform(HumanBodyBones.RightLowerArm); var rH = _anim.GetBoneTransform(HumanBodyBones.RightHand);
             Vector3 right = Vector3.Cross(up, fwd).normalized;
-            // 21차: 진짜 슈퍼맨 — 오른팔은 주먹 앞으로 곧게, 왼팔은 옆구리를 따라 뒤로(뒤에서 봐도 실루엣이 읽힌다)
-            Aim(rUp, rLo, (fwd + right * 0.08f + up * 0.16f), k);
-            Aim(rLo, rH, (fwd + right * 0.03f + up * 0.10f), k);
-            Aim(lUp, lLo, (-fwd - right * 0.30f - up * 0.05f), k);
-            Aim(lLo, lH, (-fwd - right * 0.22f - up * 0.02f), k);
+            // 22차-6: 양손 슈퍼맨 — 두 팔 다 앞으로 곧게(주먹 나란히), 살짝 위로
+            Aim(rUp, rLo, (fwd + right * 0.10f + up * 0.14f), k);
+            Aim(rLo, rH, (fwd + right * 0.04f + up * 0.10f), k);
+            Aim(lUp, lLo, (fwd - right * 0.10f + up * 0.14f), k);
+            Aim(lLo, lH, (fwd - right * 0.04f + up * 0.10f), k);
             // 다리: 뒤로 곧게, 발끝은 살짝 위로
             var lThigh = _anim.GetBoneTransform(HumanBodyBones.LeftUpperLeg);  var lShin = _anim.GetBoneTransform(HumanBodyBones.LeftLowerLeg);  var lFoot = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
             var rThigh = _anim.GetBoneTransform(HumanBodyBones.RightUpperLeg); var rShin = _anim.GetBoneTransform(HumanBodyBones.RightLowerLeg); var rFoot = _anim.GetBoneTransform(HumanBodyBones.RightFoot);
@@ -327,6 +361,31 @@ namespace CoastRun
             // 고개: 앞을 본다
             var head = _anim.GetBoneTransform(HumanBodyBones.Head);
             if (head != null) head.rotation = Quaternion.Slerp(head.rotation, Quaternion.LookRotation(fwd + up * 0.35f, up), k * 0.8f);
+        }
+
+        /// 골인 포즈(LateUpdate): 몸은 이미 180° 돌아 카메라를 본다. 오른팔 하늘로, 왼팔은 팔꿈치 굽혀 손을 허리에, 고개 갸웃.
+        private void FinishPoseLate()
+        {
+            float k = _finishBlend * _finishBlend;
+            Vector3 up = Vector3.up;
+            Vector3 face = transform.forward;               // 돌아선 뒤의 정면(카메라 쪽)
+            Vector3 right = Vector3.Cross(up, face).normalized;
+            var rUp = _anim.GetBoneTransform(HumanBodyBones.RightUpperArm); var rLo = _anim.GetBoneTransform(HumanBodyBones.RightLowerArm); var rH = _anim.GetBoneTransform(HumanBodyBones.RightHand);
+            var lUp = _anim.GetBoneTransform(HumanBodyBones.LeftUpperArm);  var lLo = _anim.GetBoneTransform(HumanBodyBones.LeftLowerArm);  var lH = _anim.GetBoneTransform(HumanBodyBones.LeftHand);
+            // 오른손: 위로 쭉(살짝 바깥·앞)
+            Aim(rUp, rLo, (up + right * 0.35f + face * 0.10f), k);
+            Aim(rLo, rH, (up + right * 0.15f + face * 0.05f), k);
+            // 왼손: 위팔은 아래·바깥, 아래팔은 허리 쪽으로 꺾어 손이 옆구리에
+            Aim(lUp, lLo, (-up * 0.75f - right * 0.85f + face * 0.10f), k);   // 팔꿈치 바깥으로
+            Aim(lLo, lH, (right * 1.0f + up * 0.30f + face * 0.30f), k);      // 아래팔은 허리로 꺾어 손을 옆구리에
+            var head = _anim.GetBoneTransform(HumanBodyBones.Head);
+            if (head != null)
+            {
+                var cam = Camera.main != null ? Camera.main.transform : null;
+                Vector3 look = cam != null ? (cam.position - head.position).normalized : face;
+                var q = Quaternion.LookRotation(look, up) * Quaternion.Euler(0f, 0f, 14f);   // 갸웃
+                head.rotation = Quaternion.Slerp(head.rotation, q, k * 0.9f);
+            }
         }
 
         private void Update()
@@ -341,6 +400,8 @@ namespace CoastRun
             float lv = _player.LateralVelocity;
             float leanTarget = Mathf.Clamp(-lv * 2.2f, -14f, 14f);
             float yawTarget = Mathf.Clamp(lv * 3.0f, -18f, 18f);
+            _finishBlend = Mathf.MoveTowards(_finishBlend, _finishPose ? 1f : 0f, dt * 2.2f);
+            if (_finishPose) yawTarget = 180f * (_finishBlend * _finishBlend * (3f - 2f * _finishBlend));
             _lean = Mathf.SmoothDamp(_lean, leanTarget, ref _leanVel, 0.10f, 800f, dt);
             _yaw = Mathf.SmoothDamp(_yaw, yawTarget, ref _yawVel, 0.10f, 800f, dt);
             bool grounded = _player.State != SkateState.Air;
@@ -375,12 +436,18 @@ namespace CoastRun
             // 19차-2: 빨래줄 활공 — 슈퍼맨 자세. 몸을 78° 앞으로 눕히고(엉덩이 기준으로 회전) 살짝 출렁인다.
             // 팔·다리는 LateUpdate에서 뼈를 직접 펴서 앞으로 뻗는다(믹사모 클립 없이 절차적으로).
             bool gliding = _player.IsGliding;
+            if (gliding && !_wasGliding) _glideT = 0f;
+            _wasGliding = gliding;
+            if (gliding) _glideT += dt;
             _glideBlend = Mathf.MoveTowards(_glideBlend, gliding ? 1f : 0f, dt * (gliding ? 5f : 3f));
             if (_glideBlend > 0.001f)
             {
                 float k = _glideBlend * _glideBlend * (3f - 2f * _glideBlend);
                 float bob = Mathf.Sin(Time.time * 3.1f) * 3f * k;
-                float glidePitch = Mathf.Lerp(_pitch, 78f + bob, k);
+                // 22차-6: 줄을 잡는 순간 앞으로 한 바퀴(360°) 뱅그르르 돌고 나서 슈퍼맨 자세로 편다.
+                float spinU = Mathf.Clamp01(_glideT / SpinSeconds);
+                float spin = gliding ? 360f * (spinU * spinU * (3f - 2f * spinU)) : 360f;
+                float glidePitch = Mathf.Lerp(_pitch, 78f + bob, k) + spin;
                 var rot = Quaternion.Euler(glidePitch, _yaw, _tilt + _lean * 1.6f);
                 transform.localRotation = rot;
                 // 엉덩이가 제자리에 남도록 회전으로 밀려난 만큼 되돌리고, 조금 띄운다

@@ -25,12 +25,14 @@ namespace CoastRun
             var p = P; if (p == null || p.trackGrade == null || p.trackGrade.Length < 20) return ChapterGrade.None;
             return (ChapterGrade)p.trackGrade[Mathf.Clamp(chapter, 1, 20) - 1];
         }
+        /// 22차-8: chapter = 트랙의 해금 챕터.
         public static bool TrackUnlocked(int chapter)
         {
-            var t = AlbumTable.Get(chapter);
-            return AlbumTable.UnlockedBy(t, TrackGrade(chapter));
+            var t = AlbumTable.ForChapter(chapter);
+            if (t == null) return false;
+            return AlbumTable.UnlockedBy(t.Value, TrackGrade(chapter));
         }
-        public static int TracksUnlocked { get { int n = 0; for (int c = 1; c <= 20; c++) if (TrackUnlocked(c)) n++; return n; } }
+        public static int TracksUnlocked { get { int n = 0; foreach (var t in AlbumTable.Tracks) if (TrackUnlocked(t.chapter)) n++; return n; } }
 
         // ── 카드 ──
         public static bool HasCard(int id) => P != null && (P.cardMask & (1 << (id - 1))) != 0;

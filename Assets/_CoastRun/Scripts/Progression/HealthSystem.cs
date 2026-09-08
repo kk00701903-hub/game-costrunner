@@ -98,8 +98,11 @@ namespace CoastRun
         {
             if (!_active || Frozen)
                 return;
-            Apply(-hitDamage, silent: false);
-            OnDamaged?.Invoke(hitDamage);
+            float mul = _player != null ? Mathf.Max(0.1f, _player.PendingHitDamageMul) : 1f;
+            if (_player != null) _player.PendingHitDamageMul = 1f;
+            float dmg = mul >= 50f ? max + 1f : hitDamage * mul;   // 22차-7: 배율 50 이상 = 즉사(버스)
+            Apply(-dmg, silent: false);
+            OnDamaged?.Invoke(dmg);
         }
 
         public void Heal(float amount)

@@ -379,12 +379,44 @@ namespace CoastRun
             }
             if (amount > 0)
             {
-                SpawnCoinBurst(popPos, tint, amount >= 2 ? 22 : 16);
-                StartCoroutine(FlashRing(popPos, tint, amount >= 2 ? 1.9f : 1.4f));
+                SpawnCoinBurst(popPos, tint, amount >= 2 ? 26 : 18);
+                StartCoroutine(FlashRing(popPos, tint, amount >= 2 ? 2.1f : 1.6f));
             }
             else
-                StartCoroutine(FlashRing(popPos, tint, 0.9f));
+                StartCoroutine(FlashRing(popPos, tint, 1.1f));
+            // 22차-3: 타격감 — 연속 획득마다 피치가 올라가는 효과음(서브웨이 서퍼/골드런 방식), '+N' 플로팅, 코인은 HUD로 날아감,
+            // 주인공은 살짝 찌그러졌다 펴진다.
+            float now = Time.unscaledTime;
+            _pickupStreak = now - _lastPickupTime < 0.55f ? Mathf.Min(_pickupStreak + 1, 12) : 0;
+            _lastPickupTime = now;
+            if (audio != null) audio.SfxPitchBoost = _pickupStreak * 0.045f;
             audio?.PlaySfx(CoastSfx.Coin);
+            if (audio != null) audio.SfxPitchBoost = 0f;
+            if (amount > 0)
+            {
+                PickupFloat.Text(popPos, "+" + amount, tint, amount >= 2 ? 1.25f : 1f);
+                if (tint == CoastPalette.CoinYellow) PickupFloat.FlyCoin(popPos, amount >= 2 ? 3 : 1);
+            }
+            else
+                PickupFloat.Text(popPos, "+1", tint, 0.85f);
+            if (_bodySquash == null) _bodySquash = StartCoroutine(BodySquash());
+        }
+
+        private int _pickupStreak; private float _lastPickupTime = -10f; private Coroutine _bodySquash;
+        private IEnumerator BodySquash()
+        {
+            var t = player != null ? player.transform.Find("SkaterRig") : null;
+            if (t == null) t = player != null && player.transform.childCount > 0 ? player.transform.GetChild(0) : null;
+            if (t == null) { _bodySquash = null; yield break; }
+            Vector3 s0 = t.localScale; float time = 0f; const float dur = 0.16f;
+            while (time < dur)
+            {
+                time += Time.deltaTime; float u = time / dur;
+                float k = Mathf.Sin(u * Mathf.PI);
+                t.localScale = new Vector3(s0.x * (1f + 0.08f * k), s0.y * (1f - 0.07f * k), s0.z * (1f + 0.08f * k));
+                yield return null;
+            }
+            t.localScale = s0; _bodySquash = null;
         }
 
         private Material _ringMat;

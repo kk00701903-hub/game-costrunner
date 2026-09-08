@@ -417,6 +417,9 @@ namespace CoastRun
         }
 
         /// Play a short SFX. Never touches ambient / wheel / wind (BGM) sources.
+        /// 22차-3: 연속 픽업 피치 상승(JuiceDirector가 잠깐 올렸다 내린다).
+        public float SfxPitchBoost;
+
         public void PlaySfx(CoastSfx kind)
         {
             EnsureSources();
@@ -430,7 +433,7 @@ namespace CoastRun
             if (res != null)
             {
                 float v = kind == CoastSfx.Coin ? 0.4f : kind == CoastSfx.Horn ? 0.6f : 0.7f;
-                _sfx.pitch = kind == CoastSfx.Coin ? Random.Range(0.96f, 1.06f) : 1f;
+                _sfx.pitch = kind == CoastSfx.Coin ? Random.Range(0.96f, 1.06f) + SfxPitchBoost : 1f;
                 _sfx.PlayOneShot(res, v);
                 return;
             }
@@ -439,7 +442,7 @@ namespace CoastRun
                 case CoastSfx.Coin:
                     clip = _clipCoin;
                     vol = 0.45f;
-                    pitch = Random.Range(0.95f, 1.1f);
+                    pitch = Random.Range(0.95f, 1.1f) + SfxPitchBoost;
                     break;
                 case CoastSfx.NearMiss:
                     clip = _clipNearMiss;

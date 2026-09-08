@@ -43,8 +43,8 @@ namespace CoastRun
         [SerializeField] private int carFromChapter = 1;   // 17차: 1챕터부터 차·버스가 마주 온다
         [SerializeField] private int scooterFromChapter = 1;
         [Tooltip("Rows between cars, at stage start / end.")]
-        [SerializeField] private int carEveryRowsStart = 7;
-        [SerializeField] private int carEveryRowsEnd = 4;
+        [SerializeField] private int carEveryRowsStart = 5;   // 22차-7: 차·버스 더 자주
+        [SerializeField] private int carEveryRowsEnd = 3;
         [Tooltip("The car's own speed along the road (it closes at this + player speed).")]
         [SerializeField] private float carSpeed = 9f;
         [Tooltip("Seconds of travel around the meeting point kept free of other rows.")]
@@ -277,13 +277,13 @@ namespace CoastRun
 
             // From chapter 4 a third of the traffic is a city bus: slower, but a wall.
             int chapterNow = StageManager.Instance != null ? StageManager.Instance.ChapterIndex : 1;
-            var kind = _rng.NextDouble() < (chapterNow >= 4 ? 0.35 : 0.22) ? OncomingCar.Kind.Bus : OncomingCar.Kind.Van;   // 17차: 버스도 1챕터부터
+            var kind = _rng.NextDouble() < (chapterNow >= 4 ? 0.4 : 0.3) ? OncomingCar.Kind.Bus : OncomingCar.Kind.Van;   // 17차: 버스도 1챕터부터
             if (DebugForceBus) kind = OncomingCar.Kind.Bus;
             // 11챕터부터 일부는 '구르는 귤' — 작고 느리지만 점프로만 넘는다.
             if (_rng.NextDouble() < ChapterDifficulty.RollingOrangeChance(ChapterDifficulty.Stage) && !DebugForceBus)
                 kind = OncomingCar.Kind.Orange;
             // 14차-2: 킥보드 탄 아이 — 봄부터 나온다. 마주 오는 차량 셋 중 하나꼴, 속도는 밴의 절반.
-            if (kind == OncomingCar.Kind.Van && !DebugForceBus && _rng.NextDouble() < 0.35)
+            if (kind == OncomingCar.Kind.Van && !DebugForceBus && _rng.NextDouble() < 0.25)
                 kind = OncomingCar.Kind.Scooter;
             if (chapterNow < carFromChapter && !DebugForceBus)
                 kind = OncomingCar.Kind.Scooter;   // 초반 챕터엔 킥보드만

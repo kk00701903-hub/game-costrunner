@@ -186,6 +186,32 @@ namespace CoastRun
             _landDip = 0f;
         }
 
+        /// 22차-5: 골인 프레임 — 뒤따르던 카메라가 살짝 뒤로 빠지며 주인공을 정면(그녀가 돌아선 쪽)에서 잡는다.
+        /// EndFinishFrame() 까지 유지. 주인공이 미끄러져 멈추는 동안도 따라간다.
+        private bool _finishFrame;
+        public IEnumerator PlayFinishFrame(float swing = 0.9f)
+        {
+            if (target == null) yield break;
+            _handoffActive = true; _finishFrame = true;
+            Vector3 p0 = transform.position; Quaternion r0 = transform.rotation;
+            float t = 0f;
+            while (_finishFrame)
+            {
+                t += Time.unscaledDeltaTime;
+                float u = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / swing));
+                Quaternion frame = target.PathRotation;
+                Vector3 pp = target.transform.position;
+                Vector3 pos = pp + frame * new Vector3(0.35f, 1.55f, -3.6f);
+                Quaternion rot = Quaternion.LookRotation((pp + Vector3.up * 1.05f - pos).normalized, Vector3.up);
+                transform.position = Vector3.Lerp(p0, pos, u);
+                transform.rotation = Quaternion.Slerp(r0, rot, u);
+                if (u >= 1f) { p0 = pos; r0 = rot; }
+                yield return null;
+            }
+            _handoffActive = false;
+        }
+        public void EndFinishFrame() { _finishFrame = false; _handoffActive = false; }
+
         public IEnumerator PlayGameplayHandoff(float duration)
         {
             if (target == null)

@@ -107,19 +107,11 @@ namespace CoastRun
             GetComponent<PickupGlow>()?.Hide();
             float z = DownhillPath.DistanceAlong(transform.position);
             float speed = Mathf.Max(player.Speed, 8f) * GlideSpeedMul;
-            CoinSpawner.Instance?.SpawnGlideLine(z + 3f, player.Lane, LineHeight + 0.15f, speed * GlideSeconds - 4f);
-            GlideRope.Show(player, z, speed * GlideSeconds + 6f, LineHeight + 0.55f);
+            CoinSpawner.Instance?.SpawnGlideLine(z + 6f, player.Lane, LineHeight + 0.05f, speed * GlideSeconds - 6f);
+            // 22차-6: 집라인 줄(GlideRope)도 뺀다 — 매달린 게 아니라 스스로 난다.
             JuiceDirector.Instance?.OnLineGrab(transform.position + Vector3.up * LineHeight);
-            // 빨래 한 장이 주인공 손에 딸려 간다
-            if (_laundry != null && _laundry.Length > 0 && _laundry[_laundry.Length / 2] != null)
-            {
-                var piece = _laundry[_laundry.Length / 2];
-                piece.SetParent(player.transform, false);
-                piece.localPosition = new Vector3(0f, 2.05f, 0.05f);   // 머리 위(카메라 가리지 않게), 반 크기
-                piece.localRotation = Quaternion.Euler(20f, 0f, 0f);
-                piece.localScale *= 0.5f;
-                GlideRope.ReleaseWith(piece.gameObject);
-            }
+            // 22차-6: 빨래에 매달려 가지 않는다 — 줄을 잡고 한 바퀴 돈 뒤(SkaterRig) 양손 슈퍼맨으로 날아간다. 빨래는 줄에 남아 크게 펄럭인다.
+            _wave += 4f;
         }
     }
 
