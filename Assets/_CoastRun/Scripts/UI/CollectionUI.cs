@@ -453,7 +453,7 @@ namespace CoastRun
             var rt = CoastOrnate.Label(rec.transform, "T",
                 Loc.T($"무한 달리기  최고 {p.endlessBestDist:N0}m · {p.endlessBestScore:N0}점\n오늘의 런  최고 {p.dailyBestScore:N0}점 · 연속 {p.dailyStreak}일 (최고 {p.dailyStreakBest})\n누적  런 {p.totalRuns}회 · {p.totalDistance / 1000f:0.0}km · 코인 {p.totalCoins:N0} · 니어미스 {p.totalNearMiss:N0} · 무피격 {p.flawlessRuns}",
                       $"Endless  best {p.endlessBestDist:N0} m · {p.endlessBestScore:N0} pts\nDaily  best {p.dailyBestScore:N0} · streak {p.dailyStreak} (best {p.dailyStreakBest})\nTotal  {p.totalRuns} runs · {p.totalDistance / 1000f:0.0} km · {p.totalCoins:N0} coins · {p.totalNearMiss:N0} near misses · {p.flawlessRuns} flawless"),
-                14, Ink, TextAnchor.MiddleLeft);
+                15, Ink, TextAnchor.MiddleLeft);
             CoastOrnate.Stretch(rt.rectTransform, 14f, 6f, -14f, -6f); rt.horizontalOverflow = HorizontalWrapMode.Wrap;
             y += 126f;
             // 챕터 별
@@ -474,12 +474,12 @@ namespace CoastRun
             {
                 bool has = AchievementTable.Has(p, a.id);
                 var row = CoastUiArt.Panel(list, "A" + a.id, has ? Paper : new Color(0.2f, 0.17f, 0.2f, 0.85f), 10);
-                Top(row.rectTransform, y, 48f, 8f);
-                var t = CoastOrnate.Label(row.transform, "T", (has ? "🏆  " : "○  ") + a.Name, 16, has ? Ink : new Color(0.8f, 0.75f, 0.7f), TextAnchor.MiddleLeft);
-                CoastOrnate.Stretch(t.rectTransform, 14f, 0f, -220f, 0f);
-                var h = CoastOrnate.Label(row.transform, "H", a.Hint, 12, has ? new Color(0.45f, 0.4f, 0.38f) : new Color(0.65f, 0.6f, 0.58f), TextAnchor.MiddleRight);
+                Top(row.rectTransform, y, 56f, 8f);   // 18차: 행 48→56, 글자 16→18 / 12→14 (폰 가독성)
+                var t = CoastOrnate.Label(row.transform, "T", (has ? "🏆  " : "○  ") + a.Name, 18, has ? Ink : new Color(0.8f, 0.75f, 0.7f), TextAnchor.MiddleLeft);
+                CoastOrnate.Stretch(t.rectTransform, 14f, 0f, -230f, 0f);
+                var h = CoastOrnate.Label(row.transform, "H", a.Hint, 14, has ? new Color(0.45f, 0.4f, 0.38f) : new Color(0.65f, 0.6f, 0.58f), TextAnchor.MiddleRight);
                 CoastOrnate.Stretch(h.rectTransform, 0f, 0f, -12f, 0f);
-                y += 54f;
+                y += 62f;
             }
             list.sizeDelta = new Vector2(0f, y + 20f);
         }

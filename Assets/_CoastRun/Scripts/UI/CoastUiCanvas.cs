@@ -27,6 +27,9 @@ namespace CoastRun
 
             var go = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
             Object.DontDestroyOnLoad(go);
+#if UNITY_EDITOR
+            go.AddComponent<CoastDebugClicker>();
+#endif
         }
 
         public static Canvas Create(string name, int sortingOrder, Transform parent = null)
@@ -45,7 +48,7 @@ namespace CoastRun
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(720f, 1280f);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            scaler.matchWidthOrHeight = 1f;
+            scaler.matchWidthOrHeight = 0f;   // 18차: 폭 기준(720). 높이 기준이면 20:9 폰에서 폭이 576으로 줄어 메뉴가 좌우로 잘렸다
 
             var safeGo = new GameObject(SafeAreaName, typeof(RectTransform));
             safeGo.transform.SetParent(canvas.transform, false);
@@ -117,4 +120,31 @@ namespace CoastRun
             _safe.offsetMax = Vector2.zero;
         }
     }
+
+#if UNITY_EDITOR
+    /// 18차 에디터 검증용: K = 마우스 아래 UI 요소에 클릭 이벤트를 직접 보낸다(원격 제어에서 왼쪽 클릭이 안 들어올 때).
+    public class CoastDebugClicker : MonoBehaviour
+    {
+        private void Update()
+        {
+            if (!Input.GetKeyDown(KeyCode.K)) return;
+            var es = EventSystem.current; if (es == null) return;
+            var pd = new PointerEventData(es) { position = Input.mousePosition, button = PointerEventData.InputButton.Left };
+            var hits = new System.Collections.Generic.List<RaycastResult>();
+            es.RaycastAll(pd, hits);
+            foreach (var h in hits)
+            {
+                var target = ExecuteEvents.GetEventHandler<IPointerClickHandler>(h.gameObject);
+                if (target == null) continue;
+                pd.pointerPress = target; pd.pointerPressRaycast = h; pd.pointerCurrentRaycast = h;
+                ExecuteEvents.Execute(target, pd, ExecuteEvents.pointerDownHandler);
+                ExecuteEvents.Execute(target, pd, ExecuteEvents.pointerUpHandler);
+                ExecuteEvents.Execute(target, pd, ExecuteEvents.pointerClickHandler);
+                Debug.Log("[DebugClick] " + target.name);
+                return;
+            }
+            Debug.Log("[DebugClick] no handler under " + Input.mousePosition);
+        }
+    }
+#endif
 }

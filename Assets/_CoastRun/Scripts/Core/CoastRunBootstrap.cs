@@ -33,8 +33,9 @@ namespace CoastRun
             }
             else
             {
-                float scale = windowAspect / TargetAspect;
-                _camera.rect = new Rect(0f, (1f - scale) * 0.5f, 1f, scale);
+                // 18차: 9:16보다 긴 폰(19.5:9·20:9)은 위아래 검은 띠 없이 꽉 채운다 — 골드런처럼.
+                // UI 캔버스는 폭 720 기준(CoastUiCanvas)이라 세로가 늘어나도 좌우가 잘리지 않고, 노치는 SafeArea가 처리한다.
+                _camera.rect = new Rect(0f, 0f, 1f, 1f);
             }
         }
     }

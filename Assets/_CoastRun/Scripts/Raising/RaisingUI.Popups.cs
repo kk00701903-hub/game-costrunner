@@ -254,7 +254,7 @@ namespace CoastRun
                 bool on = a == _actTab;
                 bool unlocked = Save.chapter >= ActStart[a] || (Save.chapters[ActStart[a] - 1]?.cleared ?? false);
                 var pill = CoastUiArt.CutePill(panel, "Tab" + a, on ? Coral : unlocked ? Hex("#F3E7CF") : Hex("#B9B3AC"), 14, 3);
-                Place(pill.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-200f + a * 200f, -58f), new Vector2(180f, 46f), new Vector2(0.5f, 0.5f));
+                Place(pill.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-200f + a * 200f, -96f), new Vector2(180f, 46f), new Vector2(0.5f, 0.5f));   // 18차: 노치·상태바 아래로
                 var tl = Label(pill.transform, "T", tabShort[a] + (unlocked ? "" : Loc.T(" (잠김)", " (locked)")), 18, on ? Color.white : Navy);
                 CoastUiArt.OutlineText(tl, new Color(0f, 0f, 0f, on ? 0.35f : 0.12f), 1f);
                 int act2 = a;
@@ -262,6 +262,9 @@ namespace CoastRun
             }
             // 9차: 키아트는 위 45%가 그림, 아래 55%가 UI 자리(일부러 비워 그린 영역). 제목·시놉시스는 그림 바로 아래, 카드는 그 아래 남는 높이의 가운데.
             const float ArtBottom = 0.555f;
+            // 18차: 제목·시놉시스 뒤에 어두운 띠 — 밝은 키아트 위에서 흰 글씨가 안 읽히던 문제
+            var band = CoastHudLayout.MakeImage(panel, "TextBand", new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -150f), new Vector2(0f, 10f), new Color(0.08f, 0.06f, 0.10f, 0.55f));
+            band.raycastTarget = false;
             var t = Label(panel, "Title", ActName(_actTab), 32, Color.white);
             CoastUiArt.OutlineText(t, new Color(0.1f, 0.08f, 0.12f, 0.85f), 1.6f);
             Place(t.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -4f), new Vector2(0f, 38f), new Vector2(0.5f, 1f));
@@ -271,16 +274,17 @@ namespace CoastRun
             var sl = Label(panel, "Sub", sub, 18, new Color(1f, 0.96f, 0.88f));
             CoastUiArt.OutlineText(sl, new Color(0.1f, 0.08f, 0.12f, 0.8f), 1.2f);
             Place(sl.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -44f), new Vector2(0f, 22f), new Vector2(0.5f, 1f));
-            var syn = Label(panel, "Synopsis", ActSynopsis(_actTab), 17, new Color(1f, 0.97f, 0.92f, 0.95f));
+            var syn = Label(panel, "Synopsis", ActSynopsis(_actTab), 19, new Color(1f, 0.97f, 0.92f, 0.98f));
             syn.horizontalOverflow = HorizontalWrapMode.Wrap; syn.alignment = TextAnchor.UpperCenter;
             CoastUiArt.OutlineText(syn, new Color(0.1f, 0.08f, 0.12f, 0.7f), 1f);
-            Place(syn.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -74f), new Vector2(-60f, 54f), new Vector2(0.5f, 1f));
+            Place(syn.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -74f), new Vector2(-60f, 66f), new Vector2(0.5f, 1f));
 
             // 14차-8: 챕터 카드 — 가로 스크롤 큰 카드(챕터 번호 + 그림만). 5열 작은 카드는 폰에서 안 읽혔다.
             int first = ActStart[_actTab], last = ActEnd[_actTab];
             int count = last - first + 1;
-            const float cellW = 250f, cellH = 320f, gap = 14f;
-            float zoneBottom = 96f, zoneTop = ArtBottom * 1280f - 124f;
+            const float cellW = 212f, cellH = 290f, gap = 12f;   // 18차: 카드 3장이 잘리지 않고 다 보이게(212×3+12×2+40 = 700 < 720)
+            float canvasH = 720f * Screen.height / Mathf.Max(1, Screen.width);   // 18차: 폭 기준 캔버스 — 20:9 폰이면 1600
+            float zoneBottom = 96f, zoneTop = ArtBottom * canvasH - 160f;
             float zoneH = Mathf.Max(cellH + 20f, zoneTop - zoneBottom);
             var scrollGo = new GameObject("ChapterScroll", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(RectMask2D));
             scrollGo.transform.SetParent(panel, false);

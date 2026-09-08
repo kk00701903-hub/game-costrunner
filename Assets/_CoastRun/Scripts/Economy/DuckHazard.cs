@@ -25,6 +25,7 @@ namespace CoastRun
 
             nearMiss?.NotifyHardHit();
             player.SoftHit();
+            ObstacleHazard.PopFrom(transform);   // 18차: 허들·빨랫줄·등불 줄도 닿으면 팡
         }
 
         public static GameObject Create(Transform parent, Vector3 worldPos, int lane, DuckStyle style)

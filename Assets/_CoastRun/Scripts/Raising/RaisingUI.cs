@@ -1650,9 +1650,10 @@ namespace CoastRun
                 CoastUiArt.OutlineText(g, new Color(0f, 0f, 0f, 0.35f), 1.2f);
                 return btn;
             }
-            var t = Label(slot, "Label", label, 11, Color.white);
-            CoastUiArt.OutlineText(t, new Color(0.1f, 0.06f, 0.04f, 0.8f), 1.4f);
-            Place(t.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(20f, 16f), new Vector2(0.5f, 0f));
+            var t = Label(slot, "Label", label, 13, Color.white);   // 18차: 11→13, 폰에서 읽히는 최소 크기
+            t.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(t, new Color(0.1f, 0.06f, 0.04f, 0.85f), 1.5f);
+            Place(t.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(30f, 18f), new Vector2(0.5f, 0f));
             return btn;
         }
 

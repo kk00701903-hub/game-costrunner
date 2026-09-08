@@ -63,11 +63,23 @@ namespace CoastRun
         {
             if (_popped) return;
             _popped = true;
-            Transform root = transform;
+            PopFrom(transform);
+        }
+
+        /// 18차: 어떤 장애물 부품에서든 루트(Obstacle_*)를 찾아 팡 터뜨린다 — 허들(DuckHazard)·기타 하자드 공용.
+        public static void PopFrom(Transform any)
+        {
+            Transform root = any;
             while (root.parent != null && !root.parent.name.StartsWith("Obstacle") && root.parent.name != "Obstacles")
                 root = root.parent;
             if (root.parent != null && root.parent.name.StartsWith("Obstacle_"))
                 root = root.parent;
+            if (root.GetComponent<ObstaclePopAnim>() != null) return;
+            PopRoot(root);
+        }
+
+        private static void PopRoot(Transform root)
+        {
             foreach (var c in root.GetComponentsInChildren<Collider>(true)) c.enabled = false;
             var w = root.GetComponent<ObstacleWarning>(); if (w != null) w.enabled = false;
             // 17차: '닿는 순간' 터진다 — 파편은 주인공과 장애물 사이(접점)에서, 주인공을 따라오며 흩어진다.

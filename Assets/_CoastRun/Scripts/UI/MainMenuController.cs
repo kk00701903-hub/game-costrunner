@@ -923,7 +923,8 @@ namespace CoastRun
             // 8차: 검정 반투명 → 반투명 딤 + 가운데 크라프트지 카드(금테). 글은 그대로 흰색.
             go.GetComponent<Image>().color = new Color(0.05f, 0.04f, 0.06f, 0.55f);
             var card = CoastUiArt.Panel(go.transform, "Card", new Color(0.83f, 0.69f, 0.22f, 0.9f), 26);
-            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.sizeDelta = new Vector2(620f, 1100f);
+            // 18차: 카드는 화면 높이의 6~94% — 안의 버튼이 화면 비율(anchorY)로 놓이므로 긴 폰에서도 카드 밖으로 안 나간다
+            var crt = card.rectTransform; crt.anchorMin = new Vector2(0.5f, 0.06f); crt.anchorMax = new Vector2(0.5f, 0.94f); crt.sizeDelta = new Vector2(620f, 0f); crt.anchoredPosition = Vector2.zero;
             card.raycastTarget = false;
             var inner = CoastUiArt.Panel(card.transform, "Inner", new Color(0.24f, 0.17f, 0.13f, 0.96f), 24);
             var irt = inner.rectTransform; irt.anchorMin = Vector2.zero; irt.anchorMax = Vector2.one; irt.offsetMin = new Vector2(3f, 3f); irt.offsetMax = new Vector2(-3f, -3f);
