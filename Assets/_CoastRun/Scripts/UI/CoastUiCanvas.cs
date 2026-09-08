@@ -29,6 +29,7 @@ namespace CoastRun
 
             var go = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
             Object.DontDestroyOnLoad(go);
+            go.AddComponent<CoastRaycastWatchdog>();
 #if UNITY_EDITOR
             go.AddComponent<CoastDebugClicker>();
 #endif
@@ -139,12 +140,60 @@ namespace CoastRun
         }
     }
 
+    /// 18차-5: 입력 감시견 — "버튼이 눌리다가 어느 순간부터 안 눌림"의 전형적 원인은
+    /// 보이지 않는데 레이캐스트만 막는 UI(알파 0인 CanvasGroup/Image가 화면을 덮음)다.
+    /// 1초마다 훑어서 그런 것을 풀고 한 번만 로그를 남긴다. 버튼(Selectable)이 달린 투명 이미지는 의도된 것이라 건드리지 않는다.
+    public class CoastRaycastWatchdog : MonoBehaviour
+    {
+        private float _next;
+        private readonly System.Collections.Generic.HashSet<GameObject> _logged = new();
+
+        private void Update()
+        {
+            if (Time.unscaledTime < _next) return;
+            _next = Time.unscaledTime + 1f;
+            foreach (var cg in FindObjectsByType<CanvasGroup>(FindObjectsSortMode.None))
+            {
+                if (!cg.blocksRaycasts || cg.alpha > 0.02f || !cg.gameObject.activeInHierarchy) continue;
+                if (cg.GetComponentInParent<Selectable>() != null) continue;
+                if (!CoversScreen(cg.transform as RectTransform)) continue;
+                cg.blocksRaycasts = false;
+                Log(cg.gameObject, "CanvasGroup alpha≈0");
+            }
+            foreach (var img in FindObjectsByType<Image>(FindObjectsSortMode.None))
+            {
+                if (!img.raycastTarget || img.color.a > 0.02f || !img.gameObject.activeInHierarchy) continue;
+                if (img.GetComponentInParent<Selectable>() != null) continue;
+                if (!CoversScreen(img.rectTransform)) continue;
+                img.raycastTarget = false;
+                Log(img.gameObject, "Image alpha≈0");
+            }
+        }
+
+        private static readonly Vector3[] _c = new Vector3[4];
+        private static bool CoversScreen(RectTransform rt)
+        {
+            if (rt == null) return false;
+            rt.GetWorldCorners(_c);
+            float w = _c[2].x - _c[0].x, h = _c[2].y - _c[0].y;
+            return w >= Screen.width * 0.6f && h >= Screen.height * 0.6f;
+        }
+
+        private void Log(GameObject go, string why)
+        {
+            if (_logged.Contains(go)) return;
+            _logged.Add(go);
+            Debug.LogWarning($"[RaycastWatchdog] 입력을 막던 투명 UI를 풀었다: {go.name} ({why}) 부모={go.transform.parent?.name}");
+        }
+    }
+
 #if UNITY_EDITOR
     /// 18차 에디터 검증용: K = 마우스 아래 UI 요소에 클릭 이벤트를 직접 보낸다(원격 제어에서 왼쪽 클릭이 안 들어올 때).
     public class CoastDebugClicker : MonoBehaviour
     {
         private void Update()
         {
+            if (Input.GetKeyDown(KeyCode.J)) Dump();
             if (!Input.GetKeyDown(KeyCode.K)) return;
             var es = EventSystem.current; if (es == null) return;
             var pd = new PointerEventData(es) { position = Input.mousePosition, button = PointerEventData.InputButton.Left };
@@ -162,6 +211,30 @@ namespace CoastRun
                 return;
             }
             Debug.Log("[DebugClick] no handler under " + Input.mousePosition);
+        }
+
+        /// J = 레이캐스트 진단 덤프(Tools/ui_debug.txt): 캔버스별 Raycast 결과·설정, 마우스/터치 상태
+        private void Dump()
+        {
+            var sb = new System.Text.StringBuilder();
+            var es = EventSystem.current;
+            sb.Append($"t={Time.unscaledTime:0.0} ts={Time.timeScale} mouse={Input.mousePosition} screen={Screen.width}x{Screen.height} es={(es ? es.name : "null")} module={(es && es.currentInputModule ? es.currentInputModule.GetType().Name : "null")} enabled={(es ? es.enabled.ToString() : "-")} sel={(es && es.currentSelectedGameObject ? es.currentSelectedGameObject.name : "-")}\n");
+            sb.Append($"mouseBtn0={Input.GetMouseButton(0)} touches={Input.touchCount} simulateMouse={Input.simulateMouseWithTouches} cursorLock={Cursor.lockState} visible={Cursor.visible}\n");
+            var pd = new PointerEventData(es) { position = Input.mousePosition };
+            foreach (var c in FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                var gr = c.GetComponent<GraphicRaycaster>();
+                var hits = new System.Collections.Generic.List<RaycastResult>();
+                if (gr != null && gr.isActiveAndEnabled) gr.Raycast(pd, hits);
+                sb.Append($"  canvas {c.name} order={c.sortingOrder} root={c.isRootCanvas} enabled={c.enabled} active={c.gameObject.activeInHierarchy} mode={c.renderMode} cam={(c.worldCamera ? c.worldCamera.name : "-")} scale={c.scaleFactor:0.00} rect={c.GetComponent<RectTransform>().rect.size} gr={(gr ? gr.isActiveAndEnabled.ToString() : "none")} hits={hits.Count}");
+                foreach (var h in hits) sb.Append(" [" + h.gameObject.name + "]");
+                var cgs = c.GetComponentsInChildren<CanvasGroup>(true);
+                foreach (var g in cgs) if (g.blocksRaycasts && g.alpha < 0.05f && g.gameObject.activeInHierarchy) sb.Append($" BLOCKER?{g.name}(a={g.alpha:0.00})");
+                sb.Append("\n");
+            }
+            foreach (var e in FindObjectsByType<EventSystem>(FindObjectsInactive.Include, FindObjectsSortMode.None)) sb.Append($"  eventsystem {e.name} enabled={e.enabled} active={e.gameObject.activeInHierarchy}\n");
+            Debug.Log("[UIDump]\n" + sb);
+            try { System.IO.File.AppendAllText(System.IO.Path.Combine(Application.dataPath, "../Tools/ui_debug.txt"), sb + "\n"); } catch { }
         }
     }
 #endif

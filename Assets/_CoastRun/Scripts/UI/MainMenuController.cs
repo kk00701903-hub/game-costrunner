@@ -369,6 +369,22 @@ namespace CoastRun
             _uiCg.alpha = 0f;
             ui.SetActive(false);
 
+            // 18차-5: 빈 공간(버튼 밖) 어디를 눌러도 이어하기 — 골드런처럼 '탭하면 바로 시작'.
+            // 투명 버튼을 TitleUI의 맨 뒤에 깔아 두고, 위에 있는 버튼·더보기 컬럼이 먼저 레이캐스트를 가져간다.
+            var tapAny = new GameObject("TapAnywhere", typeof(RectTransform), typeof(Image), typeof(Button));
+            tapAny.transform.SetParent(ui.transform, false);
+            CoastOrnate.Stretch(tapAny.GetComponent<RectTransform>(), -CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad, CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+            var tapImg = tapAny.GetComponent<Image>(); tapImg.color = new Color(0f, 0f, 0f, 0f); tapImg.raycastTarget = true;
+            var tapBtn = tapAny.GetComponent<Button>(); tapBtn.transition = Selectable.Transition.None;
+            tapBtn.onClick.AddListener(() =>
+            {
+                if (!_ready) return;
+                if (_moreOpen) { ToggleMore(); return; }          // 더보기 열린 채면 먼저 닫기
+                if (_gm != null && _gm.HasSave) OnContinue();
+                else { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }   // 세이브 없으면 새로하기 흐름
+            });
+            tapAny.transform.SetAsFirstSibling();
+
             // 14차-8: 제목은 글자로(언어별) — 키아트엔 로고가 없다. 상단 하늘 영역, 크림색 + 짙은 테두리.
             string title = Loc.T(AlbumTable.AlbumKo, AlbumTable.AlbumEn);
             var titleLbl = CreateLabel(ui.transform, "Title", title, 60, FontStyle.Bold,

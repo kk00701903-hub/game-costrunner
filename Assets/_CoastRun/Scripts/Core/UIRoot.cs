@@ -48,6 +48,15 @@ namespace CoastRun
             SetLoader(false);
         }
 
+        /// 18차-5: 자기 치유 — 페이드 코루틴이 중간에 끊겨 '투명한데 입력만 막는' 베일이 남지 않게,
+        /// 매 프레임 알파와 레이캐스트 차단을 맞춘다(알파 1% 이하 = 통과). "버튼이 눌리다가 안 눌림"의 가장 흔한 원인.
+        private void LateUpdate()
+        {
+            if (_veilCg == null) return;
+            bool block = _veilCg.alpha > 0.01f;
+            if (_veilCg.blocksRaycasts != block) _veilCg.blocksRaycasts = block;
+        }
+
         public void SetLoader(bool on)
         {
             if (_loaderDot != null)
