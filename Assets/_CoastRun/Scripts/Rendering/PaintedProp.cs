@@ -7,6 +7,12 @@ namespace CoastRun
     /// missing the caller keeps its procedural visual, so the game never breaks.
     public static class PaintedProp
     {
+        /// 21차-3: 그림에 이미 굵은 이중 테두리(남색+흰)를 구운 키 — 셰이더 테두리는 얇게만(흰 링을 덮지 않게).
+        /// Tools/Art/bold_outline.py 로 굽는다. 셰이더 텍셀 테두리는 멀리서 사라지지만 구운 테두리는 크기에 비례해 남는다.
+        private static bool HasBakedOutline(string key) =>
+            key.StartsWith("Jelly_") || key.StartsWith("Coin") || key == "Potion" || key == "Heart" || key == "Star";
+        private static float OutlineTexels(string key, Texture2D tex) =>
+            HasBakedOutline(key) ? 1.5f : Mathf.Clamp(tex.width / 120f, 4f, 10f);
         public static Texture2D Load(string key) =>
             Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Obs_" + key);
 
@@ -50,7 +56,7 @@ namespace CoastRun
                 // 14차-9: 흰 테두리는 밝은 배경에서 뿌옇게 번져 보였다 → 짙은 남색 굵은 선(레퍼런스의 볼드 아웃라인).
                 // 14차-10: 더 진하고 굵게(거의 검정 남색, 1024px 기준 8텍셀)
                 mat.SetColor("_OutlineColor", new Color(0.06f, 0.05f, 0.10f, 1f));
-                mat.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 120f, 4f, 10f));
+                mat.SetFloat("_OutlineWidth", OutlineTexels(key, tex));
             }
             var mr = quad.GetComponent<Renderer>();
             mr.sharedMaterial = mat;
@@ -74,7 +80,7 @@ namespace CoastRun
                 if (bm.HasProperty("_KeyColor")) bm.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
                 if (bm.HasProperty("_OutlineOn")) bm.SetFloat("_OutlineOn", 1f);
                 if (bm.HasProperty("_OutlineColor")) bm.SetColor("_OutlineColor", new Color(0.06f, 0.05f, 0.10f, 1f));
-                if (bm.HasProperty("_OutlineWidth")) bm.SetFloat("_OutlineWidth", Mathf.Clamp(tex.width / 120f, 4f, 10f));
+                if (bm.HasProperty("_OutlineWidth")) bm.SetFloat("_OutlineWidth", OutlineTexels(key, tex));
                 if (bm.HasProperty("_Shade")) bm.SetFloat("_Shade", 0f);
                 var br = back.GetComponent<Renderer>();
                 br.sharedMaterial = bm;

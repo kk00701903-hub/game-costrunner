@@ -92,7 +92,7 @@ namespace CoastRun
             if (PaintedProp.Available(paintedKey))
             {
                 // 14차-5: 더 크게(0.8 m) + 흰 테두리 — 돌길 위에서 금색이 또렷하게 떨어져 보이게.
-                coin._painted = PaintedProp.Attach(visRoot, paintedKey, 0.8f, replace: false, groundLift: -0.15f, outline: true);
+                coin._painted = PaintedProp.Attach(visRoot, paintedKey, 0.9f, replace: false, groundLift: -0.15f, outline: true);   // 21차-3: 0.8→0.9
                 if (coin._painted != null) coin._paintedScale = coin._painted.localScale;
                 var pcol = go.AddComponent<SphereCollider>();
                 pcol.isTrigger = true;

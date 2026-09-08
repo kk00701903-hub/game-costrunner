@@ -63,7 +63,7 @@ namespace CoastRun
             switch (kind)
             {
                 case PickupKind.Potion:
-                    if (PaintedProp.Available("Potion")) PaintedProp.Attach(vis, "Potion", 0.9f, replace: false, outline: true);
+                    if (PaintedProp.Available("Potion")) PaintedProp.Attach(vis, "Potion", 1.0f, replace: false, outline: true);
                     else BuildPotion(vis);
                     radius = 0.6f;
                     break;
@@ -73,16 +73,16 @@ namespace CoastRun
                     radius = 0.8f;
                     break;
                 case PickupKind.BigJelly:
-                    BuildJelly(vis, colorIndex, 0.42f, true);
+                    BuildJelly(vis, colorIndex, 0.48f, true);   // 21차-3: 더 크게
                     radius = 0.6f;
                     break;
                 case PickupKind.Heart:
-                    if (PaintedProp.Available("Heart")) PaintedProp.Attach(vis, "Heart", 0.8f, replace: false, outline: true);
+                    if (PaintedProp.Available("Heart")) PaintedProp.Attach(vis, "Heart", 0.9f, replace: false, outline: true);
                     else BuildHeart(vis);
                     radius = 0.7f;
                     break;
                 default:
-                    BuildJelly(vis, colorIndex, 0.3f, false);
+                    BuildJelly(vis, colorIndex, 0.36f, false);   // 21차-3: 0.3→0.36, 멀리서도 읽히게
                     radius = 0.55f;
                     break;
             }
