@@ -12,7 +12,7 @@ namespace CoastRun
     {
         // 14차-14: '주인공 레인의 가장 가까운 장애물'만 경고한다. 22 m 안(피할 시간이 있을 때)에서 켜지고
         // 5 m 안이면(이미 늦음) 끈다. 레인을 바꾸면 그 레인의 것으로 바로 옮겨 간다. 한 장애물은 한 번만.
-        private const float WarnFar = 22f, WarnNear = 5f;
+        private const float WarnFar = 26f, WarnNear = 5f;
         private const float Duration = 1.15f;
         private static readonly System.Collections.Generic.List<ObstacleWarning> _all = new();
         private static ObstacleWarning _current;
@@ -35,7 +35,9 @@ namespace CoastRun
             ObstacleWarning best = null; float bestAhead = float.MaxValue;
             foreach (var w in _all)
             {
-                if (w == null || w._fired || w._lane != player.Lane) continue;
+                if (w == null || w._fired) continue;
+                w._lane = Mathf.RoundToInt(Vector3.Dot(w.transform.position, DownhillPath.Rotation * Vector3.right) / 2.2f);   // 차는 움직인다
+                if (w._lane != player.Lane) continue;
                 float ahead = DownhillPath.DistanceAlong(w.transform.position) - pz;
                 if (ahead < WarnNear || ahead > WarnFar) continue;
                 if (ahead < bestAhead) { bestAhead = ahead; best = w; }

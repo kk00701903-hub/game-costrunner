@@ -88,6 +88,7 @@ namespace CoastRun
             BlobShadow.Attach(go.transform, kind == Kind.Orange ? 0.6f : kind == Kind.Scooter ? 0.7f : 1.1f);
             HazardRing.Attach(go.transform, kind == Kind.Bus ? 1.3f : 0.8f);
             ObstacleOutline.Attach(go.transform);
+            ObstacleWarning.Attach(go);   // 14차-15: 마주 오는 차·버스·킥보드도 레인 경고
             return car;
         }
 

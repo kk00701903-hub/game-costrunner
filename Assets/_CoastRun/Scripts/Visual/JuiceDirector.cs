@@ -199,11 +199,120 @@ namespace CoastRun
         public void PlayObstaclePop(Vector3 worldPos)
         {
             cameraRig?.Shake(0.12f, 0.06f);
-            SpawnCoinBurst(worldPos, new Color(1f, 0.62f, 0.72f), 10);
-            SpawnCoinBurst(worldPos + Vector3.up * 0.2f, new Color(1f, 0.93f, 0.55f), 8);
+            EnsurePopBursts();
+            SpawnPop(_popStar, worldPos, new Color(1f, 0.93f, 0.45f), 9);
+            SpawnPop(_popHeart, worldPos + Vector3.up * 0.15f, new Color(1f, 0.55f, 0.68f), 7);
+            SpawnPop(_popPuff, worldPos, new Color(1f, 1f, 1f, 0.95f), 8);
             SpawnCoinBurst(worldPos, Color.white, 6);
             StartCoroutine(FlashRing(worldPos, new Color(1f, 0.8f, 0.85f, 0.9f), 1.7f));
             speedLines?.Burst(6);
+            audio?.PlaySfx(CoastSfx.NearMiss);
+        }
+
+        // 14차-15: 팡 파편 — 큰 별·하트(회전하며 튀어 오름) + 흰 뭉게 퍼프(만화 '펑' 구름)
+        private ParticleSystem _popStar, _popHeart, _popPuff;
+        private void EnsurePopBursts()
+        {
+            if (_popStar != null) return;
+            _popStar = MakePop("PopStar", StarTexture(), 0.30f, 0.62f, 2.5f, 6f, 0.9f, true);
+            _popHeart = MakePop("PopHeart", HeartTexture(), 0.26f, 0.5f, 2f, 5f, 0.7f, true);
+            _popPuff = MakePop("PopPuff", PuffTexture(), 0.55f, 1.0f, 0.8f, 2.2f, -0.05f, false);
+        }
+
+        private ParticleSystem MakePop(string name, Texture2D tex, float sizeMin, float sizeMax, float spdMin, float spdMax, float gravity, bool spin)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(transform, false);
+            go.SetActive(false);
+            var ps = go.AddComponent<ParticleSystem>();
+            var main = ps.main;
+            main.loop = false; main.playOnAwake = false;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.45f, 0.75f);
+            main.startSpeed = new ParticleSystem.MinMaxCurve(spdMin, spdMax);
+            main.startSize = new ParticleSystem.MinMaxCurve(sizeMin, sizeMax);
+            main.startRotation = spin ? new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f) : new ParticleSystem.MinMaxCurve(0f);
+            main.gravityModifier = gravity;
+            main.simulationSpace = ParticleSystemSimulationSpace.World;
+            main.maxParticles = 32;
+            main.useUnscaledTime = true;
+            var em = ps.emission; em.rateOverTime = 0f; em.SetBursts(new[] { new ParticleSystem.Burst(0f, 8) });
+            var shape = ps.shape; shape.shapeType = ParticleSystemShapeType.Sphere; shape.radius = 0.2f;
+            if (spin)
+            {
+                var rot = ps.rotationOverLifetime; rot.enabled = true; rot.z = new ParticleSystem.MinMaxCurve(-6f, 6f);
+            }
+            var sol = ps.sizeOverLifetime; sol.enabled = true;
+            sol.size = new ParticleSystem.MinMaxCurve(1f, spin
+                ? new AnimationCurve(new Keyframe(0f, 0.3f), new Keyframe(0.12f, 1.15f), new Keyframe(0.35f, 1f), new Keyframe(1f, 0f))
+                : new AnimationCurve(new Keyframe(0f, 0.5f), new Keyframe(0.25f, 1f), new Keyframe(1f, 1.3f)));
+            var col = ps.colorOverLifetime; col.enabled = true;
+            var g = new Gradient();
+            g.SetKeys(new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                      new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(1f, 0.55f), new GradientAlphaKey(0f, 1f) });
+            col.color = g;
+            var r = go.GetComponent<ParticleSystemRenderer>();
+            r.material = CoastMaterials.CreateParticle(Color.white);
+            if (r.material.HasProperty("_BaseMap")) r.material.SetTexture("_BaseMap", tex);
+            if (r.material.HasProperty("_ZTest")) r.material.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
+            r.material.renderQueue = 3500;
+            return ps;
+        }
+
+        private void SpawnPop(ParticleSystem prefab, Vector3 pos, Color tint, int count)
+        {
+            var go = Object.Instantiate(prefab.gameObject, pos, Quaternion.identity);
+            go.SetActive(true);
+            var ps = go.GetComponent<ParticleSystem>();
+            var main = ps.main; main.startColor = tint;
+            ps.Emit(count);
+            Destroy(go, 1.2f);
+        }
+
+        private static Texture2D _starTex, _heartTex, _puffTex;
+        private static Texture2D StarTexture()
+        {
+            if (_starTex != null) return _starTex;
+            const int N = 64; _starTex = new Texture2D(N, N, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < N; y++) for (int x = 0; x < N; x++)
+            {
+                float px = (x + 0.5f) / N - 0.5f, py = (y + 0.5f) / N - 0.5f;
+                float a = Mathf.Atan2(py, px), r = Mathf.Sqrt(px * px + py * py) * 2f;
+                float star = 0.55f + 0.45f * Mathf.Cos(5f * a + Mathf.PI * 0.5f);   // 5각 별 반지름
+                float edge = star * 0.98f;
+                Color c = r < edge * 0.78f ? Color.white : r < edge ? new Color(0.12f, 0.08f, 0.12f, 1f) : new Color(0, 0, 0, 0);
+                _starTex.SetPixel(x, y, c);
+            }
+            _starTex.Apply(); return _starTex;
+        }
+        private static Texture2D HeartTexture()
+        {
+            if (_heartTex != null) return _heartTex;
+            const int N = 64; _heartTex = new Texture2D(N, N, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < N; y++) for (int x = 0; x < N; x++)
+            {
+                float px = ((x + 0.5f) / N - 0.5f) * 2.6f, py = ((y + 0.5f) / N - 0.45f) * 2.6f;
+                // 하트 음함수: (x²+y²−1)³ − x²y³ < 0
+                float f = Mathf.Pow(px * px + py * py - 1f, 3f) - px * px * py * py * py;
+                float f2 = Mathf.Pow(px * px * 1.3f + py * py * 1.3f - 1f, 3f) - px * px * 1.3f * py * py * py * 1.3f * 1.14f;
+                Color c = f2 < 0f ? Color.white : f < 0f ? new Color(0.12f, 0.08f, 0.12f, 1f) : new Color(0, 0, 0, 0);
+                _heartTex.SetPixel(x, y, c);
+            }
+            _heartTex.Apply(); return _heartTex;
+        }
+        private static Texture2D PuffTexture()
+        {
+            if (_puffTex != null) return _puffTex;
+            const int N = 64; _puffTex = new Texture2D(N, N, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < N; y++) for (int x = 0; x < N; x++)
+            {
+                float px = (x + 0.5f) / N - 0.5f, py = (y + 0.5f) / N - 0.5f;
+                float r = Mathf.Sqrt(px * px + py * py) * 2f;
+                float a = Mathf.Atan2(py, px);
+                float lobes = 0.86f + 0.10f * Mathf.Cos(6f * a);   // 뭉게구름 가장자리
+                Color c = r < lobes * 0.9f ? Color.white : r < lobes ? new Color(0.12f, 0.08f, 0.12f, 1f) : new Color(0, 0, 0, 0);
+                _puffTex.SetPixel(x, y, c);
+            }
+            _puffTex.Apply(); return _puffTex;
         }
 
         public void PlaySmash(Vector3 worldPos)

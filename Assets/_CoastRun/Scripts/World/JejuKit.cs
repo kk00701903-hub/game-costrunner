@@ -115,8 +115,61 @@ namespace CoastRun
             }
         }
 
+        // 14차-15: 그림 파사드 상가(FShop_*) — Kling 파사드를 정면에 그대로, 옆·지붕·화분은 3D.
+        private static readonly string[] SqTex = { "H", "I", "J", "K", "L" }, TallTex = { "A", "B" }, WideTex = { "C", "D", "E", "F", "G" };
+        private static readonly System.Collections.Generic.Dictionary<string, Color> FacadeWall = new()
+        {
+            { "A", new Color(0.98f, 0.95f, 0.85f) }, { "B", new Color(0.88f, 0.96f, 0.91f) }, { "C", new Color(0.80f, 0.84f, 0.80f) },
+            { "D", new Color(0.92f, 0.83f, 0.74f) }, { "E", new Color(0.90f, 0.84f, 0.76f) }, { "F", new Color(0.86f, 0.80f, 0.72f) },
+            { "G", new Color(0.88f, 0.80f, 0.71f) }, { "H", new Color(0.96f, 0.70f, 0.58f) }, { "I", new Color(0.97f, 0.82f, 0.75f) },
+            { "J", new Color(0.97f, 0.75f, 0.66f) }, { "K", new Color(0.90f, 0.87f, 0.76f) }, { "L", new Color(0.72f, 0.86f, 0.78f) },
+        };
+        private static readonly System.Collections.Generic.Dictionary<string, Material> _facadeMats = new();
+        private static Material FacadeMat(string k)
+        {
+            if (_facadeMats.TryGetValue(k, out var m) && m != null) return m;
+            var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Facade_" + k);
+            m = ArtAssets.CreateTexturedLit(tex, Color.white, 0.04f);
+            if (m.HasProperty("_ShadowColor")) m.SetColor("_ShadowColor", new Color(0.82f, 0.82f, 0.90f, 1f));
+            if (m.HasProperty("_ShadowThreshold")) m.SetFloat("_ShadowThreshold", 0.2f);
+            m.name = "FacadeFront_" + k;
+            _facadeMats[k] = m;
+            return m;
+        }
+        public static bool FShopAvailable => Load("FShop_Sq") != null;
+
+        private static GameObject SpawnFShop(int variant, Transform parent, Vector3 localPos, float yawDegrees)
+        {
+            int r = ((variant % 12) + 12) % 12;
+            string model; string k;
+            if (r < 5) { model = "FShop_Sq"; k = SqTex[r]; }
+            else if (r < 7) { model = "FShop_Tall"; k = TallTex[r - 5]; }
+            else { model = "FShop_Wide"; k = WideTex[r - 7]; }
+            var go = Spawn(model, parent, localPos, yawDegrees, 1f);
+            if (go == null) return null;
+            var fm = FacadeMat(k);
+            foreach (var rd in go.GetComponentsInChildren<Renderer>(true))
+            {
+                var mats = rd.sharedMaterials; bool changed = false;
+                for (int i = 0; i < mats.Length; i++)
+                    if (mats[i] != null && mats[i].name.StartsWith("FacadeFront")) { mats[i] = fm; changed = true; }
+                if (changed) rd.sharedMaterials = mats;
+            }
+            Color wall = Color.Lerp(FacadeWall[k], Color.white, 0.25f);
+            LastWall = wall; LastAccent = Accent(FacadeWall[k]);
+            Recolor(go, "Wall", wall);
+            Recolor(go, "Roof", LastAccent);
+            Recolor(go, "Frame", LastAccent);
+            Recolor(go, "Trim", Color.white);
+            BuildingOutline.Attach(go.transform, 0.035f);
+            return go;
+        }
+
         public static GameObject SpawnBuilding(int variant, Transform parent, Vector3 localPos, float yawDegrees)
         {
+            // 14차-15: 그림 파사드 상가가 있으면 3채 중 2채는 그것(사진 같은 정면), 1채는 파트 키트
+            if (FShopAvailable && (((variant * 7 + 3) % 3) != 0 || ShopCount == 0))
+                return SpawnFShop(variant, parent, localPos, yawDegrees);
             if (ShopCount > 0)
             {
                 int sn = ShopCount;
@@ -189,6 +242,7 @@ namespace CoastRun
                 if (m == null) continue;
                 string n = m.name;
                 Color cc;
+                if (n.StartsWith("FacadeFront")) continue;
                 if (n.StartsWith("Facade") || n.StartsWith("Wall")) cc = wall;
                 else if (n.StartsWith("Roof")) cc = roof;
                 else if (n == "AwningA" || n.StartsWith("Awning_") || n == "Frame") cc = LastAccent;
@@ -291,6 +345,7 @@ namespace CoastRun
                 // 14차-13: 상가 파트 키트(Shop_*) — 색은 MPB 로 들어오므로 흰 바탕
                 case "Trim": case "Frame": case "Door": case "AwningA": case "AwningB": case "Roof":
                     return PastelLit();
+                case "FacadeFront": { var m = PastelLit(); m.name = "FacadeFront"; return m; }
                 case "Dark": return CoastMaterials.CreateToon(new Color(0.12f, 0.10f, 0.12f), null, null, 0.1f);
                 // 14차-11: 장애물·차량 3D 키트(Obs3_*)
                 case "SlimeBody": return CoastMaterials.CreateToon(new Color(0.95f, 0.36f, 0.30f), null, null, 0.45f);

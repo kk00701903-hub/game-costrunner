@@ -197,6 +197,61 @@ def pavilion(name):
     return join(parts, name)
 
 MATS["Stone"] = mat("Stone", (0.22, 0.22, 0.24)); MATS["Wood"] = mat("Wood", (0.55, 0.38, 0.22))
+MATS["FacadeFront"] = mat("FacadeFront", (0.9, 0.9, 0.9))
+
+def uv_box(name, x0, x1, y0, y1, z0, z1, front_mat, other_mat):
+    """정면(+X)만 UV 0..1 로 그림을 씌우는 상자. 나머지 면은 other_mat."""
+    me = bpy.data.meshes.new(name); ob = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(ob)
+    bm = bmesh.new()
+    V = [(x0,y0,z0),(x1,y0,z0),(x1,y1,z0),(x0,y1,z0),(x0,y0,z1),(x1,y0,z1),(x1,y1,z1),(x0,y1,z1)]
+    bv = [bm.verts.new(Vector(v)) for v in V]; bm.verts.ensure_lookup_table()
+    uvl = bm.loops.layers.uv.new("UVMap")
+    faces = [([1,2,6,5], front_mat, [(0,0),(1,0),(1,1),(0,1)]),   # +X 정면: y0→y1 = u 0→1, z = v
+             ([3,0,4,7], other_mat, None), ([0,1,5,4], other_mat, None), ([2,3,7,6], other_mat, None),
+             ([4,5,6,7], other_mat, None), ([3,2,1,0], other_mat, None)]
+    ob.data.materials.append(MATS[front_mat]); ob.data.materials.append(MATS[other_mat])
+    for idx, mname, uv in faces:
+        f = bm.faces.new([bv[i] for i in idx]); f.material_index = 0 if mname == front_mat else 1
+        if uv:
+            for loop, t in zip(f.loops, uv): loop[uvl].uv = t
+        else:
+            for loop in f.loops:
+                co = loop.vert.co; loop[uvl].uv = ((co.x + co.y) * 0.5, co.z * 0.5)
+    bm.normal_update(); bm.to_mesh(me); bm.free()
+    return ob
+
+# ── 그림 파사드 상가(FShop): 정면은 Kling 파사드 그림, 옆·뒤는 단색, 지붕·코니스·옆창·화분은 3D ──
+def fshop(name, width, height, depth=6.0, storeys=2):
+    parts = [uv_box("Body", -depth, 0.0, -width * 0.5, width * 0.5, 0.0, height, "FacadeFront", "Wall")]
+    # 꼭대기 코니스(흰) + 계단식 기와 지붕(포인트색)
+    parts.append(cube("Trim", 0.10, 0, height + 0.08, 0.34, width + 0.34, 0.18, "Trim"))
+    for i in range(4):
+        t = i / 4.0
+        parts.append(cube("Roof", -depth * 0.5, 0, height + 0.17 + 0.24 * i + 0.12, (depth + 0.5) * (1 - t * 0.85), (width + 0.5) * (1 - t * 0.55), 0.24, "Roof"))
+    # 옆면: 층 코니스 + 창
+    for f in range(1, storeys + 1):
+        z = f * (height / storeys)
+        for s in (-1, 1):
+            parts.append(cube("Cornice", -depth * 0.5, s * (width * 0.5 + 0.05), z - 0.08, depth + 0.05, 0.16, 0.14, "Trim"))
+    for f in range(storeys):
+        z = (f + 0.55) * (height / storeys)
+        for s in (-1, 1):
+            for i in range(2):
+                side_window(parts, -depth * (0.3 + 0.4 * i), s * width * 0.5, z, s, w=1.1, h=1.3)
+    # 모서리 기둥(흰)
+    for s in (-1, 1):
+        parts.append(cube("Pilaster", -0.02, s * (width * 0.5 + 0.04), height * 0.5, 0.14, 0.18, height, "Trim"))
+    # 바닥 화분 2개 + 문턱 콘크리트
+    for s in (-1, 1):
+        parts.append(cube("Frame", 0.35, s * (width * 0.5 - 0.7), 0.25, 0.5, 0.7, 0.5, "Frame"))
+        parts.append(cube("Leaf", 0.35, s * (width * 0.5 - 0.7), 0.7, 0.7, 0.9, 0.5, "Leaf"))
+    parts.append(cube("Concrete", 0.25, 0, 0.05, 0.5, width + 0.3, 0.10, "Concrete"))
+    return join(parts, name)
+
+MATS["Leaf"] = mat("Leaf", (0.25, 0.55, 0.28))
+EXTRA_F = [("FShop_Sq", lambda: fshop("FShop_Sq", 6.4, 6.4, 6.0, 2)),
+           ("FShop_Tall", lambda: fshop("FShop_Tall", 8.0, 8.0, 6.0, 3)),
+           ("FShop_Wide", lambda: fshop("FShop_Wide", 9.6, 5.6, 6.0, 2))]
 
 EXTRA = [("House_A", lambda: jeju_house("House_A", 8.5, 6.0, False)),
          ("House_B", lambda: jeju_house("House_B", 8.0, 6.0, True)),
@@ -214,6 +269,6 @@ SPECS = [
 for spec in SPECS:
     ob = shop(*spec)
     export(ob, spec[0])
-for nm, fn in EXTRA:
+for nm, fn in EXTRA + EXTRA_F:
     export(fn(), nm)
 print("town kit done")
