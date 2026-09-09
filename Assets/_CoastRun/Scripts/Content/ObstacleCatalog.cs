@@ -129,7 +129,7 @@ namespace CoastRun
                 root.transform.SetParent(parent, false);
                 root.transform.position = worldPos;
                 root.transform.rotation = DownhillPath.Rotation;
-                PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false, outline: true, outlineColor: ObstacleOutline.Red, outlineMul: 3.0f);   // 33차: 붉은 굵은 테두리
+                PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false, outline: true, outlineColor: ObstacleOutline.Red, outlineMul: 3.6f);   // 33차: 붉은 굵은 테두리
                 AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
                 BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
                 HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));

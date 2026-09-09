@@ -10,7 +10,7 @@ namespace CoastRun
         /// 33차: 장애물 테두리 색(붉은색) — 메시 헐과 그림 테두리가 같은 색을 쓴다.
         public static readonly Color Red = new Color(0.88f, 0.12f, 0.14f, 1f);
 
-        public static void Attach(Transform root, float scale = 1.10f)   // 33차: 1.06→1.10(굵게)
+        public static void Attach(Transform root, float scale = 1.12f)   // 35차: 1.10→1.12(+20%)
         {
             if (root == null)
                 return;

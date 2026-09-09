@@ -4,7 +4,7 @@ using UnityEngine;
 namespace CoastRun
 {
     /// Builds one 30 m coastal promenade tile matching the reference layout.
-    public static class PromenadeSegmentBuilder
+    public static partial class PromenadeSegmentBuilder
     {
         public const float Length = 30f;
         public const float RoadHalfWidth = 4f;
@@ -20,15 +20,42 @@ namespace CoastRun
                 DownhillPath.Point(baseZ), DownhillPath.Rotation);
 
             BuildRoad(root.transform, segmentIndex);
-            BuildTownSide(root.transform, segmentIndex);
-            BuildSeaSide(root.transform, segmentIndex);
+            // 35차: 챕터별 장면 배합(SceneMix) — 왼쪽/오른쪽을 타일마다 다르게(상가·마을·숲·들판·바위 / 바다·무지개·해변·풍력·오름·숲·들판·바위·상가)
+            int chapter = StageManager.Instance != null ? StageManager.Instance.ChapterIndex : ChapterDifficulty.Stage;
+            SceneMix.Pick(chapter, segmentIndex, out var leftKind, out var rightKind);
+            var prof = SceneMix.Get(chapter);
+            LastSceneLabel = SceneMix.LeftName(leftKind) + " / " + SceneMix.RightName(rightKind);
+            switch (leftKind)
+            {
+                case LeftKind.Village: BuildTownSide(root.transform, segmentIndex, village: true); break;
+                case LeftKind.Forest: BuildForestSide(root.transform, segmentIndex, -1, prof.forest); break;
+                case LeftKind.Field: BuildFieldSide(root.transform, segmentIndex, -1, prof.field); break;
+                case LeftKind.Rock: BuildRockSide(root.transform, segmentIndex, -1); break;
+                default: BuildTownSide(root.transform, segmentIndex); break;
+            }
+            switch (rightKind)
+            {
+                case RightKind.Rainbow: BuildSeaSide(root.transform, segmentIndex, rainbow: true); break;
+                case RightKind.WindSea: BuildSeaSide(root.transform, segmentIndex); AddTurbines(root.transform, segmentIndex); break;
+                case RightKind.Beach: BuildBeachSide(root.transform, segmentIndex); break;
+                case RightKind.Hill: BuildHillSide(root.transform, segmentIndex); break;
+                case RightKind.Forest: BuildForestSide(root.transform, segmentIndex, +1, prof.forest); break;
+                case RightKind.Field: BuildFieldSide(root.transform, segmentIndex, +1, prof.field); break;
+                case RightKind.Rock: BuildRockSide(root.transform, segmentIndex, +1); break;
+                case RightKind.Town:
+                    if (JejuKit.BuildingCount > 0 || JejuKit.ShopCount > 0) BuildTownSideKit(root.transform, segmentIndex, new System.Random(segmentIndex * 3571 + 77), false, +1);
+                    else BuildSeaSide(root.transform, segmentIndex);
+                    break;
+                default: BuildSeaSide(root.transform, segmentIndex); break;
+            }
             BuildPolesAndWires(root.transform, segmentIndex);
 
             float pathZ = segmentIndex * Length;
             var season = StageManager.Instance != null
                 ? StageManager.ChapterAsSeason(StageManager.Instance.ChapterIndex)
                 : SeasonKind.Summer;
-            SegmentDecorator.Decorate(root.transform, segmentIndex, season);
+            if (leftKind == LeftKind.Town || leftKind == LeftKind.Village)
+                SegmentDecorator.Decorate(root.transform, segmentIndex, season);
 
             return root;
         }
@@ -170,7 +197,7 @@ namespace CoastRun
             return go;
         }
 
-        private static void BuildTownSide(Transform root, int index)
+        private static void BuildTownSide(Transform root, int index, bool village = false)
         {
             var rng = new System.Random(index * 3571 + 3);
             float shopX = -(RoadHalfWidth + 3.2f);
@@ -178,7 +205,7 @@ namespace CoastRun
             // Blender kit (Resources/CoastRun/Models): real Jeju shops, 돌담, 감귤 trees.
             if (JejuKit.BuildingCount > 0 || JejuKit.ShopCount > 0)
             {
-                BuildTownSideKit(root, index, rng);
+                BuildTownSideKit(root, index, rng, village);
                 return;
             }
 
@@ -256,9 +283,11 @@ namespace CoastRun
         /// kit (never the same as its neighbour), a 돌담 run along the kerb with a gap at
         /// the shop door, and a tree / bench / 감귤 stall between lots.
         private static int _shopStreak;
-        private static void BuildTownSideKit(Transform root, int index, System.Random rng)
+        private static void BuildTownSideKit(Transform root, int index, System.Random rng, bool village = false, int side = -1)
         {
-            float frontX = -(RoadHalfWidth + 0.9f);
+            // 35차: 필지 앞선을 도로에서 1 m 더 물린다(돌담·수국·테라스가 도로 위로 튀어나와 장애물처럼 보이던 것).
+            // side=+1 이면 오른쪽(시장 거리): 피벗을 180° 돌려 '도로 쪽'이 같은 로컬 +X 가 되게 한다.
+            float frontX = side * (RoadHalfWidth + 1.9f);
             int n = JejuKit.ShopCount > 0 ? JejuKit.ShopCount : JejuKit.BuildingCount;
             int prev = (index * 7) % n;
 
@@ -271,12 +300,14 @@ namespace CoastRun
                 if (JejuKit.FShopAvailable) variant = rng.Next(1000000);   // 16차: 그림 상가는 높이·지붕·그림 조합이 많다 — 넓은 시드
 
                 var pivot = UprightPivot(root, "Lot", new Vector3(frontX, 0f, z));
+                if (side > 0) pivot.localRotation = pivot.localRotation * Quaternion.Euler(0f, 180f, 0f);
                 // 14차-14: 실제 제주 해안 마을처럼 — 상가만 줄지어 서지 않는다. 필지 종류를 섞는다:
                 //   상가 50% / 제주 낮은 집 22% / 공터(돌담+감귤나무+귤 상자) 14% / 작은 공원(정자·벤치·야자·파라솔 테라스) 14%
                 int lotRoll = rng.Next(100);
                 bool hasHouse = JejuKit.Load("House_A") != null;
                 // 16차: 지루함 방지 — 상가가 2채 연속이면 다음은 반드시 집/공터/공원. 상가 45 / 집 22 / 공터 15 / 공원 18
                 if (_shopStreak >= 2 && lotRoll < 50) lotRoll = 50 + rng.Next(50);
+                if (village && lotRoll < 50) lotRoll = 50 + rng.Next(50);   // 35차: 마을 장면 — 상가 없이 집/공터/공원만
                 if (lotRoll < 45 || !hasHouse) _shopStreak++; else _shopStreak = 0;
                 if (lotRoll < 45 || !hasHouse)
                 {
@@ -309,20 +340,21 @@ namespace CoastRun
                 }
 
                 // 돌담 either side of the entrance.
-                for (int side = -1; side <= 1; side += 2)
+                for (int ws = -1; ws <= 1; ws += 2)
                 {
-                    float wz = side * 3.6f;
+                    float wz = ws * 3.6f;
                     JejuKit.Spawn("Prop_StoneWall", pivot, new Vector3(0.55f, 0f, wz), 0f, 0.55f);
                     // 14차: 돌담 앞 수국 — 목표 이미지의 파란 수국 덤불. 문 앞은 비운다.
                     if (rng.Next(3) != 0)
-                        StreetDressing.Hydrangea(pivot, new Vector3(0.7f, 0f, wz + side * 0.9f), rng, 0.85f + (float)rng.NextDouble() * 0.35f);
+                        StreetDressing.Hydrangea(pivot, new Vector3(0.7f, 0f, wz + ws * 0.9f), rng, 0.85f + (float)rng.NextDouble() * 0.35f);
                 }
 
                 // Between lots: something to look at.
                 // Jeju signatures (돌하르방, 야자수) get the biggest share so the street
                 // reads as the island at a glance; the rest is orchard / seating.
                 int filler = rng.Next(10);
-                var gap = UprightPivot(root, "Gap", new Vector3(frontX - 0.3f, 0f, z + 4.9f));
+                var gap = UprightPivot(root, "Gap", new Vector3(frontX + side * 0.3f, 0f, z + 4.9f));
+                if (side > 0) gap.localRotation = gap.localRotation * Quaternion.Euler(0f, 180f, 0f);
                 switch (filler)
                 {
                     case 7:
@@ -504,7 +536,7 @@ namespace CoastRun
                 () => Color.Lerp(CoastPalette.TownCream, CoastPalette.AccentOrange, 0.2f));
         }
 
-        private static void BuildSeaSide(Transform root, int index)
+        private static void BuildSeaSide(Transform root, int index, bool rainbow = false)
         {
             float railX = RoadHalfWidth + 0.9f;
             var drng = new System.Random(index * 911 + 17);
@@ -529,6 +561,12 @@ namespace CoastRun
             // 14차-6: 목표 이미지의 바다 쪽 — 현무암 돌 방파제(낮은 벽) + 그 위 가는 하늘색 철난간.
             // 예전 주황 나무 난간은 사진과 달랐다. 돌담 텍스처(Tex_Stonewall_Jeju)를 실제 크기로 타일링.
             var stone = StoneWallMaterial();
+            if (rainbow)
+            {
+                AddRainbowBlocks(root, index);   // 35차: 애월 무지개 방호벽 — 난간 없이 색 블록만
+            }
+            else
+            {
             var wall = CreateBox(root, "SeaWall", new Vector3(railX, 0.45f, Length * 0.5f),
                 new Vector3(0.55f, 0.9f, Length), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.35f), stone);
             if (stone != null) SetTiling(wall, Length / 2.4f, 0.9f / 2.4f);
@@ -539,6 +577,7 @@ namespace CoastRun
             CreateBox(root, "RailMid", new Vector3(railX, 1.35f, Length * 0.5f), new Vector3(0.05f, 0.05f, Length), railCol);
             for (float z = 1.2f; z < Length; z += 2.4f)
                 CreateBox(root, "RailPost", new Vector3(railX, 1.36f, z), new Vector3(0.07f, 0.78f, 0.07f), railCol);
+            }
 
             var cliff = CreateBox(root, "Cliff", new Vector3(railX + 3.5f, -4f, Length * 0.5f),
                 new Vector3(6f, 8f, Length), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.3f), stone);

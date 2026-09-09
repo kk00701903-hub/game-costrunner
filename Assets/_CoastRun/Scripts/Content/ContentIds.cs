@@ -34,7 +34,8 @@ namespace CoastRun
         Cloudy = 1,
         Rain = 2,
         Snow = 3,
-        Mist = 4
+        Mist = 4,
+        Wind = 5    // 35차: 바람 — 꽃잎/낙엽/눈보라가 옆으로 날린다
     }
 
     public enum PropId

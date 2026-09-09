@@ -348,10 +348,9 @@ namespace CoastRun
             // learning a layout rather than fighting a new random one each attempt.
             if (obstacles != null && player != null)
                 obstacles.ResetForStage(stage.stageIndex, player.PathDistance);
-            if (coins != null && player != null)
-                coins.ResetForStage(stage.stageIndex, player.PathDistance);   // 24차-8
+            // 35차: 계절별 날씨(눈·비·바람) — 런마다 다르게, 런 중에도 45~90초마다 바뀐다
             if (RunTuning.HasSeason)
-                seasonWeather?.ForceSeason(RunTuning.Season, WeatherKind.Clear, true);
+                seasonWeather?.RollWeather(RunTuning.Season, stage.stageIndex * 131 + System.Environment.TickCount);
             else
                 seasonWeather?.SetChapterTheme(stage.chapterIndex);
             // Chapter stems: four stages per chapter, stems build up (CH5: strip down).

@@ -35,6 +35,46 @@ namespace CoastRun
         public void SetChapterTheme(int chapter)
         {
             _season = StageManager.ChapterAsSeason(chapter);
+            RollWeather(_season, chapter * 977 + System.Environment.TickCount);
+        }
+
+        // ── 35차: 계절별 날씨 ──────────────────────────────────────────────
+        // 봄: 맑음 50 / 바람(꽃잎) 22 / 흐림 15 / 비 13   여름: 맑음 45 / 소나기 28 / 흐림 15 / 안개 12
+        // 가을: 맑음 40 / 바람(낙엽) 32 / 흐림 15 / 비 13   겨울: 눈 42 / 맑음 28 / 바람(눈보라) 18 / 흐림 12
+        private float _changeTimer, _nextChange = 60f;
+        private System.Random _wrng = new System.Random();
+
+        public static WeatherKind Roll(SeasonKind s, System.Random rng)
+        {
+            int r = rng.Next(100);
+            switch (s)
+            {
+                case SeasonKind.Spring: return r < 50 ? WeatherKind.Clear : r < 72 ? WeatherKind.Wind : r < 87 ? WeatherKind.Cloudy : WeatherKind.Rain;
+                case SeasonKind.Autumn: return r < 40 ? WeatherKind.Clear : r < 72 ? WeatherKind.Wind : r < 87 ? WeatherKind.Cloudy : WeatherKind.Rain;
+                case SeasonKind.Winter: return r < 42 ? WeatherKind.Snow : r < 70 ? WeatherKind.Clear : r < 88 ? WeatherKind.Wind : WeatherKind.Cloudy;
+                default: return r < 45 ? WeatherKind.Clear : r < 73 ? WeatherKind.Rain : r < 88 ? WeatherKind.Cloudy : WeatherKind.Mist;
+            }
+        }
+
+        /// 런 시작: 계절에 맞는 날씨를 뽑고, 45~90초마다 다시 굴린다(같은 날씨 연속은 피함).
+        public void RollWeather(SeasonKind season, int seed)
+        {
+            _season = season;
+            _wrng = new System.Random(seed);
+            weather = Roll(season, _wrng);
+            _changeTimer = 0f; _nextChange = 45f + (float)_wrng.NextDouble() * 45f;
+            Apply();
+        }
+
+        private void Update()
+        {
+            if (Time.timeScale <= 0f) return;
+            _changeTimer += Time.deltaTime;
+            if (_changeTimer < _nextChange) return;
+            _changeTimer = 0f; _nextChange = 45f + (float)_wrng.NextDouble() * 45f;
+            var next = Roll(_season, _wrng);
+            if (next == weather) next = Roll(_season, _wrng);
+            weather = next;
             Apply();
         }
 
