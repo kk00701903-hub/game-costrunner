@@ -12,6 +12,7 @@
         EN: 영어 대사
     [n] NARR | 지문            (EN: 줄 동일)
     [n] LETTER | 편지 한 줄     (EN: 줄 동일)
+    [n] BGM | 곡키 | 볼륨 | 피치   (37차: 곡키 M1~M7 → Resources/CoastRun/BGM/BGM_M?.ogg, '정지'면 페이드아웃. 볼륨·피치 생략 가능)
 줄을 지우거나 끼워 넣어도 된다 — import 때 [n]은 무시하고 순서대로 다시 번호를 매긴다.
 EN: 줄이 없으면 영어 모드에서 한국어가 그대로 나온다. '#'로 시작하는 줄은 주석.
 파일 머리의 '제목:' 줄(Open 파일에만)을 고치면 챕터 제목(한/영)도 바뀐다.
@@ -24,7 +25,8 @@ DATA = os.path.join(STORY, "ChapterScript.Data.cs")
 EN = os.path.join(STORY, "ChapterScript.En.cs")
 LOC = os.path.normpath(os.path.join(HERE, "..", "..", "Assets", "_CoastRun", "Scripts", "Core", "Loc.cs"))
 
-SPEAKER_EN = {"하늘": "Haneul", "도윤": "Doyun", "루아": "Rua", "만수": "Mansu", "할머니": "Grandma", "라디오": "Radio", "DJ": "DJ"}
+SPEAKER_EN = {"하늘": "Haneul", "도윤": "Doyun", "루아": "Rua", "만수": "Mansu", "할머니": "Grandma", "라디오": "Radio", "DJ": "DJ",
+              "아빠": "Dad", "엄마": "Mom", "바다": "Bada", "꼬마": "Kid", "아이들": "Kids", "큰 아저씨": "Big Suit", "마른 아저씨": "Thin Suit", "기사": "Driver"}
 
 
 def cs_unescape(s):
@@ -69,7 +71,7 @@ def scene_label(sid, titles, loc_titles):
     if m:
         ch = int(m.group(1))
         return f"{ch}챕터 「{titles.get(ch, '')}」 {'시작' if m.group(2) == 'Open' else '마무리'}"
-    return {"END_A": "엔딩 A (만난다)", "END_B": "엔딩 B (못 만난다)"}.get(sid, sid)
+    return {"END_A": "트루 엔딩 「주파수」 (전부 S · 눈이 맞는다)", "END_B": "엔딩 A 「잡혀」 (못 본다 · 그런데 잡힌다)"}.get(sid, sid)
 
 
 def export(folder):
@@ -97,6 +99,8 @@ def export(folder):
             elif kind == "SAY":
                 out.append(f"[{i + 1}] SAY | {a} | {b}")
                 out.append(f"    EN: {en.get(f'{sid}:{i}', '')}")
+            elif kind == "BGM":
+                out.append(f"[{i + 1}] BGM | {a}" + (f" | {c}" if c else "") + (f" | {d}" if d else ""))
             else:
                 out.append(f"[{i + 1}] {kind} | {b}")
                 out.append(f"    EN: {en.get(f'{sid}:{i}', '')}")
@@ -136,6 +140,9 @@ def parse_txt(path):
             lines.append(("SAY", cells[0], "|".join(cells[1:]).strip(), "", ""))
         elif kind in ("NARR", "LETTER"):
             lines.append((kind, "", rest.strip(), "", ""))
+        elif kind == "BGM":
+            # 37차: 곡키 | 볼륨 | 피치 → VnLine("BGM", key, "", vol, pitch)
+            lines.append(("BGM", cells[0], "", cells[1] if len(cells) > 1 else "", cells[2] if len(cells) > 2 else ""))
         else:
             raise SystemExit(f"{os.path.basename(path)}: 모르는 종류 {kind} → {ln}")
     return sid, lines, en, title

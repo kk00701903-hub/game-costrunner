@@ -37,6 +37,12 @@ namespace CoastRun
 
         public static void Play(Action onDone)
         {
+            // 37차: 새 오프닝 「손」은 ChapterVN 대본(PRO)으로 — 빈 화면 + 음악(M6→M5) + 자막. 대본이 있으면 옛 3컷 플레이스홀더는 안 쓴다.
+            if (ChapterScript.Has("PRO"))
+            {
+                ChapterVN.Play("PRO", onDone);
+                return;
+            }
             var go = new GameObject("OpeningCinematic");
             DontDestroyOnLoad(go);
             go.AddComponent<OpeningCinematic>().Begin(onDone);

@@ -1,8 +1,138 @@
-﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+﻿# 37차: 컷씬 대본 — 그림은 아직 빈 화면(BG | Blank). 음악 큐와 자막만 먼저. 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
 # 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
-# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
-# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 변형(세피아/비/밤/흰 + 아래) / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# BGM = 곡키 | 볼륨(0~1) | 피치   — 곡키 M1~M7 (Resources/CoastRun/BGM/BGM_M?.ogg). M4s=느리게(0.72) M4r=라디오(작게) M6w=수중. '정지' 면 페이드아웃.
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다.
 
-[0] BG | TowerNight
-[1] NARR | (엔딩 B — 새 대본 자리)
-    EN: (Ending B — placeholder)
+[0] BG | Blank | | | 현재 아래
+[1] NARR | 노을 반. 탑 아래에 엄마가 무릎을 꿇고 국화를 놓는다. 어제 도윤이 놓은 두 다발 옆에.
+    EN: Half the sunset left. Under the tower, Mom kneels and lays chrysanthemums, beside the two bunches Doyun left yesterday.
+[2] NARR | 조금 떨어진 곳에 도윤이 앉아 있다. 등. 한 손이 가슴에. 엄마가 갈 때까지 기다리는 중이다.
+    EN: A little way off, Doyun sits. His back. One hand on his chest. Waiting for her to leave.
+[3] SAY | 하늘 | 엄마.
+    EN: Mom.
+[4] NARR | (안 들린다)
+    EN: (She can't hear.)
+[5] NARR | 엄마가 일어서다 그를 본다. 멈춘다. 오래 본다. 8년 전 빗속에서 자기를 리어카에 싣고 간 아이다. 도윤이 일어선다.
+    EN: Getting up, Mom sees him. Stops. Looks a long time. The boy who hauled her through the rain eight years ago. Doyun stands.
+[6] SAY | 엄마 | 많이 컸수다.
+    EN: You've grown.
+[7] SAY | 도윤 | 네.
+    EN: Yes.
+[8] SAY | 엄마 | 우리 하늘이가 기다렸는디.
+    EN: Our Haneul was waiting for you.
+[9] NARR | (대답 못 한다)
+    EN: (He can't answer.)
+[10] SAY | 엄마 | 고맙수다. 그때.
+    EN: Thank you. For back then.
+[11] SAY | 도윤 | 아니요.
+    EN: No. Don't.
+[12] NARR | 하늘이 두 사람 사이에 서 있다. 손을 들어 본다. 둘 다 안 본다.
+    EN: Haneul stands between them. She raises a hand. Neither looks.
+[13] SAY | 하늘 | 엄마. 나 여기 있어.
+    EN: Mom. I'm right here.
+[14] NARR | 엄마가 내려간다. 하늘이 따라가려다 멈춘다. 탑을 본다. 노을이 줄어든다. 돌아선다.
+    EN: Mom walks down. Haneul starts to follow, then stops. Looks at the tower. The sunset shrinks. She turns.
+[15] SAY | 하늘 | 도윤아.
+    EN: Doyun.
+[16] NARR | 그가 일어난다. 천천히. 돌아본다. 눈이 반 뼘 어긋나 있다.
+    EN: He rises. Slowly. Turns. His eyes miss hers by a hand's width.
+[17] SAY | 도윤 | 거기 있어?
+    EN: Are you there?
+[18] NARR | (숨을 참는다)
+    EN: (She holds her breath.)
+[19] SAY | 도윤 | 있는 것 같은데.
+    EN: I think you are.
+[20] NARR | 허공을 더듬는 손. 하늘이 그 손을 본다. 멈춘다. 잡는다.
+    EN: A hand groping the air. Haneul looks at it. Stops. Takes it.
+[21] BGM | M6 | 0.6
+[22] NARR | 그가 숨을 들이켠다. 두 손 사이에서 하트 하나가 켜진다. 화면에서 유일한 색.
+    EN: He breathes in sharply. Between their hands, a heart lights up. The only color on screen.
+[23] SAY | 도윤 | 있네.
+    EN: You're here.
+[24] SAY | 하늘 | 나 보여?
+    EN: Can you see me?
+[25] SAY | 도윤 | 아니.
+    EN: No.
+[26] SAY | 도윤 | 근데 잡혀.
+    EN: But I can hold you.
+[27] NARR | 하늘이 제 손목의 팔찌를 뺀다. 그의 손목에 끼운다. 그가 손목을 만진다.
+    EN: Haneul slips the bracelet off her wrist and onto his. He touches it.
+[28] SAY | 도윤 | 이거.
+    EN: This—
+[29] NARR | (대답 없음)
+    EN: (No answer.)
+[30] NARR | 국화 앞의 카드. 안 번진 쪽 — 「하늘아」. 국화 두 다발. 어제와 오늘. 국화 뒤에 세워진 액자 하나 — 검은 리본, 제 얼굴.
+    EN: The card by the flowers. The side that didn't run: 'Haneul.' Two bunches. Yesterday and today. Behind them a framed photo: a black ribbon. Her own face.
+[31] SAY | 하늘 | 너 죽은 거 아니라?
+    EN: So it wasn't you who died?
+[32] NARR | (그가 못 듣는다)
+    EN: (He can't hear.)
+[33] BGM | 정지
+[34] NARR | 마지막 조각: 물속, 부표를 쥔 손, 멈추는 기포.
+    EN: The last piece: underwater, a hand gripping the buoy, the bubbles stopping.
+[35] BGM | M6 | 0.3
+[36] NARR | 하늘이 언덕 아래로 부른다. 주황 우비가 억새에서 올라온다. 그가 하늘 보는 쪽을 본다.
+    EN: Haneul calls down the hill. An orange raincoat rises out of the silvergrass. He looks where she's looking.
+[37] SAY | 하늘 | 바다야!
+    EN: Bada!
+[38] SAY | 도윤 | 누구?
+    EN: Who?
+[39] SAY | 하늘 | 얘가 나랑 1년 동안 같이.
+    EN: He's been with me all year.
+[40] SAY | 도윤 | 아무도 없는데.
+    EN: There's no one there.
+[41] NARR | 꼬마는 하늘만 본다.
+    EN: The kid looks only at Haneul.
+[42] SAY | 바다 | 나 이제 가야 돼.
+    EN: I have to go now.
+[43] SAY | 하늘 | 어디로.
+    EN: Where.
+[44] SAY | 하늘 | 야. 너 나 몇 번 일으켰어?
+    EN: Hey. How many times did you pick me up?
+[45] SAY | 바다 | 몰라.
+    EN: Dunno.
+[46] SAY | 하늘 | 나도 몰라.
+    EN: Me neither.
+[47] SAY | 바다 | 많이.
+    EN: Lots.
+[48] NARR | 돌담으로 걸어간다. 돌 세 개를 손으로 쓸어 무너뜨린다. 돌이 하나씩 떨어지는 소리.
+    EN: He walks to the stone wall. Sweeps the three stones down with his hand. One by one they fall.
+[49] SAY | 하늘 | 너 그거 왜 무너뜨려.
+    EN: Why'd you knock them down.
+[50] SAY | 바다 | 돌아왔으니까.
+    EN: Because I came back.
+[51] NARR | 주머니에서 하트 돌 하나. 하늘 손에. 아홉 번째.
+    EN: A heart stone from his pocket. Into her hand. The ninth.
+[52] SAY | 하늘 | 아빠?
+    EN: Dad?
+[53] NARR | (돌아본다. 대답 안 한다)
+    EN: (He looks back. Says nothing.)
+[54] SAY | 하늘 | 아빠 맞지.
+    EN: It's you, isn't it.
+[55] NARR | (웃는다)
+    EN: (He smiles.)
+[56] BGM | 정지
+[57] NARR | 아이 목소리가 아니다. 낮고 굵은, 아는 목소리.
+    EN: Not a child's voice. Low, thick, a voice she knows.
+[58] SAY | 아빠 | 한 마리만 더 잡으민 되주.
+    EN: Just one more catch and we're fine.
+[59] BGM | M6 | 0.5
+[60] NARR | 억새가 닫힌다. 우비도 없다. 찢어진 소매도. 절벽 아래 바다에 빨간 부표 하나가 떠올라 탑 불빛 아래 한 번 돌고 사라진다.
+    EN: The silvergrass closes. No raincoat. No torn sleeve. Below the cliff a red buoy surfaces, turns once under the tower light, and is gone.
+[61] SAY | 하늘 | 고마워.
+    EN: Thank you.
+[62] BGM | 정지
+[63] NARR | 그가 언덕을 내려간다. 오른팔이 화면 밖으로 뻗어 있다. 잡혀 있다.
+    EN: He walks down the hill. His right arm stretches out of frame. Held.
+[64] BG | Blank | | | 현재
+[65] NARR | 다음 날 아침. 가게. 종.
+    EN: Next morning. The store. The bell.
+[66] SAY | 만수 | 오늘도 두 개라?
+    EN: Two again today?
+[67] SAY | 도윤 | 예. 두 개마씸.
+    EN: Yes. Two.
+[68] BGM | M5 | 0.8
+[69] NARR | 문이 닫힌다. 종이 한 번 더 울린다. 아무도 안 나갔는데.
+    EN: The door closes. The bell rings once more. No one went out.
+[70] BGM | 정지

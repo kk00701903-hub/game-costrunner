@@ -1,13 +1,85 @@
-﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+﻿# 37차: 컷씬 대본 — 그림은 아직 빈 화면(BG | Blank). 음악 큐와 자막만 먼저. 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
 # 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
-# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
-# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
-제목: 10장 | EN: Chapter 10
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 변형(세피아/비/밤/흰 + 아래) / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# BGM = 곡키 | 볼륨(0~1) | 피치   — 곡키 M1~M7 (Resources/CoastRun/BGM/BGM_M?.ogg). M4s=느리게(0.72) M4r=라디오(작게) M6w=수중. '정지' 면 페이드아웃.
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다.
+제목: 열두 개의 초 | EN: Twelve Candles
 
-[0] BG | TowerDay
-[1] NARR | (10장 오프닝 — 새 대본 자리. 챕터 마지막 주에 이벤트로 재생된다.)
-    EN: (Chapter 10 opening — placeholder)
-[2] NARR | [게이트>=0]…달릴 수 있을 것 같다.
+[0] BG | Blank | | | 현재 아래
+[1] NARR | 탑 아래. 돌 위에 8년 된 초 토막. 손.
+    EN: Under the tower. An eight-year-old candle stub on the stone. A hand.
+[2] BG | Blank | | | 세피아 아래
+[3] BGM | M6 | 0.6
+[4] NARR | 송전탑 아래 초 열두 개. 고깔모자를 쓴 양복 둘이 케이크를 들고 어정쩡하게. 소년이 손뼉을 친다.
+    EN: Twelve candles under the tower. Two suits in party hats hold a cake awkwardly. The boy claps.
+[5] SAY | 도윤 | 생일 축하해.
+    EN: Happy birthday.
+[6] SAY | 도윤 | 아저씨가 네 생일 알아냈어.
+    EN: The guys found out your birthday.
+[7] SAY | 도윤 | 여기가 네가 제일 좋아하는 데잖아. 매일 오니까.
+    EN: This is your favorite place, right? You come every day.
+[8] NARR | 소녀가 안 움직인다. 초 불빛에 얼굴이 흔들린다.
+    EN: She doesn't move. Her face wavers in the candlelight.
+[9] SAY | 도윤 | 무사. 왜 그래.
+    EN: What. What's wrong.
+[10] SAY | 하늘 | 꺼.
+    EN: Put them out.
+[11] SAY | 도윤 | 어?
+    EN: Huh?
+[12] SAY | 하늘 | 끄라고.
+    EN: I said put them out.
+[13] BGM | 정지
+[14] NARR | 초를 걷어찬다. 케이크가 풀에 떨어진다. 큰 아저씨가 주우려다 만다.
+    EN: She kicks the candles. The cake lands in the grass. The big man reaches to pick it up, then doesn't.
+[15] SAY | 하늘 | 여기가 어딘 줄 알아?
+    EN: Do you know what this place is?
+[16] SAY | 하늘 | 너 같은 게 뭘 알아.
+    EN: What would someone like you know.
+[17] NARR | 소녀가 4.2킬로를 거꾸로 뛰어 내려간다. 소년이 따라 뛴다. 세 걸음. 큰 아저씨가 팔을 잡는다.
+    EN: She runs the 4.2 km back down. The boy runs after her. Three steps. The big man catches his arm.
+[18] SAY | 큰 아저씨 | 도련님. 안 됩니다.
+    EN: Young master. You can't.
+[19] SAY | 도윤 | 놔.
+    EN: Let go.
+[20] SAY | 큰 아저씨 | 도련님.
+    EN: Young master.
+[21] NARR | (팔에 힘이 빠진다)
+    EN: (His arm goes slack.)
+[22] BG | Blank | | | 밤 아래
+[23] NARR | 밤. 고깔모자를 안 벗은 채 꺼진 초 앞에 앉아 있다. 마른 아저씨가 우산을 씌운다.
+    EN: Night. Still in his party hat, he sits before the dead candles. The thin man holds an umbrella over him.
+[24] SAY | 도윤 | 나 뭐 잘못했어?
+    EN: What did I do wrong?
+[25] SAY | 마른 아저씨 | 모르겠습니다.
+    EN: I don't know.
+[26] SAY | 도윤 | 아저씨도 모르면 누가 알아.
+    EN: If you don't know, who does.
+[27] BG | Blank | | | 세피아 아래
+[28] BGM | M4 | 0.7 | 0.72
+[29] NARR | 열흘. 1일 — 책상 위 도시락 하나, 그대로. 3일 — 옆자리 빈 채 창백한 옆얼굴. 5일 — 소녀의 도시락통이 책상 밑으로.
+    EN: Ten days. Day 1: one lunchbox on the desk, untouched. Day 3: the seat beside him empty, his profile pale. Day 5: her lunchbox goes under the desk.
+[30] NARR | 8일 — 소년이 도시락을 두고 나간다. 뒷모습. 9일 — 하늘네 마당 담장 위에 보드가 놓여 있다. 소녀가 본다. 안 가져간다.
+    EN: Day 8: he leaves the lunchbox and walks out. His back. Day 9: the board sits on the wall of Haneul's yard. She sees it. Doesn't take it.
+[31] BGM | M4 | 0.3 | 0.72
+[32] NARR | 10일. 가게 앞. 만수가 소년을 본다.
+    EN: Day 10. In front of the store. Mansu looks at the boy.
+[33] SAY | 만수 | 거기 저 집 아방 죽은 자리여.
+    EN: That's where that girl's father died.
+[34] SAY | 도윤 | 네?
+    EN: What?
+[35] SAY | 만수 | 탑 밑. 태풍 때. 딸 생일 전날.
+    EN: Under the tower. In the typhoon. The day before her birthday.
+[36] BGM | 정지
+[37] SAY | 도윤 | 몰랐어요.
+    EN: I didn't know.
+[38] NARR | 소년 뺨에 빗방울 하나. 하늘을 본다. 뛰기 시작한다.
+    EN: A raindrop on the boy's cheek. He looks up. He starts to run.
+[39] BG | Blank | | | 비 아래
+[40] NARR | 비. 탑 아래 빈자리. 꼬마가 옆에 선다.
+    EN: Rain. The empty spot under the tower. The kid stands beside her.
+[41] SAY | 바다 | 오늘도 없네.
+    EN: Not here today either.
+[42] NARR | [게이트>=0]…달릴 수 있을 것 같다.
     EN: [게이트>=0]…I think I can run today.
-[3] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
+[43] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
     EN: [게이트<0]…My legs aren't ready. One more week.

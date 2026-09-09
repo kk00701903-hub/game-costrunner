@@ -1,8 +1,110 @@
-﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+﻿# 37차: 컷씬 대본 — 그림은 아직 빈 화면(BG | Blank). 음악 큐와 자막만 먼저. 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
 # 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
-# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
-# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 변형(세피아/비/밤/흰 + 아래) / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# BGM = 곡키 | 볼륨(0~1) | 피치   — 곡키 M1~M7 (Resources/CoastRun/BGM/BGM_M?.ogg). M4s=느리게(0.72) M4r=라디오(작게) M6w=수중. '정지' 면 페이드아웃.
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다.
 
-[0] BG | HanulRoom
-[1] NARR | (프롤로그 — 새 대본 자리)
-    EN: (Prologue — placeholder)
+[0] BG | Blank | | | 세피아 아래
+[1] NARR | 교실. 창가에 혼자. 옆자리가 비어 있다. 아이들이 코를 막는다.
+    EN: A classroom. Alone by the window. The seat beside her is empty. The kids hold their noses.
+[2] SAY | 아이들 | 거기 앉지 마.
+    EN: Don't sit there.
+[3] SAY | 아이들 | 냄새나.
+    EN: It stinks.
+[4] NARR | 점심. 운동장 뒤 계단. 도시락이 없다. 무릎을 안는다.
+    EN: Lunch. The steps behind the field. No lunchbox. She hugs her knees.
+[5] BGM | M6 | 0.55
+[6] NARR | 교실 문에 역광. 창백한 소년. 뒤에 검은 양복 둘이 문틀에 걸린다.
+    EN: Backlight in the classroom door. A pale boy. Two black suits stuck in the doorframe behind him.
+[7] SAY | 도윤 | 저 앉을 데요.
+    EN: Where do I sit?
+[8] NARR | 그 빈자리에 가방을 내려놓는다. 아이들이 킥킥댄다.
+    EN: He drops his bag on that empty seat. The kids snicker.
+[9] SAY | 도윤 | 저 코 안 좋아요.
+    EN: My nose doesn't work well.
+[10] NARR | 같은 앵글. 닷새. 책상 위로 내미는 손.
+    EN: Same angle. Five days. A hand held out across the desk.
+[11] SAY | 도윤 | 손.
+    EN: Hand.
+[12] SAY | 하늘 | 왜.
+    EN: Why.
+[13] SAY | 도윤 | 손.
+    EN: Hand.
+[14] SAY | 하늘 | 놀리지 마.
+    EN: Don't make fun of me.
+[15] SAY | 도윤 | 손.
+    EN: Hand.
+[16] NARR | (무시한다)
+    EN: (She ignores him.)
+[17] SAY | 도윤 | 손.
+    EN: Hand.
+[18] SAY | 하늘 | 너 손 왜 다쳤어.
+    EN: What happened to your hand.
+[19] SAY | 도윤 | 넘어져서.
+    EN: I fell.
+[20] SAY | 도윤 | 손.
+    EN: Hand.
+[21] NARR | 닷새째. 손바닥 위에 사탕 하나. 소녀가 처음으로 손을 본다.
+    EN: Day five. A candy on his palm. For the first time, she looks at the hand.
+[22] SAY | 도윤 | 안 놀려. 옆자린데 뭐.
+    EN: I'm not teasing. You're my seatmate.
+[23] BGM | M6 | 0.35
+[24] NARR | 뒷산. 밀쳐져 넘어진 소녀. 굴러 나오는 빈 도시락통.
+    EN: The hill out back. The girl, shoved to the ground. An empty lunchbox rolls out.
+[25] SAY | 아이들 | 야. 비었다.
+    EN: Hey. It's empty.
+[26] SAY | 하늘 | 원래 비었어.
+    EN: It's always empty.
+[27] BGM | M6 | 0.55
+[28] SAY | 큰 아저씨 | 도련님! 뛰지 마세요!
+    EN: Young master! Don't run!
+[29] NARR | 숨찬 소년이 뛰어와 앞을 막고 선다. 끝까지 등만 보인다. 어깨가 크게 오르내린다.
+    EN: The boy runs up out of breath and stands in front of her. We only see his back. His shoulders heave.
+[30] SAY | 도윤 | 하지 마.
+    EN: Stop it.
+[31] NARR | 나무 그늘에서 검은 양복 둘이 한 걸음. 아이들이 도망친다. 소년이 무릎을 짚는다.
+    EN: Two black suits step out of the tree shade. The kids scatter. The boy braces on his knees.
+[32] SAY | 도윤 | 아저씨. 괜찮아. 괜찮아.
+    EN: I'm fine. I'm fine.
+[33] NARR | 두 손이 잡힌다. 소녀의 손등에 생선 비늘 하나.
+    EN: Two hands, held. A single fish scale on the back of her hand.
+[34] SAY | 도윤 | 너 손 왜 이래.
+    EN: What's with your hand.
+[35] SAY | 하늘 | 원래 그래.
+    EN: It's always like this.
+[36] SAY | 도윤 | 차가워.
+    EN: It's cold.
+[37] SAY | 하늘 | 원래 그래.
+    EN: It's always like this.
+[38] BGM | M5 | 0.8
+[39] NARR | 도시락 두 개. 성게에 우는 얼굴. 겨울 창의 입김 두 얼굴. 해안도로 — 보드 타는 소녀, 걷는 소년, 뒤에서 뛰는 양복 둘.
+    EN: Two lunchboxes. A face crying over sea urchin. Two faces breathed onto a winter window. The coast road: a girl on a board, a boy walking, two suits running behind.
+[40] NARR | 검은 세단이 출발한다. 소녀가 보드에 올라 쫓는다. 뒷창에 붙은 손바닥. 입 모양만.
+    EN: A black sedan pulls away. The girl jumps on her board and chases. A palm pressed to the rear window. Only the lips move.
+[41] SAY | 도윤 | (입 모양) 스무 살. 네 생일. 송전탑 아래.
+    EN: (mouthing) Twenty. Your birthday. Under the tower.
+[42] NARR | 보드가 돌에 걸린다. 소녀가 넘어진다. 차가 모퉁이를 돈다.
+    EN: The board catches a stone. She falls. The car turns the corner.
+[43] BGM | 정지
+[44] BG | Blank | | | 흰
+[45] NARR | 흰 화면. 물소리 한 번.
+    EN: White. The sound of water, once.
+[46] BG | Blank | | | 현재 아래
+[47] BGM | M6 | 0.25
+[48] NARR | 천장. 눈을 뜨는 열아홉. 무표정. 문가에 주황 우비의 꼬마가 쪼그리고 앉아 있다.
+    EN: A ceiling. Nineteen, opening her eyes. Blank. By the door, a kid in an orange raincoat, crouched.
+[49] SAY | 꼬마 | 일어났네.
+    EN: You're up.
+[50] NARR | 달력 — 「내 생일 — 송전탑 아래 — 도윤」. 정류장 「정비 중」.
+    EN: The calendar: 'My birthday — under the tower — Doyun.' The bus stop: 'Out of service.'
+[51] SAY | 하늘 | 도윤이 누구야.
+    EN: Who's Doyun.
+[52] SAY | 꼬마 | 몰라.
+    EN: Dunno.
+[53] NARR | 해안도로 위에 하트 하나. 눈을 비빈다. 그대로 있다. 꼬마가 탑을 가리킨다.
+    EN: A heart on the coast road. She rubs her eyes. It stays. The kid points at the tower.
+[54] SAY | 꼬마 | 4.2킬로.
+    EN: 4.2 kilometers.
+[55] BGM | M5 | 0.85
+[56] NARR | — 너와 나의 주파수 —
+    EN: — Our Frequency —

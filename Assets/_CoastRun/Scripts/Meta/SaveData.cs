@@ -174,6 +174,9 @@ namespace CoastRun
         public bool trueEndingSeen;
         public bool hasLastFinal;                // NG+ 계승용 마지막 회차 최종 스탯
         public PlayerStats lastFinalStats;
+        public int recordMask;                   // 37차: 레코드(M1~M7) 해금 비트 — bit(n-1). 보너스 3곡은 S급 18/20 또는 비밀코드
+        public int recordNewMask;                // 37차: 아직 안 들어 본 새 레코드 비트
+        public bool devUnlockAll;                // 37차: 설정 비밀코드(1111) — 전체 챕터·레코드 열림(테스트용)
         public int decoOwnedMask;                // 28차: 방 장식 보유 비트(RoomDeco.All 순서)
         public int decoNewMask;                  // 28차: 아직 안 본 새 장식 비트
         public string[] roomSlots = new string[RoomDeco.SlotCount];   // 28차: 슬롯별 배치된 장식 id(30차부터는 homeItems로 이관)

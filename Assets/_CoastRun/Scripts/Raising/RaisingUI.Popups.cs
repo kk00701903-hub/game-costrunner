@@ -160,6 +160,32 @@ namespace CoastRun
         }
 
         /// 10차: 클리어한 챕터 선택지 — 재도전(그 주로 되돌아가 바로 달리기) / 오프닝 다시 보기 / 닫기.
+        /// 37차: 비밀코드로 열린 미래 챕터 — 바로 점프하거나 오프닝 컷씬만 본다.
+        void DevChapterModal(int chapter)
+        {
+            var modal = Modal("DevChapter", 560f, 360f, out var panel);
+            var t = Label(panel, "Title", $"CH {chapter} 「{ChapterScript.Title(chapter)}」", 24, Navy);
+            Place(t.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -18f), new Vector2(0f, 40f), new Vector2(0.5f, 1f));
+            var b = Label(panel, "Body", Loc.T($"비밀코드로 열린 챕터야.\n점프하면 {Timeline.WeekStart(chapter)}주차부터 이 챕터를 키워. 지금 스탯은 그대로.", $"Opened by the secret code.\nJump to week {Timeline.WeekStart(chapter)} with your current stats."), 16, Ink);
+            b.horizontalOverflow = HorizontalWrapMode.Wrap;
+            Place(b.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 0.86f), Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+            b.rectTransform.offsetMin = new Vector2(24f, 0f); b.rectTransform.offsetMax = new Vector2(-24f, 0f);
+            float y = 150f;
+            BigButton(panel, "Jump", Loc.T("▶ 이 챕터로 점프", "▶ Jump to this chapter"), Coral, new Vector2(0.5f, 0f), new Vector2(0f, y), new Vector2(440f, 56f), () =>
+            {
+                _modalPrimary = null; Destroy(modal);
+                _gm.DevJumpTo(chapter);
+            });
+            y -= 66f;
+            BigButton(panel, "Replay", Loc.T("오프닝(컷씬) 보기", "Watch opening"), Sky, new Vector2(0.5f, 0f), new Vector2(0f, y), new Vector2(440f, 56f), () =>
+            {
+                _modalPrimary = null; Destroy(modal);
+                _gm.ReplayOpening(chapter, OpenTimeline);
+            });
+            y -= 66f;
+            BigButton(panel, "Close", Loc.T("닫기", "Close"), Hex("#B9B3AC"), new Vector2(0.5f, 0f), new Vector2(0f, y), new Vector2(440f, 50f), () => { _modalPrimary = null; Destroy(modal); OpenTimeline(); });
+        }
+
         void ChapterActionModal(int chapter, ChapterRecord rec, bool canRetry)
         {
             var modal = Modal("ChapterAction", 560f, 380f, out var panel);
@@ -252,7 +278,7 @@ namespace CoastRun
             for (int a = 0; a < 3; a++)
             {
                 bool on = a == _actTab;
-                bool unlocked = Save.chapter >= ActStart[a] || (Save.chapters[ActStart[a] - 1]?.cleared ?? false);
+                bool unlocked = Save.chapter >= ActStart[a] || (Save.chapters[ActStart[a] - 1]?.cleared ?? false) || _gm.DevUnlockAll;   // 37차: 비밀코드면 전부
                 var pill = CoastUiArt.CutePill(panel, "Tab" + a, on ? Coral : unlocked ? Hex("#F3E7CF") : Hex("#B9B3AC"), 14, 3);
                 Place(pill.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-200f + a * 200f, -96f), new Vector2(180f, 46f), new Vector2(0.5f, 0.5f));   // 18차: 노치·상태바 아래로
                 var tl = Label(pill.transform, "T", tabShort[a] + (unlocked ? "" : Loc.T(" (잠김)", " (locked)")), 18, on ? Color.white : Navy);
@@ -307,7 +333,8 @@ namespace CoastRun
                 int idx = c - first;
                 bool current = c == Save.chapter;
                 bool cleared = rec != null && rec.cleared;
-                bool locked = c > Save.chapter;
+                bool locked = c > Save.chapter && !_gm.DevUnlockAll;   // 37차: 비밀코드면 미래 챕터도 열림
+                bool devOpen = c > Save.chapter && _gm.DevUnlockAll;
                 Color fill = cleared ? ChapterGrading.GradeColor(rec.grade) : current ? Coral : Hex("#EFE6D6");
                 var cell = CoastUiArt.CutePill(content, "CH" + c, fill, 18, current ? 6 : 3);
                 Place(cell.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(20f + idx * (cellW + gap), 0f), new Vector2(cellW, cellH), new Vector2(0f, 0.5f));
@@ -368,6 +395,14 @@ namespace CoastRun
                     {
                         Destroy(_timelineModal); _timelineModal = null;
                         OnStoryPressed();
+                    });
+                }
+                else if (devOpen)
+                {
+                    AddCellButton(cell, () =>
+                    {
+                        Destroy(_timelineModal); _timelineModal = null;
+                        DevChapterModal(chapter);
                     });
                 }
                 else if (cleared || _gm.IsRetry && current)

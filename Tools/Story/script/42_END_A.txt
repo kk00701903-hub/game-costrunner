@@ -1,8 +1,96 @@
-﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+﻿# 37차: 컷씬 대본 — 그림은 아직 빈 화면(BG | Blank). 음악 큐와 자막만 먼저. 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
 # 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
-# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
-# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 변형(세피아/비/밤/흰 + 아래) / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# BGM = 곡키 | 볼륨(0~1) | 피치   — 곡키 M1~M7 (Resources/CoastRun/BGM/BGM_M?.ogg). M4s=느리게(0.72) M4r=라디오(작게) M6w=수중. '정지' 면 페이드아웃.
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다.
 
-[0] BG | TowerSunset
-[1] NARR | (엔딩 A — 새 대본 자리)
-    EN: (Ending A — placeholder)
+[0] BG | Blank | | | 현재 아래
+[1] NARR | 노을 반. 탑 아래에 엄마가 무릎을 꿇고 국화를 놓는다. 어제 도윤이 놓은 두 다발 옆에.
+    EN: Half the sunset left. Under the tower, Mom kneels and lays chrysanthemums, beside the two bunches Doyun left yesterday.
+[2] NARR | 조금 떨어진 곳에 도윤이 앉아 있다. 등. 한 손이 가슴에. 엄마가 갈 때까지 기다리는 중이다.
+    EN: A little way off, Doyun sits. His back. One hand on his chest. Waiting for her to leave.
+[3] SAY | 하늘 | 엄마.
+    EN: Mom.
+[4] NARR | (안 들린다)
+    EN: (She can't hear.)
+[5] NARR | 엄마가 일어서다 그를 본다. 멈춘다. 오래 본다. 8년 전 빗속에서 자기를 리어카에 싣고 간 아이다. 도윤이 일어선다.
+    EN: Getting up, Mom sees him. Stops. Looks a long time. The boy who hauled her through the rain eight years ago. Doyun stands.
+[6] SAY | 엄마 | 많이 컸수다.
+    EN: You've grown.
+[7] SAY | 도윤 | 네.
+    EN: Yes.
+[8] SAY | 엄마 | 우리 하늘이가 기다렸는디.
+    EN: Our Haneul was waiting for you.
+[9] NARR | (대답 못 한다)
+    EN: (He can't answer.)
+[10] SAY | 엄마 | 고맙수다. 그때.
+    EN: Thank you. For back then.
+[11] SAY | 도윤 | 아니요.
+    EN: No. Don't.
+[12] NARR | 하늘이 두 사람 사이에 서 있다. 손을 들어 본다. 둘 다 안 본다.
+    EN: Haneul stands between them. She raises a hand. Neither looks.
+[13] SAY | 하늘 | 엄마. 나 여기 있어.
+    EN: Mom. I'm right here.
+[14] NARR | 엄마가 내려간다. 하늘이 따라가려다 멈춘다. 탑을 본다. 노을이 줄어든다. 돌아선다.
+    EN: Mom walks down. Haneul starts to follow, then stops. Looks at the tower. The sunset shrinks. She turns.
+[15] SAY | 하늘 | 도윤아.
+    EN: Doyun.
+[16] NARR | 돌아본다. 얼굴이 환해진다. 하늘의 얼굴부터 색이 돈다 → 그의 얼굴 → 억새 금색 → 노을 → 바다. 탑의 웅웅이 맑아진다.
+    EN: He turns. His face lights up. Color returns: her face first, then his, the gold silvergrass, the sunset, the sea. The tower's hum turns clear.
+[17] SAY | 도윤 | 하늘아.
+    EN: Haneul.
+[18] SAY | 하늘 | 무사 이추룩 늦언.
+    EN: Why are you so late.
+[19] SAY | 도윤 | 너 그거 어디서 배웠어.
+    EN: Where'd you learn to talk like that.
+[20] SAY | 하늘 | 8년.
+    EN: Eight years.
+[21] BGM | M3 | 0.8
+[22] NARR | 하늘이 소리 내서 웃는다. 20챕터 만에 처음.
+    EN: Haneul laughs out loud. The first time in twenty chapters.
+[23] NARR | 손. 팔찌. 카드 「하늘아」. 국화. 그가 하늘을 보면서 카드를 집어 건넨다. 하늘이 끄덕인다.
+    EN: Hands. The bracelet. The card: 'Haneul.' Chrysanthemums. Looking at her, he picks up the card and hands it over. She nods.
+[24] BGM | M3 | 0.35
+[25] NARR | 꼬마. 돌을 무너뜨리지 않고 하나 더 얹는다. 네 개.
+    EN: The kid. He doesn't knock the stones down. He adds one. Four.
+[26] BGM | M6 | 0.35
+[27] SAY | 하늘 | 왜 더 쌓아.
+    EN: Why add one.
+[28] SAY | 바다 | 또 나가야 되니까.
+    EN: Because I have to go out again.
+[29] SAY | 하늘 | 언제 와.
+    EN: When will you be back.
+[30] SAY | 바다 | 내년에.
+    EN: Next year.
+[31] NARR | (웃는다. 억새가 닫힌다. 우비도 없다)
+    EN: (He smiles. The silvergrass closes. No raincoat.)
+[32] BGM | M3 | 0.85
+[33] NARR | — 봄 —
+    EN: — Spring —
+[34] NARR | 유채가 진짜 노란 해안도로. 그가 걷는다. 옆에서 보드 바퀴 소리. 보드가 굴러간다 — 타는 사람은 프레임 밖. 그가 옆을 보며 웃는다. 뒤에 양복 둘이 뛰지 않고 걷는다.
+    EN: The coast road, the canola truly yellow. He walks. Board wheels beside him. The board rolls by, its rider out of frame. He looks over and smiles. Behind, the two suits walk instead of running.
+[35] BGM | 정지
+[36] NARR | 가게. 우유 두 개를 든 손. 문. 종이 두 번.
+    EN: The store. A hand holding two cartons of milk. The door. The bell, twice.
+[37] SAY | 만수 | 오늘도 두 개라?
+    EN: Two again today?
+[38] SAY | 도윤 | 예. 두 개마씸.
+    EN: Yes. Two.
+[39] NARR | 정류장. 「운행 재개」. 버스가 선다. 문이 열린다. 그가 반걸음 물러나 손을 내민다.
+    EN: The bus stop. 'Service resumed.' The bus stops. The door opens. He steps back half a pace and holds out his hand.
+[40] SAY | 도윤 | 먼저 타.
+    EN: You first.
+[41] BGM | M5 | 0.8
+[42] NARR | 카드를 댄다. 삑. 한 박자. 삑. 기사가 백미러를 본다.
+    EN: He taps the card. Beep. A beat. Beep. The driver checks the mirror.
+[43] SAY | 기사 | 혼자요?
+    EN: Just you?
+[44] NARR | (웃는다)
+    EN: (He smiles.)
+[45] SAY | 도윤 | 아니요.
+    EN: No.
+[46] BGM | 정지
+[47] NARR | 창가 자리를 비우고 통로 쪽에 앉는다. 무릎 위에 보드. 우유 두 개. 하나를 딴다. 딸깍. 가슴에 손을 한 번 댄다. 웃는다.
+    EN: He leaves the window seat empty and sits on the aisle. The board on his knees. Two milks. He opens one. Click. Touches his chest once. Smiles.
+[48] NARR | 창 유리에 뭐가 비치는지는 끝까지 안 보여준다. 검은 화면. 두 번째 딸깍.
+    EN: What the window reflects is never shown. Black. A second click.

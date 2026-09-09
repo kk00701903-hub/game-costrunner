@@ -452,6 +452,16 @@ namespace CoastRun
             if (hasSave) more.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
             more.Add((Loc.T("노을 달리기", "Sunset Run"), () => { _audio?.PlayClick(); ArcadeUI.Open(false); }));
             more.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
+            // 37차: 레코드 — 컷씬 음악 7곡. 타이틀 곡을 멈추고 들어가서, 닫으면 다시 튼다.
+            bool recNew = _gm != null && RecordTable.HasNew(_gm.Profile);
+            more.Add((Loc.T("레코드", "Records") + (recNew ? "  •" : ""), () =>
+            {
+                _audio?.PlayClick();
+                _audio?.StopMenu();
+                if (_moreOpen) ToggleMore();
+                _ready = false;
+                RecordsUI.Open(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; });
+            }));
             more.Add((Loc.T("오프닝", "Opening"), () =>
             {
                 _audio?.PlayClick();
@@ -900,8 +910,16 @@ namespace CoastRun
                 ShowPanel(_settingsPanel, false);
                 ShowPanel(_creditsPanel, true);
             });
+            // 37차: 비밀코드(테스트) — 1111 이면 전체 챕터·레코드 해금
+            Text codeLabel = null;
+            var codeBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("비밀코드", "Secret code"), 0.30f, () => OpenSecretCode(() =>
+            {
+                if (codeLabel != null) codeLabel.text = SecretText();
+            }));
+            codeLabel = codeBtn.GetComponentInChildren<Text>();
+            if (codeLabel != null) codeLabel.text = SecretText();
             CreateLabel(_settingsPanel.transform, "Ver", "v0.9  ·  Coast Run · Jeju", 14, FontStyle.Normal,
-                new Color(1f, 0.95f, 0.85f, 0.55f), new Vector2(0.5f, 0.27f), new Vector2(400f, 24f));
+                new Color(1f, 0.95f, 0.85f, 0.55f), new Vector2(0.5f, 0.22f), new Vector2(400f, 24f));
             CreateMenuButton(_settingsPanel.transform, Loc.T("닫기", "Close"), 0.12f, () =>
             {
                 _audio?.PlayClick();
@@ -915,6 +933,79 @@ namespace CoastRun
             int s = CoastPrefs.VolumeStep;
             string bar = new string('■', s) + new string('□', 4 - s);
             return (Loc.IsKo ? "소리  " : "Sound  ") + bar + "  " + CoastPrefs.VolumeLabel(s);
+        }
+
+        private string SecretText() => (Loc.IsKo ? "비밀코드" : "Secret code") + (_gm != null && _gm.Profile.devUnlockAll ? Loc.T("  ·  전부 열림", "  ·  all open") : "");
+
+        // ── 37차: 비밀코드 키패드 — 4자리. 1111 = 전체 챕터·레코드 해금(테스트) ──
+        public const string SecretCode = "1111";
+        private GameObject _codeModal;
+        private void OpenSecretCode(System.Action onChanged)
+        {
+            if (_codeModal != null) Destroy(_codeModal);
+            var root = _settingsPanel.transform.parent;
+            _codeModal = new GameObject("SecretCode", typeof(RectTransform), typeof(Image));
+            _codeModal.transform.SetParent(root, false);
+            var mrt = _codeModal.GetComponent<RectTransform>(); mrt.anchorMin = Vector2.zero; mrt.anchorMax = Vector2.one; mrt.offsetMin = Vector2.zero; mrt.offsetMax = Vector2.zero;
+            _codeModal.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
+            var card = CoastUiArt.CutePill(_codeModal.transform, "Card", new Color(0.98f, 0.94f, 0.86f), 26, 5);
+            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.sizeDelta = new Vector2(440f, 620f); crt.anchoredPosition = new Vector2(0f, 20f);
+            var navy = new Color(0.10f, 0.14f, 0.30f);
+            var title = CreateLabel(card.transform, "T", Loc.T("비밀코드", "Secret code"), 24, FontStyle.Bold, navy, new Vector2(0.5f, 1f), new Vector2(400f, 40f));
+            title.rectTransform.anchoredPosition = new Vector2(0f, -40f);
+            string entered = "";
+            var shown = CreateLabel(card.transform, "Code", "_ _ _ _", 34, FontStyle.Bold, navy, new Vector2(0.5f, 1f), new Vector2(400f, 50f));
+            shown.rectTransform.anchoredPosition = new Vector2(0f, -96f);
+            var hint = CreateLabel(card.transform, "Hint", Loc.T("숫자 4자리", "4 digits"), 14, FontStyle.Normal, new Color(0.3f, 0.3f, 0.35f, 0.8f), new Vector2(0.5f, 1f), new Vector2(400f, 26f));
+            hint.rectTransform.anchoredPosition = new Vector2(0f, -132f);
+            System.Action refresh = () =>
+            {
+                var sb = new System.Text.StringBuilder();
+                for (int i = 0; i < 4; i++) { sb.Append(i < entered.Length ? entered[i].ToString() : "_"); if (i < 3) sb.Append(' '); }
+                shown.text = sb.ToString();
+            };
+            System.Action<string> press = key =>
+            {
+                _audio?.PlayClick();
+                if (key == "←") { if (entered.Length > 0) entered = entered.Substring(0, entered.Length - 1); refresh(); return; }
+                if (key == "OK")
+                {
+                    if (entered == SecretCode && _gm != null)
+                    {
+                        RecordTable.UnlockAll(_gm.Profile);
+                        _gm.WriteProfileNow();
+                        hint.text = Loc.T("열렸다 — 전체 챕터 · 레코드", "Unlocked — all chapters & records");
+                        hint.color = new Color(0.1f, 0.55f, 0.25f);
+                        CoastToast.Show(Loc.T("비밀코드 — 전체 챕터·레코드 해금", "Secret code — all chapters & records unlocked"));
+                        onChanged?.Invoke();
+                        StartCoroutine(CloseCodeLater(0.9f));
+                    }
+                    else { hint.text = Loc.T("아니야", "Nope"); hint.color = new Color(0.8f, 0.2f, 0.2f); entered = ""; refresh(); }
+                    return;
+                }
+                if (entered.Length >= 4) return;
+                entered += key; refresh();
+            };
+            string[] keys = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "←", "0", "OK" };
+            for (int i = 0; i < keys.Length; i++)
+            {
+                int r = i / 3, c = i % 3; string k = keys[i];
+                var pill = CoastUiArt.CutePill(card.transform, "K" + k, k == "OK" ? new Color(1f, 0.45f, 0.35f) : k == "←" ? new Color(0.72f, 0.72f, 0.78f) : new Color(1f, 1f, 1f), 16, 3);
+                var prt = pill.rectTransform; prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 1f); prt.sizeDelta = new Vector2(112f, 80f);
+                prt.anchoredPosition = new Vector2((c - 1) * 124f, -212f - r * 92f);
+                pill.raycastTarget = true;
+                var b = pill.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => press(k));
+                var kl = CreateLabel(pill.transform, "L", k, 26, FontStyle.Bold, k == "OK" ? Color.white : navy, new Vector2(0.5f, 0.5f), new Vector2(100f, 60f));
+                kl.rectTransform.anchoredPosition = new Vector2(0f, 2f);
+            }
+            var close = CoastOrnate.GlassButton(card.transform, "Close", Loc.T("닫기", "Close"), new Vector2(0.5f, 0f), new Vector2(0f, 36f), new Vector2(200f, 46f), () => { _audio?.PlayClick(); Destroy(_codeModal); _codeModal = null; }, 0.45f, 18, false);
+        }
+
+        private System.Collections.IEnumerator CloseCodeLater(float s)
+        {
+            yield return new WaitForSecondsRealtime(s);
+            if (_codeModal != null) { Destroy(_codeModal); _codeModal = null; }
         }
 
         private static string HapticText() => (Loc.IsKo ? "진동  " : "Vibration  ") + (CoastPrefs.Haptic ? "ON" : "OFF");

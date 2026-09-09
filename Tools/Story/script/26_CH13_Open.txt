@@ -1,13 +1,118 @@
-﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+﻿# 37차: 컷씬 대본 — 그림은 아직 빈 화면(BG | Blank). 음악 큐와 자막만 먼저. 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
 # 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
-# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
-# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
-제목: 13장 | EN: Chapter 13
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 변형(세피아/비/밤/흰 + 아래) / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# BGM = 곡키 | 볼륨(0~1) | 피치   — 곡키 M1~M7 (Resources/CoastRun/BGM/BGM_M?.ogg). M4s=느리게(0.72) M4r=라디오(작게) M6w=수중. '정지' 면 페이드아웃.
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다.
+제목: 그 밤 | EN: That Night
 
-[0] BG | TowerDay
-[1] NARR | (13장 오프닝 — 새 대본 자리. 챕터 마지막 주에 이벤트로 재생된다.)
-    EN: (Chapter 13 opening — placeholder)
-[2] NARR | [게이트>=0]…달릴 수 있을 것 같다.
+[0] BG | Blank | | | 비 아래
+[1] NARR | 비. 하늘이 젖은 채 탑에 손. 옆에서 꼬마는 우비라 안 젖는다.
+    EN: Rain. Haneul, soaked, hand on the tower. Beside her the kid stays dry in his raincoat.
+[2] SAY | 하늘 | 너는 안 춥나 봐.
+    EN: Guess you're not cold.
+[3] BG | Blank | | | 세피아 비 아래
+[4] BGM | M6 | 0.4
+[5] NARR | 폭우. 외딴집 문 앞. 소년이 젖은 채 서 있다. 안에서 소녀가 문고리를 잡고 안 연다.
+    EN: A downpour. The door of the lone house. The boy stands drenched. Inside, she holds the latch and won't open.
+[6] SAY | 도윤 | 몰랐어.
+    EN: I didn't know.
+[7] SAY | 하늘 | 가.
+    EN: Go.
+[8] SAY | 도윤 | 몰랐어도 미안해.
+    EN: I didn't know, and I'm still sorry.
+[9] SAY | 하늘 | 가라고.
+    EN: I said go.
+[10] BGM | M6 | 0.6
+[11] NARR | 소년이 돌아선다. 마당. 풀 속에 엎어진 엄마. 소년이 먼저 본다. 문을 두드린다.
+    EN: He turns away. The yard. Her mother, face-down in the grass. He sees her first. He pounds on the door.
+[12] SAY | 도윤 | 하늘아.
+    EN: Haneul.
+[13] SAY | 도윤 | 문 열어.
+    EN: Open the door.
+[14] SAY | 도윤 | 엄마.
+    EN: Your mom.
+[15] NARR | 문이 열린다. 소녀가 맨발로 뛰어나간다.
+    EN: The door opens. She runs out barefoot.
+[16] SAY | 하늘 | 엄마. 엄마.
+    EN: Mom. Mom.
+[17] NARR | 전화. 안 터진다. 번개. 언덕 위 기지국이 번쩍한다. 소녀가 길을 본다 — 2킬로.
+    EN: The phone. No signal. Lightning. The tower on the hill flashes. She looks down the road: 2 km.
+[18] SAY | 하늘 | 병원.
+    EN: Hospital.
+[19] SAY | 도윤 | 2킬로.
+    EN: Two kilometers.
+[20] SAY | 하늘 | 리어카.
+    EN: The cart.
+[21] BGM | M6 | 0.8
+[22] NARR | 진흙길. 리어카. 바퀴가 박힌다. 열두 살 어깨 둘. 소년의 입술이 파랗다.
+    EN: A mud road. The handcart. The wheel sinks. Two twelve-year-old shoulders. The boy's lips are blue.
+[23] SAY | 하늘 | 너 앞에. 내가 밀게.
+    EN: You take the front. I'll push.
+[24] SAY | 하늘 | 너 숨소리.
+    EN: Your breathing.
+[25] SAY | 도윤 | 가.
+    EN: Go.
+[26] SAY | 하늘 | 너 숨소리 이상해.
+    EN: Your breathing sounds wrong.
+[27] SAY | 도윤 | 가라고.
+    EN: I said go.
+[28] BGM | 정지
+[29] NARR | 헤드라이트. 검은 세단. 문 두 개가 동시에 열린다. 소년이 진흙에 무릎을 꿇는다. 큰 아저씨가 우산을 떨어뜨린다.
+    EN: Headlights. The black sedan. Both doors open at once. The boy drops to his knees in the mud. The big man drops his umbrella.
+[30] SAY | 큰 아저씨 | 도련님!
+    EN: Young master!
+[31] BGM | M6 | 0.6
+[32] SAY | 도윤 | 아저씨.
+    EN: Please.
+[33] SAY | 도윤 | 살려 주세요.
+    EN: Save her.
+[34] SAY | 도윤 | 얘 엄마.
+    EN: Her mom.
+[35] SAY | 도윤 | 제발.
+    EN: Please.
+[36] NARR | 마른 아저씨가 엄마를 안아 올린다. 처음으로 뛴다. 뒷좌석. 자리가 없다.
+    EN: The thin man lifts her mother. He runs, for the first time. The back seat. No room.
+[37] SAY | 마른 아저씨 | 도련님도 타세요.
+    EN: You get in too.
+[38] SAY | 도윤 | 자리 없잖아.
+    EN: There's no room.
+[39] SAY | 마른 아저씨 | 도련님.
+    EN: Young master.
+[40] SAY | 도윤 | 가.
+    EN: Go.
+[41] BGM | M6 | 0.3
+[42] NARR | 차가 간다. 소년이 진흙에 눕는다. 소녀가 그 가슴에 귀를 댄다. 느리다. 손을 잡는다. 비가 두 얼굴에.
+    EN: The car leaves. The boy lies down in the mud. She puts her ear to his chest. Slow. She takes his hand. Rain on both faces.
+[43] SAY | 하늘 | 야.
+    EN: Hey.
+[44] SAY | 하늘 | 한도윤.
+    EN: Han Doyun.
+[45] SAY | 하늘 | 무서웠어?
+    EN: Were you scared?
+[46] SAY | 도윤 | 응.
+    EN: Yeah.
+[47] SAY | 하늘 | 나도.
+    EN: Me too.
+[48] BGM | M6 | 0.5
+[49] NARR | 병실. 두 침대. 소녀가 깨어난다.
+    EN: A hospital room. Two beds. She wakes.
+[50] SAY | 하늘 | 걔 엄마는요.
+    EN: His mom— my mom. Is she okay.
+[51] SAY | 마른 아저씨 | 괜찮으시다.
+    EN: She's fine.
+[52] SAY | 하늘 | 오늘 노을 몇 시예요.
+    EN: What time is sunset today.
+[53] NARR | 문틈. 복도. 큰 아저씨의 등. 소녀가 이불 속에서 듣는다.
+    EN: Through the door crack. The hallway. The big man's back. She listens from under the blanket.
+[54] SAY | 큰 아저씨 | 여기 있으면 죽어. 서울로 가.
+    EN: Stay here and you'll die. Go to Seoul.
+[55] BGM | 정지
+[56] BG | Blank | | | 비 아래
+[57] NARR | 눈을 뜬다. 젖은 돌 세 개. 소매 찢어진 손이 들어온다.
+    EN: She opens her eyes. Three wet stones. A hand with a torn sleeve reaches in.
+[58] SAY | 바다 | 가자.
+    EN: Let's go.
+[59] NARR | [게이트>=0]…달릴 수 있을 것 같다.
     EN: [게이트>=0]…I think I can run today.
-[3] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
+[60] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
     EN: [게이트<0]…My legs aren't ready. One more week.

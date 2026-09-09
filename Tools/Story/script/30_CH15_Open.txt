@@ -1,13 +1,94 @@
-﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+﻿# 37차: 컷씬 대본 — 그림은 아직 빈 화면(BG | Blank). 음악 큐와 자막만 먼저. 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
 # 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
-# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
-# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
-제목: 15장 | EN: Chapter 15
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 변형(세피아/비/밤/흰 + 아래) / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# BGM = 곡키 | 볼륨(0~1) | 피치   — 곡키 M1~M7 (Resources/CoastRun/BGM/BGM_M?.ogg). M4s=느리게(0.72) M4r=라디오(작게) M6w=수중. '정지' 면 페이드아웃.
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다.
+제목: 스무 살 | EN: Twenty
 
-[0] BG | TowerDay
-[1] NARR | (15장 오프닝 — 새 대본 자리. 챕터 마지막 주에 이벤트로 재생된다.)
-    EN: (Chapter 15 opening — placeholder)
-[2] NARR | [게이트>=0]…달릴 수 있을 것 같다.
+[0] BG | Blank | | | 현재 아래
+[1] NARR | 정류장 도로 한가운데 선 하늘. 그 각도. 탑.
+    EN: Haneul stands in the middle of the road at the bus stop. That angle. The tower.
+[2] BG | Blank | | | 세피아 아래
+[3] BGM | M4 | 0.4
+[4] NARR | 정류장. 검은 세단. 마른 아저씨가 시계를 본다.
+    EN: The bus stop. The black sedan. The thin man checks his watch.
+[5] SAY | 마른 아저씨 | 5분 드리겠습니다.
+    EN: You have five minutes.
+[6] NARR | 둘. 소녀가 보드를 안고 있다.
+    EN: The two of them. She's hugging the board.
+[7] SAY | 도윤 | 보드 잘 타.
+    EN: Ride well.
+[8] SAY | 하늘 | 응.
+    EN: Okay.
+[9] SAY | 도윤 | 응 말고.
+    EN: Not 'okay'.
+[10] SAY | 하늘 | 뭐.
+    EN: What.
+[11] SAY | 도윤 | 스무 살. 네 생일에. 송전탑 밑에서 기다릴게.
+    EN: Twenty. On your birthday. I'll be waiting under the tower.
+[12] SAY | 하늘 | 8년 남았는데.
+    EN: That's eight years away.
+[13] SAY | 도윤 | 나 기다리는 거 잘해.
+    EN: I'm good at waiting.
+[14] SAY | 하늘 | 너 기다리는 게 제일 힘들다며.
+    EN: You said waiting is the hardest thing.
+[15] SAY | 도윤 | 그러니까 잘해.
+    EN: That's why I'm good at it.
+[16] NARR | 손에 쥐여 주는 하트 스티커. 우유 두 개. 하나만 뚜껑을 딴다.
+    EN: A heart sticker pressed into her hand. Two cartons of milk. He opens only one.
+[17] SAY | 도윤 | 하나는 내일 마셔.
+    EN: Drink the other one tomorrow.
+[18] BGM | M4 | 0.25
+[19] NARR | 차가 출발한다. 소녀가 보드에 올라 쫓는다. 뒷창 손바닥.
+    EN: The car pulls away. She jumps on the board and chases. A palm on the rear window.
+[20] SAY | 하늘 | 안 늦어! 야! 안 늦는다고!
+    EN: I won't be late! Hey! I won't be late!
+[21] SAY | 도윤 | (입 모양) 알아.
+    EN: (mouthing) I know.
+[22] BGM | 정지
+[23] NARR | 보드가 돌에 걸린다. 넘어진다. 차가 모퉁이를 돈다. 소녀가 일어나서 본다.
+    EN: The board catches a stone. She falls. The car turns the corner. She gets up and watches.
+[24] BGM | M6 | 0.5
+[25] NARR | 방. 달력. 처음 쓰는 글씨. 「스무 살 생일 — 송전탑 아래 — 도윤」
+    EN: Her room. The calendar. The first time she writes it: 'Twentieth birthday — under the tower — Doyun.'
+[26] NARR | — 7년 후 —
+    EN: — Seven years later —
+[27] NARR | 버스 안. 마스크를 쓴 엄마. 창가. 열아홉이 배웅.
+    EN: On the bus. Mom in a mask. By the window. Nineteen sees her off.
+[28] SAY | 엄마 | 물질 하지 마.
+    EN: Don't go diving.
+[29] SAY | 하늘 | 안 해.
+    EN: I won't.
+[30] SAY | 엄마 | 올해 니 생일엔 못 오켜.
+    EN: I can't come for your birthday this year.
+[31] SAY | 하늘 | 내년에 와. 스무 살이야.
+    EN: Come next year. I'll be twenty.
+[32] SAY | 엄마 | 경 허라.
+    EN: All right.
+[33] NARR | 다음 날. 해녀복 두 벌 중 작은 것. 바다로.
+    EN: Next day. The smaller of two diving suits. Into the sea.
+[34] BGM | M6 | 0.4 | 0.9
+[35] NARR | 생일 아침. 태풍이 지나간 거친 바다. 아빠 부표를 들고 혼자 들어간다. 물속. 흔들리는 햇빛. 검은색.
+    EN: Birthday morning. A rough sea after the typhoon. She goes in alone with Dad's buoy. Underwater. Wavering sunlight. Black.
+[36] BGM | 정지
+[37] BG | Blank | | | 현재 아래
+[38] NARR | 눈을 뜬다. 해녀복을 입고 있다. 절벽 계단. 꼬마가 두 팔을 벌리고 막아선다.
+    EN: She opens her eyes. She's wearing the diving suit. The cliff steps. The kid spreads his arms and blocks the way.
+[39] SAY | 하늘 | 비켜.
+    EN: Move.
+[40] SAY | 바다 | 가지 마.
+    EN: Don't go.
+[41] SAY | 하늘 | 나 저기 가야 돼.
+    EN: I have to go down there.
+[42] SAY | 바다 | 가지 마!
+    EN: Don't go!
+[43] SAY | 바다 | 오늘은 안 돼.
+    EN: Not today.
+[44] SAY | 하늘 | 그럼 언제.
+    EN: Then when.
+[45] NARR | (대답하지 않는다)
+    EN: (He doesn't answer.)
+[46] NARR | [게이트>=0]…달릴 수 있을 것 같다.
     EN: [게이트>=0]…I think I can run today.
-[3] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
+[47] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
     EN: [게이트<0]…My legs aren't ready. One more week.

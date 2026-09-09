@@ -114,11 +114,11 @@ namespace CoastRun
         private static readonly Dictionary<string, string> En = new Dictionary<string, string>
         {
             // 챕터 제목
-            { "ch.1", "Chapter 1" }, { "ch.2", "Chapter 2" }, { "ch.3", "Chapter 3" }, { "ch.4", "Chapter 4" },
-            { "ch.5", "Chapter 5" }, { "ch.6", "Chapter 6" }, { "ch.7", "Chapter 7" }, { "ch.8", "Chapter 8" },
-            { "ch.9", "Chapter 9" }, { "ch.10", "Chapter 10" }, { "ch.11", "Chapter 11" }, { "ch.12", "Chapter 12" },
-            { "ch.13", "Chapter 13" }, { "ch.14", "Chapter 14" }, { "ch.15", "Chapter 15" }, { "ch.16", "Chapter 16" },
-            { "ch.17", "Chapter 17" }, { "ch.18", "Chapter 18" }, { "ch.19", "Chapter 19" }, { "ch.20", "Chapter 20" },
+            { "ch.1", "Name" }, { "ch.2", "Sumbi Breath" }, { "ch.3", "The Back" }, { "ch.4", "Heart" },
+            { "ch.5", "Pass Through" }, { "ch.6", "Footprints" }, { "ch.7", "Our Base" }, { "ch.8", "Fresh Paint" },
+            { "ch.9", "Candle Out" }, { "ch.10", "Twelve Candles" }, { "ch.11", "Back in the Rain" }, { "ch.12", "New Wheel" },
+            { "ch.13", "That Night" }, { "ch.14", "That Spot" }, { "ch.15", "Twenty" }, { "ch.16", "Passing By" },
+            { "ch.17", "Quiet" }, { "ch.18", "One of Two" }, { "ch.19", "Chrysanthemum" }, { "ch.20", "Frequency" },
             // 계절
             { "season.봄", "Spring" }, { "season.여름", "Summer" }, { "season.가을", "Autumn" }, { "season.겨울", "Winter" },
             // 스케줄 이름

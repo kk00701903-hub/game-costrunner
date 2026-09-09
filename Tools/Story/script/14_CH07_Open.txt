@@ -1,13 +1,81 @@
-﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+﻿# 37차: 컷씬 대본 — 그림은 아직 빈 화면(BG | Blank). 음악 큐와 자막만 먼저. 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
 # 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
-# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
-# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
-제목: 7장 | EN: Chapter 7
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 변형(세피아/비/밤/흰 + 아래) / CG = 일러스트ID | 설명 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# BGM = 곡키 | 볼륨(0~1) | 피치   — 곡키 M1~M7 (Resources/CoastRun/BGM/BGM_M?.ogg). M4s=느리게(0.72) M4r=라디오(작게) M6w=수중. '정지' 면 페이드아웃.
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다.
+제목: 우리 기지 | EN: Our Base
 
-[0] BG | TowerDay
-[1] NARR | (7장 오프닝 — 새 대본 자리. 챕터 마지막 주에 이벤트로 재생된다.)
-    EN: (Chapter 7 opening — placeholder)
-[2] NARR | [게이트>=0]…달릴 수 있을 것 같다.
+[0] BG | Blank | | | 현재 아래
+[1] NARR | 눈 덮인 탑 아래. 발자국이 한 줄뿐. 하늘이 제 발 옆을 본다. 탑에 손.
+    EN: Snow under the tower. Only one line of footprints. Haneul looks beside her own feet. Hand on the tower.
+[2] BG | Blank | | | 세피아 아래
+[3] BGM | M6 | 0.6
+[4] NARR | 교실. 도시락 두 개. 하나는 반짝, 하나는 찌그러짐. 젓가락 둘이 같은 계란말이로.
+    EN: Classroom. Two lunchboxes: one shiny, one dented. Two pairs of chopsticks reach for the same egg roll.
+[5] SAY | 도윤 | 반은 진짜야. 나 많이 못 먹어.
+    EN: Half is true. I can't eat much.
+[6] SAY | 하늘 | 거짓말.
+    EN: Liar.
+[7] SAY | 도윤 | 반은 거짓말.
+    EN: Half a lie.
+[8] NARR | 좌판 뒤. 신문지 속 성게. 소년이 씹다 멈춘다. 눈이 젖는다.
+    EN: Behind a market stall. Sea urchin in newspaper. The boy chews, then stops. His eyes well up.
+[9] SAY | 도윤 | 바다 맛 나.
+    EN: It tastes like the sea.
+[10] SAY | 하늘 | 짜서 그래.
+    EN: It's just salty.
+[11] SAY | 도윤 | 나 바다 처음 먹어 봐.
+    EN: First time I've eaten the sea.
+[12] SAY | 하늘 | 울어?
+    EN: Are you crying?
+[13] SAY | 도윤 | 짜서.
+    EN: It's salty.
+[14] NARR | 겨울 창. 입김으로 얼굴 두 개. 하나가 먼저 사라진다.
+    EN: A winter window. Two faces drawn in breath. One fades first.
+[15] SAY | 도윤 | 없어지면 또 그리면 되지.
+    EN: If it fades, we draw it again.
+[16] NARR | 해안도로. 새 보드. 소녀가 탄다. 소년이 걷는다. 뒤에서 양복 둘이 뛴다. 소녀가 돌아보며 웃는다.
+    EN: The coast road. A new board. She rides. He walks. Two suits run behind. She looks back and laughs.
+[17] SAY | 도윤 | 나 못 타. 네가 타면 내가 보잖아.
+    EN: I can't ride. If you ride, I get to watch.
+[18] SAY | 큰 아저씨 | 도련님! 천천히!
+    EN: Young master! Slow down!
+[19] SAY | 도윤 | 나 안 뛰어요!
+    EN: I'm not running!
+[20] NARR | 아스팔트에 분필로 4.2. 정류장에서 탑까지.
+    EN: Chalk on the asphalt: 4.2. From the bus stop to the tower.
+[21] SAY | 도윤 | 노을 전에 닿으면 네가 이겨.
+    EN: Reach it before sunset and you win.
+[22] SAY | 하늘 | 너는 뭘로 이겨.
+    EN: And how do you win.
+[23] SAY | 도윤 | 기다려. 탑 밑에서.
+    EN: I wait. Under the tower.
+[24] SAY | 하늘 | 그게 뭐가 힘들어.
+    EN: What's hard about that.
+[25] BGM | M6 | 0.3
+[26] SAY | 도윤 | 기다리는 게 제일 힘들어.
+    EN: Waiting is the hardest thing.
+[27] BGM | 정지
+[28] NARR | 노을 아래. 소녀가 소년 가슴에 귀를 댄다. 박동만.
+    EN: Under the sunset. She puts her ear to his chest. Only a heartbeat.
+[29] SAY | 도윤 | 고장 나서 그래.
+    EN: It's broken, that's why.
+[30] SAY | 하늘 | 고장 아니야.
+    EN: It's not broken.
+[31] SAY | 도윤 | 그럼.
+    EN: Then what.
+[32] SAY | 하늘 | 빠른 거야.
+    EN: It's fast.
+[33] NARR | 노을만.
+    EN: Only the sunset.
+[34] BG | Blank | | | 현재 아래
+[35] NARR | 눈을 뜬다. 겨울 창. 입김으로 얼굴 하나를 그린다. 두 번째를 그리려다 손이 멈춘다.
+    EN: She opens her eyes. A winter window. She draws one face in her breath. Reaches to draw the second and her hand stops.
+[36] NARR | 유리 너머 길로 마른 뒷모습이 지나간다. 창을 두드린다. 두 번. 세 번. 안 돌아본다.
+    EN: Beyond the glass, a thin back passes on the road. She knocks. Twice. Three times. He doesn't turn.
+[37] NARR | 유리의 얼굴 하나가 지워진다.
+    EN: The one face on the glass fades.
+[38] NARR | [게이트>=0]…달릴 수 있을 것 같다.
     EN: [게이트>=0]…I think I can run today.
-[3] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
+[39] NARR | [게이트<0]…아직은 다리가 못 버틴다. 이번 주는 더 키우자.
     EN: [게이트<0]…My legs aren't ready. One more week.

@@ -69,6 +69,7 @@ namespace CoastRun
         private bool _typing;
         private float _holdTimer;
         private string _curL, _curR;
+        private bool _bgShown;   // 37차: 빈 컷(sprite 없음)도 두 번째부터는 암전 전환
 
         private const float TypeCps = 34f;
 
@@ -387,9 +388,14 @@ namespace CoastRun
                     case "LETTER":
                         yield return Say("", txt, letter: true);
                         break;
+                    case "BGM":
+                        // 37차: 음악 큐 — 곡키(M1~M7 / 정지) | 볼륨 | 피치. 대본 파일의 'BGM | M6 | 0.6' 줄.
+                        VnMusic.Cue(line.A, line.C, line.D);
+                        break;
                 }
             }
 
+            VnMusic.Stop(0.8f);
             yield return FadeImage(_fader, 1f, 0.3f, true);
             Finish();
         }
@@ -397,7 +403,8 @@ namespace CoastRun
         private IEnumerator ShowBg(VnLine line)
         {
             // 짧은 암전 후 배경 교체
-            bool first = _bg.sprite == null && !_cg.gameObject.activeSelf && _fader.color.a > 0.99f;
+            bool first = !_bgShown && !_cg.gameObject.activeSelf && _fader.color.a > 0.99f;
+            _bgShown = true;
             if (!first) yield return FadeImage(_fader, 1f, 0.22f, true);
             _cg.gameObject.SetActive(false);
             // 변형(눈 등) 전용 그림이 있으면 그걸 쓰고 틴트는 생략
@@ -414,8 +421,11 @@ namespace CoastRun
             }
             else
             {
+                // 37차: 그림이 없는 컷(BG | Blank) — 변형 칸의 분위기(세피아/비/밤/흰)로 단색만 깐다.
                 _bg.sprite = null;
-                _bg.color = new Color(0.16f, 0.14f, 0.18f, 1f);
+                _bg.GetComponent<AspectRatioFitter>().aspectRatio = 9f / 16f;
+                _bg.color = BlankColor(line.D);
+                _bg.gameObject.SetActive(true);
             }
             PlaceBox(WantsTop(line.D));
             // 새 컷씬 그림은 인물이 그려진 풀 일러스트 → 스탠딩은 쓰지 않는다(그림이 없을 때만 대체로).
@@ -423,6 +433,18 @@ namespace CoastRun
             else { _standL.gameObject.SetActive(false); _standR.gameObject.SetActive(false); _curL = line.B; _curR = line.C; }
             SetText("", "", false);
             yield return FadeImage(_fader, 0f, 0.3f, false);
+        }
+
+        /// 37차: 빈 컷 배경색. 회상=세피아, 비=청회색, 밤=검푸름, 흰=흰 화면, 그 외(현재)=어두운 보라회색.
+        private static Color BlankColor(string variant)
+        {
+            if (string.IsNullOrEmpty(variant)) return new Color(0.16f, 0.14f, 0.18f, 1f);
+            if (variant.Contains("흰")) return new Color(0.93f, 0.92f, 0.89f, 1f);
+            if (variant.Contains("세피아") && variant.Contains("비")) return new Color(0.22f, 0.20f, 0.17f, 1f);
+            if (variant.Contains("세피아")) return new Color(0.31f, 0.25f, 0.17f, 1f);
+            if (variant.Contains("비")) return new Color(0.12f, 0.15f, 0.20f, 1f);
+            if (variant.Contains("밤")) return new Color(0.07f, 0.07f, 0.12f, 1f);
+            return new Color(0.16f, 0.14f, 0.18f, 1f);
         }
 
         private static Color Tint(string variant)
@@ -575,6 +597,8 @@ namespace CoastRun
         private void Finish()
         {
             IsPlaying = false;
+            VnMusic.Stop(0.8f);
+            RecordTable.OnSceneWatched(_sceneId);   // 37차: 롱컷을 보면 레코드 해금
             var cb = _onDone;
             _onDone = null;
             if (HoldBlackOnNext && _canvas != null)
@@ -589,6 +613,101 @@ namespace CoastRun
             if (_active == this) _active = null;
             UnityEngine.Object.Destroy(gameObject);
             cb?.Invoke();
+        }
+    }
+
+    /// 37차: 컷씬 음악 — 대본의 BGM 줄을 재생한다. 씬 위에 남는 별도 오브젝트(크로스페이드용 2소스).
+    public static class VnMusic
+    {
+        private static VnMusicPlayer _p;
+
+        /// 곡키: M1~M7 (+ 접미사 s=느리게 r=라디오 w=수중), '정지'/'stop'/'∅'/'0'/'무음' = 페이드아웃.
+        public static void Cue(string key, string volCell, string pitchCell)
+        {
+            key = (key ?? "").Trim();
+            if (key.Length == 0 || key == "정지" || key == "무음" || key == "∅" || key == "0" || key.Equals("stop", StringComparison.OrdinalIgnoreCase))
+            { Stop(0.7f); return; }
+            float vol = 0.7f, pitch = 1f;
+            string k = key.ToUpperInvariant();
+            // 접미사 변주 — 실제 파일은 BGM_M4 하나. s: 0.72배속(대본 지시) r: 차 안 라디오(작게) w: 물속(작게·낮게)
+            if (k.EndsWith("S")) { k = k.Substring(0, k.Length - 1); pitch = 0.72f; vol = 0.6f; }
+            else if (k.EndsWith("R")) { k = k.Substring(0, k.Length - 1); vol = 0.4f; }
+            else if (k.EndsWith("W")) { k = k.Substring(0, k.Length - 1); vol = 0.45f; pitch = 0.9f; }
+            if (float.TryParse(volCell, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)) vol = Mathf.Clamp01(v);
+            if (float.TryParse(pitchCell, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var pt)) pitch = Mathf.Clamp(pt, 0.5f, 1.5f);
+            var clip = CoastBgmLibrary.Load("BGM_" + k);
+            if (clip == null) { Debug.LogWarning("[VnMusic] 곡 없음: " + key); Stop(0.5f); return; }
+            Ensure().Play(clip, vol, pitch, k);   // 전체 볼륨은 AudioListener(CoastPrefs.VolumeStep)가 맡는다
+        }
+
+        public static void Stop(float fade)
+        {
+            if (_p != null) _p.FadeOut(fade);
+        }
+
+        private static VnMusicPlayer Ensure()
+        {
+            if (_p != null) return _p;
+            var go = new GameObject("VnMusic");
+            UnityEngine.Object.DontDestroyOnLoad(go);
+            _p = go.AddComponent<VnMusicPlayer>();
+            return _p;
+        }
+    }
+
+    public class VnMusicPlayer : MonoBehaviour
+    {
+        private AudioSource _a, _b;   // _a = 현재, _b = 물러나는 곡
+        private string _key;
+        private float _target;
+        private Coroutine _fade;
+
+        public void Play(AudioClip clip, float vol, float pitch, string key)
+        {
+            if (_a == null) { _a = Make("A"); _b = Make("B"); }
+            if (_key == key && _a.clip == clip && _a.isPlaying)
+            {
+                // 같은 곡 — 볼륨·피치만 바꾼다(끊기지 않게)
+                _target = vol; _a.pitch = pitch;
+                if (_fade != null) StopCoroutine(_fade);
+                _fade = StartCoroutine(FadeTo(_a, vol, 0.6f, false));
+                return;
+            }
+            // 크로스페이드: 현재 곡을 B로 넘겨 페이드아웃, A에 새 곡
+            var t = _a; _a = _b; _b = t;
+            if (_b.isPlaying) StartCoroutine(FadeTo(_b, 0f, 0.8f, true));
+            _a.clip = clip; _a.pitch = pitch; _a.volume = 0f; _a.loop = true; _a.Play();
+            _key = key; _target = vol;
+            if (_fade != null) StopCoroutine(_fade);
+            _fade = StartCoroutine(FadeTo(_a, vol, 0.9f, false));
+        }
+
+        public void FadeOut(float dur)
+        {
+            _key = null;
+            if (_a != null && _a.isPlaying) StartCoroutine(FadeTo(_a, 0f, dur, true));
+            if (_b != null && _b.isPlaying) StartCoroutine(FadeTo(_b, 0f, dur, true));
+        }
+
+        private AudioSource Make(string n)
+        {
+            var go = new GameObject(n); go.transform.SetParent(transform, false);
+            var s = go.AddComponent<AudioSource>(); s.playOnAwake = false; s.spatialBlend = 0f; s.loop = true;
+            return s;
+        }
+
+        private System.Collections.IEnumerator FadeTo(AudioSource s, float to, float dur, bool stopAfter)
+        {
+            float from = s.volume, t = 0f;
+            while (t < dur && s != null)
+            {
+                t += Time.unscaledDeltaTime;
+                s.volume = Mathf.Lerp(from, to, t / dur);
+                yield return null;
+            }
+            if (s == null) yield break;
+            s.volume = to;
+            if (stopAfter && to <= 0.001f) s.Stop();
         }
     }
 

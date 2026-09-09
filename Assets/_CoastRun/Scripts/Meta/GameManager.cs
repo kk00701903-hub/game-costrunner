@@ -455,6 +455,32 @@ namespace CoastRun
             EnterRaising();
         }
 
+        /// 37차: 비밀코드 테스트 — 아직 안 온 챕터로 바로 점프. 본 진행의 주차·챕터를 그 챕터 시작으로 옮긴다(스탯은 지금 것 그대로).
+        public bool DevUnlockAll => Profile != null && Profile.devUnlockAll;
+        public void DevJumpTo(int chapter)
+        {
+            if (Save == null || !DevUnlockAll || chapter < 1 || chapter > Timeline.Chapters) return;
+            if (IsRetry) { Save = _mainSave; _mainSave = null; }
+            if (Save.chapters == null || Save.chapters.Length != Timeline.Chapters) ChapterGrading.InitRecords(Save);
+            Save.chapter = chapter;
+            Save.week = Timeline.WeekStart(chapter);
+            Save.phaseIndex = 0;
+            Save.chapterHearts = 0;
+            Save.queuedSchedule = new string[Timeline.PhasesPerWeek];
+            Save.prologueSeen = true;
+            var rec = Save.CurrentChapter;
+            if (rec != null)
+            {
+                rec.snapshotAtStart = Save.stats.Clone();
+                rec.weekStart = Save.week;
+                rec.weekEnd = Save.week + Timeline.WeeksIn(chapter) - 1;
+            }
+            WriteMain();
+            OnSaveChanged?.Invoke(Save);
+            OpenTimelineOnRaising = false;
+            EnterRaising();
+        }
+
         public void CancelRetry()
         {
             if (!IsRetry) return;
