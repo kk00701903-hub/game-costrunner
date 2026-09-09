@@ -1,10 +1,10 @@
 === Coast Run Integration Audit ===
-2026-09-02 23:58:48Z
+2026-09-09 17:54:12Z
 
 --- Textures (Resources/CoastRun) ---
-[PASS] Texture SummerSky_Portrait
+[FAIL] Texture SummerSky_Portrait
 [PASS] Texture Sea_Turquoise_Tile
-[PASS] Texture Road_Promenade
+[FAIL] Texture Road_Promenade
 [PASS] Texture Icon_Coin
 [PASS] Texture Icon_Speed
 [PASS] Texture Icon_Magnet
@@ -29,15 +29,17 @@
 [PASS] Prefab Prop_Bench
 [PASS] Prefab Prop_StreetLamp
 --- Scenes ---
-[PASS] MainMenu.unity exists
-[PASS] Run.unity exists
-[PASS] MainMenu in Build Settings
-[PASS] Run in Build Settings
+[PASS] 00_Boot.unity exists
+[PASS] 01_Title.unity exists
+[PASS] 02_Run.unity exists
+[PASS] 03_Cutscene.unity exists
+[PASS] 04_Ending.unity exists
+[PASS] 05_Raising.unity exists
+[PASS] 01_Title in Build Settings
+[PASS] 02_Run in Build Settings
 --- Edit-mode boot smoke ---
-[PASS] Player spawned
-[PASS] MapGenerator spawned
-[PASS] Camera exists
+[FAIL] Boot smoke: The following game object is invoking the DontDestroyOnLoad method: EventSystem. Notice that DontDestroyOnLoad can only be used in play mode and, as such, cannot be part of an editor script.
 --- Soft checks ---
 [PASS] Prefab TransmissionTower (optional — DestinationGate falls back)
 
-Summary: 31 pass, 0 fail
+Summary: 30 pass, 3 fail
