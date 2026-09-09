@@ -13,6 +13,7 @@ namespace CoastRun
         private readonly List<float> _crowdPhase = new List<float>();
         private bool _broken;
         private float _t;
+        private readonly List<GameObject> _overhead = new List<GameObject>();   // 24차-5c: 현수막·라벨 — 통과 뒤 숨김
         public float PathZ { get; private set; }
 
         public static FinishRibbon Spawn(float pathZ)
@@ -49,9 +50,11 @@ namespace CoastRun
             }
             // 위 현수막: 빨간 판 + 흰 FINISH
             var banner = Box(go.transform, "Banner", new Vector3(0f, postH - 0.35f, 0f), new Vector3(half * 2f + 0.3f, 0.7f, 0.08f), red);
-            Box(go.transform, "BannerTrim", new Vector3(0f, postH - 0.35f, 0f), new Vector3(half * 2f + 0.34f, 0.76f, 0.05f), CoastMaterials.CreateUnlit(Color.white));
-            Label(go.transform, "FINISH", new Vector3(0f, postH - 0.35f, -0.06f), 0.52f, Quaternion.Euler(0f, 180f, 0f));
-            Label(go.transform, "FINISH", new Vector3(0f, postH - 0.35f, 0.06f), 0.52f, Quaternion.identity);
+            var trim = Box(go.transform, "BannerTrim", new Vector3(0f, postH - 0.35f, 0f), new Vector3(half * 2f + 0.34f, 0.76f, 0.05f), CoastMaterials.CreateUnlit(Color.white));
+            var lb1 = Label(go.transform, "FINISH", new Vector3(0f, postH - 0.35f, -0.06f), 0.52f, Quaternion.Euler(0f, 180f, 0f));
+            var lb2 = Label(go.transform, "FINISH", new Vector3(0f, postH - 0.35f, 0.06f), 0.52f, Quaternion.identity);
+            // 24차-5c: 골인 고정 카메라(리본 뒤 2.8 m, 높이 1.2 m)에서 머리 위 현수막 뒷면이 화면 상단을 붉게 덮었다 → 통과 0.9 s 뒤 숨김
+            fr._overhead.Add(banner); fr._overhead.Add(trim); fr._overhead.Add(lb1); fr._overhead.Add(lb2);
             // 리본: 가슴 높이(1.25 m), 두껍게(0.5 m), 진빨강 언릿 + 흰 가장자리 줄 — 멀리서도 '빨간 띠'로 읽힌다
             var tape = CoastMaterials.CreateUnlit(Color.white);
             tape.mainTexture = RibbonTex();
@@ -63,7 +66,7 @@ namespace CoastRun
             return fr;
         }
 
-        private static void Label(Transform parent, string text, Vector3 pos, float size, Quaternion rot)
+        private static GameObject Label(Transform parent, string text, Vector3 pos, float size, Quaternion rot)
         {
             var t = new GameObject("Label").AddComponent<TextMesh>();
             t.transform.SetParent(parent, false);
@@ -71,6 +74,7 @@ namespace CoastRun
             t.text = text; t.anchor = TextAnchor.MiddleCenter; t.alignment = TextAlignment.Center;
             t.fontSize = 64; t.characterSize = size * 0.16f; t.color = Color.white; t.fontStyle = FontStyle.Bold;
             var r = t.GetComponent<MeshRenderer>(); r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            return t.gameObject;
         }
 
         private static Transform Half(Transform parent, float postX, float half, Material m)
@@ -157,15 +161,21 @@ namespace CoastRun
         private void Update()
         {
             if (!_broken) return;
-            _t += Time.deltaTime;
+            _t += Time.unscaledDeltaTime;   // 24차-5b: 정산 UI가 timeScale 0으로 멈추면 테이프가 낙하 도중에 얼어 카메라 앞을 가렸다
             float u = Mathf.Clamp01(_t / 1.2f);
             float swing = Mathf.Sin(u * Mathf.PI * 1.5f) * (1f - u) * 40f;
             if (_left != null) _left.localRotation = Quaternion.Euler(0f, -70f * u, -35f * u + swing);
             if (_right != null) _right.localRotation = Quaternion.Euler(0f, 70f * u, 35f * u - swing);
             // 24차-5: 끊긴 테이프가 허공에 그대로 남아 고정 카메라(높이 1.2 m) 앞을 붉게 가렸다 → 흔들림이 끝나면 바닥으로 떨어져 눕는다.
-            float fall = Mathf.Clamp01((_t - 1.2f) / 0.55f);
+            float fall = Mathf.Clamp01((_t - 0.9f) / 0.4f);
             if (fall > 0f)
             {
+                if (_overhead.Count > 0)
+                {
+                    // 현수막은 위로 훅 올라가며 사라진다(풍선처럼) → 0.4 s 뒤 비활성
+                    foreach (var o in _overhead) if (o != null) { o.transform.localPosition += Vector3.up * (Time.unscaledDeltaTime * 6f); if (fall >= 1f) o.SetActive(false); }
+                    if (fall >= 1f) _overhead.Clear();
+                }
                 float fe = fall * fall;
                 float y = Mathf.Lerp(1.25f, 0.04f, fe);
                 if (_left != null) { var p = _left.localPosition; p.y = y; _left.localPosition = p; _left.localRotation = Quaternion.Euler(-88f * fe, -70f, -35f * (1f - fe)); }
@@ -178,7 +188,7 @@ namespace CoastRun
                 float pop = Mathf.Clamp01((_t - i * 0.05f) / 0.35f);
                 float ease = 1f - Mathf.Pow(1f - pop, 3f);
                 float over = 1f + Mathf.Sin(pop * Mathf.PI) * 0.18f;
-                float clap = 1f + Mathf.Abs(Mathf.Sin(Time.time * 7f + _crowdPhase[i])) * 0.08f;
+                float clap = 1f + Mathf.Abs(Mathf.Sin(Time.unscaledTime * 7f + _crowdPhase[i])) * 0.08f;
                 c.localScale = new Vector3(1f * over, Mathf.Max(0.001f, ease * over * clap), 1f);
             }
         }

@@ -156,6 +156,7 @@ namespace CoastRun
             {
                 if (!cg.blocksRaycasts || cg.alpha > 0.02f || !cg.gameObject.activeInHierarchy) continue;
                 if (cg.GetComponentInParent<Selectable>() != null) continue;
+                if (cg.GetComponentInParent<ScrollRect>() != null) continue;   // 24차-10(점검 2-5): 스크롤 수신 영역은 투명이 정상
                 if (!CoversScreen(cg.transform as RectTransform)) continue;
                 cg.blocksRaycasts = false;
                 Log(cg.gameObject, "CanvasGroup alpha≈0");
@@ -164,6 +165,8 @@ namespace CoastRun
             {
                 if (!img.raycastTarget || img.color.a > 0.02f || !img.gameObject.activeInHierarchy) continue;
                 if (img.GetComponentInParent<Selectable>() != null) continue;
+                // 24차-10(점검 2-5): ScrollRect 의 투명 수신 이미지(알파 0.01)를 1초 뒤 꺼 버려 도감 팬아트·트로피 탭 스크롤이 죽었다.
+                if (img.GetComponentInParent<ScrollRect>() != null) continue;
                 if (!CoversScreen(img.rectTransform)) continue;
                 img.raycastTarget = false;
                 Log(img.gameObject, "Image alpha≈0");

@@ -176,6 +176,8 @@ namespace CoastRun
                 player.enabled = true;
             if (player != null && player.State == SkateState.Finish) player.ResetSoftState();   // 22차-5: 골인 상태로 다음 스테이지에 들어오지 않게
 
+            // 24차-6: 지난 스테이지의 타일·픽업 머티리얼(참조 끊긴 것)을 여기서 비운다. 비동기라 프레임을 막지 않는다.
+            Resources.UnloadUnusedAssets();
             OnStageStart?.Invoke(def);
         }
 

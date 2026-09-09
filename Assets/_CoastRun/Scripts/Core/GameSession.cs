@@ -348,6 +348,8 @@ namespace CoastRun
             // learning a layout rather than fighting a new random one each attempt.
             if (obstacles != null && player != null)
                 obstacles.ResetForStage(stage.stageIndex, player.PathDistance);
+            if (coins != null && player != null)
+                coins.ResetForStage(stage.stageIndex, player.PathDistance);   // 24차-8
             if (RunTuning.HasSeason)
                 seasonWeather?.ForceSeason(RunTuning.Season, WeatherKind.Clear, true);
             else

@@ -11,14 +11,19 @@ namespace CoastRun
         private static Shader _unlit;
         private static Shader _toon;
 
+        // 24차-6(점검 2-1): 스폰마다 만든 머티리얼을 강참조 리스트가 영원히 붙잡아 씬 재로드 후에도 해제되지 않았다
+        // (타일당 ~50개 + 젤리 스테이지당 1000개 이상). 라이브 팔레트 갱신은 에디터 OnValidate에서만 쓰므로
+        // 에디터에서만, 그것도 약참조로 추적한다. 빌드에선 추적 자체를 하지 않는다.
         private struct Tracked
         {
-            public Material Material;
+            public WeakReference<Material> Ref;
             public Func<Color> Getter;
             public bool Unlit;
         }
 
+#if UNITY_EDITOR
         private static readonly List<Tracked> TrackedMats = new List<Tracked>(128);
+#endif
 
         public static Shader LitShader
         {
@@ -279,19 +284,34 @@ namespace CoastRun
 
         public static void RefreshTracked()
         {
+#if UNITY_EDITOR
             for (int i = TrackedMats.Count - 1; i >= 0; i--)
             {
                 var t = TrackedMats[i];
-                if (t.Material == null)
+                if (t.Ref == null || !t.Ref.TryGetTarget(out var mat) || mat == null)
                 {
                     TrackedMats.RemoveAt(i);
                     continue;
                 }
 
                 Color c = t.Getter != null ? t.Getter() : Color.magenta;
-                ApplyColor(t.Material, c, t.Unlit);
-                if (!t.Unlit && t.Material.HasProperty("_ShadowColor"))
-                    t.Material.SetColor("_ShadowColor", CoastPalette.ShadowCool);
+                ApplyColor(mat, c, t.Unlit);
+                if (!t.Unlit && mat.HasProperty("_ShadowColor"))
+                    mat.SetColor("_ShadowColor", CoastPalette.ShadowCool);
+            }
+#endif
+        }
+
+        /// 에디터 진단용: 현재 추적 중인 머티리얼 수.
+        public static int TrackedCount
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return TrackedMats.Count;
+#else
+                return 0;
+#endif
             }
         }
 
@@ -313,9 +333,16 @@ namespace CoastRun
 
         private static void Track(Material mat, Func<Color> getter, bool unlit)
         {
+#if UNITY_EDITOR
             if (mat == null || getter == null)
                 return;
-            TrackedMats.Add(new Tracked { Material = mat, Getter = getter, Unlit = unlit });
+            // 죽은 항목이 쌓이지 않게 512개마다 한 번 정리
+            if ((TrackedMats.Count & 511) == 511)
+                for (int i = TrackedMats.Count - 1; i >= 0; i--)
+                    if (TrackedMats[i].Ref == null || !TrackedMats[i].Ref.TryGetTarget(out var m) || m == null)
+                        TrackedMats.RemoveAt(i);
+            TrackedMats.Add(new Tracked { Ref = new WeakReference<Material>(mat), Getter = getter, Unlit = unlit });
+#endif
         }
 
         private static void ApplyColor(Material mat, Color color, bool unlit)

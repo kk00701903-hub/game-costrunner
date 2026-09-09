@@ -15,6 +15,27 @@ namespace CoastRun
 
         private float _nextSpawnZ = 8f;
         private Transform _root;
+        // 24차-8(점검 3-2): 스테이지 리셋이 없어 재도전 뒤 이전 도달점까지 코인이 0이었고, UnityEngine.Random이라
+        // 같은 시드=같은 코스 원칙이 코인에서만 깨졌다. 장애물·젤리와 같은 방식으로 시드 RNG를 쓴다.
+        private System.Random _rng = new System.Random(777);
+
+        public void ResetForStage(int stageIndex, float startZ)
+        {
+            _rng = new System.Random(700 + stageIndex * 6131);
+            _nextSpawnZ = startZ + 8f;
+            _lineLane = 0;
+            if (_root == null) return;
+            for (int i = _root.childCount - 1; i >= 0; i--)
+            {
+                var c = _root.GetChild(i);
+                if (!c.gameObject.activeSelf) continue;
+                var cp = c.GetComponent<CoinPickup>();
+                if (cp != null) cp.Recycle(); else Destroy(c.gameObject);
+            }
+        }
+
+        private int Rnd(int minInclusive, int maxExclusive) => _rng.Next(minInclusive, maxExclusive);
+        private float Rnd(float min, float max) => min + (float)_rng.NextDouble() * (max - min);
 
         /// 23차-3: 골인 뒤 앞쪽 코인을 전부 거둔다(풀로).
         public void ClearAhead(float z)
@@ -55,7 +76,7 @@ namespace CoastRun
             while (_nextSpawnZ < z + spawnAhead)
             {
                 SpawnPattern(_nextSpawnZ);
-                _nextSpawnZ += (spawnInterval + Random.Range(-1.5f, 2.5f)) * RunRhythm.CoinIntervalMul(_nextSpawnZ);
+                _nextSpawnZ += (spawnInterval + Rnd(-1.5f, 2.5f)) * RunRhythm.CoinIntervalMul(_nextSpawnZ);
             }
 
             for (int i = _root.childCount - 1; i >= 0; i--)
@@ -74,28 +95,28 @@ namespace CoastRun
 
         private void SpawnPattern(float z)
         {
-            int lane = Random.Range(-1, 2);
-            int pattern = Random.Range(0, 4);
+            int lane = Rnd(-1, 2);
+            int pattern = Rnd(0, 4);
             Transform follow = player != null ? player.transform : null;
 
             // 14차 리듬: 코인 라인 구간엔 한 레인에 길게, 다음 줄은 옆 레인으로 — '따라가면 되는' 길.
             var phase = RunRhythm.At(z);
             if (phase == RunRhythm.Phase.CoinLine)
             {
-                int count = 9 + Random.Range(0, 4);
+                int count = 9 + Rnd(0, 4);
                 for (int i = 0; i < count; i++)
                     Place(z + i * 2.0f, _lineLane, i % 5 == 4, follow);
-                int step = Random.Range(0, 2) == 0 ? -1 : 1;
+                int step = Rnd(0, 2) == 0 ? -1 : 1;
                 _lineLane = Mathf.Clamp(_lineLane + step, -1, 1);
-                if (_lineLane == 0 && Random.Range(0, 3) == 0) _lineLane = step;   // 가운데에만 머물지 않게
+                if (_lineLane == 0 && Rnd(0, 3) == 0) _lineLane = step;   // 가운데에만 머물지 않게
                 return;
             }
             if (phase == RunRhythm.Phase.Crisis)
-                pattern = Random.Range(0, 2) == 0 ? 3 : 1;   // 위기 구간: 점프 아치·지그재그 위주
+                pattern = Rnd(0, 2) == 0 ? 3 : 1;   // 위기 구간: 점프 아치·지그재그 위주
 
             if (pattern == 0)
             {
-                int count = 4 + Random.Range(0, 3);
+                int count = 4 + Rnd(0, 3);
                 for (int i = 0; i < count; i++)
                     Place(z + i * 2.2f, lane, false, follow);
             }

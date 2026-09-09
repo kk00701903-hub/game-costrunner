@@ -17,7 +17,8 @@ namespace CoastRun.EditorTools
 
         static VideoFetch()
         {
-            EditorApplication.delayCall += Run;
+            // 24차-12(점검 5): 도메인 리로드마다 텍스트 파일(run.txt)에 적힌 .bat 를 확인 없이 실행하던 자동 실행을 뺀다.
+            // 메뉴 Coast Run/Fetch Firefly videos 로만 수동 실행.
         }
 
         const string RunPath = "Tools/FireflyVideo/run.txt";   // 한 줄: 실행할 .bat 절대경로 — 한 번 실행하고 지운다

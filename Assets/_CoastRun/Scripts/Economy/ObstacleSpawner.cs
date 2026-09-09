@@ -90,6 +90,13 @@ namespace CoastRun
             if (_car != null)
                 Destroy(_car.gameObject);
             _car = null;
+            // 24차-7(점검 2-3): 재도전 때 이전 행이 남아 새 시드의 행과 두 겹으로 깔렸다("한 레인은 열림" 보장 깨짐).
+            // 옛 행은 z-45 스윕에도 안 걸리므로 여기서 전부 지운다. 점프대 카운터도 함께 초기화.
+            if (_root != null)
+                for (int i = _root.childCount - 1; i >= 0; i--)
+                    Destroy(_root.GetChild(i).gameObject);
+            _rowsUntilPad = 2;
+            _padsSinceLine = 0;
         }
 
         private bool _suppressed;
