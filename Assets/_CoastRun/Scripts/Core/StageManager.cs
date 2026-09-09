@@ -156,6 +156,9 @@ namespace CoastRun
             // spawners and HUD must read, so claim the singleton here.
             Instance = this;
 
+            // 38차: 시각은 챕터별 고정표(ChapterClock)에서 — 랜덤 아님
+            def.lightingTStart = ChapterClock.StartT(def.stageIndex);
+            def.lightingTEnd = Mathf.Max(def.lightingTEnd, Mathf.Min(1f, def.lightingTStart + 0.25f));
             _current = def;
             StageIndex = def.stageIndex;
             ChapterIndex = def.chapterIndex;
@@ -179,6 +182,13 @@ namespace CoastRun
             // 24차-6: 지난 스테이지의 타일·픽업 머티리얼(참조 끊긴 것)을 여기서 비운다. 비동기라 프레임을 막지 않는다.
             Resources.UnloadUnusedAssets();
             OnStageStart?.Invoke(def);
+            AnnounceStart();
+        }
+
+        /// 38차: 러닝 시작 때 짧게 「출발!」
+        private void AnnounceStart()
+        {
+            PickupFloat.Banner(Loc.T("출발!", "GO!"), new Color(1f, 0.55f, 0.25f), 0.9f);
         }
 
         /// 23차: 원격(MCP) 디버그 — 즉시 클리어.
@@ -210,6 +220,7 @@ namespace CoastRun
             environment?.ResetLightingTo(_current.lightingTStart);
             BeginSunsetClock();
             OnStageStart?.Invoke(_current);
+            AnnounceStart();
         }
 
         public void ContinueToNext()
@@ -278,7 +289,7 @@ namespace CoastRun
                 // 노을 규칙: 조명은 거리가 아니라 '시간'으로 저문다. 늦으면 해가 진 뒤(블루아워)까지 간다.
                 SunsetT = Mathf.Clamp01(_stageElapsed / SunsetSeconds);
                 float sun = Mathf.SmoothStep(0f, 1f, SunsetT);
-                t = Mathf.Lerp(_current.lightingTStart, SunsetLightT, sun);
+                t = Mathf.Max(_current.lightingTStart, Mathf.Lerp(_current.lightingTStart, SunsetLightT, sun));   // 38차: 밤 챕터는 되돌아가지 않는다
                 if (_stageElapsed > SunsetSeconds)
                 {
                     if (!SunsetLate) { SunsetLate = true; RunHudChrome.Instance?.OnSunsetPassed(); }

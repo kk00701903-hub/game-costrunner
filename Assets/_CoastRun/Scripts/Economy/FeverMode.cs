@@ -13,7 +13,7 @@ namespace CoastRun
         /// 피버 중 자석 반경 보정(코인·말랑이 Update에서 더한다).
         public static float MagnetBonus => Active ? 14f : 0f;
 
-        public float Duration = 3f;
+        public float Duration = 5f;   // 38차: 3→5초
         public float FirstOfferAfter = 9f;     // 스테이지 시작 후 첫 제안
         public float OfferEvery = 24f;         // 그 다음부터 간격
         public float OfferWindow = 6f;         // 버튼이 떠 있는 시간

@@ -148,6 +148,26 @@ namespace CoastRun
             return false;
         }
 
+        // 38차: 키보드가 또 안 먹는 문제 — 세 겹으로 받는다.
+        //  ① Input.GetKeyDown(키·키패드)  ② 축(Horizontal/Vertical) 엣지  ③ OnGUI 의 KeyDown 이벤트(에디터 포커스 상태·안드로이드 하드웨어 키보드처럼
+        //  Input.GetKeyDown 이 놓치는 경우) — ③은 같은 프레임에 ①이 이미 받았으면 무시(중복 방지). 원격(MCP) 화살표 키도 여기로.
+        private int _guiLane; private bool _guiJump, _guiCrouch; private int _guiFrame = -1;
+        private int _keyLaneFrame = -9, _keyJumpFrame = -9, _keyCrouchFrame = -9;
+        private void OnGUI()
+        {
+            var e = Event.current;
+            if (e == null || e.type != EventType.KeyDown) return;
+            switch (e.keyCode)
+            {
+                case KeyCode.LeftArrow: case KeyCode.A: case KeyCode.Keypad4: _guiLane = -1; break;
+                case KeyCode.RightArrow: case KeyCode.D: case KeyCode.Keypad6: _guiLane = 1; break;
+                case KeyCode.UpArrow: case KeyCode.W: case KeyCode.Keypad8: case KeyCode.Space: _guiJump = true; break;
+                case KeyCode.DownArrow: case KeyCode.S: case KeyCode.Keypad2: _guiCrouch = true; break;
+                default: return;
+            }
+            _guiFrame = Time.frameCount;
+        }
+
         private void PollKeyboard()
         {
             int ax = 0, ay = 0;
@@ -157,16 +177,29 @@ namespace CoastRun
             bool axUp = ay > 0 && _axisYPrev <= 0, axDown = ay < 0 && _axisYPrev >= 0;
             _axisXPrev = ax; _axisYPrev = ay;
 
-            if (KeyDown(KeyCode.A, KeyCode.LeftArrow, KeyCode.Keypad4) || axLeft)
-                IssueLane(-1);
-            else if (KeyDown(KeyCode.D, KeyCode.RightArrow, KeyCode.Keypad6) || axRight)
-                IssueLane(1);
+            bool kLeft = KeyDown(KeyCode.A, KeyCode.LeftArrow, KeyCode.Keypad4) || axLeft || CoastRemoteKeys.Down(KeyCode.LeftArrow);
+            bool kRight = KeyDown(KeyCode.D, KeyCode.RightArrow, KeyCode.Keypad6) || axRight || CoastRemoteKeys.Down(KeyCode.RightArrow);
+            bool kUp = KeyDown(KeyCode.W, KeyCode.UpArrow, KeyCode.Keypad8, KeyCode.Space, KeyCode.JoystickButton0) || axUp || CoastRemoteKeys.Down(KeyCode.UpArrow);
+            bool kDown = KeyDown(KeyCode.S, KeyCode.DownArrow, KeyCode.Keypad2, KeyCode.JoystickButton1) || axDown || CoastRemoteKeys.Down(KeyCode.DownArrow);
+            // ③ OnGUI 이벤트 — 지난 프레임에 잡힌 키. ①②가 이미 받았으면 버린다.
+            // (OnGUI 는 Update 뒤에 오므로 ③은 한 프레임 늦게 보인다 → ①이 그 프레임에 이미 받았으면 중복이라 버린다)
+            int now = Time.frameCount;
+            if (kLeft || kRight) _keyLaneFrame = now;
+            if (kUp) _keyJumpFrame = now;
+            if (kDown) _keyCrouchFrame = now;
+            bool guiFresh = _guiFrame >= 0 && now - _guiFrame <= 1;
+            if (guiFresh)
+            {
+                if (_guiLane != 0 && !kLeft && !kRight && _keyLaneFrame != _guiFrame) { if (_guiLane < 0) kLeft = true; else kRight = true; }
+                if (_guiJump && !kUp && _keyJumpFrame != _guiFrame) kUp = true;
+                if (_guiCrouch && !kDown && _keyCrouchFrame != _guiFrame) kDown = true;
+            }
+            _guiLane = 0; _guiJump = false; _guiCrouch = false; _guiFrame = -1;
 
-            if (KeyDown(KeyCode.W, KeyCode.UpArrow, KeyCode.Keypad8, KeyCode.Space, KeyCode.JoystickButton0) || axUp)
-                IssueJump();
-
-            if (KeyDown(KeyCode.S, KeyCode.DownArrow, KeyCode.Keypad2, KeyCode.JoystickButton1) || axDown)
-                IssueCrouch();
+            if (kLeft) IssueLane(-1);
+            else if (kRight) IssueLane(1);
+            if (kUp) IssueJump();
+            if (kDown) IssueCrouch();
 
             if (KeyHeld(KeyCode.S, KeyCode.DownArrow, KeyCode.Keypad2, KeyCode.JoystickButton1) || ay < 0)
                 _crouchHeld = true;

@@ -66,7 +66,27 @@ namespace CoastRun
                 r.sharedMaterials = mapped;
                 r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             }
+            // 38차: 돌하르방은 밤에 너무 새카매진다 — 전용 밝은 현무암 재질 + 어두워질수록 살짝만 끌어올린다(HareubangTone)
+            if (name == "Prop_Hareubang")
+            {
+                _hareubang ??= HareubangMat();
+                foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+                {
+                    var arr = new Material[r.sharedMaterials.Length];
+                    for (int i = 0; i < arr.Length; i++) arr[i] = _hareubang;
+                    r.sharedMaterials = arr;
+                }
+                go.AddComponent<HareubangTone>();
+            }
             return go;
+        }
+
+        private static Material _hareubang;
+        private static Material HareubangMat()
+        {
+            var m = CoastMaterials.CreateToon(new Color(0.46f, 0.44f, 0.46f), null, null, 0.04f);
+            CoastMaterials.SetShadow(m, new Color(0.66f, 0.62f, 0.66f, 1f), 0.3f);   // 그늘도 밝은 회색
+            return m;
         }
 
         private static readonly Dictionary<string, float> UnitFixes = new Dictionary<string, float>();

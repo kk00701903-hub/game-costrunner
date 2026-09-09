@@ -8,7 +8,8 @@ namespace CoastRun
         BigJelly,     // bonus-time jelly: 3× score
         Potion,       // big stamina refill
         BonusStar,    // starts Bonus Time
-        Heart         // 말랑이 하트: 호감도. 챕터 S급 판정의 핵심 재화
+        Heart,        // 말랑이 하트: 호감도. 챕터 S급 판정의 핵심 재화
+        Photocard     // 38차: 포토카드 — 먹으면 등급(N/R/SR/SSR)을 뽑아 카드 한 장
     }
 
     /// Cookie-Run pickups. Jellies are the breadcrumbs that pull the player through
@@ -81,6 +82,11 @@ namespace CoastRun
                     else BuildHeart(vis);
                     radius = 0.7f;
                     break;
+                case PickupKind.Photocard:
+                    if (PaintedProp.Available("Photocard")) PaintedProp.Attach(vis, "Photocard", 1.0f, replace: false, outline: true);
+                    else BuildStar(vis);
+                    radius = 0.75f;
+                    break;
                 default:
                     BuildJelly(vis, colorIndex, 0.36f, false);   // 21차-3: 0.3→0.36, 멀리서도 읽히게
                     radius = 0.55f;
@@ -95,10 +101,14 @@ namespace CoastRun
             BlobShadow.Attach(go.transform, kind == PickupKind.Jelly ? 0.4f : 0.6f);
             // 12차 시인성: 먹는 것은 전부 빛난다. 종류별 색으로 멀리서도 구분.
             Color glow = kind == PickupKind.Heart ? new Color(1f, 0.45f, 0.6f)
+                       : kind == PickupKind.Photocard ? new Color(1f, 0.75f, 0.95f)
                        : kind == PickupKind.Potion ? new Color(0.5f, 0.9f, 1f)
                        : kind == PickupKind.BonusStar ? new Color(1f, 0.9f, 0.4f)
                        : new Color(0.75f, 1f, 0.8f);
             PickupGlow.Attach(go.transform, glow, kind == PickupKind.Jelly ? 0.7f : 1.05f, kind == PickupKind.Jelly ? 0.22f : 0.32f);
+            // 38차: 아이템(물약·별·하트)은 발밑 도로에 파란 깜빡이 링 — 장애물의 빨간 링과 짝
+            if (kind == PickupKind.Potion || kind == PickupKind.BonusStar || kind == PickupKind.Heart || kind == PickupKind.Photocard)
+                HazardRing.Attach(go.transform, 0.55f, HazardRing.Item, RoadPlacement.OnRoad(DownhillPath.DistanceAlong(worldPos), worldPos.x, 0f).y);
             return p;
         }
 
@@ -346,6 +356,20 @@ namespace CoastRun
                     hud?.Flash(new Color(1f, 0.6f, 0.75f, 0.28f));
                     StageRunStats.Instance?.NotifyHeart(1);
                     break;
+                case PickupKind.Photocard:
+                {
+                    hud?.AddScore(80, pos, true);
+                    hud?.Flash(new Color(1f, 0.8f, 0.95f, 0.3f));
+                    int id = Collection.RollCardDrop(new System.Random(Mathf.RoundToInt(transform.position.z * 31f) ^ System.Environment.TickCount));
+                    if (id > 0)
+                    {
+                        var def = PhotocardTable.Get(id); var g = PhotocardTable.GradeOf(id);
+                        PickupFloat.Banner($"[{Collection.GradeName(g)}] {def.Name}", Collection.GradeColor(g), 1.6f);
+                        CoastToast.Show(Loc.T($"포토카드 획득 — [{Collection.GradeName(g)}] {def.Name}", $"Photocard — [{Collection.GradeName(g)}] {def.Name}"));
+                    }
+                    else { CoastToast.Show(Loc.T("포토카드 전부 모았어 — 코인 +50", "All photocards collected — +50 coins")); FindFirstObjectByType<CoinWallet>()?.Add(50); }
+                    break;
+                }
             }
 
             var col = GetComponent<Collider>();

@@ -13,18 +13,25 @@ namespace CoastRun
         private float _phase;
         private static Texture2D _ring;
 
-        public static readonly Color Warn = new Color(1f, 0.32f, 0.16f, 1f);
+        public static readonly Color Warn = new Color(1f, 0.10f, 0.08f, 1f);   // 38차: 더 빨갛게
+        /// 38차: 아이템(물약·별·하트) 발밑 파란 링
+        public static readonly Color Item = new Color(0.25f, 0.62f, 1f, 1f);
+        private Color _color = Warn;
 
-        public static HazardRing Attach(Transform host, float radius = 0.7f)
+        /// 38차: color 를 주면 그 색(아이템=파랑), groundY 를 주면 링을 그 월드 높이에 깐다(떠 있는 아이템용).
+        public static HazardRing Attach(Transform host, float radius = 0.7f, Color? color = null, float? groundY = null)
         {
             if (host == null)
                 return null;
             var h = host.GetComponent<HazardRing>() ?? host.gameObject.AddComponent<HazardRing>();
             h._phase = Random.value * 6.28f;
+            h._color = color ?? Warn;
+            if (!color.HasValue) radius *= 1.25f;   // 38차: 장애물 링은 더 크게
             if (h._quad == null)
                 h.Build(radius);
             else
                 h._quad.localScale = new Vector3(radius * 2f, radius * 2f, 1f);
+            if (groundY.HasValue) h._quad.position = new Vector3(host.position.x, groundY.Value + 0.035f, host.position.z);
             return h;
         }
 
@@ -38,7 +45,7 @@ namespace CoastRun
             _quad.localRotation = Quaternion.Euler(90f, 0f, 0f);
             _quad.localPosition = new Vector3(0f, 0.035f, 0f);
             _quad.localScale = new Vector3(radius * 2f, radius * 2f, 1f);
-            _mat = CoastMaterials.CreateTexturedTransparentCurved(RingTexture(), new Color(Warn.r, Warn.g, Warn.b, 0.8f));
+            _mat = CoastMaterials.CreateTexturedTransparentCurved(RingTexture(), new Color(_color.r, _color.g, _color.b, 0.8f));
             _mat.renderQueue = 2955;   // 블롭 그림자(2950) 바로 위
             var mr = go.GetComponent<MeshRenderer>();
             mr.sharedMaterial = _mat;
@@ -50,9 +57,10 @@ namespace CoastRun
         {
             if (_mat == null)
                 return;
-            // 천천히 맥동 — 정적인 데칼은 바닥 무늬로 묻힌다.
-            float a = 0.62f + 0.18f * Mathf.Sin(Time.time * 3.1f + _phase);
-            _mat.SetColor("_BaseColor", new Color(Warn.r, Warn.g, Warn.b, a));
+            // 38차: 또렷하게 깜빡인다(초당 2.2회, 켜짐 0.95 ↔ 꺼짐 0.25) — 굵은 선 링이 켜졌다 꺼졌다 한다.
+            float w = 0.5f + 0.5f * Mathf.Sin(Time.time * 13.8f + _phase);
+            float a = Mathf.Lerp(0.25f, 0.95f, Mathf.SmoothStep(0f, 1f, w));
+            _mat.SetColor("_BaseColor", new Color(_color.r, _color.g, _color.b, a));
         }
 
         /// 128² 링: 바깥 테두리 진하고 안쪽으로 옅어지는 도넛 + 얇은 중심 점.
@@ -72,10 +80,11 @@ namespace CoastRun
                 float dx = (x + 0.5f) / n * 2f - 1f;
                 float dy = (y + 0.5f) / n * 2f - 1f;
                 float r = Mathf.Sqrt(dx * dx + dy * dy);
-                float band = 1f - Mathf.Clamp01(Mathf.Abs(r - 0.82f) / 0.14f);   // 링
-                float inner = (1f - Mathf.SmoothStep(0.0f, 0.78f, r)) * 0.28f;  // 안쪽 옅은 채움
-                float a = Mathf.Clamp01(band * band + inner);
-                if (r > 0.98f) a = 0f;
+                // 38차: 굵은 선(폭 0.22)의 또렷한 동그라미 + 아주 옅은 안쪽 채움
+                float band = Mathf.Clamp01((0.11f - Mathf.Abs(r - 0.80f)) / 0.025f);   // 링 (r 0.69~0.91, 가장자리만 부드럽게)
+                float inner = (1f - Mathf.SmoothStep(0.0f, 0.7f, r)) * 0.10f;
+                float a = Mathf.Clamp01(band + inner);
+                if (r > 0.95f) a = 0f;
                 px[y * n + x] = new Color32(255, 255, 255, (byte)(a * 255f));
             }
             tex.SetPixels32(px);

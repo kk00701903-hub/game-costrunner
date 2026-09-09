@@ -304,7 +304,10 @@ namespace CoastRun
                 // 아케이드: 점수 정산 + 결과창(다시/나가기)
                 runStats?.EndStage();
                 ArcadeRun.Settle(GameManager.I, runStats);
-                ArcadeResultUI.Show(runStats, () => stages?.RetryCurrent(), ArcadeRun.Exit);
+                // 38차: K-POP 러닝도 시안 결과 화면(아쉽지만 다음에!)으로 — 옛 '노을 달리기 결과' 카드는 안 쓴다
+                var ac = feedback != null ? feedback.Chrome : null;
+                if (ac != null) ac.ShowRunOver(() => stages?.RetryCurrent(), () => ArcadeRun.Exit(), "나가기");
+                else ArcadeResultUI.Show(runStats, () => stages?.RetryCurrent(), ArcadeRun.Exit);
                 return;
             }
             var chrome = feedback != null ? feedback.Chrome : null;

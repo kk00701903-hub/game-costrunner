@@ -513,8 +513,13 @@ namespace CoastRun
             var st = StageRunStats.Instance;
             int dist = sm != null ? Mathf.RoundToInt(sm.StageLocalDistance) : 0;
             float goal = sm != null && sm.Current != null ? sm.Current.targetDistance : 0f;
-            float prog = goal > 1f ? Mathf.Clamp01(dist / goal) : 0f;
-            int stars = prog >= 0.66f ? 2 : prog >= 0.30f ? 1 : 0;
+            // 38차: K-POP(아케이드) 런 — 목표 대신 최고 기록 기준
+            bool arcade = ArcadeRun.Active;
+            var prof = GameManager.I != null ? GameManager.I.Profile : null;
+            int bestDist = prof != null ? prof.endlessBestDist : 0;
+            if (arcade) { dist = Mathf.RoundToInt(ArcadeRun.Distance); goal = 0f; }
+            float prog = goal > 1f ? Mathf.Clamp01(dist / goal) : (arcade && bestDist > 0 ? Mathf.Clamp01(dist / (float)bestDist) : 0f);
+            int stars = arcade ? (dist >= bestDist && dist > 0 ? 3 : prog >= 0.66f ? 2 : prog >= 0.30f ? 1 : 0) : (prog >= 0.66f ? 2 : prog >= 0.30f ? 1 : 0);
             var starSp = CoastUiArt.Icon("Star");
             for (int i = 0; i < 3; i++)
             {
@@ -524,7 +529,7 @@ namespace CoastRun
                 else { star.sprite = CoastUiArt.RoundedRect(24); star.type = Image.Type.Sliced; star.color = i < stars ? new Color(1f, 0.8f, 0.2f) : new Color(0.5f, 0.5f, 0.52f); }
                 star.raycastTarget = false;
             }
-            var starLabel = CoastHudLayout.MakeText(root, "StarLabel", Loc.T($"실패 · 별 {stars} / 3", $"Failed · {stars} / 3 stars"), 14, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(430f, -470f), new Vector2(660f, -440f));
+            var starLabel = CoastHudLayout.MakeText(root, "StarLabel", arcade ? Loc.T($"기록 · 별 {stars} / 3", $"Record · {stars} / 3 stars") : Loc.T($"실패 · 별 {stars} / 3", $"Failed · {stars} / 3 stars"), 14, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(430f, -470f), new Vector2(660f, -440f));
             starLabel.color = new Color(1f, 0.92f, 0.75f); CoastUiArt.OutlineText(starLabel, new Color(0.2f, 0.1f, 0.05f, 0.8f), 1.5f);
 
             // ── 결과 패널 ──
@@ -543,7 +548,7 @@ namespace CoastRun
                 line.raycastTarget = false;
             }
             // 큰 두 칸: 거리 / 점수
-            int score = Score;
+            int score = arcade ? ArcadeRun.LastScore : Score;
             void Big(float x0, float x1, string icon, string label, string value)
             {
                 var lb = CoastHudLayout.MakeText(prt, "Lb", label, 16, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0, -100f), new Vector2(x1, -66f));
@@ -584,10 +589,12 @@ namespace CoastRun
             warnEdge.rectTransform.anchorMin = Vector2.zero; warnEdge.rectTransform.anchorMax = Vector2.one; warnEdge.rectTransform.offsetMin = Vector2.zero; warnEdge.rectTransform.offsetMax = Vector2.zero; warnEdge.raycastTarget = false;
             var warnFill = CoastUiArt.Panel(warn.transform, "Fill", new Color(0.99f, 0.85f, 0.68f), 14);
             warnFill.rectTransform.anchorMin = Vector2.zero; warnFill.rectTransform.anchorMax = Vector2.one; warnFill.rectTransform.offsetMin = new Vector2(3f, 3f); warnFill.rectTransform.offsetMax = new Vector2(-3f, -3f); warnFill.raycastTarget = false;
-            string reason = goal > 1f ? Loc.T($"! 목표 거리 {goal:N0} m 미달", $"! Short of {goal:N0} m goal") : Loc.T("! 체력이 다 떨어졌어요", "! Out of stamina");
+            bool newBest = arcade && dist > 0 && dist >= bestDist;
+            string reason = arcade ? (newBest ? Loc.T("★ 최고 기록 갱신!", "★ New best!") : Loc.T($"최고 기록 {bestDist:N0} m · {(prof != null ? prof.endlessBestScore : 0):N0}점", $"Best {bestDist:N0} m · {(prof != null ? prof.endlessBestScore : 0):N0} pts"))
+                          : goal > 1f ? Loc.T($"! 목표 거리 {goal:N0} m 미달", $"! Short of {goal:N0} m goal") : Loc.T("! 체력이 다 떨어졌어요", "! Out of stamina");
             var w1 = CoastHudLayout.MakeText(warn.transform, "W1", reason, 19, TextAnchor.MiddleCenter, new Vector2(0f, 0.5f), new Vector2(1f, 1f), new Vector2(10f, -4f), new Vector2(-10f, -8f));
             w1.color = new Color(0.55f, 0.25f, 0.08f); w1.fontStyle = FontStyle.Bold;
-            var w2 = CoastHudLayout.MakeText(warn.transform, "W2", Loc.T("이번에는 실패했어요. 다음에는 더 멀리 달려봐요!", "Not this time. Run farther next time!"), 14, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 0.5f), new Vector2(10f, 8f), new Vector2(-10f, 2f));
+            var w2 = CoastHudLayout.MakeText(warn.transform, "W2", arcade ? Loc.T("코인은 그대로 챙겼어요. 한 번 더 달려봐요!", "Coins are yours. Run once more!") : Loc.T("이번에는 실패했어요. 다음에는 더 멀리 달려봐요!", "Not this time. Run farther next time!"), 14, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 0.5f), new Vector2(10f, 8f), new Vector2(-10f, 2f));
             w2.color = new Color(0.55f, 0.35f, 0.22f);
 
             // 버튼

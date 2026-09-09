@@ -11,7 +11,7 @@ namespace CoastRun
         // ── 유료 권한 ──
         public const int FreeChapters = 5;              // 봄 시즌 무료
         public static bool AlbumOwned => (P != null && P.albumOwned) || PlayerPrefs.GetInt("CoastRun_AlbumOwned", 0) == 1;
-        public static bool CanPlayChapter(int chapter) => chapter <= FreeChapters || AlbumOwned;
+        public static bool CanPlayChapter(int chapter) => true;   // 38차: 디지털 앨범 구매 삭제 — 전 챕터 무료
         public static void GrantAlbum()
         {
             PlayerPrefs.SetInt("CoastRun_AlbumOwned", 1); PlayerPrefs.Save();
@@ -59,6 +59,34 @@ namespace CoastRun
             if (fresh || freshSign) p.cardNewMask |= bit;
             Save();
             return fresh || freshSign;
+        }
+
+        // ── 38차: 포토카드 등급·드롭 ──
+        /// 등급별 드롭 확률(%). 러닝 중 포토카드 아이템을 먹으면 등급을 뽑고 그 등급의 안 가진 카드 하나를 준다.
+        public static readonly int[] GradeWeights = { 55, 30, 12, 3 };   // N / R / SR / SSR
+        public static string GradeName(CardGrade g) => g == CardGrade.SSR ? "SSR" : g == CardGrade.SR ? "SR" : g == CardGrade.R ? "R" : "N";
+        public static Color GradeColor(CardGrade g) => g == CardGrade.SSR ? new Color(1f, 0.62f, 0.18f) : g == CardGrade.SR ? new Color(0.72f, 0.42f, 0.95f) : g == CardGrade.R ? new Color(0.30f, 0.62f, 0.98f) : new Color(0.55f, 0.72f, 0.60f);
+
+        /// 러닝 아이템 드롭. 반환: 얻은 카드 id(0 = 전부 보유 → 코인 보상).
+        public static int RollCardDrop(System.Random rng)
+        {
+            var p = P; if (p == null) return 0;
+            int r = rng.Next(100), acc = 0; int gi = 0;
+            for (int i = 0; i < GradeWeights.Length; i++) { acc += GradeWeights[i]; if (r < acc) { gi = i; break; } }
+            // 뽑힌 등급에 남은 카드가 없으면 아래 등급 → 위 등급 순으로
+            int[] order = { gi, gi - 1, gi - 2, gi - 3, gi + 1, gi + 2, gi + 3 };
+            foreach (int g in order)
+            {
+                if (g < 0 || g > 3) continue;
+                var pool = new System.Collections.Generic.List<int>();
+                for (int id = 1; id <= PhotocardTable.Count; id++)
+                    if (!HasCard(id) && PhotocardTable.GradeOf(id) == (CardGrade)g) pool.Add(id);
+                if (pool.Count == 0) continue;
+                int pick = pool[rng.Next(pool.Count)];
+                GiveCard(pick);
+                return pick;
+            }
+            return 0;
         }
 
         // ── 훅 ──

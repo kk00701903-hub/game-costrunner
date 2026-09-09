@@ -140,13 +140,13 @@ namespace CoastRun
             {
                 JejuKit.Spawn("Obs3_Cone", root.transform, Vector3.zero, 0f, 0.72f / 0.78f);
                 FinishCone(root, lane);
-                ObstacleOutline.Attach(root.transform, 1.12f);
+                ObstacleOutline.Attach(root.transform);
                 return root;
             }
             // Firefly-painted cone wins; otherwise the FBX prefab / procedural cone below.
             if (PaintedProp.Available("Cone"))
             {
-                PaintedProp.Attach(root.transform, "Cone", 0.72f, replace: false, outline: true, outlineColor: ObstacleOutline.Red, outlineMul: 3.6f);
+                PaintedProp.Attach(root.transform, "Cone", 0.72f, replace: false, outline: true);   // 38차: 붉은 테두리 원복
                 FinishCone(root, lane);
                 return root;
             }

@@ -43,6 +43,21 @@ namespace CoastRun
         public static GameObject Spawn(ObstacleId id, Transform parent, Vector3 worldPos, int lane)
         {
             var go = SpawnInner(id, parent, worldPos, lane);
+            // 38차 전수조사: 어떤 장애물이든 발밑에 붉은 깜빡이 링이 반드시 하나 있게(없으면 크기에 맞춰 붙인다)
+            if (go != null && go.GetComponentInChildren<HazardRing>() == null)
+            {
+                float rr = 0.7f;
+                var rs = go.GetComponentsInChildren<Renderer>();
+                if (rs.Length > 0)
+                {
+                    var b = rs[0].bounds; foreach (var r in rs) if (r.enabled && r.gameObject.name != "Outline") b.Encapsulate(r.bounds);
+                    rr = Mathf.Clamp(Mathf.Max(b.extents.x, b.extents.z) * 1.15f, 0.55f, 1.6f);
+                }
+                HazardRing.Attach(go.transform, rr);
+            }
+            // 38차: 도로 점유표에 등록 + 근처 코인·말랑이 걷어내기(오리 장애물은 전 레인)
+            bool wide = id == ObstacleId.OverheadBar || id == ObstacleId.Clothesline || id == ObstacleId.LanternString;
+            RoadOccupancy.OnObstacle(DownhillPath.DistanceAlong(worldPos), wide ? RoadOccupancy.AllLanes : lane);
             // 14차-10: 첫 등장 하이라이트('!' + 통통 + 빨간 테두리) — 피할 시간을 준다
             ObstacleWarning.Attach(go);
             return go;
@@ -118,7 +133,7 @@ namespace CoastRun
                 AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
                 BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
                 HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));
-                ObstacleOutline.Attach(root.transform, 1.05f);
+                ObstacleOutline.Attach(root.transform);
                 return root;
             }
             // Firefly painting first (Resources/CoastRun/Obs_<key>.png); the block below
@@ -129,7 +144,7 @@ namespace CoastRun
                 root.transform.SetParent(parent, false);
                 root.transform.position = worldPos;
                 root.transform.rotation = DownhillPath.Rotation;
-                PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false, outline: true, outlineColor: ObstacleOutline.Red, outlineMul: 3.6f);   // 33차: 붉은 굵은 테두리
+                PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false, outline: true);   // 38차: 붉은 굵은 테두리 원복(바닥 링으로 대신)
                 AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
                 BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
                 HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));

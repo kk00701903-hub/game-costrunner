@@ -9,8 +9,9 @@ namespace CoastRun
         private static Material _ink;
         /// 33차: 장애물 테두리 색(붉은색) — 메시 헐과 그림 테두리가 같은 색을 쓴다.
         public static readonly Color Red = new Color(0.88f, 0.12f, 0.14f, 1f);
+        public static readonly Color Ink = new Color(0.10f, 0.08f, 0.12f, 1f);
 
-        public static void Attach(Transform root, float scale = 1.12f)   // 35차: 1.10→1.12(+20%)
+        public static void Attach(Transform root, float scale = 1.05f)   // 38차: 붉은 굵은 선 원복 → 14차 잉크 선(1.05)
         {
             if (root == null)
                 return;
@@ -43,7 +44,7 @@ namespace CoastRun
 
         private static Material Make()
         {
-            var ink = CoastMaterials.CreateUnlit(() => Red);   // 33차: 붉은 굵은 선(14차-11 잉크 → 사용자 요청)
+            var ink = CoastMaterials.CreateUnlit(() => Ink);   // 38차: 원복 — 14차-11 잉크 선. 장애물 표시는 바닥의 붉은 깜빡이 링(HazardRing)
             if (ink.HasProperty("_Cull"))
                 ink.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Front);
             return ink;

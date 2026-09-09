@@ -1285,10 +1285,7 @@ namespace CoastRun
             _gm.SetQueued(slot, def.id);
             _selectedSlot = -1;
             RefreshSlots();
-            // 14차-8: 카드에서 뺀 수치는 고른 순간 토스트로 한 줄 보여 준다.
-            string info = Describe(def, Timeline.SeasonOf(Save.week));
-            int nl = info.IndexOf('\n');
-            Toast(def.Name + " · " + (nl > 0 ? info.Substring(0, nl) : info));
+            // 38차: 카드를 고를 때 뜨던 수치 토스트 삭제(사용자 요청)
         }
 
         /// [스토리] 버튼: 남은 칸을 스토리로 채우고 바로 실행.

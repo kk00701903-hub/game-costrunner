@@ -289,5 +289,48 @@ namespace CoastRun
 
         // ── 디버그 ────────────────────────────────────────────────────────
         public static string LastSceneLabel { get; private set; }
-    }
+    
+        // ── 38차: 페인팅 사이드 스트립 — Kling 그림(Resources/CoastRun/Side_<key>.png, 마젠타 키)을 도로 옆에 30 m 띠로 세운다.
+        //    폴리곤 상가·바위 대신 레퍼런스(해안도로 그림) 같은 채색 배경. 그림이 없으면 false 를 돌려 옛 빌더로.
+        private static readonly System.Collections.Generic.Dictionary<string, Material> _sideMats = new System.Collections.Generic.Dictionary<string, Material>();
+        public static bool HasPaintedSide(string key) => ArtAssets.LoadTexture("Side_" + key) != null;
+        private static bool BuildPaintedSide(Transform root, int side, string key, int index, float heightM, float offsetX = 1.6f)
+        {
+            var tex = ArtAssets.LoadTexture("Side_" + key);
+            if (tex == null) return false;
+            if (!_sideMats.TryGetValue(key, out var mat) || mat == null)
+            {
+                var shader = Shader.Find("CoastRun/ChromaUnlit") ?? CoastMaterials.UnlitShader;
+                mat = new Material(shader);
+                tex.wrapMode = TextureWrapMode.Repeat;
+                if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", tex); else mat.mainTexture = tex;
+                if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", Color.white);
+                if (mat.HasProperty("_KeyColor")) mat.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
+                _sideMats[key] = mat;
+            }
+            float worldW = heightM * tex.width / tex.height;     // 그림 한 장의 실제 폭
+            float repeat = Length / worldW;                       // 30 m 안에 몇 장
+            float uOff = ((index * 0.37f) % 1f);                  // 타일마다 시작점을 어긋나게(같은 집이 줄줄이 안 보이게)
+            var go = new GameObject("PaintedSide_" + key);
+            go.transform.SetParent(root, false);
+            float x = side * (RoadHalfWidth + offsetX);
+            go.transform.localPosition = new Vector3(x, -0.05f, 0f);
+            var mf = go.AddComponent<MeshFilter>(); var mr = go.AddComponent<MeshRenderer>();
+            var m = new Mesh { name = "SideStrip" };
+            // 세로 띠(XZ 평면에 수직) — 양면(셰이더 Cull Off)
+            m.vertices = new[] { new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, Length), new Vector3(0f, heightM, Length), new Vector3(0f, heightM, 0f) };
+            float u0 = uOff, u1 = uOff + repeat;
+            // 왼쪽(side<0)은 도로에서 봤을 때 좌우가 뒤집히지 않게 U 를 반대로
+            m.uv = side < 0 ? new[] { new Vector2(u1, 0f), new Vector2(u0, 0f), new Vector2(u0, 1f), new Vector2(u1, 1f) }
+                            : new[] { new Vector2(u0, 0f), new Vector2(u1, 0f), new Vector2(u1, 1f), new Vector2(u0, 1f) };
+            m.triangles = new[] { 0, 2, 1, 0, 3, 2 };
+            m.RecalculateNormals(); m.RecalculateBounds();
+            mf.sharedMesh = m; mr.sharedMaterial = mat;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; mr.receiveShadows = false;
+            // 띠 뒤 바닥(잔디/자갈) — 띠 아래가 비어 보이지 않게
+            CreateBox(root, "SideGround", new Vector3(side * (RoadHalfWidth + offsetX + 5f), -0.25f, Length * 0.5f), new Vector3(10f, 0.12f, Length),
+                () => key == "Shore" ? Color.Lerp(SeasonGrass(), CoastPalette.RoadGrey, 0.35f) : Color.Lerp(CoastPalette.Sidewalk, SeasonGrass(), 0.4f));
+            return true;
+        }
+}
 }

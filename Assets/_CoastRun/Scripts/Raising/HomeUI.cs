@@ -168,7 +168,10 @@ namespace CoastRun
             var brt = bg.rectTransform; brt.anchorMin = new Vector2(0f, 1f); brt.anchorMax = new Vector2(1f, 1f); brt.pivot = new Vector2(0.5f, 1f);
             brt.anchoredPosition = Vector2.zero; brt.sizeDelta = Vector2.zero;
             var fit = bg.GetComponent<AspectRatioFitter>(); fit.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight; fit.aspectRatio = 810f / 1440f;
-            var art = ArtAssets.LoadTexture("UI_Raising_Room_" + Timeline.SeasonOf(Save != null ? Save.week : 1)) ?? ArtAssets.LoadTexture("UI_Raising_Room");
+            // 38차: 쿼터뷰(아이소메트릭) 방 그림(UI_Room_Iso, Kling) — 옛 정면 방 그림은 안 쓴다. 정사각 그림을 위에 붙이고 아래는 밤보라색.
+            var iso = ArtAssets.LoadTexture("UI_Room_Iso");
+            var art = iso ?? ArtAssets.LoadTexture("UI_Raising_Room_" + Timeline.SeasonOf(Save != null ? Save.week : 1)) ?? ArtAssets.LoadTexture("UI_Raising_Room");
+            if (iso != null) { fit.aspectRatio = (float)iso.width / iso.height; bgMask.GetComponent<Image>().color = new Color(0.15f, 0.10f, 0.24f); brt.anchorMin = new Vector2(0f, 0.5f); brt.anchorMax = new Vector2(1f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f); brt.anchoredPosition = new Vector2(0f, 40f); }
             if (art != null) bg.sprite = CoastUiArt.AsSprite(art); bg.raycastTarget = false;
             // 바닥 탭 → 걸어가기
             var floor = CoastHudLayout.MakeImage(_roomHost, "FloorTap", new Vector2(0f, 0f), new Vector2(1f, 0.46f), Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0f));
@@ -183,7 +186,7 @@ namespace CoastRun
             _charRt = new GameObject("Girl", typeof(RectTransform)).GetComponent<RectTransform>();
             _charRt.SetParent(_roomHost, false);
             _charRt.anchorMin = _charRt.anchorMax = new Vector2(0.5f, 0.12f); _charRt.pivot = new Vector2(0.5f, 0f);
-            _charRt.sizeDelta = new Vector2(210f, 300f);
+            _charRt.sizeDelta = iso != null ? new Vector2(150f, 214f) : new Vector2(210f, 300f);   // 38차: 쿼터뷰 방에선 조금 작게
             var sh = CoastHudLayout.MakeImage(_charRt, "Shadow", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-64f, -4f), new Vector2(64f, 12f), new Color(0f, 0f, 0f, 0.22f));
             sh.sprite = CoastUiArt.RoundedRect(30); sh.type = Image.Type.Sliced;
             _charImg = new GameObject("Img", typeof(RectTransform), typeof(Image)).GetComponent<Image>();

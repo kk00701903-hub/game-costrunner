@@ -26,6 +26,7 @@ namespace CoastRun
         private float _nextTrailZ = 12f;
         private float _nextPotionZ = 60f;
         private float _nextStarZ = 200f;
+        private float _nextCardZ = 420f;   // 38차: 포토카드 아이템
         private float _bonusFillZ;
         private float _nextHeartZ;
         private float _heartSpacing = 80f;
@@ -59,6 +60,7 @@ namespace CoastRun
             _nextTrailZ = startZ + 12f;
             _nextPotionZ = startZ + 90f + (float)_rng.NextDouble() * 60f;
             _nextStarZ = startZ + 320f + (float)_rng.NextDouble() * 120f;
+            _nextCardZ = startZ + 380f + (float)_rng.NextDouble() * 180f;
             _nextHeartZ = startZ + _heartSpacing * 0.6f;
             _heartsLeft = RunTuning.HeartsPerStage;
             ClearAll();
@@ -134,6 +136,11 @@ namespace CoastRun
                     _nextPotionZ += potionEvery * (0.8f + (float)_rng.NextDouble() * 0.5f);
                 }
 
+                if (_nextCardZ < z + spawnAhead)
+                {
+                    Place(PickupKind.Photocard, _nextCardZ, _rng.Next(3) - 1, 0.5f);
+                    _nextCardZ += 420f + (float)_rng.NextDouble() * 220f;
+                }
                 if (_nextStarZ < z + spawnAhead)
                 {
                     Place(PickupKind.BonusStar, _nextStarZ, _rng.Next(3) - 1, 0.5f);
@@ -229,8 +236,35 @@ namespace CoastRun
             return lane;
         }
 
+        public static JellySpawner Instance { get; private set; }
+        private void Awake() { Instance = this; }
+        private void OnDestroy() { if (Instance == this) Instance = null; }
+
+        /// 38차: 장애물이 나중에 놓였을 때 그 근처 말랑이를 걷어 낸다(아이템은 FindClear 로 이미 떨어져 있다).
+        public void RemoveNear(float z, int lane, float dz)
+        {
+            if (_root == null) return;
+            for (int i = _root.childCount - 1; i >= 0; i--)
+            {
+                var c = _root.GetChild(i);
+                if (!c.gameObject.activeSelf) continue;
+                float cz = DownhillPath.DistanceAlong(c.position);
+                if (Mathf.Abs(cz - z) > dz) continue;
+                int cl = Mathf.RoundToInt(c.position.x / laneWidth);
+                if (lane != RoadOccupancy.AllLanes && cl != lane) continue;
+                var jp = c.GetComponent<JellyPickup>();
+                if (jp != null && jp.Kind != PickupKind.Jelly && jp.Kind != PickupKind.BigJelly) continue;
+                Destroy(c.gameObject);
+            }
+        }
+
         private void Place(PickupKind kind, float z, int lane, float height, int color = -1)
         {
+            // 38차: 말랑이는 장애물 3 m 안엔 안 놓고, 아이템(물약/별/하트)은 장애물 4.5 m·다른 픽업 3.5 m 떨어진 자리로 미룬다
+            bool item = kind == PickupKind.Potion || kind == PickupKind.BonusStar || kind == PickupKind.Heart || kind == PickupKind.Photocard;
+            if (item) z = RoadOccupancy.FindClear(z, lane, 4.5f, 3.5f);
+            else if (RoadOccupancy.Near(RoadOccupancy.Kind.Obstacle, z, lane, 3f)) return;
+            RoadOccupancy.Add(item ? RoadOccupancy.Kind.Item : RoadOccupancy.Kind.Pickup, z, lane);
             Vector3 pos = RoadPlacement.OnRoad(z, lane * laneWidth, height);
             JellyPickup.Spawn(kind, _root, pos, player != null ? player.transform : null, upgrades, color);
         }

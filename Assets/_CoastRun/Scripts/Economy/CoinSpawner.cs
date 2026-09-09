@@ -23,6 +23,7 @@ namespace CoastRun
         {
             _rng = new System.Random(700 + stageIndex * 6131);
             _nextSpawnZ = startZ + 8f;
+            RoadOccupancy.Clear();
             _lineLane = 0;
             if (_root == null) return;
             for (int i = _root.childCount - 1; i >= 0; i--)
@@ -182,8 +183,29 @@ namespace CoastRun
             }
         }
 
+        /// 38차: 장애물이 나중에 놓였을 때 그 근처 코인을 걷어 낸다(하늘 코인은 제외).
+        public void RemoveNear(float z, int lane, float dz)
+        {
+            if (_root == null) return;
+            for (int i = _root.childCount - 1; i >= 0; i--)
+            {
+                var c = _root.GetChild(i);
+                if (!c.gameObject.activeSelf) continue;
+                if (c.position.y - RoadPlacement.OnRoad(z, 0f, 0f).y > 1.2f) continue;   // 아치·활공 코인은 그대로
+                float cz = DownhillPath.DistanceAlong(c.position);
+                if (Mathf.Abs(cz - z) > dz) continue;
+                int cl = Mathf.RoundToInt(c.position.x / laneWidth);
+                if (lane != RoadOccupancy.AllLanes && cl != lane) continue;
+                var cp = c.GetComponent<CoinPickup>();
+                if (cp != null) cp.Recycle(); else Destroy(c.gameObject);
+            }
+        }
+
         private void Place(float z, int lane, bool silver, Transform follow)
         {
+            // 38차: 장애물 앞뒤 3 m(같은 레인)엔 코인을 안 놓는다 — 붙어 있으면 피하는 맛이 없다
+            if (RoadOccupancy.Near(RoadOccupancy.Kind.Obstacle, z, lane, 3f)) return;
+            RoadOccupancy.Add(RoadOccupancy.Kind.Pickup, z, lane);
             float lateral = lane * laneWidth;
             // Waist-height float like the coastal mock (not glued to asphalt).
             Vector3 pos = RoadPlacement.OnRoad(z, lateral, 0.5f);   // coin centre ends up ~0.7 m: waist height, not floating

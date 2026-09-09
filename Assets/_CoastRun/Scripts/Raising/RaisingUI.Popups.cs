@@ -53,53 +53,66 @@ namespace CoastRun
         {
             if (_busy || Save == null) return;
             if (_shopModal != null) Destroy(_shopModal);
-            _shopModal = Modal("ShopPopup", 620f, 640f, out var panel);
-            var t = Label(panel, "Title", "펫 상점", 28, Navy);
-            Place(t.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -16f), new Vector2(0f, 40f), new Vector2(0.5f, 1f));
-            var money = Label(panel, "Money", $"보유 {Save.stats.money:N0}", 18, Ink);
-            Place(money.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -56f), new Vector2(0f, 28f), new Vector2(0.5f, 1f));
-
             var kinds = PetShop.ForSale;
+            _shopModal = Modal("ShopPopup", 620f, 150f + kinds.Length * 148f + 70f, out var panel);
+            // 38차 시안: 크림 알약 제목 "펫 상점 🐾 · 보유 n" (양옆 주황 점)
+            var tp = CoastUiArt.CutePill(panel, "TitlePill", Hex("#FFF3D6"), 20, 3); tp.raycastTarget = false;
+            Place(tp.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -14f), new Vector2(360f, 84f), new Vector2(0.5f, 1f));
+            foreach (int sg in new[] { -1, 1 })
+            {
+                var dot = CoastUiArt.Panel(panel, "Dot", Hex("#FF9E3D"), 10); dot.raycastTarget = false;
+                Place(dot.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(sg * 215f, -52f), new Vector2(20f, 20f), new Vector2(0.5f, 0.5f));
+            }
+            var t = Label(tp.transform, "Title", Loc.T("펫 상점", "Pet Shop"), 26, Navy); t.fontStyle = FontStyle.Bold;
+            Place(t.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 36f), new Vector2(0.5f, 1f));
+            var money = Label(tp.transform, "Money", Loc.T($"보유 {Save.stats.money:N0}", $"Coins {Save.stats.money:N0}"), 15, Ink);
+            Place(money.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 8f), new Vector2(0f, 24f), new Vector2(0.5f, 0f));
+
+            Color[] rowCols = { Hex("#CFE7FF"), Hex("#FFD5E6"), Hex("#FFF0B8"), Hex("#D6F5D8"), Hex("#E6D9FF"), Hex("#FFE2C9") };
             for (int i = 0; i < kinds.Length; i++)
             {
                 var k = kinds[i];
                 bool owned = PetShop.Owns(Save, k);
                 bool equipped = Save.equippedPet == k;
-                var card = CoastUiArt.CutePill(panel, "Pet_" + k, owned ? Mint : new Color(0.90f, 0.86f, 0.80f), 18, 4);
-                Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -96f - i * 150f), new Vector2(570f, 140f), new Vector2(0.5f, 1f));
-
-                // 9차: 펫 그림(Obs_Pet_<kind>) — 글자만 있던 상점에 얼굴
+                var card = CoastUiArt.CutePill(panel, "Pet_" + k, rowCols[i % rowCols.Length], 20, 4);
+                Place(card.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -110f - i * 148f), new Vector2(576f, 136f), new Vector2(0.5f, 1f));
+                // SSR 배지(좌상단)
+                var badge = CoastUiArt.CutePill(card.transform, "Badge", Hex("#FFB300"), 8, 2); badge.raycastTarget = false;
+                Place(badge.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(-6f, 6f), new Vector2(50f, 22f), new Vector2(0f, 1f));
+                var bl = Label(badge.transform, "T", "SSR", 11, Color.white); bl.fontStyle = FontStyle.Bold;
+                // 펫 그림(흰 둥근 틀)
                 var petTex = ArtAssets.LoadTexture("Obs_Pet_" + k);
-                float textLeft = 20f;
+                float textLeft = 136f;
+                var frame = CoastUiArt.Panel(card.transform, "Frame", Color.white, 16); frame.raycastTarget = false;
+                Place(frame.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(14f, 0f), new Vector2(108f, 108f), new Vector2(0f, 0.5f));
                 if (petTex != null)
                 {
-                    textLeft = 130f;
-                    var frame = CoastUiArt.Panel(card.transform, "Frame", new Color(1f, 1f, 1f, 0.55f), 14);
-                    frame.raycastTarget = false;
-                    Place(frame.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(12f, 0f), new Vector2(104f, 116f), new Vector2(0f, 0.5f));
                     var pi = new GameObject("Img", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
                     pi.transform.SetParent(frame.transform, false);
-                    pi.sprite = CoastUiArt.AsSprite(ChromaKeyed(petTex)); pi.preserveAspect = true; pi.raycastTarget = false;   // 마젠타 키 → 알파
+                    pi.sprite = CoastUiArt.AsSprite(ChromaKeyed(petTex)); pi.preserveAspect = true; pi.raycastTarget = false;
                     Stretch(pi.rectTransform, 6f, 6f, -6f, -6f);
-                    if (!owned) pi.color = new Color(0.75f, 0.75f, 0.78f, 1f);
+                    if (!owned) pi.color = new Color(0.8f, 0.8f, 0.83f, 1f);
                 }
                 var name = Label(card.transform, "Name", PetCompanion.Names[(int)k], 22, Navy);
-                name.alignment = TextAnchor.MiddleLeft;
-                Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -10f), new Vector2(0f, 34f), new Vector2(0.5f, 1f));
-                name.rectTransform.offsetMin = new Vector2(textLeft, -44f); name.rectTransform.offsetMax = new Vector2(-180f, -10f);
-
-                var blurb = Label(card.transform, "Blurb", PetCompanion.Blurbs[(int)k], 15, Ink);
-                blurb.alignment = TextAnchor.UpperLeft;
-                blurb.horizontalOverflow = HorizontalWrapMode.Wrap;
+                name.fontStyle = FontStyle.Bold; name.alignment = TextAnchor.MiddleLeft;
+                Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -12f), new Vector2(0f, 34f), new Vector2(0.5f, 1f));
+                name.rectTransform.offsetMin = new Vector2(textLeft, -46f); name.rectTransform.offsetMax = new Vector2(-150f, -12f);
+                var blurb = Label(card.transform, "Blurb", PetCompanion.Blurbs[(int)k], 14, Ink);
+                blurb.alignment = TextAnchor.UpperLeft; blurb.horizontalOverflow = HorizontalWrapMode.Wrap;
                 Place(blurb.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
-                blurb.rectTransform.offsetMin = new Vector2(textLeft, 12f); blurb.rectTransform.offsetMax = new Vector2(-180f, -48f);
-
-                var price = Label(card.transform, "Price", owned ? (equipped ? "장착 중" : "보유") : $"{PetShop.Price[k]:N0}", 18, Navy);
-                Place(price.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -14f), new Vector2(150f, 28f), new Vector2(1f, 1f));
-
-                string label = !owned ? "구매" : equipped ? "해제" : "장착";
-                Color col = !owned ? (PetShop.CanAfford(Save, k) ? Coral : new Color(0.65f, 0.65f, 0.7f)) : equipped ? new Color(0.6f, 0.62f, 0.7f) : Sky;
-                BigButton(card.transform, "Act", label, col, new Vector2(1f, 0f), new Vector2(-16f, 14f), new Vector2(150f, 52f), () => ShopAct(k));
+                blurb.rectTransform.offsetMin = new Vector2(textLeft, 12f); blurb.rectTransform.offsetMax = new Vector2(-150f, -50f);
+                // 가격 알약(우상단: 금화 + 숫자) / 보유·장착 표시
+                var pp = CoastUiArt.CutePill(card.transform, "PricePill", Hex("#FFF6D6"), 12, 2); pp.raycastTarget = false;
+                Place(pp.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-14f, -12f), new Vector2(132f, 32f), new Vector2(1f, 1f));
+                var coinSp = CoastUiArt.Icon("Coin");
+                var ci = CoastHudLayout.MakeImage(pp.transform, "Coin", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(8f, -11f), new Vector2(30f, 11f), Color.white);
+                if (coinSp != null) { ci.sprite = coinSp; ci.preserveAspect = true; } else { ci.sprite = CoastUiArt.RoundedRect(11); ci.type = Image.Type.Sliced; ci.color = Hex("#FFC107"); }
+                ci.raycastTarget = false;
+                var price = Label(pp.transform, "Price", owned ? (equipped ? Loc.T("장착 중", "Equipped") : Loc.T("보유", "Owned")) : $"{PetShop.Price[k]:N0}", 15, Hex("#7A4A00")); price.alignment = TextAnchor.MiddleRight;
+                price.fontStyle = FontStyle.Bold; price.rectTransform.offsetMin = new Vector2(34f, 0f); price.rectTransform.offsetMax = new Vector2(-10f, 0f);
+                string label = !owned ? Loc.T("구매", "Buy") : equipped ? Loc.T("해제", "Unequip") : Loc.T("장착", "Equip");
+                Color col = !owned ? (PetShop.CanAfford(Save, k) ? Hex("#4EA8FF") : new Color(0.65f, 0.65f, 0.7f)) : equipped ? new Color(0.6f, 0.62f, 0.7f) : Hex("#4EA8FF");
+                BigButton(card.transform, "Act", label, col, new Vector2(1f, 0f), new Vector2(-14f, 12f), new Vector2(128f, 46f), () => ShopAct(k));
             }
 
             Action closeShop = () =>
@@ -109,7 +122,7 @@ namespace CoastRun
                 _shopModal = null;
                 Refresh();
             };
-            BigButton(panel, "Close", Loc.T("닫기", "Close"), new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(220f, 54f), () => closeShop());
+            BigButton(panel, "Close", Loc.T("닫기", "Close"), new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(0f, 14f), new Vector2(220f, 50f), () => closeShop());
             _modalPrimary = closeShop;
         }
 
@@ -177,12 +190,7 @@ namespace CoastRun
                 _gm.DevJumpTo(chapter);
             });
             y -= 66f;
-            BigButton(panel, "Replay", Loc.T("오프닝(컷씬) 보기", "Watch opening"), Sky, new Vector2(0.5f, 0f), new Vector2(0f, y), new Vector2(440f, 56f), () =>
-            {
-                _modalPrimary = null; Destroy(modal);
-                _gm.ReplayOpening(chapter, OpenTimeline);
-            });
-            y -= 66f;
+            // 38차: 오프닝 다시 보기는 타이틀 더보기(오프닝/레코드)로 — 육성 안 중복 제거
             BigButton(panel, "Close", Loc.T("닫기", "Close"), Hex("#B9B3AC"), new Vector2(0.5f, 0f), new Vector2(0f, y), new Vector2(440f, 50f), () => { _modalPrimary = null; Destroy(modal); OpenTimeline(); });
         }
 
@@ -196,7 +204,7 @@ namespace CoastRun
                 : Loc.T("재도전 중", "Retrying");
             var b = Label(panel, "Body", info + "\n" + (canRetry
                 ? Loc.T($"다시 달리면 {rec.weekStart}주차로 돌아가 이 챕터를 다시 키워. 더 좋은 결과만 기록에 남아.", $"Running again rewinds to week {rec.weekStart}; only better results are kept.")
-                : Loc.T("지금은 오프닝만 다시 볼 수 있어.", "Only the opening can be replayed right now.")), 16, Ink);
+                : Loc.T("S급은 재도전할 게 없어.", "Rank S — nothing left to retry.")), 16, Ink);
             b.horizontalOverflow = HorizontalWrapMode.Wrap;
             Place(b.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 0.86f), Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
             b.rectTransform.offsetMin = new Vector2(24f, 0f); b.rectTransform.offsetMax = new Vector2(-24f, 0f);
@@ -211,12 +219,8 @@ namespace CoastRun
                 });
                 y -= 66f;
             }
-            BigButton(panel, "Replay", Loc.T("오프닝 다시 보기", "Replay opening"), Sky, new Vector2(0.5f, 0f), new Vector2(0f, y), new Vector2(440f, 56f), () =>
-            {
-                _modalPrimary = null; Destroy(modal);
-                _gm.ReplayOpening(chapter, OpenTimeline);
-            });
-            y -= 66f;
+            // 38차: 「오프닝 다시 보기」 제거 — 타이틀 더보기 › 오프닝과 중복
+
             BigButton(panel, "Close", Loc.T("닫기", "Close"), new Color(0.55f, 0.50f, 0.48f), new Vector2(0.5f, 0f), new Vector2(0f, Mathf.Max(16f, y)), new Vector2(440f, 52f), () => { _modalPrimary = null; Destroy(modal); OpenTimeline(); });
             _modalPrimary = () => { Destroy(modal); OpenTimeline(); };
         }
@@ -291,7 +295,10 @@ namespace CoastRun
             // 18차: 제목·시놉시스 뒤에 어두운 띠 — 밝은 키아트 위에서 흰 글씨가 안 읽히던 문제
             var band = CoastHudLayout.MakeImage(panel, "TextBand", new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -150f), new Vector2(0f, 10f), new Color(0.08f, 0.06f, 0.10f, 0.55f));
             band.raycastTarget = false;
-            var t = Label(panel, "Title", ActName(_actTab), 32, Color.white);
+            // 38차 시안: 제목은 분홍 유리 알약 위에 (♫)
+            var titlePill = CoastUiArt.Panel(panel, "TitlePill", new Color(1f, 0.55f, 0.75f, 0.55f), 22); titlePill.raycastTarget = false;
+            Place(titlePill.rectTransform, new Vector2(0.5f, ArtBottom), new Vector2(0.5f, ArtBottom), new Vector2(0f, -2f), new Vector2(430f, 46f), new Vector2(0.5f, 1f));
+            var t = Label(panel, "Title", ActName(_actTab) + " ♫", 30, Color.white);
             CoastUiArt.OutlineText(t, new Color(0.1f, 0.08f, 0.12f, 0.85f), 1.6f);
             Place(t.rectTransform, new Vector2(0f, ArtBottom), new Vector2(1f, ArtBottom), new Vector2(0f, -4f), new Vector2(0f, 38f), new Vector2(0.5f, 1f));
             int sCount = ChapterGrading.CountS(Save);
@@ -310,7 +317,7 @@ namespace CoastRun
             int count = last - first + 1;
             // 18차-3: 카드 3장이 어떤 비율에서도 다 보이게 — 실제 폭(폴드 22:9면 폭이 620대까지 줄어든다)으로 계산
             float panelW = Mathf.Clamp(panel.rect.width, 560f, 800f);
-            float gap = 12f, cellW = Mathf.Floor((panelW - 40f - 2f * gap) / 3f), cellH = Mathf.Round(cellW * 1.37f);
+            float gap = 12f, cellW = Mathf.Floor((panelW - 40f - 2f * gap) / 3f), cellH = Mathf.Round(cellW * 1.62f);   // 38차: 시안(별·진행 바·캐릭터 수집 줄)만큼 더 길게
             float canvasH = Mathf.Max(1000f, panel.rect.height);   // 18차-3: 실제 캔버스 높이(디자인 단위)
             float zoneBottom = 96f, zoneTop = ArtBottom * canvasH - 160f;
             float zoneH = Mathf.Max(cellH + 20f, zoneTop - zoneBottom);
@@ -335,12 +342,13 @@ namespace CoastRun
                 bool cleared = rec != null && rec.cleared;
                 bool locked = c > Save.chapter && !_gm.DevUnlockAll;   // 37차: 비밀코드면 미래 챕터도 열림
                 bool devOpen = c > Save.chapter && _gm.DevUnlockAll;
-                Color fill = cleared ? ChapterGrading.GradeColor(rec.grade) : current ? Coral : Hex("#EFE6D6");
-                var cell = CoastUiArt.CutePill(content, "CH" + c, fill, 18, current ? 6 : 3);
+                // 38차 시안: 완료=금색 틀, 지금=핑크(NEW), 잠김=회색
+                Color fill = cleared ? Hex("#F6C34A") : current ? Hex("#FF7BA9") : locked ? Hex("#9A9AA6") : Hex("#EFE6D6");
+                var cell = CoastUiArt.CutePill(content, "CH" + c, fill, 18, current ? 6 : 4);
                 Place(cell.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(20f + idx * (cellW + gap), 0f), new Vector2(cellW, cellH), new Vector2(0f, 0.5f));
 
                 // 그림: 카드 위쪽 대부분
-                const float bandH = 74f;
+                const float bandH = 150f;   // 38차: 아래 띠(번호·별·진행 바·캐릭터 수집)
                 var thGo = new GameObject("Thumb", typeof(RectTransform), typeof(Image), typeof(Mask));
                 thGo.transform.SetParent(cell.transform, false);
                 var thr = thGo.GetComponent<RectTransform>();
@@ -375,17 +383,58 @@ namespace CoastRun
                     Place(lk.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -46f), new Vector2(160f, 30f), new Vector2(0.5f, 0.5f));
                 }
 
-                // 아래 띠: 챕터 번호 크게 (+ 클리어 등급/지금 표시)
-                var num = Label(cell.transform, "Num", $"CH {c}", 30, current ? Color.white : Navy);
-                num.fontStyle = FontStyle.Bold;
-                Place(num.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 30f), new Vector2(0f, 40f), new Vector2(0.5f, 0f));
-                string foot = cleared ? $"{ChapterGrading.GradeLabel(rec.grade)}  ♥{rec.heartsEarned}/{rec.heartsTarget}" : current ? Loc.T("▶ 지금", "▶ Now") : "";
-                if (!string.IsNullOrEmpty(foot))
+                // ── 38차 시안 카드 ──
+                // 좌상단 태그: 완료✓ / NEW / 잠김
                 {
-                    var hearts = Label(cell.transform, "Foot", foot, 16, current ? Color.white : Navy);
-                    Place(hearts.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f), new Vector2(0f, 24f), new Vector2(0.5f, 0f));
+                    string tag = cleared ? Loc.T("완료 ✓", "Done ✓") : current ? "NEW" : locked ? Loc.T("잠김", "Locked") : "";
+                    if (tag.Length > 0)
+                    {
+                        var tp = CoastUiArt.CutePill(cell.transform, "Tag", cleared ? Hex("#FFE68A") : current ? Hex("#FF4F7B") : Hex("#6E6E7A"), 10, 2);
+                        Place(tp.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -6f), new Vector2(64f, 26f), new Vector2(0f, 1f));
+                        tp.raycastTarget = false;
+                        var tpl = Label(tp.transform, "T", tag, 12, cleared ? Hex("#7A4A00") : Color.white); tpl.fontStyle = FontStyle.Bold;
+                    }
                 }
-                if (locked) cell.color = Hex("#C9C2B8");
+                // 번호 + 별 5개
+                var num = Label(cell.transform, "Num", $"CH {c}", 28, current || locked ? Color.white : Navy);
+                num.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(num, new Color(0f, 0f, 0f, current ? 0.35f : 0.12f), 1.2f);
+                Place(num.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, bandH - 42f), new Vector2(0f, 36f), new Vector2(0.5f, 0f));
+                int starN = cleared ? (rec.grade == ChapterGrade.S ? 5 : rec.grade == ChapterGrade.A ? 4 : rec.grade == ChapterGrade.B ? 3 : 2) : 0;
+                var stars = Label(cell.transform, "Stars", new string('★', starN) + new string('☆', 5 - starN), 14, cleared ? Hex("#FFB300") : new Color(1f, 1f, 1f, 0.7f));
+                Place(stars.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, bandH - 62f), new Vector2(0f, 20f), new Vector2(0.5f, 0f));
+                // 진행 바(하트) + 보상
+                {
+                    int got = rec != null ? rec.heartsEarned : 0, tgt = rec != null && rec.heartsTarget > 0 ? rec.heartsTarget : ChapterGrading.HeartTarget(c);
+                    var pl = Label(cell.transform, "PL", Loc.T("진행", "Progress"), 11, current || locked ? new Color(1f, 1f, 1f, 0.9f) : Navy); pl.alignment = TextAnchor.MiddleLeft;
+                    Place(pl.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(12f, bandH - 82f), new Vector2(40f, 16f), new Vector2(0f, 0f));
+                    var track = CoastUiArt.Panel(cell.transform, "Track", new Color(0f, 0f, 0f, 0.18f), 6); track.raycastTarget = false;
+                    Place(track.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, bandH - 80f), new Vector2(-96f, 12f), new Vector2(0.5f, 0f));
+                    track.rectTransform.offsetMin = new Vector2(50f, bandH - 80f); track.rectTransform.offsetMax = new Vector2(-46f, bandH - 68f);
+                    var fillBar = CoastUiArt.Panel(track.transform, "Fill", cleared ? Hex("#FF8A3D") : Hex("#FFD54A"), 6); fillBar.raycastTarget = false;
+                    fillBar.rectTransform.anchorMin = new Vector2(0f, 0f); fillBar.rectTransform.anchorMax = new Vector2(tgt > 0 ? Mathf.Clamp01((float)got / tgt) : 0f, 1f);
+                    fillBar.rectTransform.offsetMin = fillBar.rectTransform.offsetMax = Vector2.zero;
+                    var pv = Label(cell.transform, "PV", locked ? $"--/{tgt}" : $"{got}/{tgt}", 11, current || locked ? new Color(1f, 1f, 1f, 0.9f) : Navy); pv.alignment = TextAnchor.MiddleRight;
+                    Place(pv.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-8f, bandH - 82f), new Vector2(44f, 16f), new Vector2(1f, 0f));
+                    var rw = Label(cell.transform, "RW", cleared ? "+50" : locked ? "+??" : "+0", 11, Hex("#FFE68A")); rw.alignment = TextAnchor.MiddleRight;
+                    Place(rw.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-8f, bandH - 98f), new Vector2(44f, 16f), new Vector2(1f, 0f));
+                }
+                // 캐릭터 수집 줄: 얼굴 2개 + n/2
+                {
+                    var strip = CoastUiArt.Panel(cell.transform, "Strip", new Color(1f, 1f, 1f, 0.55f), 10); strip.raycastTarget = false;
+                    Place(strip.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 8f), new Vector2(-16f, 40f), new Vector2(0.5f, 0f));
+                    string[] faces = { "UI_Face_Girl", "UI_Face_Boy" };
+                    int have = cleared ? 2 : current ? 1 : 0;
+                    for (int f = 0; f < 2; f++)
+                    {
+                        var ft = ArtAssets.LoadTexture(faces[f]);
+                        var fi = CoastHudLayout.MakeImage(strip.transform, "F" + f, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(8f + f * 34f, -15f), new Vector2(38f + f * 34f, 15f), f < have ? Color.white : new Color(0.3f, 0.3f, 0.35f, 0.8f));
+                        if (ft != null) { fi.sprite = CoastUiArt.AsSprite(ft); fi.preserveAspect = true; } else { fi.sprite = CoastUiArt.RoundedRect(15); fi.type = Image.Type.Sliced; }
+                        fi.raycastTarget = false;
+                    }
+                    var cs = Label(strip.transform, "CS", Loc.T($"캐릭터 수집 {have}/2", $"Characters {have}/2"), 10, Navy); cs.alignment = TextAnchor.MiddleRight;
+                    Place(cs.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-6f, 0f), new Vector2(96f, 20f), new Vector2(1f, 0.5f));
+                }
 
                 int chapter = c;
                 bool canRetry = _gm.CanRetry(c) && !_gm.IsRetry;
@@ -467,12 +516,12 @@ namespace CoastRun
                 bool showStart = inAct && (curRec == null || !curRec.cleared);
                 if (showStart)
                 {
-                    BigButton(panel, "Start", Loc.T($"▶ CH {Save.chapter} 스토리", $"▶ Chapter {Save.chapter}"), Coral, new Vector2(0.5f, 0f), new Vector2(-104f, 22f), new Vector2(276f, 54f), () =>
+                    BigButton(panel, "Start", Loc.T($"▶ CH {Save.chapter} 스토리", $"▶ Chapter {Save.chapter}"), Hex("#FF6FA0"), new Vector2(0.5f, 0f), new Vector2(-104f, 22f), new Vector2(276f, 54f), () =>
                     {
                         Destroy(_timelineModal); _timelineModal = null;
                         OnStoryPressed();
                     });
-                    BigButton(panel, "Close", Loc.T("닫기", "Close"), new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(150f, 22f), new Vector2(200f, 54f), () => closeTimeline());
+                    BigButton(panel, "Close", Loc.T("✕ 닫기", "✕ Close"), new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(150f, 22f), new Vector2(200f, 54f), () => closeTimeline());
                 }
                 else
                     BigButton(panel, "Close", Loc.T("닫기", "Close"), new Color(0.6f, 0.62f, 0.7f), new Vector2(0.5f, 0f), new Vector2(0f, 22f), new Vector2(240f, 54f), () => closeTimeline());

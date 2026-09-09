@@ -174,9 +174,24 @@ namespace CoastRun
                 OnContinue();
                 return;
             }
-            _audio?.PlayStart();
-            ShowPanel(_charSelectPanel, true);
+            StartNewFlow();
         }
+
+        /// 38차: 새 회차 — 세이브가 있으면 확인 모달, 없으면 바로.
+        private void StartNewFlow()
+        {
+            if (_gm == null) return;
+            if (!_gm.HasSave) { StartNewPlaythrough(RunMode.Running); return; }
+            _audio?.PlayClick();
+            if (_newConfirm != null) Destroy(_newConfirm);
+            _newConfirm = CreateOverlayPanel(_root, "NewConfirm");
+            CreateLabel(_newConfirm.transform, "T", Loc.T("새 회차를 시작할까?", "Start a new playthrough?"), 30, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.66f), new Vector2(520f, 44f));
+            CreateLabel(_newConfirm.transform, "B", Loc.T("지금 진행 중인 회차는 지워져.\n컬렉션·레코드·기록은 그대로 남아.", "The current playthrough is erased.\nCollection, records and stats stay."), 18, FontStyle.Normal, new Color(1f, 0.9f, 0.8f), new Vector2(0.5f, 0.56f), new Vector2(520f, 70f));
+            CreateMenuButton(_newConfirm.transform, Loc.T("육성하기 (새 회차)", "Start new"), 0.44f, () => { Destroy(_newConfirm); _newConfirm = null; StartNewPlaythrough(RunMode.Running); });
+            CreateMenuButton(_newConfirm.transform, Loc.T("취소", "Cancel"), 0.36f, () => { Destroy(_newConfirm); _newConfirm = null; });
+        }
+        private GameObject _newConfirm;
+        private Transform _root;
 
         public void OnContinue()
         {
@@ -324,7 +339,7 @@ namespace CoastRun
                 new Color(0.30f, 0.72f, 0.36f), () =>
                 {
                     _audio?.PlayClick();
-                    if (hasSave) ShowPanel(_charSelectPanel, true);
+                    if (hasSave) StartNewFlow();
                     else ShowPanel(_recordPanel, true);
                 });
             BuildBottomButton(ui.transform, "회상", 1, new Color(0.35f, 0.45f, 0.70f), () =>
@@ -346,7 +361,7 @@ namespace CoastRun
             BuildCreditsPanel(root);
             BuildSettingsPanel(root);
             BuildRecordPanel(root);
-            BuildCharacterSelect(root);
+            _root = root;
             if (hasSave)
                 _tapLabel.text = "화면을 터치하면 이어하기";
         }
@@ -381,7 +396,7 @@ namespace CoastRun
                 if (!_ready) return;
                 if (_moreOpen) { ToggleMore(); return; }          // 더보기 열린 채면 먼저 닫기
                 if (_gm != null && _gm.HasSave) OnContinue();
-                else { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); }   // 세이브 없으면 새로하기 흐름
+                else StartNewFlow();   // 세이브 없으면 바로 새 회차
             });
             tapAny.transform.SetAsFirstSibling();
 
@@ -405,8 +420,9 @@ namespace CoastRun
                 contBtn.interactable = false;
                 var cg = contBtn.gameObject.AddComponent<CanvasGroup>(); cg.alpha = 0.45f;
             }
-            CoastOrnate.GlassButton(ui.transform, "NewBtn", Loc.T("새로하기", "New Game"), new Vector2(0.5f, 0f),
-                new Vector2(0f, rowY), new Vector2(btnW, btnH), () => { if (_ready) { _audio?.PlayStart(); ShowPanel(_charSelectPanel, true); } }, 0.4f, 26, !hasSave);
+            // 38차: 「새로하기」→「육성하기」, 캐릭터 선택 페이지 삭제 — 바로 러닝 회차 시작(세이브 있으면 확인 한 번)
+            CoastOrnate.GlassButton(ui.transform, "NewBtn", Loc.T("육성하기", "Raise"), new Vector2(0.5f, 0f),
+                new Vector2(0f, rowY), new Vector2(btnW, btnH), () => { if (_ready) StartNewFlow(); }, 0.4f, 26, !hasSave);
             _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
                 new Vector2(btnW + gapX, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
             _moreLabel = _moreBtn.GetComponentInChildren<Text>();
@@ -420,7 +436,8 @@ namespace CoastRun
                 go.transform.SetParent(ui.transform, false);
                 var rt = go.GetComponent<RectTransform>();
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f); rt.pivot = new Vector2(0.5f, 0.5f);
-                rt.anchoredPosition = new Vector2(0f, 82f); rt.sizeDelta = new Vector2(660f, 130f);
+                // 38차: 오른쪽에 챕터 선택 아이콘 자리를 비운다(바 660→560, 왼쪽으로 50)
+                rt.anchoredPosition = new Vector2(-52f, 82f); rt.sizeDelta = new Vector2(560f, 110f);
                 var im = go.GetComponent<Image>();
                 im.sprite = CoastUiArt.AsSprite(kpopArt); im.preserveAspect = true; im.raycastTarget = true;
                 var b = go.GetComponent<Button>(); b.transition = Selectable.Transition.None;
@@ -438,6 +455,25 @@ namespace CoastRun
                 var kpopText = kpop.GetComponentInChildren<Text>();
                 if (kpopText != null) { kpopText.color = new Color(1f, 0.95f, 0.75f); kpopText.fontStyle = FontStyle.Bold; }
             }
+            // 38차: K-POP 바 오른쪽 — 챕터 선택 아이콘(마지막으로 깬 다음 챕터 표시, 누르면 챕터 선택)
+            var sdChip = hasSave && _gm != null ? (_gm.Save ?? _gm.SaveSys.Load()) : null;
+            if (sdChip != null)
+            {
+                int nextCh = Mathf.Clamp(sdChip.chapter, 1, Timeline.Chapters);
+                var chip = CoastUiArt.CutePill(ui.transform, "ChapterChip", new Color(0.98f, 0.62f, 0.30f), 20, 4);
+                var crt = chip.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0f); crt.pivot = new Vector2(0.5f, 0.5f);
+                crt.anchoredPosition = new Vector2(280f, 82f); crt.sizeDelta = new Vector2(108f, 104f);
+                chip.raycastTarget = true;
+                var cl = CreateLabel(chip.transform, "L", Loc.T("챕터", "CH"), 13, FontStyle.Bold, new Color(1f, 0.96f, 0.85f), new Vector2(0.5f, 1f), new Vector2(100f, 20f));
+                cl.rectTransform.anchoredPosition = new Vector2(0f, -18f);
+                var cn = CreateLabel(chip.transform, "N", $"CH {nextCh}", 24, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.5f), new Vector2(104f, 34f));
+                cn.rectTransform.anchoredPosition = new Vector2(0f, -2f);
+                CoastUiArt.OutlineText(cn, new Color(0.35f, 0.15f, 0.05f, 0.8f), 1.5f);
+                var ct = CreateLabel(chip.transform, "T", ChapterScript.Title(nextCh), 12, FontStyle.Normal, new Color(1f, 0.96f, 0.85f), new Vector2(0.5f, 0f), new Vector2(104f, 20f));
+                ct.rectTransform.anchoredPosition = new Vector2(0f, 18f);
+                var cb = chip.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None;
+                cb.onClick.AddListener(() => { if (_ready) OnChapterSelect(); });
+            }
             // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
             if (PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
             {
@@ -450,7 +486,7 @@ namespace CoastRun
             // 더보기 열: 오른쪽 가장자리에서 슬라이드 인. 챕터 선택 / 노을 달리기 / 컬렉션 / 오프닝 / 설정.
             var more = new System.Collections.Generic.List<(string, System.Action)>();
             if (hasSave) more.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
-            more.Add((Loc.T("노을 달리기", "Sunset Run"), () => { _audio?.PlayClick(); ArcadeUI.Open(false); }));
+            // 38차: 「노을 달리기」 항목 제거(K-POP 러닝모드 바로 통합)
             more.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
             // 37차: 레코드 — 컷씬 음악 7곡. 타이틀 곡을 멈추고 들어가서, 닫으면 다시 튼다.
             bool recNew = _gm != null && RecordTable.HasNew(_gm.Profile);
@@ -460,7 +496,7 @@ namespace CoastRun
                 _audio?.StopMenu();
                 if (_moreOpen) ToggleMore();
                 _ready = false;
-                RecordsUI.Open(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; });
+                CollectionUI.Open(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; }, 0);   // 38차: 시안대로 컬렉션 › 레코드 탭
             }));
             more.Add((Loc.T("오프닝", "Opening"), () =>
             {
@@ -506,7 +542,7 @@ namespace CoastRun
             BuildCreditsPanel(root);
             BuildSettingsPanel(root);
             BuildRecordPanel(root);
-            BuildCharacterSelect(root);
+            _root = root;   // 38차: 캐릭터 선택 페이지 삭제(BuildCharacterSelect 미호출)
         }
 
         /// 세이브가 있을 때: 육성 화면을 챕터 선택(타임라인)이 열린 상태로 연다.

@@ -177,6 +177,7 @@ namespace CoastRun
         public int recordMask;                   // 37차: 레코드(M1~M7) 해금 비트 — bit(n-1). 보너스 3곡은 S급 18/20 또는 비밀코드
         public int recordNewMask;                // 37차: 아직 안 들어 본 새 레코드 비트
         public bool devUnlockAll;                // 37차: 설정 비밀코드(1111) — 전체 챕터·레코드 열림(테스트용)
+        public bool starterCardsGiven;           // 38차: 실사 포토카드(21~26) 기본 지급 완료
         public int decoOwnedMask;                // 28차: 방 장식 보유 비트(RoomDeco.All 순서)
         public int decoNewMask;                  // 28차: 아직 안 본 새 장식 비트
         public string[] roomSlots = new string[RoomDeco.SlotCount];   // 28차: 슬롯별 배치된 장식 id(30차부터는 homeItems로 이관)
@@ -191,6 +192,8 @@ namespace CoastRun
         public int DailyCount => dailyStamps != null ? dailyStamps.Length : 0;
         public void EnsureArrays()
         {
+            // 38차: 실사 포토카드 21~26 은 처음부터 열려 있다(나머지는 러닝 포토카드 아이템으로)
+            if (!starterCardsGiven) { starterCardsGiven = true; for (int id = 21; id <= 26; id++) cardMask |= 1 << (id - 1); }
             if (trackGrade == null || trackGrade.Length < 20) trackGrade = Grow(trackGrade, 20);
             if (starMask == null || starMask.Length < 20) starMask = Grow(starMask, 20);
             if (bestCoins == null || bestCoins.Length < 20) bestCoins = Grow(bestCoins, 20);

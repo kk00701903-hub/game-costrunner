@@ -6,6 +6,8 @@ namespace CoastRun
     ///   01~20 챕터 카드(클리어) / 21~24 만남 카드(5·10·15·20 S급) / 25~28 시크릿 / 29~30 엔딩 A·B
     /// 그림: Resources/CoastRun/Card/Card_nn.png (2:3). 없으면 챕터 CG로 대체.
     public enum CardKind { Chapter, Meet, Secret, Ending }
+    /// 38차: 포토카드 등급 — 드롭 확률 N 55 / R 30 / SR 12 / SSR 3 (%)
+    public enum CardGrade { N = 0, R = 1, SR = 2, SSR = 3 }
 
     public struct CardDef
     {
@@ -63,5 +65,14 @@ namespace CoastRun
         };
 
         public static CardDef Get(int id) => Cards[Mathf.Clamp(id, 1, Count) - 1];
+
+        /// 38차: 등급 — 챕터 1~10 N, 챕터 11~20 R, 시크릿 25~28 SR, 만남 21~24·엔딩 29~30 SSR.
+        public static CardGrade GradeOf(int id)
+        {
+            if (id >= 21 && id <= 24) return CardGrade.SSR;
+            if (id >= 29) return CardGrade.SSR;
+            if (id >= 25) return CardGrade.SR;
+            return id <= 10 ? CardGrade.N : CardGrade.R;
+        }
     }
 }

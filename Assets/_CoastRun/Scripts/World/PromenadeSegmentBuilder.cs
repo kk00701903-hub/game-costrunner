@@ -25,12 +25,16 @@ namespace CoastRun
             SceneMix.Pick(chapter, segmentIndex, out var leftKind, out var rightKind);
             var prof = SceneMix.Get(chapter);
             LastSceneLabel = SceneMix.LeftName(leftKind) + " / " + SceneMix.RightName(rightKind);
-            switch (leftKind)
+            // 38차: 페인팅 스트립(Kling) 우선 — 상가/마을은 Side_Village, 바다/바위 쪽은 Side_Shore
+            bool paintedVillage = (leftKind == LeftKind.Town || leftKind == LeftKind.Village) && BuildPaintedSide(root.transform, -1, "Village", segmentIndex, 6.2f, 1.3f);
+            if (paintedVillage) leftKind = LeftKind.Field;   // 아래 switch 를 건너뛰기 위한 표시(들판 빌더는 안 부른다)
+            switch (paintedVillage ? (LeftKind)(-1) : leftKind)
             {
                 case LeftKind.Village: BuildTownSide(root.transform, segmentIndex, village: true); break;
                 case LeftKind.Forest: BuildForestSide(root.transform, segmentIndex, -1, prof.forest); break;
                 case LeftKind.Field: BuildFieldSide(root.transform, segmentIndex, -1, prof.field); break;
-                case LeftKind.Rock: BuildRockSide(root.transform, segmentIndex, -1); break;
+                case LeftKind.Rock: if (!BuildPaintedSide(root.transform, -1, "Shore", segmentIndex, 4.2f, 1.2f)) BuildRockSide(root.transform, segmentIndex, -1); break;
+                case (LeftKind)(-1): break;
                 default: BuildTownSide(root.transform, segmentIndex); break;
             }
             switch (rightKind)
@@ -41,12 +45,12 @@ namespace CoastRun
                 case RightKind.Hill: BuildHillSide(root.transform, segmentIndex); break;
                 case RightKind.Forest: BuildForestSide(root.transform, segmentIndex, +1, prof.forest); break;
                 case RightKind.Field: BuildFieldSide(root.transform, segmentIndex, +1, prof.field); break;
-                case RightKind.Rock: BuildRockSide(root.transform, segmentIndex, +1); break;
+                case RightKind.Rock: if (!BuildPaintedSide(root.transform, +1, "Shore", segmentIndex, 4.2f, 1.2f)) BuildRockSide(root.transform, segmentIndex, +1); break;
                 case RightKind.Town:
                     if (JejuKit.BuildingCount > 0 || JejuKit.ShopCount > 0) BuildTownSideKit(root.transform, segmentIndex, new System.Random(segmentIndex * 3571 + 77), false, +1);
                     else BuildSeaSide(root.transform, segmentIndex);
                     break;
-                default: BuildSeaSide(root.transform, segmentIndex); break;
+                default: BuildSeaSide(root.transform, segmentIndex); BuildPaintedSide(root.transform, +1, "Shore", segmentIndex, 3.6f, 0.9f); break;   // 38차: 바다 앞에 바위·풀 띠
             }
             BuildPolesAndWires(root.transform, segmentIndex);
 
@@ -54,7 +58,7 @@ namespace CoastRun
             var season = StageManager.Instance != null
                 ? StageManager.ChapterAsSeason(StageManager.Instance.ChapterIndex)
                 : SeasonKind.Summer;
-            if (leftKind == LeftKind.Town || leftKind == LeftKind.Village)
+            if (!paintedVillage && (leftKind == LeftKind.Town || leftKind == LeftKind.Village))
                 SegmentDecorator.Decorate(root.transform, segmentIndex, season);
 
             return root;
