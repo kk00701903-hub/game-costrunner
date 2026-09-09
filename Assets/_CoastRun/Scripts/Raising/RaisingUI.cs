@@ -129,11 +129,32 @@ namespace CoastRun
             _gm.OnSaveChanged += HandleSaveChanged;
             if (_gm.IsRetry && _gm.RetryRunPending) { StartCoroutine(RetryThenRun()); return; }
             // 9차 온보딩: 첫 주에 한 번 — 뭘 눌러야 하는지(스케줄 3칸 → 실행) 손가락 대신 말풍선+버튼 펄스로.
-            if (Save != null && Save.week == 1 && Save.phaseIndex == 0 && PlayerPrefs.GetInt("coast.tut.raise", 0) == 0)
+            // 31차: 집사 튜토리얼(메뉴 하나씩 하이라이트)로 대체 — 처음 한 번. 옛 말풍선 온보딩은 튜토리얼을 건너뛴 경우에만.
+            if (PlayerPrefs.GetInt(RaisingTutorial.PrefKey, 0) == 0) StartCoroutine(ButlerTutorial());
+            else if (Save != null && Save.week == 1 && Save.phaseIndex == 0 && PlayerPrefs.GetInt("coast.tut.raise", 0) == 0)
             {
                 PlayerPrefs.SetInt("coast.tut.raise", 1);
                 StartCoroutine(OnboardRaise());
             }
+        }
+
+        private bool _tutorialRunning;
+        /// 31차: 꼬마 집사가 메뉴를 하나씩 소개. 돌발 이벤트 팝업 등이 끝날 때까지(최대 8초) 기다렸다가 시작.
+        private IEnumerator ButlerTutorial()
+        {
+            if (_tutorialRunning) yield break;
+            _tutorialRunning = true;
+            yield return new WaitForSecondsRealtime(0.7f);
+            float w = 0f;
+            while (_busy && w < 60f) { w += Time.unscaledDeltaTime; yield return null; }   // 돌발 이벤트 팝업이 닫힐 때까지
+            if (_sheet != null && _sheet.activeSelf) ToggleSheet(false);
+            _busy = true;
+            RaisingTutorial.Open(_root, RaisingTutorial.DefaultSteps(), () =>
+            {
+                _busy = false; _tutorialRunning = false;
+                _bubble.text = Loc.T("먼저 스케줄 3칸을 채우고 「실행」!", "Fill 3 schedule slots, then Go!");
+                Refresh();
+            });
         }
 
         private IEnumerator OnboardRaise()
@@ -209,7 +230,9 @@ namespace CoastRun
         private void DevKeys()
         {
             if (Save == null) return;
+            if (_tutorialRunning) return;   // 31차: 튜토리얼 중엔 키를 튜토리얼이 먹는다
             if (CoastRemoteKeys.Down(KeyCode.Tab)) SetStatTab(_statTab == StatTab.Body ? StatTab.Mind : StatTab.Body);
+            if (CoastRemoteKeys.Down(KeyCode.F1) && !_tutorialRunning) { PlayerPrefs.SetInt(RaisingTutorial.PrefKey, 0); StartCoroutine(ButlerTutorial()); }   // 31차: 튜토리얼 다시 보기
             if (CoastRemoteKeys.Down(KeyCode.A) && !_busy) ToggleSheet(true);
             if (CoastRemoteKeys.Down(KeyCode.Q)) { _tab = ScheduleCategory.Job; RefreshCards(); }
             if (CoastRemoteKeys.Down(KeyCode.W)) { _tab = ScheduleCategory.SelfDev; RefreshCards(); }

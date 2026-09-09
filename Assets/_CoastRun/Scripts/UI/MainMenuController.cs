@@ -397,7 +397,7 @@ namespace CoastRun
             // 메뉴 3개(이어하기 / 새로하기 / 더보기) — 화면 아래 가로 한 줄. 나머지는 '더보기'로 옆에서 슬라이드.
             bool hasSave = _gm != null && _gm.HasSave;
             float btnW = 188f, btnH = 62f, gapX = 10f;   // 18차-3: 폴드(22:9) 폭 615 안에 3개(188×3+10×2 = 584)
-            float rowY = 150f;   // 26차: 아래에 K-POP 러닝모드 바가 들어가서 한 칸 위로
+            float rowY = 172f;   // 26차: 아래에 K-POP 러닝모드 바가 들어가서 한 칸 위로 (31차: 바가 커져서 172)
             var contBtn = CoastOrnate.GlassButton(ui.transform, "ContinueBtn", Loc.T("이어하기", "Continue"), new Vector2(0.5f, 0f),
                 new Vector2(-(btnW + gapX), rowY), new Vector2(btnW, btnH), () => { if (_ready) OnContinue(); }, 0.4f, 26, hasSave);
             if (!hasSave)
@@ -415,12 +415,12 @@ namespace CoastRun
             var kpopArt = ArtAssets.LoadTexture("UI_KpopBar");   // 29차: 네온 글라스 바 그림(Tools/KlingGen/out/kpop_btn → Python 합성)
             if (kpopArt != null)
             {
-                // 그림 1320×220 = UI 660×110(글로우 여백 포함, 본체 620×75). 그림 자체에 헤드폰·글자·이퀄라이저·음표·반짝이가 들어 있다.
+                // 그림 1320×260 = UI 660×130(글로우 여백 포함, 본체 626×96). 31차: 시안 비율(높이 ↑). 그림 자체에 헤드폰·글자·이퀄라이저·음표·반짝이가 들어 있다.
                 var go = new GameObject("KpopBtn", typeof(RectTransform), typeof(Image), typeof(Button), typeof(KpopBarPulse));
                 go.transform.SetParent(ui.transform, false);
                 var rt = go.GetComponent<RectTransform>();
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f); rt.pivot = new Vector2(0.5f, 0.5f);
-                rt.anchoredPosition = new Vector2(0f, 74f); rt.sizeDelta = new Vector2(660f, 110f);
+                rt.anchoredPosition = new Vector2(0f, 82f); rt.sizeDelta = new Vector2(660f, 130f);
                 var im = go.GetComponent<Image>();
                 im.sprite = CoastUiArt.AsSprite(kpopArt); im.preserveAspect = true; im.raycastTarget = true;
                 var b = go.GetComponent<Button>(); b.transition = Selectable.Transition.None;

@@ -107,7 +107,7 @@ namespace CoastRun
             GetComponent<PickupGlow>()?.Hide();
             float z = DownhillPath.DistanceAlong(transform.position);
             float speed = Mathf.Max(player.Speed, 8f) * GlideSpeedMul;
-            CoinSpawner.Instance?.SpawnGlideLine(z + 6f, player.Lane, LineHeight + 0.05f, speed * GlideSeconds - 6f);
+            CoinSpawner.Instance?.SpawnGlideLine(z + 3f, player.Lane, LineHeight + 0.05f, speed * GlideSeconds - 4f);   // 33차: 잡자마자 코인 줄이 이어지게(6→3 m)
             // 22차-6: 집라인 줄(GlideRope)도 뺀다 — 매달린 게 아니라 스스로 난다.
             JuiceDirector.Instance?.OnLineGrab(transform.position + Vector3.up * LineHeight);
             // 22차-6: 빨래에 매달려 가지 않는다 — 줄을 잡고 한 바퀴 돈 뒤(SkaterRig) 양손 슈퍼맨으로 날아간다. 빨래는 줄에 남아 크게 펄럭인다.

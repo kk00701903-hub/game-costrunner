@@ -346,8 +346,8 @@ namespace CoastRun
             {
                 int ch = Mathf.Clamp(def.chapter > 0 ? def.chapter : def.Index0Based + 1, 1, 20);
                 string n = ch.ToString("00");
-                tex = ArtAssets.LoadTexture($"Cut_CH{n}_Close") ?? ArtAssets.LoadTexture($"Cut_CH{n}_Mid") ?? ArtAssets.LoadTexture($"Cut_CH{n}_Open")
-                      ?? ArtAssets.LoadTexture(ch <= 5 ? "BG_TowerSunset" : ch <= 10 ? "BG_Beach" : ch <= 15 ? "BG_OrangeFarm" : "BG_TowerSnow");
+                tex = ArtAssets.LoadTexture(   // 34차: Cut_* 제거
+                    ch <= 5 ? "BG_TowerSunset" : ch <= 10 ? "BG_Beach" : ch <= 15 ? "BG_OrangeFarm" : "BG_TowerSnow");
             }
             if (tex == null)
                 tex = MakePlaceholderStill(def, stillIndex);

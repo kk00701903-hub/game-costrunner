@@ -27,17 +27,12 @@ namespace CoastRun
         }
 
         // 9컷 × 10초 = 90초 + 타이틀 카드 ≈ 7초. 영상이 없는 컷은 dur 초 스틸.
+        // 34차: 옛 오프닝 9컷(옛 스토리 문장 + Cut_Open_*) 전부 제거. 새 대본이 오기 전까지 배경 3컷 플레이스홀더.
         private static readonly Shot[] Shots =
         {
-            new Shot("open_1", "Cut_Open_1", null, "열두 살 봄, 송전탑 아래서 처음 만났다.", 10f, new Vector2(1.08f, 0.02f), new Vector2(1.18f, -0.02f)),
-            new Shot("open_7", "Cut_Open_4", "BG_CoastRoad", "제주의 여름은 짧았고,\n우리는 늘 바빴다.", 10f, new Vector2(1.16f, -0.02f), new Vector2(1.06f, 0.02f)),
-            new Shot("open_8", "Cut_Open_5", "BG_DoyunHouse", "유리구슬 한 알에\n온 세상을 걸던 나이.", 10f, new Vector2(1.05f, 0.0f), new Vector2(1.16f, 0.03f)),
-            new Shot("open_9", "Cut_Open_6", "BG_HanulHouse", "딱지를 다 잃어도\n그 애가 웃으면 괜찮았다.", 10f, new Vector2(1.14f, 0.0f), new Vector2(1.04f, 0.02f)),
-            new Shot("open_2", "Cut_Open_2", null, "그 애는 늘 내 앞에 섰다.\n한 번도 이유를 말하지 않고.", 10f, new Vector2(1.16f, -0.02f), new Vector2(1.06f, 0.02f)),
-            new Shot("open_10", "Cut_Open_7", "BG_BusStop", "말하지 못한 게 하나 있었다.\n그때도, 지금도.", 10f, new Vector2(1.06f, 0.02f), new Vector2(1.16f, -0.02f)),
-            new Shot("open_3", "Cut_Open_3", null, "여섯 해 뒤, 그가 돌아왔다.\n딱 1년만.", 10f, new Vector2(1.05f, 0.0f), new Vector2(1.16f, 0.03f)),
-            new Shot("open_4", "Cut_CH01_Close", null, "노을이 지기 전에 송전탑까지 달리면\n들린다는 목소리가 있다.", 10f, new Vector2(1.14f, 0.0f), new Vector2(1.04f, 0.02f)),
-            new Shot("open_6", "Cut_END_A3", null, "열아홉 살, 마지막 1년의 이야기.", 10f, new Vector2(1.04f, 0.0f), new Vector2(1.14f, 0.0f)),
+            new Shot("open_1", "BG_TowerDay", null, "(오프닝 1/3 — 새 대본 자리)", 6f, new Vector2(1.08f, 0.02f), new Vector2(1.18f, -0.02f)),
+            new Shot("open_2", "BG_CoastRoad", null, "(오프닝 2/3 — 새 대본 자리)", 6f, new Vector2(1.16f, -0.02f), new Vector2(1.06f, 0.02f)),
+            new Shot("open_3", "BG_TowerSunset", null, "(오프닝 3/3 — 새 대본 자리)", 6f, new Vector2(1.05f, 0.0f), new Vector2(1.16f, 0.03f)),
         };
 
         public static void Play(Action onDone)

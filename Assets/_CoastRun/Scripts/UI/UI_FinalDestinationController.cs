@@ -118,6 +118,7 @@ namespace CoastRun
             phone?.SetChapter(stage.chapterIndex);
 
             // CH5 strip schedule — fade 3s, fire stem event once per layer.
+            if (ArcadeRun.Active) return;   // 32차: K-POP/무한/오늘의 런은 스토리 연출(HUD 벗기기) 없음 — 코인 알약이 사라지던 원인
             if (stage.stageIndex == 17)
                 BeginRemoveHudLayer(0, _scoreCg);
             else if (stage.stageIndex == 18)
@@ -434,7 +435,7 @@ namespace CoastRun
             // Below the pause / score / coin row so the top corners stay clean.
             // 14차: 상단 중앙 타임바 하나 — 좌(하트) / 중(노을·여정) / 우(점수·코인) 세 덩어리로 정리.
             wrt.anchorMin = new Vector2(0.265f, 1f);
-            wrt.anchorMax = new Vector2(0.72f, 1f);
+            wrt.anchorMax = new Vector2(0.685f, 1f);   // 32차: 오른쪽 코인 알약(196px)과 안 겹치게 0.72→0.685
             wrt.pivot = new Vector2(0.5f, 1f);
             wrt.anchoredPosition = new Vector2(0f, -84f);   // 하트·코인과 같은 둘째 줄 → 상단 2줄로 끝
             wrt.sizeDelta = new Vector2(0f, 42f);
@@ -540,8 +541,9 @@ namespace CoastRun
             _timerLabel.alignment = TextAnchor.MiddleCenter;
             _timerLabel.color = new Color(0.9f, 0.95f, 1f);
             _timerLabel.raycastTarget = false;
-            _timerLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
-            _timerLabel.verticalOverflow = VerticalWrapMode.Overflow;   // 18차-3: 바 높이보다 큰 글자가 잘려 사라지지 않게
+            _timerLabel.horizontalOverflow = HorizontalWrapMode.Wrap;   // 32차: "거리 863 m"가 바를 넘지 않게 자동 축소
+            _timerLabel.resizeTextForBestFit = true; _timerLabel.resizeTextMinSize = 14; _timerLabel.resizeTextMaxSize = CoastHudLayout.Scaled(18);
+            _timerLabel.verticalOverflow = VerticalWrapMode.Truncate;   // 32차: 자동 축소가 세로도 맞추게(예전 Overflow는 축소를 막았다)
             _timerLabel.text = "노을까지  --:--";
         }
 

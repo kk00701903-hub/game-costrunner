@@ -129,7 +129,7 @@ namespace CoastRun
                 if (lip != null) lip.color = Color.Lerp(c, Color.black, 0.45f);
             }
             Clear(_body); Clear(_tray);
-            _placed.Clear(); _potRoots.Clear(); _selectedPot = -1;
+            _placed.Clear(); _potRoots.Clear(); _selectedPot = -1; _progress = null; _progressFill = null;
             switch (t)
             {
                 case Tab.Room: BuildRoom(); BuildRoomTray(); break;
@@ -236,7 +236,10 @@ namespace CoastRun
                 drag.OnEnd = pos =>
                 {
                     var n = HomeData.ClampPos(d, ToNorm(pos) - new Vector2(0f, size.y * 0.5f / _roomHost.rect.height));
+                    bool snapped = HomeData.NearSpot(d.id, n);
+                    if (snapped) n = HomeData.Spot(d.id);   // 31차: 제자리 근처면 스냅
                     HomeData.Place(Profile, d, n.x, n.y); _gm.WriteProfileNow(); _dragging = null; RefreshPlaced();
+                    if (snapped && _placed.TryGetValue(id, out var prt)) { StartCoroutine(PopIn(prt)); CoastToast.Show(Loc.T("딱 맞는 자리!", "Perfect spot!")); }
                 };
                 drag.OnTap = () =>
                 {
@@ -250,14 +253,97 @@ namespace CoastRun
                 };
                 _placed[h.id] = rt;
             }
+            // 31차(Dreamy Room 오마주): 보유했지만 아직 안 놓은 장식의 '제자리' 실루엣 — 점선 느낌의 반투명 알약 + 글자
+            foreach (var d in HomeData.All)
+            {
+                if (!HomeData.Owns(p, d) || HomeData.IsPlaced(p, d)) continue;
+                var sp = HomeData.Spot(d.id); var size = HomeData.Size(d);
+                var g = CoastUiArt.CutePill(_decoLayer, "Ghost_" + d.id, new Color(1f, 1f, 1f, 0.22f), 16, 3);
+                var grt = g.rectTransform; grt.anchorMin = grt.anchorMax = sp; grt.pivot = new Vector2(0.5f, 0f);
+                grt.anchoredPosition = Vector2.zero; grt.sizeDelta = size * 0.9f;
+                foreach (var im in g.GetComponentsInChildren<Image>()) { im.raycastTarget = false; im.color = new Color(im.color.r, im.color.g, im.color.b, 0.22f); }
+                var t = Text(g.transform, "T", d.tag, Mathf.RoundToInt(size.y * 0.26f), new Color(1f, 1f, 1f, 0.55f), TextAnchor.MiddleCenter);
+                g.gameObject.AddComponent<GhostPulse>();
+                grt.SetAsFirstSibling();
+            }
             if (_charRt != null) _charRt.SetParent(_decoLayer, false);
             ReorderDepth();
+            RefreshProgress();
+        }
+
+        private Text _progress; private Image _progressFill;
+        /// 방 완성도(놓은 장식 / 전체) — Dreamy Room 식 진행 바. 전부 놓으면 1회 300G.
+        private void RefreshProgress()
+        {
+            if (_roomHost == null) return;
+            var p = Profile; int n = HomeData.PlacedCount(p), all = HomeData.All.Length;
+            if (_progress == null)
+            {
+                var bar = CoastUiArt.Panel(_roomHost, "Progress", new Color(0.1f, 0.05f, 0.12f, 0.55f), 14);
+                Rect(bar.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, Vector2.zero);
+                bar.rectTransform.pivot = new Vector2(0.5f, 1f); bar.rectTransform.anchoredPosition = new Vector2(0f, -8f); bar.rectTransform.sizeDelta = new Vector2(300f, 30f);
+                _progressFill = CoastUiArt.Panel(bar.transform, "Fill", new Color(1f, 0.75f, 0.35f, 0.9f), 12);
+                Rect(_progressFill.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(3f, 3f), new Vector2(0f, -3f));
+                _progressFill.rectTransform.pivot = new Vector2(0f, 0.5f);
+                _progress = Text(bar.transform, "T", "", 12, Color.white, TextAnchor.MiddleCenter);
+                CoastUiArt.OutlineText(_progress, new Color(0f, 0f, 0f, 0.5f), 1.2f);
+            }
+            _progress.transform.parent.SetAsLastSibling();
+            _progress.text = Loc.T($"방 완성도 {n} / {all}", $"Room {n} / {all}");
+            _progressFill.rectTransform.sizeDelta = new Vector2(294f * Mathf.Clamp01(n / (float)all), 0f);
+            if (HomeData.IsComplete(p) && !p.homeCompleteRewarded)
+            {
+                p.homeCompleteRewarded = true; Save.stats.money += HomeData.CompleteReward; _gm.Persist(); _gm.WriteProfileNow(); RefreshMoney();
+                CoastToast.Show(Loc.T($"방 완성! 보너스 +{HomeData.CompleteReward}G", $"Room complete! Bonus +{HomeData.CompleteReward}G"));
+            }
+        }
+
+        /// 놓을 때 팡 — 0.35초 스케일 바운스 + 반짝이 네 알.
+        private System.Collections.IEnumerator PopIn(RectTransform rt)
+        {
+            if (rt == null) yield break;
+            float t = 0f;
+            var sparks = new List<RectTransform>();
+            for (int i = 0; i < 6; i++)
+            {
+                var s = CoastUiArt.Panel(rt, "Spark", new Color(1f, 0.95f, 0.6f, 0.95f), 4);
+                s.rectTransform.anchorMin = s.rectTransform.anchorMax = new Vector2(0.5f, 0.5f); s.rectTransform.sizeDelta = new Vector2(8f, 8f);
+                sparks.Add(s.rectTransform);
+            }
+            while (t < 0.45f && rt != null)
+            {
+                t += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(t / 0.35f);
+                float sc = u < 0.6f ? Mathf.Lerp(0.3f, 1.18f, u / 0.6f) : Mathf.Lerp(1.18f, 1f, (u - 0.6f) / 0.4f);
+                rt.localScale = new Vector3(sc, sc, 1f);
+                for (int i = 0; i < sparks.Count; i++)
+                {
+                    float a = i * 60f * Mathf.Deg2Rad; float r = 30f + 70f * u;
+                    sparks[i].anchoredPosition = new Vector2(Mathf.Cos(a) * r, Mathf.Sin(a) * r + 20f);
+                    sparks[i].GetComponent<Image>().color = new Color(1f, 0.95f, 0.6f, 1f - u);
+                }
+                yield return null;
+            }
+            if (rt != null) rt.localScale = Vector3.one;
+            foreach (var s in sparks) if (s != null) Destroy(s.gameObject);
+        }
+
+        private class GhostPulse : MonoBehaviour
+        {
+            private float _t; private readonly List<Graphic> _g = new List<Graphic>();
+            private void Awake() { _g.AddRange(GetComponentsInChildren<Graphic>()); }
+            private void Update()
+            {
+                _t += Time.unscaledDeltaTime;
+                float a = 0.16f + 0.14f * (0.5f + 0.5f * Mathf.Sin(_t * 2.5f));
+                foreach (var g in _g) if (g != null) g.color = new Color(g.color.r, g.color.g, g.color.b, g is Text ? a * 2.2f : a);
+            }
         }
 
         private void BuildRoomTray()
         {
             var p = Profile;
-            _hint = Text(_tray, "Hint", Loc.T("가구를 방 안에서 끌어 옮길 수 있어 · 러닝머신은 탭하면 운동", "Drag furniture to move it · tap the treadmill to train"), 13, Ink, TextAnchor.MiddleCenter);
+            _hint = Text(_tray, "Hint", Loc.T("[놓기]하면 제자리로 팡! 반투명 자리에 끌어다 놓아도 돼 · 다 채우면 보너스", "[Place] pops it into its spot! Drag onto a ghost spot too · fill the room for a bonus"), 13, Ink, TextAnchor.MiddleCenter);
             Rect(_hint.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -26f), new Vector2(0f, 0f));
             var scroll = MakeHScroll(_tray, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -30f), out var content);
             const float cw = 150f, ch = 0f, gap = 8f;
@@ -294,24 +380,26 @@ namespace CoastRun
 
         private void RoomAct(DecoDef d)
         {
-            var p = Profile;
+            var p = Profile; string pop = null;
             if (HomeData.IsPlaced(p, d)) { HomeData.Remove(p, d.id); CoastToast.Show(Loc.T($"{d.Name}를 치웠어.", $"Removed {d.Name}.")); }
             else if (HomeData.Owns(p, d))
             {
-                var pos = HomeData.IsWall(d) ? new Vector2(0.5f, 0.66f) : new Vector2(0.5f, 0.18f);
+                var pos = HomeData.Spot(d.id);   // 31차: 제자리로 팡
                 HomeData.Place(p, d, pos.x, pos.y);
-                CoastToast.Show(Loc.T($"{d.Name}를 놓았어. 끌어서 옮겨 봐.", $"Placed {d.Name}. Drag to move."));
+                pop = d.id;
             }
             else if (!d.FromRun)
             {
                 if (!HomeData.TryBuy(Save, p, d)) { CoastToast.Show(Loc.T("G가 모자라.", "Not enough G.")); return; }
-                var pos = HomeData.IsWall(d) ? new Vector2(0.5f, 0.66f) : new Vector2(0.5f, 0.18f);
+                var pos = HomeData.Spot(d.id);
                 HomeData.Place(p, d, pos.x, pos.y);
                 _gm.Persist();
-                CoastToast.Show(Loc.T($"{d.Name} 구매! 방에 놓았어.", $"Bought {d.Name}!"));
+                CoastToast.Show(Loc.T($"{d.Name} 구매!", $"Bought {d.Name}!"));
+                pop = d.id;
             }
             _gm.WriteProfileNow();
             RefreshPlaced(); Clear(_tray); BuildRoomTray(); RefreshMoney();
+            if (pop != null && _placed.TryGetValue(pop, out var prt)) StartCoroutine(PopIn(prt));
         }
 
         // ── 베란다 ───────────────────────────────────────────────────────

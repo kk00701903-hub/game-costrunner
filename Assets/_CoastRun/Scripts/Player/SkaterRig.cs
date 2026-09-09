@@ -396,6 +396,7 @@ namespace CoastRun
             bone.rotation = Quaternion.Slerp(bone.rotation, target, weight);
         }
 
+        [SerializeField] private float glideToeForward = 0.55f;   // 31차: 활공 때 발끝 방향(1 = 완전 앞, 0 = 완전 아래)
         [SerializeField] private float leftFootYawFix = 22f;   // 22차-4: 달릴 때 왼발이 바깥(왼쪽)으로 벌어져 보임 → 앞을 보게 안쪽으로
 
         private void LateUpdate()
@@ -469,6 +470,11 @@ namespace CoastRun
             Aim(lShin, lFoot, back - right * 0.03f + up * 0.05f, k);
             Aim(rThigh, rShin, back + right * 0.05f, k);
             Aim(rShin, rFoot, back + right * 0.03f + up * 0.05f, k);
+            // 31차: 발끝 — 왼발이 바깥(왼쪽)으로 꺾여 보이던 것. 양발 다 발끝을 진행 방향(앞) 쪽으로, 좌우 성분 없이.
+            var lToes = _anim.GetBoneTransform(HumanBodyBones.LeftToes); var rToes = _anim.GetBoneTransform(HumanBodyBones.RightToes);
+            Vector3 toeDir = (fwd * glideToeForward - up * (1f - glideToeForward)).normalized;
+            if (lToes != null) Aim(lFoot, lToes, toeDir, k);
+            if (rToes != null) Aim(rFoot, rToes, toeDir, k);
             // 고개: 앞을 본다
             var head = _anim.GetBoneTransform(HumanBodyBones.Head);
             if (head != null) head.rotation = Quaternion.Slerp(head.rotation, Quaternion.LookRotation(fwd + up * 0.35f, up), k * 0.8f);

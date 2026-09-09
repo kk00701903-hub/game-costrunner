@@ -140,13 +140,13 @@ namespace CoastRun
             {
                 JejuKit.Spawn("Obs3_Cone", root.transform, Vector3.zero, 0f, 0.72f / 0.78f);
                 FinishCone(root, lane);
-                ObstacleOutline.Attach(root.transform, 1.05f);
+                ObstacleOutline.Attach(root.transform, 1.10f);
                 return root;
             }
             // Firefly-painted cone wins; otherwise the FBX prefab / procedural cone below.
             if (PaintedProp.Available("Cone"))
             {
-                PaintedProp.Attach(root.transform, "Cone", 0.72f, replace: false);
+                PaintedProp.Attach(root.transform, "Cone", 0.72f, replace: false, outline: true, outlineColor: ObstacleOutline.Red, outlineMul: 3.0f);
                 FinishCone(root, lane);
                 return root;
             }

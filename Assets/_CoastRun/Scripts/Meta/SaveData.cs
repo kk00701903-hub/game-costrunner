@@ -178,6 +178,7 @@ namespace CoastRun
         public int decoNewMask;                  // 28차: 아직 안 본 새 장식 비트
         public string[] roomSlots = new string[RoomDeco.SlotCount];   // 28차: 슬롯별 배치된 장식 id(30차부터는 homeItems로 이관)
         public HomeItem[] homeItems = new HomeItem[0];                  // 30차: 방 안 자유 배치(id, x, y)
+        public bool homeCompleteRewarded;                                 // 31차: 방 완성 보상(300G) 지급 여부
         public int EndingsSeenCount { get { int n = 0; for (int i = 0; i < 7; i++) if ((endingMask & (1 << i)) != 0) n++; return n; } }
 
         public int StarsTotal { get { int n = 0; if (starMask != null) foreach (var m in starMask) n += (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1); return n; } }

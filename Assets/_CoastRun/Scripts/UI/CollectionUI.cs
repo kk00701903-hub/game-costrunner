@@ -184,7 +184,7 @@ namespace CoastRun
         {
             var t = AlbumTable.Get(ch);
             var d = MakeDetail();
-            var jacket = ArtAssets.LoadTexture($"Album/Jacket_{SeasonLook.Suffix(t.Season)}") ?? ArtAssets.LoadTexture("Album/Jacket_NOON") ?? ArtAssets.LoadTexture($"Cut_CH{ch:00}_Close");
+            var jacket = ArtAssets.LoadTexture($"Album/Jacket_{SeasonLook.Suffix(t.Season)}") ?? ArtAssets.LoadTexture("Album/Jacket_NOON") ?? ArtAssets.LoadTexture("BG_TowerSunset");   // 34차: Cut_* 제거
             var disc = CoastHudLayout.MakeImage(d.transform, "Disc", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-150f, -340f), new Vector2(150f, -40f), new Color(0.08f, 0.08f, 0.09f));
             disc.sprite = CoastUiArt.RoundedRect(150); disc.type = Image.Type.Sliced;
             var label = CoastHudLayout.MakeImage(disc.transform, "Label", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-100f, -100f), new Vector2(100f, 100f), Color.white);

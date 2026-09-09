@@ -552,9 +552,7 @@ namespace CoastRun
             {
                 _stingerSub.gameObject.SetActive(true);
                 _stingerSub.text =
-                    "다음 사연은요… 작년에 부친 편지가 올해 도착했대요. 이런 일도 있네요.\n" +
-                    "보내주신 분이 신청곡도 같이 적어 주셨는데, 이거 오래된 노랜데.\n" +
-                    "아무튼 틀어 드릴게요.";
+                    "(엔딩 라디오 멘트 — 새 대본 자리)";
             }
 
             // BGM_Sting_Radio — no fade; plays until tap. Never identify the sender.
@@ -1001,22 +999,19 @@ namespace CoastRun
     {
         public static string[] LinesFor(EndingKind kind) => kind == EndingKind.Tragic ? TragicLines : Lines;
 
+        // 34차: 옛 엔딩 편지 전부 제거 — 새 대본 자리.
         public static readonly string[] TragicLines =
         {
-            "하늘아.",
-            "마지막 날은 안 먼저 가려고 했는데, 날이 먼저 갔다.\n네 탓 아니야. 규칙이 그래.",
-            "주파수 끝까지 못 맞췄네. 내가.",
-            "송전탑 밑에 이거 묻어 놓는다.\n찾으면 찾는 거고, 못 찾으면… 그것도 괜찮아.",
-            "잘 지내."
+            "(엔딩 B 편지 1/3 — 새 대본 자리)",
+            "(엔딩 B 편지 2/3 — 새 대본 자리)",
+            "(엔딩 B 편지 3/3 — 새 대본 자리)"
         };
 
         public static readonly string[] Lines =
         {
-            "하늘아.",
-            "나 간다.\n아니, 그게 아니고. 이 얘기 하려고 부른 거 맞긴 한데 그거 말고도 있어.",
-            "네 트럭 고쳐놨어. 부싱이 나갔던 거였고 킹핀은 멀쩡했어. 내가 열두 살 때 진단을 잘못했더라.\n6년 걸렸다. 내가 센 게 맞아.",
-            "그리고 좋아해.\n이 순서로 말하려고 했는데 막상 만나면 순서 다 틀릴 것 같아서 그냥 적어 놓는다.",
-            "늦게 와도 돼. 기다릴게."
+            "(엔딩 A 편지 1/3 — 새 대본 자리)",
+            "(엔딩 A 편지 2/3 — 새 대본 자리)",
+            "(엔딩 A 편지 3/3 — 새 대본 자리)"
         };
     }
 }

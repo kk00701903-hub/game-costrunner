@@ -45,32 +45,11 @@ namespace CoastRun
         [Header("Prologue")]
         public bool playPrologue = true;
         public VideoClip prologueVideo;
+        // 34차: 옛 프롤로그 비트(약속의 스마트폰…) 제거 — 새 대본 자리.
         public PrologueBeat[] prologueBeats =
         {
-            new PrologueBeat
-            {
-                title = "약속의 스마트폰",
-                body = "「노을 질 때, 우리 어릴 적 비밀 기지였던 그 송전탑 아래에서 만나자.\n꼭 할 말이 있어.」\n\n멀리 아스라히 보이는 송전탑 사진이 함께 와 있다.",
-                holdSeconds = 5.5f
-            },
-            new PrologueBeat
-            {
-                title = "예기치 못한 장애",
-                body = "정류장 전광판 — 『정비 중 · 운행 중단』.\n택시를 잡으려 해도 축제로 도로가 막혔고,\n지나가는 차들은 모두 예약등만 켠 채 스쳐 간다.",
-                holdSeconds = 5f
-            },
-            new PrologueBeat
-            {
-                title = "소녀의 결심",
-                body = "해가 기울기 시작한다.\n배낭에 묶인 보드를 풀고, 땅에 내려놓는다.\n수평선 너머 송전탑을 바라보며 — 힘차게 땅을 걷어찬다.",
-                holdSeconds = 4.5f
-            },
-            new PrologueBeat
-            {
-                title = "게임플레이로의 전환",
-                body = "카메라가 등 뒤로 물러난다.\n해안가 내리막, 송전탑을 향한 질주가 시작된다.",
-                holdSeconds = 2.5f
-            }
+            new PrologueBeat { title = "(프롤로그 1/2)", body = "(새 대본 자리)", holdSeconds = 3f },
+            new PrologueBeat { title = "(프롤로그 2/2)", body = "(새 대본 자리)", holdSeconds = 2.5f }
         };
 
         [Header("Story act progression (Prologue → Run → Golden → Blue → Arrival)")]

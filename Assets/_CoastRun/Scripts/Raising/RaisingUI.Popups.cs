@@ -155,8 +155,8 @@ namespace CoastRun
         static Texture2D ChapterThumb(int c)
         {
             string n = c.ToString("00");
-            return ArtAssets.LoadTexture($"Cut_CH{n}_Close") ?? ArtAssets.LoadTexture($"Cut_CH{n}_Mid") ?? ArtAssets.LoadTexture($"Cut_CH{n}_Open")
-                ?? ArtAssets.LoadTexture(c <= 5 ? "BG_TowerSunset" : c <= 10 ? "BG_Beach" : c <= 15 ? "BG_OrangeFarm" : "BG_TowerSnow");
+            return ArtAssets.LoadTexture(   // 34차: 옛 컷씬 그림(Cut_*) 참조 제거
+                c <= 5 ? "BG_TowerSunset" : c <= 10 ? "BG_Beach" : c <= 15 ? "BG_OrangeFarm" : "BG_TowerSnow");
         }
 
         /// 10차: 클리어한 챕터 선택지 — 재도전(그 주로 되돌아가 바로 달리기) / 오프닝 다시 보기 / 닫기.

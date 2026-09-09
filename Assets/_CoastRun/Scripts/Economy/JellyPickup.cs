@@ -106,6 +106,7 @@ namespace CoastRun
 
         private static void BuildJelly(Transform root, int colorIndex, float size, bool rainbow)
         {
+            size *= 0.8f;   // 33차: 말랑이 20% 축소(사용자 요청)
             int ci = colorIndex >= 0 ? colorIndex % JellyColors.Length : Random.Range(0, JellyColors.Length);
             // 14차-3: Kling 젤리(얼굴 있는 슬라임)를 색상별로 돌려 쓴다 — 캡슐 덩어리는 노란 상자처럼 보였다.
             if (PaintedProp.Available(JellyKeys[ci]))

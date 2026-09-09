@@ -21,8 +21,10 @@ namespace CoastRun
         /// Adds the sprite under `root`, `height` metres tall with its feet at y = 0
         /// (+ `groundLift`), and hides every other renderer under `root` if `replace`.
         public static Transform Attach(Transform root, string key, float height, bool replace = true,
-            float groundLift = 0f, float zOffset = 0f, bool outline = false)
+            float groundLift = 0f, float zOffset = 0f, bool outline = false, Color? outlineColor = null, float outlineMul = 1f)
         {
+            // 33차: 장애물은 붉은 굵은 테두리(outlineColor/outlineMul), 나머지는 기존 남색.
+            Color oc = outlineColor ?? new Color(0.06f, 0.05f, 0.10f, 1f);
             var tex = Load(key);
             if (tex == null)
                 return null;
@@ -55,8 +57,8 @@ namespace CoastRun
                 mat.SetFloat("_OutlineOn", 1f);
                 // 14차-9: 흰 테두리는 밝은 배경에서 뿌옇게 번져 보였다 → 짙은 남색 굵은 선(레퍼런스의 볼드 아웃라인).
                 // 14차-10: 더 진하고 굵게(거의 검정 남색, 1024px 기준 8텍셀)
-                mat.SetColor("_OutlineColor", new Color(0.06f, 0.05f, 0.10f, 1f));
-                mat.SetFloat("_OutlineWidth", OutlineTexels(key, tex));
+                mat.SetColor("_OutlineColor", oc);
+                mat.SetFloat("_OutlineWidth", OutlineTexels(key, tex) * outlineMul);
             }
             var mr = quad.GetComponent<Renderer>();
             mr.sharedMaterial = mat;
@@ -79,8 +81,8 @@ namespace CoastRun
                 if (bm.HasProperty("_BaseColor")) bm.SetColor("_BaseColor", new Color(0.22f, 0.20f, 0.28f, 1f));
                 if (bm.HasProperty("_KeyColor")) bm.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
                 if (bm.HasProperty("_OutlineOn")) bm.SetFloat("_OutlineOn", 1f);
-                if (bm.HasProperty("_OutlineColor")) bm.SetColor("_OutlineColor", new Color(0.06f, 0.05f, 0.10f, 1f));
-                if (bm.HasProperty("_OutlineWidth")) bm.SetFloat("_OutlineWidth", OutlineTexels(key, tex));
+                if (bm.HasProperty("_OutlineColor")) bm.SetColor("_OutlineColor", oc);
+                if (bm.HasProperty("_OutlineWidth")) bm.SetFloat("_OutlineWidth", OutlineTexels(key, tex) * outlineMul);
                 if (bm.HasProperty("_Shade")) bm.SetFloat("_Shade", 0f);
                 var br = back.GetComponent<Renderer>();
                 br.sharedMaterial = bm;

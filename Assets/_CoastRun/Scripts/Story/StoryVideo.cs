@@ -10,9 +10,11 @@ namespace CoastRun
     /// 계절 첫 챕터(CH01·CH06·CH11·CH16) 오프닝에 붙어 있다.
     public static class StoryVideo
     {
+        public const bool LegacyVideos = false;
         public static VideoClip ClipFor(string sceneId)
         {
             if (string.IsNullOrEmpty(sceneId)) return null;
+            if (!LegacyVideos) return null;   // 34차: 옛 컷씬 영상(VID_CH01_Open 등)은 새 대본과 안 맞아 끈다. 파일은 Tools/cleanup_old_cutscenes.bat 로 삭제.
             return Resources.Load<VideoClip>("CoastRun/Video/VID_" + sceneId);
         }
 

@@ -110,6 +110,37 @@ namespace CoastRun
             Ensure(p);
             var l = new List<HomeItem>(p.homeItems); l.RemoveAll(h => h.id == id); p.homeItems = l.ToArray();
         }
+        /// 31차(Dreamy Room 오마주): 장식마다 '제자리'가 있다. [놓기]하면 제자리로 날아가 팡 하고 놓이고, 끌다가 제자리 근처에 놓으면 스냅.
+        public static Vector2 Spot(string id)
+        {
+            switch (id)
+            {
+                case "bed": return new Vector2(0.24f, 0.10f);
+                case "rug": return new Vector2(0.50f, 0.04f);
+                case "sofa": return new Vector2(0.74f, 0.12f);
+                case "desk": return new Vector2(0.20f, 0.30f);
+                case "treadmill": return new Vector2(0.80f, 0.30f);
+                case "plant": return new Vector2(0.08f, 0.08f);
+                case "harubang": return new Vector2(0.12f, 0.22f);
+                case "surf": return new Vector2(0.92f, 0.10f);
+                case "lamp": return new Vector2(0.40f, 0.36f);
+                case "books": return new Vector2(0.60f, 0.36f);
+                case "tangerine": return new Vector2(0.88f, 0.22f);
+                case "haenyeo": return new Vector2(0.34f, 0.24f);
+                case "clock": return new Vector2(0.12f, 0.72f);
+                case "poster": return new Vector2(0.88f, 0.70f);
+                case "stars": return new Vector2(0.50f, 0.84f);
+                case "lighthouse": return new Vector2(0.24f, 0.56f);
+                case "shelf": return new Vector2(0.76f, 0.52f);
+                case "window": return new Vector2(0.50f, 0.62f);
+                default: return new Vector2(0.5f, 0.2f);
+            }
+        }
+        public const float SnapRadius = 0.11f;
+        public static bool NearSpot(string id, Vector2 pos) => Vector2.Distance(Spot(id), pos) <= SnapRadius;
+        public static bool IsComplete(MetaProfile p) => PlacedCount(p) >= All.Length;
+        public const int CompleteReward = 300;
+
         /// 바닥 가구는 y 0.02~0.42, 벽걸이는 y 0.45~0.85 안에만.
         public static Vector2 ClampPos(DecoDef d, Vector2 v)
         {

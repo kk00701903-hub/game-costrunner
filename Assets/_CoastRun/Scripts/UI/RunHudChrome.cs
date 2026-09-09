@@ -601,6 +601,8 @@ namespace CoastRun
                 Vector2.zero, Vector2.one, new Vector2(110f, 0f), new Vector2(-18f, 0f));
             _scoreText.color = ScoreYellow;
             _scoreText.fontStyle = FontStyle.Bold;
+            _scoreText.horizontalOverflow = HorizontalWrapMode.Wrap;   // 32차: 6자리 점수도 칸 안에
+            _scoreText.verticalOverflow = VerticalWrapMode.Truncate; _scoreText.resizeTextForBestFit = true; _scoreText.resizeTextMinSize = 20; _scoreText.resizeTextMaxSize = CoastHudLayout.Scaled(36);
             CoastUiArt.OutlineText(_scoreText, new Color(0.05f, 0.07f, 0.18f, 0.9f), 2f);
 
             // Multiplier badge: orange lozenge with a big star poking out of the pill.
@@ -638,7 +640,7 @@ namespace CoastRun
             rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
             rt.pivot = new Vector2(1f, 1f);
             rt.anchoredPosition = new Vector2(-6f, -76f);
-            rt.sizeDelta = new Vector2(176f, 54f);
+            rt.sizeDelta = new Vector2(196f, 54f);   // 32차: 5자리(12409)가 넘치던 것 — 폭 176→196 + 글자 자동 축소
             _coinCg = pill.gameObject.AddComponent<CanvasGroup>();
 
             var iconGo = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
@@ -657,6 +659,8 @@ namespace CoastRun
                 Vector2.zero, Vector2.one, new Vector2(16f, 0f), new Vector2(-56f, 0f));
             _coinText.color = ScoreYellow;
             _coinText.fontStyle = FontStyle.Bold;
+            _coinText.horizontalOverflow = HorizontalWrapMode.Wrap;   // 32차: 칸 안에서 자동 축소(Overflow면 축소가 안 됨)
+            _coinText.verticalOverflow = VerticalWrapMode.Truncate; _coinText.resizeTextForBestFit = true; _coinText.resizeTextMinSize = 18; _coinText.resizeTextMaxSize = CoastHudLayout.Scaled(30);
             CoastUiArt.OutlineText(_coinText, new Color(0.05f, 0.07f, 0.18f, 0.9f), 2f);
         }
 

@@ -7,8 +7,10 @@ namespace CoastRun
     public static class ObstacleOutline
     {
         private static Material _ink;
+        /// 33차: 장애물 테두리 색(붉은색) — 메시 헐과 그림 테두리가 같은 색을 쓴다.
+        public static readonly Color Red = new Color(0.88f, 0.12f, 0.14f, 1f);
 
-        public static void Attach(Transform root, float scale = 1.06f)
+        public static void Attach(Transform root, float scale = 1.10f)   // 33차: 1.06→1.10(굵게)
         {
             if (root == null)
                 return;
@@ -41,7 +43,7 @@ namespace CoastRun
 
         private static Material Make()
         {
-            var ink = CoastMaterials.CreateUnlit(() => new Color(0.06f, 0.05f, 0.10f, 1f));   // 14차-11: 짙은 잉크 선
+            var ink = CoastMaterials.CreateUnlit(() => Red);   // 33차: 붉은 굵은 선(14차-11 잉크 → 사용자 요청)
             if (ink.HasProperty("_Cull"))
                 ink.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Front);
             return ink;

@@ -20,7 +20,7 @@ namespace CoastRun
             if (Mathf.Abs(dx) > Lateral) return false;
             // 14차-10: 높이도 본다 — 하늘 코인은 점프해야 먹는다(주인공 transform 은 몸 중간 ≈ 0.8 m).
             float dy = itemPos.y - player.position.y;
-            return dy > -1.1f && dy < 1.25f;
+            return dy > -1.1f && dy < 1.6f;   // 33차: 활공 중 하늘 코인(줄 위 0.35~0.6 m)도 먹히게 1.25→1.6
         }
 
         /// 자석에 끌리는 아이템은 몸속이 아니라 몸 앞(가슴 높이)으로 온다.

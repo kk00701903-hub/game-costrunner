@@ -21,7 +21,7 @@ namespace CoastRun
         public string Hint => Loc.T(hintKo, hintEn);
         public string Back => Loc.T(backKo, backEn);
         public string Image => $"Card/Card_{id:00}";
-        public string FallbackImage => chapter > 0 ? $"Cut_CH{chapter:00}_Close" : "Cut_END_A1";
+        public string FallbackImage => chapter > 0 ? "BG_TowerSunset" : "BG_TowerNight";   // 34차: 옛 컷씬 그림(Cut_*) 대신 배경
     }
 
     public static class PhotocardTable

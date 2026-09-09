@@ -92,7 +92,7 @@ namespace CoastRun
             if (PaintedProp.Available(paintedKey))
             {
                 // 14차-5: 더 크게(0.8 m) + 흰 테두리 — 돌길 위에서 금색이 또렷하게 떨어져 보이게.
-                coin._painted = PaintedProp.Attach(visRoot, paintedKey, 0.9f, replace: false, groundLift: -0.15f, outline: true);   // 21차-3: 0.8→0.9
+                coin._painted = PaintedProp.Attach(visRoot, paintedKey, 0.72f, replace: false, groundLift: -0.12f, outline: true);   // 33차: 0.9→0.72(20% 축소)
                 if (coin._painted != null) coin._paintedScale = coin._painted.localScale;
                 var pcol = go.AddComponent<SphereCollider>();
                 pcol.isTrigger = true;
@@ -109,7 +109,7 @@ namespace CoastRun
             vis.transform.SetParent(visRoot, false);
             vis.transform.localPosition = new Vector3(0f, 0.2f, 0f);
             vis.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            vis.transform.localScale = new Vector3(0.5f, 0.07f, 0.5f);
+            vis.transform.localScale = new Vector3(0.4f, 0.06f, 0.4f);   // 33차: 20% 축소
             Object.Destroy(vis.GetComponent<Collider>());
             // 12차: 1.0을 넘는 색은 블룸(임계 1.1)이 집어 광원을 만든다 — 은은하게 빛나는 동전.
             System.Func<Color> face = silver
@@ -125,7 +125,7 @@ namespace CoastRun
             rim.transform.SetParent(visRoot, false);
             rim.transform.localPosition = new Vector3(0f, 0.2f, 0f);
             rim.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            rim.transform.localScale = new Vector3(0.56f, 0.035f, 0.56f);
+            rim.transform.localScale = new Vector3(0.45f, 0.03f, 0.45f);
             Object.Destroy(rim.GetComponent<Collider>());
             rim.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(rimCol(), rimCol);
 

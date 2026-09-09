@@ -164,17 +164,20 @@ namespace CoastRun
         {
             if (_root == null) return;
             Transform follow = player != null ? player.transform : null;
-            int n = Mathf.Clamp(Mathf.FloorToInt(length / 1.8f), 6, 40);
+            // 33차: 하늘 코인 — 촘촘하게(1.4 m), 앞 절반은 잡은 레인 그대로(그냥 날면 먹힌다), 뒤 절반은 옆 레인으로 물결.
+            // 높이는 줄보다 0.35 m 위(가슴 앞)로, 위아래로 살짝 파도치게 해서 '하늘에 떠 있는 코인 줄'로 읽힌다.
+            int n = Mathf.Clamp(Mathf.FloorToInt(length / 1.4f), 8, 48);
             for (int i = 0; i < n; i++)
             {
                 float t = (float)i / n;
                 int l = lane;
-                if (t > 0.33f)
+                if (t > 0.5f)
                 {
-                    int seg = Mathf.FloorToInt((t - 0.33f) / 0.22f);
+                    int seg = Mathf.FloorToInt((t - 0.5f) / 0.25f);
                     l = lane == 0 ? (seg % 2 == 0 ? 1 : -1) : (seg % 2 == 0 ? 0 : lane);
                 }
-                Vector3 pos = RoadPlacement.OnRoad(z + i * 1.8f, l * laneWidth, height);
+                float wave = Mathf.Sin(t * Mathf.PI * 3f) * 0.25f;
+                Vector3 pos = RoadPlacement.OnRoad(z + i * 1.4f, l * laneWidth, height + 0.35f + wave);
                 CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, i % 5 == 4);
             }
         }
