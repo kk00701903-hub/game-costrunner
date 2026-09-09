@@ -16,6 +16,19 @@ namespace CoastRun
         private float _nextSpawnZ = 8f;
         private Transform _root;
 
+        /// 23차-3: 골인 뒤 앞쪽 코인을 전부 거둔다(풀로).
+        public void ClearAhead(float z)
+        {
+            if (_root == null) return;
+            for (int i = _root.childCount - 1; i >= 0; i--)
+            {
+                var c = _root.GetChild(i);
+                if (!c.gameObject.activeSelf || DownhillPath.DistanceAlong(c.position) < z) continue;
+                var cp = c.GetComponent<CoinPickup>();
+                if (cp != null) cp.Recycle(); else Destroy(c.gameObject);
+            }
+        }
+
         public void Bind(PlayerController playerController, CoinWallet coinWallet,
             UpgradeManager upgradeManager, UI_FeedbackController ui)
         {

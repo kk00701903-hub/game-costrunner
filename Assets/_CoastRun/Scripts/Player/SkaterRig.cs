@@ -372,12 +372,16 @@ namespace CoastRun
             Vector3 right = Vector3.Cross(up, face).normalized;
             var rUp = _anim.GetBoneTransform(HumanBodyBones.RightUpperArm); var rLo = _anim.GetBoneTransform(HumanBodyBones.RightLowerArm); var rH = _anim.GetBoneTransform(HumanBodyBones.RightHand);
             var lUp = _anim.GetBoneTransform(HumanBodyBones.LeftUpperArm);  var lLo = _anim.GetBoneTransform(HumanBodyBones.LeftLowerArm);  var lH = _anim.GetBoneTransform(HumanBodyBones.LeftHand);
-            // 오른손: 위로 쭉(살짝 바깥·앞)
-            Aim(rUp, rLo, (up + right * 0.35f + face * 0.10f), k);
-            Aim(rLo, rH, (up + right * 0.15f + face * 0.05f), k);
-            // 왼손: 위팔은 아래·바깥, 아래팔은 허리 쪽으로 꺾어 손이 옆구리에
-            Aim(lUp, lLo, (-up * 0.75f - right * 0.85f + face * 0.10f), k);   // 팔꿈치 바깥으로
-            Aim(lLo, lH, (right * 1.0f + up * 0.30f + face * 0.30f), k);      // 아래팔은 허리로 꺾어 손을 옆구리에
+            // 오른손: 위로 쭉(살짝 바깥·앞) — 23차-1: 손목까지 같은 방향으로 펴서 꺾인 손이 없게, 손바닥은 앞
+            Aim(rUp, rLo, (up + right * 0.30f + face * 0.08f), k);
+            Aim(rLo, rH, (up + right * 0.22f + face * 0.04f), k);
+            var rMid = _anim.GetBoneTransform(HumanBodyBones.RightMiddleProximal);
+            if (rMid != null) Aim(rH, rMid, (up + right * 0.30f - face * 0.05f), k);
+            // 왼손: 위팔은 아래·바깥, 아래팔은 허리 쪽으로 꺾어 손이 옆구리에. 손목은 손등이 바깥을 보게 몸 쪽으로.
+            Aim(lUp, lLo, (-up * 0.80f - right * 0.75f + face * 0.05f), k);   // 팔꿈치 바깥으로
+            Aim(lLo, lH, (right * 1.0f + up * 0.22f + face * 0.35f), k);      // 아래팔은 허리로 꺾어 손을 옆구리에
+            var lMid = _anim.GetBoneTransform(HumanBodyBones.LeftMiddleProximal);
+            if (lMid != null) Aim(lH, lMid, (right * 0.6f - up * 0.35f - face * 0.7f), k);   // 손가락은 등 쪽으로 감싸듯
             var head = _anim.GetBoneTransform(HumanBodyBones.Head);
             if (head != null)
             {

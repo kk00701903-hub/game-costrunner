@@ -396,13 +396,34 @@ namespace CoastRun
             {
                 PickupFloat.Text(popPos, "+" + amount, tint, amount >= 2 ? 1.25f : 1f);
                 if (tint == CoastPalette.CoinYellow) PickupFloat.FlyCoin(popPos, amount >= 2 ? 3 : 1);
+                // 23차-4: 펫 코인 보너스가 눈에 보이게 — 배율이 있으면 1.1초에 한 번 "120%"가 함께 떠오른다(펫 색).
+                if (tint == CoastPalette.CoinYellow && PetCompanion.CoinBonus > 1.001f && now - _lastPetTagTime > 1.1f)
+                {
+                    _lastPetTagTime = now;
+                    PickupFloat.Text(popPos + Vector3.up * 0.55f, Mathf.RoundToInt(PetCompanion.CoinBonus * 100f) + "%", new Color(0.55f, 0.95f, 1f), 0.8f);
+                }
             }
             else
                 PickupFloat.Text(popPos, "+1", tint, 0.85f);
             if (_bodySquash == null) _bodySquash = StartCoroutine(BodySquash());
         }
 
-        private int _pickupStreak; private float _lastPickupTime = -10f; private Coroutine _bodySquash;
+        private int _pickupStreak; private float _lastPickupTime = -10f; private float _lastPetTagTime = -10f; private Coroutine _bodySquash;
+
+        /// 23차-3: 골인 콘페티 — 리본이 끊기는 순간 게이트 위에서 색종이가 쏟아진다(별·하트 파티클 재사용).
+        public void OnFinishConfetti(Vector3 top, float halfWidth)
+        {
+            EnsurePopBursts();
+            Color[] cols = { new Color(1f, 0.35f, 0.45f), new Color(1f, 0.85f, 0.3f), new Color(0.45f, 0.75f, 1f), new Color(0.6f, 0.9f, 0.5f), Color.white };
+            for (int i = 0; i < 7; i++)
+            {
+                float x = Mathf.Lerp(-halfWidth, halfWidth, (i + 0.5f) / 7f);
+                var p = top + Vector3.right * x;
+                SpawnPop(i % 2 == 0 ? _popStar : _popHeart, p, cols[i % cols.Length], 8);
+            }
+            cameraRig?.Shake(0.12f, 0.2f);
+            audio?.PlaySfx(CoastSfx.NearMiss);
+        }
         private IEnumerator BodySquash()
         {
             var t = player != null ? player.transform.Find("SkaterRig") : null;
@@ -619,10 +640,15 @@ namespace CoastRun
                 yield return null;
             }
 
-            cameraRig?.Shake(0.25f, 0.3f);
-            PunchSaturation(-40f, 0.4f);
+            // 23차-2: '꽈당' — 공격당했다는 불쾌한 충격이 화면에 와야 피하고 싶어진다.
+            // 순간 정지(0.10 s) → 큰 흔들림 → 화면이 기울며 붉게 번쩍 + "꽈당!" + 채도 뚝.
+            if (_hitStopRoutine != null) StopCoroutine(_hitStopRoutine);
+            _hitStopRoutine = StartCoroutine(HitStop(0.03f, 0.10f));
+            cameraRig?.Shake(0.55f, 0.38f);
+            PunchSaturation(-70f, 0.55f);
             player?.FreezeInput(0.3f);
-            cameraRig?.FovKick(-6f, 0.2f);
+            cameraRig?.FovKick(-9f, 0.28f);
+            PickupFloat.Impact(Loc.T("꽈당!", "OUCH!"));
             // ★ BGM never stops — SFX only.
             audio?.PlaySfx(CoastSfx.SoftHit);
         }

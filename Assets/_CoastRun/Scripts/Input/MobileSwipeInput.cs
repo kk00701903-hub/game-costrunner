@@ -72,6 +72,15 @@ namespace CoastRun
         // Consumption — each returns the buffered input once, then clears it.
         // ────────────────────────────────────────────────────────────────
 
+        /// 23차: 원격(MCP) 입력 주입 — 실제 스와이프와 같은 버퍼를 탄다.
+        public void Inject(int laneDir, bool jump, bool crouch)
+        {
+            float now = Time.unscaledTime;
+            if (laneDir != 0) { _laneDir = laneDir; _laneStamp = now; }
+            if (jump) _jumpStamp = now;
+            if (crouch) _crouchStamp = now;
+        }
+
         public int ConsumeLaneDelta()
         {
             if (_laneStamp < 0f)

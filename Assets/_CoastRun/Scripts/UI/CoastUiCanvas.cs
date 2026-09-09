@@ -193,8 +193,8 @@ namespace CoastRun
     {
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.J)) Dump();
-            if (!Input.GetKeyDown(KeyCode.K)) return;
+            if (CoastRemoteKeys.Down(KeyCode.J)) Dump();
+            if (!CoastRemoteKeys.Down(KeyCode.K)) return;
             var es = EventSystem.current; if (es == null) return;
             var pd = new PointerEventData(es) { position = Input.mousePosition, button = PointerEventData.InputButton.Left };
             var hits = new System.Collections.Generic.List<RaycastResult>();

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "unity": {
+      "command": "C:\\Users\\ares2\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": ["C:\\dev\\game\\Tools\\Mcp\\unity_mcp_server.py"]
+    }
+  }
+}

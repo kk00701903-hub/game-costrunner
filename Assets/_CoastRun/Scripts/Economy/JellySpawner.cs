@@ -64,6 +64,17 @@ namespace CoastRun
             ClearAll();
         }
 
+        /// 23차-3: 골인 뒤 앞쪽 말랑이·물약·별을 전부 치운다.
+        public void ClearAhead(float z)
+        {
+            if (_root == null) return;
+            for (int i = _root.childCount - 1; i >= 0; i--)
+            {
+                var c = _root.GetChild(i);
+                if (DownhillPath.DistanceAlong(c.position) >= z) Destroy(c.gameObject);
+            }
+        }
+
         public void ClearAll()
         {
             if (_root == null)

@@ -195,14 +195,18 @@ namespace CoastRun
             _handoffActive = true; _finishFrame = true;
             Vector3 p0 = transform.position; Quaternion r0 = transform.rotation;
             float t = 0f;
+            // 23차-1: 카메라가 위로 붕 떠서 '하늘로 올라가는' 느낌이 났다 → 결승선 옆에 선 사진사처럼 **눈높이(발 기준 1.15 m)에 고정**.
+            // 위치는 리본 통과 시점의 자리에서 살짝 뒤·옆으로 잡고 그 뒤로는 움직이지 않는다. 주인공만 몇 걸음 더 가서 돌아선다.
+            Quaternion frame = target.PathRotation;
+            Vector3 feet0 = target.FeetPosition;
+            Vector3 anchor = feet0 + frame * new Vector3(0.55f, 1.15f, -2.2f);
             while (_finishFrame)
             {
                 t += Time.unscaledDeltaTime;
                 float u = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / swing));
-                Quaternion frame = target.PathRotation;
-                Vector3 pp = target.transform.position;
-                Vector3 pos = pp + frame * new Vector3(0.35f, 1.55f, -3.6f);
-                Quaternion rot = Quaternion.LookRotation((pp + Vector3.up * 1.05f - pos).normalized, Vector3.up);
+                Vector3 feet = target.FeetPosition;
+                Vector3 pos = anchor;
+                Quaternion rot = Quaternion.LookRotation((feet + Vector3.up * 1.0f - pos).normalized, Vector3.up);
                 transform.position = Vector3.Lerp(p0, pos, u);
                 transform.rotation = Quaternion.Slerp(r0, rot, u);
                 if (u >= 1f) { p0 = pos; r0 = rot; }

@@ -101,6 +101,7 @@ namespace CoastRun
             _suppressed = on;
             if (!on || _root == null || player == null)
                 return;
+            if (_car != null) { Destroy(_car.gameObject); _car = null; }   // 23차-3: 마주 오던 차도 치운다
             float z = player.PathDistance;
             for (int i = _root.childCount - 1; i >= 0; i--)
             {
@@ -113,6 +114,12 @@ namespace CoastRun
 
         private void Update()
         {
+
+            // 23차-3: 결승선 앞 14 m ~ 뒤 60 m 구간엔 행을 놓지 않는다(리본·관중이 보이게).
+
+            if (StageManager.Instance != null && _nextSpawnZ > StageManager.Instance.FinishPathZ - 14f && _nextSpawnZ < StageManager.Instance.FinishPathZ + 60f)
+
+            { _nextSpawnZ = StageManager.Instance.FinishPathZ + 60f; }
             if (player == null || _root == null)
                 return;
 
@@ -120,7 +127,7 @@ namespace CoastRun
             float speed = Mathf.Max(6f, player.Speed);
 #if UNITY_EDITOR
             // 17차 디버그: L — 주인공 레인 12 m 앞에 점프대 + 빨래줄
-            if (Input.GetKeyDown(KeyCode.L))
+            if (CoastRemoteKeys.Down(KeyCode.L))
             {
                 JumpPad.Spawn(_root, RoadPlacement.OnRoad(z + 12f, player.Lane * laneWidth));
                 ClothesLine.Spawn(_root, z + 18.5f);

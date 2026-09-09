@@ -621,8 +621,13 @@ namespace CoastRun
         public void FinishRun()
         {
             _state = SkateState.Finish;
-            _gliding = false; _hop = 0f; _laneT = 1f; _laneFrom = _lane * config.laneOffset;
+            _gliding = false; _laneT = 1f; _laneFrom = _lane * config.laneOffset;
+            _hop = _groundY + _bodyHeight * 0.5f;   // 23차-1: 0으로 두면 한 프레임 땅 밑으로 꺼졌다 올라온다
+            _verticalVelocity = 0f;
         }
+
+        /// 23차-1: 발 위치(월드) — transform은 몸 중심(캡슐)이라 카메라 기준으로는 이게 편하다.
+        public Vector3 FeetPosition => transform.position - DownhillPath.Normal * (_bodyHeight * 0.5f);
 
 #if UNITY_EDITOR
         private void OnValidate()

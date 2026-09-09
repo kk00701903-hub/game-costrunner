@@ -178,6 +178,9 @@ namespace CoastRun
             OnStageStart?.Invoke(def);
         }
 
+        /// 23차: 원격(MCP) 디버그 — 즉시 클리어.
+        public void DebugClear() { if (_stageActive && !ArcadeRun.Active) ClearCurrent(); }
+
         /// Editor aid: warp the player to 30 m before the finish so a clear can be tested.
         public void DebugWarpToFinish()
         {
@@ -256,9 +259,9 @@ namespace CoastRun
             _stageElapsed += Time.deltaTime;
 #if UNITY_EDITOR
             // 에디터 검증용: Home = 노을 5초 전으로, End = 스테이지 즉시 클리어(정산 화면 확인). (F키는 에디터 단축키와 겹친다)
-            if (Input.GetKeyDown(KeyCode.Home) && !ArcadeRun.Active) _stageElapsed = Mathf.Max(_stageElapsed, SunsetSeconds - 5f);
-            if (Input.GetKeyDown(KeyCode.End) && !ArcadeRun.Active) { ClearCurrent(); return; }
-            if (Input.GetKeyDown(KeyCode.PageDown) && !ArcadeRun.Active) { DebugWarpToFinish(); return; }   // 22차-5: 골인 30 m 앞으로(리본 확인)
+            if (CoastRemoteKeys.Down(KeyCode.Home) && !ArcadeRun.Active) _stageElapsed = Mathf.Max(_stageElapsed, SunsetSeconds - 5f);
+            if (CoastRemoteKeys.Down(KeyCode.End) && !ArcadeRun.Active) { ClearCurrent(); return; }
+            if (CoastRemoteKeys.Down(KeyCode.PageDown) && !ArcadeRun.Active) { DebugWarpToFinish(); return; }   // 22차-5: 골인 30 m 앞으로(리본 확인)
 #endif
 
             float u = StageProgress01;
@@ -329,10 +332,18 @@ namespace CoastRun
         private FinishRibbon _ribbon;
         private RunnerCameraRig _finishCam;
         private SkaterRig _finishRig;
+        /// 23차-3: 결승선 앞뒤 이 구간엔 장애물 행을 놓지 않는다(리본이 가려지지 않게).
+        public float FinishPathZ => _current != null && _stageActive ? _stageOriginDistance + _current.targetDistance : float.PositiveInfinity;
+
         private System.Collections.IEnumerator FinishThenClear(StageDef cleared, bool chapterEnd)
         {
             _ribbon?.Break();
             player?.FinishRun();
+            // 23차-3: 리본을 지나는 순간 앞에 남은 코인·말랑이·장애물을 싹 치운다 — 무대는 관중과 주인공만.
+            float sweepZ = player != null ? player.PathDistance - 1f : 0f;
+            foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.SetSuppressed(true);
+            foreach (var c in FindObjectsByType<CoinSpawner>(FindObjectsSortMode.None)) c.ClearAhead(sweepZ);
+            foreach (var j in FindObjectsByType<JellySpawner>(FindObjectsSortMode.None)) j.ClearAhead(sweepZ);
             _finishCam = Camera.main != null ? Camera.main.GetComponent<RunnerCameraRig>() : null;
             _finishRig = player != null ? player.GetComponentInChildren<SkaterRig>() : null;
             if (_finishCam != null) _finishCam.StartCoroutine(_finishCam.PlayFinishFrame(0.9f));
@@ -353,6 +364,7 @@ namespace CoastRun
         {
             _finishRig?.SetFinishPose(false);
             _finishCam?.EndFinishFrame();
+            foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.SetSuppressed(false);
             if (_ribbon != null) { Destroy(_ribbon.gameObject); _ribbon = null; }
         }
 

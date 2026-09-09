@@ -26,11 +26,11 @@ namespace CoastRun
             if (_enabledWhen != null && !_enabledWhen())
                 return;
 
-            if (Input.GetKeyDown(KeyCode.U))
+            if (CoastRemoteKeys.Down(KeyCode.U))
                 Try(UpgradeStat.MaxSpeed);
-            if (Input.GetKeyDown(KeyCode.I))
+            if (CoastRemoteKeys.Down(KeyCode.I))
                 Try(UpgradeStat.CoinMultiplier);
-            if (Input.GetKeyDown(KeyCode.O))
+            if (CoastRemoteKeys.Down(KeyCode.O))
                 Try(UpgradeStat.MagnetRadius);
         }
 

@@ -47,6 +47,82 @@ namespace CoastRun
             return local;
         }
 
+        // 23차-2: 꽈당 — 붉은 비네트 플래시 + 화면 기울기 + 큰 글자
+        private Image _vignette, _flash; private Text _slam;
+        public static void Impact(string word)
+        {
+            var f = Ensure();
+            f.StartCoroutine(f.ImpactSeq(word));
+        }
+
+        private IEnumerator ImpactSeq(string word)
+        {
+            if (_vignette == null)
+            {
+                _vignette = MakeFull("HitVignette", VignetteTex());
+                _flash = MakeFull("HitFlash", null);
+                _slam = CoastHudLayout.MakeText(_root, "Slam", "", 120, TextAnchor.MiddleCenter,
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-400f, -120f), new Vector2(400f, 120f));
+                _slam.fontStyle = FontStyle.Bold; _slam.raycastTarget = false;
+                CoastUiArt.OutlineText(_slam, new Color(0.35f, 0.02f, 0.05f, 1f), 5f);
+            }
+            _vignette.gameObject.SetActive(true); _flash.gameObject.SetActive(true); _slam.gameObject.SetActive(true);
+            _slam.text = word;
+            var srt = _slam.rectTransform;
+            float t = 0f; const float dur = 0.55f;
+            Quaternion r0 = _root.localRotation; Vector2 p0 = _root.anchoredPosition;
+            while (t < dur)
+            {
+                t += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(t / dur);
+                // 흰 번쩍(0.06 s) → 붉은 비네트가 남았다가 사라진다
+                _flash.color = new Color(1f, 0.95f, 0.9f, Mathf.Clamp01(1f - t / 0.06f) * 0.7f);
+                _vignette.color = new Color(0.9f, 0.05f, 0.08f, (1f - u) * (1f - u) * 0.85f);
+                // 화면 전체가 기우뚱(감쇠 진동)
+                float wob = Mathf.Sin(t * 42f) * (1f - u) * (1f - u) * 5f;
+                _root.localRotation = Quaternion.Euler(0f, 0f, wob);
+                _root.anchoredPosition = p0 + new Vector2(Mathf.Sin(t * 60f) * 22f, Mathf.Cos(t * 50f) * 14f) * (1f - u) * (1f - u);
+                // 글자: 크게 튀어나왔다가 자리 잡고 흐려진다
+                float pop = u < 0.12f ? Mathf.Lerp(2.2f, 0.95f, u / 0.12f) : Mathf.Lerp(0.95f, 1.05f, (u - 0.12f) / 0.88f);
+                srt.localScale = Vector3.one * pop;
+                srt.localRotation = Quaternion.Euler(0f, 0f, -9f + wob * 0.5f);
+                srt.anchoredPosition = new Vector2(0f, 140f + 40f * u);
+                _slam.color = new Color(1f, 0.92f, 0.3f, u < 0.65f ? 1f : 1f - (u - 0.65f) / 0.35f);
+                yield return null;
+            }
+            _root.localRotation = r0; _root.anchoredPosition = p0;
+            _vignette.gameObject.SetActive(false); _flash.gameObject.SetActive(false); _slam.gameObject.SetActive(false);
+        }
+
+        private Image MakeFull(string name, Texture2D tex)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(_root, false);
+            var img = go.GetComponent<Image>();
+            img.raycastTarget = false;
+            if (tex != null) img.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            var rt = img.rectTransform;
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = new Vector2(-80f, -80f); rt.offsetMax = new Vector2(80f, 80f);
+            img.color = new Color(1f, 1f, 1f, 0f);
+            go.SetActive(false);
+            return img;
+        }
+
+        private static Texture2D _vig;
+        private static Texture2D VignetteTex()
+        {
+            if (_vig != null) return _vig;
+            const int N = 128; _vig = new Texture2D(N, N, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < N; y++) for (int x = 0; x < N; x++)
+            {
+                float px = (x + 0.5f) / N * 2f - 1f, py = (y + 0.5f) / N * 2f - 1f;
+                float r = Mathf.Sqrt(px * px * 0.8f + py * py * 0.55f);
+                float a = Mathf.Clamp01((r - 0.35f) / 0.6f); a = a * a;
+                _vig.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+            }
+            _vig.Apply(); return _vig;
+        }
+
         public static void Text(Vector3 world, string text, Color color, float size = 1f)
         {
             var f = Ensure();

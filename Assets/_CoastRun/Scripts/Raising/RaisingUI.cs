@@ -173,12 +173,12 @@ namespace CoastRun
         private void DevKeys()
         {
             if (Save == null) return;
-            if (Input.GetKeyDown(KeyCode.Tab)) SetStatTab(_statTab == StatTab.Body ? StatTab.Mind : StatTab.Body);
+            if (CoastRemoteKeys.Down(KeyCode.Tab)) SetStatTab(_statTab == StatTab.Body ? StatTab.Mind : StatTab.Body);
             if (Input.GetKeyDown(KeyCode.A) && !_busy) ToggleSheet(true);
-            if (Input.GetKeyDown(KeyCode.Q)) { _tab = ScheduleCategory.Job; RefreshCards(); }
+            if (CoastRemoteKeys.Down(KeyCode.Q)) { _tab = ScheduleCategory.Job; RefreshCards(); }
             if (Input.GetKeyDown(KeyCode.W)) { _tab = ScheduleCategory.SelfDev; RefreshCards(); }
-            if (Input.GetKeyDown(KeyCode.E)) { _tab = ScheduleCategory.Rest; RefreshCards(); }
-            if (Input.GetKeyDown(KeyCode.R)) { _tab = ScheduleCategory.Story; RefreshCards(); }
+            if (CoastRemoteKeys.Down(KeyCode.E)) { _tab = ScheduleCategory.Rest; RefreshCards(); }
+            if (CoastRemoteKeys.Down(KeyCode.R)) { _tab = ScheduleCategory.Story; RefreshCards(); }
             for (int n = 0; n < 9; n++)
             {
                 if (!Input.GetKeyDown(KeyCode.Alpha1 + n)) continue;
@@ -197,24 +197,24 @@ namespace CoastRun
                 var defs = ScheduleTable.ByCategory(_tab, Timeline.SeasonOf(Save.week));
                 if (n < defs.Count) OnCardTapped(defs[n]);
             }
-            if (Input.GetKeyDown(KeyCode.Backspace))
+            if (CoastRemoteKeys.Down(KeyCode.Backspace))
             {
                 for (int i = Timeline.PhasesPerWeek - 1; i >= Save.phaseIndex; i--)
                     if (!string.IsNullOrEmpty(Save.queuedSchedule[i])) { _gm.SetQueued(i, null); break; }
                 RefreshSlots();
             }
-            if (_modalPrimary != null && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space)))
+            if (_modalPrimary != null && (CoastRemoteKeys.Down(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space)))
             {
                 var act = _modalPrimary; _modalPrimary = null; act();
                 return;
             }
             if (Input.GetKeyDown(KeyCode.Escape) && _sheet != null && _sheet.activeSelf) ToggleSheet(false);
-            if (Input.GetKeyDown(KeyCode.Return) && !_busy) OnRunPressed();
+            if (CoastRemoteKeys.Down(KeyCode.Return) && !_busy) OnRunPressed();
             if (Input.GetKeyDown(KeyCode.S) && !_busy) OpenShop();
-            if (Input.GetKeyDown(KeyCode.T) && !_busy) OpenTimeline();
-            if (Input.GetKeyDown(KeyCode.K) && !_busy && !CollectionUI.IsOpen) CollectionUI.Open(Refresh);
+            if (CoastRemoteKeys.Down(KeyCode.T) && !_busy) OpenTimeline();
+            if (CoastRemoteKeys.Down(KeyCode.K) && !_busy && !CollectionUI.IsOpen) CollectionUI.Open(Refresh);
             // Y = 현재 챕터 스토리 돌입(★ 스토리 셀과 같음). 타임라인이 열려 있으면 닫고 진행.
-            if (Input.GetKeyDown(KeyCode.Y) && !_busy)
+            if (CoastRemoteKeys.Down(KeyCode.Y) && !_busy)
             {
                 if (_timelineModal != null) { Destroy(_timelineModal); _timelineModal = null; _modalPrimary = null; }
                 OnStoryPressed();

@@ -175,9 +175,9 @@ namespace CoastRun
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape)) Close();
+            if (CoastRemoteKeys.Down(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape)) Close();
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (Input.GetKeyDown(KeyCode.E)) Begin(ArcadeKind.Endless);
+            if (CoastRemoteKeys.Down(KeyCode.E)) Begin(ArcadeKind.Endless);
             if (Input.GetKeyDown(KeyCode.D)) Begin(ArcadeKind.Daily);
 #endif
         }
@@ -189,8 +189,8 @@ namespace CoastRun
         public Action retry, exit;
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space)) retry?.Invoke();
-            else if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape)) exit?.Invoke();
+            if (CoastRemoteKeys.Down(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space)) retry?.Invoke();
+            else if (CoastRemoteKeys.Down(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape)) exit?.Invoke();
         }
     }
 

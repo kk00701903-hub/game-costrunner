@@ -55,7 +55,7 @@ namespace CoastRun
         static int _n;
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Backslash))
+            if (CoastRemoteKeys.Down(KeyCode.Backslash))
             {
                 System.IO.Directory.CreateDirectory("Builds/shots");
                 string path = $"Builds/shots/shot_{System.DateTime.Now:HHmmss}_{_n++:00}.png";

@@ -83,7 +83,7 @@ namespace CoastRun
         private void Update()
         {
 #if UNITY_EDITOR
-            if (Input.GetKeyDown(KeyCode.B)) { _armed = true; _elapsed = DelaySeconds; EnsureCamera(true); }   // 디버그: 즉시 흑백
+            if (CoastRemoteKeys.Down(KeyCode.B)) { _armed = true; _elapsed = DelaySeconds; EnsureCamera(true); }   // 디버그: 즉시 흑백
 #endif
             if (!_armed) return;
             var p = FindAnyObjectByType<PlayerController>();

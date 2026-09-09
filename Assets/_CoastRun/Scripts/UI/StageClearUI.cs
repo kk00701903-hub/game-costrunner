@@ -199,6 +199,11 @@ namespace CoastRun
                 _shopHost.SetActive(false);
             SetButtons(false);
 
+            if (_faceBubble != null)
+            {
+                string[] lines = { Loc.T("해냈다!", "Did it!"), Loc.T("봤지? 나 좀 빨라", "See? I'm fast"), Loc.T("휴, 다 왔다", "Phew, made it"), Loc.T("송전탑 조금만 더!", "Tower, almost!") };
+                _faceBubble.text = lines[UnityEngine.Random.Range(0, lines.Length)];
+            }
             // 제목이 '쾅' 들어온다
             yield return PunchIn(_banner, 0.35f);
             yield return Wait(0.15f);
@@ -342,9 +347,10 @@ namespace CoastRun
                 _journeyFill.rectTransform.anchorMax = new Vector2(progress, 1f);
 
             float remainingKm = stages.RemainingJourneyDistance / 1000f;
-            _journey.text =
-                Loc.T($"송전탑까지 {remainingKm:0.0} km   ·   {ClockAt(stage.lightingTEnd)}", $"{remainingKm:0.0} km to the tower   ·   {ClockAt(stage.lightingTEnd)}") +
-                $"   ·   {StageRunStats.FormatTime(seconds)}";
+            // 23차-5: 남은 거리는 한 줄로 크게 — 시계·기록은 아래 작은 줄로.
+            _journey.text = Loc.T($"송전탑까지  {remainingKm:0.0} km", $"{remainingKm:0.0} km to the tower");
+            if (_journeySub != null) _journeySub.text = $"{ClockAt(stage.lightingTEnd)}   ·   {StageRunStats.FormatTime(seconds)}";
+            if (_journeyPill != null) StartCoroutine(SimpleTween.PunchScale(_journeyPill.transform, 0.12f, 0.25f));
         }
 
         /// The run spans 13:20 → 19:04 as one unbroken afternoon; lightingT is that clock.
@@ -399,6 +405,21 @@ namespace CoastRun
             _stageLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
             _stageLabel.color = Color.white; CoastUiArt.OutlineText(_stageLabel, new Color(0f, 0f, 0f, 0.7f), 1.5f);
 
+            // 23차-1: 뒤돌아 포즈 잡을 때 메인페이지의 그 얼굴 — 배너 왼쪽에 동그란 컷인 + 말풍선
+            var faceTex = ArtAssets.LoadTexture("UI_Face_Girl");
+            if (faceTex != null)
+            {
+                _face = new GameObject("Face", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                _face.transform.SetParent(_banner, false); _face.raycastTarget = false;
+                _face.sprite = CoastUiArt.AsSprite(faceTex); _face.preserveAspect = true;
+                var frt0 = _face.rectTransform; frt0.anchorMin = frt0.anchorMax = new Vector2(1f, 0f); frt0.pivot = new Vector2(1f, 1f);
+                frt0.anchoredPosition = new Vector2(-10f, -6f); frt0.sizeDelta = new Vector2(170f, 170f);
+                var bub = CoastUiArt.CutePill(_banner, "FaceBubble", Color.white, 18, 3);
+                var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(1f, 0f); brt2.pivot = new Vector2(1f, 1f);
+                brt2.anchoredPosition = new Vector2(-186f, -30f); brt2.sizeDelta = new Vector2(190f, 58f); bub.raycastTarget = false;
+                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 24, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-8f, 0f));
+                _faceBubble.color = new Color(0.25f, 0.12f, 0.2f); _faceBubble.fontStyle = FontStyle.Bold;
+            }
             _gradeBadge = CoastUiArt.Panel(_banner, "Grade", new Color(1f, 0.80f, 0.25f), 40);
             var grt = _gradeBadge.rectTransform; grt.anchorMin = grt.anchorMax = new Vector2(1f, 1f); grt.pivot = new Vector2(1f, 1f);
             grt.anchoredPosition = new Vector2(-14f, 6f); grt.sizeDelta = new Vector2(80f, 80f);
@@ -419,7 +440,7 @@ namespace CoastRun
             // 아래쪽: 콤보/합계/보유/여정 + 버튼(반투명 띠 위)
             var foot = CoastUiArt.Panel(_card, "Foot", new Color(0.05f, 0.04f, 0.12f, 0.55f), 22);
             var frt = foot.rectTransform; frt.anchorMin = new Vector2(0f, 0f); frt.anchorMax = new Vector2(1f, 0f); frt.pivot = new Vector2(0.5f, 0f);
-            frt.anchoredPosition = new Vector2(0f, 14f); frt.sizeDelta = new Vector2(-24f, 300f); foot.raycastTarget = false;
+            frt.anchoredPosition = new Vector2(0f, 14f); frt.sizeDelta = new Vector2(-24f, 350f); foot.raycastTarget = false;
             _lineCombo = FootLabel(frt, "Combo", 18, -12f, 30f); _lineCombo.color = new Color(1f, 0.72f, 0.45f);
             _lineTotal = FootLabel(frt, "Total", 30, -44f, 46f); _lineTotal.color = new Color(1f, 0.93f, 0.55f); _lineTotal.fontStyle = FontStyle.Bold;
             _lineHeld = FootLabel(frt, "Held", 15, -92f, 26f); _lineHeld.color = new Color(1f, 1f, 1f, 0.8f);
@@ -450,6 +471,7 @@ namespace CoastRun
         }
 
         private RectTransform _card; private Image _gradeBadge; private Text _gradeText;
+        private Image _journeyPill; private Text _journeySub; private Image _face; private Text _faceBubble;
 
         private void BuildJourneyBar(RectTransform host)
         {
@@ -471,8 +493,20 @@ namespace CoastRun
             frt.offsetMin = new Vector2(3f, 3f);
             frt.offsetMax = new Vector2(0f, -3f);
 
-            _journey = FootLabel(host, "Journey", 14, -142f, 24f);
-            _journey.color = new Color(1f, 1f, 1f, 0.85f);
+            // 23차-5: "송전탑까지 N km"가 버튼에 가려 안 보였다 → 주황 알약 안에 22px 굵게, 그 아래 시계·기록.
+            _journeyPill = CoastUiArt.CutePill(host, "JourneyPill", new Color(1f, 0.55f, 0.28f, 1f), 16, 3);
+            var jrt = _journeyPill.rectTransform; jrt.anchorMin = new Vector2(0.5f, 1f); jrt.anchorMax = new Vector2(0.5f, 1f); jrt.pivot = new Vector2(0.5f, 1f);
+            jrt.anchoredPosition = new Vector2(0f, -140f); jrt.sizeDelta = new Vector2(420f, 44f); _journeyPill.raycastTarget = false;
+            var tower = new GameObject("Tower", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            tower.transform.SetParent(_journeyPill.transform, false); tower.raycastTarget = false;
+            var tex = CoastUiArt.TowerIcon; if (tex != null) tower.sprite = CoastUiArt.AsSprite(tex);
+            tower.preserveAspect = true; tower.color = Color.white;
+            var trt2 = tower.rectTransform; trt2.anchorMin = trt2.anchorMax = new Vector2(0f, 0.5f); trt2.pivot = new Vector2(0f, 0.5f);
+            trt2.anchoredPosition = new Vector2(10f, 0f); trt2.sizeDelta = new Vector2(32f, 32f);
+            _journey = CoastHudLayout.MakeText(_journeyPill.rectTransform, "Journey", "", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(40f, 0f), new Vector2(-8f, 0f));
+            _journey.color = Color.white; _journey.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_journey, new Color(0.35f, 0.12f, 0.02f, 0.8f), 2f);
+            _journeySub = FootLabel(host, "JourneySub", 13, -188f, 20f);
+            _journeySub.color = new Color(1f, 1f, 1f, 0.75f);
         }
 
         /// 카드 상단 기준 y(음수)·높이로 놓는 가운데 정렬 글자.
