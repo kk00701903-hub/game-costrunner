@@ -31,6 +31,10 @@ namespace CoastRun
             var gr = _canvas.GetComponent<GraphicRaycaster>();
             if (gr != null) gr.enabled = false;
             _root = _canvas.GetComponent<RectTransform>();
+            // 23차-2: 오버레이 캔버스 루트는 화면에 고정돼 회전이 안 먹는다 → 흔들림용 자식 컨테이너
+            var fx = new GameObject("Fx", typeof(RectTransform)).GetComponent<RectTransform>();
+            fx.SetParent(_root, false); fx.anchorMin = Vector2.zero; fx.anchorMax = Vector2.one; fx.offsetMin = Vector2.zero; fx.offsetMax = Vector2.zero;
+            _fx = fx;
             var tex = PaintedProp.Load("Coin_Gold");
             if (tex != null) _coinSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
         }
@@ -47,8 +51,43 @@ namespace CoastRun
             return local;
         }
 
+        // 23차-9: 화면 위쪽 배너(FEVER!) — 지속 시간 동안 흔들리며 떠 있다가 사라진다
+        private Text _bannerText;
+        public static void Banner(string text, Color color, float seconds)
+        {
+            var f = Ensure();
+            f.StartCoroutine(f.BannerSeq(text, color, seconds));
+        }
+        private IEnumerator BannerSeq(string text, Color color, float seconds)
+        {
+            if (_bannerText == null)
+            {
+                _bannerText = CoastHudLayout.MakeText(_root, "Banner", "", 96, TextAnchor.MiddleCenter,
+                    new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-400f, -330f), new Vector2(400f, -200f));
+                _bannerText.fontStyle = FontStyle.Bold; _bannerText.raycastTarget = false;
+                CoastUiArt.OutlineText(_bannerText, new Color(0.35f, 0.12f, 0.02f, 1f), 4f);
+            }
+            _bannerText.gameObject.SetActive(true);
+            _bannerText.text = text;
+            var rt = _bannerText.rectTransform;
+            float t = 0f;
+            while (t < seconds)
+            {
+                t += Time.unscaledDeltaTime;
+                float u = t / seconds;
+                float pop = t < 0.15f ? Mathf.Lerp(1.8f, 1f, t / 0.15f) : 1f + Mathf.Sin(t * 9f) * 0.05f;
+                rt.localScale = Vector3.one * pop;
+                rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 5f) * 4f);
+                var c = Color.Lerp(color, Color.white, (Mathf.Sin(t * 14f) + 1f) * 0.25f);
+                c.a = u > 0.85f ? 1f - (u - 0.85f) / 0.15f : 1f;
+                _bannerText.color = c;
+                yield return null;
+            }
+            _bannerText.gameObject.SetActive(false);
+        }
+
         // 23차-2: 꽈당 — 붉은 비네트 플래시 + 화면 기울기 + 큰 글자
-        private Image _vignette, _flash; private Text _slam;
+        private Image _vignette, _flash; private Text _slam; private RectTransform _fx;
         public static void Impact(string word)
         {
             var f = Ensure();
@@ -61,7 +100,7 @@ namespace CoastRun
             {
                 _vignette = MakeFull("HitVignette", VignetteTex());
                 _flash = MakeFull("HitFlash", null);
-                _slam = CoastHudLayout.MakeText(_root, "Slam", "", 120, TextAnchor.MiddleCenter,
+                _slam = CoastHudLayout.MakeText(_fx, "Slam", "", 120, TextAnchor.MiddleCenter,
                     new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-400f, -120f), new Vector2(400f, 120f));
                 _slam.fontStyle = FontStyle.Bold; _slam.raycastTarget = false;
                 CoastUiArt.OutlineText(_slam, new Color(0.35f, 0.02f, 0.05f, 1f), 5f);
@@ -70,7 +109,7 @@ namespace CoastRun
             _slam.text = word;
             var srt = _slam.rectTransform;
             float t = 0f; const float dur = 0.55f;
-            Quaternion r0 = _root.localRotation; Vector2 p0 = _root.anchoredPosition;
+            Quaternion r0 = _fx.localRotation; Vector2 p0 = _fx.anchoredPosition;
             while (t < dur)
             {
                 t += Time.unscaledDeltaTime;
@@ -80,8 +119,8 @@ namespace CoastRun
                 _vignette.color = new Color(0.9f, 0.05f, 0.08f, (1f - u) * (1f - u) * 0.85f);
                 // 화면 전체가 기우뚱(감쇠 진동)
                 float wob = Mathf.Sin(t * 42f) * (1f - u) * (1f - u) * 5f;
-                _root.localRotation = Quaternion.Euler(0f, 0f, wob);
-                _root.anchoredPosition = p0 + new Vector2(Mathf.Sin(t * 60f) * 22f, Mathf.Cos(t * 50f) * 14f) * (1f - u) * (1f - u);
+                _fx.localRotation = Quaternion.Euler(0f, 0f, wob);
+                _fx.anchoredPosition = p0 + new Vector2(Mathf.Sin(t * 60f) * 22f, Mathf.Cos(t * 50f) * 14f) * (1f - u) * (1f - u);
                 // 글자: 크게 튀어나왔다가 자리 잡고 흐려진다
                 float pop = u < 0.12f ? Mathf.Lerp(2.2f, 0.95f, u / 0.12f) : Mathf.Lerp(0.95f, 1.05f, (u - 0.12f) / 0.88f);
                 srt.localScale = Vector3.one * pop;
@@ -90,14 +129,14 @@ namespace CoastRun
                 _slam.color = new Color(1f, 0.92f, 0.3f, u < 0.65f ? 1f : 1f - (u - 0.65f) / 0.35f);
                 yield return null;
             }
-            _root.localRotation = r0; _root.anchoredPosition = p0;
+            _fx.localRotation = r0; _fx.anchoredPosition = p0;
             _vignette.gameObject.SetActive(false); _flash.gameObject.SetActive(false); _slam.gameObject.SetActive(false);
         }
 
         private Image MakeFull(string name, Texture2D tex)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-            go.transform.SetParent(_root, false);
+            go.transform.SetParent(_fx, false);
             var img = go.GetComponent<Image>();
             img.raycastTarget = false;
             if (tex != null) img.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));

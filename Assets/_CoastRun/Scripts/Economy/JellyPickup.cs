@@ -267,6 +267,7 @@ namespace CoastRun
                 magnet += 0.6f;   // the rare ones should never be a near miss
             if (BonusTimeDirector.IsActive)
                 magnet += 1.5f;
+            magnet += FeverMode.MagnetBonus;   // 23차-9
 
             Vector3 toPlayer = _player.position - transform.position;
             if (toPlayer.sqrMagnitude > magnet * magnet)
@@ -283,7 +284,7 @@ namespace CoastRun
                 _magnetBend = Random.Range(0.3f, 0.6f) * (Random.value > 0.5f ? 1f : -1f);
             }
 
-            _magnetT += Time.deltaTime * 3f;
+            _magnetT += Time.deltaTime * (FeverMode.Active ? 5f : 3f);
             float u = Mathf.Clamp01(_magnetT);
             float e = u * u * (3f - 2f * u);
             Vector3 end = PickupReach.MagnetTarget(_player);

@@ -179,9 +179,9 @@ namespace CoastRun.Editor
                 case "clear": Play(); StageManager.Instance?.DebugClear(); return J("ok", "clear");
                 case "retry": Play(); StageManager.Instance?.RetryCurrent(); return J("ok", "retry");
                 case "hit": Play(); UnityEngine.Object.FindAnyObjectByType<PlayerController>()?.SoftHit(); return J("ok", "hit");
-                case "lane": Play(); Input(int.Parse(arg), false, false); return J("ok", "lane " + arg);
-                case "jump": Play(); Input(0, true, false); return J("ok", "jump");
-                case "crouch": Play(); Input(0, false, true); return J("ok", "crouch");
+                case "lane": Play(); Inject(int.Parse(arg), false, false); return J("ok", "lane " + arg);
+                case "jump": Play(); Inject(0, true, false); return J("ok", "jump");
+                case "crouch": Play(); Inject(0, false, true); return J("ok", "crouch");
                 case "tap":
                     {
                         Play();
@@ -200,7 +200,7 @@ namespace CoastRun.Editor
 
         static void Play() { if (!EditorApplication.isPlaying) throw new InvalidOperationException("not in play mode"); }
 
-        static void Input(int lane, bool jump, bool crouch)
+        static void Inject(int lane, bool jump, bool crouch)
         {
             var inp = UnityEngine.Object.FindAnyObjectByType<MobileSwipeInput>();
             if (inp == null) throw new InvalidOperationException("no MobileSwipeInput");

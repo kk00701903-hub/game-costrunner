@@ -410,6 +410,28 @@ namespace CoastRun
 
         private int _pickupStreak; private float _lastPickupTime = -10f; private float _lastPetTagTime = -10f; private Coroutine _bodySquash;
 
+        /// 23차-9: 피버 시작/끝 — 채도 킥 + 속도선 + FOV, 끝나면 잔잔히.
+        private Coroutine _feverLines;
+        public void OnFeverStart()
+        {
+            cameraRig?.Shake(0.15f, 0.15f);
+            cameraRig?.FovKick(+7f, 0.4f);
+            PunchSaturation(+35f, 0.5f);
+            audio?.PlaySfx(CoastSfx.NearMiss);
+            if (_feverLines != null) StopCoroutine(_feverLines);
+            _feverLines = StartCoroutine(FeverLines());
+            SpawnCoinBurst((player != null ? player.transform.position : Vector3.zero) + Vector3.up * 1f, new Color(1f, 0.85f, 0.25f), 24);
+        }
+        public void OnFeverEnd()
+        {
+            if (_feverLines != null) { StopCoroutine(_feverLines); _feverLines = null; }
+            audio?.PlaySfx(CoastSfx.Coin);
+        }
+        private IEnumerator FeverLines()
+        {
+            while (FeverMode.Active) { speedLines?.Burst(14); yield return new WaitForSeconds(0.12f); }
+        }
+
         /// 23차-3: 골인 콘페티 — 리본이 끊기는 순간 게이트 위에서 색종이가 쏟아진다(별·하트 파티클 재사용).
         public void OnFinishConfetti(Vector3 top, float halfWidth)
         {

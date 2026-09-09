@@ -170,6 +170,7 @@ namespace CoastRun
             environment?.ResetLightingTo(def.lightingTStart);
             BeginSunsetClock();
             MonochromeWorld.Arm(ChapterIndex);   // 19차-1: 20장은 10초 뒤 세상이 흑백
+            if (!ArcadeRun.Active) FeverMode.Ensure();   // 23차-9: 꼬마 도움 버튼 → 3초 피버
 
             if (player != null && !player.enabled)
                 player.enabled = true;

@@ -171,7 +171,7 @@ namespace CoastRun
                 return;
             }
 
-            float magnet = _upgrades.GetMagnetRadius() + PetCompanion.MagnetBonus;
+            float magnet = _upgrades.GetMagnetRadius() + PetCompanion.MagnetBonus + FeverMode.MagnetBonus;   // 23차-9: 피버 3초 동안 전부 빨아들인다
             if (magnet <= 0.05f)
                 return;
 
@@ -191,7 +191,7 @@ namespace CoastRun
                 _magnetBend = Random.Range(0.35f, 0.75f) * (Random.value > 0.5f ? 1f : -1f);
             }
 
-            _magnetT += Time.deltaTime * 2.4f;
+            _magnetT += Time.deltaTime * (FeverMode.Active ? 4.5f : 2.4f);
             float u = Mathf.Clamp01(_magnetT);
             float e = u * u * (3f - 2f * u);
             Vector3 end = PickupReach.MagnetTarget(_player);
