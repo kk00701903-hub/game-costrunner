@@ -1,0 +1,35 @@
+﻿# 40  END_A  —  엔딩 A (만난다)
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] CG | END_A1 | 노을 반 남은 송전탑 아래. 그가 서 있다. 봉투를 내민다
+[2] SAY | 도윤 | 늦었네.
+    EN: You're late.
+[3] SAY | 하늘 | 버스가.
+    EN: The bus.
+[4] SAY | 도윤 | 알아. 안 늦었어. 노을 반 남았잖아. 1년 만에 처음이다, 네가 먼저 온 거.
+    EN: I know. You're not late. Half the sunset's still left. First time in a year you got here first.
+[5] CG | END_A2 | 편지. 손글씨 5줄 (EndingLetter.Lines 개정)
+[6] LETTER | 하늘아
+    EN: Haneul
+[7] LETTER | 나 간다
+    EN: I'm going
+[8] LETTER | 트럭 고쳐놨어. 부싱.
+    EN: Fixed your trucks. The bushing.
+[9] LETTER | 좋아해
+    EN: I like you
+[10] LETTER | 늦게 와도 돼. 기다릴게
+    EN: You can come late. I'll wait
+[11] BG | TowerSunset | 하늘:Happy
+[12] NARR | 다 읽고 고개를 든다. 노을이 다 졌다. 아무도 없다.
+    EN: She finishes reading and looks up. The sun is all the way down. No one is there.
+[13] NARR | 이번엔 엇갈린 게 아니다. 보냈다. 잘 가라는 말은 못 했지만 늦게 와도 된다고 했으니까. 어디서 기다리는지는 안 적혀 있었지만 안다. 91.9.
+    EN: This time it wasn't a miss. She saw him off. She never got to say goodbye, but he said she could come late. It didn't say where he'd wait, but she knows. 91.9.
+[14] CG | END_A3 | 이듬해 봄, 하늘의 방. 라디오. 창밖 송전탑
+[15] SAY | DJ | 새벽 두 시. 제주에서 보내 주신 사연. 작년에도 보내 주셨던 분… 이번엔 짧아요. 「듣고 있지?」 …네, 듣고 있을 거예요.
+    EN: Two in the morning. A story from Jeju. The one who sent one last year too… this time it's short. "You're listening, right?" …Yes. They'll be listening.
+[16] NARR | 지지직. 스팅어. 타이틀 카드 → 크레딧. 스케이트보드 캐릭터 해금.
+    EN: Static. A stinger. Title card → credits. Skateboard character unlocked.
+[17] SAY | 하늘[회차>=2] | (두 번째 봄. 이번엔 반 이상 남기고 왔다.)
+    EN: (Second spring. This time I came with more than half the sunset left.)

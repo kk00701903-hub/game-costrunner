@@ -141,8 +141,7 @@ namespace CoastRun
             if (_facadeMats.TryGetValue(k, out var m) && m != null) return m;
             var tex = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "Tex_Facade_" + k);
             m = ArtAssets.CreateTexturedLit(tex, Color.white, 0.04f);
-            if (m.HasProperty("_ShadowColor")) m.SetColor("_ShadowColor", new Color(0.82f, 0.82f, 0.90f, 1f));
-            if (m.HasProperty("_ShadowThreshold")) m.SetFloat("_ShadowThreshold", 0.2f);
+            CoastMaterials.SetShadow(m, new Color(0.82f, 0.82f, 0.90f, 1f), 0.2f);   // 25차-1
             m.name = "FacadeFront_" + k;
             _facadeMats[k] = m;
             return m;
@@ -336,8 +335,7 @@ namespace CoastRun
         private static Material PastelLit()
         {
             var m = CoastMaterials.CreateLit(Color.white, 0.05f);
-            if (m.HasProperty("_ShadowColor")) m.SetColor("_ShadowColor", new Color(0.80f, 0.80f, 0.90f, 1f));
-            if (m.HasProperty("_ShadowThreshold")) m.SetFloat("_ShadowThreshold", 0.25f);
+            CoastMaterials.SetShadow(m, new Color(0.80f, 0.80f, 0.90f, 1f), 0.25f);   // 25차-1
             return m;
         }
 

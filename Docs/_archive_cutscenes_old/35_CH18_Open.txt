@@ -1,0 +1,22 @@
+﻿# 35  CH18_Open  —  18챕터 「구십일 점 구」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 구십일 점 구 | EN: 91.9
+
+[1] BG | HanulRoom | 하늘:Normal
+[2] NARR | 새벽 두 시. 이번엔 한 번에 맞는다. 하늘이 사연을 보낸 건 사흘 전이다. 처음으로 문장을 끝까지 써서.
+    EN: Two in the morning. This time she gets it on the first try. Haneul sent in her story three days ago. For the first time, writing a sentence all the way to the end.
+[3] SAY | DJ | 제주에서 보내 주신 사연. 여섯 해 전에 받은 쪽지에 이제야 답을 한다고요. …그쪽도 듣고 있을 거예요. 이 시간에 듣는 사람은 다 그래요.
+    EN: A story from Jeju. You say you're finally answering a note you got six years ago. …They'll be listening too. Everyone listening at this hour is.
+[4] SAY | DJ | 그리고 하나 더. 재작년 봄에 서울의 한 병원에서 보내 주셨던, 열여덟 살 청취자분 사연이에요. 그때 못 읽어 드렸어요. 「내년 봄에 제주로 돌아갑니다. 옆집 애한테 — 」
+    EN: And one more. A story sent two springs ago from a hospital in Seoul, by an eighteen-year-old listener. We couldn't read it back then. "Next spring I'm going back to Jeju. To the kid next door — "
+[5] NARR | 재작년.
+    EN: Two springs ago.
+[6] NARR | 끝까지 듣는다. 끝까지 들었는데 뒷부분이 기억나지 않는다.
+    EN: She listens to the end. She listened to the end, but she can't remember the rest.
+[7] CG | CH18_Mid | 밤, 송전탑 아래. 그가 흰 이어폰을 끼고 앉아 있다. 탑 불빛. 2초
+[8] SAY | 하늘[DJ>=12] | (DJ가 내 부탁을 읽는다. 내가 한 적 없는 부탁을.)
+    EN: (The DJ reads my request. One I never sent.)
+[9] SAY | 하늘[감성>=60] | (2년 전 사연의 문장을, 나는 끝까지 기억한다.)
+    EN: (The story from two years ago — I remember it to the end.)

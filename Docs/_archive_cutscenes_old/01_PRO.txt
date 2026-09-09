@@ -1,0 +1,17 @@
+﻿# 01  PRO  —  프롤로그
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] CG | PRO_A | 봄 아침, 하늘네 우편함. 봉투도 우표도 없는 쪽지
+[2] NARR | 「나 내려왔어. 노을 질 때 송전탑 아래. 우리 기지 아직 있나 보러 갈래.」
+    EN: "I came back down. Under the tower when the sun sets. Let's see if our base is still there."
+[3] SAY | 하늘 | …폰 잃어버렸나.
+    EN: …Did he lose his phone?
+[4] BG | BusStop | 하늘:Normal
+[5] NARR | 전광판 정비 중 · 운행 중단.
+    EN: Display board: Under maintenance · Service suspended.
+[6] SAY | 하늘 | …4.2킬로.
+    EN: …4.2 kilometers.
+[7] NARR | 보드를 뒤집는다.
+    EN: She flips the board over.

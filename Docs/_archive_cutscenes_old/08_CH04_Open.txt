@@ -1,0 +1,29 @@
+﻿# 08  CH04_Open  —  4챕터 「루아」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 루아 | EN: Rua
+
+[1] BG | DoyunHouse | 하늘:Normal | 루아:Sharp
+[2] SAY | 루아 | 오빠요? 오빠가 누구 만난다고 했어요?
+    EN: My brother? My brother said he's meeting someone?
+[3] SAY | 하늘 | …나.
+    EN: …Me.
+[4] SAY | 루아 | 그쪽이 하늘 언니예요?
+    EN: You're Haneul, the one he talks about?
+[5] SAY | 하늘 | …응. 도윤이 있어?
+    EN: …Yeah. Is Doyun in?
+[6] SAY | 루아 | 지금 없어요.
+    EN: He's not here right now.
+[7] SAY | 하늘 | …병원?
+    EN: …The hospital?
+[8] SAY | 루아 | 언니는 왜 그걸 저한테 물어요?
+    EN: Why are you asking me that?
+[9] NARR | 문틈으로 신발장. 운동화 한 켤레, 어른 신발 한 켤레. 그게 다다.
+    EN: Through the door gap, the shoe rack. One pair of sneakers, one pair of adult shoes. That's all.
+[10] NARR | 여동생이 견제하는 건가, 하고 하늘은 생각한다. 열세 살이.
+    EN: Is the little sister guarding him, Haneul thinks. At thirteen.
+[11] SAY | 루아[루아>=3] | …언니는 들어와도 돼. 오빠 없지만.
+    EN: …You can come in. He's not here, though.
+[12] SAY | 루아[평판<15] | 동네에서 언니 얘기 별로 안 좋더라. 그래서 묻는 거야.
+    EN: People in the village don't say nice things about you. That's why I'm asking.

@@ -1,0 +1,17 @@
+﻿# 06  CH03_Open  —  3챕터 「주파수」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 주파수 | EN: Frequency
+
+[1] BG | HanulRoom | 하늘:Tired
+[2] NARR | 라디오. 그가 삽 손잡이에 적어 준 주파수. 숫자 하나가 흙에 번졌다.
+    EN: The radio. The frequency he wrote on the shovel handle. One digit smeared in the dirt.
+[3] SAY | 하늘 | 구십일 점… 사? 칠?
+    EN: Ninety-one point… four? Seven?
+[4] NARR | 지지직. 광고. 트로트.
+    EN: Static. Commercials. Trot songs.
+[5] SAY | 하늘[감성>=40] | (숫자가 흐려진 게 아니라, 일부러 흐린 것 같다.)
+    EN: (The digit isn't smeared by accident. It looks smeared on purpose.)
+[6] SAY | 하늘[DJ>=3] | (이 DJ 목소리, 새벽마다 듣던 목소리다.)
+    EN: (This DJ's voice — the one I hear every night at two.)

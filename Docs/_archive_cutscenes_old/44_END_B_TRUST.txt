@@ -1,0 +1,20 @@
+﻿# 44  END_B_TRUST  —  END_B_TRUST
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | TowerSunset
+[2] NARR | 아무도 없다. 아니, 한 명 있다. 탑 밑 돌에 루아가 앉아 있다.
+    EN: No one is there. No — one person. Rua, sitting on the stone at the tower base.
+[3] SAY | 루아 | 오빠 아까 갔어. 언니 오는 거 보고 갔어. 뒤통수만 봤을 거야.
+    EN: He left a while ago. He saw you coming and left. You'd have seen only the back of his head.
+[4] SAY | 하늘 | …봤어.
+    EN: …I did.
+[5] SAY | 루아 | 1년 내내 늦은 거 아니야. 언니가 마을에서 뭘 했는지 다 알아. 오빠도 알았어.
+    EN: You weren't late all year. Everyone knows what you did around the village. He knew too.
+[6] NARR | 루아가 깡통을 내민다. 안에 쪽지. 아직 안 읽었다.
+    EN: Rua holds out the tin can. A note inside. Not read yet.
+[7] SAY | 루아 | 같이 읽자. 나도 오빠 글씨 오랜만이야.
+    EN: Let's read it together. It's been a while since I saw his handwriting too.
+[8] NARR | 라디오 스팅어는 같다. 그 뒤는 둘이서 듣는다.
+    EN: The radio stinger is the same. What comes after, the two of them listen to together.

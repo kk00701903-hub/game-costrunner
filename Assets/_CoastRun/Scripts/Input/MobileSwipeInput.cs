@@ -128,23 +128,50 @@ namespace CoastRun
         private void IssueJump() => _jumpStamp = Time.unscaledTime;
         private void IssueCrouch() => _crouchStamp = Time.unscaledTime;
 
+        // 25차-3: 키보드/게임패드 입력 보강 — 모바일에 블루투스 키보드를 붙이면 화살표가 KeyCode 로 안 오고
+        // 축(Horizontal/Vertical, D-Pad)으로만 오는 기기가 있다. 키 + 축(엣지 검출) + 키패드까지 전부 받는다.
+        private int _axisXPrev, _axisYPrev;
+        private static bool AxisOk(string name)
+        {
+            try { Input.GetAxisRaw(name); return true; } catch { return false; }
+        }
+        private static readonly bool HasHAxis = AxisOk("Horizontal"), HasVAxis = AxisOk("Vertical");
+
+        private static bool KeyDown(params KeyCode[] keys)
+        {
+            for (int i = 0; i < keys.Length; i++) if (Input.GetKeyDown(keys[i])) return true;
+            return false;
+        }
+        private static bool KeyHeld(params KeyCode[] keys)
+        {
+            for (int i = 0; i < keys.Length; i++) if (Input.GetKey(keys[i])) return true;
+            return false;
+        }
+
         private void PollKeyboard()
         {
-            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+            int ax = 0, ay = 0;
+            if (HasHAxis) { float h = Input.GetAxisRaw("Horizontal"); ax = h > 0.5f ? 1 : h < -0.5f ? -1 : 0; }
+            if (HasVAxis) { float v = Input.GetAxisRaw("Vertical");   ay = v > 0.5f ? 1 : v < -0.5f ? -1 : 0; }
+            bool axLeft = ax < 0 && _axisXPrev >= 0, axRight = ax > 0 && _axisXPrev <= 0;
+            bool axUp = ay > 0 && _axisYPrev <= 0, axDown = ay < 0 && _axisYPrev >= 0;
+            _axisXPrev = ax; _axisYPrev = ay;
+
+            if (KeyDown(KeyCode.A, KeyCode.LeftArrow, KeyCode.Keypad4) || axLeft)
                 IssueLane(-1);
-            else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            else if (KeyDown(KeyCode.D, KeyCode.RightArrow, KeyCode.Keypad6) || axRight)
                 IssueLane(1);
 
-            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Space))
+            if (KeyDown(KeyCode.W, KeyCode.UpArrow, KeyCode.Keypad8, KeyCode.Space, KeyCode.JoystickButton0) || axUp)
                 IssueJump();
 
-            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            if (KeyDown(KeyCode.S, KeyCode.DownArrow, KeyCode.Keypad2, KeyCode.JoystickButton1) || axDown)
                 IssueCrouch();
 
-            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            if (KeyHeld(KeyCode.S, KeyCode.DownArrow, KeyCode.Keypad2, KeyCode.JoystickButton1) || ay < 0)
                 _crouchHeld = true;
 
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            if (KeyHeld(KeyCode.LeftShift, KeyCode.RightShift, KeyCode.JoystickButton2))
                 _tuckHeld = true;
         }
 

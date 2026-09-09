@@ -347,13 +347,20 @@ namespace CoastRun
             foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.SetSuppressed(true);
             foreach (var c in FindObjectsByType<CoinSpawner>(FindObjectsSortMode.None)) c.ClearAhead(sweepZ);
             foreach (var j in FindObjectsByType<JellySpawner>(FindObjectsSortMode.None)) j.ClearAhead(sweepZ);
-            _finishCam = Camera.main != null ? Camera.main.GetComponent<RunnerCameraRig>() : null;
-            _finishRig = player != null ? player.GetComponentInChildren<SkaterRig>() : null;
-            if (_finishCam != null) _finishCam.StartCoroutine(_finishCam.PlayFinishFrame(0.9f));
-            PetCompanion.Instance?.SetHidden(true);   // 24차-3
-            yield return new WaitForSeconds(0.75f);
-            _finishRig?.SetFinishPose(true);
-            yield return new WaitForSeconds(0.8f);
+            // 25차-5: 도착 모션(고정 카메라·돌아서서 포즈) 제거 — 리본만 끊고 감속한 뒤 바로 정산. 사용자 요청.
+            const bool FinishMotion = false;
+            if (FinishMotion)
+            {
+                _finishCam = Camera.main != null ? Camera.main.GetComponent<RunnerCameraRig>() : null;
+                _finishRig = player != null ? player.GetComponentInChildren<SkaterRig>() : null;
+                if (_finishCam != null) _finishCam.StartCoroutine(_finishCam.PlayFinishFrame(0.9f));
+                PetCompanion.Instance?.SetHidden(true);   // 24차-3
+                yield return new WaitForSeconds(0.75f);
+                _finishRig?.SetFinishPose(true);
+                yield return new WaitForSeconds(0.8f);
+            }
+            else
+                yield return new WaitForSeconds(0.9f);
 
             var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
             if (flow != null)

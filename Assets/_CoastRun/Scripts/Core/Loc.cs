@@ -114,11 +114,11 @@ namespace CoastRun
         private static readonly Dictionary<string, string> En = new Dictionary<string, string>
         {
             // 챕터 제목
-            { "ch.1", "The One Who Came Back" }, { "ch.2", "The Base" }, { "ch.3", "Frequency" }, { "ch.4", "Rua" },
-            { "ch.5", "End of Spring" }, { "ch.6", "Festival" }, { "ch.7", "The Sea" }, { "ch.8", "Hospital Day" },
-            { "ch.9", "Typhoon" }, { "ch.10", "The Letter" }, { "ch.11", "Tangerines" }, { "ch.12", "Oreum" },
-            { "ch.13", "Talk of Seoul" }, { "ch.14", "Words Unsaid" }, { "ch.15", "Fallen Leaves" }, { "ch.16", "First Snow" },
-            { "ch.17", "The Tin Can" }, { "ch.18", "91.9" }, { "ch.19", "The Rule" }, { "ch.20", "The Tower" },
+            { "ch.1", "Chapter 1" }, { "ch.2", "Chapter 2" }, { "ch.3", "Chapter 3" }, { "ch.4", "Chapter 4" },
+            { "ch.5", "Chapter 5" }, { "ch.6", "Chapter 6" }, { "ch.7", "Chapter 7" }, { "ch.8", "Chapter 8" },
+            { "ch.9", "Chapter 9" }, { "ch.10", "Chapter 10" }, { "ch.11", "Chapter 11" }, { "ch.12", "Chapter 12" },
+            { "ch.13", "Chapter 13" }, { "ch.14", "Chapter 14" }, { "ch.15", "Chapter 15" }, { "ch.16", "Chapter 16" },
+            { "ch.17", "Chapter 17" }, { "ch.18", "Chapter 18" }, { "ch.19", "Chapter 19" }, { "ch.20", "Chapter 20" },
             // 계절
             { "season.봄", "Spring" }, { "season.여름", "Summer" }, { "season.가을", "Autumn" }, { "season.겨울", "Winter" },
             // 스케줄 이름

@@ -1,0 +1,14 @@
+﻿# 48  SIDE_RUA_2  —  SIDE_RUA_2
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | DoyunHouse
+[2] SAY | 루아 | 언니한테만 말할게. 오빠 약봉지, 빈 거야.
+    EN: I'll tell only you. My brother's medicine bags — they're empty.
+[3] SAY | 하늘 | …무슨 말이야.
+    EN: …What do you mean.
+[4] SAY | 루아 | 몰라. 나도 몰라. 그냥 빈 거야. 언니가 믿는 동안만 뭔가 되는 거래.
+    EN: I don't know. I don't know either. They're just empty. He says it only works while you believe it.
+[5] NARR | 루아는 더 말하지 않는다. 문을 반만 닫는다.
+    EN: Rua says nothing more. She closes the gate halfway.

@@ -53,6 +53,8 @@ namespace CoastRun
         public static DailyCondition[] Conditions { get; private set; } = new DailyCondition[0];
         public static bool[] ConditionDone { get; private set; } = new bool[3];
         public static bool ReturnToRaising { get; private set; }
+        /// 26차: 타이틀 하단 'K-POP 러닝모드' — 스토리 없는 무한 러닝, 육성 스탯(체력·순발력…) 적용, BGM_KPOP_* 재생.
+        public static bool KpopMode { get; private set; }
 
         // 이번 런 집계
         public static float Distance { get; private set; }
@@ -139,6 +141,38 @@ namespace CoastRun
             flow?.StartStoryRun(StageIndex, false);
         }
 
+        /// 26차: K-POP 러닝모드 시작. 육성 세이브가 있으면 그 스탯으로(RunTuning.Configure), 없으면 기본값.
+        /// 계절은 해금된 것 중 가장 늦은 계절, 코스는 매번 새 시드.
+        public static void StartKpop(GameManager gm)
+        {
+            var p = gm != null ? gm.Profile : null;
+            var save = gm != null ? gm.PeekSave() : null;
+            Kind = ArcadeKind.Endless;
+            KpopMode = true;
+            ReturnToRaising = false;
+            Seed = Environment.TickCount;
+            Season = SeasonKind.Spring;
+            for (int s = 3; s >= 0; s--)
+                if (SeasonUnlocked(p, (SeasonKind)s)) { Season = (SeasonKind)s; break; }
+            Conditions = new DailyCondition[0];
+            ConditionDone = new bool[3];
+            var rng = new System.Random(Seed);
+            StageIndex = StageFor(Season, rng);
+            Distance = 0f; HitsFirst500 = 0; LastScore = 0; LastStamped = false;
+
+            RunTuning.Configure(save);   // 세이브 null이면 Reset()과 같다
+            RunTuning.HasSeason = true;
+            RunTuning.Season = Season;
+            if (save != null) RunTuning.Mode = save.runMode;
+            if (RunTuning.Mode == RunMode.Skateboard) { RunTuning.SpeedMul = 1.3f; RunTuning.CoinMul = 1.3f; }
+            RunTuning.Pet = save != null ? save.equippedPet : PetCompanion.Selected;
+            ObstacleSpawner.SeedOverride = Seed;
+
+            var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
+            UnityEngine.Object.FindAnyObjectByType<TitleAudio>()?.StopMenu();
+            flow?.StartStoryRun(StageIndex, false);
+        }
+
         /// 스테이지 시작(재시도 포함)마다.
         public static void OnStageBegin() { Distance = 0f; HitsFirst500 = 0; ConditionDone = new bool[3]; }
 
@@ -198,6 +232,7 @@ namespace CoastRun
         {
             bool toRaising = ReturnToRaising && GameManager.Active;
             Kind = ArcadeKind.None;
+            KpopMode = false;
             ObstacleSpawner.SeedOverride = null;
             RunTuning.Reset();
             Time.timeScale = 1f;

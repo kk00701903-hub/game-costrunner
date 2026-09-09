@@ -1,0 +1,14 @@
+﻿# 51  SIDE_MANSU_2  —  SIDE_MANSU_2
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | StoreFront
+[2] SAY | 만수 | 이거 가져가. 우비. 새 거. 그 애가 사 놓고 안 가져갔어.
+    EN: Take this. Raincoat. New. The kid bought it and never took it.
+[3] SAY | 하늘 | …도윤이가요?
+    EN: …Doyun did?
+[4] SAY | 만수 | 태풍 온다고 산 거야. 자기 입을 게 아니라. 봉지에 넣어 줄게. 봉지.
+    EN: Bought it because a typhoon was coming. Not for himself. I'll put it in a bag. A bag.
+[5] NARR | 우비는 접힌 채다. 한 번도 펼치지 않은 채.
+    EN: The raincoat is folded. Never once opened.

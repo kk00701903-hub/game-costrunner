@@ -1,0 +1,29 @@
+﻿# 18  CH09_Open  —  9챕터 「태풍」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 태풍 | EN: Typhoon
+
+[1] BG | Store | 하늘:Normal | 만수:Normal
+[2] SAY | 만수 | 유리 나가요. 유리.
+    EN: Glass is going out. The glass.
+[3] NARR | 어제 송전탑 돌 밑에서 가져온 쪽지. 「송전탑 안 무너지겠지. 우리 깡통.」
+    EN: The note from under the tower stone yesterday. "The tower won't fall, right? Our tin can."
+[4] SAY | 하늘 | …무너지면 어쩔 건데.
+    EN: …And if it falls?
+[5] SAY | 만수 | 뭐가요?
+    EN: What?
+[6] SAY | 하늘 | 아니.
+    EN: Nothing.
+[7] SAY | 만수 | 아까 왔다 갔는데요, 그 애. 우비 사 갔어요. 우비.
+    EN: He was here a while ago, that kid. Bought a raincoat. A raincoat.
+[8] SAY | 하늘 | …언제.
+    EN: …When?
+[9] SAY | 만수 | 아까요.
+    EN: A while ago.
+[10] NARR | 아까,는 만수한테 십 분도 되고 세 시간도 된다.
+    EN: "A while ago," for Mansu, can mean ten minutes or three hours.
+[11] SAY | 만수[만수>=7] | 우비 그거, 내가 준 거 맞지. 그 애가 사 놓고 안 가져간 거.
+    EN: That raincoat — I gave it to you, right. The kid bought it and left it.
+[12] SAY | 하늘[감성>=40] | (탑이 안 무너질 거라는 걸, 나는 왜 안 믿었을까.)
+    EN: (Why didn't I believe the tower wouldn't fall.)

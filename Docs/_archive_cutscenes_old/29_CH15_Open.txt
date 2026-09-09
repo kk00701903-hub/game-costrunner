@@ -1,0 +1,25 @@
+﻿# 29  CH15_Open  —  15챕터 「낙엽」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 낙엽 | EN: Fallen Leaves
+
+[1] BG | HanulHouse | 하늘:Normal | 루아:Normal
+[2] NARR | 루아가 하늘네 집에 온다. 처음이다. 다육이 화분을 들고.
+    EN: Rua comes to Haneul's house. A first. Carrying a succulent in a pot.
+[3] SAY | 루아 | 오빠, 겨울 끝나면 가요. 그건 정해진 거라서요.
+    EN: My brother leaves when winter ends. That part's decided.
+[4] SAY | 하늘 | …어디로. 서울 병원?
+    EN: …Where to? A hospital in Seoul?
+[5] SAY | 루아 | …언니가 그렇게 생각하면 그런 거예요.
+    EN: …If that's what you think, then that's what it is.
+[6] SAY | 하늘 | 언제.
+    EN: When?
+[7] SAY | 루아 | 그걸 왜 저한테 물어요? 오빠는 언니가 이제 안 쫓아오는 줄 알던데요.
+    EN: Why do you ask me that? He thinks you've stopped chasing him, you know.
+[8] NARR | 화분을 마루에 놓고 간다. 이름은 없다고 했다.
+    EN: She sets the pot on the porch and leaves. She said it has no name.
+[9] SAY | 루아[루아>=7] | 다육이 이름 없대. 언니가 지어. 오빠가 그러래.
+    EN: The succulent has no name. You name it. He said so.
+[10] SAY | 하늘[감성>=50] | (다육이는 겨울에도 안 죽는다. 그래서 준 거다.)
+    EN: (Succulents don't die in winter. That's why she gave it.)

@@ -1,0 +1,14 @@
+﻿# 47  SIDE_RUA_1  —  SIDE_RUA_1
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | HanulHouse
+[2] SAY | 루아 | 언니. 오름 자주 가? 오빠가 거기서 언니 봤대.
+    EN: Do you go up the oreum a lot? My brother said he saw you there.
+[3] SAY | 하늘 | …도윤이 뭐라고 했는데.
+    EN: …What did he say.
+[4] SAY | 루아 | 말 안 해 줘. 그냥, 언니 뛰는 거 멀리서 보면 웃긴대.
+    EN: I won't tell you. Just — he says you look funny running, from far away.
+[5] NARR | 루아가 처음으로 웃었다. 열세 살처럼.
+    EN: Rua laughed for the first time. Like a thirteen-year-old.

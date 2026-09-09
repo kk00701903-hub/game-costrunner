@@ -1,0 +1,31 @@
+﻿# 04  CH02_Open  —  2챕터 「기지」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 기지 | EN: The Base
+
+[1] BG | TowerDay | 하늘:Normal | 도윤:Normal
+[2] NARR | 낮에 갔다. 노을을 기다리지 않고. 그는 흙을 파고 있었다.
+    EN: She went in daytime. Without waiting for the sunset. He was digging.
+[3] SAY | 도윤 | 어, 낮에 오네. 아니 그게 아니고 — 여기가 아니고 조금 더 남쪽. 네가 파고 내가 덮었으니까 네 걸음으로 세야지. 열둘?
+    EN: Oh, you came in the day. No, that's not — it's not here, a bit more south. You dug and I covered, so count with your steps. Twelve?
+[4] SAY | 하늘 | 열하나.
+    EN: Eleven.
+[5] SAY | 도윤 | 그래, 열하나. 근데 열두 살 걸음이잖아.
+    EN: Right, eleven. But those were twelve-year-old steps.
+[6] NARR | 깡통은 안 나온다. 그가 기침을 한다. 하늘은 못 들은 척한다.
+    EN: The tin can doesn't turn up. He coughs. Haneul pretends not to hear.
+[7] SAY | 하늘 | 어제는 왜 그냥 갔어.
+    EN: Why did you just leave yesterday?
+[8] SAY | 도윤 | 노을 다 졌잖아. 아니 그게 이유가 아니고 — 추워서.
+    EN: The sun was all the way down. No, that's not the reason — it was cold.
+[9] SAY | 하늘 | …폰은.
+    EN: …Your phone?
+[10] SAY | 도윤 | 병원에 두고 왔어. 거기선 못 쓰게 해서.
+    EN: Left it at the hospital. They don't let you use it there.
+[11] SAY | 도윤[순발력>=40] | 너 보드 타는 거 늘었다. 열두 살 때보다 확실히.
+    EN: You've gotten better on the board. Definitely better than at twelve.
+[12] SAY | 하늘[체력<30] | (계단 몇 개에 숨이 찬다. 이래서 노을에 닿겠나.)
+    EN: (A few steps and I'm out of breath. How am I going to make the sunset like this.)
+[13] SAY | 도윤[회차>=2] | …열한 걸음. 네가 먼저 말했었지. 아니, 말할 거지.
+    EN: …Eleven steps. You said it first. No — you're going to say it.

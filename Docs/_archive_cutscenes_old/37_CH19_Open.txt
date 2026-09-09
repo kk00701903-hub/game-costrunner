@@ -1,0 +1,45 @@
+﻿# 37  CH19_Open  —  19챕터 「규칙」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 규칙 | EN: The Rule
+
+[1] BG | TowerSunset | 하늘:Normal | 도윤:Winter
+[2] NARR | 노을 전에 닿았다. 그가 있다. 오늘은 말이 길다. 처음부터 끝까지.
+    EN: She reached it before sunset. He's there. Today he talks at length. From beginning to end.
+[3] SAY | 도윤 | 루아가 말했지. 걔는 못 참아. 열두 살 때도 깡통 자리 다 말하고 다녀서 — 아니 그 얘기가 아니고.
+    EN: Rua told you, didn't she. She can't hold anything in. Even at twelve she told everyone where the tin can was — no, that's not the point.
+[4] SAY | 하늘 | …규칙이 뭐야.
+    EN: …What's the rule?
+[5] SAY | 도윤 | 1년. 봄 첫날부터 겨울 마지막 날까지. 노을이 시계야. 노을 질 때 송전탑에 있어야 돼, 나는. 여기가 안테나라서. 아니 안테나가 아니고 — 그냥 여기서 제일 잘 잡혀. 노을 지면 못 있어.
+    EN: One year. From the first day of spring to the last day of winter. The sunset is the clock. I have to be at the tower when the sun sets. Because this is the antenna. No, not an antenna — it just comes in clearest here. Once the sun's down, I can't stay.
+[6] SAY | 하늘 | 그래서 자꾸 먼저 갔어.
+    EN: That's why you kept leaving first.
+[7] SAY | 도윤 | 네가 늦으면 나도 하루 줄어. 그게 규칙이야. 근데 네가 그걸 알면 매일 뛸 거고, 뛰다 다칠 거고 — 그래서 늦는 날은 그냥 먼저 갔어. 네 탓 아니게.
+    EN: Every day you're late, I lose a day. That's the rule. But if you knew, you'd run every day, and you'd get hurt running — so on the days you were late I just left first. So it wouldn't be your fault.
+[8] SAY | 하늘 | 그게 더 나빠.
+    EN: That's worse.
+[9] SAY | 도윤 | …알아. 아니 몰랐어. 지금 알았어.
+    EN: …I know. No, I didn't. I know now.
+[10] NARR | 봉투를 만진다. 주지는 않는다.
+    EN: He touches the envelope. He doesn't hand it over.
+[11] SAY | 도윤 | 겨울 마지막 날. 노을 질 때. 그때 와. 그날은 안 먼저 갈게.
+    EN: The last day of winter. When the sun sets. Come then. That day I won't leave first.
+[12] SAY | 하늘 | …며칠 남았어. 정확히.
+    EN: …How many days left. Exactly.
+[13] SAY | 도윤 | 달력엔 여드레. 네가 늦은 날 빼면 — 그건 내가 세는 거고.
+    EN: Eight on the calendar. Minus the days you were late — but that's my count to keep.
+[14] SAY | 하늘 | 도윤아.
+    EN: Doyun.
+[15] SAY | 도윤 | 응.
+    EN: Yeah.
+[16] SAY | 하늘 | 갈게. 늦지 않게. 이번엔 내가 쫓아.
+    EN: I'll come. I won't be late. This time I'm the one chasing.
+[17] NARR | 문장을 끝까지 맺었다. 두 번째.
+    EN: She finished the sentence to the end. The second time.
+[18] SAY | 도윤[평판>=50] | 동네 사람들이 다 알아. 네가 매일 뛰는 거. 그래서 내가 먼저 못 갔던 날도 있었어.
+    EN: The whole village knows. That you run every day. Some days I couldn't leave first because of that.
+[19] SAY | 도윤[체력<40] | …너 요즘 안색이 안 좋아. 마지막 날, 뛰지 말고 걸어와도 돼.
+    EN: …You look pale lately. On the last day, you can walk instead of run.
+[20] SAY | 도윤[회차>=2] | 규칙 말해 주는 거 두 번째지. 이번엔 네가 먼저 알았고.
+    EN: This is the second time I'm telling you the rule. This time you knew first.

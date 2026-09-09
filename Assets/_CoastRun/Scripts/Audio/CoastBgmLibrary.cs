@@ -37,6 +37,23 @@ namespace CoastRun
         public static string Menu(bool cleared) =>
             Has("BGM_Title") ? "BGM_Title"
             : cleared && Has("BGM_Menu_Cleared") ? "BGM_Menu_Cleared" : "BGM_Menu";
+        /// 26차: K-POP 러닝모드 트랙 — Resources/CoastRun/BGM/BGM_KPOP_1.ogg … 순서대로. 없으면 null(챕터 스템으로 폴백).
+        public static AudioClip Kpop(int index)
+        {
+            int n = KpopCount();
+            if (n == 0) return null;
+            return Load("BGM_KPOP_" + (1 + ((index % n) + n) % n));
+        }
+        private static int _kpopCount = -1;
+        public static int KpopCount()
+        {
+            if (_kpopCount >= 0) return _kpopCount;
+            int n = 0;
+            while (n < 32 && Has("BGM_KPOP_" + (n + 1))) n++;
+            _kpopCount = n;
+            return n;
+        }
+
         public static string ChapterStem(int chapter, int stem) => $"BGM_CH{Mathf.Clamp(chapter, 1, 5)}_{(char)('a' + stem)}";
         public static string Memory(int chapter) => chapter >= 5 ? "BGM_Memory_Cold" : chapter >= 3 ? "BGM_Memory_Mid" : "BGM_Memory_Warm";
         public static string CineOpen(int chapter) => chapter <= 1 ? "BGM_Cine_Prologue" : $"BGM_Cine_CH{chapter}_Open";

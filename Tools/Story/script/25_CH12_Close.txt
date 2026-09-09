@@ -1,0 +1,8 @@
+﻿# 26차: 새 컷씬 대본 자리(플레이스홀더). 이 폴더의 txt 를 고친 뒤  python Tools/Story/cutscene_txt.py import Tools/Story/script  로 반영.
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 조건 태그: 화자나 지문 앞에 [게이트>=0] / [게이트<0] 를 붙이면 체력 게이트 통과·불통과일 때만 나온다. (체력·순발력·회차·루아… 도 가능)
+
+[0] BG | TowerSunset
+[1] NARR | (12장 클로즈 — 새 대본 자리. 송전탑 도착 후 재생.)
+    EN: (Chapter 12 close — placeholder)

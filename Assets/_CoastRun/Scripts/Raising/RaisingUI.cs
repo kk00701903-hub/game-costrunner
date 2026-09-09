@@ -210,14 +210,14 @@ namespace CoastRun
         {
             if (Save == null) return;
             if (CoastRemoteKeys.Down(KeyCode.Tab)) SetStatTab(_statTab == StatTab.Body ? StatTab.Mind : StatTab.Body);
-            if (Input.GetKeyDown(KeyCode.A) && !_busy) ToggleSheet(true);
+            if (CoastRemoteKeys.Down(KeyCode.A) && !_busy) ToggleSheet(true);
             if (CoastRemoteKeys.Down(KeyCode.Q)) { _tab = ScheduleCategory.Job; RefreshCards(); }
-            if (Input.GetKeyDown(KeyCode.W)) { _tab = ScheduleCategory.SelfDev; RefreshCards(); }
+            if (CoastRemoteKeys.Down(KeyCode.W)) { _tab = ScheduleCategory.SelfDev; RefreshCards(); }
             if (CoastRemoteKeys.Down(KeyCode.E)) { _tab = ScheduleCategory.Rest; RefreshCards(); }
             if (CoastRemoteKeys.Down(KeyCode.R)) { _tab = ScheduleCategory.Story; RefreshCards(); }
             for (int n = 0; n < 9; n++)
             {
-                if (!Input.GetKeyDown(KeyCode.Alpha1 + n)) continue;
+                if (!CoastRemoteKeys.Down(KeyCode.Alpha1 + n)) continue;
                 if (_shopModal != null) { if (n < PetShop.ForSale.Length) ShopAct(PetShop.ForSale[n]); continue; }
                 if (_timelineModal != null)
                 {
@@ -246,7 +246,7 @@ namespace CoastRun
             }
             if (Input.GetKeyDown(KeyCode.Escape) && _sheet != null && _sheet.activeSelf) ToggleSheet(false);
             if (CoastRemoteKeys.Down(KeyCode.Return) && !_busy) OnRunPressed();
-            if (Input.GetKeyDown(KeyCode.S) && !_busy) OpenShop();
+            if (CoastRemoteKeys.Down(KeyCode.S) && !_busy) OpenShop();
             if (CoastRemoteKeys.Down(KeyCode.T) && !_busy) OpenTimeline();
             if (CoastRemoteKeys.Down(KeyCode.K) && !_busy && !CollectionUI.IsOpen) CollectionUI.Open(Refresh);
             // Y = 현재 챕터 스토리 돌입(★ 스토리 셀과 같음). 타임라인이 열려 있으면 닫고 진행.
@@ -1264,6 +1264,7 @@ namespace CoastRun
             if (_busy || Save == null) return;
             // 유료 게이트: 봄(1~5챕터) 무료, 그 뒤는 디지털 앨범.
             if (!Collection.CanPlayChapter(Save.chapter)) { CollectionUI.OpenPaywall(); return; }
+            if (!StoryGate.Passes(Save)) { Toast(Loc.T($"체력 {StoryGate.Stamina(Save)}/{StoryGate.Required(Save)} — 아직 스토리로 못 가.", $"Stamina {StoryGate.Stamina(Save)}/{StoryGate.Required(Save)} — not ready.")); return; }   // 26차
             Confirm(Loc.T("지금 스토리로 갈까?", "Go to the story now?"), Loc.T("이번 주 남은 칸은 스토리로 채워져. 챕터가 끝나면 다음 챕터 첫 주로 넘어가.", "The rest of this week becomes the story. After the chapter, you move to the next chapter's first week."), () =>
             {
                 for (int i = Save.phaseIndex; i < Timeline.PhasesPerWeek; i++)
@@ -1362,6 +1363,13 @@ namespace CoastRun
                 var def = ScheduleTable.Get(Save.queuedSchedule[i]);
                 if (def != null && def.category == ScheduleCategory.Story)
                 {
+                    if (!StoryGate.Passes(Save))   // 26차: 게이트
+                    {
+                        yield return ShowLog(Loc.T("아직 못 달려", "Not yet"), StoryGate.FailText(Save), 0.8f);
+                        _gm.SetQueued(i, null);
+                        RefreshSlots();
+                        continue;
+                    }
                     _gm.ResolvePhase(i);
                     yield return ShowLog("스토리 돌입", "송전탑 가는 길로. 장애물을 피해 하트를 모으자.\n\n" +
                                           $"이번 챕터 목표 ♥{Save.CurrentChapter?.heartsTarget}  ·  지금 ♥{Save.chapterHearts}", 0.6f, ScheduleTable.StoryId);
@@ -1407,9 +1415,31 @@ namespace CoastRun
             }
             if (forced)
             {
-                yield return ShowLog(Loc.T("챕터 마지막 주", "Last week of the chapter"), Loc.T("이번 주가 이 챕터의 마지막 주야.\n이제 스토리로 가야 해.", "This is the chapter's last week.\nTime to go to the story."), 0.4f);
+                // 26차: 챕터 경계 = 이벤트 컷씬(오프닝) → 체력 게이트. 통과해야 러닝, 아니면 한 주 더 육성.
                 if (!Collection.CanPlayChapter(Save.chapter)) { _busy = false; CollectionUI.OpenPaywall(); yield break; }
-                _gm.StartStoryRun();
+                var rec = Save.CurrentChapter;
+                bool firstTime = rec == null || rec.gateFails == 0;
+                if (firstTime)
+                    yield return ShowLog(Loc.T("챕터 이벤트", "Chapter event"), Loc.T($"{Save.week}주차. 이번 주가 이 챕터의 마지막 주야.", $"Week {Save.week}. Last week of this chapter."), 0.35f);
+                if (firstTime)   // 두 번째부터는 컷씬을 다시 틀지 않고 판정만
+                {
+                    bool doneVn = false;
+                    ChapterVN.HoldBlackOnNext = false;   // 불통과면 육성 화면으로 돌아오므로 검은 화면을 잡아두지 않는다
+                    ChapterVN.PlayChapterOpening(Save.chapter, () => doneVn = true);
+                    while (!doneVn) yield return null;
+                }
+                if (StoryGate.Passes(Save))
+                {
+                    yield return ShowLog(Loc.T("스토리 돌입", "Into the story"),
+                        Loc.T($"체력 {StoryGate.Stamina(Save)} / 필요 {StoryGate.Required(Save)} — 달릴 수 있어.\n송전탑 가는 길로. 장애물을 피해 하트를 모으자.", $"Stamina {StoryGate.Stamina(Save)} / need {StoryGate.Required(Save)} — ready.\nTo the tower."), 0.5f, ScheduleTable.StoryId);
+                    _gm.StartStoryRun();
+                    yield break;
+                }
+                _gm.GateFail();
+                Refresh();
+                yield return ShowLog(Loc.T("아직 못 달려", "Not yet"), StoryGate.FailText(Save), 0.8f);
+                _busy = false;
+                RefreshSlots();
                 yield break;
             }
 

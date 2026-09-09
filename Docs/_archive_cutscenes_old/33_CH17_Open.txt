@@ -1,0 +1,17 @@
+﻿# 33  CH17_Open  —  17챕터 「깡통」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 깡통 | EN: The Tin Can
+
+[1] BG | TowerSnow | 하늘:Normal
+[2] NARR | 돌 밑 쪽지. 「이번 주는 못 나와. 검사. 큰 거. 아니 큰 게 아니고 — 오래 걸리는 거. 깡통은 열어. 네 거니까. 반은.」
+    EN: A note under the stone. "Can't come out this week. Tests. Big ones. No, not big — long ones. Open the tin can. It's yours. Half of it."
+[3] SAY | 하늘 | …무슨 검사.
+    EN: …What tests?
+[4] NARR | 쪽지는 대답하지 않는다.
+    EN: The note doesn't answer.
+[5] SAY | 하늘[만수>=12] | (만수 아저씨가 말한 깡통. 6년 전에 여기서 산 깡통.)
+    EN: (The tin can Mansu talked about. Bought there six years ago.)
+[6] SAY | 하늘[회차>=2] | (이 쪽지, 나는 이미 읽었다. 그래도 손이 떨린다.)
+    EN: (I've already read this note. My hands still shake.)

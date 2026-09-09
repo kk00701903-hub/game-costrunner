@@ -1,0 +1,14 @@
+﻿# 55  SIDE_GRANDMA_3  —  SIDE_GRANDMA_3
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | OrangeFarm
+[2] SAY | 할머니 | 본향당에 물어봤다. 한 해만 있다 가는 사람이 있냐고.
+    EN: I asked at the shrine. Whether there are people who stay only one year and go.
+[3] SAY | 하늘 | …뭐래요.
+    EN: …What did they say.
+[4] SAY | 할머니 | 있대. 노을 때만. 늦지만 말라더라. 그게 다야.
+    EN: They said yes. Only at sunset. Just don't be late, they said. That's all.
+[5] SAY | 할머니 | 귤 하나 더 가져가. 돌 위에 놓지 말고 손에 쥐여 줘.
+    EN: Take one more tangerine. Don't leave it on the stone — put it in his hand.

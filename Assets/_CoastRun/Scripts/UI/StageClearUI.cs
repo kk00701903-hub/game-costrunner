@@ -217,19 +217,24 @@ namespace CoastRun
             if (stars > 0) yield return Chip(i++, "Star", Loc.T("보너스 별", "Bonus stars"), stars, 0);
             if (nmCount > 0) yield return Chip(i++, null, Loc.T("니어미스", "Near miss"), nmCount, nmValue);
 
-            if (bestCombo > 1)
-                _lineCombo.text = Loc.T($"최고 콤보 ×{bestCombo}", $"Best combo ×{bestCombo}");
-            else if (flawless)
-                _lineCombo.text = Loc.T("무피해 클리어!", "No damage!");
-            yield return Wait(0.2f);
+            if (ShowTotals)
+            {
+                if (bestCombo > 1)
+                    _lineCombo.text = Loc.T($"최고 콤보 ×{bestCombo}", $"Best combo ×{bestCombo}");
+                else if (flawless)
+                    _lineCombo.text = Loc.T("무피해 클리어!", "No damage!");
+                yield return Wait(0.2f);
 
-            int total = coinValue + nmValue;
-            yield return CountUp(_lineTotal, Loc.T("합계", "Total"), total, 0.45f);
-            _lineHeld.text = Row(Loc.T("보유", "Wallet"), "", wallet != null ? wallet.TotalCoins : 0);
-            yield return Wait(0.15f);
-
-            UpdateJourney(stage, seconds);
-            yield return Wait(0.2f);
+                int total = coinValue + nmValue;
+                yield return CountUp(_lineTotal, Loc.T("합계", "Total"), total, 0.45f);
+                _lineHeld.text = Row(Loc.T("보유", "Wallet"), "", wallet != null ? wallet.TotalCoins : 0);
+                yield return Wait(0.15f);
+            }
+            if (ShowJourney)
+            {
+                UpdateJourney(stage, seconds);
+                yield return Wait(0.2f);
+            }
 
             // 22차-5: 인게임 정산에선 업그레이드 상점을 띄우지 않는다(주인공 포즈를 가린다; 펫 상점이 대신).
             SetButtons(true);
@@ -335,6 +340,7 @@ namespace CoastRun
         /// Distance left to the tower and the light that is left, in one line each.
         private void UpdateJourney(StageDef stage, float seconds)
         {
+            if (_journey == null) return;
             var stages = StageManager.Instance;
             if (stages == null)
             {
@@ -416,9 +422,11 @@ namespace CoastRun
                 frt0.anchoredPosition = new Vector2(-10f, -6f); frt0.sizeDelta = new Vector2(170f, 170f);
                 var bub = CoastUiArt.CutePill(_banner, "FaceBubble", Color.white, 18, 3);
                 var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(1f, 0f); brt2.pivot = new Vector2(1f, 1f);
-                brt2.anchoredPosition = new Vector2(-186f, -30f); brt2.sizeDelta = new Vector2(190f, 58f); bub.raycastTarget = false;
-                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 24, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-8f, 0f));
+                // 26차-b: 말풍선이 초상 왼쪽에 붙어 코인 칩과 겹치고 긴 문장("봤지? 나 좀 빨라")이 잘렸다 → 초상 아래로, 폭 넉넉히, 글자 자동 축소.
+                brt2.anchoredPosition = new Vector2(-6f, -182f); brt2.sizeDelta = new Vector2(230f, 54f); bub.raycastTarget = false;
+                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 24, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-10f, 0f));
                 _faceBubble.color = new Color(0.25f, 0.12f, 0.2f); _faceBubble.fontStyle = FontStyle.Bold;
+                _faceBubble.resizeTextForBestFit = true; _faceBubble.resizeTextMinSize = 16; _faceBubble.resizeTextMaxSize = 24; _faceBubble.horizontalOverflow = HorizontalWrapMode.Wrap;
             }
             _gradeBadge = CoastUiArt.Panel(_banner, "Grade", new Color(1f, 0.80f, 0.25f), 40);
             var grt = _gradeBadge.rectTransform; grt.anchorMin = grt.anchorMax = new Vector2(1f, 1f); grt.pivot = new Vector2(1f, 1f);
@@ -440,13 +448,15 @@ namespace CoastRun
             // 아래쪽: 콤보/합계/보유/여정 + 버튼(반투명 띠 위)
             var foot = CoastUiArt.Panel(_card, "Foot", new Color(0.05f, 0.04f, 0.12f, 0.55f), 22);
             var frt = foot.rectTransform; frt.anchorMin = new Vector2(0f, 0f); frt.anchorMax = new Vector2(1f, 0f); frt.pivot = new Vector2(0.5f, 0f);
-            frt.anchoredPosition = new Vector2(0f, 14f); frt.sizeDelta = new Vector2(-24f, 350f); foot.raycastTarget = false;
+            // 25차-5: 정산 화면 단순화(사용자) — 합계·보유·콤보·"송전탑까지 N km" 전부 제거, 버튼만 남긴다.
+            frt.anchoredPosition = new Vector2(0f, 14f); frt.sizeDelta = new Vector2(-24f, 170f); foot.raycastTarget = false;
             _lineCombo = FootLabel(frt, "Combo", 18, -12f, 30f); _lineCombo.color = new Color(1f, 0.72f, 0.45f);
             _lineTotal = FootLabel(frt, "Total", 30, -44f, 46f); _lineTotal.color = new Color(1f, 0.93f, 0.55f); _lineTotal.fontStyle = FontStyle.Bold;
             _lineHeld = FootLabel(frt, "Held", 15, -92f, 26f); _lineHeld.color = new Color(1f, 1f, 1f, 0.8f);
             _lineCoins = FootLabel(frt, "Coins", 1, -200f, 1f); _lineNearMiss = FootLabel(frt, "NearMiss", 1, -200f, 1f);   // (칩으로 대체, 자리만)
 
-            BuildJourneyBar(frt);
+            if (ShowJourney) BuildJourneyBar(frt);
+            _lineCombo.gameObject.SetActive(ShowTotals); _lineTotal.gameObject.SetActive(ShowTotals); _lineHeld.gameObject.SetActive(ShowTotals);
 
             _shopHost = new GameObject("UpgradeHost", typeof(RectTransform));
             _shopHost.transform.SetParent(_card, false);
@@ -470,6 +480,9 @@ namespace CoastRun
             return t;
         }
 
+        /// 25차-5: 합계/보유/콤보 줄과 여정(송전탑까지 km) 표시 여부 — 사용자 요청으로 끔.
+        public const bool ShowTotals = false;
+        public const bool ShowJourney = false;
         private RectTransform _card; private Image _gradeBadge; private Text _gradeText;
         private Image _journeyPill; private Text _journeySub; private Image _face; private Text _faceBubble;
 

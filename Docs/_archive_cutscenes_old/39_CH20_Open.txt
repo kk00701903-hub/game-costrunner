@@ -1,0 +1,13 @@
+﻿# 39  CH20_Open  —  20챕터 「송전탑」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 송전탑 | EN: The Tower
+
+[1] CG | CH20_Open | 정류장. 프롤로그와 같은 구도. 전광판 '정비 중 · 운행 중단'. 돌담 밑에 유채 한 송이가 일찍 폈다
+[2] NARR | 겨울 마지막 날. 버스는 없다. 유채가 하루 빠르다.
+    EN: The last day of winter. There's no bus. The canola is a day early.
+[3] SAY | 하늘 | …4.2킬로.
+    EN: …4.2 kilometers.
+[4] NARR | 보드를 뒤집는다. 스무 번째.
+    EN: She flips the board over. The twentieth time.

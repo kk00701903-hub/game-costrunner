@@ -1,0 +1,14 @@
+﻿# 15  CH07_Close  —  7챕터 「바다」 마무리
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] CG | CH07_Close | 송전탑 아래 나란히 뻗은 두 발. 하늘의 발등은 빨갛고 도윤의 발등은 하얗다
+[2] SAY | 도윤 | 탔지? 나.
+    EN: You got burned, right? Me too.
+[3] SAY | 하늘 | …안 탔는데.
+    EN: …I didn't.
+[4] SAY | 도윤 | 탔어. 병원에서 뭐라 하겠다.
+    EN: You did. The hospital's going to say something.
+[5] NARR | 노을 전에 닿았다. 처음으로 둘이 같이. 이 챕터가 여름의 전부다.
+    EN: They reached it before sunset. Together, for the first time. This chapter is all of summer.

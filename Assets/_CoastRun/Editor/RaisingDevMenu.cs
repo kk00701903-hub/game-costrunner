@@ -104,6 +104,21 @@ namespace CoastRun.Editor
             Debug.Log("[Coast Run] wrote near-end save (allS=" + allS + ")");
         }
 
+        /// 26차: 체력 게이트 검증 — CH2 마지막 주, 체력 20(요구 36). 육성 F5 → Q,1,1,1,Return 으로 한 주 실행하면 오프닝 이벤트 → 불통과 → 1주 연장.
+        [MenuItem("Coast Run/Debug/v2 세이브: 게이트 테스트 (CH2 마지막 주·체력 부족) %#&g")]
+        public static void SaveGateTest()
+        {
+            var s = new SaveData { seed = 777, playthrough = 1, prologueSeen = true };
+            s.stats = new PlayerStats { stamina = 20, agility = 30, charm = 30, stress = 10, money = 500, hearts = 0 };
+            ChapterGrading.InitRecords(s);
+            var r1 = s.chapters[0]; r1.cleared = true; r1.heartsEarned = r1.heartsTarget; r1.grade = ChapterGrading.GradeOf(r1.Ratio); r1.snapshotAtStart = s.stats.Clone();
+            s.chapter = 2;
+            s.week = Timeline.WeekEnd(2);
+            s.chapters[1].snapshotAtStart = s.stats.Clone();
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, SaveManager.SaveFile), JsonUtility.ToJson(s, true));
+            Debug.Log($"[Coast Run] wrote gate-test save: CH2 week {s.week}, stamina 20 / need {StoryGate.RequiredStamina(2)}");
+        }
+
         [MenuItem("Coast Run/Debug/v2 엔딩 10배속 (토글) %#&e")]
         public static void ToggleFastEnding()
         {

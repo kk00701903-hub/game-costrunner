@@ -1,0 +1,21 @@
+﻿# 02  CH01_Open  —  1챕터 「다시 온 사람」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 다시 온 사람 | EN: The One Who Came Back
+
+[1] BG | Store | 하늘:Normal | 만수:Normal
+[2] SAY | 만수 | 봉지 필요해요? 봉지.
+    EN: Need a bag? A bag.
+[3] SAY | 하늘 | …서씨네. 옆집. 그 집 아들 왔대.
+    EN: …The Seo family. Next door. I heard their son came back.
+[4] SAY | 만수 | 아, 그 아픈 애요. 서울서 요양 왔대요. 방금 왔다 갔는데. 방금.
+    EN: Ah, the sick kid. Came from Seoul to recover, they say. He was just here. Just now.
+[5] SAY | 하늘 | …뭐 샀는데.
+    EN: …What did he buy?
+[6] SAY | 만수 | 아무것도요. 봉지만 보다 갔어요. 봉지.
+    EN: Nothing. Just looked at the bags and left. The bags.
+[7] SAY | 하늘[회차>=2] | …이 대화, 전에도 한 것 같은데.
+    EN: …I feel like we've had this conversation before.
+[8] SAY | 만수[평판>=20] | 너 요새 마을회관 자주 오더라. 봉지 하나 더 줄게.
+    EN: You've been at the village hall a lot lately. Here, one more bag.

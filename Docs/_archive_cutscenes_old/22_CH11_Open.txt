@@ -1,0 +1,37 @@
+﻿# 22  CH11_Open  —  11챕터 「귤」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 귤 | EN: Tangerines
+
+[1] BG | OrangeFarm | 하늘:Normal | 도윤:Tired
+[2] NARR | 귤밭 알바. 밭두렁에 그가 앉아 있다. 퇴원했다고 했다. 마르긴 했는데 말은 여전히 길다.
+    EN: The tangerine farm job. He's sitting on the ridge between rows. Said he was discharged. Thinner, but he still talks in long sentences.
+[3] SAY | 도윤 | 귤은 꼭지 쪽부터 까야 안 터져. 아니 그건 밀감이고, 이건… 뭐지 이거.
+    EN: You peel a tangerine from the stem end so it doesn't burst. No, that's a mandarin, this is… what is this.
+[4] SAY | 하늘 | 그냥 귤.
+    EN: Just a tangerine.
+[5] SAY | 도윤 | 그냥 귤이 어딨어.
+    EN: There's no such thing as just a tangerine.
+[6] NARR | 하나 까서 내민다. 그는 손에 들고만 있다.
+    EN: She peels one and holds it out. He only holds it.
+[7] SAY | 도윤 | 나중에. 지금은 냄새만.
+    EN: Later. Just the smell for now.
+[8] NARR | 밭 주인 할머니가 보약 병을 들고 온다.
+    EN: The grandmother who owns the farm comes over with a bottle of tonic.
+[9] SAY | 할머니 | 서씨네 아들이 아프다며. 이거 먹어. 우리 영감 먹던 거여.
+    EN: Heard the Seo boy is sick. Drink this. It's what my old man used to take.
+[10] SAY | 도윤 | 감사합니다. 근데 병원에서 다른 거 먹지 말라고 —
+    EN: Thank you. But the hospital said not to take anything else —
+[11] SAY | 할머니 | 병원이 뭘 알어.
+    EN: What does a hospital know.
+[12] NARR | 하늘은 알바가 끝날 때까지 세 시간을 더 일했다. 돌아보니 밭두렁이 비어 있었다.
+    EN: Haneul worked three more hours until the shift ended. When she looked back, the ridge was empty.
+[13] SAY | 할머니 | 그 애? 방금 갔는데. 노을 진다고. 아픈 애가 노을은 왜 그렇게 챙기누.
+    EN: That kid? He just left. Said the sun was setting. Why does a sick boy fuss so much over sunsets.
+[14] SAY | 할머니[할머니>=3] | 너 손 노란 거 봐라. 그 애 손은 하얗고.
+    EN: Look at your yellow hands. And that boy's are white.
+[15] SAY | 도윤[골칫거리>=30] | 너 밤에 배달한다며. 만수 아저씨가 걱정하더라.
+    EN: I heard you deliver at night. Mansu's worried.
+[16] SAY | 하늘[체력<40] | (귤 상자가 무겁다. 세 시간이 길다.)
+    EN: (The crates are heavy. Three hours is long.)

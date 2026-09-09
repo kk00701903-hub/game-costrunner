@@ -70,6 +70,9 @@ namespace CoastRun
 
         public bool HasSave => SaveSys.HasSave;
 
+        /// 26차: K-POP 러닝모드 — 스토리에 들어가지 않고 육성 스탯만 읽는다(세이브가 없으면 null).
+        public SaveData PeekSave() => Save ?? SaveSys.Load();
+
         /// 타이틀 → 캐릭터 선택 → NewGame(mode). 해금 전이면 Skateboard는 Running으로 강등.
         public void NewGame(RunMode mode)
         {
@@ -154,7 +157,7 @@ namespace CoastRun
             ScheduleJudge.Rhythm = Save.rhythm; ScheduleJudge.SnackOn = Save.snackOn;
             ScheduleJudge.WeeklyDecay(Save.stats);
             PendingWeekNote = ScheduleJudge.BurnoutStage(Save);
-            Save.week = Mathf.Min(Timeline.Weeks + 1, Save.week + 1);
+            Save.week = Mathf.Min(Timeline.Weeks + 30, Save.week + 1);   // 26차: 게이트 연장으로 52주를 넘길 수 있다(계절은 겨울에 고정)
             Save.phaseIndex = 0;
             Save.queuedSchedule = new string[Timeline.PhasesPerWeek];
 
@@ -166,6 +169,25 @@ namespace CoastRun
             OnSaveChanged?.Invoke(Save);
             return forced;
         }
+
+        /// 26차: 체력 게이트 불통과 — 이 챕터 마감을 한 주 늘리고 육성으로 돌아간다.
+        public void GateFail()
+        {
+            if (Save == null) return;
+            var rec = Save.CurrentChapter;
+            if (rec != null)
+            {
+                rec.weekEnd = Mathf.Max(rec.weekEnd, Save.week) + 1;
+                rec.gateFails++;
+                Save.week = rec.weekEnd;          // 연장된 주로 넘어간다(같은 주차를 반복하지 않게)
+                Save.phaseIndex = 0;
+                Save.queuedSchedule = new string[Timeline.PhasesPerWeek];
+            }
+            WriteMain();
+            OnSaveChanged?.Invoke(Save);
+        }
+
+        public bool GatePassed => StoryGate.Passes(Save);
 
         public void SetQueued(int slot, string id)
         {
@@ -197,9 +219,10 @@ namespace CoastRun
                 Flow?.StartStoryRun(chapter, false);
                 StartCoroutine(RunLaunchWatchdog(chapter));
             };
-            System.Action opening = () => ChapterVN.PlayChapterOpening(chapter, launch);
-            if (prologue) ChapterVN.Play("PRO", opening);
-            else opening();
+            // 26차: 챕터 오프닝은 육성 화면의 챕터 경계 이벤트(RaisingUI.ExecuteWeek)에서 이미 재생됐다. 여기선 프롤로그만.
+            ChapterVN.HoldBlackOnNext = true;
+            if (prologue) ChapterVN.Play("PRO", launch);
+            else launch();
         }
 
         /// 11차: 실기기에서 오프닝 뒤 런으로 못 넘어가는 보고 → 자가 복구. 8초 안에 02_Run 이 활성 씬이 안 되면
@@ -317,11 +340,17 @@ namespace CoastRun
 
             Save.chapter++;
             Save.chapterHearts = 0;
-            Save.week = Timeline.WeekStart(Save.chapter);
+            // 26차: 게이트로 이전 챕터가 늘어났으면 시간을 되돌리지 않고 이어서 간다(다음 챕터도 정해진 주 수만큼).
+            Save.week = Mathf.Max(Timeline.WeekStart(Save.chapter), Save.week + 1);
             Save.phaseIndex = 0;
             Save.queuedSchedule = new string[Timeline.PhasesPerWeek];
             var rec = Save.CurrentChapter;
-            if (rec != null) rec.snapshotAtStart = Save.stats.Clone();
+            if (rec != null)
+            {
+                rec.snapshotAtStart = Save.stats.Clone();
+                rec.weekStart = Save.week;
+                rec.weekEnd = Save.week + Timeline.WeeksIn(Save.chapter) - 1;
+            }
             WriteMain();
             OnSaveChanged?.Invoke(Save);
             EnterRaising();

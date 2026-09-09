@@ -1,0 +1,29 @@
+﻿# 10  CH05_Open  —  5챕터 「봄 끝」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 봄 끝 | EN: End of Spring
+
+[1] BG | CoastRoad | 하늘:Normal | 도윤:Smile
+[2] NARR | 해안도로에서 마주쳤다. 약속도 없이. 유채는 다 졌다.
+    EN: They ran into each other on the coastal road. No promise made. The canola has all fallen.
+[3] SAY | 도윤 | 어. 여기서 보네.
+    EN: Oh. Fancy seeing you here.
+[4] SAY | 하늘 | …너 자꾸 없더라.
+    EN: …You keep not being there.
+[5] SAY | 도윤 | 내가? 아니 내가 없는 게 아니고 네가 늦는 거지. 트럭이 헐거워서 그래. 킹핀 너트가 — 아니, 부싱이다. 부싱이 나갔어.
+    EN: Me? No, it's not that I'm not there, it's that you're late. Your trucks are loose, that's why. The kingpin nut — no, it's the bushing. The bushing's gone.
+[6] SAY | 하늘 | 그거 열두 살 때도 그랬어.
+    EN: It was like that when we were twelve too.
+[7] SAY | 도윤 | 그땐 진단을 잘못했지. 6년 걸렸네.
+    EN: Misdiagnosed it back then. Took six years.
+[8] SAY | 하늘 | …5년.
+    EN: …Five.
+[9] SAY | 도윤 | 6년. 내가 센 게 맞아.
+    EN: Six. I counted right.
+[10] SAY | 도윤[순발력>=50] | 트럭 이제 안 흔들리네. 네가 고쳤어?
+    EN: Your trucks don't wobble anymore. You fixed them?
+[11] SAY | 하늘[스트레스>=60] | (요즘 잠을 못 잔다. 그래서 늦는 건가.)
+    EN: (I haven't been sleeping. Is that why I'm late.)
+[12] SAY | 도윤[회차>=2] | 봄 끝나는 거, 이번엔 내가 먼저 말할게. 먼저 가.
+    EN: Spring ending — this time I'll say it first. Go ahead.

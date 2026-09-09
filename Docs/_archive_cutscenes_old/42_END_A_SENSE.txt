@@ -1,0 +1,22 @@
+﻿# 42  END_A_SENSE  —  END_A_SENSE
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | TowerSunset
+[2] SAY | 도윤 | 읽어 줄까. 네가 읽으면 늦게 읽을 것 같아서.
+    EN: Want me to read it? If you read it, you'd read it late.
+[3] SAY | 하늘 | …읽어 줘.
+    EN: …Read it.
+[4] NARR | 그가 편지를 편다. 노을이 반, 그의 목소리가 반.
+    EN: He unfolds the letter. Half sunset, half his voice.
+[5] SAY | 도윤 | '하늘아. 나 간다. 트럭 고쳐 놨어. 부싱.' …여기까지는 네가 아는 거고.
+    EN: 'Haneul. I'm going. Fixed your trucks. The bushing.' …That part you already know.
+[6] SAY | 도윤 | '좋아해. 늦게 와도 돼. 기다릴게.' 이건 소리 내서 처음 말해 본다.
+    EN: 'I like you. You can come late. I'll wait.' That part I've never said out loud.
+[7] NARR | 하늘은 대답을 안 한다. 대답을 안 하는 게 대답이라는 걸, 6년 만에 둘 다 안다.
+    EN: Haneul doesn't answer. That not answering is the answer — after six years, they both know.
+[8] SAY | 하늘 | 91.9. 새벽 두 시.
+    EN: 91.9. Two in the morning.
+[9] SAY | 도윤 | 응. 거기서.
+    EN: Yeah. There.

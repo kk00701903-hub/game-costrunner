@@ -1,0 +1,12 @@
+﻿# 34  CH17_Close  —  17챕터 「깡통」 마무리
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] CG | CH17_Close | 눈밭에 열린 깡통. 스티커, 앞니, 누렇게 바랜 쪽지. 하늘의 손
+[2] NARR | 열두 살 때 넣은 것들. 스티커. 앞니. 그리고 그가 서울 가기 전날 넣은 쪽지.
+    EN: The things they put in at twelve. Stickers. A front tooth. And the note he put in the day before he left for Seoul.
+[3] NARR | 「다시 올게. 라디오 91.9 새벽 두 시, 거기서 만나.」
+    EN: "I'll come back. Radio 91.9, two in the morning. Meet me there."
+[4] NARR | 6년 동안 몰랐다. 그가 이 병원을 고른 이유가 치료만은 아니었구나, 하고 생각했다. 그것도 착각이었다.
+    EN: For six years she didn't know. So it wasn't only for treatment that he chose that hospital, she thought. That was a misunderstanding too.

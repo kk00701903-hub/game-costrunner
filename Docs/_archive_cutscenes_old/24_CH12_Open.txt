@@ -1,0 +1,23 @@
+﻿# 24  CH12_Open  —  12챕터 「오름」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 오름 | EN: Oreum
+
+[1] BG | Oreum | 하늘:Happy | 도윤:Normal
+[2] NARR | 이번엔 아침에 만났다. 노을을 피해서. 하늘이 그렇게 정했다.
+    EN: This time they met in the morning. Avoiding the sunset. Haneul decided that.
+[3] SAY | 도윤 | 먼저 올라가. 위에서 사진 찍어서 보여 줘.
+    EN: You go up first. Take a picture from the top and show me.
+[4] SAY | 하늘 | …같이 안 가면 의미 없잖아.
+    EN: …It's meaningless if we don't go together.
+[5] SAY | 도윤 | 의미 같은 거 없어도 돼. 사진이면 돼. 내가 갈 수 있는 데는 여기까지야. 아니 여기까지가 아니고, 오늘은 여기까지.
+    EN: It doesn't need meaning. A picture is enough. This is as far as I can go. No, not as far as I can go — as far as I go today.
+[6] SAY | 하늘 | 그럼 송전탑. 거기 올라가서 찍을게. 밑에서 기다려.
+    EN: Then the tower. I'll climb up there and take it. Wait at the bottom.
+[7] SAY | 도윤 | …응. 밑에서.
+    EN: …Okay. At the bottom.
+[8] SAY | 도윤[순발력>=60] | 탑 올라가는 거 무섭지 않아? 너는 안 무섭겠다.
+    EN: Aren't you scared of climbing the tower? No, you wouldn't be.
+[9] NARR | [루아>=7]루아가 멀리서 보고 있다. 손을 흔들지 않는다.
+    EN: Rua is watching from far away. She doesn't wave.

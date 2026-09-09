@@ -1,0 +1,14 @@
+﻿# 54  SIDE_GRANDMA_2  —  SIDE_GRANDMA_2
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | OrangeFarm
+[2] SAY | 할머니 | 우리 영감도 아팠어. 병원에서 못 먹게 하는 거 다 먹였지. 그래도 갔어.
+    EN: My old man was sick too. I fed him everything the hospital forbade. He went anyway.
+[3] SAY | 하늘 | …
+    EN: …
+[4] SAY | 할머니 | 보약은 너 먹어. 뛰는 애가 먹어야지. 그 애는 냄새만 맡으라 그래.
+    EN: You drink the tonic. The one who runs should. Tell that boy to just smell it.
+[5] NARR | 할머니가 병을 하나 더 준다. 이번엔 하늘 것이다.
+    EN: Grandma hands over one more bottle. This one is Haneul's.

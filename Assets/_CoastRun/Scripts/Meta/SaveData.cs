@@ -71,6 +71,7 @@ namespace CoastRun
         public int weekStart;
         public int weekEnd;
         public int heartsEarned;        // 이 챕터에서 얻은 말랑이 하트
+        public int gateFails;           // 26차: 체력 게이트 불통과 횟수(마감이 그만큼 늘어남)
         public int heartsTarget;        // 만점. earned/target >= 0.9 → S
         public ChapterGrade grade;
         public bool cleared;            // 런닝 클리어 + 컷씬까지 본 챕터

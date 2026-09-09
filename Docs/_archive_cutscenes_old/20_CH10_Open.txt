@@ -1,0 +1,21 @@
+﻿# 20  CH10_Open  —  10챕터 「사연」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 사연 | EN: The Letter
+
+[1] BG | HanulRoom | 하늘:Tired
+[2] NARR | 새벽 두 시. 91.9.
+    EN: Two in the morning. 91.9.
+[3] SAY | DJ | 다음 사연은… 제주에서 요양 중인 열여덟 살 청취자분. 옆집에 사는 친구가 자꾸 늦어서, 라고 하셨네요.
+    EN: Next story… from an eighteen-year-old listener recovering on Jeju. Says the friend next door keeps being late.
+[4] NARR | 끈다. 켠다.
+    EN: She turns it off. Turns it on.
+[5] SAY | DJ | — 한 해밖에 없는데, 그 애가 늦는 날마다 하루씩 아까워서 먼저 일어난다고. 무슨 뜻인지는 저도 잘…
+    EN: — there's only one year, and every day that kid is late he loses a day, so he gets up and leaves first. I'm not sure what it means either…
+[6] NARR | 끈다.
+    EN: She turns it off.
+[7] SAY | 하늘[DJ>=7] | (사연을 두 번 보냈다. DJ가 내 글씨를 아는 것 같다.)
+    EN: (I sent a story twice. The DJ seems to know my handwriting.)
+[8] SAY | 하늘[회차>=2] | '한 해밖에 없는데.' 이 말을 나는 이미 안다.
+    EN: 'There's only one year.' I already know this line.

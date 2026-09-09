@@ -1,0 +1,28 @@
+﻿# 36  CH18_Close  —  18챕터 「구십일 점 구」 마무리
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | Doyun_Room | 하늘:Tired | 루아:Normal
+[2] NARR | 루아가 하늘을 집으로 데려온다. 도윤 방. 침대는 정리돼 있고 물건이 없다. 책상에 액자 하나가 엎어져 있다.
+    EN: Rua brings Haneul home. Doyun's room. The bed is made and there are no belongings. On the desk, one photo frame, face down.
+[3] SAY | 루아 | 오빠는 재작년 봄에 죽었어요. 서울 병원에서요.
+    EN: My brother died two springs ago. At the hospital in Seoul.
+[4] SAY | 하늘 | …
+    EN: …
+[5] SAY | 루아 | 올봄에 대문으로 걸어 들어왔어요. 엄마는 못 봤어요. 저만 봤어요. 마을 사람들은 아파서 온 줄 알아요. 오빠가 그렇게 말하고 다녔으니까요. 언니도요.
+    EN: This spring he walked in through the gate. Mom couldn't see him. Only I could. The village thinks he came back sick. That's what he went around saying. To you too.
+[6] SAY | 하늘 | 약봉지.
+    EN: The medicine bags.
+[7] SAY | 루아 | 빈 거예요. 언니가 병 얘기를 믿어야 오빠가 있을 수 있대요. 겨울 끝나면 가요. 그것만 알아요.
+    EN: Empty. He said as long as you believe the illness, he can stay. When winter ends, he goes. That's all I know.
+[8] SAY | 하늘 | …넌 계속 병원이라고.
+    EN: …You kept saying the hospital.
+[9] SAY | 루아 | 저는 한 번도 병원이라고 안 했어요. 언니가 그렇게 들은 거예요. 매번요.
+    EN: I never once said hospital. That's what you heard. Every time.
+[10] NARR | 루아가 액자를 세운다. 열여덟 살. 앞니는 다 났다.
+    EN: Rua stands the frame up. Eighteen. All his front teeth grown in.
+[11] SAY | 루아 | 언니가 늦은 날마다 오빠가 먼저 갔잖아요. 언니 탓 안 하려고요. 그거 알아요?
+    EN: Every day you were late, my brother left first. So you wouldn't blame yourself. Did you know that?
+[12] NARR | 하늘은 대답을 못 한다. 슬펐다. 그 말밖에 없다. 그리고 그날부터 하늘은 매일 뛰었다.
+    EN: Haneul can't answer. It was sad. There's no other word. And from that day, Haneul ran every day.

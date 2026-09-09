@@ -96,8 +96,7 @@ namespace CoastRun
                     // The camera only ever sees her shadow side (sun ahead), so the
                     // default cool shade turned her muddy. A pale warm shade with a low
                     // threshold keeps hair and shirt at key-art brightness.
-                    if (toon.HasProperty("_ShadowColor")) toon.SetColor("_ShadowColor", new Color(0.86f, 0.80f, 0.80f));
-                    if (toon.HasProperty("_ShadowThreshold")) toon.SetFloat("_ShadowThreshold", 0.22f);
+                    CoastMaterials.SetShadow(toon, new Color(0.86f, 0.80f, 0.80f), 0.22f);   // 25차-1: 팔레트 갱신에도 유지
                     mats[i] = toon;
                 }
                 r.sharedMaterials = mats;
@@ -318,9 +317,29 @@ namespace CoastRun
             }
             if (_glideBlend <= 0.001f)
             {
+                // 25차-2: 점프(공중) 클립에서 왼다리가 바깥(왼쪽)으로 벌어진다 → 공중에 있는 동안 왼다리를 오른다리의 거울상으로 맞춘다.
+                if (_player != null && _player.State == SkateState.Air)
+                {
+                    var lT = _anim.GetBoneTransform(HumanBodyBones.LeftUpperLeg);  var lS = _anim.GetBoneTransform(HumanBodyBones.LeftLowerLeg);  var lF = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
+                    var rT = _anim.GetBoneTransform(HumanBodyBones.RightUpperLeg); var rS = _anim.GetBoneTransform(HumanBodyBones.RightLowerLeg); var rF = _anim.GetBoneTransform(HumanBodyBones.RightFoot);
+                    if (lT != null && lS != null && rT != null && rS != null)
+                    {
+                        Vector3 runFwd = transform.parent != null ? transform.parent.forward : transform.forward;
+                        Vector3 side = Vector3.Cross(Vector3.up, runFwd).normalized;
+                        Vector3 rDir = rS.position - rT.position;
+                        Vector3 mirrored = rDir - 2f * Vector3.Dot(rDir, side) * side;   // 좌우 대칭
+                        // 완전 대칭이면 딱딱해 보이니 0.7 만 섞고, 다리 사이는 엉덩이 폭만큼 유지
+                        Aim(lT, lS, mirrored - side * 0.06f, 0.7f);
+                        if (lF != null && rF != null)
+                        {
+                            Vector3 rDir2 = rF.position - rS.position;
+                            Aim(lS, lF, rDir2 - 2f * Vector3.Dot(rDir2, side) * side, 0.7f);
+                        }
+                    }
+                }
                 // 22차-4: 왼발 방향 보정 — 발끝(toes)이 있으면 진행 방향과의 편차를 재서 되돌리고, 없으면 고정 각도.
                 var lf = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
-                if (lf != null && _player != null && _player.Speed > 0.5f)
+                if (lf != null && _player != null && (_player.Speed > 0.5f || _player.State == SkateState.Air))
                 {
                     Vector3 runFwd = transform.parent != null ? transform.parent.forward : transform.forward;
                     var toes = _anim.GetBoneTransform(HumanBodyBones.LeftToes);

@@ -1,0 +1,27 @@
+﻿# 26  CH13_Open  —  13챕터 「서울 얘기」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 서울 얘기 | EN: Talk of Seoul
+
+[1] BG | StoreFront | 하늘:Normal | 루아:Sharp
+[2] SAY | 루아 | 언니는 오빠가 가면 어쩔 거예요?
+    EN: What will you do when my brother goes?
+[3] SAY | 하늘 | …가? 어디.
+    EN: …Goes? Where?
+[4] SAY | 루아 | 제가 물었잖아요.
+    EN: I asked you.
+[5] NARR | 하늘은 답하지 않고 일어난다. 그 주부터 송전탑에 안 간다. 하루, 이틀, 나흘.
+    EN: Haneul doesn't answer and stands up. From that week she stops going to the tower. One day, two, four.
+[6] NARR | 쫓는 걸 그만두면 엇갈릴 일도 없다. 그렇게 생각했다.
+    EN: If you stop chasing, there's nothing to miss. That's what she thought.
+[7] SAY | 만수 | 그 애 매일 오는데요. 봉지만 보다 가요. 매일.
+    EN: That kid comes every day. Looks at the bags and leaves. Every day.
+[8] SAY | 하늘 | …그래서.
+    EN: …So?
+[9] SAY | 만수 | 그래서요.
+    EN: So.
+[10] SAY | 루아[루아>=12] | 언니. 오빠가 가는 데는 서울이 아니야. 나도 거기가 어딘지 몰라.
+    EN: Where he's going isn't Seoul. I don't know where it is either.
+[11] SAY | 만수[만수>=3] | 그 애 오늘도 왔어. 봉지만 보고. 열한 번째야.
+    EN: The kid came today too. Just looked at the bags. That's eleven times.

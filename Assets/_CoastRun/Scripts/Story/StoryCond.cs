@@ -56,6 +56,8 @@ namespace CoastRun
             switch (name.ToLowerInvariant())
             {
                 case "체력": case "stamina": return st?.stamina ?? 999;
+                case "게이트": case "gate": return s != null ? StoryGate.Margin(s) : 0;          // 26차: 체력 − 요구치(≥0 통과)
+                case "필요체력": case "need": return s != null ? StoryGate.Required(s) : 0;
                 case "순발력": case "agility": return st?.agility ?? 999;
                 case "매력": case "charm": return st?.charm ?? 999;
                 case "감성": case "sense": return st?.sense ?? 999;

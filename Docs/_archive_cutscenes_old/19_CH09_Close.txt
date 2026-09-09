@@ -1,0 +1,10 @@
+﻿# 19  CH09_Close  —  9챕터 「태풍」 마무리
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] CG | CH09_Close | 태풍 다음 날 아침 송전탑. 멀쩡하다. 돌 밑에 마른 쪽지. 옆에 접힌 새 우비
+[2] NARR | 「안 무너졌어.」라고 어젯밤 두고 온 쪽지는 없다. 대신 「거 봐.」
+    EN: The note she left last night — "It didn't fall." — is gone. Instead: "Told you."
+[3] NARR | 우비는 한 번도 안 펼친 채로 접혀 있다. 종이는 말라 있다.
+    EN: The raincoat is folded, never once opened. The paper is dry.

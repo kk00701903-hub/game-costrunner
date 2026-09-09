@@ -1,0 +1,23 @@
+﻿# 31  CH16_Open  —  16챕터 「첫눈」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 첫눈 | EN: First Snow
+
+[1] BG | BusStop(눈) | 하늘:Normal | 도윤:Winter
+[2] NARR | 정류장에서 마주쳤다. 눈. 그가 목도리를 두 겹 했다.
+    EN: They ran into each other at the bus stop. Snow. He's wearing two scarves.
+[3] SAY | 도윤 | 서울 눈이랑 달라.
+    EN: It's different from Seoul snow.
+[4] SAY | 하늘 | 뭐가.
+    EN: How?
+[5] SAY | 도윤 | …몰라. 달라. 서울 눈은 내리자마자 회색인데 여긴 — 아니 그게 아니고, 그냥 달라.
+    EN: …Don't know. It's different. Seoul snow turns gray as soon as it lands, but here — no, that's not it. It's just different.
+[6] SAY | 하늘 | 같이 가. 오늘은 노을 전에.
+    EN: Come with me. Before sunset today.
+[7] SAY | 도윤 | …응.
+    EN: …Okay.
+[8] SAY | 도윤[할머니>=7] | 할머니가 나한테도 보약 줬어. 냄새만 맡으래.
+    EN: Grandma gave me tonic too. Told me to just smell it.
+[9] SAY | 하늘[체력>=70] | (눈길인데 안 미끄러진다. 1년 치 다리다.)
+    EN: (Snow on the road and I'm not slipping. A year's worth of legs.)

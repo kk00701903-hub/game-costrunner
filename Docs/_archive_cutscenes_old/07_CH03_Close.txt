@@ -1,0 +1,14 @@
+﻿# 07  CH03_Close  —  3챕터 「주파수」 마무리
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] CG | CH03_Close | 노을 진 송전탑 아래, 깡통 자리의 납작한 돌. 분필로 쓴 숫자 91.9
+[2] NARR | 없다. 돌 위에 분필. 「91.9 — 새벽 두 시. 낮엔 안 해.」
+    EN: Nothing. Chalk on the stone. "91.9 — two in the morning. Not in the daytime."
+[3] NARR | 분필은 젖어 있는데 글씨는 안 번졌다.
+    EN: The chalk is wet but the writing hasn't run.
+[4] SAY | 하늘 | …새벽 두 시에 누가 라디오를 들어.
+    EN: …Who listens to the radio at two in the morning?
+[5] NARR | 그날 밤 두 시에 들었다. DJ가 사연을 읽었다. 남의 사연이었다. 그래도 끝까지 들었다.
+    EN: That night at two, she listened. The DJ read a story. Someone else's story. She listened to the end anyway.

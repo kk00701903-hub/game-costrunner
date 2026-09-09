@@ -38,7 +38,10 @@ Shader "CoastRun/InkOutline"
                 Varyings OUT;
                 float3 ws = TransformObjectToWorld(IN.positionOS.xyz);
                 float3 nw = normalize(TransformObjectToWorldNormal(IN.normalOS));
-                ws += nw * _Width;
+                // 25차-1: 손가락·팔뚝처럼 얇은 부위는 고정 폭(1.7 cm) 셸이 표면을 뒤덮어 팔 전체가 남색으로 보였다.
+                // 카메라 거리에 비례시켜(4.4 m 기준 _Width) 가까울수록 얇게 — 화면에서 보이는 선 굵기는 그대로.
+                float dist = distance(ws, _WorldSpaceCameraPos.xyz);
+                ws += nw * _Width * clamp(dist / 4.4, 0.35, 1.6);
                 ws = CoastCurveWorld(ws, _CurveWeight);
                 OUT.positionCS = TransformWorldToHClip(ws);
                 return OUT;

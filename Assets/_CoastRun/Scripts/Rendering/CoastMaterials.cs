@@ -14,11 +14,12 @@ namespace CoastRun
         // 24차-6(점검 2-1): 스폰마다 만든 머티리얼을 강참조 리스트가 영원히 붙잡아 씬 재로드 후에도 해제되지 않았다
         // (타일당 ~50개 + 젤리 스테이지당 1000개 이상). 라이브 팔레트 갱신은 에디터 OnValidate에서만 쓰므로
         // 에디터에서만, 그것도 약참조로 추적한다. 빌드에선 추적 자체를 하지 않는다.
-        private struct Tracked
+        private class Tracked
         {
             public WeakReference<Material> Ref;
             public Func<Color> Getter;
             public bool Unlit;
+            public bool CustomShadow;   // 25차-1: SetShadow 로 지정한 그림자색은 팔레트 갱신 때 덮어쓰지 않는다
         }
 
 #if UNITY_EDITOR
@@ -296,7 +297,7 @@ namespace CoastRun
 
                 Color c = t.Getter != null ? t.Getter() : Color.magenta;
                 ApplyColor(mat, c, t.Unlit);
-                if (!t.Unlit && mat.HasProperty("_ShadowColor"))
+                if (!t.Unlit && !t.CustomShadow && mat.HasProperty("_ShadowColor"))
                     mat.SetColor("_ShadowColor", CoastPalette.ShadowCool);
             }
 #endif
@@ -329,6 +330,20 @@ namespace CoastRun
                     : r.sharedMaterial.mainTexture;
                 r.sharedMaterial = CreateToon(c, t as Texture2D);
             }
+        }
+
+        /// 25차-1: 주인공 피부처럼 따뜻한 그림자가 필요한 머티리얼. 에디터 팔레트 갱신(RefreshTracked)이
+        /// 이 값을 ShadowCool 로 되돌려 왼팔이 파랗게 보이던 원인 → 지정한 색을 기억해 둔다.
+        public static Material SetShadow(Material mat, Color shadow, float? threshold = null)
+        {
+            if (mat == null) return null;
+            if (mat.HasProperty("_ShadowColor")) mat.SetColor("_ShadowColor", shadow);
+            if (threshold.HasValue && mat.HasProperty("_ShadowThreshold")) mat.SetFloat("_ShadowThreshold", threshold.Value);
+#if UNITY_EDITOR
+            for (int i = TrackedMats.Count - 1; i >= 0; i--)
+                if (TrackedMats[i].Ref != null && TrackedMats[i].Ref.TryGetTarget(out var m) && m == mat) { TrackedMats[i].CustomShadow = true; break; }
+#endif
+            return mat;
         }
 
         private static void Track(Material mat, Func<Color> getter, bool unlit)

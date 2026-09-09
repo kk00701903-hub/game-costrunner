@@ -1,0 +1,24 @@
+﻿# 41  END_B  —  엔딩 B (못 만난다)
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] CG | END_B1 | 노을 다 진 송전탑 아래. 아무도 없다. 눈 녹은 자리에 깡통
+[2] NARR | 아무도 없다. 유채가 하루 일찍 폈다. 하늘이 늦은 날들만큼, 그는 먼저 끝났다. 스물한 번째 엇갈림.
+    EN: No one is there. The canola bloomed a day early. As many days as Haneul was late, he ended that many days sooner. The twenty-first miss.
+[3] CG | END_B2 | 깡통 속 편지. 손글씨 4줄 (TragicLines 개정)
+[4] LETTER | 하늘아
+    EN: Haneul
+[5] LETTER | 마지막 날은 안 먼저 가려고 했는데, 날이 먼저 갔다. 네 탓 아니야.
+    EN: I meant not to leave first on the last day, but the day left first. Not your fault.
+[6] LETTER | 주파수 끝까지 못 맞췄네. 내가.
+    EN: Never did tune the frequency all the way. That was me.
+[7] LETTER | 묻어 놓는다. 잘 지내
+    EN: I'm burying this. Take care
+[8] BG | BusStop | 하늘:Tired
+[9] NARR | 정류장으로 돌아오니 전광판이 바뀌어 있다. 운행 재개.
+    EN: Back at the bus stop the display has changed. Service resumed.
+[10] NARR | 라디오 스팅어는 같다. 그 뒤는 말하지 않는다.
+    EN: The radio stinger is the same. What comes after, it doesn't say.
+[11] SAY | 하늘[루아>=12] | (루아가 어디서 보고 있을 것이다. 오늘은 혼자가 아니다.)
+    EN: (Rua is watching from somewhere. Today I'm not alone.)

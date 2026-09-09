@@ -1,0 +1,21 @@
+﻿# 12  CH06_Open  —  6챕터 「축제」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 축제 | EN: Festival
+
+[1] BG | Festival | 하늘:Happy
+[2] NARR | 쪽지로 약속했다. 「축제. 송전탑 위에서 불꽃 보인대.」 답장은 「사람 많은 덴 좀. 아니 싫은 게 아니고 — 알았어.」
+    EN: They promised by note. "The festival. You can see the fireworks from the tower." The reply: "Crowds, not really. No, it's not that I don't like them — okay."
+[3] NARR | 구시가지. 꽹과리. 인파 건너편에 그가 있다. 등불 아래.
+    EN: The old town. Gongs. Across the crowd, there he is. Under the lanterns.
+[4] SAY | 하늘 | 도윤아!
+    EN: Doyun!
+[5] NARR | 그가 본다. 3초. 풍물패가 지나간다. 지나가고 나니 없다.
+    EN: He looks. Three seconds. The drum troupe passes. When it's gone, he's gone.
+[6] NARR | 폰으로 찍어 뒀던 사진을 본다. 그 자리가 등불에 먹혀 하얗게 날아가 있다. 역광이겠지.
+    EN: She looks at the photo she took on her phone. His spot is eaten by lantern light, blown out white. Backlight, probably.
+[7] SAY | 하늘[매력>=40] | (사람들이 자꾸 말을 건다. 뒤통수를 찾을 시간이 없다.)
+    EN: (People keep talking to me. No time to look for the back of his head.)
+[8] SAY | 하늘[만수>=3] | 만수 아저씨 가판대. 봉지가 등불처럼 매달려 있다.
+    EN: Mansu's stall. Bags hanging like lanterns.

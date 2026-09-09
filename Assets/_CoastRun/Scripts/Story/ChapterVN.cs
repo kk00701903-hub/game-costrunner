@@ -538,12 +538,12 @@ namespace CoastRun
         /// 탭/클릭/스페이스/엔터 한 번 = 진행. 1초 길게 누르면 스킵.
         private bool Pressed()
         {
-            bool down = _advance || Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) ||
+            bool down = _advance || Input.GetMouseButtonDown(0) || CoastRemoteKeys.Down(KeyCode.Space) || CoastRemoteKeys.Down(KeyCode.Return) ||   // 26차: 원격(MCP) 키도 진행
                         (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
             bool held = Input.GetMouseButton(0) || Input.GetKey(KeyCode.Space) || Input.touchCount > 0;
             _holdTimer = held ? _holdTimer + Time.unscaledDeltaTime : 0f;
             if (_holdTimer > 1.2f) { _skip = true; _holdTimer = 0f; }
-            if (Input.GetKeyDown(KeyCode.S)) _skip = true;
+            if (CoastRemoteKeys.Down(KeyCode.S)) _skip = true;
             return down;
         }
 

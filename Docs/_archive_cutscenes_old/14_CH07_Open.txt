@@ -1,0 +1,25 @@
+﻿# 14  CH07_Open  —  7챕터 「바다」 시작
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+제목: 바다 | EN: The Sea
+
+[1] BG | Beach | 하늘:Happy | 도윤:Normal
+[2] NARR | 낮. 함덕. 이번엔 그가 먼저 와 있었다. 발만 담근다.
+    EN: Daytime. Hamdeok. This time he was there first. Only his feet in the water.
+[3] SAY | 도윤 | 서울엔 바다가 없잖아. 한강은 바다가 아니고.
+    EN: Seoul has no sea. The Han River isn't the sea.
+[4] SAY | 하늘 | 알아.
+    EN: I know.
+[5] SAY | 도윤 | 알긴 뭘 알아, 가 본 적도 없으면서.
+    EN: What do you know, you've never even been.
+[6] SAY | 하늘 | …축제 때 왜 갔어.
+    EN: …Why did you leave at the festival?
+[7] SAY | 도윤 | 사람이 많아서. 아니 그게 아니고 — 네가 오는 게 보였는데, 노을이 — 그냥 갔어. 미안.
+    EN: Too many people. No, that's not it — I saw you coming, but the sunset was — I just left. Sorry.
+[8] NARR | 미안, 은 처음 들었다.
+    EN: "Sorry" was a first.
+[9] SAY | 도윤[감성>=50] | 너 요즘 라디오 듣지. 목소리가 새벽 목소리야.
+    EN: You've been listening to the radio. Your voice sounds like two in the morning.
+[10] SAY | 하늘[체력>=60] | (발이 안 아프다. 여름 내내 뛰었더니.)
+    EN: (My feet don't hurt. I ran all summer.)

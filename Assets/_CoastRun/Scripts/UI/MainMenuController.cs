@@ -397,7 +397,7 @@ namespace CoastRun
             // 메뉴 3개(이어하기 / 새로하기 / 더보기) — 화면 아래 가로 한 줄. 나머지는 '더보기'로 옆에서 슬라이드.
             bool hasSave = _gm != null && _gm.HasSave;
             float btnW = 188f, btnH = 62f, gapX = 10f;   // 18차-3: 폴드(22:9) 폭 615 안에 3개(188×3+10×2 = 584)
-            float rowY = 92f;
+            float rowY = 150f;   // 26차: 아래에 K-POP 러닝모드 바가 들어가서 한 칸 위로
             var contBtn = CoastOrnate.GlassButton(ui.transform, "ContinueBtn", Loc.T("이어하기", "Continue"), new Vector2(0.5f, 0f),
                 new Vector2(-(btnW + gapX), rowY), new Vector2(btnW, btnH), () => { if (_ready) OnContinue(); }, 0.4f, 26, hasSave);
             if (!hasSave)
@@ -410,6 +410,16 @@ namespace CoastRun
             _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
                 new Vector2(btnW + gapX, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
             _moreLabel = _moreBtn.GetComponentInChildren<Text>();
+            // 26차: 스토리 모드(이어하기/새로하기)와 분리된 러닝 모드 진입 — 화면 맨 아래 넓은 바.
+            var kpop = CoastOrnate.GlassButton(ui.transform, "KpopBtn", Loc.T("K-POP 러닝모드  ♪", "K-POP RUN MODE  ♪"), new Vector2(0.5f, 0f),
+                new Vector2(0f, 70f), new Vector2(btnW * 3f + gapX * 2f, 66f), () => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm); } }, 0.55f, 28, true);
+            foreach (var img in kpop.GetComponentsInChildren<Image>())
+            {
+                if (img.name == "Fill") img.color = new Color(0.32f, 0.16f, 0.62f, 0.85f);        // 보라
+                else if (img.gameObject == kpop.gameObject) img.color = new Color(0.55f, 0.85f, 1f, 0.9f);   // 하늘색 테두리
+            }
+            var kpopText = kpop.GetComponentInChildren<Text>();
+            if (kpopText != null) { kpopText.color = new Color(1f, 0.95f, 0.75f); kpopText.fontStyle = FontStyle.Bold; }
             // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
             if (PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
             {
@@ -461,6 +471,8 @@ namespace CoastRun
 
             var ver = CreateLabel(ui.transform, "Version", "v" + Application.version, 14, FontStyle.Normal,
                 new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0.018f), new Vector2(300f, 20f));
+            ver.alignment = TextAnchor.MiddleRight; ver.rectTransform.anchorMin = ver.rectTransform.anchorMax = new Vector2(1f, 0f);
+            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, 8f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석
 
             BuildGalleryPanel(root);
             BuildCreditsPanel(root);
