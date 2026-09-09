@@ -223,6 +223,8 @@ namespace CoastRun
                     p.lastDailyDate = Today;
                 }
             }
+            // 28차: 방 장식 드롭(800 m 이상 달렸을 때 25%)
+            if (Distance >= 800f) RoomDeco.TryDropFromRun(p, Seed * 7 + Mathf.RoundToInt(Distance) + LastScore, 0.25f);
             gm.WriteProfileNow();
             AchievementTable.CheckAndToast(gm);
         }

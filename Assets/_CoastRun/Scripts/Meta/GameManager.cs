@@ -40,6 +40,7 @@ namespace CoastRun
         public int LastStarsGained { get; private set; }
         public int LastStars { get; private set; }
         public bool LastRecord { get; private set; }
+        public DecoDef LastDecoDrop { get; private set; }   // 28차: 직전 런에서 얻은 방 장식(없으면 null)
 
         public event Action<GamePhase> OnPhaseChanged;
         public event Action<SaveData> OnSaveChanged;
@@ -283,6 +284,8 @@ namespace CoastRun
             // 6차 1단계: 미션 별·기록·누적 통계·업적
             var p = Profile; p.EnsureArrays();
             LastStarsGained = MissionTable.Settle(p, Save.chapter, stats);
+            // 28차: 방 장식 드롭(스토리 런 클리어 45%)
+            LastDecoDrop = RoomDeco.TryDropFromRun(p, Save.seed * 131 + Save.week * 17 + Save.chapter, 0.45f);
             LastStars = MissionTable.Stars(p, Save.chapter);
             LastRecord = false;
             int ci = Save.chapter - 1;

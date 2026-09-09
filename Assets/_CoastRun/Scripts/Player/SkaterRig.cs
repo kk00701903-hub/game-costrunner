@@ -240,7 +240,18 @@ namespace CoastRun
             {
                 _player.OnJumped += HandleJump;
                 _player.OnSoftHit += HandleHit;
+                _player.OnLanded += HandleLanded;      // 27차
+                _player.OnCrouched += HandleCrouched;  // 27차
+                _player.OnLaneChanged += HandleLane;   // 27차
             }
+            _rootScale = transform.localScale;
+            var chest = _anim != null ? (_anim.GetBoneTransform(HumanBodyBones.UpperChest)
+                        ?? _anim.GetBoneTransform(HumanBodyBones.Chest)
+                        ?? _anim.GetBoneTransform(HumanBodyBones.Spine)) : null;
+            _bag = chest != null ? chest.Find("Backpack") : null;
+            if (_bag != null) _bagRest = _bag.localRotation;
+            _head = _anim != null ? _anim.GetBoneTransform(HumanBodyBones.Head) : null;
+            if (_head != null) _headRestScale = _head.localScale;
             if (_health != null) _health.OnDamaged += HandleDamaged;
             if (_wallet != null) _wallet.OnCoinsChanged += HandleCoins;
             _pushClock = 0.6f;
@@ -252,12 +263,92 @@ namespace CoastRun
             {
                 _player.OnJumped -= HandleJump;
                 _player.OnSoftHit -= HandleHit;
+                _player.OnLanded -= HandleLanded;
+                _player.OnCrouched -= HandleCrouched;
+                _player.OnLaneChanged -= HandleLane;
             }
             if (_health != null) _health.OnDamaged -= HandleDamaged;
             if (_wallet != null) _wallet.OnCoinsChanged -= HandleCoins;
         }
 
-        private void HandleJump() { if (_anim != null) _anim.SetTrigger(HashJump); }
+        // ── 27차: 톰 히어로식 쫀득 모션 ────────────────────────────────────
+        // 스프링 하나(_squash, 1 = 원래 크기)가 위치(_bounce)와 스케일을 함께 만든다. 두 개를 따로 흔들면 과해진다.
+        //   도약: 세로로 늘어남(jumpStretch) → 공중에서 1로 복귀
+        //   착지: 납작(landSquash) → 스프링이 1을 지나쳐 살짝 커졌다가(overshoot) 가라앉는다
+        //   걸음: 착지 충격을 스케일에도 조금(stepSquash) — 통통 걷는 느낌
+        //   레인: 반대쪽으로 순간 기울었다 복귀(_laneKick), 가방·머리는 한 박자 늦게(secondary 스프링)
+        private float _squash = 1f, _squashVel;
+        private float _laneKick, _laneKickVel;
+        private Vector3 _rootScale = Vector3.one;
+        private Transform _bag, _head;
+        private Quaternion _bagRest = Quaternion.identity;
+        private Vector3 _headRestScale = Vector3.one;
+        private float _bagPitch, _bagPitchVel, _bagRoll, _bagRollVel;
+        private RunConfig Cfg => _player != null ? _player.Config : null;
+
+        private void HandleJump()
+        {
+            if (_anim != null) _anim.SetTrigger(HashJump);
+            var c = Cfg; float stretch = c != null ? c.jumpStretch : 1.16f;
+            _squash = Mathf.Max(_squash, stretch); _squashVel = 2.2f;   // 위로 쭉
+        }
+        private void HandleLanded()
+        {
+            var c = Cfg; float sq = c != null ? c.landSquash : 0.78f;
+            _squash = Mathf.Min(_squash, sq); _squashVel = -3.5f;      // 납작 → 스프링이 튕겨 올린다
+            _bagPitchVel += 260f;                                       // 가방이 앞으로 쏠린다
+        }
+        private void HandleCrouched()
+        {
+            var c = Cfg; float sq = c != null ? c.crouchSquash : 0.86f;
+            _squash = Mathf.Min(_squash, sq); _squashVel = -1.5f;
+            _bagPitchVel += 160f;
+        }
+        private void HandleLane(int dir)
+        {
+            _laneKickVel += -dir * 220f;   // 반대쪽으로 순간 기울었다 돌아온다(관성)
+            _bagRollVel += dir * 420f;
+        }
+
+        /// 스프링 적분. 매 Update 끝에서 호출. 반환: 이번 프레임 스케일 배율(y)
+        private float TickJuice(float dt, bool running)
+        {
+            var c = Cfg;
+            float k = c != null ? c.squashStiffness : 260f, d = c != null ? c.squashDamping : 14f;
+            float stepAmt = c != null ? c.stepSquash : 1.2f;
+            float sec = c != null ? c.secondaryAmount : 1f;
+            // 걸음 착지 스프링(_bounce, m)을 스케일에도 반영: 내려앉을 때 납작
+            float target = 1f + (running ? _bounce * stepAmt : 0f);
+            _squashVel += ((target - _squash) * k - _squashVel * d) * dt;
+            _squash += _squashVel * dt;
+            _squash = Mathf.Clamp(_squash, 0.6f, 1.35f);
+            // 레인 킥(°): 임계 감쇠보다 살짝 덜 감쇠 → 한 번 튕김
+            _laneKickVel += (-_laneKick * 320f - _laneKickVel * 16f) * dt;
+            _laneKick += _laneKickVel * dt;
+            // 가방 secondary: 세로 가속(_bounceVel)과 레인 킥을 따라 늦게 움직인다
+            float bagPitchTarget = Mathf.Clamp(-_bounceVel * 40f, -25f, 25f) * sec;
+            _bagPitchVel += ((bagPitchTarget - _bagPitch) * 180f - _bagPitchVel * 11f) * dt;
+            _bagPitch += _bagPitchVel * dt;
+            _bagRollVel += ((-_laneKick * 1.4f * sec - _bagRoll) * 200f - _bagRollVel * 10f) * dt;
+            _bagRoll += _bagRollVel * dt;
+            return _squash;
+        }
+
+        private void ApplyJuiceLate()
+        {
+            if (_glideBlend > 0.001f || _finishBlend > 0.001f) { transform.localScale = _rootScale; return; }
+            float s = _squash;
+            float xz = 1f / Mathf.Sqrt(Mathf.Max(0.3f, s));   // 부피 보존
+            transform.localScale = new Vector3(_rootScale.x * xz, _rootScale.y * s, _rootScale.z * xz);
+            if (_bag != null)
+                _bag.localRotation = _bagRest * Quaternion.Euler(Mathf.Clamp(_bagPitch, -30f, 30f), 0f, Mathf.Clamp(_bagRoll, -25f, 25f));
+            if (_head != null)
+            {
+                // 머리는 몸보다 덜 찌그러지고(치비 비율 유지) 반 박자 늦게: 스케일 역보정 + 가방 롤의 절반
+                float hs = Mathf.Lerp(1f, 1f / s, 0.5f);
+                _head.localScale = new Vector3(_headRestScale.x * hs * (1f / xz), _headRestScale.y * hs, _headRestScale.z * hs * (1f / xz));
+            }
+        }
         private void HandleHit()
         {
             if (_anim == null) return;
@@ -310,6 +401,7 @@ namespace CoastRun
         private void LateUpdate()
         {
             if (_anim == null || _anim.avatar == null || !_anim.avatar.isHuman) return;
+            ApplyJuiceLate();   // 27차: 애니메이터가 뼈를 쓴 뒤에 스케일·가방·머리를 얹는다
             if (_finishBlend > 0.001f)
             {
                 FinishPoseLate();
@@ -480,9 +572,10 @@ namespace CoastRun
             }
             else
             {
-                transform.localRotation = Quaternion.Euler(_pitch, _yaw, _tilt + _lean + side);
+                transform.localRotation = Quaternion.Euler(_pitch, _yaw, _tilt + _lean + side + _laneKick);   // 27차: 레인 킥
                 transform.localPosition = new Vector3(0f, running ? Mathf.Clamp(_bounce, -0.05f, 0.04f) : 0f, 0f);
             }
+            TickJuice(dt, running);   // 27차
 
             // Kick every 1.2–1.8 s while cruising on the ground (slower when fast).
             if (_hasPush && grounded && _player.State == SkateState.Run && !_player.IsCrouching)

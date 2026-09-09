@@ -113,6 +113,10 @@ namespace CoastRun
         public int affinityShown;            // 사이드 씬 본 비트 (npc*3+level-1)
         public int endingVariant;            // 엔딩 변형(0 기본 / 1 / 2)
         public bool trueEndingPending;       // 진엔딩 조건 충족(양쪽 엔딩을 본 뒤의 만남)
+        public PotState[] pots = new PotState[HomeData.PotCount];   // 30차: 베란다 화분
+        public int treadmillStamp = -1;      // 30차: 러닝머신 마지막 사용 (week*4+phase)
+        public int miniGameWeek, miniGamePlays;   // 30차: 미니게임 보상 횟수(주 3회)
+        public int flowersSold;              // 30차: 판 꽃 수(통계)
 
         public ChapterRecord CurrentChapter =>
             chapters != null && chapter >= 1 && chapter <= chapters.Length ? chapters[chapter - 1] : null;
@@ -170,6 +174,10 @@ namespace CoastRun
         public bool trueEndingSeen;
         public bool hasLastFinal;                // NG+ 계승용 마지막 회차 최종 스탯
         public PlayerStats lastFinalStats;
+        public int decoOwnedMask;                // 28차: 방 장식 보유 비트(RoomDeco.All 순서)
+        public int decoNewMask;                  // 28차: 아직 안 본 새 장식 비트
+        public string[] roomSlots = new string[RoomDeco.SlotCount];   // 28차: 슬롯별 배치된 장식 id(30차부터는 homeItems로 이관)
+        public HomeItem[] homeItems = new HomeItem[0];                  // 30차: 방 안 자유 배치(id, x, y)
         public int EndingsSeenCount { get { int n = 0; for (int i = 0; i < 7; i++) if ((endingMask & (1 << i)) != 0) n++; return n; } }
 
         public int StarsTotal { get { int n = 0; if (starMask != null) foreach (var m in starMask) n += (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1); return n; } }
@@ -185,6 +193,7 @@ namespace CoastRun
             if (bestCombo == null || bestCombo.Length < 20) bestCombo = Grow(bestCombo, 20);
             if (bestNearMiss == null || bestNearMiss.Length < 20) bestNearMiss = Grow(bestNearMiss, 20);
             if (dailyStamps == null) dailyStamps = new int[0];
+            RoomDeco.Ensure(this);
         }
         static int[] Grow(int[] a, int n) { var r = new int[n]; if (a != null) Array.Copy(a, r, Math.Min(a.Length, n)); return r; }
     }

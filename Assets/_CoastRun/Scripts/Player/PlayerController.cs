@@ -54,6 +54,8 @@ namespace CoastRun
         public event Action OnLanded;
         public event Action OnJumped;
         public event Action<int> OnLaneChanged;
+        /// 27차: 슬라이드(웅크림) 시작 — 리그가 납작 squash 를 건다.
+        public event Action OnCrouched;
         /// 레인 이동 속도(m/s, +우). 리그가 몸을 기울이는 데 쓴다.
         public float LateralVelocity { get; private set; }
         /// 레인 이동 시간 배율 (config.laneChangeSeconds × 이 값). 0.15s 기본에 2.0 → 0.30s.
@@ -314,8 +316,10 @@ namespace CoastRun
             if (!IsGrounded || _state == SkateState.Air)
                 return;
 
+            bool wasCrouch = _state == SkateState.Crouch;
             _state = SkateState.Crouch;
             _crouchTimer = Mathf.Max(_crouchTimer, 0.12f);
+            if (!wasCrouch) OnCrouched?.Invoke();
             _bodyHeight = config.crouchHeight;
         }
 
@@ -488,7 +492,10 @@ namespace CoastRun
                 _laneT = Mathf.Min(1f, _laneT + Time.deltaTime / dur);
                 float t = _laneT;
                 // 14차-9: ease-out(즉시 출발, 부드럽게 도착) — 스와이프 직후 몸이 바로 움직여 반응이 '붙는다'.
-                float e = 1f - (1f - t) * (1f - t) * (1f - t);
+                // 27차: easeOutBack — 목표를 살짝 지나쳤다가 튕겨 돌아온다(laneOvershoot 0.6 ≈ 레인 폭의 3~4%). 고무 같은 도착.
+                float c1 = config != null ? config.laneOvershoot : 0f;
+                float u = t - 1f;
+                float e = c1 > 0.001f ? 1f + (c1 + 1f) * u * u * u + c1 * u * u : 1f - (1f - t) * (1f - t) * (1f - t);
                 _lateral = Mathf.Lerp(_laneFrom, laneTarget, e);
             }
             else

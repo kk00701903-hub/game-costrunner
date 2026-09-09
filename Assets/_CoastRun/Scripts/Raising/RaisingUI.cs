@@ -261,6 +261,7 @@ namespace CoastRun
         // Build
         // ────────────────────────────────────────────────────────────────
 
+        private const bool ShowButler = false;   // 28차: 집사 꼬마 표시 여부
         private const float HudH = 0.925f;    // HUD 아래 경계
         private const float RoomB = 0.50f;    // 룸 아래 경계
         private const float StatsB = 0.205f;  // 스탯 아래 경계
@@ -306,13 +307,14 @@ namespace CoastRun
             var inner = bar.transform;
 
             // [2월 2일 화 📅] 자리 → 주차·계절·요일(챕터 남은 주)
-            _dateLabel = Pill(inner, "Date", "1주차 · 봄", 20, new Vector2(0f, 0.5f), new Vector2(10f, 0f), new Vector2(236f, 52f), Wood, Ivory);
+            _dateLabel = Pill(inner, "Date", "1주차 · 봄", 20, new Vector2(0f, 0.5f), new Vector2(10f, 0f), new Vector2(212f, 52f), Wood, Ivory);   // 28차: 네 알약이 겹치지 않게 폭 축소(204+150+112+116 ≤ 안쪽 폭)
             AddHit(_dateLabel.transform.parent.gameObject, OpenTimeline);
             // [💰 500G]
-            _moneyLabel = Pill(inner, "Money", "300", 20, new Vector2(0f, 0.5f), new Vector2(256f, 0f), new Vector2(160f, 52f), Wood, Ivory, iconTex: CoastUiArt.CoinIcon);
+            _moneyLabel = Pill(inner, "Money", "300", 20, new Vector2(0f, 0.5f), new Vector2(230f, 0f), new Vector2(146f, 52f), Wood, Ivory, iconTex: CoastUiArt.CoinIcon);
             AddHit(_moneyLabel.transform.parent.gameObject, OpenShop);
             // [⭐ Lv.10] → 챕터
-            _levelLabel = Pill(inner, "Level", "CH 1", 20, new Vector2(0f, 0.5f), new Vector2(426f, 0f), new Vector2(136f, 52f), Wood, Ivory, iconSprite: CoastUiArt.Icon("Star"));
+            _levelLabel = Pill(inner, "Level", "CH 1", 20, new Vector2(0f, 0.5f), new Vector2(384f, 0f), new Vector2(108f, 52f), Wood, Ivory, iconSprite: CoastUiArt.Icon("Star"));
+            foreach (var pl in new[] { _dateLabel, _moneyLabel, _levelLabel }) { pl.resizeTextForBestFit = true; pl.resizeTextMinSize = 13; pl.resizeTextMaxSize = 20; }   // 28차: 긴 글자는 줄여서 알약 안에
             // [컨디션 ❤️]
             _condLabel = Pill(inner, "Cond", "최상", 18, new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(116f, 52f), Wood, Ivory, iconSprite: CoastUiArt.Icon("Heart"));
             _condHeart = _condLabel.transform.parent.Find("Icon")?.GetComponent<Image>();
@@ -349,6 +351,11 @@ namespace CoastRun
             var floor = CoastHudLayout.MakeImage(host, "Floor", new Vector2(0f, 0f), new Vector2(1f, 0.16f), Vector2.zero, Vector2.zero, new Color(0.25f, 0.12f, 0.08f, 0.22f));
             floor.raycastTarget = false;
 
+            // 28차: 방 장식 레이어(캐릭터 뒤)
+            _decoLayer = new GameObject("Deco", typeof(RectTransform)).GetComponent<RectTransform>();
+            _decoLayer.SetParent(host, false);
+            Stretch(_decoLayer, 0f, 0f, 0f, 0f);
+
             // 캐릭터 (탭 → 의상 변경 팝업은 추후; 지금은 말풍선 갱신)
             _charRoot = new GameObject("Character", typeof(RectTransform)).GetComponent<RectTransform>();
             _charRoot.SetParent(host, false);
@@ -375,6 +382,7 @@ namespace CoastRun
             _charRoot.pivot = new Vector2(0.5f, 0f);   // 23차-8: 발끝 기준으로 숨쉬기·흔들림
             // 23차-7: 집사 꼬마(왼쪽 아래) — 상황별 조언, 탭하면 다음 조언
             _butler = new RaisingButler(host, () => { });
+            _butler.SetVisible(ShowButler);   // 28차: 사용자 요청으로 집사 숨김(코드는 유지)
 
             // 챕터 하트 진행(좌상단 작은 명패)
             var plate = OrnatePanel(host, "HeartsPlate", Gold, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -10f), new Vector2(230f, -62f), anchoredSize: true);
@@ -642,7 +650,7 @@ namespace CoastRun
             _scheduleBtn = ActionButton(host, "Schedule", Loc.T("스케줄", "Plan"), Coral, Hex("#FF8FAB"), 0, () => ToggleSheet(true));
             _runButton = ActionButton(host, "Run", Loc.T("실행", "Go"), Mint, Hex("#80CBC4"), 1, OnRunPressed);
             _runLabel = _runButton.GetComponentInChildren<Text>();
-            _storyBtn = ActionButton(host, "Story", Loc.T("★ 스토리", "★ Story"), Sun, Hex("#FFCC80"), 2, OpenTimeline);   // v5: 챕터 선택 화면으로
+            _storyBtn = ActionButton(host, "Story", Loc.T("방 꾸미기", "Decorate"), Sun, Hex("#FFCC80"), 2, OpenRoomDeco);   // 28차: 스토리 → 방 꾸미기(챕터 선택은 날짜 알약/챕터 독)
             _storyLabel = _storyBtn.GetComponentInChildren<Text>();
         }
 
@@ -1054,6 +1062,7 @@ namespace CoastRun
             RefreshStats();
             RefreshCharacter();
             _butler?.Refresh(s, s.week <= 1 && s.phaseIndex == 0 && !s.HasQueuedSchedule);
+            RefreshRoomDeco();
             if (_sheet != null && _sheet.activeSelf) RefreshCards();
         }
 
@@ -1114,7 +1123,8 @@ namespace CoastRun
                 _runLabel.text = finished ? Loc.T("재도전", "Retry") : s.phaseIndex > 0 ? Loc.T("이어서", "Resume") : Loc.T("실행", "Go");
                 _runLabel.color = ready ? Color.white : new Color(1f, 1f, 1f, 0.5f);
             }
-            if (_storyBtn != null) _storyBtn.interactable = !finished && !_busy;
+            if (_storyBtn != null) _storyBtn.interactable = !_busy;
+            if (_storyLabel != null) _storyLabel.text = RoomDeco.AnyNew(_gm.Profile) ? Loc.T("방 꾸미기 ●", "Decorate ●") : Loc.T("방 꾸미기", "Decorate");
             if (_sheetTitle != null)
                 _sheetTitle.text = Loc.IsKo
                 ? $"{s.week}주차 스케줄  ·  {Timeline.SeasonName(Timeline.SeasonOf(s.week))}" + (s.CurrentChapter != null ? $"  (챕터 {s.CurrentChapter.weekEnd - s.week + 1}주 남음)" : "")
@@ -1771,12 +1781,22 @@ namespace CoastRun
             var slot = new GameObject(name + "Slot", typeof(RectTransform)).GetComponent<RectTransform>();
             slot.SetParent(parent, false);
             Place(slot, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-6f, -6f - index * 82f), new Vector2(66f, 80f), new Vector2(1f, 1f));
+            // 30차: 입체 버튼 — 바닥 그림자(오프셋) → 알약(두꺼운 립) → 안쪽 어두운 테 → 위쪽 하이라이트 점 → 누르면 눌림.
+            var drop = CoastUiArt.Panel(slot, "Drop", new Color(0.15f, 0.06f, 0.10f, 0.35f), 27);
+            Place(drop.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(2f, -5f), new Vector2(56f, 56f), new Vector2(0.5f, 1f));
             var pill = CoastUiArt.CutePill(slot, name, color, 27, 3);
             Place(pill.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(54f, 54f), new Vector2(0.5f, 1f));
+            var fillRt = pill.transform.Find("Fill") as RectTransform;
+            if (fillRt != null) fillRt.offsetMin = new Vector2(3f, 8f);          // 립을 두껍게(5px → 8px) = 높이감
+            var inner = CoastUiArt.Panel(pill.transform, "Inner", new Color(0f, 0f, 0f, 0.10f), 24);
+            Stretch(inner.rectTransform, 6f, 11f, -6f, -6f);
+            var shine = CoastUiArt.Panel(pill.transform, "Shine", new Color(1f, 1f, 1f, 0.55f), 8);
+            Place(shine.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-6f, -7f), new Vector2(22f, 10f), new Vector2(0.5f, 1f));
             var btn = pill.gameObject.AddComponent<Button>();
             pill.raycastTarget = true;
             btn.transition = Selectable.Transition.None;
             btn.onClick.AddListener(() => { Haptic(); onClick?.Invoke(); });
+            pill.gameObject.AddComponent<PressSquash>();
             var sp = string.IsNullOrEmpty(icon) ? null : CoastUiArt.Icon(icon);
             if (sp != null)
             {
@@ -1847,7 +1867,7 @@ namespace CoastRun
 
         /// 월드 스프라이트(마젠타 키)를 UI에 그리기 위해 마젠타를 알파로 바꾼 사본. 읽기 불가
         /// 텍스처도 RenderTexture 경유로 읽는다. 한 번 만들면 캐시.
-        private static Texture2D ChromaKeyed(Texture2D src)
+        internal static Texture2D ChromaKeyed(Texture2D src)
         {
             if (src == null) return null;
             if (KeyedCache.TryGetValue(src, out var cached) && cached != null) return cached;
@@ -1885,6 +1905,21 @@ namespace CoastRun
             copy.name = src.name + "_keyed";
             KeyedCache[src] = copy;
             return copy;
+        }
+
+        /// 30차: 누르는 동안 살짝 눌리고(0.92) 떼면 튕겨 돌아온다 — 독 버튼 입체감.
+        private class PressSquash : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+        {
+            private float _target = 1f, _cur = 1f, _vel;
+            public void OnPointerDown(PointerEventData e) => _target = 0.92f;
+            public void OnPointerUp(PointerEventData e) => _target = 1f;
+            public void OnPointerExit(PointerEventData e) => _target = 1f;
+            private void Update()
+            {
+                float dt = Time.unscaledDeltaTime;
+                _vel += (_target - _cur) * 420f * dt; _vel *= Mathf.Exp(-16f * dt); _cur += _vel * dt;
+                transform.localScale = new Vector3(_cur, _cur, 1f);
+            }
         }
 
         /// 가로 스와이프 → 탭 전환 (세로 ScrollRect와 공존: 가로 성분이 크면 스와이프로 본다).

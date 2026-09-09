@@ -411,15 +411,33 @@ namespace CoastRun
                 new Vector2(btnW + gapX, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
             _moreLabel = _moreBtn.GetComponentInChildren<Text>();
             // 26차: 스토리 모드(이어하기/새로하기)와 분리된 러닝 모드 진입 — 화면 맨 아래 넓은 바.
-            var kpop = CoastOrnate.GlassButton(ui.transform, "KpopBtn", Loc.T("K-POP 러닝모드  ♪", "K-POP RUN MODE  ♪"), new Vector2(0.5f, 0f),
-                new Vector2(0f, 70f), new Vector2(btnW * 3f + gapX * 2f, 66f), () => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm); } }, 0.55f, 28, true);
-            foreach (var img in kpop.GetComponentsInChildren<Image>())
+            System.Action startKpop = () => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm); } };
+            var kpopArt = ArtAssets.LoadTexture("UI_KpopBar");   // 29차: 네온 글라스 바 그림(Tools/KlingGen/out/kpop_btn → Python 합성)
+            if (kpopArt != null)
             {
-                if (img.name == "Fill") img.color = new Color(0.32f, 0.16f, 0.62f, 0.85f);        // 보라
-                else if (img.gameObject == kpop.gameObject) img.color = new Color(0.55f, 0.85f, 1f, 0.9f);   // 하늘색 테두리
+                // 그림 1320×220 = UI 660×110(글로우 여백 포함, 본체 620×75). 그림 자체에 헤드폰·글자·이퀄라이저·음표·반짝이가 들어 있다.
+                var go = new GameObject("KpopBtn", typeof(RectTransform), typeof(Image), typeof(Button), typeof(KpopBarPulse));
+                go.transform.SetParent(ui.transform, false);
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f); rt.pivot = new Vector2(0.5f, 0.5f);
+                rt.anchoredPosition = new Vector2(0f, 74f); rt.sizeDelta = new Vector2(660f, 110f);
+                var im = go.GetComponent<Image>();
+                im.sprite = CoastUiArt.AsSprite(kpopArt); im.preserveAspect = true; im.raycastTarget = true;
+                var b = go.GetComponent<Button>(); b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => startKpop());
             }
-            var kpopText = kpop.GetComponentInChildren<Text>();
-            if (kpopText != null) { kpopText.color = new Color(1f, 0.95f, 0.75f); kpopText.fontStyle = FontStyle.Bold; }
+            else
+            {
+                var kpop = CoastOrnate.GlassButton(ui.transform, "KpopBtn", Loc.T("K-POP 러닝모드  ♪", "K-POP RUN MODE  ♪"), new Vector2(0.5f, 0f),
+                    new Vector2(0f, 70f), new Vector2(btnW * 3f + gapX * 2f, 66f), () => startKpop(), 0.55f, 28, true);
+                foreach (var img in kpop.GetComponentsInChildren<Image>())
+                {
+                    if (img.name == "Fill") img.color = new Color(0.32f, 0.16f, 0.62f, 0.85f);        // 보라
+                    else if (img.gameObject == kpop.gameObject) img.color = new Color(0.55f, 0.85f, 1f, 0.9f);   // 하늘색 테두리
+                }
+                var kpopText = kpop.GetComponentInChildren<Text>();
+                if (kpopText != null) { kpopText.color = new Color(1f, 0.95f, 0.75f); kpopText.fontStyle = FontStyle.Bold; }
+            }
             // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
             if (PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
             {
