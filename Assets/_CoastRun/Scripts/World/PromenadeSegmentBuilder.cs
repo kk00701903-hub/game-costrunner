@@ -511,8 +511,9 @@ namespace CoastRun
 
             // 14차: 만국기 — 타일마다 한 줄, 왼쪽 상가 처마에서 바다 쪽 기둥까지. 축제 거리의 리듬.
             float bz = 9f + (float)drng.NextDouble() * 12f;
-            StreetDressing.Bunting(root, new Vector3(-RoadHalfWidth - 1.0f, 4.3f, bz), new Vector3(railX + 0.2f, 4.0f, bz + 1.5f), drng);
-            CreateBox(root, "BuntingPost", new Vector3(railX + 0.2f, 2.0f, bz + 1.5f), new Vector3(0.12f, 4.0f, 0.12f),
+            // 24차-1: 줄 높이 4.3→5.2 m. 카메라(1.85 m)가 줄 밑을 지날 때 깃발이 근접 평면에 걸려 파란 판처럼 크게 떴다.
+            StreetDressing.Bunting(root, new Vector3(-RoadHalfWidth - 1.0f, 5.2f, bz), new Vector3(railX + 0.2f, 4.9f, bz + 1.5f), drng);
+            CreateBox(root, "BuntingPost", new Vector3(railX + 0.2f, 2.45f, bz + 1.5f), new Vector3(0.12f, 4.9f, 0.12f),
                 () => Color.Lerp(CoastPalette.TownCream, CoastPalette.RoadGrey, 0.5f));
             // 14차: 난간 너머 야자수 — 목표 이미지의 오른쪽 실루엣. 절벽 상판(y=0) 위, 타일당 2그루.
             for (int i = 0; i < 2; i++)

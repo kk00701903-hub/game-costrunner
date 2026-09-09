@@ -162,6 +162,15 @@ namespace CoastRun
             float swing = Mathf.Sin(u * Mathf.PI * 1.5f) * (1f - u) * 40f;
             if (_left != null) _left.localRotation = Quaternion.Euler(0f, -70f * u, -35f * u + swing);
             if (_right != null) _right.localRotation = Quaternion.Euler(0f, 70f * u, 35f * u - swing);
+            // 24차-5: 끊긴 테이프가 허공에 그대로 남아 고정 카메라(높이 1.2 m) 앞을 붉게 가렸다 → 흔들림이 끝나면 바닥으로 떨어져 눕는다.
+            float fall = Mathf.Clamp01((_t - 1.2f) / 0.55f);
+            if (fall > 0f)
+            {
+                float fe = fall * fall;
+                float y = Mathf.Lerp(1.25f, 0.04f, fe);
+                if (_left != null) { var p = _left.localPosition; p.y = y; _left.localPosition = p; _left.localRotation = Quaternion.Euler(-88f * fe, -70f, -35f * (1f - fe)); }
+                if (_right != null) { var p = _right.localPosition; p.y = y; _right.localPosition = p; _right.localRotation = Quaternion.Euler(-88f * fe, 70f, 35f * (1f - fe)); }
+            }
             // 관중: 튀어나와서(0.35 s) 박수 — 위아래로 콩콩 + 살짝 좌우
             for (int i = 0; i < _crowd.Count; i++)
             {

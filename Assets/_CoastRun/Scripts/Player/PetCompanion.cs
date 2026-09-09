@@ -117,6 +117,12 @@ namespace CoastRun
         }
 
         /// 새 스테이지: 깡패 횟수 리셋.
+        /// 24차-3: 골인 연출 동안 펫을 숨긴다(고정 카메라 옆에 끼어들어 프레임을 가렸다).
+        public void SetHidden(bool hidden)
+        {
+            if (_body != null) _body.gameObject.SetActive(!hidden);
+        }
+
         public void ResetForStage()
         {
             _thugUsed = 0;

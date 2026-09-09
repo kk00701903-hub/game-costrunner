@@ -44,8 +44,13 @@ namespace CoastRun.Editor
             EditorApplication.update += Pump;
             EditorApplication.quitting += Stop;
             AppDomain.CurrentDomain.DomainUnload += (_, __) => Stop();
+            // 24차-4: 플레이 진입 등 도메인 리로드 때 DomainUnload가 안 불려 옛 리스너가 47001을 물고 있었다
+            // ("각 소켓 주소는 하나만 사용할 수 있습니다") → 리로드 직전에 명시적으로 닫고, 그래도 실패하면 잠시 뒤 재시도.
+            AssemblyReloadEvents.beforeAssemblyReload += Stop;
             Start();
         }
+
+        static int _startRetries;
 
         static void OnLog(string cond, string stack, LogType type)
         {
@@ -62,17 +67,39 @@ namespace CoastRun.Editor
             try
             {
                 _listener = new TcpListener(IPAddress.Loopback, Port);
+                // 24차-4b: 리로드 직전에 받아 둔 연결(Serve 스레드, 최대 20초 대기)이 같은 포트를 물고 있어 재바인드가 실패했다.
+                _listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 _listener.Start();
                 _thread = new Thread(Accept) { IsBackground = true, Name = "CoastRemote" };
                 _thread.Start();
+                _startRetries = 0;
             }
-            catch (Exception e) { Debug.LogWarning("[CoastRemote] listen failed: " + e.Message); }
+            catch (Exception e)
+            {
+                Debug.LogWarning("[CoastRemote] listen failed: " + e.Message + (_startRetries < 60 ? " — 1초 뒤 재시도" : ""));
+                _listener = null;
+                if (_startRetries++ < 60)
+                {
+                    double at = EditorApplication.timeSinceStartup + 1.0;
+                    EditorApplication.CallbackFunction retry = null;
+                    retry = () => { if (EditorApplication.timeSinceStartup < at) return; EditorApplication.update -= retry; if (_listener == null) Start(); };
+                    EditorApplication.update += retry;
+                }
+            }
         }
+
+        static readonly List<TcpClient> _clients = new List<TcpClient>();
 
         static void Stop()
         {
             try { _listener?.Stop(); } catch { }
             _listener = null;
+            lock (_clients)
+            {
+                foreach (var c in _clients) { try { c.Close(); } catch { } }
+                _clients.Clear();
+            }
+            lock (_lock) { foreach (var r in _queue) r.done.Set(); _queue.Clear(); }
         }
 
         static void Accept()
@@ -81,6 +108,7 @@ namespace CoastRun.Editor
             {
                 TcpClient c;
                 try { c = _listener.AcceptTcpClient(); } catch { break; }
+                lock (_clients) _clients.Add(c);
                 ThreadPool.QueueUserWorkItem(_ => Serve(c));
             }
         }
@@ -99,10 +127,11 @@ namespace CoastRun.Editor
                     var req = new Req { line = line };
                     lock (_lock) _queue.Enqueue(req);
                     if (!req.done.WaitOne(20000)) req.reply = J("error", "timeout (editor busy/compiling?)");
-                    w.WriteLine(req.reply);
+                    w.WriteLine(req.reply ?? J("error", "reload"));
                 }
             }
             catch { }
+            finally { lock (_clients) _clients.Remove(c); }
         }
 
         static void Pump()

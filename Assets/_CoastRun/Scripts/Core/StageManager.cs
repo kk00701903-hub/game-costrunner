@@ -348,6 +348,7 @@ namespace CoastRun
             _finishCam = Camera.main != null ? Camera.main.GetComponent<RunnerCameraRig>() : null;
             _finishRig = player != null ? player.GetComponentInChildren<SkaterRig>() : null;
             if (_finishCam != null) _finishCam.StartCoroutine(_finishCam.PlayFinishFrame(0.9f));
+            PetCompanion.Instance?.SetHidden(true);   // 24차-3
             yield return new WaitForSeconds(0.75f);
             _finishRig?.SetFinishPose(true);
             yield return new WaitForSeconds(0.8f);
@@ -365,6 +366,7 @@ namespace CoastRun
         {
             _finishRig?.SetFinishPose(false);
             _finishCam?.EndFinishFrame();
+            PetCompanion.Instance?.SetHidden(false);   // 24차-3
             foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.SetSuppressed(false);
             if (_ribbon != null) { Destroy(_ribbon.gameObject); _ribbon = null; }
         }
