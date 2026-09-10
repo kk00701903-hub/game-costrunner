@@ -39,7 +39,8 @@ namespace CoastRun
             if (Prefabs.TryGetValue(name, out var p))
                 return p;
             p = Resources.Load<GameObject>(ModelRoot + name);
-            Prefabs[name] = p;
+            if (p != null)
+                Prefabs[name] = p;
             return p;
         }
 

@@ -77,39 +77,82 @@ namespace CoastRun
                 {
                     if (this == null) return;
                     _audio.PlayMenu(_cleared);
-                    StartCoroutine(SplashThenUi(0.2f));
+                    StartCoroutine(SplashThenUi(1.2f));
                 });
             }
             else
             {
                 _audio.PlayMenu(_cleared);
-                StartCoroutine(SplashThenUi(_gateArt != null ? 0.6f : 1.5f));
+                // 로딩 화면 + 하단 바 — 게이트 키아트 있을 때도 제대로 보이게 1.4초
+                StartCoroutine(SplashThenUi(1.4f));
             }
         }
 
         private Texture2D _gateArt;
         private static bool _openingShownThisSession;
+        private Image _loadFill;
+        private Text _loadLabel;
 
         private IEnumerator SplashThenUi(float splashSeconds)
         {
-            // Logo splash — skippable.
+            // 로딩바 0→1 채우기(스킵 가능, 스킵해도 바는 끝까지 채운 뒤 페이드)
             float t = 0f;
+            splashSeconds = Mathf.Max(0.8f, splashSeconds);
+            bool skip = false;
             while (t < splashSeconds)
             {
                 t += Time.unscaledDeltaTime;
-                if (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
-                    (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
+                float u = Mathf.Clamp01(t / splashSeconds);
+                // ease-out + 살짝 멈칫
+                float eased = 1f - Mathf.Pow(1f - u, 1.6f);
+                if (_loadFill != null)
+                {
+                    var frt = _loadFill.rectTransform;
+                    frt.anchorMin = new Vector2(0f, 0f);
+                    frt.anchorMax = new Vector2(eased, 1f);
+                    frt.offsetMin = frt.offsetMax = Vector2.zero;
+                }
+                if (_loadLabel != null)
+                    _loadLabel.text = Loc.T($"불러오는 중… {Mathf.RoundToInt(eased * 100f)}%", $"Loading… {Mathf.RoundToInt(eased * 100f)}%");
+                if (!skip && (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
+                    (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)))
+                {
+                    skip = true;
+                    // 빠르게 끝까지
+                    float catchUp = t;
+                    while (catchUp < splashSeconds)
+                    {
+                        catchUp += Time.unscaledDeltaTime * 4f;
+                        float uu = Mathf.Clamp01(catchUp / splashSeconds);
+                        float ee = 1f - Mathf.Pow(1f - uu, 1.2f);
+                        if (_loadFill != null)
+                        {
+                            var frt = _loadFill.rectTransform;
+                            frt.anchorMin = Vector2.zero; frt.anchorMax = new Vector2(ee, 1f);
+                            frt.offsetMin = frt.offsetMax = Vector2.zero;
+                        }
+                        if (_loadLabel != null)
+                            _loadLabel.text = Loc.T($"불러오는 중… {Mathf.RoundToInt(ee * 100f)}%", $"Loading… {Mathf.RoundToInt(ee * 100f)}%");
+                        yield return null;
+                    }
                     break;
+                }
                 yield return null;
             }
+            if (_loadFill != null)
+            {
+                var frt = _loadFill.rectTransform;
+                frt.anchorMin = Vector2.zero; frt.anchorMax = Vector2.one; frt.offsetMin = frt.offsetMax = Vector2.zero;
+            }
+            if (_loadLabel != null) _loadLabel.text = Loc.T("완료!", "Ready!");
 
             if (_splashCg != null)
             {
                 float f = 0f;
-                while (f < 0.45f)
+                while (f < 0.5f)
                 {
                     f += Time.unscaledDeltaTime;
-                    _splashCg.alpha = 1f - f / 0.45f;
+                    _splashCg.alpha = 1f - f / 0.5f;
                     yield return null;
                 }
 
@@ -120,10 +163,10 @@ namespace CoastRun
             {
                 _uiCg.gameObject.SetActive(true);
                 float f = 0f;
-                while (f < 0.6f)
+                while (f < 0.55f)
                 {
                     f += Time.unscaledDeltaTime;
-                    _uiCg.alpha = Mathf.Clamp01(f / 0.6f);
+                    _uiCg.alpha = Mathf.Clamp01(f / 0.55f);
                     yield return null;
                 }
 
@@ -164,20 +207,21 @@ namespace CoastRun
         private System.Action _aiNoticeOk;
         private GameObject _charSelectPanel;
 
-        /// v2: 세이브가 있으면 이어하기, 없으면 캐릭터 선택 → 새 회차.
+        /// v2: 스토리 모드 — 세이브 있으면 이어하기, 없으면 새 회차(+튜토리얼).
         public void OnStartRun()
         {
-            if (!_ready)
-                return;
-            if (_gm != null && _gm.HasSave)
-            {
-                OnContinue();
-                return;
-            }
-            StartNewFlow();
+            OnStoryMode();
         }
 
-        /// 38차: 새 회차 — 세이브가 있으면 확인 모달, 없으면 바로.
+        /// 스토리 모드: 처음이면 새 회차(육성 튜토리얼), 다음부터는 이어하기.
+        public void OnStoryMode()
+        {
+            if (!_ready || _gm == null) return;
+            if (_gm.HasSave) OnContinue();
+            else StartNewPlaythrough(RunMode.Running);
+        }
+
+        /// 새로하기 — 세이브가 있으면 확인 모달, 없으면 바로.
         private void StartNewFlow()
         {
             if (_gm == null) return;
@@ -185,9 +229,9 @@ namespace CoastRun
             _audio?.PlayClick();
             if (_newConfirm != null) Destroy(_newConfirm);
             _newConfirm = CreateOverlayPanel(_root, "NewConfirm");
-            CreateLabel(_newConfirm.transform, "T", Loc.T("새 회차를 시작할까?", "Start a new playthrough?"), 30, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.66f), new Vector2(520f, 44f));
+            CreateLabel(_newConfirm.transform, "T", Loc.T("새로 시작할까?", "Start over?"), 30, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.66f), new Vector2(520f, 44f));
             CreateLabel(_newConfirm.transform, "B", Loc.T("지금 진행 중인 회차는 지워져.\n컬렉션·레코드·기록은 그대로 남아.", "The current playthrough is erased.\nCollection, records and stats stay."), 18, FontStyle.Normal, new Color(1f, 0.9f, 0.8f), new Vector2(0.5f, 0.56f), new Vector2(520f, 70f));
-            CreateMenuButton(_newConfirm.transform, Loc.T("육성하기 (새 회차)", "Start new"), 0.44f, () => { Destroy(_newConfirm); _newConfirm = null; StartNewPlaythrough(RunMode.Running); });
+            CreateMenuButton(_newConfirm.transform, Loc.T("새로하기", "New Game"), 0.44f, () => { Destroy(_newConfirm); _newConfirm = null; StartNewPlaythrough(RunMode.Running); });
             CreateMenuButton(_newConfirm.transform, Loc.T("취소", "Cancel"), 0.36f, () => { Destroy(_newConfirm); _newConfirm = null; });
         }
         private GameObject _newConfirm;
@@ -229,40 +273,78 @@ namespace CoastRun
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = Vector2.zero;
             rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
+            rt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
+            rt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
             var splashImg = go.GetComponent<Image>();
-            splashImg.color = new Color(0.04f, 0.08f, 0.14f, 0.92f);
+            splashImg.color = new Color(0.10f, 0.07f, 0.10f, 1f);
+            splashImg.raycastTarget = true;
             _splashCg = go.GetComponent<CanvasGroup>();
 
-            // Key art (Firefly, Resources/CoastRun/UI_TitleBackground) when present: the
-            // splash becomes the painted poster, with a soft dark band so the logo reads.
-            var keyArt = _gateArt != null ? null : Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_TitleBackground");
-            if (_gateArt != null)
-                splashImg.color = new Color(0.12f, 0.08f, 0.10f, 1f);
-            if (keyArt != null)
+            // 로딩 키아트(없으면 타이틀 게이트/배경으로 폴백)
+            var loadArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_LoadingScreen")
+                ?? _gateArt
+                ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_TitleBackground");
+            if (loadArt != null)
             {
-                splashImg.sprite = CoastUiArt.AsSprite(keyArt, 100f);
+                splashImg.sprite = CoastUiArt.AsSprite(loadArt, 100f);
                 splashImg.color = Color.white;
                 splashImg.preserveAspect = false;
-
-                var band = new GameObject("LogoBand", typeof(RectTransform), typeof(Image));
-                band.transform.SetParent(go.transform, false);
-                var brt = band.GetComponent<RectTransform>();
-                // Up in the sky, so the painted skater below stays untouched.
-                brt.anchorMin = new Vector2(0f, 0.68f);
-                brt.anchorMax = new Vector2(1f, 0.90f);
-                brt.offsetMin = brt.offsetMax = Vector2.zero;
-                band.GetComponent<Image>().color = new Color(0.03f, 0.08f, 0.16f, 0.55f);
             }
 
-            if (_gateArt == null)
-            {
-                CreateLabel(go.transform, "SplashLogo", "우리의 송전탑", 44, FontStyle.Bold,
-                    new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.82f), new Vector2(560f, 64f));
-                CreateLabel(go.transform, "SplashSub", "Coast Run", 22, FontStyle.Italic,
-                    new Color(0.75f, 0.88f, 0.95f), new Vector2(0.5f, 0.745f), new Vector2(400f, 36f));
-            }
+            // 하단 어두운 띠 + 로고/로딩바
+            var band = new GameObject("LoadBand", typeof(RectTransform), typeof(Image));
+            band.transform.SetParent(go.transform, false);
+            var brt = band.GetComponent<RectTransform>();
+            brt.anchorMin = new Vector2(0f, 0f);
+            brt.anchorMax = new Vector2(1f, 0.22f);
+            brt.offsetMin = brt.offsetMax = Vector2.zero;
+            band.GetComponent<Image>().color = new Color(0.05f, 0.04f, 0.07f, 0.55f);
+            band.GetComponent<Image>().raycastTarget = false;
+
+            CreateLabel(go.transform, "SplashLogo", Loc.T("너와 나의 주파수", "Our Frequency"), 36, FontStyle.Bold,
+                new Color(1f, 0.96f, 0.90f), new Vector2(0.5f, 0.145f), new Vector2(620f, 48f));
+            CreateLabel(go.transform, "SplashSub", "COAST RUN · JEJU", 16, FontStyle.Bold,
+                new Color(1f, 0.85f, 0.55f, 0.95f), new Vector2(0.5f, 0.105f), new Vector2(420f, 28f));
+
+            // 로딩바 트랙
+            var track = new GameObject("LoadTrack", typeof(RectTransform), typeof(Image));
+            track.transform.SetParent(go.transform, false);
+            var trt = track.GetComponent<RectTransform>();
+            trt.anchorMin = new Vector2(0.5f, 0f);
+            trt.anchorMax = new Vector2(0.5f, 0f);
+            trt.pivot = new Vector2(0.5f, 0f);
+            trt.anchoredPosition = new Vector2(0f, 36f);
+            trt.sizeDelta = new Vector2(520f, 18f);
+            var trackImg = track.GetComponent<Image>();
+            trackImg.sprite = CoastUiArt.RoundedRect(9);
+            trackImg.type = Image.Type.Sliced;
+            trackImg.color = new Color(1f, 1f, 1f, 0.22f);
+            trackImg.raycastTarget = false;
+
+            var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+            fillGo.transform.SetParent(track.transform, false);
+            _loadFill = fillGo.GetComponent<Image>();
+            _loadFill.sprite = CoastUiArt.RoundedRect(9);
+            _loadFill.type = Image.Type.Sliced;
+            _loadFill.color = new Color(1f, 0.62f, 0.35f, 1f);   // 노을 코랄
+            _loadFill.raycastTarget = false;
+            var frt = _loadFill.rectTransform;
+            frt.anchorMin = Vector2.zero;
+            frt.anchorMax = new Vector2(0.02f, 1f);
+            frt.offsetMin = frt.offsetMax = Vector2.zero;
+
+            // 하이라이트 줄
+            var shine = new GameObject("Shine", typeof(RectTransform), typeof(Image));
+            shine.transform.SetParent(fillGo.transform, false);
+            var srt = shine.GetComponent<RectTransform>();
+            srt.anchorMin = new Vector2(0f, 0.55f); srt.anchorMax = new Vector2(1f, 1f);
+            srt.offsetMin = new Vector2(4f, 0f); srt.offsetMax = new Vector2(-4f, -2f);
+            var simg = shine.GetComponent<Image>();
+            simg.sprite = CoastUiArt.RoundedRect(6); simg.type = Image.Type.Sliced;
+            simg.color = new Color(1f, 1f, 1f, 0.35f); simg.raycastTarget = false;
+
+            _loadLabel = CreateLabel(go.transform, "LoadPct", Loc.T("불러오는 중… 0%", "Loading… 0%"), 15, FontStyle.Bold,
+                new Color(1f, 0.95f, 0.88f, 0.95f), new Vector2(0.5f, 0.045f), new Vector2(400f, 24f));
         }
 
         private void BuildMainUi(Transform root)
@@ -363,7 +445,7 @@ namespace CoastRun
             BuildRecordPanel(root);
             _root = root;
             if (hasSave)
-                _tapLabel.text = "화면을 터치하면 이어하기";
+                _tapLabel.text = Loc.T("화면을 터치하면 스토리 모드", "Tap for Story Mode");
         }
 
 
@@ -384,7 +466,7 @@ namespace CoastRun
             _uiCg.alpha = 0f;
             ui.SetActive(false);
 
-            // 18차-5: 빈 공간(버튼 밖) 어디를 눌러도 이어하기 — 골드런처럼 '탭하면 바로 시작'.
+            // 18차-5: 빈 공간(버튼 밖) 어디를 눌러도 스토리 모드 — 골드런처럼 '탭하면 바로 시작'.
             // 투명 버튼을 TitleUI의 맨 뒤에 깔아 두고, 위에 있는 버튼·더보기 컬럼이 먼저 레이캐스트를 가져간다.
             var tapAny = new GameObject("TapAnywhere", typeof(RectTransform), typeof(Image), typeof(Button));
             tapAny.transform.SetParent(ui.transform, false);
@@ -395,8 +477,7 @@ namespace CoastRun
             {
                 if (!_ready) return;
                 if (_moreOpen) { ToggleMore(); return; }          // 더보기 열린 채면 먼저 닫기
-                if (_gm != null && _gm.HasSave) OnContinue();
-                else StartNewFlow();   // 세이브 없으면 바로 새 회차
+                OnStoryMode();
             });
             tapAny.transform.SetAsFirstSibling();
 
@@ -409,24 +490,16 @@ namespace CoastRun
                 new Color(1f, 0.93f, 0.78f, 0.9f), new Vector2(0.5f, 0.855f), new Vector2(600f, 30f));
             CoastUiArt.OutlineText(sub, new Color(0.22f, 0.10f, 0.06f, 0.8f), 1.5f);
 
-            // 메뉴 3개(이어하기 / 새로하기 / 더보기) — 화면 아래 가로 한 줄. 나머지는 '더보기'로 옆에서 슬라이드.
+            // 메뉴 2개(스토리 모드 / 더보기) — 육성하기는 더보기 › 새로하기로.
             bool hasSave = _gm != null && _gm.HasSave;
-            float btnW = 188f, btnH = 62f, gapX = 10f;   // 18차-3: 폴드(22:9) 폭 615 안에 3개(188×3+10×2 = 584)
+            float btnW = 220f, btnH = 62f, gapX = 12f;
             float rowY = 172f;   // 26차: 아래에 K-POP 러닝모드 바가 들어가서 한 칸 위로 (31차: 바가 커져서 172)
-            var contBtn = CoastOrnate.GlassButton(ui.transform, "ContinueBtn", Loc.T("이어하기", "Continue"), new Vector2(0.5f, 0f),
-                new Vector2(-(btnW + gapX), rowY), new Vector2(btnW, btnH), () => { if (_ready) OnContinue(); }, 0.4f, 26, hasSave);
-            if (!hasSave)
-            {
-                contBtn.interactable = false;
-                var cg = contBtn.gameObject.AddComponent<CanvasGroup>(); cg.alpha = 0.45f;
-            }
-            // 38차: 「새로하기」→「육성하기」, 캐릭터 선택 페이지 삭제 — 바로 러닝 회차 시작(세이브 있으면 확인 한 번)
-            CoastOrnate.GlassButton(ui.transform, "NewBtn", Loc.T("육성하기", "Raise"), new Vector2(0.5f, 0f),
-                new Vector2(0f, rowY), new Vector2(btnW, btnH), () => { if (_ready) StartNewFlow(); }, 0.4f, 26, !hasSave);
+            CoastOrnate.GlassButton(ui.transform, "StoryBtn", Loc.T("스토리 모드", "Story Mode"), new Vector2(0.5f, 0f),
+                new Vector2(-(btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) OnStoryMode(); }, 0.4f, 26, true);
             _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
-                new Vector2(btnW + gapX, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
+                new Vector2((btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
             _moreLabel = _moreBtn.GetComponentInChildren<Text>();
-            // 26차: 스토리 모드(이어하기/새로하기)와 분리된 러닝 모드 진입 — 화면 맨 아래 넓은 바.
+            // 26차: 스토리 모드와 분리된 러닝 모드 진입 — 화면 맨 아래 넓은 바.
             System.Action startKpop = () => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm); } };
             var kpopArt = ArtAssets.LoadTexture("UI_KpopBar");   // 29차: 네온 글라스 바 그림(Tools/KlingGen/out/kpop_btn → Python 합성)
             if (kpopArt != null)
@@ -455,24 +528,54 @@ namespace CoastRun
                 var kpopText = kpop.GetComponentInChildren<Text>();
                 if (kpopText != null) { kpopText.color = new Color(1f, 0.95f, 0.75f); kpopText.fontStyle = FontStyle.Bold; }
             }
-            // 38차: K-POP 바 오른쪽 — 챕터 선택 아이콘(마지막으로 깬 다음 챕터 표시, 누르면 챕터 선택)
+            // 38차-fix: K-POP 바 오른쪽 — 같은 라벤더→핑크 유리 칩(UI_ChapterChip) + CH 번호 오버레이
             var sdChip = hasSave && _gm != null ? (_gm.Save ?? _gm.SaveSys.Load()) : null;
             if (sdChip != null)
             {
                 int nextCh = Mathf.Clamp(sdChip.chapter, 1, Timeline.Chapters);
-                var chip = CoastUiArt.CutePill(ui.transform, "ChapterChip", new Color(0.98f, 0.62f, 0.30f), 20, 4);
-                var crt = chip.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0f); crt.pivot = new Vector2(0.5f, 0.5f);
-                crt.anchoredPosition = new Vector2(280f, 82f); crt.sizeDelta = new Vector2(108f, 104f);
-                chip.raycastTarget = true;
-                var cl = CreateLabel(chip.transform, "L", Loc.T("챕터", "CH"), 13, FontStyle.Bold, new Color(1f, 0.96f, 0.85f), new Vector2(0.5f, 1f), new Vector2(100f, 20f));
-                cl.rectTransform.anchoredPosition = new Vector2(0f, -18f);
-                var cn = CreateLabel(chip.transform, "N", $"CH {nextCh}", 24, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.5f), new Vector2(104f, 34f));
-                cn.rectTransform.anchoredPosition = new Vector2(0f, -2f);
-                CoastUiArt.OutlineText(cn, new Color(0.35f, 0.15f, 0.05f, 0.8f), 1.5f);
-                var ct = CreateLabel(chip.transform, "T", ChapterScript.Title(nextCh), 12, FontStyle.Normal, new Color(1f, 0.96f, 0.85f), new Vector2(0.5f, 0f), new Vector2(104f, 20f));
-                ct.rectTransform.anchoredPosition = new Vector2(0f, 18f);
-                var cb = chip.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None;
-                cb.onClick.AddListener(() => { if (_ready) OnChapterSelect(); });
+                var chipArt = ArtAssets.LoadTexture("UI_ChapterChip");
+                GameObject chipGo;
+                if (chipArt != null)
+                {
+                    chipGo = new GameObject("ChapterChip", typeof(RectTransform), typeof(Image), typeof(Button), typeof(KpopBarPulse));
+                    chipGo.transform.SetParent(ui.transform, false);
+                    var img = chipGo.GetComponent<Image>();
+                    img.sprite = CoastUiArt.AsSprite(chipArt);
+                    img.preserveAspect = true;
+                    img.raycastTarget = true;
+                    var btn = chipGo.GetComponent<Button>();
+                    btn.transition = Selectable.Transition.None;
+                    btn.onClick.AddListener(() => { if (_ready) OnChapterSelect(); });
+                }
+                else
+                {
+                    var chip = CoastUiArt.CutePill(ui.transform, "ChapterChip", new Color(0.72f, 0.55f, 0.95f), 22, 4);
+                    chip.raycastTarget = true;
+                    chipGo = chip.gameObject;
+                    var cb = chipGo.AddComponent<Button>();
+                    cb.transition = Selectable.Transition.None;
+                    cb.onClick.AddListener(() => { if (_ready) OnChapterSelect(); });
+                }
+                var crt = chipGo.GetComponent<RectTransform>();
+                crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0f);
+                crt.pivot = new Vector2(0.5f, 0.5f);
+                // 바와 같은 높이·간격 — 이퀄라이저 옆에 붙인 느낌
+                crt.anchoredPosition = new Vector2(292f, 82f);
+                crt.sizeDelta = new Vector2(112f, 112f);
+
+                // 아트 상단 이퀄라이저 자리를 비우고, 가운데 CH / 아래 제목만 올린다
+                var cn = CreateLabel(chipGo.transform, "N", $"CH {nextCh}", 28, FontStyle.Bold,
+                    Color.white, new Vector2(0.5f, 0.5f), new Vector2(100f, 36f));
+                cn.rectTransform.anchoredPosition = new Vector2(0f, -6f);
+                CoastUiArt.OutlineText(cn, new Color(0.40f, 0.12f, 0.55f, 0.85f), 1.8f);
+
+                string chTitle = ChapterScript.Title(nextCh);
+                if (string.IsNullOrEmpty(chTitle)) chTitle = Loc.T("선택", "Pick");
+                if (chTitle.Length > 6) chTitle = chTitle.Substring(0, 6);
+                var ct = CreateLabel(chipGo.transform, "T", chTitle, 12, FontStyle.Bold,
+                    new Color(0.88f, 0.96f, 1f, 0.95f), new Vector2(0.5f, 0f), new Vector2(96f, 20f));
+                ct.rectTransform.anchoredPosition = new Vector2(0f, 26f);
+                CoastUiArt.OutlineText(ct, new Color(0.35f, 0.12f, 0.50f, 0.75f), 1.2f);
             }
             // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
             if (PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
@@ -483,8 +586,9 @@ namespace CoastRun
                 CoastUiArt.OutlineText(_openingHint, new Color(0.2f, 0.1f, 0.06f, 0.85f), 1.5f);
             }
 
-            // 더보기 열: 오른쪽 가장자리에서 슬라이드 인. 챕터 선택 / 노을 달리기 / 컬렉션 / 오프닝 / 설정.
+            // 더보기 열: 오른쪽에서 슬라이드. 새로하기 / 챕터 선택 / 컬렉션 / 오프닝 / 설정.
             var more = new System.Collections.Generic.List<(string, System.Action)>();
+            more.Add((Loc.T("새로하기", "New Game"), () => { if (_ready) { if (_moreOpen) ToggleMore(); StartNewFlow(); } }));
             if (hasSave) more.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
             // 38차: 「노을 달리기」 항목 제거(K-POP 러닝모드 바로 통합)
             more.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
@@ -655,7 +759,7 @@ namespace CoastRun
                 _tapLabel.color = c;
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            // 에디터 검증용: N = 캐릭터 선택, 1 = 러닝, 2 = 스케이트보드, C = 이어하기, Escape = 닫기.
+            // 에디터 검증용: N = 캐릭터 선택, 1 = 러닝, 2 = 스케이트보드, C = 스토리 모드, Escape = 닫기.
             if (_aiNoticeOk != null && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))) { _aiNoticeOk(); return; }
             if (!_ready) return;
             if (Input.GetKeyDown(KeyCode.M))
@@ -679,15 +783,20 @@ namespace CoastRun
                 Debug.Log(sb.ToString());
             }
             if (Input.GetKeyDown(KeyCode.N)) ShowPanel(_charSelectPanel, true);
-            if (Input.GetKeyDown(KeyCode.C)) OnContinue();
+            if (Input.GetKeyDown(KeyCode.C)) OnStoryMode();
             if (Input.GetKeyDown(KeyCode.L)) { Loc.Toggle(); UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
             if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
             if (Input.GetKeyDown(KeyCode.A)) ArcadeUI.Open(false);
             if (Input.GetKeyDown(KeyCode.K)) CollectionUI.Open(null, 3);
-            // V/B/T: 사이드 씬·엔딩 변형·진엔딩 미리보기
-            if (Input.GetKeyDown(KeyCode.V)) ChapterVN.Play("SIDE_RUA_3", null);
-            if (Input.GetKeyDown(KeyCode.B)) ChapterVN.Play("END_A_TRUST", null);
-            if (Input.GetKeyDown(KeyCode.T)) ChapterVN.Play("END_TRUE", null);
+            // V/B/T + Shift: 사이드·엔딩 변주·진엔딩 미리보기 (스크립트 Has 검증용)
+            if (Input.GetKeyDown(KeyCode.V)) ChapterVN.Play(Input.GetKey(KeyCode.LeftShift) ? "SIDE_MANSU_3" : "SIDE_RUA_3", null);
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                string epi = Input.GetKey(KeyCode.LeftShift) ? "END_B_TRUST"
+                    : Input.GetKey(KeyCode.LeftControl) ? "END_A_SENSE" : "END_A_TRUST";
+                ChapterVN.Play(epi, null);
+            }
+            if (Input.GetKeyDown(KeyCode.T)) ChapterVN.Play(Input.GetKey(KeyCode.LeftShift) ? "END_B_WEAK" : "END_TRUE", null);
             if (_charSelectPanel != null && _charSelectPanel.activeSelf)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha1)) StartNewPlaythrough(RunMode.Running);

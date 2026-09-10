@@ -173,11 +173,13 @@ namespace CoastRun
                 _sky = Object.FindAnyObjectByType<CoastSky>();
                 _sea = Object.FindAnyObjectByType<CoastSea>();
                 _env = Object.FindAnyObjectByType<EnvironmentManager>();
+                existingMap.WarmStart(0f);
                 return;
             }
 
             var world = new GameObject("World");
             var map = world.AddComponent<MapGenerator>();
+            map.WarmStart(0f);
 
             var skyGo = new GameObject("Sky");
             skyGo.transform.SetParent(world.transform);

@@ -11,9 +11,10 @@ namespace CoastRun
         private Transform _quad;
         private Material _mat;
         private float _phase;
+        private float _radius = 0.7f;
         private static Texture2D _ring;
 
-        public static readonly Color Warn = new Color(1f, 0.10f, 0.08f, 1f);   // 38차: 더 빨갛게
+        public static readonly Color Warn = new Color(1f, 0.02f, 0.02f, 1f);   // 순수에 가까운 경고 빨강
         /// 38차: 아이템(물약·별·하트) 발밑 파란 링
         public static readonly Color Item = new Color(0.25f, 0.62f, 1f, 1f);
         private Color _color = Warn;
@@ -27,11 +28,13 @@ namespace CoastRun
             h._phase = Random.value * 6.28f;
             h._color = color ?? Warn;
             if (!color.HasValue) radius *= 1.25f;   // 38차: 장애물 링은 더 크게
+            h._radius = Mathf.Max(0.35f, radius);
             if (h._quad == null)
-                h.Build(radius);
+                h.Build(h._radius);
             else
-                h._quad.localScale = new Vector3(radius * 2f, radius * 2f, 1f);
-            if (groundY.HasValue) h._quad.position = new Vector3(host.position.x, groundY.Value + 0.035f, host.position.z);
+                h._quad.localScale = new Vector3(h._radius * 2f, h._radius * 2f, 1f);
+            if (groundY.HasValue && h._quad != null)
+                h._quad.position = new Vector3(host.position.x, groundY.Value + 0.038f, host.position.z);
             return h;
         }
 
@@ -43,9 +46,10 @@ namespace CoastRun
             CoastEditUtil.DestroyCollider(go);
             _quad = go.transform;
             _quad.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            _quad.localPosition = new Vector3(0f, 0.035f, 0f);
+            _quad.localPosition = new Vector3(0f, 0.038f, 0f);
             _quad.localScale = new Vector3(radius * 2f, radius * 2f, 1f);
-            _mat = CoastMaterials.CreateTexturedTransparentCurved(RingTexture(), new Color(_color.r, _color.g, _color.b, 0.8f));
+            // 인스턴스 머티리얼 — 깜빡임이 다른 링과 섞이지 않게
+            _mat = CoastMaterials.CreateTexturedTransparentCurved(RingTexture(), new Color(_color.r, _color.g, _color.b, 0.85f));
             _mat.renderQueue = 2955;   // 블롭 그림자(2950) 바로 위
             var mr = go.GetComponent<MeshRenderer>();
             mr.sharedMaterial = _mat;
@@ -55,11 +59,21 @@ namespace CoastRun
 
         private void LateUpdate()
         {
+            if (_quad == null)
+                return;
+
+            // 도로에 붙이기 — 부모(차·허들)가 떠 있어도 경고등은 발밑에
+            float gy = DownhillPath.Point(DownhillPath.DistanceAlong(transform.position)).y;
+            _quad.SetPositionAndRotation(
+                new Vector3(transform.position.x, gy + 0.038f, transform.position.z),
+                Quaternion.Euler(90f, transform.eulerAngles.y, 0f));
+            _quad.localScale = new Vector3(_radius * 2f, _radius * 2f, 1f);
+
             if (_mat == null)
                 return;
-            // 38차: 또렷하게 깜빡인다(초당 2.2회, 켜짐 0.95 ↔ 꺼짐 0.25) — 굵은 선 링이 켜졌다 꺼졌다 한다.
-            float w = 0.5f + 0.5f * Mathf.Sin(Time.time * 13.8f + _phase);
-            float a = Mathf.Lerp(0.25f, 0.95f, Mathf.SmoothStep(0f, 1f, w));
+            // ~4회/초, 켜짐↔거의 꺼짐 대비를 키워 멀리서도 경고가 읽히게.
+            float w = 0.5f + 0.5f * Mathf.Sin(Time.time * 25f + _phase);
+            float a = Mathf.Lerp(0.18f, 1f, w * w);   // 제곱으로 켜짐이 짧게·또렷하게
             _mat.SetColor("_BaseColor", new Color(_color.r, _color.g, _color.b, a));
         }
 

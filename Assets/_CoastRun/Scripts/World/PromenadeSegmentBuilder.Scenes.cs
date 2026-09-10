@@ -277,14 +277,20 @@ namespace CoastRun
         private static void AddRainbowBlocks(Transform root, int index)
         {
             float railX = RoadHalfWidth + 0.9f;
-            Color[] rainbow = { new Color(0.95f, 0.25f, 0.30f), new Color(0.98f, 0.60f, 0.20f), new Color(0.98f, 0.88f, 0.25f), new Color(0.35f, 0.75f, 0.40f), new Color(0.30f, 0.55f, 0.95f), new Color(0.55f, 0.35f, 0.85f) };
-            int k = index * 7;
+            Color[] rainbow = {
+                new Color(0.95f, 0.25f, 0.30f), new Color(0.98f, 0.60f, 0.20f), new Color(0.98f, 0.88f, 0.25f),
+                new Color(0.35f, 0.75f, 0.40f), new Color(0.30f, 0.55f, 0.95f), new Color(0.55f, 0.35f, 0.85f)
+            };
+            if (rainbow.Length == 0) return;
+            int k = Mathf.Abs(index * 7);
             for (float z = 0f; z < Length; z += 2.5f)
             {
-                var c = rainbow[(k++) % rainbow.Length];
-                CreateBox(root, "RainbowBlock", new Vector3(railX, 0.5f, z + 1.25f), new Vector3(0.7f, 1.0f, 2.3f), () => c);
+                Color blockColor = rainbow[k % rainbow.Length];
+                k++;
+                CreateBox(root, "RainbowBlock", new Vector3(railX, 0.5f, z + 1.25f), new Vector3(0.7f, 1.0f, 2.3f), () => blockColor);
             }
-            CreateBox(root, "RainbowCap", new Vector3(railX, 1.02f, Length * 0.5f), new Vector3(0.75f, 0.06f, Length), () => Color.Lerp(Color.white, CoastPalette.TownCream, 0.3f));
+            CreateBox(root, "RainbowCap", new Vector3(railX, 1.02f, Length * 0.5f), new Vector3(0.75f, 0.06f, Length),
+                () => Color.Lerp(Color.white, CoastPalette.TownCream, 0.3f));
         }
 
         // ── 디버그 ────────────────────────────────────────────────────────

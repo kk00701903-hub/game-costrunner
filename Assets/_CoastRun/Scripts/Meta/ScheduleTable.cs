@@ -36,15 +36,16 @@ namespace CoastRun
 
         public bool AvailableIn(SeasonKind season) => !hasOnlySeason || onlySeason == season;
 
-        /// 잠긴 이유(없으면 null). 카드에 한 줄로 보여 준다.
+        /// 잠긴 이유(없으면 null). 카드·토스트에 해금 조건으로 보여 준다.
         public string LockReason(PlayerStats s)
         {
             if (s == null) return null;
-            if (s.trust < condTrust) return Loc.T($"평판 {condTrust} 필요", $"Trust {condTrust} needed");
-            if (s.trouble >= condTroubleMax) return Loc.T("얘기가 돌았다…", "Word got around…");
-            if (s.stamina < condStamina) return Loc.T($"체력 {condStamina} 필요", $"Stamina {condStamina} needed");
-            if (s.agility < condAgility) return Loc.T($"순발력 {condAgility} 필요", $"Agility {condAgility} needed");
-            if (category == ScheduleCategory.Lesson && s.money < -dMoney) return Loc.T("돈이 모자라", "Not enough money");
+            if (ngPlusOnly && ScheduleTable.Playthrough < 2) return Loc.T("2회차부터 해금", "Unlocks in NG+");
+            if (s.trust < condTrust) return Loc.T($"해금: 평판 {condTrust} 이상", $"Unlock: trust ≥ {condTrust}");
+            if (s.trouble >= condTroubleMax) return Loc.T("해금: 말썽을 줄여야 함", "Unlock: lower trouble");
+            if (s.stamina < condStamina) return Loc.T($"해금: 체력 {condStamina}", $"Unlock: stamina {condStamina}");
+            if (s.agility < condAgility) return Loc.T($"해금: 순발력 {condAgility}", $"Unlock: agility {condAgility}");
+            if (category == ScheduleCategory.Lesson && s.money < -dMoney) return Loc.T($"해금: 수업료 {-dMoney}G", $"Unlock: tuition {-dMoney}G");
             return null;
         }
     }

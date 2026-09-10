@@ -38,6 +38,8 @@ namespace CoastRun
         private Coroutine _settle;
 
         public bool IsVisible => _root != null && _root.activeSelf;
+        /// 정산 연출(칩 카운트업) 중이면 true — 회상 팝업은 이게 끝난 뒤에 띄운다.
+        public bool IsSettling => _settle != null;
 
         public void Bind(UpgradeManager upgradeManager, CoinWallet coinWallet,
             UI_FeedbackController ui, UpgradeShopUI shopUi)
@@ -56,26 +58,25 @@ namespace CoastRun
             _onContinue = onContinue;
             _onRetry = onRetry;
 
-            _title.text = chapterComplete ? $"CHAPTER {stage.chapterIndex} COMPLETE!" : "STAGE CLEAR!";
-            _title.color = new Color(1f, 0.93f, 0.55f);
-            _stageLabel.text = $"S{stage.stageIndex:00}  {stage.stageName}";
-
+            // 챕터 클리어 타이틀 — 스테이지 번호 = 챕터(v2). 등급 있으면 같이.
+            int ch = stage.stageIndex;
+            string chName = ChapterLocation.Get(ch).Name;
             string continueLabel = stage.stageIndex >= 20 ? Loc.T("도착", "Arrived") : Loc.T("다음 스테이지", "Next stage");
             if (GameManager.Active)
             {
-                // v2: 스테이지 = 챕터. 말랑이 하트와 등급이 이 화면의 주인공.
                 var gm = GameManager.I;
-                var rec = gm.Save.CurrentChapter;
+                ch = gm.Save.chapter;
+                chName = ChapterLocation.Get(ch).Name;
                 var grade = gm.LastGrade;
-                _title.text = Loc.T($"CHAPTER {gm.Save.chapter}  ·  {ChapterGrading.GradeLabel(grade)}급", $"CHAPTER {gm.Save.chapter}  ·  RANK {ChapterGrading.GradeLabel(grade)}");
+                _title.text = Loc.T($"챕터 {ch} 클리어!", $"CHAPTER {ch} CLEAR!");
                 _title.color = grade == ChapterGrade.S ? new Color(1f, 0.85f, 0.3f) : new Color(1f, 0.93f, 0.55f);
                 CoastAudioManager.PlayAnywhere(grade == ChapterGrade.S ? CoastSfx.RankS : CoastSfx.ChapterClear);
-                string heartLine = rec != null
-                    ? Loc.T($"말랑이 하트 {rec.heartsEarned} / {rec.heartsTarget}  (런닝 +{gm.LastRunHearts})", $"Hearts {rec.heartsEarned} / {rec.heartsTarget}  (run +{gm.LastRunHearts})")
+                string heartLine = gm.Save.CurrentChapter != null
+                    ? Loc.T($"말랑이 하트 {gm.Save.CurrentChapter.heartsEarned} / {gm.Save.CurrentChapter.heartsTarget}  (런닝 +{gm.LastRunHearts})", $"Hearts {gm.Save.CurrentChapter.heartsEarned} / {gm.Save.CurrentChapter.heartsTarget}  (run +{gm.LastRunHearts})")
                     : Loc.T($"말랑이 하트 +{gm.LastRunHearts}", $"Hearts +{gm.LastRunHearts}");
-                // 8차 노을 규칙
                 if (gm.LastRunLate) heartLine = Loc.T("해가 진 뒤에 도착했어… 하트 −40%   ·   ", "Arrived after sunset… hearts −40%   ·   ") + heartLine;
                 else if (gm.LastRunEarly) heartLine = Loc.T("노을 안에 도착! 하트 +10%   ·   ", "Made it before sunset! hearts +10%   ·   ") + heartLine;
+                var rec = gm.Save.CurrentChapter;
                 if (grade != ChapterGrade.S)
                 {
                     int need = Mathf.CeilToInt((rec != null ? rec.heartsTarget : 0) * ChapterGrading.S_Ratio) - (rec != null ? rec.heartsEarned : 0);
@@ -83,7 +84,6 @@ namespace CoastRun
                 }
                 if (gm.IsRetry)
                     heartLine += gm.LastImproved ? Loc.T("   ·   기록 갱신!", "   ·   New record!") : Loc.T("   ·   이전 기록 유지", "   ·   Previous record kept");
-                // 6차: 미션 별 3개 + 조건 텍스트
                 var prof = gm.Profile;
                 string stars = "";
                 for (int b = 0; b < 3; b++) stars += MissionTable.Has(prof, gm.Save.chapter, b) ? "★" : "☆";
@@ -91,8 +91,16 @@ namespace CoastRun
                 string starLine = $"{stars}  {Loc.T("클리어", "Clear")} · {m1} · {m2}";
                 if (gm.LastStarsGained > 0) starLine += Loc.T($"   (+{gm.LastStarsGained}★, 총 {prof.StarsTotal}/60)", $"   (+{gm.LastStarsGained}★, total {prof.StarsTotal}/60)");
                 if (gm.LastRecord) starLine += Loc.T("   · 개인 기록", "   · Personal best");
-                _stageLabel.text = $"{ChapterLocation.Get(gm.Save.chapter).Name}\n{heartLine}\n{starLine}";
+                string gradeLine = Loc.T($"등급 {ChapterGrading.GradeLabel(grade)}", $"Rank {ChapterGrading.GradeLabel(grade)}");
+                _stageLabel.text = $"{chName}\n{gradeLine}\n{heartLine}\n{starLine}";
                 continueLabel = gm.IsRetry ? Loc.T("타임라인으로", "To timeline") : gm.Save.chapter >= Timeline.Chapters ? Loc.T("송전탑으로", "To the tower") : Loc.T("육성으로", "Back home");
+            }
+            else
+            {
+                _title.text = Loc.T($"챕터 {ch} 클리어!", $"CHAPTER {ch} CLEAR!");
+                _title.color = new Color(1f, 0.93f, 0.55f);
+                _stageLabel.text = Loc.T($"{chName}\nS{stage.stageIndex:00}  {stage.stageName}", $"{chName}\nS{stage.stageIndex:00}  {stage.stageName}");
+                CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear);
             }
 
             if (_continueBtn != null)
@@ -200,10 +208,7 @@ namespace CoastRun
             SetButtons(false);
 
             if (_faceBubble != null)
-            {
-                string[] lines = { Loc.T("해냈다!", "Did it!"), Loc.T("봤지? 나 좀 빨라", "See? I'm fast"), Loc.T("휴, 다 왔다", "Phew, made it"), Loc.T("송전탑 조금만 더!", "Tower, almost!") };
-                _faceBubble.text = lines[UnityEngine.Random.Range(0, lines.Length)];
-            }
+                _faceBubble.text = Loc.T("오늘도 찢었다! 오운완", "Crushed it today! Workout done");
             // 제목이 '쾅' 들어온다
             yield return PunchIn(_banner, 0.35f);
             yield return Wait(0.15f);
@@ -272,19 +277,67 @@ namespace CoastRun
             iconImg.enabled = tex != null;
             if (tex != null) iconImg.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
             var txt = chip.transform.Find("T").GetComponent<Text>();
-            txt.text = value > 0 ? $"{label}  ×{count}   <color=#FFD54A>+{value:N0}</color>" : $"{label}  ×{count}";
             txt.supportRichText = true;
+            txt.text = value > 0 ? $"{label}  ×0   <color=#FFD54A>+0</color>" : $"{label}  ×0";
             CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
-            float t0 = 0f; const float dur = 0.22f;
-            while (t0 < dur)
+            float t0 = 0f; const float slideDur = 0.22f;
+            while (t0 < slideDur)
             {
-                t0 += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t0 / dur);
+                t0 += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t0 / slideDur);
                 float e = 1f - (1f - u) * (1f - u);
                 crt.anchoredPosition = new Vector2(Mathf.Lerp(-200f, 0f, e), -index * 66f);
                 crt.localScale = Vector3.one * (u < 0.7f ? Mathf.Lerp(0.8f, 1.08f, u / 0.7f) : Mathf.Lerp(1.08f, 1f, (u - 0.7f) / 0.3f));
                 yield return null;
             }
             crt.localScale = Vector3.one;
+
+            // 슬라이드 후 ×N / 점수 드라마틱 카운트업
+            int safeCount = Mathf.Max(0, count);
+            int safeValue = Mathf.Max(0, value);
+            float countDur = Mathf.Clamp(0.35f + Mathf.Sqrt(Mathf.Max(safeCount, safeValue)) * 0.045f, 0.45f, 1.15f);
+            float ct = 0f;
+            int lastShown = -1;
+            while (ct < countDur)
+            {
+                ct += Time.unscaledDeltaTime;
+                float u = EaseOutCubic(Mathf.Clamp01(ct / countDur));
+                int shownCount = Mathf.RoundToInt(Mathf.Lerp(0f, safeCount, u));
+                int shownValue = Mathf.RoundToInt(Mathf.Lerp(0f, safeValue, u));
+                if (shownCount != lastShown)
+                {
+                    lastShown = shownCount;
+                    if (shownCount > 0 && shownCount % Mathf.Max(1, safeCount / 8) == 0)
+                        CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
+                    float punch = 1f + 0.08f * (1f - u);
+                    crt.localScale = Vector3.one * punch;
+                }
+                txt.text = safeValue > 0
+                    ? $"{label}  ×{shownCount}   <color=#FFD54A>+{shownValue:N0}</color>"
+                    : $"{label}  ×{shownCount}";
+                yield return null;
+            }
+            txt.text = safeValue > 0
+                ? $"{label}  ×{safeCount}   <color=#FFD54A>+{safeValue:N0}</color>"
+                : $"{label}  ×{safeCount}";
+            // 최종 확정 펀치
+            float pt = 0f;
+            while (pt < 0.18f)
+            {
+                pt += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(pt / 0.18f);
+                float sc = u < 0.4f ? Mathf.Lerp(1f, 1.14f, u / 0.4f) : Mathf.Lerp(1.14f, 1f, (u - 0.4f) / 0.6f);
+                crt.localScale = Vector3.one * sc;
+                yield return null;
+            }
+            crt.localScale = Vector3.one;
+            CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
+        }
+
+        private static float EaseOutCubic(float x)
+        {
+            x = Mathf.Clamp01(x);
+            float inv = 1f - x;
+            return 1f - inv * inv * inv;
         }
 
         private IEnumerator PunchIn(RectTransform rt, float dur)

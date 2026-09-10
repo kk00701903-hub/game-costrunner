@@ -58,17 +58,22 @@ namespace CoastRun
         public static DecoDef Find(string id) { foreach (var d in All) if (d.id == id) return d; return null; }
         public static bool IsWall(DecoDef d) => d.slot == DecoSlot.WallL || d.slot == DecoSlot.WallR;
         public static int IndexOf(string id) { for (int i = 0; i < All.Length; i++) if (All[i].id == id) return i; return -1; }
+        public static bool IsActive(DecoDef d) => RoomDeco.IsActive(d);
+        public static int ActiveCount
+        {
+            get { int n = 0; foreach (var d in All) if (IsActive(d)) n++; return n; }
+        }
 
         // 보유 비트: RoomDeco 12종은 decoOwnedMask(하위 비트), 가구 6종은 decoOwnedMask의 12번 비트부터.
         public static bool Owns(MetaProfile p, DecoDef d) { int i = IndexOf(d.id); return p != null && i >= 0 && (p.decoOwnedMask & (1 << i)) != 0; }
         public static bool IsNew(MetaProfile p, DecoDef d) { int i = IndexOf(d.id); return p != null && i >= 0 && (p.decoNewMask & (1 << i)) != 0; }
-        public static void Grant(MetaProfile p, DecoDef d, bool markNew) { int i = IndexOf(d.id); if (p == null || i < 0) return; p.decoOwnedMask |= 1 << i; if (markNew) p.decoNewMask |= 1 << i; }
+        public static void Grant(MetaProfile p, DecoDef d, bool markNew) { int i = IndexOf(d.id); if (p == null || i < 0 || !IsActive(d)) return; p.decoOwnedMask |= 1 << i; if (markNew) p.decoNewMask |= 1 << i; }
         public static bool TryBuy(SaveData s, MetaProfile p, DecoDef d)
         {
-            if (s == null || p == null || d == null || d.FromRun || Owns(p, d) || s.stats.money < d.price) return false;
+            if (s == null || p == null || d == null || !IsActive(d) || d.FromRun || Owns(p, d) || s.stats.money < d.price) return false;
             s.stats.money -= d.price; Grant(p, d, false); return true;
         }
-        public static int OwnedCount(MetaProfile p) { int n = 0; foreach (var d in All) if (Owns(p, d)) n++; return n; }
+        public static int OwnedCount(MetaProfile p) { int n = 0; foreach (var d in All) if (IsActive(d) && Owns(p, d)) n++; return n; }
 
         // ── 배치 ──
         public static void Ensure(MetaProfile p)
@@ -91,13 +96,25 @@ namespace CoastRun
                 }
                 p.homeItems = l.ToArray();
             }
+            // 방 그림에 이미 있는 장식(retired)은 방에서·슬롯에서 걷어 낸다.
+            if (p.homeItems.Length > 0)
+            {
+                var kept = new List<HomeItem>(p.homeItems.Length);
+                foreach (var h in p.homeItems)
+                {
+                    var d = Find(h.id);
+                    if (d == null || !IsActive(d)) continue;
+                    kept.Add(h);
+                }
+                if (kept.Count != p.homeItems.Length) p.homeItems = kept.ToArray();
+            }
         }
         public static HomeItem Placed(MetaProfile p, string id) { Ensure(p); foreach (var h in p.homeItems) if (h.id == id) return h; return null; }
-        public static bool IsPlaced(MetaProfile p, DecoDef d) => d != null && Placed(p, d.id) != null;
-        public static int PlacedCount(MetaProfile p) { Ensure(p); return p.homeItems.Length; }
+        public static bool IsPlaced(MetaProfile p, DecoDef d) => d != null && IsActive(d) && Placed(p, d.id) != null;
+        public static int PlacedCount(MetaProfile p) { Ensure(p); int n = 0; foreach (var h in p.homeItems) { var d = Find(h.id); if (IsActive(d)) n++; } return n; }
         public static HomeItem Place(MetaProfile p, DecoDef d, float x, float y)
         {
-            if (p == null || d == null || !Owns(p, d)) return null;
+            if (p == null || d == null || !IsActive(d) || !Owns(p, d)) return null;
             Ensure(p);
             var h = Placed(p, d.id);
             if (h == null) { h = new HomeItem { id = d.id }; var l = new List<HomeItem>(p.homeItems) { h }; p.homeItems = l.ToArray(); }
@@ -138,7 +155,7 @@ namespace CoastRun
         }
         public const float SnapRadius = 0.11f;
         public static bool NearSpot(string id, Vector2 pos) => Vector2.Distance(Spot(id), pos) <= SnapRadius;
-        public static bool IsComplete(MetaProfile p) => PlacedCount(p) >= All.Length;
+        public static bool IsComplete(MetaProfile p) => PlacedCount(p) >= ActiveCount;
         public const int CompleteReward = 300;
 
         /// 바닥 가구는 y 0.02~0.42, 벽걸이는 y 0.45~0.85 안에만.

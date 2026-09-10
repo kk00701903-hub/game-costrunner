@@ -13,25 +13,38 @@ namespace CoastRun
         public void ShowEvent(RandomEventResult ev)
         {
             _busy = true;
-            var modal = Modal("EventPopup", 560f, 400f, out var panel);
-            var tag = Label(panel, "Tag", "돌발 이벤트", 15, new Color(0.55f, 0.5f, 0.7f));
+            var modal = Modal("EventPopup", 560f, 440f, out var panel);
+            var tag = Label(panel, "Tag", Loc.T("돌발 이벤트", "Random event"), 15, new Color(0.55f, 0.5f, 0.7f));
             Place(tag.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -12f), new Vector2(0f, 24f), new Vector2(0.5f, 1f));
-            var t = Label(panel, "Title", ev.def.title, 26, Navy);
+            var t = Label(panel, "Title", Loc.Data("ev." + ev.def.id, ev.def.title), 26, Navy);
             Place(t.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -38f), new Vector2(0f, 40f), new Vector2(0.5f, 1f));
-            var b = Label(panel, "Body", ev.Body, 18, Ink);
+            // 조건 분기 표시 — 성공/실패 갈래가 한눈에
+            bool branched = !string.IsNullOrEmpty(ev.def.altBody);
+            if (branched)
+            {
+                var branch = Label(panel, "Branch",
+                    ev.conditionMet ? Loc.T("조건 충족 · 좋은 쪽", "Condition met · good branch")
+                                    : Loc.T("조건 미달 · 다른 쪽", "Condition missed · other branch"),
+                    14, ev.conditionMet ? Hex("#2E9E6B") : new Color(0.75f, 0.45f, 0.35f));
+                Place(branch.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -78f), new Vector2(0f, 22f), new Vector2(0.5f, 1f));
+            }
+            var b = Label(panel, "Body", Loc.Data("evb." + ev.def.id + (ev.conditionMet || string.IsNullOrEmpty(ev.def.altBody) ? "" : ".alt"), ev.Body), 18, Ink);
             b.horizontalOverflow = HorizontalWrapMode.Wrap;
             b.alignment = TextAnchor.UpperLeft;
-            Place(b.rectTransform, new Vector2(0f, 0.32f), new Vector2(1f, 0.78f), Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+            Place(b.rectTransform, new Vector2(0f, 0.34f), new Vector2(1f, branched ? 0.72f : 0.78f), Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
             b.rectTransform.offsetMin = new Vector2(28f, 0f); b.rectTransform.offsetMax = new Vector2(-28f, 0f);
 
             var parts = new System.Collections.Generic.List<string>();
-            if (ev.dHearts != 0) parts.Add($"말랑이 하트 {Signed(ev.dHearts)}");
-            if (ev.dMoney != 0) parts.Add($"돈 {Signed(ev.dMoney)}");
-            if (ev.dStamina != 0) parts.Add($"체력 {Signed(ev.dStamina)}");
-            if (ev.dStress != 0) parts.Add($"스트레스 {Signed(ev.dStress)}");
-            var d = Label(panel, "Delta", parts.Count > 0 ? string.Join("   ", parts) : "변화 없음", 18,
-                ev.dHearts > 0 ? Coral : Navy);
-            Place(d.rectTransform, new Vector2(0f, 0.2f), new Vector2(1f, 0.32f), Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+            if (ev.dHearts != 0) parts.Add(Loc.T($"하트 {Signed(ev.dHearts)}", $"Hearts {Signed(ev.dHearts)}"));
+            if (ev.dMoney != 0) parts.Add(Loc.T($"돈 {Signed(ev.dMoney)}", $"Money {Signed(ev.dMoney)}"));
+            if (ev.dStamina != 0) parts.Add(Loc.T($"체력 {Signed(ev.dStamina)}", $"Stamina {Signed(ev.dStamina)}"));
+            if (ev.dStress != 0) parts.Add(Loc.T($"스트레스 {Signed(ev.dStress)}", $"Stress {Signed(ev.dStress)}"));
+            var deltaBg = CoastUiArt.CutePill(panel, "DeltaPill", Hex("#FFF3D6"), 14, 2); deltaBg.raycastTarget = false;
+            Place(deltaBg.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 86f), new Vector2(480f, 44f), new Vector2(0.5f, 0f));
+            var d = Label(deltaBg.transform, "Delta", parts.Count > 0 ? string.Join("   ", parts) : Loc.T("변화 없음", "No change"), 18,
+                ev.dHearts > 0 || ev.dMoney > 0 || ev.dStamina > 0 || ev.dStress < 0 ? Hex("#2E9E6B") : Navy);
+            d.fontStyle = FontStyle.Bold;
+            Place(d.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 2f), new Vector2(-8f, -2f), new Vector2(0.5f, 0.5f));
 
             Action close = () =>
             {
@@ -40,7 +53,7 @@ namespace CoastRun
                 _busy = false;
                 Refresh();
             };
-            BigButton(panel, "Ok", "확인", Coral, new Vector2(0.5f, 0f), new Vector2(0f, 18f), new Vector2(240f, 56f), () => close());
+            BigButton(panel, "Ok", Loc.T("확인", "OK"), Coral, new Vector2(0.5f, 0f), new Vector2(0f, 18f), new Vector2(240f, 56f), () => close());
             _modalPrimary = close;
             RefreshStats();
         }

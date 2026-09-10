@@ -24,7 +24,8 @@ namespace CoastRun
                 return;
 
             nearMiss?.NotifyHardHit();
-            player.SoftHit();
+            if (!player.SoftHitApplied(HitKind.Trip, 0) && !GiantMode.Active)
+                JuiceDirector.Instance?.PlayHitImpact();
             ObstacleHazard.PopFrom(transform);   // 18차: 허들·빨랫줄·등불 줄도 닿으면 팡
         }
 
@@ -124,6 +125,8 @@ namespace CoastRun
             duck.BindNearMiss(zone);
 
             BlobShadow.Attach(root.transform, width * 0.55f);
+            // 허들·빨래줄·등불줄 — 레인 폭에 맞는 경고 링(Spawn 폴백보다 먼저 정확히)
+            HazardRing.Attach(root.transform, width * 0.62f);
             return root;
         }
 

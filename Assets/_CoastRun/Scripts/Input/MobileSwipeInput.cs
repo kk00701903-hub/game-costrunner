@@ -58,14 +58,52 @@ namespace CoastRun
             _settlePx = _thresholdPx * 0.08f;
         }
 
+        /// Always poll keyboard even if PlayerController skipped a frame (config null / finish).
+        private void Update()
+        {
+            // PlayerController.Tick also polls; this is a safety net so keys never go unread.
+            if (!_playerDrivenThisFrame)
+            {
+                _crouchHeld = false;
+                _tuckHeld = false;
+                PollKeyboard();
+                ExpireBuffers();
+            }
+            _playerDrivenThisFrame = false;
+            ReleaseUiKeyboardSteal();
+        }
+
+        private bool _playerDrivenThisFrame;
+
         public void Tick()
         {
+            _playerDrivenThisFrame = true;
             _crouchHeld = false;
             _tuckHeld = false;
 
             PollKeyboard();
             PollTouch();
             ExpireBuffers();
+            ReleaseUiKeyboardSteal();
+        }
+
+        /// Arrow keys / Submit get eaten by StandaloneInputModule when a HUD button is
+        /// "selected" after a click. Clear selection while we own the keyboard.
+        private static void ReleaseUiKeyboardSteal()
+        {
+            var chrome = RunHudChrome.Instance;
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (es == null) return;
+            if (chrome != null && chrome.IsPaused)
+            {
+                es.sendNavigationEvents = true;
+                return;
+            }
+            // Run HUD present + not paused ⇒ runner owns arrow keys.
+            if (chrome == null) return;
+            es.sendNavigationEvents = false;
+            if (es.currentSelectedGameObject != null)
+                es.SetSelectedGameObject(null);
         }
 
         // ────────────────────────────────────────────────────────────────

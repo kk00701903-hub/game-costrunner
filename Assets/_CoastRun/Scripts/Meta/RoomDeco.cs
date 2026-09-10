@@ -17,6 +17,8 @@ namespace CoastRun
         public int price;          // 0 = 러닝에서만 획득
         public string tag;         // 플레이스홀더용 짧은 글자(이모지 대신 한 글자)
         public Color color;
+        /// 방 그림(UI_Room_Iso)에 이미 그려져 있어 카탈로그에서 뺀 항목. 비트 인덱스는 유지.
+        public bool retired;
         public bool FromRun => price <= 0;
         public string Name => Loc.T(ko, en);
         public string Blurb => Loc.T(blurbKo, blurbEn);
@@ -29,12 +31,13 @@ namespace CoastRun
         public static readonly DecoDef[] All =
         {
             // ── 상점 구매 ──
-            new DecoDef { id = "plant",    ko = "몬스테라 화분",   en = "Monstera Pot",   slot = DecoSlot.FloorL, price = 120, tag = "잎", color = new Color(0.45f, 0.72f, 0.42f), blurbKo = "창가 햇빛을 좋아하는 큰 잎.",        blurbEn = "Big leaves that love the window light." },
-            new DecoDef { id = "clock",    ko = "벽시계",          en = "Wall Clock",     slot = DecoSlot.WallL,  price = 150, tag = "時", color = new Color(0.93f, 0.85f, 0.65f), blurbKo = "째깍째깍. 늦잠은 이제 그만.",          blurbEn = "Tick tock. No more oversleeping." },
-            new DecoDef { id = "poster",   ko = "라디오 포스터",   en = "Radio Poster",   slot = DecoSlot.WallR,  price = 90,  tag = "♪",  color = new Color(0.98f, 0.62f, 0.55f), blurbKo = "DJ 사인이 들어간 방송국 포스터.",     blurbEn = "Station poster signed by the DJ." },
+            // plant/clock/poster/books: UI_Room_Iso 배경에 이미 있어 플레이스홀더가 겹침 → retired
+            new DecoDef { id = "plant",    ko = "몬스테라 화분",   en = "Monstera Pot",   slot = DecoSlot.FloorL, price = 120, tag = "잎", color = new Color(0.45f, 0.72f, 0.42f), blurbKo = "창가 햇빛을 좋아하는 큰 잎.",        blurbEn = "Big leaves that love the window light.", retired = true },
+            new DecoDef { id = "clock",    ko = "벽시계",          en = "Wall Clock",     slot = DecoSlot.WallL,  price = 150, tag = "時", color = new Color(0.93f, 0.85f, 0.65f), blurbKo = "째깍째깍. 늦잠은 이제 그만.",          blurbEn = "Tick tock. No more oversleeping.", retired = true },
+            new DecoDef { id = "poster",   ko = "라디오 포스터",   en = "Radio Poster",   slot = DecoSlot.WallR,  price = 90,  tag = "♪",  color = new Color(0.98f, 0.62f, 0.55f), blurbKo = "DJ 사인이 들어간 방송국 포스터.",     blurbEn = "Station poster signed by the DJ.", retired = true },
             new DecoDef { id = "rug",      ko = "줄무늬 러그",     en = "Striped Rug",    slot = DecoSlot.FloorR, price = 200, tag = "▤", color = new Color(0.80f, 0.55f, 0.45f), blurbKo = "맨발로 밟으면 폭신.",                 blurbEn = "Soft under bare feet." },
             new DecoDef { id = "lamp",     ko = "조개 램프",       en = "Shell Lamp",     slot = DecoSlot.SillL,  price = 180, tag = "☼", color = new Color(1.0f, 0.88f, 0.55f), blurbKo = "밤에 켜면 방이 노을빛.",              blurbEn = "Turns the room sunset-orange at night." },
-            new DecoDef { id = "books",    ko = "책 더미",         en = "Book Stack",     slot = DecoSlot.SillR,  price = 80,  tag = "冊", color = new Color(0.60f, 0.70f, 0.90f), blurbKo = "읽다 만 책 세 권.",                   blurbEn = "Three half-read books." },
+            new DecoDef { id = "books",    ko = "책 더미",         en = "Book Stack",     slot = DecoSlot.SillR,  price = 80,  tag = "冊", color = new Color(0.60f, 0.70f, 0.90f), blurbKo = "읽다 만 책 세 권.",                   blurbEn = "Three half-read books.", retired = true },
             // ── 러닝 드롭 ──
             new DecoDef { id = "harubang", ko = "미니 돌하르방",   en = "Mini Dol Hareubang", slot = DecoSlot.FloorL, price = 0, tag = "石", color = new Color(0.55f, 0.55f, 0.58f), blurbKo = "산책로에서 주운 기념품.",         blurbEn = "A souvenir picked up on the promenade." },
             new DecoDef { id = "tangerine",ko = "감귤 바구니",     en = "Tangerine Basket", slot = DecoSlot.SillR, price = 0, tag = "橘", color = new Color(1.0f, 0.65f, 0.25f),  blurbKo = "할머니 가게 앞에서 굴러온 감귤.",   blurbEn = "Tangerines that rolled out of Grandma's shop." },
@@ -43,6 +46,8 @@ namespace CoastRun
             new DecoDef { id = "surf",     ko = "미니 서핑보드",   en = "Mini Surfboard", slot = DecoSlot.FloorR, price = 0,   tag = "波", color = new Color(0.40f, 0.80f, 0.75f), blurbKo = "파도 무늬가 그려진 장식판.",          blurbEn = "A little board painted with waves." },
             new DecoDef { id = "stars",    ko = "별 조명 줄",      en = "Star Lights",    slot = DecoSlot.WallL,  price = 0,   tag = "★", color = new Color(1.0f, 0.92f, 0.45f),  blurbKo = "송전탑 불빛을 닮은 작은 별들.",       blurbEn = "Tiny stars like the tower lights." },
         };
+
+        public static bool IsActive(DecoDef d) => d != null && !d.retired;
 
         public static int IndexOf(string id)
         {
@@ -76,24 +81,24 @@ namespace CoastRun
         public static int OwnedCount(MetaProfile p)
         {
             int n = 0;
-            for (int i = 0; i < All.Length; i++) if (Owns(p, All[i])) n++;
+            for (int i = 0; i < All.Length; i++) if (IsActive(All[i]) && Owns(p, All[i])) n++;
             return n;
         }
 
         public static void Grant(MetaProfile p, DecoDef d, bool markNew = true)
         {
-            if (p == null || d == null) return;
+            if (p == null || d == null || !IsActive(d)) return;
             int b = 1 << IndexOf(d.id);
             p.decoOwnedMask |= b;
             if (markNew) p.decoNewMask |= b;
         }
 
-        public static bool CanAfford(SaveData s, DecoDef d) => s != null && d != null && d.price > 0 && s.stats.money >= d.price;
+        public static bool CanAfford(SaveData s, DecoDef d) => s != null && d != null && IsActive(d) && d.price > 0 && s.stats.money >= d.price;
 
         /// 구매: G 차감 + 보유. 이미 보유면 false.
         public static bool TryBuy(SaveData s, MetaProfile p, DecoDef d)
         {
-            if (s == null || p == null || d == null || d.FromRun || Owns(p, d)) return false;
+            if (s == null || p == null || d == null || !IsActive(d) || d.FromRun || Owns(p, d)) return false;
             if (s.stats.money < d.price) return false;
             s.stats.money -= d.price;
             Grant(p, d, markNew: false);
@@ -113,7 +118,7 @@ namespace CoastRun
         /// 배치: 그 자리에 있던 장식은 치워진다(보유는 유지).
         public static bool Place(MetaProfile p, DecoDef d)
         {
-            if (p == null || d == null || !Owns(p, d)) return false;
+            if (p == null || d == null || !IsActive(d) || !Owns(p, d)) return false;
             Ensure(p);
             p.roomSlots[(int)d.slot] = d.id;
             ClearNew(p, d);
@@ -134,7 +139,7 @@ namespace CoastRun
             LastDrop = null;
             if (p == null) return null;
             var pool = new List<DecoDef>();
-            foreach (var d in All) if (d.FromRun && !Owns(p, d)) pool.Add(d);
+            foreach (var d in All) if (d.FromRun && !d.retired && !Owns(p, d)) pool.Add(d);
             if (pool.Count == 0) return null;
             var rng = new System.Random(seed);
             if (rng.NextDouble() > chance) return null;

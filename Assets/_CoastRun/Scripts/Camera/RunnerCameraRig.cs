@@ -9,18 +9,17 @@ namespace CoastRun
         [SerializeField] private PlayerController target;
 
         [Header("Framing")]
-        // 14차: 서브웨이 서퍼 구도 — 엉덩이 뒤 4.6 m, 눈높이 1.75 m 에서 낮게 따라간다. 8.6 m 뒤 2.35 m 위의
-        // 준-탑다운은 앞으로 가는 느낌이 없었다(주인공 11%). 이제 주인공이 화면의 ~22%, 지면이 빠르게 흐른다.
-        [SerializeField] private Vector3 offset = new Vector3(0.05f, 1.85f, -4.4f);   // 14차-3: 목표 이미지처럼 주인공을 조금 더 크게
-        [SerializeField] private float lookAhead = 13f;
-        [SerializeField] private float lookHeight = 1.9f;   // 14차-2: 지평선을 화면 45% 높이로(목표 이미지 구도)
-        [SerializeField] private float pitchUp = -1.0f;
+        // Gold Run framing: more asphalt ahead, character ~lower third (not huge close-up).
+        [SerializeField] private Vector3 offset = new Vector3(0.0f, 2.05f, -5.6f);
+        [SerializeField] private float lookAhead = 18f;
+        [SerializeField] private float lookHeight = 1.55f;   // horizon a bit lower = more road in frame
+        [SerializeField] private float pitchUp = -0.5f;
         private float _glideCam;   // 21차: 활공 카메라 블렌드
-        [SerializeField] private float lateralDamping = 0.14f;
+        [SerializeField] private float lateralDamping = 0.12f;
 
         [Header("FOV kick")]
-        [SerializeField] private float baseFov = 60f;
-        [SerializeField] private float maxFov = 74f;
+        [SerializeField] private float baseFov = 62f;
+        [SerializeField] private float maxFov = 76f;
         [SerializeField] private float fovAccelSeconds = 0.4f;
         [SerializeField] private float fovDecelSeconds = 0.25f;
 

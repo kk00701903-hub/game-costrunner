@@ -13,13 +13,29 @@ namespace CoastRun
         // 14차-14: '주인공 레인의 가장 가까운 장애물'만 경고한다. 22 m 안(피할 시간이 있을 때)에서 켜지고
         // 5 m 안이면(이미 늦음) 끈다. 레인을 바꾸면 그 레인의 것으로 바로 옮겨 간다. 한 장애물은 한 번만.
         private const float WarnFar = 26f, WarnNear = 5f;
-        private const float Duration = 1.15f;
+        private const float Duration = 1.25f;
+        private const float StripeW = 2.21f;   // 1.7 * 1.3
+        private const float StripeLen = 9.1f;  // 7.0 * 1.3
+        private static readonly int BaseMapStId = Shader.PropertyToID("_BaseMap_ST");
         private static readonly System.Collections.Generic.List<ObstacleWarning> _all = new();
         private static ObstacleWarning _current;
         private int _lane;
 
-        private void OnEnable() { _all.Add(this); _lane = Mathf.RoundToInt(Vector3.Dot(transform.position, DownhillPath.Rotation * Vector3.right) / 2.2f); }
-        private void OnDisable() { _all.Remove(this); if (_current == this) _current = null; }
+        private void OnEnable()
+        {
+            _all.Add(this);
+            _lane = Mathf.RoundToInt(Vector3.Dot(transform.position, DownhillPath.Rotation * Vector3.right) / 2.2f);
+        }
+
+        private void OnDisable()
+        {
+            _all.Remove(this);
+            // Pop/Smash 로 꺼질 때 바닥에 경고 띠·! 배지가 남는 것 방지
+            if (_t >= 0f || _stripe != null)
+                Cancel();
+            else if (_current == this)
+                _current = null;
+        }
 
         /// 프레임마다 한 번: 주인공 레인에서 앞쪽 [WarnNear, WarnFar] 안 가장 가까운, 아직 안 울린 장애물을 고른다.
         private static void Pick(PlayerController player)
@@ -36,11 +52,15 @@ namespace CoastRun
             ObstacleWarning best = null; float bestAhead = float.MaxValue;
             foreach (var w in _all)
             {
-                if (w == null || w._fired) continue;
+                if (w == null || w._fired || !w.isActiveAndEnabled) continue;
+                if (!w.HasReadableVisual()) continue;   // 웅덩이·빈 루트 등 '이미지 없는' 장애물은 띠를 안 띄움
                 w._lane = Mathf.RoundToInt(Vector3.Dot(w.transform.position, DownhillPath.Rotation * Vector3.right) / 2.2f);   // 차는 움직인다
                 if (w._lane != player.Lane) continue;
                 float ahead = DownhillPath.DistanceAlong(w.transform.position) - pz;
-                if (ahead < WarnNear || ahead > WarnFar) continue;
+                // 마주 오는 차는 닫히는 속도가 빨라 더 먼 거리에서 경고
+                float far = w.GetComponent<OncomingCar>() != null ? 40f : WarnFar;
+                float near = w.GetComponent<OncomingCar>() != null ? 6f : WarnNear;
+                if (ahead < near || ahead > far) continue;
                 if (ahead < bestAhead) { bestAhead = ahead; best = w; }
             }
             if (best != null) { _current = best; best.Fire(); }
@@ -62,14 +82,78 @@ namespace CoastRun
 
         private void Fire()
         {
+            if (!HasReadableVisual())
+            {
+                // 시각이 없는 채로는 띠만 뜨지 않게 — 다음에 다시 고르지 않도록 소비만 한다
+                _fired = true;
+                _t = -1f;
+                return;
+            }
             _fired = true; _t = 0f;
             WarnHud.Show(transform, _topY + 0.25f, Duration);
             SpawnStripe();
         }
+
+        /// Painted_ 빌보드·키 큰 메시가 있어야 '장애물 이미지'로 읽힌다. 바닥 데칼(웅덩이)만 있으면 false.
+        private bool HasReadableVisual()
+        {
+            EnsureTargets();
+            if (_targets == null || _targets.Length == 0)
+                return false;
+            float maxH = 0f;
+            float maxXZ = 0f;
+            bool painted = false;
+            for (int i = 0; i < _targets.Length; i++)
+            {
+                var r = _targets[i];
+                if (r == null || !r.enabled || !r.gameObject.activeInHierarchy) continue;
+                if (r.name.StartsWith("Painted_")) painted = true;
+                var s = r.bounds.size;
+                maxH = Mathf.Max(maxH, s.y);
+                maxXZ = Mathf.Max(maxXZ, s.x, s.z);
+            }
+            // 낮고 넓은 장애물(낙엽·자전거)도 경고 대상 — 웅덩이(데칼만)는 targets 비어서 걸러짐
+            return painted || maxH >= 0.18f || maxXZ >= 0.55f;
+        }
+
+        private void EnsureTargets()
+        {
+            if (_targets != null && _targets.Length > 0) return;
+            CacheTargets();
+        }
+
+        private void CacheTargets()
+        {
+            var list = new System.Collections.Generic.List<Renderer>();
+            foreach (var r in GetComponentsInChildren<Renderer>(true))
+            {
+                if (r == null || r.sharedMaterial == null) continue;
+                string n = r.gameObject.name;
+                if (n == "BlobShadow" || n == "HazardRing" || n == "PickupGlow" || n == "Outline" || n == "Ink" || n == "Painted_Back" || n.StartsWith("Decal_")) continue;
+                if (r is ParticleSystemRenderer) continue;
+                list.Add(r);
+                if (r.bounds.size.y < 10f) _topY = Mathf.Max(_topY, r.bounds.max.y - transform.position.y);
+            }
+            _targets = list.ToArray();
+            _baseColors = new Color[_targets.Length];
+            _mpb ??= new MaterialPropertyBlock();
+            for (int i = 0; i < _targets.Length; i++)
+            {
+                var m = _targets[i].sharedMaterial;
+                _baseColors[i] = m.HasProperty(BaseColorId) ? m.GetColor(BaseColorId) : (m.HasProperty(ColorId) ? m.GetColor(ColorId) : Color.white);
+                _targets[i].GetPropertyBlock(_mpb);
+                var pb = _mpb.GetColor(BaseColorId);
+                if (pb != default) _baseColors[i] = pb;
+            }
+        }
+
+        private void Start() => CacheTargets();
+
         private static PlayerController _player;
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");
         private static Material _stripeMat;
+        private static Texture2D _stripeTexPush;
 
         private bool _fired;
         private float _t = -1f;
@@ -86,35 +170,12 @@ namespace CoastRun
                 root.AddComponent<ObstacleWarning>();
         }
 
-        private void Start()
-        {
-            var list = new System.Collections.Generic.List<Renderer>();
-            foreach (var r in GetComponentsInChildren<Renderer>())
-            {
-                if (r == null || r.sharedMaterial == null) continue;
-                string n = r.gameObject.name;
-                if (n == "BlobShadow" || n == "HazardRing" || n == "PickupGlow" || n == "Outline" || n == "Ink" || n == "Painted_Back" || n.StartsWith("Decal_")) continue;
-                if (r is ParticleSystemRenderer) continue;
-                list.Add(r);
-                if (r.bounds.size.y < 10f) _topY = Mathf.Max(_topY, r.bounds.max.y - transform.position.y);
-            }
-            _targets = list.ToArray();
-            _baseColors = new Color[_targets.Length];
-            _mpb = new MaterialPropertyBlock();
-            for (int i = 0; i < _targets.Length; i++)
-            {
-                var m = _targets[i].sharedMaterial;
-                _baseColors[i] = m.HasProperty(BaseColorId) ? m.GetColor(BaseColorId) : (m.HasProperty(ColorId) ? m.GetColor(ColorId) : Color.white);
-                _targets[i].GetPropertyBlock(_mpb);
-                var pb = _mpb.GetColor(BaseColorId);
-                if (pb != default) _baseColors[i] = pb;
-            }
-        }
-
         private void Update()
         {
             if (_player == null) _player = FindFirstObjectByType<PlayerController>();
-            if (_player == null || _targets == null) return;
+            if (_player == null) return;
+            EnsureTargets();
+            if (_targets == null) return;
             _mpb ??= new MaterialPropertyBlock();
             // 첫 번째 인스턴스가 대표로 고른다(프레임당 한 번)
             if (_all.Count > 0 && _all[0] == this) Pick(_player);
@@ -131,13 +192,18 @@ namespace CoastRun
                 _mpb.SetColor(BaseColorId, c); _mpb.SetColor(ColorId, c);
                 r.SetPropertyBlock(_mpb);
             }
-            // 바닥 띠: 3번 깜빡이며 사라진다
-            if (_stripeR != null)
+            // 바닥 위험 띠: 깜빡이며 옆으로 밀려나고, 셰브론이 플레이어 쪽으로 흘러간다
+            if (_stripe != null && _stripeR != null)
             {
-                float blink = 0.5f + 0.5f * Mathf.Sin(k * Mathf.PI * 6f);
-                var sc = _stripeR.sharedMaterial.HasProperty(BaseColorId) ? _stripeR.sharedMaterial.GetColor(BaseColorId) : Color.red;
+                float blink = 0.5f + 0.5f * Mathf.Sin(_t * Mathf.PI * 14f);
+                // 옆으로 퍼지는 경고파 — 깜빡일 때마다 폭이 넓어졌다 좁아진다
+                float push = 1f + 0.28f * blink;
+                _stripe.localScale = new Vector3(StripeW * push, StripeLen, 1f);
+                // 셰브론이 앞으로(플레이어 쪽) 밀려나가는 UV 스크롤
+                float scroll = _t * 4.2f;
                 _mpb.Clear();
-                _mpb.SetColor(BaseColorId, new Color(1f, 0.25f, 0.15f, (0.22f + 0.30f * blink) * (1f - k * k)));
+                _mpb.SetColor(BaseColorId, new Color(1f, 0.02f, 0.02f, (0.42f + 0.52f * blink) * (1f - k * k)));
+                _mpb.SetVector(BaseMapStId, new Vector4(1f, 1f, 0f, -scroll));
                 _stripeR.SetPropertyBlock(_mpb);
                 if (_t >= Duration) { Destroy(_stripe.gameObject); _stripe = null; _stripeR = null; }
             }
@@ -146,15 +212,16 @@ namespace CoastRun
 
         private void SpawnStripe()
         {
-            _stripeMat ??= CoastMaterials.CreateTexturedTransparentCurved(StripeTexture(), new Color(1f, 0.25f, 0.15f, 0.4f));
+            _stripeMat ??= CoastMaterials.CreateTexturedTransparentCurved(StripeTexture(), new Color(1f, 0.02f, 0.02f, 0.6f));
             var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
             q.name = "Decal_Warn";
             q.transform.SetParent(transform, false);
             Object.Destroy(q.GetComponent<Collider>());
-            // 장애물 앞(플레이어 쪽, −z) 7 m 띠. Quad 법선 −Z → X축 −90° 로 눕히면 +Y 를 본다.
-            q.transform.localPosition = new Vector3(0f, 0.025f, -3.9f);
+            // 플레이어 쪽(다가오는 쪽)에 띠 — 정적 장애물은 local −Z, 마주 오는 차(180°)는 local +Z
+            float towardPlayer = GetComponent<OncomingCar>() != null ? 1f : -1f;
+            q.transform.localPosition = new Vector3(0f, 0.028f, towardPlayer * (StripeLen * 0.42f));
             q.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            q.transform.localScale = new Vector3(1.7f, 7.0f, 1f);
+            q.transform.localScale = new Vector3(StripeW, StripeLen, 1f);
             _stripe = q.transform;
             _stripeR = q.GetComponent<Renderer>();
             _stripeR.sharedMaterial = _stripeMat;
@@ -162,24 +229,33 @@ namespace CoastRun
             _stripeR.receiveShadows = false;
         }
 
-        private static Texture2D _stripeTex;
         private static Texture2D StripeTexture()
         {
-            if (_stripeTex != null) return _stripeTex;
-            const int W = 32, H = 128;
-            _stripeTex = new Texture2D(W, H, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            if (_stripeTexPush != null) return _stripeTexPush;
+            const int W = 48, H = 160;
+            // V 반복 → 스크롤로 '신호가 밀려나가는' 느낌
+            _stripeTexPush = new Texture2D(W, H, TextureFormat.RGBA32, false)
+            {
+                wrapMode = TextureWrapMode.Repeat,
+                filterMode = FilterMode.Bilinear,
+            };
             for (int y = 0; y < H; y++)
                 for (int x = 0; x < W; x++)
                 {
-                    float v = y / (H - 1f);                       // 0 = 플레이어 쪽 끝, 1 = 장애물 쪽
-                    float u = Mathf.Abs(x / (W - 1f) - 0.5f) * 2f; // 0 중앙 .. 1 가장자리
-                    float edge = u > 0.82f ? 1f : 0.55f;           // 양옆 진한 선
-                    float fade = Mathf.SmoothStep(0f, 1f, v);      // 장애물 쪽으로 갈수록 진하게
-                    float chevron = (Mathf.Repeat(v * 6f + (1f - u) * 0.5f, 1f) < 0.5f) ? 1f : 0.75f;   // 셰브론 무늬
-                    _stripeTex.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(edge * fade * chevron)));
+                    float v = y / (H - 1f);
+                    float u = Mathf.Abs(x / (W - 1f) - 0.5f) * 2f;
+                    // 양옆 굵은 경고선 + 바깥으로 퍼지는 페더
+                    float edge = u > 0.78f ? 1f : (u > 0.55f ? 0.7f : 0.45f);
+                    float sidePush = Mathf.SmoothStep(0.35f, 1f, u); // 옆으로 갈수록 진하게
+                    float fade = Mathf.SmoothStep(0.05f, 1f, v);
+                    // 셰브론: 플레이어 쪽(−v 스크롤)으로 화살표가 밀려감
+                    float chev = Mathf.Repeat(v * 8f + (1f - u) * 0.55f, 1f);
+                    float chevron = chev < 0.45f ? 1f : 0.55f;
+                    float a = Mathf.Clamp01(edge * fade * chevron * (0.75f + 0.35f * sidePush));
+                    _stripeTexPush.SetPixel(x, y, new Color(1f, 1f, 1f, a));
                 }
-            _stripeTex.Apply();
-            return _stripeTex;
+            _stripeTexPush.Apply(false, false);
+            return _stripeTexPush;
         }
     }
 

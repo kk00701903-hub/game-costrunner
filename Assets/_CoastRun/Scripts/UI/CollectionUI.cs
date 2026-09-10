@@ -507,6 +507,22 @@ namespace CoastRun
             int got = AchievementTable.Count(p);
             var head = CoastOrnate.Label(list, "H", Loc.T($"업적 {got}/{AchievementTable.All.Length}  ·  미션 별 {p.StarsTotal}/60  ·  오늘의 런 도장 {p.DailyCount}  ·  엔딩 {p.EndingsSeenCount}/7", $"Achievements {got}/{AchievementTable.All.Length}  ·  Stars {p.StarsTotal}/60  ·  Daily stamps {p.DailyCount}  ·  Endings {p.EndingsSeenCount}/7"), 16, new Color(1f, 0.92f, 0.75f));
             Top(head.rectTransform, y, 30f, 0f); y += 36f;
+            // PM: 엔딩 변주·진엔딩 비트 갤러리 (endingMask 0~6)
+            string[] endNames = Loc.IsKo
+                ? new[] { "A 기본", "A 감성", "A 평판", "B 기본", "B 루아", "B 체력", "진엔딩" }
+                : new[] { "A base", "A sense", "A trust", "B base", "B Rua", "B weak", "True" };
+            var endSb = new System.Text.StringBuilder(Loc.T("엔딩 컬렉션  ", "Ending gallery  "));
+            for (int i = 0; i < 7; i++)
+            {
+                bool has = (p.endingMask & (1 << i)) != 0;
+                endSb.Append(has ? "◆" : "◇").Append(endNames[i]);
+                if (i < 6) endSb.Append("  ");
+            }
+            var endRow = CoastUiArt.Panel(list, "Ends", Paper, 14);
+            Top(endRow.rectTransform, y, 52f, 8f);
+            var et = CoastOrnate.Label(endRow.transform, "T", endSb.ToString(), 14, Ink, TextAnchor.MiddleLeft);
+            CoastOrnate.Stretch(et.rectTransform, 14f, 6f, -14f, -6f); et.horizontalOverflow = HorizontalWrapMode.Wrap;
+            y += 60f;
             // 기록
             var rec = CoastUiArt.Panel(list, "Rec", Paper, 14);
             Top(rec.rectTransform, y, 118f, 8f);

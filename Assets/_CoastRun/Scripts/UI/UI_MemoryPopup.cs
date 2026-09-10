@@ -20,6 +20,7 @@ namespace CoastRun
         private Image _stillB;
         private Text _title;
         private Text _body;
+        private Text _hint;
         private GameObject _callRoot;
         private Image _phoneScreen;
         private Text _callTimer;
@@ -100,9 +101,15 @@ namespace CoastRun
                 StartMemoryBgm(def);
                 BindStills(def);
                 _title.text = def.title;
-                _body.text = def.body;
+                _body.text = string.IsNullOrEmpty(def.body) || def.body.Contains("새 대본")
+                    ? Loc.T("화면을 탭하면 닫혀요", "Tap to close")
+                    : def.body;
+                if (_hint != null)
+                    _hint.text = Loc.T("탭해서 계속", "Tap to continue");
                 yield return EdgeGlowThenSlideIn();
-                yield return KenBurnsHold(Mathf.Clamp(def.duration, 20f, 30f));
+                // 예전에 20~30초 강제 대기로 클리어 화면이 안 보이는 것처럼 보였음 → 짧게
+                float hold = def.duration > 0.5f ? Mathf.Clamp(def.duration, 4f, 8f) : 5.5f;
+                yield return KenBurnsHold(hold);
             }
 
             yield return FadeOutPopup(0.35f);
@@ -593,6 +600,14 @@ namespace CoastRun
             _body.color = new Color(0.9f, 0.9f, 0.88f, 0.95f);
             _body.horizontalOverflow = HorizontalWrapMode.Wrap;
             _body.verticalOverflow = VerticalWrapMode.Overflow;
+
+            _hint = CoastHudLayout.MakeText(root.transform, "Hint", Loc.T("탭해서 계속", "Tap to continue"), 20,
+                TextAnchor.LowerCenter,
+                new Vector2(0.15f, 0.02f), new Vector2(0.85f, 0.10f), Vector2.zero, Vector2.zero);
+            _hint.color = new Color(1f, 0.95f, 0.85f, 0.9f);
+            _hint.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_hint, new Color(0.05f, 0.04f, 0.1f, 0.85f), 2f);
+            _hint.raycastTarget = false;
 
             BuildCallUi(slide.transform);
 

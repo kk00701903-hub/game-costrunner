@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace CoastRun
@@ -156,7 +157,7 @@ namespace CoastRun
             // spawners and HUD must read, so claim the singleton here.
             Instance = this;
 
-            // 38차: 시각은 챕터별 고정표(ChapterClock)에서 — 랜덤 아님
+            // 챕터별 낮/밤 고정표(ChapterClock): 1·20=낮, 2~19=낮≈70%/밤≈30%
             def.lightingTStart = ChapterClock.StartT(def.stageIndex);
             def.lightingTEnd = Mathf.Max(def.lightingTEnd, Mathf.Min(1f, def.lightingTStart + 0.25f));
             _current = def;
@@ -173,7 +174,8 @@ namespace CoastRun
             environment?.ResetLightingTo(def.lightingTStart);
             BeginSunsetClock();
             MonochromeWorld.Arm(ChapterIndex);   // 19차-1: 20장은 10초 뒤 세상이 흑백
-            if (!ArcadeRun.Active) FeverMode.Ensure();   // 23차-9: 꼬마 도움 버튼 → 3초 피버
+            if (!ArcadeRun.Active) FeverMode.Ensure().ArmForStage();   // 꼬마 도움 버튼 → 피버
+            GiantMode.Ensure().EndNow();
 
             if (player != null && !player.enabled)
                 player.enabled = true;
@@ -185,10 +187,52 @@ namespace CoastRun
             AnnounceStart();
         }
 
-        /// 38차: 러닝 시작 때 짧게 「출발!」
+        /// 러닝 시작: 잠깐 멈춘 뒤 화면 중앙에 「챕터 N 시작!」이 크게 뜨고 달린다.
         private void AnnounceStart()
         {
-            PickupFloat.Banner(Loc.T("출발!", "GO!"), new Color(1f, 0.55f, 0.25f), 0.9f);
+            StopCoroutineSafe(_announceCo);
+            _announceCo = StartCoroutine(AnnounceStartCo());
+        }
+
+        private Coroutine _announceCo;
+        private void StopCoroutineSafe(Coroutine c) { if (c != null) StopCoroutine(c); }
+
+        private IEnumerator AnnounceStartCo()
+        {
+            // 씬·HUD가 한 프레임 잡힌 뒤
+            yield return null;
+            // 페이드 베일(정렬 500)이 걷힐 때까지 대기 — LoadStage는 검은 화면 중에 불려서
+            // 예전엔 「챕터 N 시작」이 베일 뒤에서 재생되고 끝나 보이지 않았다.
+            float waited = 0f;
+            while (waited < 3.5f)
+            {
+                var ui = GameDirector.Instance != null ? GameDirector.Instance.UI : null;
+                float veil = ui != null ? ui.VeilAlpha : 0f;
+                if (veil < 0.4f) break;
+                // 대기 중에도 출발 홀드 유지(페이드 끝나면 바로 뛰지 않게)
+                if (player != null) player.HoldForStart(0.35f);
+                waited += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            const float hold = 1.55f;
+            if (player != null) player.HoldForStart(hold);
+            if (ArcadeRun.Active)
+            {
+                PickupFloat.Go(Loc.T("출발", "GO"), hold + 0.15f);
+            }
+            else
+            {
+                int ch = _current != null ? _current.stageIndex : ChapterIndex;
+                if (GameManager.Active) ch = Mathf.Clamp(GameManager.I.Save.chapter, 1, 20);
+                ch = Mathf.Clamp(ch, 1, 20);
+                string place = ChapterLocation.Get(ch).Name;
+                string story = ChapterScript.Title(ch);
+                PickupFloat.ChapterStart(ch, place, story, hold + 0.25f);
+            }
+            CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.55f);
+            yield return new WaitForSecondsRealtime(hold);
+            _announceCo = null;
         }
 
         /// 23차: 원격(MCP) 디버그 — 즉시 클리어.
@@ -219,6 +263,8 @@ namespace CoastRun
 
             environment?.ResetLightingTo(_current.lightingTStart);
             BeginSunsetClock();
+            if (!ArcadeRun.Active) FeverMode.Ensure().ArmForStage();
+            GiantMode.Ensure().EndNow();
             OnStageStart?.Invoke(_current);
             AnnounceStart();
         }
@@ -353,19 +399,23 @@ namespace CoastRun
         {
             _ribbon?.Break();
             player?.FinishRun();
+            // 뒤돌기/골인 포즈 없음 — 감속만. 관중 환호(FinishRibbon)는 Break()에서 유지.
+            _finishRig = player != null ? player.GetComponentInChildren<SkaterRig>() : null;
+            _finishRig?.SetFinishPose(false);
+            _finishRig?.SettleFacingForward();
             // 23차-3: 리본을 지나는 순간 앞에 남은 코인·말랑이·장애물을 싹 치운다 — 무대는 관중과 주인공만.
             float sweepZ = player != null ? player.PathDistance - 1f : 0f;
             foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.SetSuppressed(true);
             foreach (var c in FindObjectsByType<CoinSpawner>(FindObjectsSortMode.None)) c.ClearAhead(sweepZ);
             foreach (var j in FindObjectsByType<JellySpawner>(FindObjectsSortMode.None)) j.ClearAhead(sweepZ);
-            // 25차-5: 도착 모션(고정 카메라·돌아서서 포즈) 제거 — 리본만 끊고 감속한 뒤 바로 정산. 사용자 요청.
+            // 도착 모션(고정 카메라·돌아서서 포즈) 제거
             const bool FinishMotion = false;
             if (FinishMotion)
             {
                 _finishCam = Camera.main != null ? Camera.main.GetComponent<RunnerCameraRig>() : null;
                 _finishRig = player != null ? player.GetComponentInChildren<SkaterRig>() : null;
                 if (_finishCam != null) _finishCam.StartCoroutine(_finishCam.PlayFinishFrame(0.9f));
-                PetCompanion.Instance?.SetHidden(true);   // 24차-3
+                PetCompanion.Instance?.SetHidden(true);
                 yield return new WaitForSeconds(0.75f);
                 _finishRig?.SetFinishPose(true);
                 yield return new WaitForSeconds(0.8f);
@@ -397,6 +447,10 @@ namespace CoastRun
                 clearUi?.ShowFinal(cleared, ContinueToNext, RetryCurrent);
             else
                 clearUi?.Show(cleared, chapterEnd, ContinueToNext, RetryCurrent);
+
+            // 정산이 끝난 다음에 회상 — 클리어 UI를 스틸컷이 덮어버리지 않게
+            while (clearUi != null && clearUi.IsSettling)
+                yield return null;
 
             var mem = MemoryDirector.Instance ?? UnityEngine.Object.FindAnyObjectByType<MemoryDirector>();
             if (mem != null)

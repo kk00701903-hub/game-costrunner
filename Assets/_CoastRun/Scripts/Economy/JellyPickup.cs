@@ -9,7 +9,8 @@ namespace CoastRun
         Potion,       // big stamina refill
         BonusStar,    // starts Bonus Time
         Heart,        // 말랑이 하트: 호감도. 챕터 S급 판정의 핵심 재화
-        Photocard     // 38차: 포토카드 — 먹으면 등급(N/R/SR/SSR)을 뽑아 카드 한 장
+        Photocard,    // 38차: 포토카드 — 먹으면 등급(N/R/SR/SSR)을 뽑아 카드 한 장
+        Giant         // 거인 무적: 200% 크기 + 10초 HP 무피해
     }
 
     /// Cookie-Run pickups. Jellies are the breadcrumbs that pull the player through
@@ -87,6 +88,12 @@ namespace CoastRun
                     else BuildStar(vis);
                     radius = 0.75f;
                     break;
+                case PickupKind.Giant:
+                    if (PaintedProp.Available("Star")) PaintedProp.Attach(vis, "Star", 1.35f, replace: false, outline: true,
+                        outlineColor: new Color(1f, 0.45f, 0.05f, 1f), outlineMul: 1.35f);
+                    else BuildGiantOrb(vis);
+                    radius = 0.85f;
+                    break;
                 default:
                     BuildJelly(vis, colorIndex, 0.36f, false);   // 21차-3: 0.3→0.36, 멀리서도 읽히게
                     radius = 0.55f;
@@ -104,11 +111,10 @@ namespace CoastRun
                        : kind == PickupKind.Photocard ? new Color(1f, 0.75f, 0.95f)
                        : kind == PickupKind.Potion ? new Color(0.5f, 0.9f, 1f)
                        : kind == PickupKind.BonusStar ? new Color(1f, 0.9f, 0.4f)
+                       : kind == PickupKind.Giant ? new Color(1f, 0.5f, 0.1f)
                        : new Color(0.75f, 1f, 0.8f);
-            PickupGlow.Attach(go.transform, glow, kind == PickupKind.Jelly ? 0.7f : 1.05f, kind == PickupKind.Jelly ? 0.22f : 0.32f);
-            // 38차: 아이템(물약·별·하트)은 발밑 도로에 파란 깜빡이 링 — 장애물의 빨간 링과 짝
-            if (kind == PickupKind.Potion || kind == PickupKind.BonusStar || kind == PickupKind.Heart || kind == PickupKind.Photocard)
-                HazardRing.Attach(go.transform, 0.55f, HazardRing.Item, RoadPlacement.OnRoad(DownhillPath.DistanceAlong(worldPos), worldPos.x, 0f).y);
+            PickupGlow.Attach(go.transform, glow, kind == PickupKind.Jelly ? 0.7f : kind == PickupKind.Giant ? 1.25f : 1.05f,
+                kind == PickupKind.Jelly ? 0.22f : 0.32f);
             return p;
         }
 
@@ -249,12 +255,31 @@ namespace CoastRun
             }
         }
 
+        private static void BuildGiantOrb(Transform root)
+        {
+            var orb = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            orb.name = "GiantOrb";
+            orb.transform.SetParent(root, false);
+            orb.transform.localPosition = new Vector3(0f, 0.4f, 0f);
+            orb.transform.localScale = Vector3.one * 0.7f;
+            Object.Destroy(orb.GetComponent<Collider>());
+            orb.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(1f, 0.55f, 0.12f));
+            var ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            ring.name = "Ring";
+            ring.transform.SetParent(root, false);
+            ring.transform.localPosition = new Vector3(0f, 0.4f, 0f);
+            ring.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            ring.transform.localScale = new Vector3(0.95f, 0.04f, 0.95f);
+            Object.Destroy(ring.GetComponent<Collider>());
+            ring.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(1f, 0.9f, 0.35f));
+        }
+
         private void Update()
         {
             if (_collected)
                 return;
 
-            float spinSpeed = _kind == PickupKind.BonusStar ? 240f : 120f;
+            float spinSpeed = _kind == PickupKind.BonusStar || _kind == PickupKind.Giant ? 240f : 120f;
             _spin += Time.deltaTime * spinSpeed;
             if (_visualRoot != null)
             {
@@ -274,14 +299,16 @@ namespace CoastRun
             }
 
             float magnet = (_upgrades != null ? _upgrades.GetMagnetRadius() : 1.4f) + PetCompanion.MagnetBonus;
-            if (_kind == PickupKind.BonusStar || _kind == PickupKind.Potion || _kind == PickupKind.Heart)
+            if (_kind == PickupKind.BonusStar || _kind == PickupKind.Potion || _kind == PickupKind.Heart || _kind == PickupKind.Giant)
                 magnet += 0.6f;   // the rare ones should never be a near miss
             if (BonusTimeDirector.IsActive)
                 magnet += 1.5f;
-            magnet += FeverMode.MagnetBonus;   // 23차-9
+            magnet += FeverMode.MagnetBonus;
 
+            bool feverPull = FeverMode.InPullRange(_player, transform.position);
             Vector3 toPlayer = _player.position - transform.position;
-            if (toPlayer.sqrMagnitude > magnet * magnet)
+            bool inSphere = magnet > 0.05f && toPlayer.sqrMagnitude <= magnet * magnet;
+            if (!feverPull && !inSphere)
             {
                 _magnetActive = false;
                 return;
@@ -295,7 +322,7 @@ namespace CoastRun
                 _magnetBend = Random.Range(0.3f, 0.6f) * (Random.value > 0.5f ? 1f : -1f);
             }
 
-            _magnetT += Time.deltaTime * (FeverMode.Active ? 5f : 3f);
+            _magnetT += Time.deltaTime * (FeverMode.Active ? 7f : 3f);
             float u = Mathf.Clamp01(_magnetT);
             float e = u * u * (3f - 2f * u);
             Vector3 end = PickupReach.MagnetTarget(_player);
@@ -307,6 +334,23 @@ namespace CoastRun
             Vector3 a = Vector3.Lerp(_magnetStart, ctrl, e);
             Vector3 b = Vector3.Lerp(ctrl, end, e);
             transform.position = Vector3.Lerp(a, b, e);
+        }
+
+        /// 피버 시작 시 즉시 흡입 궤도에 태운다.
+        public void BeginFeverPull(Transform player)
+        {
+            if (_collected || player == null) return;
+            if (!FeverMode.InPullRange(player, transform.position)) return;
+            _player = player;
+            if (!_magnetActive)
+            {
+                _magnetActive = true;
+                _magnetT = 0.15f;
+                _magnetStart = transform.position;
+                _magnetBend = Random.Range(0.2f, 0.45f) * (Random.value > 0.5f ? 1f : -1f);
+            }
+            else
+                _magnetT = Mathf.Max(_magnetT, 0.35f);
         }
 
         private void OnTriggerEnter(Collider other)
@@ -370,6 +414,11 @@ namespace CoastRun
                     else { CoastToast.Show(Loc.T("포토카드 전부 모았어 — 코인 +50", "All photocards collected — +50 coins")); FindFirstObjectByType<CoinWallet>()?.Add(50); }
                     break;
                 }
+                case PickupKind.Giant:
+                    GiantMode.Ensure().Activate();
+                    hud?.AddScore(120, pos, true);
+                    hud?.Flash(new Color(1f, 0.55f, 0.15f, 0.4f));
+                    break;
             }
 
             var col = GetComponent<Collider>();
@@ -382,7 +431,7 @@ namespace CoastRun
             {
                 Color tint = _kind == PickupKind.Heart ? new Color(1f, 0.35f, 0.5f)
                            : _kind == PickupKind.Potion ? new Color(0.45f, 0.8f, 1f)
-                           : _kind == PickupKind.BonusStar ? new Color(1f, 0.9f, 0.3f)
+                           : _kind == PickupKind.BonusStar || _kind == PickupKind.Giant ? new Color(1f, 0.9f, 0.3f)
                            : new Color(0.6f, 1f, 0.5f);
                 juice.PlayCoinCollect(null, PickupReach.PopPos(_player, transform.position), _kind == PickupKind.Jelly ? 0 : 2, tint);
             }

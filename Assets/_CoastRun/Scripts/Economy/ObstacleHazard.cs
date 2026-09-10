@@ -53,7 +53,14 @@ namespace CoastRun
             if (softHit)
             {
                 player.PendingHitDamageMul = DamageMul;   // 22차-7: 장애물별 피해 배율(버스 즉사, 차 큰 피해, 일반 3방)
-                player.SoftHit(ClassifyHit(player), BounceSide(player));
+                // SoftHit가 무적·무적프레임으로 막혀도 꽈당은 동일하게 — Pop만 되고 피드백이 빠지던 것.
+                if (!player.SoftHitApplied(ClassifyHit(player), BounceSide(player)))
+                {
+                    player.PendingHitDamageMul = 1f;
+                    // 거인 무적 중엔 꽈당 대신 그냥 팡 — HP·경직 없음
+                    if (!GiantMode.Active)
+                        JuiceDirector.Instance?.PlayHitImpact();
+                }
                 // 14차-14: 부딪힌 장애물은 '팡' 하고 귀엽게 터진다 — 납작해졌다 별·하트로 흩어지고 사라진다.
                 Pop();
             }
@@ -86,6 +93,8 @@ namespace CoastRun
         {
             foreach (var c in root.GetComponentsInChildren<Collider>(true)) c.enabled = false;
             var w = root.GetComponent<ObstacleWarning>(); if (w != null) w.enabled = false;
+            var ring = root.GetComponentInChildren<HazardRing>(); if (ring != null) ring.enabled = false;
+            var ringQuad = root.Find("HazardRing"); if (ringQuad != null) ringQuad.gameObject.SetActive(false);
             // 17차: '닿는 순간' 터진다 — 파편은 주인공과 장애물 사이(접점)에서, 주인공을 따라오며 흩어진다.
             // 장애물 자체는 주인공에게 붙여 두고(월드 위치 유지) 0.2 s 안에 납작→펑 사라지므로 뒤에 남지 않는다.
             var pc = FindAnyObjectByType<PlayerController>();
@@ -135,19 +144,18 @@ namespace CoastRun
             root.transform.position = localPos;
             root.transform.rotation = DownhillPath.Rotation;
 
-            // 14차-11: Blender 3D 콘이 있으면 최우선(입체 + 잉크 테두리)
+            // Firefly 그림이 있으면 우선(경고 띠와 짝). Obs3 는 그림 없을 때.
+            if (PaintedProp.Available("Cone"))
+            {
+                PaintedProp.Attach(root.transform, "Cone", 0.72f, replace: false, outline: true);
+                FinishCone(root, lane);
+                return root;
+            }
             if (JejuKit.Load("Obs3_Cone") != null)
             {
                 JejuKit.Spawn("Obs3_Cone", root.transform, Vector3.zero, 0f, 0.72f / 0.78f);
                 FinishCone(root, lane);
                 ObstacleOutline.Attach(root.transform);
-                return root;
-            }
-            // Firefly-painted cone wins; otherwise the FBX prefab / procedural cone below.
-            if (PaintedProp.Available("Cone"))
-            {
-                PaintedProp.Attach(root.transform, "Cone", 0.72f, replace: false, outline: true);   // 38차: 붉은 테두리 원복
-                FinishCone(root, lane);
                 return root;
             }
 

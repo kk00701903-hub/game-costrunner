@@ -336,10 +336,16 @@ namespace CoastRun
 
         private void ApplyJuiceLate()
         {
-            if (_glideBlend > 0.001f || _finishBlend > 0.001f) { transform.localScale = _rootScale; return; }
+            if (_glideBlend > 0.001f || _finishBlend > 0.001f)
+            {
+                float g = _player != null ? Mathf.Max(0.5f, _player.VisualScaleMul) : 1f;
+                transform.localScale = _rootScale * g;
+                return;
+            }
             float s = _squash;
             float xz = 1f / Mathf.Sqrt(Mathf.Max(0.3f, s));   // 부피 보존
-            transform.localScale = new Vector3(_rootScale.x * xz, _rootScale.y * s, _rootScale.z * xz);
+            float mul = _player != null ? Mathf.Max(0.5f, _player.VisualScaleMul) : 1f;
+            transform.localScale = new Vector3(_rootScale.x * xz * mul, _rootScale.y * s * mul, _rootScale.z * xz * mul);
             if (_bag != null)
                 _bag.localRotation = _bagRest * Quaternion.Euler(Mathf.Clamp(_bagPitch, -30f, 30f), 0f, Mathf.Clamp(_bagRoll, -25f, 25f));
             if (_head != null)
@@ -373,8 +379,38 @@ namespace CoastRun
         private float _glideBlend;
         private float _glideT; private bool _wasGliding;
         private float _finishBlend; private bool _finishPose;
-        /// 22차-5: 골인 포즈 — 뒤돌아서(카메라 쪽) 왼손 옆구리·오른손 치켜들기.
-        public void SetFinishPose(bool on) { _finishPose = on; if (!on) _finishBlend = 0f; }
+        /// 골인 시 뒤돌기 포즈 — 사용자 요청으로 비활성. SettleFacingForward 만 쓴다.
+        public void SetFinishPose(bool on)
+        {
+            _finishPose = on;
+            if (!on)
+            {
+                _finishBlend = 0f;
+                if (_anim != null) _anim.speed = 1f;
+            }
+        }
+
+        /// 골인: 활공/뒤돌기 없이 정면·직립으로 고정(애니만 멈춤).
+        public void SettleFacingForward()
+        {
+            _finishPose = false;
+            _finishBlend = 0f;
+            _glideBlend = 0f;
+            _glideT = 0f;
+            _wasGliding = false;
+            _yaw = 0f; _yawVel = 0f;
+            _lean = 0f; _leanVel = 0f;
+            _pitch = 0f; _pitchVel = 0f;
+            _tilt = 0f; _tiltVel = 0f;
+            transform.localRotation = Quaternion.identity;
+            transform.localPosition = Vector3.zero;
+            if (_anim != null)
+            {
+                _anim.SetBool(HashGrounded, true);
+                _anim.SetFloat(HashSpeed, 0f);
+                _anim.speed = 0f;
+            }
+        }
         private const float SpinSeconds = 0.6f;
         private Vector3 _hipRest;
 
@@ -521,8 +557,34 @@ namespace CoastRun
             float lv = _player.LateralVelocity;
             float leanTarget = Mathf.Clamp(-lv * 2.2f, -14f, 14f);
             float yawTarget = Mathf.Clamp(lv * 3.0f, -18f, 18f);
+            // 골인: 뒤돌기 연출 없음 — 정면 직립으로 멈추기만
+            if (_player.State == SkateState.Finish)
+            {
+                if (_glideBlend > 0.001f || _finishBlend > 0.001f || _finishPose)
+                    SettleFacingForward();
+                else
+                {
+                    _anim.SetBool(HashGrounded, true);
+                    _anim.SetFloat(HashSpeed, 0f);
+                    _anim.speed = 0f;
+                    transform.localRotation = Quaternion.identity;
+                    transform.localPosition = Vector3.zero;
+                }
+                return;
+            }
             _finishBlend = Mathf.MoveTowards(_finishBlend, _finishPose ? 1f : 0f, dt * 2.2f);
-            if (_finishPose) yawTarget = 180f * (_finishBlend * _finishBlend * (3f - 2f * _finishBlend));
+            if (_finishPose && _finishBlend > 0.001f)
+            {
+                // (레거시 경로 — FinishMotion 켰을 때만 SetFinishPose(true))
+                yawTarget = 180f * (_finishBlend * _finishBlend * (3f - 2f * _finishBlend));
+                _anim.SetBool(HashGrounded, true);
+                _anim.SetFloat(HashSpeed, 0f);
+                _anim.speed = 0f;
+                _lean = Mathf.SmoothDamp(_lean, 0f, ref _leanVel, 0.12f, 800f, dt);
+                _yaw = Mathf.SmoothDamp(_yaw, yawTarget, ref _yawVel, 0.10f, 800f, dt);
+                transform.localRotation = Quaternion.Euler(_pitch, _yaw, _lean + _tilt);
+                return;
+            }
             _lean = Mathf.SmoothDamp(_lean, leanTarget, ref _leanVel, 0.10f, 800f, dt);
             _yaw = Mathf.SmoothDamp(_yaw, yawTarget, ref _yawVel, 0.10f, 800f, dt);
             bool grounded = _player.State != SkateState.Air;

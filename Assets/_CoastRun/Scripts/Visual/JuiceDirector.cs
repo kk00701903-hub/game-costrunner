@@ -640,39 +640,44 @@ namespace CoastRun
                 yield return null;
             }
 
-            // Must restore with unscaled clock — scaled wait would never finish at 0.85 forever if stuck.
-            Time.timeScale = 1f;
+            // Restore to pre-hit-stop scale (never leave the run at 0 after a soft hit).
+            var chrome = RunHudChrome.Instance;
+            Time.timeScale = (chrome != null && chrome.IsPaused) ? 0f : Mathf.Max(0.01f, _baseTimeScale);
+            if (Time.timeScale < 0.05f && (chrome == null || !chrome.IsPaused))
+                Time.timeScale = 1f;
             _hitStopRoutine = null;
         }
 
         // ── SoftHit ────────────────────────────────────────────────────────
 
-        private void HandleSoftHit()
+        private Coroutine _softHitCo;
+
+        private void HandleSoftHit() => PlayHitImpact();
+
+        /// 장애물 충돌 피드백(꽈당). SoftHit 성공·실패(무적프레임) 모두 같은 연출.
+        public void PlayHitImpact()
         {
             CoastPrefs.Vibrate();
-            StartCoroutine(SoftHitSequence());
+            if (_softHitCo != null) StopCoroutine(_softHitCo);
+            _softHitCo = StartCoroutine(SoftHitSequence());
         }
 
         private IEnumerator SoftHitSequence()
         {
-            float wait = 0f;
-            while (wait < 0.05f)
-            {
-                wait += Time.unscaledDeltaTime;
-                yield return null;
-            }
-
             // 23차-2: '꽈당' — 공격당했다는 불쾌한 충격이 화면에 와야 피하고 싶어진다.
             // 순간 정지(0.10 s) → 큰 흔들림 → 화면이 기울며 붉게 번쩍 + "꽈당!" + 채도 뚝.
+            // (예전 0.05s 대기는 짧은 피격에서 연출이 씹히는 경우가 있어 바로 켠다)
             if (_hitStopRoutine != null) StopCoroutine(_hitStopRoutine);
             _hitStopRoutine = StartCoroutine(HitStop(0.03f, 0.10f));
             cameraRig?.Shake(0.55f, 0.38f);
             PunchSaturation(-70f, 0.55f);
-            player?.FreezeInput(0.3f);
+            player?.FreezeInput(0.12f);   // brief only — long SoftHit lock felt like dead keyboard
             cameraRig?.FovKick(-9f, 0.28f);
             PickupFloat.Impact(Loc.T("꽈당!", "OUCH!"));
             // ★ BGM never stops — SFX only.
             audio?.PlaySfx(CoastSfx.SoftHit);
+            yield return null;
+            _softHitCo = null;
         }
 
         // ── Jump / land ────────────────────────────────────────────────────

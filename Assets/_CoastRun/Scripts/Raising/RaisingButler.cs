@@ -68,6 +68,17 @@ namespace CoastRun
                 _lines.Add(Loc.T("지금은 무리입니다. 이번 주는 휴식으로 채우시지요.", "Not now. Fill this week with rest."));
             else if (st.stamina > 0 && st.stress / (float)st.stamina >= 0.7f)
                 _lines.Add(Loc.T("스트레스가 높습니다. 휴식 카드 한 장이면 다음 주가 편해집니다.", "Stress is high. One rest card makes next week easier."));
+            // PM: 게이트 임박·체력 부족 조언
+            int need = StoryGate.Required(save);
+            int have = StoryGate.Stamina(save);
+            bool gateSoon = week >= Timeline.WeekEnd(save.chapter);
+            if (have < need)
+            {
+                if (gateSoon)
+                    _lines.Add(Loc.T($"이번 주가 게이트입니다. 체력 {have}/{need} — 체력 카드를 넣으셔야 달릴 수 있습니다.", $"Gate week. Stamina {have}/{need} — put stamina cards or you can't run."));
+                else
+                    _lines.Add(Loc.T($"스토리 게이트까지 체력 {need - have}이 모자랍니다. 체육·오름을 넣어 두세요.", $"Need {need - have} more stamina for the story gate. Gym or oreum helps."));
+            }
             if (st.money < 60)
                 _lines.Add(Loc.T("지갑이 가볍습니다. 알바 한 칸 넣어 두면 교육비를 댈 수 있습니다.", "Purse is light. One job slot pays for lessons."));
             int lowest = Mathf.Min(st.stamina, Mathf.Min(st.agility, st.charm));

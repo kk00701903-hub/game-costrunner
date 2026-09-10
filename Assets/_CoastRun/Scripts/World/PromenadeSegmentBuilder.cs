@@ -19,49 +19,65 @@ namespace CoastRun
             root.transform.SetPositionAndRotation(
                 DownhillPath.Point(baseZ), DownhillPath.Rotation);
 
+            // Road first — never leave a hole in the track even if dressing throws.
             BuildRoad(root.transform, segmentIndex);
-            // 35차: 챕터별 장면 배합(SceneMix) — 왼쪽/오른쪽을 타일마다 다르게(상가·마을·숲·들판·바위 / 바다·무지개·해변·풍력·오름·숲·들판·바위·상가)
-            int chapter = StageManager.Instance != null ? StageManager.Instance.ChapterIndex : ChapterDifficulty.Stage;
+
+            try
+            {
+                DressSegment(root.transform, segmentIndex);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"[Promenade] segment {segmentIndex} dressing failed (road kept): {e.Message}");
+            }
+
+            return root;
+        }
+
+        /// Town / sea / props — isolated so a kit error cannot erase the road tile.
+        private static void DressSegment(Transform root, int segmentIndex)
+        {
+            int chapter = StageManager.Instance != null ? StageManager.Instance.ChapterIndex : Mathf.Max(1, ChapterDifficulty.Stage);
             SceneMix.Pick(chapter, segmentIndex, out var leftKind, out var rightKind);
             var prof = SceneMix.Get(chapter);
             LastSceneLabel = SceneMix.LeftName(leftKind) + " / " + SceneMix.RightName(rightKind);
-            // 38차: 페인팅 스트립(Kling) 우선 — 상가/마을은 Side_Village, 바다/바위 쪽은 Side_Shore
-            bool paintedVillage = (leftKind == LeftKind.Town || leftKind == LeftKind.Village) && BuildPaintedSide(root.transform, -1, "Village", segmentIndex, 6.2f, 1.3f);
-            if (paintedVillage) leftKind = LeftKind.Field;   // 아래 switch 를 건너뛰기 위한 표시(들판 빌더는 안 부른다)
-            switch (paintedVillage ? (LeftKind)(-1) : leftKind)
+            bool has3dTown = JejuKit.BuildingCount > 0 || JejuKit.ShopCount > 0 || JejuKit.FShopAvailable;
+            switch (leftKind)
             {
-                case LeftKind.Village: BuildTownSide(root.transform, segmentIndex, village: true); break;
-                case LeftKind.Forest: BuildForestSide(root.transform, segmentIndex, -1, prof.forest); break;
-                case LeftKind.Field: BuildFieldSide(root.transform, segmentIndex, -1, prof.field); break;
-                case LeftKind.Rock: if (!BuildPaintedSide(root.transform, -1, "Shore", segmentIndex, 4.2f, 1.2f)) BuildRockSide(root.transform, segmentIndex, -1); break;
-                case (LeftKind)(-1): break;
-                default: BuildTownSide(root.transform, segmentIndex); break;
+                case LeftKind.Village:
+                    if (has3dTown) BuildTownSide(root, segmentIndex, village: true);
+                    else BuildPaintedSide(root, -1, "Village", segmentIndex, 6.2f, 1.3f);
+                    break;
+                case LeftKind.Forest: BuildForestSide(root, segmentIndex, -1, prof.forest); break;
+                case LeftKind.Field: BuildFieldSide(root, segmentIndex, -1, prof.field); break;
+                case LeftKind.Rock: BuildRockSide(root, segmentIndex, -1); break;
+                default:
+                    if (has3dTown) BuildTownSide(root, segmentIndex);
+                    else BuildPaintedSide(root, -1, "Village", segmentIndex, 6.2f, 1.3f);
+                    break;
             }
             switch (rightKind)
             {
-                case RightKind.Rainbow: BuildSeaSide(root.transform, segmentIndex, rainbow: true); break;
-                case RightKind.WindSea: BuildSeaSide(root.transform, segmentIndex); AddTurbines(root.transform, segmentIndex); break;
-                case RightKind.Beach: BuildBeachSide(root.transform, segmentIndex); break;
-                case RightKind.Hill: BuildHillSide(root.transform, segmentIndex); break;
-                case RightKind.Forest: BuildForestSide(root.transform, segmentIndex, +1, prof.forest); break;
-                case RightKind.Field: BuildFieldSide(root.transform, segmentIndex, +1, prof.field); break;
-                case RightKind.Rock: if (!BuildPaintedSide(root.transform, +1, "Shore", segmentIndex, 4.2f, 1.2f)) BuildRockSide(root.transform, segmentIndex, +1); break;
+                case RightKind.Rainbow: BuildSeaSide(root, segmentIndex, rainbow: true); break;
+                case RightKind.WindSea: BuildSeaSide(root, segmentIndex); AddTurbines(root, segmentIndex); break;
+                case RightKind.Beach: BuildBeachSide(root, segmentIndex); break;
+                case RightKind.Hill: BuildHillSide(root, segmentIndex); break;
+                case RightKind.Forest: BuildForestSide(root, segmentIndex, +1, prof.forest); break;
+                case RightKind.Field: BuildFieldSide(root, segmentIndex, +1, prof.field); break;
+                case RightKind.Rock: BuildRockSide(root, segmentIndex, +1); break;
                 case RightKind.Town:
-                    if (JejuKit.BuildingCount > 0 || JejuKit.ShopCount > 0) BuildTownSideKit(root.transform, segmentIndex, new System.Random(segmentIndex * 3571 + 77), false, +1);
-                    else BuildSeaSide(root.transform, segmentIndex);
+                    if (has3dTown) BuildTownSideKit(root, segmentIndex, new System.Random(segmentIndex * 3571 + 77), false, +1);
+                    else BuildSeaSide(root, segmentIndex);
                     break;
-                default: BuildSeaSide(root.transform, segmentIndex); BuildPaintedSide(root.transform, +1, "Shore", segmentIndex, 3.6f, 0.9f); break;   // 38차: 바다 앞에 바위·풀 띠
+                default: BuildSeaSide(root, segmentIndex); break;
             }
-            BuildPolesAndWires(root.transform, segmentIndex);
+            BuildPolesAndWires(root, segmentIndex);
 
-            float pathZ = segmentIndex * Length;
             var season = StageManager.Instance != null
                 ? StageManager.ChapterAsSeason(StageManager.Instance.ChapterIndex)
                 : SeasonKind.Summer;
-            if (!paintedVillage && (leftKind == LeftKind.Town || leftKind == LeftKind.Village))
-                SegmentDecorator.Decorate(root.transform, segmentIndex, season);
-
-            return root;
+            if (has3dTown && (leftKind == LeftKind.Town || leftKind == LeftKind.Village))
+                SegmentDecorator.Decorate(root, segmentIndex, season);
         }
 
         private static Material _roadMat;
@@ -70,28 +86,27 @@ namespace CoastRun
         /// material (and re-registered a UV scroller) per tile, which leaked forever.
         private static Material RoadMaterial()
         {
-            if (_roadMat != null)
+            // Domain reload / play-mode exit can leave a destroyed material reference.
+            if (_roadMat == null)
             {
-                if (_roadMat.HasProperty("_BaseColor")) _roadMat.SetColor("_BaseColor", SeasonLook.RoadTint(SeasonLook.Current));
-                return _roadMat;
+                _roadMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
+                Texture2D tex = ArtAssets.LoadTexture("Tex_Pavement_Cream") ?? RoadTextureGenerator.Flagstone();
+                if (_roadMat.HasProperty("_BaseMap"))
+                {
+                    _roadMat.SetTexture("_BaseMap", tex);
+                    _roadMat.SetTextureScale("_BaseMap", new Vector2(3f, 12f));
+                }
+                else
+                {
+                    _roadMat.mainTexture = tex;
+                    _roadMat.mainTextureScale = new Vector2(2f, 8f);
+                }
             }
-            _roadMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
-            if (_roadMat.HasProperty("_BaseColor")) _roadMat.SetColor("_BaseColor", SeasonLook.RoadTint(SeasonLook.Current));
-            // Painted flagstone (Firefly) when present; the procedural stones otherwise.
-            Texture2D tex = ArtAssets.LoadTexture("Tex_Pavement_Cream") ?? RoadTextureGenerator.Flagstone();
-            // Whole repeats per 30 m tile so the stone pattern is seamless across segments.
-            // Not registered with RoadUvScroller: the world already moves past the camera,
-            // and a scrolling texture on moving geometry makes the stones slide.
-            if (_roadMat.HasProperty("_BaseMap"))
-            {
-                _roadMat.SetTexture("_BaseMap", tex);
-                _roadMat.SetTextureScale("_BaseMap", new Vector2(3f, 12f));   // 8차: 돌 무늬 촘촘히
-            }
-            else
-            {
-                _roadMat.mainTexture = tex;
-                _roadMat.mainTextureScale = new Vector2(2f, 8f);
-            }
+            // Always re-assert cream flagstone tint — never let sky/sea bleed into the deck.
+            if (_roadMat.HasProperty("_BaseColor"))
+                _roadMat.SetColor("_BaseColor", SeasonLook.RoadTint(SeasonLook.Current));
+            else if (_roadMat.HasProperty("_Color"))
+                _roadMat.SetColor("_Color", SeasonLook.RoadTint(SeasonLook.Current));
             return _roadMat;
         }
 
@@ -206,8 +221,8 @@ namespace CoastRun
             var rng = new System.Random(index * 3571 + 3);
             float shopX = -(RoadHalfWidth + 3.2f);
 
-            // Blender kit (Resources/CoastRun/Models): real Jeju shops, 돌담, 감귤 trees.
-            if (JejuKit.BuildingCount > 0 || JejuKit.ShopCount > 0)
+            // Blender kit (Resources/CoastRun/Models): FShop / Shop / Bldg 3D.
+            if (JejuKit.BuildingCount > 0 || JejuKit.ShopCount > 0 || JejuKit.FShopAvailable)
             {
                 BuildTownSideKit(root, index, rng, village);
                 return;
@@ -289,9 +304,11 @@ namespace CoastRun
         private static int _shopStreak;
         private static void BuildTownSideKit(Transform root, int index, System.Random rng, bool village = false, int side = -1)
         {
-            // 35차: 필지 앞선을 도로에서 1 m 더 물린다(돌담·수국·테라스가 도로 위로 튀어나와 장애물처럼 보이던 것).
+            // 필지 앞선: 도로 가장자리(+4)에서 충분히 물러선다. FShop/Shop/Bldg 메시는 피벗보다
+            // 도로 쪽(+로컬 X, yaw 180 후)으로 1~2 m 튀어나와 있어, 예전 1.9 m 오프셋만으론
+            // 본체·기단이 차도에 걸렸다. SeatOnKerb 로 정면을 맞춘 뒤에도 돌담·테라스 여유를 둔다.
             // side=+1 이면 오른쪽(시장 거리): 피벗을 180° 돌려 '도로 쪽'이 같은 로컬 +X 가 되게 한다.
-            float frontX = side * (RoadHalfWidth + 1.9f);
+            float frontX = side * (RoadHalfWidth + 3.4f);
             int n = JejuKit.ShopCount > 0 ? JejuKit.ShopCount : JejuKit.BuildingCount;
             int prev = (index * 7) % n;
 
@@ -318,7 +335,7 @@ namespace CoastRun
                     // The FBX handedness swap mirrors Blender's X: the kit's front (+X in
                     // Blender) imports facing -X, so a half turn puts the shopfront on the
                     // road side with the body extending away from it.
-                    JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 180f);
+                    SeatOnKerb(JejuKit.SpawnBuilding(variant, pivot, Vector3.zero, 180f));
                     if (JejuKit.ShopCount == 0)
                     {
                         StreetDressing.ShopFront(pivot, rng, 2.8f + (float)rng.NextDouble() * 0.9f);
@@ -326,8 +343,8 @@ namespace CoastRun
                             StreetDressing.Balcony(pivot, rng, 3.6f + (float)rng.NextDouble() * 0.6f, 5.4f);
                     }
                     StreetDressing.ContactShadow(pivot, 9.5f, 1.4f);
-                    // 상가 앞 테라스: 파라솔 + 카페 세트(3집 중 1집)
-                    if (rng.Next(3) == 0) JejuLots.CafeTerrace(pivot, rng);
+                    // 상가 앞 테라스: 파라솔 + 카페 세트(3집 중 1집) — 인도를 넘지 않게 안쪽으로
+                    if (rng.Next(3) == 0) JejuLots.CafeTerrace(pivot, rng, new Vector3(-0.2f, 0f, 2.6f));
                 }
                 else if (lotRoll < 67)
                 {
@@ -343,14 +360,14 @@ namespace CoastRun
                     JejuLots.Park(pivot, rng);
                 }
 
-                // 돌담 either side of the entrance.
+                // 돌담 either side of the entrance — 도로로 안 나오게 피벗 안쪽(+X 감소)
                 for (int ws = -1; ws <= 1; ws += 2)
                 {
                     float wz = ws * 3.6f;
-                    JejuKit.Spawn("Prop_StoneWall", pivot, new Vector3(0.55f, 0f, wz), 0f, 0.55f);
+                    JejuKit.Spawn("Prop_StoneWall", pivot, new Vector3(-0.15f, 0f, wz), 0f, 0.55f);
                     // 14차: 돌담 앞 수국 — 목표 이미지의 파란 수국 덤불. 문 앞은 비운다.
                     if (rng.Next(3) != 0)
-                        StreetDressing.Hydrangea(pivot, new Vector3(0.7f, 0f, wz + ws * 0.9f), rng, 0.85f + (float)rng.NextDouble() * 0.35f);
+                        StreetDressing.Hydrangea(pivot, new Vector3(0.15f, 0f, wz + ws * 0.9f), rng, 0.85f + (float)rng.NextDouble() * 0.35f);
                 }
 
                 // Between lots: something to look at.
@@ -398,6 +415,33 @@ namespace CoastRun
                     default: JejuKit.Spawn("Prop_OrangeTree", gap, new Vector3(-1.5f, 0f, 0f), 0f, 1.1f); break;
                 }
             }
+        }
+
+        /// 스폰된 건물 메시가 필지 피벗보다 도로 쪽(+로컬 X)으로 튀어나온 만큼 뒤로 밀어,
+        /// 정면이 인도 선에 앉고 차도로 본체가 안 나오게 한다.
+        public static void SeatOnKerb(GameObject go)
+        {
+            if (go == null) return;
+            var parent = go.transform.parent;
+            if (parent == null) return;
+            var rs = go.GetComponentsInChildren<Renderer>();
+            if (rs == null || rs.Length == 0) return;
+            float maxX = float.MinValue;
+            foreach (var r in rs)
+            {
+                if (r == null) continue;
+                Bounds b = r.bounds;
+                Vector3 c = b.center, e = b.extents;
+                for (int ix = -1; ix <= 1; ix += 2)
+                for (int iy = -1; iy <= 1; iy += 2)
+                for (int iz = -1; iz <= 1; iz += 2)
+                {
+                    float lx = parent.InverseTransformPoint(c + new Vector3(e.x * ix, e.y * iy, e.z * iz)).x;
+                    if (lx > maxX) maxX = lx;
+                }
+            }
+            if (maxX > 0.05f)
+                go.transform.localPosition += new Vector3(-maxX, 0f, 0f);
         }
 
         // Facade sheet: Tex_Facade_A, _B, _C … in Resources/CoastRun; any gap ends the list.

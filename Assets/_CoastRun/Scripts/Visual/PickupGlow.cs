@@ -51,8 +51,14 @@ namespace CoastRun
         {
             if (_quad == null)
                 return;
-            float k = 0.9f + 0.12f * Mathf.Sin(Time.time * 4.2f + _phase);
+            float k = 0.88f + 0.18f * Mathf.Sin(Time.time * 5.5f + _phase);
             _quad.localScale = Vector3.one * (_size * k);
+            // 가산 광원 알파도 살짝 숨 쉬어 반짝이게
+            if (_mat != null)
+            {
+                float a = _color.a * (0.75f + 0.35f * Mathf.Abs(Mathf.Sin(Time.time * 6.2f + _phase * 1.3f)));
+                _mat.SetColor("_BaseColor", new Color(_color.r, _color.g, _color.b, a));
+            }
         }
 
         /// 먹었을 때 본체와 같이 사라지게.

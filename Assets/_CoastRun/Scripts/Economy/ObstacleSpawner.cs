@@ -27,16 +27,16 @@ namespace CoastRun
 
         [Header("Pacing")]
         [Tooltip("Seconds the player gets to see a row and react before reaching it.")]
-        [SerializeField] private float reactionSeconds = 0.45f;   // 14차-13: 관용 판정이 커져서 반응 창을 줄인다
+        [SerializeField] private float reactionSeconds = 0.55f;   // Gold Run: see the next row clearly
         [Tooltip("Extra seconds allowed per lane change needed to reach a safe lane.")]
         [SerializeField] private float laneChangeSeconds = 0.22f;   // 14차-9: 레인 이동 0.20s ease-out 에 맞춤
         [Tooltip("Base gap between rows at the start of a stage, in seconds of travel.")]
-        [SerializeField] private float rowGapSecondsStart = 1.0f;   // 14차-13: 골드런 밀도
+        [SerializeField] private float rowGapSecondsStart = 1.45f;   // Gold Run: empty asphalt between challenges
         [Tooltip("Base gap at the end of a stage. Never goes below the reaction floor.")]
-        [SerializeField] private float rowGapSecondsEnd = 0.62f;
+        [SerializeField] private float rowGapSecondsEnd = 0.72f;
         [Tooltip("Chance of a two-lane row at stage start / end.")]
-        [SerializeField, Range(0f, 1f)] private float doubleRowChanceStart = 0.22f;
-        [SerializeField, Range(0f, 1f)] private float doubleRowChanceEnd = 0.50f;
+        [SerializeField, Range(0f, 1f)] private float doubleRowChanceStart = 0.08f;
+        [SerializeField, Range(0f, 1f)] private float doubleRowChanceEnd = 0.42f;
 
         [Header("Oncoming cars (chapter 3+)")]
         [Tooltip("First chapter (1-based) in which cars drive toward the player.")]
@@ -55,7 +55,7 @@ namespace CoastRun
         private float _carMeetZ;
         private int _rowsUntilCar = 6;
 
-        private float _nextSpawnZ = 14f;
+        private float _nextSpawnZ = 32f;
         private Transform _root;
         private System.Random _rng = new System.Random(42);
 
@@ -84,7 +84,7 @@ namespace CoastRun
         public void ResetForStage(int stageIndex, float startZ)
         {
             _rng = new System.Random(SeedOverride ?? (1000 + stageIndex * 7919));
-            _nextSpawnZ = startZ + 14f;
+            _nextSpawnZ = startZ + 32f;   // Gold Run: long clear lead-in before first row
             _prevOpen = 0b111;
             _rowsUntilCar = carEveryRowsStart;
             if (_car != null)
@@ -166,7 +166,7 @@ namespace CoastRun
             while (_nextSpawnZ < z + spawnAhead)
             {
                 // 14차-3: 킥보드 아이는 1챕터부터 마주 온다(목표 이미지). 밴·버스는 carFromChapter부터.
-                bool carsAllowed = (chapter >= carFromChapter || chapter >= scooterFromChapter) && progress > 0.06f && progress < 0.93f;
+                bool carsAllowed = (chapter >= carFromChapter || chapter >= scooterFromChapter) && progress > 0.11f && progress < 0.93f;
                 if (carsAllowed && _car == null && _rowsUntilCar <= 0)
                 {
                     PlanCar(z, speed, progress);
@@ -176,7 +176,7 @@ namespace CoastRun
                 // 14차-3: 점프 패드 구간 — 패드 하나 + 4 m 간격 낮은 장애물 세 줄. 패드를 밟으면 한 번에 넘고,
                 // 안 밟아도 한 레인은 늘 비어 있다. 차가 오는 중엔 넣지 않는다.
                 bool carFar = _carLaneMask == 0 || Mathf.Abs(_nextSpawnZ + 8f - _carMeetZ) > speed * carClearSeconds + 10f;
-                if (carFar && progress > 0.04f && _rowsUntilPad <= 0 && _rng.NextDouble() < 0.7)
+                if (carFar && progress > 0.08f && _rowsUntilPad <= 0 && _rng.NextDouble() < 0.7)
                 {
                     SpawnJumpPadSection(_nextSpawnZ, speed);
                     _rowsUntilPad = 5 + _rng.Next(5);
@@ -204,7 +204,8 @@ namespace CoastRun
 
                 // 14차-13: 손에 땀 — 열린 레인에도 '점프로 넘는' 낮은 장애물을 깔아 세 레인이 다 막힌 것처럼
                 // 보이게 한다(골드런의 가장 흔한 줄). 열린 레인은 여전히 '열린' 것으로 계산해 도달 가능성은 지킨다.
-                float lowFill = Mathf.Lerp(0.18f, 0.40f, progress) + (RunRhythm.At(_nextSpawnZ) == RunRhythm.Phase.Crisis ? 0.15f : 0f);
+                float lowFill = Mathf.Lerp(0.06f, 0.28f, progress) + (RunRhythm.At(_nextSpawnZ) == RunRhythm.Phase.Crisis ? 0.12f : 0f);
+                if (progress < 0.2f) lowFill *= 0.35f;
                 if (blocked != 0 && _carLaneMask == 0 && _rng.NextDouble() < lowFill)
                     SpawnLowFill(_nextSpawnZ, 0b111 & ~blocked);
 
@@ -231,24 +232,29 @@ namespace CoastRun
         private int PlanRow(float progress)
         {
             float doubleChance = Mathf.Lerp(doubleRowChanceStart, doubleRowChanceEnd, progress) + ChapterDifficulty.DoubleLaneBonus;
+            // First fifth of stage: almost never double — Gold Run "single then cluster".
+            if (progress < 0.2f) doubleChance *= 0.35f;
             bool wantDouble = _rng.NextDouble() < doubleChance;
 
-            // Candidate layouts, as blocked-lane masks.
             int[] singles = { 0b001, 0b010, 0b100 };
             int[] doubles = { 0b011, 0b110, 0b101 };
             int[] pool = wantDouble ? doubles : singles;
 
-            // Shuffle-pick until one is reachable. Every single is always reachable
-            // (two lanes stay open), so this terminates.
+            // Prefer blocking a different lane than last time (stagger left→right rhythm).
             int start = _rng.Next(pool.Length);
+            int best = -1;
             for (int k = 0; k < pool.Length; k++)
             {
                 int blocked = pool[(start + k) % pool.Length];
-                if (Reachable(_prevOpen, 0b111 & ~blocked))
+                if (!Reachable(_prevOpen, 0b111 & ~blocked)) continue;
+                // Prefer layouts that leave the previously blocked lane open (stagger).
+                int prevBlocked = 0b111 & ~_prevOpen;
+                if (prevBlocked != 0 && (blocked & prevBlocked) == 0)
                     return blocked;
+                if (best < 0) best = blocked;
             }
+            if (best >= 0) return best;
 
-            // Fall back to a single that keeps the previous open lane open.
             for (int k = 0; k < singles.Length; k++)
             {
                 int blocked = singles[(start + k) % singles.Length];

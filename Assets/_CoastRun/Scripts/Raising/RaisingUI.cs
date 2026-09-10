@@ -64,6 +64,7 @@ namespace CoastRun
         private RectTransform _charRoot;
         private Image _darkCircles;
         private Text _heartsLabel;
+        private Text _affinityLabel;
 
         // Stats
         private enum StatTab { Body, Mind }
@@ -284,7 +285,8 @@ namespace CoastRun
         // Build
         // ────────────────────────────────────────────────────────────────
 
-        private const bool ShowButler = false;   // 28차: 집사 꼬마 표시 여부
+        private const bool ShowButler = false;   // 룸은 주인공만 — 집사/말풍선 숨김
+        private const bool ShowAffinityPanel = false;   // 호감 패널 숨김(주인공만)
         private const float HudH = 0.925f;    // HUD 아래 경계
         private const float RoomB = 0.50f;    // 룸 아래 경계
         private const float StatsB = 0.205f;  // 스탯 아래 경계
@@ -405,7 +407,7 @@ namespace CoastRun
             _charRoot.pivot = new Vector2(0.5f, 0f);   // 23차-8: 발끝 기준으로 숨쉬기·흔들림
             // 23차-7: 집사 꼬마(왼쪽 아래) — 상황별 조언, 탭하면 다음 조언
             _butler = new RaisingButler(host, () => { });
-            _butler.SetVisible(ShowButler);   // 28차: 사용자 요청으로 집사 숨김(코드는 유지)
+            _butler.SetVisible(ShowButler);
 
             // 챕터 하트 진행(좌상단 작은 명패)
             var plate = OrnatePanel(host, "HeartsPlate", Gold, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -10f), new Vector2(230f, -62f), anchoredSize: true);
@@ -420,25 +422,19 @@ namespace CoastRun
                 _heartsLabel.rectTransform.offsetMin = new Vector2(40f, 0f);
             }
 
-            // 9차: 우측 세로 아이콘 독(모바일 표준) — 작은 알약 6개가 캐릭터 위를 덮던 것을 정리.
-            int di = 0;
-            DockButton(host, "ArcadeBtn", "Speed", Loc.T("달리기", "Run"), new Color(0.95f, 0.55f, 0.25f), di++, () => { if (!_busy) ArcadeUI.Open(true); });
-            DockButton(host, "TimelineBtn", "Tower", Loc.T("챕터", "Chapters"), Sky, di++, OpenTimeline);
-            DockButton(host, "CollBtn", "Star", Loc.T("컬렉션", "Album"), new Color(0.80f, 0.45f, 0.55f), di++, () => { if (!_busy) CollectionUI.Open(Refresh); });
-            DockButton(host, "ShopBtn", "Coin", Loc.T("상점", "Shop"), Sun, di++, OpenShop);
-            // v3 생활 리듬(프메 식단): 보통 → 빡세게 → 무리 안 함 순환.
-            Button rhythmBtn = null;
-            rhythmBtn = DockButton(host, "RhythmBtn", "Heart", RhythmLabel(), new Color(0.62f, 0.52f, 0.80f), di++, () =>
+            if (ShowAffinityPanel)
             {
-                if (Save == null) return;
-                Save.rhythm = (LifeRhythm)(((int)Save.rhythm + 1) % 3);
-                _gm.Persist();
-                var t = rhythmBtn.transform.parent.Find("Label")?.GetComponent<Text>(); if (t != null) t.text = RhythmLabel();
-                Toast(Save.rhythm == LifeRhythm.Hard ? Loc.T("빡세게: 체력 성장 ×1.3, 스트레스 ×1.3", "Hard: stamina ×1.3, stress ×1.3")
-                    : Save.rhythm == LifeRhythm.Easy ? Loc.T("무리 안 함: 체력 성장 ×0.8, 스트레스 ×0.7", "Easy: stamina ×0.8, stress ×0.7")
-                    : Loc.T("보통 리듬", "Normal rhythm"));
-                RefreshCards();
-            });
+                var affPlate = OrnatePanel(host, "AffinityPlate", Gold, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(10f, -72f), new Vector2(280f, -150f), anchoredSize: true);
+                _affinityLabel = Label(affPlate.transform.Find("Inner"), "Text", "", 13, Navy);
+                _affinityLabel.alignment = TextAnchor.UpperLeft;
+                _affinityLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
+                _affinityLabel.verticalOverflow = VerticalWrapMode.Overflow;
+                Place(_affinityLabel.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 6f), new Vector2(-8f, -6f), new Vector2(0.5f, 0.5f));
+            }
+            // 우측 세로 독 — 상점 / 리듬·간식 / 홈 (달리기·챕터·컬렉션 버튼 제거)
+            int di = 0;
+            DockButton(host, "ShopBtn", "Coin", Loc.T("상점", "Shop"), Sun, di++, OpenShop);
+            DockRhythmSnack(host, di++);
             DockButton(host, "TitleBtn", null, Loc.T("홈", "Home"), new Color(0.55f, 0.50f, 0.48f), di++,
                 () => Confirm(Loc.T("타이틀로 돌아갈까?", "Back to title?"), Loc.T("진행은 자동 저장돼.", "Progress is auto-saved."), () => _gm.ToTitle()));
         }
@@ -891,9 +887,18 @@ namespace CoastRun
                 name.rectTransform.offsetMin = new Vector2(8f, 4f); name.rectTransform.offsetMax = new Vector2(-8f, nameH - 4f);
                 if (lockReason != null)
                 {
-                    var lk = Label(card.transform, "Lock", Loc.T("잠김", "Locked"), 15, new Color(1f, 0.9f, 0.6f));
-                    CoastUiArt.OutlineText(lk, new Color(0f, 0f, 0f, 0.5f), 1.5f);
-                    Place(lk.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -12f), new Vector2(70f, 26f), new Vector2(1f, 1f));
+                    // PM: 잠김 이유(해금 조건)를 카드에 바로 보여 토스트만 보지 않아도 되게
+                    var lkBg = CoastUiArt.Panel(card.transform, "LockBg", new Color(0.12f, 0.08f, 0.06f, 0.72f), 8);
+                    lkBg.raycastTarget = false;
+                    Place(lkBg.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 34f), new Vector2(0.5f, 1f));
+                    lkBg.rectTransform.offsetMin = new Vector2(8f, lkBg.rectTransform.offsetMin.y);
+                    lkBg.rectTransform.offsetMax = new Vector2(-8f, lkBg.rectTransform.offsetMax.y);
+                    var lk = Label(lkBg.transform, "Lock", Loc.T("잠김 · ", "Locked · ") + lockReason, 14, new Color(1f, 0.92f, 0.65f));
+                    CoastUiArt.OutlineText(lk, new Color(0f, 0f, 0f, 0.45f), 1.2f);
+                    lk.alignment = TextAnchor.MiddleCenter;
+                    lk.resizeTextForBestFit = true; lk.resizeTextMinSize = 11; lk.resizeTextMaxSize = 14;
+                    Place(lk.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+                    lk.rectTransform.offsetMin = new Vector2(6f, 2f); lk.rectTransform.offsetMax = new Vector2(-6f, -2f);
                 }
             }
             int rowsN = (defs.Count + 1) / 2;
@@ -1079,14 +1084,31 @@ namespace CoastRun
             _condLabel.text = cond.label;
             if (_condHeart != null) _condHeart.color = cond.color;
             _heartsLabel.text = rec != null ? $"{s.chapterHearts} / {rec.heartsTarget}" : s.chapterHearts.ToString();
+            if (_affinityLabel != null) _affinityLabel.text = AffinityPanelText(s);
 
             ApplySeasonRoom(season);
             RefreshSlots();
             RefreshStats();
             RefreshCharacter();
-            _butler?.Refresh(s, s.week <= 1 && s.phaseIndex == 0 && !s.HasQueuedSchedule);
+            if (ShowButler) _butler?.Refresh(s, s.week <= 1 && s.phaseIndex == 0 && !s.HasQueuedSchedule);
             RefreshRoomDeco();
             if (_sheet != null && _sheet.activeSelf) RefreshCards();
+        }
+
+        private static string AffinityPanelText(SaveData s)
+        {
+            if (s == null) return "";
+            var sb = new System.Text.StringBuilder();
+            sb.Append(Loc.T("호감", "Affinity"));
+            for (int i = 0; i < 4; i++)
+            {
+                int lv = Affinity.Level(s, i);
+                int v = Affinity.Get(s, i);
+                int next = lv < Affinity.Thresholds.Length ? Affinity.Thresholds[lv] : -1;
+                string tip = next < 0 ? Loc.T("MAX", "MAX") : Loc.T($"다음 {next - v}", $"next {next - v}");
+                sb.Append('\n').Append(Affinity.Name(i)).Append(' ').Append(lv).Append("/3 · ").Append(tip);
+            }
+            return sb.ToString();
         }
 
         private (string label, Color color) Condition(PlayerStats st)
@@ -1314,6 +1336,9 @@ namespace CoastRun
             var s = Save.stats; var season = Timeline.SeasonOf(Save.week);
             int filled = 0;
             int stress = s.stress, money = s.money, stamina = s.stamina, agility = s.agility, charm = s.charm;
+            // PM: 챕터 마지막 주·게이트 미달이면 체력 우선
+            bool gateSoon = Save.week >= Timeline.WeekEnd(Save.chapter);
+            int gateNeed = StoryGate.Required(Save);
             var used = new HashSet<string>();
             for (int i = 0; i < Timeline.PhasesPerWeek; i++) if (!string.IsNullOrEmpty(Save.queuedSchedule[i])) used.Add(Save.queuedSchedule[i]);
             for (int i = Save.phaseIndex; i < Timeline.PhasesPerWeek; i++)
@@ -1322,6 +1347,19 @@ namespace CoastRun
                 ScheduleDef pick = null;
                 if (stress >= 70) pick = Best(ScheduleCategory.Rest, season, used, d => -d.dStress);
                 else if (money < 60) pick = Best(ScheduleCategory.Job, season, used, d => d.dMoney - d.dStress * 0.5f);
+                else if (gateSoon && stamina < gateNeed)
+                {
+                    System.Func<ScheduleDef, float> staGain = d =>
+                    {
+                        if (d.dStamina <= 0) return float.NegativeInfinity;
+                        float v = d.dStamina * 14f - d.dStress * 0.35f + (d.hasBonusSeason && d.bonusSeason == season ? 6f : 0f);
+                        if (d.category == ScheduleCategory.Lesson && money + d.dMoney < 40) return float.NegativeInfinity;
+                        return v;
+                    };
+                    pick = Best(ScheduleCategory.Lesson, season, used, staGain)
+                        ?? Best(ScheduleCategory.SelfDev, season, used, staGain)
+                        ?? Best(ScheduleCategory.Job, season, used, staGain);
+                }
                 if (pick == null)
                 {
                     // 가장 낮은 스탯 고르기
@@ -1373,14 +1411,17 @@ namespace CoastRun
         }
 
         // 9차 주간 정산: 주 시작 시점 스냅샷과 비교해 스탯·돈·하트 변화를 애니메이션으로 보여준다.
-        private struct WeekSnap { public int stamina, agility, charm, sense, trust, stress, money, hearts, week; }
+        private struct WeekSnap { public int stamina, agility, charm, sense, trust, stress, money, hearts, week; public int[] affinity; }
         private WeekSnap _weekSnap; private bool _weekSnapValid;
         private int _weekGreat, _weekFail;
 
         private WeekSnap TakeSnap()
         {
             var s = Save.stats;
-            return new WeekSnap { stamina = s.stamina, agility = s.agility, charm = s.charm, sense = s.sense, trust = s.trust, stress = s.stress, money = s.money, hearts = Save.chapterHearts, week = Save.week };
+            var aff = new int[4];
+            if (Save.affinity != null)
+                for (int i = 0; i < 4 && i < Save.affinity.Length; i++) aff[i] = Save.affinity[i];
+            return new WeekSnap { stamina = s.stamina, agility = s.agility, charm = s.charm, sense = s.sense, trust = s.trust, stress = s.stress, money = s.money, hearts = Save.chapterHearts, week = Save.week, affinity = aff };
         }
 
         private IEnumerator ExecuteWeek()
@@ -1428,6 +1469,7 @@ namespace CoastRun
                 // 6차: NPC 호감도 문턱 사이드 씬
                 string side = _gm.PendingSideScene; _gm.PendingSideScene = null;
                 int lvl = side.EndsWith("_3") ? 3 : side.EndsWith("_2") ? 2 : 1;
+                CoastToast.Show(Loc.T($"사이드 해금 · {side}", $"Side unlocked · {side}"));
                 bool doneVn = false;
                 ChapterVN.Play(side, () => doneVn = true);
                 while (!doneVn) yield return null;
@@ -1493,7 +1535,11 @@ namespace CoastRun
         {
             SetLogArt(scheduleId);
             _logPanel.SetActive(true);
-            _logTitle.text = title;
+            string banner = outcome == Outcome.GreatSuccess ? Loc.T("★ 대성공", "★ GREAT")
+                : outcome == Outcome.Fail ? Loc.T("✕ 실패", "✕ FAIL")
+                : Loc.T("○ 성공", "○ OK");
+            _logTitle.text = banner + "\n" + title;
+            _logTitle.fontSize = CoastHudLayout.Scaled(outcome == Outcome.GreatSuccess || outcome == Outcome.Fail ? 28 : 24);
             _logTitle.color = outcome == Outcome.GreatSuccess ? Hex("#B8860B") : outcome == Outcome.Fail ? Red : Navy;
             _logBody.text = "";
             _logHint.text = "";
@@ -1508,7 +1554,7 @@ namespace CoastRun
                 while (t < wait && !_tapped) { t += Time.unscaledDeltaTime; yield return null; }
                 if (_tapped) { _logBody.text = string.Join("\n", lines); break; }
             }
-            _logHint.text = "화면을 터치하면 계속";
+            _logHint.text = Loc.T("화면을 터치하면 계속", "Tap to continue");
             _tapped = false;
             float idle = 0f;
             while (!_tapped && idle < 2.5f) { idle += Time.unscaledDeltaTime; yield return null; }
@@ -1550,6 +1596,11 @@ namespace CoastRun
             var sub = Label(host, "Sub", $"{verdict}   " + Loc.T($"대성공 {great} · 실패 {fail}", $"Great {great} · Fail {fail}"), 15, great >= 2 ? Hex("#B8860B") : fail >= 2 ? Red : Ink);
             Place(sub.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -54f), new Vector2(0f, 24f), new Vector2(0.5f, 1f));
 
+            // PM: 이번 주 호감 변화 / 사이드 해금 한 줄
+            string affLine = AffinityWeekLine(a);
+            var affLbl = Label(host, "Aff", affLine, 14, Coral);
+            Place(affLbl.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -76f), new Vector2(0f, 22f), new Vector2(0.5f, 1f));
+
             var rows = new (string label, string glyph, int from, int to, int max, bool invert)[]
             {
                 (Loc.T("체력", "Stamina"), "♥", a.stamina, b.stamina, PlayerStats.StatMax, false),
@@ -1561,7 +1612,7 @@ namespace CoastRun
                 (Loc.T("돈", "Money"), "G", a.money, b.money, Mathf.Max(1000, Mathf.Max(a.money, b.money)), false),
                 (Loc.T("하트", "Hearts"), "♥", a.hearts, b.hearts, Mathf.Max(41, Save.CurrentChapter?.heartsTarget ?? 41), false),
             };
-            const float rowH = 60f; float top = -92f;
+            const float rowH = 56f; float top = -108f;
             var blocks = new Image[rows.Length][]; var values = new Text[rows.Length]; var deltas = new Text[rows.Length];
             for (int i = 0; i < rows.Length; i++)
             {
@@ -1782,6 +1833,38 @@ namespace CoastRun
             return r == LifeRhythm.Hard ? Loc.T("리듬: 빡세게", "Pace: Hard") : r == LifeRhythm.Easy ? Loc.T("리듬: 여유", "Pace: Easy") : Loc.T("리듬: 보통", "Pace: Normal");
         }
 
+        private string RhythmLabelShort()
+        {
+            var r = Save != null ? Save.rhythm : LifeRhythm.Normal;
+            return r == LifeRhythm.Hard ? Loc.T("빡셈", "Hard") : r == LifeRhythm.Easy ? Loc.T("여유", "Easy") : Loc.T("보통", "Norm");
+        }
+
+        private string SnackLabel() =>
+            Save != null && Save.snackOn ? Loc.T("간식: ON", "Snack: ON") : Loc.T("간식: OFF", "Snack: OFF");
+
+        private string SnackLabelShort() =>
+            Save != null && Save.snackOn ? Loc.T("간식ON", "SnackON") : Loc.T("간식OFF", "SnackOFF");
+
+        private string AffinityWeekLine(WeekSnap a)
+        {
+            int totalGain = 0;
+            var parts = new List<string>();
+            for (int i = 0; i < 4; i++)
+            {
+                int before = a.affinity != null && i < a.affinity.Length ? a.affinity[i] : 0;
+                int after = Affinity.Get(Save, i);
+                int d = after - before;
+                if (d > 0) { totalGain += d; parts.Add($"{Affinity.Name(i)} +{d}"); }
+            }
+            string side = !string.IsNullOrEmpty(_gm?.PendingSideScene)
+                ? Loc.T(" · 사이드 해금!", " · side unlocked!")
+                : "";
+            if (totalGain <= 0 && side.Length == 0)
+                return Loc.T("이번 주 호감 변화 없음", "No affinity change this week");
+            if (parts.Count == 0) return Loc.T("사이드 씬 해금", "Side scene unlocked") + side;
+            return Loc.T("호감 ", "Affinity ") + string.Join(" · ", parts) + side;
+        }
+
         private Button SmallButton(Transform parent, string name, string label, Color color, Vector2 anchor, Vector2 pos, float width, Action onClick)
         {
             var pill = CoastUiArt.CutePill(parent, name, color, 12, 3);
@@ -1793,6 +1876,68 @@ namespace CoastRun
             var t = Label(pill.transform, "Text", label, 16, Color.white);
             CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.2f);
             return btn;
+        }
+
+        /// 리듬 + 간식을 한 독 칸에 나란히(홈이 밀려나지 않게).
+        private void DockRhythmSnack(Transform parent, int index)
+        {
+            var slot = new GameObject("RhythmSnackSlot", typeof(RectTransform)).GetComponent<RectTransform>();
+            slot.SetParent(parent, false);
+            Place(slot, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-6f, -6f - index * 82f), new Vector2(120f, 80f), new Vector2(1f, 1f));
+
+            Button MakeMini(string name, string icon, string label, Color color, float x, Action onClick)
+            {
+                var drop = CoastUiArt.Panel(slot, name + "Drop", new Color(0.15f, 0.06f, 0.10f, 0.35f), 20);
+                Place(drop.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x + 2f, -5f), new Vector2(44f, 44f), new Vector2(0f, 1f));
+                var pill = CoastUiArt.CutePill(slot, name, color, 20, 2);
+                Place(pill.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x, 0f), new Vector2(42f, 42f), new Vector2(0f, 1f));
+                var btn = pill.gameObject.AddComponent<Button>();
+                pill.raycastTarget = true;
+                btn.transition = Selectable.Transition.None;
+                btn.onClick.AddListener(() => { Haptic(); onClick?.Invoke(); });
+                pill.gameObject.AddComponent<PressSquash>();
+                var sp = CoastUiArt.Icon(icon);
+                if (sp != null)
+                {
+                    var ic = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    ic.transform.SetParent(pill.transform, false);
+                    ic.sprite = sp; ic.preserveAspect = true; ic.raycastTarget = false;
+                    Place(ic.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 1f), new Vector2(24f, 24f), new Vector2(0.5f, 0.5f));
+                }
+                var t = Label(slot, name + "Label", label, 11, Color.white);
+                t.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(t, new Color(0.1f, 0.06f, 0.04f, 0.85f), 1.2f);
+                Place(t.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(x - 4f, 0f), new Vector2(50f, 18f), new Vector2(0f, 0f));
+                return btn;
+            }
+
+            Text rhythmLabel = null, snackLabel = null;
+            MakeMini("RhythmBtn", "Heart", RhythmLabelShort(), new Color(0.62f, 0.52f, 0.80f), 0f, () =>
+            {
+                if (Save == null) return;
+                Save.rhythm = (LifeRhythm)(((int)Save.rhythm + 1) % 3);
+                _gm.Persist();
+                if (rhythmLabel == null) rhythmLabel = slot.Find("RhythmBtnLabel")?.GetComponent<Text>();
+                if (rhythmLabel != null) rhythmLabel.text = RhythmLabelShort();
+                Toast(Save.rhythm == LifeRhythm.Hard ? Loc.T("빡세게: 체력 성장 ×1.3, 스트레스 ×1.3", "Hard: stamina ×1.3, stress ×1.3")
+                    : Save.rhythm == LifeRhythm.Easy ? Loc.T("무리 안 함: 체력 성장 ×0.8, 스트레스 ×0.7", "Easy: stamina ×0.8, stress ×0.7")
+                    : Loc.T("보통 리듬", "Normal rhythm"));
+                RefreshCards();
+            });
+            rhythmLabel = slot.Find("RhythmBtnLabel")?.GetComponent<Text>();
+            MakeMini("SnackBtn", "Coin", SnackLabelShort(), new Color(0.92f, 0.62f, 0.35f), 56f, () =>
+            {
+                if (Save == null) return;
+                Save.snackOn = !Save.snackOn;
+                ScheduleJudge.SnackOn = Save.snackOn;
+                _gm.Persist();
+                if (snackLabel == null) snackLabel = slot.Find("SnackBtnLabel")?.GetComponent<Text>();
+                if (snackLabel != null) snackLabel.text = SnackLabelShort();
+                Toast(Save.snackOn
+                    ? Loc.T("간식 ON · 주 15G · 스트레스 ×0.8", "Snack ON · 15G/week · stress ×0.8")
+                    : Loc.T("간식 OFF", "Snack OFF"));
+            });
+            snackLabel = slot.Find("SnackBtnLabel")?.GetComponent<Text>();
         }
 
         /// 9차: 룸 오른쪽 세로 독 — 둥근 알약(54) 안에 아이콘, 아래 작은 라벨. index 순으로 위에서 아래.

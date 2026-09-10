@@ -45,6 +45,7 @@ namespace CoastRun
         private float _inputFreezeTimer;
         private float _coyoteTimer;     // grace after leaving ground where a jump still counts
         private float _runClock;        // 14차-9: 계단식 가속용 런 경과 시간
+        private float _startHold;       // 출발 연출: 잠시 속도 0
         private float _laneFrom;        // lane easing: where the last change started
         private float _laneT = 1f;      // 0..1 progress of the current lane change
         private bool _tucking;
@@ -74,9 +75,12 @@ namespace CoastRun
         /// Bonus Time and similar power-ups: multiplies the speed target (1 = normal).
         public float SpeedBoost { get; set; } = 1f;
 
-        /// While true obstacle hits are ignored (Bonus Time). Hazards still fire
+        /// While true obstacle hits are ignored (Bonus Time / Giant). Hazards still fire
         /// OnSoftHit-free feedback through JuiceDirector if they want to.
         public bool Invincible { get; set; }
+
+        /// 거인 모드 등 — 비주얼·콜라이더 배율(1 = 기본, 2 = 200%).
+        public float VisualScaleMul { get; set; } = 1f;
 
         /// 에디터 디버그(Coast Run/Debug/God mode): 피격 무시. PlayerPrefs에 남는다.
         public const string DebugGodKey = "CoastRun.Debug.God";
@@ -125,6 +129,7 @@ namespace CoastRun
             EndGlide();
             _softHitTimer = 0f;
             _inputFreezeTimer = 0f;
+            _startHold = 0f;
             _verticalVelocity = 0f;
             if (config != null)
             {
@@ -137,6 +142,15 @@ namespace CoastRun
             if (_state == SkateState.SoftHit || _state == SkateState.Air || _state == SkateState.Finish)
                 _state = SkateState.Run;
             SnapToPath();
+        }
+
+        /// 출발 연출: 잠깐 멈춰 있다 「출발」이 뜨면 다시 달린다.
+        public void HoldForStart(float seconds)
+        {
+            seconds = Mathf.Max(0f, seconds);
+            _startHold = Mathf.Max(_startHold, seconds);
+            _speed = 0f;
+            FreezeInput(seconds);
         }
 
         public void Bind(IInputReader input, IMapStream map, RunConfig runConfig, UpgradeManager upgradeManager = null)
@@ -263,6 +277,12 @@ namespace CoastRun
 
         private void UpdateSpeed()
         {
+            if (_startHold > 0f)
+            {
+                _startHold -= Time.deltaTime;
+                _speed = 0f;
+                return;
+            }
             // v2 이동 모드: 스케이트보드는 기본·최대·가속 모두 ×1.3 (규칙은 동일, 반응 시간만 짧다).
             float mode = RunTuning.SpeedMul * ChapterDifficulty.SpeedMul;
             float maxSpeed = (upgrades != null ? upgrades.GetMaxSpeed() : config.maxSpeed) * mode;
@@ -290,17 +310,14 @@ namespace CoastRun
             if (_input == null)
                 return;
 
-            // A hit slows you down; it must not also make you deaf. Lane changes stay
-            // live through the stumble so a player can still steer out of the next
-            // obstacle — that is the difference between "I got hit" and "the game
-            // stopped listening". Jump and crouch wait for the freeze to lift, but the
-            // input buffer keeps them warm so a flick during the freeze still lands.
+            // Lane changes stay live through a stumble. Jump/crouch only wait out the
+            // short FreezeInput window — locking for the whole SoftHit recover (~0.9s)
+            // felt like "keyboard died" mid-run.
             int laneDelta = _input.ConsumeLaneDelta();
             if (laneDelta != 0)
                 ChangeLane(laneDelta);
 
-            bool locked = _state == SkateState.SoftHit || _inputFreezeTimer > 0f;
-            if (locked)
+            if (_inputFreezeTimer > 0f)
                 return;
 
             if (_input.ConsumeJump())
@@ -461,17 +478,18 @@ namespace CoastRun
             // actually moves the body under an overhead bar.
             // 14차-9: 골드런식 관용 — 몸 판정을 그림의 65% 폭으로, 슬라이드 중엔 절반 높이.
             // "안 닿은 것 같은데 죽었다"가 사라지고, 니어미스가 자주 나며 손맛이 붙는다.
+            float m = Mathf.Max(0.5f, VisualScaleMul);
             if (_state == SkateState.Crouch)
             {
-                _bodyCollider.height = 0.55f;
-                _bodyCollider.center = new Vector3(0f, -0.47f, 0f);
-                _bodyCollider.radius = 0.2f;
+                _bodyCollider.height = 0.55f * m;
+                _bodyCollider.center = new Vector3(0f, -0.47f * m, 0f);
+                _bodyCollider.radius = 0.2f * m;
             }
             else
             {
-                _bodyCollider.height = 1.3f;
-                _bodyCollider.center = new Vector3(0f, -0.05f, 0f);
-                _bodyCollider.radius = 0.21f;
+                _bodyCollider.height = 1.3f * m;
+                _bodyCollider.center = new Vector3(0f, -0.05f * m, 0f);
+                _bodyCollider.radius = 0.21f * m;
             }
         }
 
@@ -593,8 +611,21 @@ namespace CoastRun
 
         public void SoftHit(HitKind kind, int bounceDir)
         {
-            if (Invincible || _state == SkateState.Finish || _iFrameTimer > 0f || _gliding)
-                return;
+            SoftHitApplied(kind, bounceDir);
+        }
+
+        /// true = 상태·피해 적용됨. false = 무적/무적프레임 등으로 막힘(그래도 호출측에서 꽈당을 낼 수 있다).
+        public bool SoftHitApplied(HitKind kind, int bounceDir)
+        {
+            if (_state == SkateState.Finish)
+                return false;
+
+            // 활공 중 충돌은 활공을 끊고 일반 피격으로 — 꽈당이 빠지지 않게.
+            if (_gliding)
+                EndGlide();
+
+            if (Invincible || _iFrameTimer > 0f)
+                return false;
 
             StageRunStats.Instance?.NotifySoftHit();
             if (ArcadeRun.Active) ArcadeRun.OnHit();
@@ -620,6 +651,7 @@ namespace CoastRun
                 FreezeInput(0.25f * RunTuning.HitFreezeMul);
             }
             OnSoftHit?.Invoke();
+            return true;
         }
 
         public HitKind LastHitKind { get; private set; }
@@ -627,10 +659,15 @@ namespace CoastRun
 
         public void FinishRun()
         {
+            // 활공 중 골인이면 즉시 줄·공중 상태 해제 후 땅에 붙인다(하늘에 남는 버그)
+            if (_gliding) EndGlide();
             _state = SkateState.Finish;
-            _gliding = false; _laneT = 1f; _laneFrom = _lane * config.laneOffset;
-            _hop = _groundY + _bodyHeight * 0.5f;   // 23차-1: 0으로 두면 한 프레임 땅 밑으로 꺼졌다 올라온다
+            _glideTimer = 0f;
+            _laneT = 1f;
+            _laneFrom = _lane * config.laneOffset;
             _verticalVelocity = 0f;
+            _hop = _groundY + _bodyHeight * 0.5f;
+            SnapToPath();
         }
 
         /// 23차-1: 발 위치(월드) — transform은 몸 중심(캡슐)이라 카메라 기준으로는 이게 편하다.

@@ -351,6 +351,10 @@ namespace CoastRun
             // learning a layout rather than fighting a new random one each attempt.
             if (obstacles != null && player != null)
                 obstacles.ResetForStage(stage.stageIndex, player.PathDistance);
+            if (coins != null && player != null)
+                coins.ResetForStage(stage.stageIndex, player.PathDistance);
+            // Prefill promenade tiles before the first Update — avoids bare road + backdrop seam.
+            map?.WarmStart(player != null ? player.PathDistance : 0f);
             // 35차: 계절별 날씨(눈·비·바람) — 런마다 다르게, 런 중에도 45~90초마다 바뀐다
             if (RunTuning.HasSeason)
                 seasonWeather?.RollWeather(RunTuning.Season, stage.stageIndex * 131 + System.Environment.TickCount);
@@ -401,6 +405,7 @@ namespace CoastRun
 
             wallet?.ResetSession();
             player.Bind(input, map, config, upgrades);
+            map?.WarmStart(player.PathDistance);
             environment?.SetFollow(player.transform);
             cameraController?.SetTarget(player);
             environment?.ApplyPalette(sky, fog, fogDensity);

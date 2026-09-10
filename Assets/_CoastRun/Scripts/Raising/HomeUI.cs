@@ -29,6 +29,8 @@ namespace CoastRun
         private Action _onClose;
         private Canvas _canvas;
         private RectTransform _root, _body, _tray, _tabBar;
+        private ScrollRect _trayScroll;
+        private RectTransform _trayGhost;
         private Text _money, _hint;
         private readonly Image[] _tabImgs = new Image[3];
         private Tab _tab = Tab.Room;
@@ -41,6 +43,7 @@ namespace CoastRun
         private Action _onArrive;
         private readonly Dictionary<string, RectTransform> _placed = new Dictionary<string, RectTransform>();
         private string _dragging;
+        private const bool ShowRoomGirl = false;   // 방꾸미기: 캐릭터 숨기고 방만 크게
 
         // 베란다
         private int _selectedPot = -1;
@@ -101,18 +104,19 @@ namespace CoastRun
                 _tabImgs[i] = pill;
             }
 
-            // 본문(장면) + 트레이
+            // 본문(장면) + 트레이 — 트레이는 기존 대비 70% 높이
             var bodyFrame = CoastUiArt.CutePill(_root, "BodyFrame", new Color(0.95f, 0.85f, 0.70f), 22, 4);
-            Rect(bodyFrame.rectTransform, new Vector2(0f, 0.30f), new Vector2(1f, 0.862f), new Vector2(4f, 0f), new Vector2(-4f, 0f));
+            Rect(bodyFrame.rectTransform, new Vector2(0f, 0.215f), new Vector2(1f, 0.862f), new Vector2(4f, 0f), new Vector2(-4f, 0f));
             _body = new GameObject("Body", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
             _body.SetParent(bodyFrame.transform, false);
             Rect(_body, Vector2.zero, Vector2.one, new Vector2(7f, 10f), new Vector2(-7f, -7f));
 
             var trayFrame = CoastUiArt.CutePill(_root, "TrayFrame", new Color(1f, 0.97f, 0.90f), 22, 4);
-            Rect(trayFrame.rectTransform, new Vector2(0f, 0.015f), new Vector2(1f, 0.292f), new Vector2(4f, 0f), new Vector2(-4f, 0f));
+            Rect(trayFrame.rectTransform, new Vector2(0f, 0.015f), new Vector2(1f, 0.208f), new Vector2(4f, 0f), new Vector2(-4f, 0f));
             _tray = new GameObject("Tray", typeof(RectTransform)).GetComponent<RectTransform>();
             _tray.SetParent(trayFrame.transform, false);
-            Rect(_tray, Vector2.zero, Vector2.one, new Vector2(8f, 10f), new Vector2(-8f, -8f));
+            Rect(_tray, Vector2.zero, Vector2.one, new Vector2(6f, 6f), new Vector2(-6f, -6f));
+            _trayScroll = null;
 
             SetTab(Tab.Room);
         }
@@ -157,7 +161,7 @@ namespace CoastRun
         private void BuildRoom()
         {
             _roomHost = _body;
-            // 배경(방 그림, cover)
+            // 배경(방 그림) — 여백 없이 본문 전체를 cover로 채운다
             var bgMask = new GameObject("BgMask", typeof(RectTransform), typeof(Image), typeof(Mask));
             bgMask.transform.SetParent(_roomHost, false);
             Rect(bgMask.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
@@ -165,36 +169,48 @@ namespace CoastRun
             bgMask.GetComponent<Mask>().showMaskGraphic = true;
             var bg = new GameObject("Bg", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter)).GetComponent<Image>();
             bg.transform.SetParent(bgMask.transform, false);
-            var brt = bg.rectTransform; brt.anchorMin = new Vector2(0f, 1f); brt.anchorMax = new Vector2(1f, 1f); brt.pivot = new Vector2(0.5f, 1f);
-            brt.anchoredPosition = Vector2.zero; brt.sizeDelta = Vector2.zero;
-            var fit = bg.GetComponent<AspectRatioFitter>(); fit.aspectMode = AspectRatioFitter.AspectMode.WidthControlsHeight; fit.aspectRatio = 810f / 1440f;
-            // 38차: 쿼터뷰(아이소메트릭) 방 그림(UI_Room_Iso, Kling) — 옛 정면 방 그림은 안 쓴다. 정사각 그림을 위에 붙이고 아래는 밤보라색.
+            var brt = bg.rectTransform;
+            brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one; brt.pivot = new Vector2(0.5f, 0.5f);
+            brt.anchoredPosition = Vector2.zero; brt.offsetMin = brt.offsetMax = Vector2.zero;
+            var fit = bg.GetComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;   // 여백 없이 가득
+            fit.aspectRatio = 1f;
+            // 38차: 쿼터뷰(아이소메트릭) 방 그림(UI_Room_Iso)
             var iso = ArtAssets.LoadTexture("UI_Room_Iso");
             var art = iso ?? ArtAssets.LoadTexture("UI_Raising_Room_" + Timeline.SeasonOf(Save != null ? Save.week : 1)) ?? ArtAssets.LoadTexture("UI_Raising_Room");
-            if (iso != null) { fit.aspectRatio = (float)iso.width / iso.height; bgMask.GetComponent<Image>().color = new Color(0.15f, 0.10f, 0.24f); brt.anchorMin = new Vector2(0f, 0.5f); brt.anchorMax = new Vector2(1f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f); brt.anchoredPosition = new Vector2(0f, 40f); }
+            if (iso != null)
+            {
+                fit.aspectRatio = (float)iso.width / Mathf.Max(1, iso.height);
+                bgMask.GetComponent<Image>().color = new Color(0.22f, 0.16f, 0.14f);
+            }
             if (art != null) bg.sprite = CoastUiArt.AsSprite(art); bg.raycastTarget = false;
-            // 바닥 탭 → 걸어가기
+            // 바닥 탭(캐릭터 숨김 시에도 장식 드래그와 겹치지 않게 투명 판 유지)
             var floor = CoastHudLayout.MakeImage(_roomHost, "FloorTap", new Vector2(0f, 0f), new Vector2(1f, 0.46f), Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0f));
-            floor.raycastTarget = true;
-            var tap = floor.gameObject.AddComponent<PointerTap>();
-            tap.OnTap = pos => { var n = ToNorm(pos); _charTarget = new Vector2(Mathf.Clamp(n.x, 0.06f, 0.94f), Mathf.Clamp(n.y, 0.02f, 0.40f)); _wanderT = 6f; _onArrive = null; };
-            // 벽 탭(아무 일 없음) — 드래그 중 이벤트가 바닥으로 새지 않게 투명 판
+            floor.raycastTarget = ShowRoomGirl;
+            if (ShowRoomGirl)
+            {
+                var tap = floor.gameObject.AddComponent<PointerTap>();
+                tap.OnTap = pos => { var n = ToNorm(pos); _charTarget = new Vector2(Mathf.Clamp(n.x, 0.06f, 0.94f), Mathf.Clamp(n.y, 0.02f, 0.40f)); _wanderT = 6f; _onArrive = null; };
+            }
             _decoLayer = new GameObject("Deco", typeof(RectTransform)).GetComponent<RectTransform>();
             _decoLayer.SetParent(_roomHost, false);
             Rect(_decoLayer, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            // 주인공
-            _charRt = new GameObject("Girl", typeof(RectTransform)).GetComponent<RectTransform>();
-            _charRt.SetParent(_roomHost, false);
-            _charRt.anchorMin = _charRt.anchorMax = new Vector2(0.5f, 0.12f); _charRt.pivot = new Vector2(0.5f, 0f);
-            _charRt.sizeDelta = iso != null ? new Vector2(150f, 214f) : new Vector2(210f, 300f);   // 38차: 쿼터뷰 방에선 조금 작게
-            var sh = CoastHudLayout.MakeImage(_charRt, "Shadow", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-64f, -4f), new Vector2(64f, 12f), new Color(0f, 0f, 0f, 0.22f));
-            sh.sprite = CoastUiArt.RoundedRect(30); sh.type = Image.Type.Sliced;
-            _charImg = new GameObject("Img", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-            _charImg.transform.SetParent(_charRt, false);
-            Rect(_charImg.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            _charImg.sprite = _charSprite; _charImg.preserveAspect = true; _charImg.raycastTarget = false;
-            if (_charSprite == null) _charImg.color = new Color(1f, 0.8f, 0.6f);
-            _charPos = _charTarget = new Vector2(0.5f, 0.12f);
+            // 주인공 — 방꾸미기는 방만 크게 보여 캐릭터는 숨김
+            if (ShowRoomGirl)
+            {
+                _charRt = new GameObject("Girl", typeof(RectTransform)).GetComponent<RectTransform>();
+                _charRt.SetParent(_roomHost, false);
+                _charRt.anchorMin = _charRt.anchorMax = new Vector2(0.5f, 0.12f); _charRt.pivot = new Vector2(0.5f, 0f);
+                _charRt.sizeDelta = iso != null ? new Vector2(150f, 214f) : new Vector2(210f, 300f);
+                var sh = CoastHudLayout.MakeImage(_charRt, "Shadow", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-64f, -4f), new Vector2(64f, 12f), new Color(0f, 0f, 0f, 0.22f));
+                sh.sprite = CoastUiArt.RoundedRect(30); sh.type = Image.Type.Sliced;
+                _charImg = new GameObject("Img", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                _charImg.transform.SetParent(_charRt, false);
+                Rect(_charImg.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                _charImg.sprite = _charSprite; _charImg.preserveAspect = true; _charImg.raycastTarget = false;
+                if (_charSprite == null) _charImg.color = new Color(1f, 0.8f, 0.6f);
+                _charPos = _charTarget = new Vector2(0.5f, 0.12f);
+            }
             RefreshPlaced();
         }
 
@@ -222,7 +238,7 @@ namespace CoastRun
             });
             foreach (var h in items)
             {
-                var d = HomeData.Find(h.id); if (d == null) continue;
+                var d = HomeData.Find(h.id); if (d == null || !HomeData.IsActive(d)) continue;
                 var size = HomeData.Size(d);
                 var go = DecoVisual(_decoLayer, d, size, !HomeData.IsWall(d));
                 var rt = go.GetComponent<RectTransform>();
@@ -249,6 +265,11 @@ namespace CoastRun
                     if (id == "treadmill")
                     {
                         if (!HomeData.TreadmillReady(Save, Profile)) { CoastToast.Show(Loc.T("이번 페이즈엔 이미 운동했어.", "Already trained this phase.")); return; }
+                        if (!ShowRoomGirl || _charRt == null)
+                        {
+                            if (HomeData.UseTreadmill(Save, Profile)) { _gm.Persist(); RefreshMoney(); CoastToast.Show(Loc.T("러닝머신 30분! 체력 +2, 스트레스 +1", "30 min on the treadmill! Stamina +2, stress +1")); }
+                            return;
+                        }
                         _charTarget = new Vector2(Mathf.Clamp(h.x + 0.14f, 0.06f, 0.94f), Mathf.Clamp(h.y, 0.02f, 0.40f)); _wanderT = 8f;
                         _onArrive = () => { if (HomeData.UseTreadmill(Save, Profile)) { _gm.Persist(); RefreshMoney(); CoastToast.Show(Loc.T("러닝머신 30분! 체력 +2, 스트레스 +1", "30 min on the treadmill! Stamina +2, stress +1")); } };
                     }
@@ -259,7 +280,7 @@ namespace CoastRun
             // 31차(Dreamy Room 오마주): 보유했지만 아직 안 놓은 장식의 '제자리' 실루엣 — 점선 느낌의 반투명 알약 + 글자
             foreach (var d in HomeData.All)
             {
-                if (!HomeData.Owns(p, d) || HomeData.IsPlaced(p, d)) continue;
+                if (!HomeData.IsActive(d) || !HomeData.Owns(p, d) || HomeData.IsPlaced(p, d)) continue;
                 var sp = HomeData.Spot(d.id); var size = HomeData.Size(d);
                 var g = CoastUiArt.CutePill(_decoLayer, "Ghost_" + d.id, new Color(1f, 1f, 1f, 0.22f), 16, 3);
                 var grt = g.rectTransform; grt.anchorMin = grt.anchorMax = sp; grt.pivot = new Vector2(0.5f, 0f);
@@ -279,7 +300,7 @@ namespace CoastRun
         private void RefreshProgress()
         {
             if (_roomHost == null) return;
-            var p = Profile; int n = HomeData.PlacedCount(p), all = HomeData.All.Length;
+            var p = Profile; int n = HomeData.PlacedCount(p), all = HomeData.ActiveCount;
             if (_progress == null)
             {
                 var bar = CoastUiArt.Panel(_roomHost, "Progress", new Color(0.1f, 0.05f, 0.12f, 0.55f), 14);
@@ -346,11 +367,12 @@ namespace CoastRun
         private void BuildRoomTray()
         {
             var p = Profile;
-            _hint = Text(_tray, "Hint", Loc.T("[놓기]하면 제자리로 팡! 반투명 자리에 끌어다 놓아도 돼 · 다 채우면 보너스", "[Place] pops it into its spot! Drag onto a ghost spot too · fill the room for a bonus"), 13, Ink, TextAnchor.MiddleCenter);
-            Rect(_hint.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -26f), new Vector2(0f, 0f));
-            var scroll = MakeHScroll(_tray, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -30f), out var content);
-            const float cw = 150f, ch = 0f, gap = 8f;
-            var list = new List<DecoDef>(HomeData.All);
+            _hint = Text(_tray, "Hint", Loc.T("네모를 방으로 끌어다 놓기 · 탭하면 제자리 · 다 채우면 보너스", "Drag tiles into the room · tap to snap to spot · fill for a bonus"), 12, Ink, TextAnchor.MiddleCenter);
+            Rect(_hint.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -20f), new Vector2(0f, 0f));
+            _trayScroll = MakeHScroll(_tray, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -22f), out var content);
+            const float cw = 105f, gap = 6f;   // 기존 150의 70%
+            var list = new List<DecoDef>();
+            foreach (var d in HomeData.All) if (HomeData.IsActive(d)) list.Add(d);
             int Rank(DecoDef d) => HomeData.IsNew(p, d) ? 0 : HomeData.IsPlaced(p, d) ? 2 : HomeData.Owns(p, d) ? 1 : d.FromRun ? 4 : 3;
             list.Sort((a, b) => { int c = Rank(a).CompareTo(Rank(b)); return c != 0 ? c : HomeData.IndexOf(a.id).CompareTo(HomeData.IndexOf(b.id)); });
             for (int i = 0; i < list.Count; i++)
@@ -358,27 +380,100 @@ namespace CoastRun
                 var d = list[i];
                 bool owned = HomeData.Owns(p, d), placed = HomeData.IsPlaced(p, d), isNew = HomeData.IsNew(p, d);
                 Color fill = placed ? new Color(0.72f, 0.90f, 0.86f) : owned ? new Color(0.92f, 0.97f, 0.90f) : d.FromRun ? new Color(0.90f, 0.88f, 0.94f) : new Color(1f, 0.94f, 0.85f);
-                var card = CoastUiArt.CutePill(content, "C_" + d.id, fill, 16, 3);
+                var card = CoastUiArt.CutePill(content, "C_" + d.id, fill, 12, 2);
                 card.rectTransform.anchorMin = new Vector2(0f, 0f); card.rectTransform.anchorMax = new Vector2(0f, 1f); card.rectTransform.pivot = new Vector2(0f, 0.5f);
-                card.rectTransform.anchoredPosition = new Vector2(i * (cw + gap), 0f); card.rectTransform.sizeDelta = new Vector2(cw, ch);
-                var frame = CoastUiArt.Panel(card.transform, "Frame", new Color(1f, 1f, 1f, 0.6f), 12);
+                card.rectTransform.anchoredPosition = new Vector2(i * (cw + gap), 0f); card.rectTransform.sizeDelta = new Vector2(cw, 0f);
+                // 네모 타일(아이콘 + 이름)
+                var frame = CoastUiArt.Panel(card.transform, "Frame", d.color, 12);
                 Rect(frame.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, Vector2.zero);
-                frame.rectTransform.pivot = new Vector2(0.5f, 1f); frame.rectTransform.anchoredPosition = new Vector2(0f, -10f); frame.rectTransform.sizeDelta = new Vector2(96f, 96f);
-                var vis = DecoVisual(frame.transform, d, new Vector2(96f, 96f), false);
-                Rect(vis.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, new Vector2(6f, 6f), new Vector2(-6f, -6f));
+                frame.rectTransform.pivot = new Vector2(0.5f, 1f); frame.rectTransform.anchoredPosition = new Vector2(0f, -4f); frame.rectTransform.sizeDelta = new Vector2(88f, 88f);
+                frame.raycastTarget = true;
+                var vis = DecoVisual(frame.transform, d, new Vector2(72f, 56f), false);
+                var vrt = vis.GetComponent<RectTransform>();
+                vrt.anchorMin = new Vector2(0.5f, 1f); vrt.anchorMax = new Vector2(0.5f, 1f); vrt.pivot = new Vector2(0.5f, 1f);
+                vrt.anchoredPosition = new Vector2(0f, -4f); vrt.sizeDelta = new Vector2(72f, 52f);
                 if (!owned) foreach (var g in vis.GetComponentsInChildren<Graphic>()) g.color = new Color(g.color.r * 0.7f, g.color.g * 0.7f, g.color.b * 0.72f, g.color.a);
-                var nm = Text(card.transform, "Name", d.Name + (isNew ? " ●" : ""), 14, isNew ? Coral : Navy, TextAnchor.MiddleCenter);
-                nm.resizeTextForBestFit = true; nm.resizeTextMinSize = 12; nm.resizeTextMaxSize = 19;
-                Rect(nm.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(6f, 66f), new Vector2(-6f, 94f));
+                var nm = Text(frame.transform, "Name", d.Name + (isNew ? " ●" : ""), 11, Color.white, TextAnchor.MiddleCenter);
+                nm.fontStyle = FontStyle.Bold;
+                nm.resizeTextForBestFit = true; nm.resizeTextMinSize = 8; nm.resizeTextMaxSize = 12;
+                nm.horizontalOverflow = HorizontalWrapMode.Wrap;
+                CoastUiArt.OutlineText(nm, new Color(0f, 0f, 0f, 0.55f), 1.2f);
+                Rect(nm.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(3f, 2f), new Vector2(-3f, 28f));
+                // 상태 작은 버튼(치우기/가격) — 놓기는 드래그·탭으로
                 string label; Color col; bool enabled = true;
                 if (placed) { label = Loc.T("치우기", "Remove"); col = Grey; }
-                else if (owned) { label = Loc.T("놓기", "Place"); col = Sky; }
-                else if (d.FromRun) { label = Loc.T("러닝 보상", "Run drop"); col = Grey; enabled = false; }
+                else if (owned) { label = Loc.T("탭·끌기", "Tap/Drag"); col = Sky; }
+                else if (d.FromRun) { label = Loc.T("러닝", "Run"); col = Grey; enabled = false; }
                 else { label = $"{d.price:N0}G"; col = Save.stats.money >= d.price ? Coral : Grey; enabled = Save.stats.money >= d.price; }
-                var b = Button(card.transform, "Act", label, col, new Vector2(0.5f, 0f), new Vector2(0f, 12f), new Vector2(120f, 46f), () => RoomAct(d));
+                var b = Button(card.transform, "Act", label, col, new Vector2(0.5f, 0f), new Vector2(0f, 4f), new Vector2(92f, 28f), () => RoomAct(d));
+                b.GetComponentInChildren<Text>().fontSize = CoastHudLayout.Scaled(11);
                 b.interactable = enabled;
+                // 방으로 드래그앤드롭 (보유·구매 가능 / 이미 놓은 건 제외)
+                bool canDrag = !placed && (owned || (!d.FromRun && enabled));
+                if (canDrag)
+                {
+                    var drag = frame.gameObject.AddComponent<TrayDecoDrag>();
+                    drag.Scroll = _trayScroll;
+                    DecoDef def = d;
+                    drag.OnBegin = () => BeginTrayGhost(def);
+                    drag.OnMove = pos => MoveTrayGhost(pos);
+                    drag.OnEnd = pos => EndTrayGhost(def, pos);
+                }
             }
             content.sizeDelta = new Vector2(list.Count * (cw + gap), 0f);
+        }
+
+        private void BeginTrayGhost(DecoDef d)
+        {
+            ClearTrayGhost();
+            _trayGhost = new GameObject("TrayGhost", typeof(RectTransform)).GetComponent<RectTransform>();
+            _trayGhost.SetParent(_root, false);
+            _trayGhost.pivot = new Vector2(0.5f, 0f);
+            _trayGhost.sizeDelta = HomeData.Size(d) * 0.85f;
+            var vis = DecoVisual(_trayGhost, d, _trayGhost.sizeDelta, true);
+            Rect(vis.GetComponent<RectTransform>(), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            foreach (var g in _trayGhost.GetComponentsInChildren<Graphic>()) g.raycastTarget = false;
+            CanvasGroup cg = _trayGhost.gameObject.AddComponent<CanvasGroup>();
+            cg.blocksRaycasts = false; cg.alpha = 0.92f;
+        }
+
+        private void MoveTrayGhost(Vector2 screenPos)
+        {
+            if (_trayGhost == null) return;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screenPos, null, out var local);
+            _trayGhost.anchorMin = _trayGhost.anchorMax = new Vector2(0.5f, 0.5f);
+            _trayGhost.anchoredPosition = local;
+        }
+
+        private void EndTrayGhost(DecoDef d, Vector2 screenPos)
+        {
+            ClearTrayGhost();
+            if (_roomHost == null || d == null) return;
+            // 방(_body) 위에 떨어뜨렸을 때만 배치
+            if (!RectTransformUtility.RectangleContainsScreenPoint(_roomHost, screenPos, null))
+            {
+                CoastToast.Show(Loc.T("방 안으로 끌어다 놓아.", "Drop it inside the room."));
+                return;
+            }
+            var p = Profile;
+            if (!HomeData.Owns(p, d))
+            {
+                if (d.FromRun || !HomeData.TryBuy(Save, p, d)) { CoastToast.Show(Loc.T("G가 모자라.", "Not enough G.")); return; }
+                _gm.Persist();
+                CoastToast.Show(Loc.T($"{d.Name} 구매!", $"Bought {d.Name}!"));
+            }
+            if (HomeData.IsPlaced(p, d)) HomeData.Remove(p, d.id);
+            var n = HomeData.ClampPos(d, ToNorm(screenPos));
+            if (HomeData.NearSpot(d.id, n)) n = HomeData.Spot(d.id);
+            HomeData.Place(p, d, n.x, n.y);
+            _gm.WriteProfileNow();
+            RefreshPlaced(); Clear(_tray); BuildRoomTray(); RefreshMoney();
+            if (_placed.TryGetValue(d.id, out var prt)) StartCoroutine(PopIn(prt));
+        }
+
+        private void ClearTrayGhost()
+        {
+            if (_trayGhost != null) { Destroy(_trayGhost.gameObject); _trayGhost = null; }
         }
 
         private void RoomAct(DecoDef d)
@@ -790,6 +885,56 @@ namespace CoastRun
             void IDragHandler.OnDrag(PointerEventData e) => OnDrag?.Invoke(e.position);
             public void OnEndDrag(PointerEventData e) { OnEnd?.Invoke(e.position); }
             public void OnPointerClick(PointerEventData e) { if (_dragged) { _dragged = false; return; } OnTap?.Invoke(); }
+        }
+
+        /// 트레이 → 방 드래그. 위로 끌면 방에 놓고, 가로는 트레이 스크롤.
+        private class TrayDecoDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+        {
+            public ScrollRect Scroll;
+            public Action OnBegin;
+            public Action<Vector2> OnMove, OnEnd;
+            private bool _armed;
+            private Vector2 _start;
+            private float _contentStart;
+            public void OnBeginDrag(PointerEventData e)
+            {
+                _armed = false;
+                _start = e.position;
+                if (Scroll != null && Scroll.content != null)
+                    _contentStart = Scroll.content.anchoredPosition.x;
+            }
+            public void OnDrag(PointerEventData e)
+            {
+                var d = e.position - _start;
+                if (!_armed)
+                {
+                    if (d.y > 18f && Mathf.Abs(d.y) > Mathf.Abs(d.x) * 0.85f)
+                    {
+                        _armed = true;
+                        if (Scroll != null) Scroll.enabled = false;
+                        OnBegin?.Invoke();
+                        OnMove?.Invoke(e.position);
+                        return;
+                    }
+                    // 가로 스크롤 수동
+                    if (Scroll != null && Scroll.content != null && Mathf.Abs(d.x) > 4f)
+                    {
+                        var pos = Scroll.content.anchoredPosition;
+                        pos.x = _contentStart + d.x;
+                        float minX = Mathf.Min(0f, Scroll.viewport.rect.width - Scroll.content.rect.width);
+                        pos.x = Mathf.Clamp(pos.x, minX, 0f);
+                        Scroll.content.anchoredPosition = pos;
+                    }
+                    return;
+                }
+                OnMove?.Invoke(e.position);
+            }
+            public void OnEndDrag(PointerEventData e)
+            {
+                if (Scroll != null) Scroll.enabled = true;
+                if (_armed) OnEnd?.Invoke(e.position);
+                _armed = false;
+            }
         }
     }
 }

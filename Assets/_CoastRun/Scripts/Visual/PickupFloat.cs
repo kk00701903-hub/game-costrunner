@@ -18,7 +18,12 @@ namespace CoastRun
 
         public static PickupFloat Ensure()
         {
-            if (_inst != null) return _inst;
+            if (_inst != null)
+            {
+                if (_inst._canvas != null && _inst._canvas.sortingOrder < 560)
+                    _inst._canvas.sortingOrder = 560;
+                return _inst;
+            }
             var go = new GameObject("PickupFloat");
             _inst = go.AddComponent<PickupFloat>();
             _inst.Build();
@@ -27,11 +32,12 @@ namespace CoastRun
 
         private void Build()
         {
-            _canvas = CoastUiCanvas.Create("PickupFloatCanvas", 60, transform);
+            // 페이드 베일(FlowUIRoot=500)보다 위 — 챕터 시작·출발 글자가 가려지지 않게
+            _canvas = CoastUiCanvas.Create("PickupFloatCanvas", 560, transform);
             var gr = _canvas.GetComponent<GraphicRaycaster>();
             if (gr != null) gr.enabled = false;
-            _root = _canvas.GetComponent<RectTransform>();
-            // 23차-2: 오버레이 캔버스 루트는 화면에 고정돼 회전이 안 먹는다 → 흔들림용 자식 컨테이너
+            // HudInset(디자인 720×1280)에 올려 다른 HUD와 같은 좌표계 사용
+            _root = CoastUiCanvas.Root(_canvas);
             var fx = new GameObject("Fx", typeof(RectTransform)).GetComponent<RectTransform>();
             fx.SetParent(_root, false); fx.anchorMin = Vector2.zero; fx.anchorMax = Vector2.one; fx.offsetMin = Vector2.zero; fx.offsetMax = Vector2.zero;
             _fx = fx;
@@ -53,10 +59,92 @@ namespace CoastRun
 
         // 23차-9: 화면 위쪽 배너(FEVER!) — 지속 시간 동안 흔들리며 떠 있다가 사라진다
         private Text _bannerText;
+        private Coroutine _goCo;
         public static void Banner(string text, Color color, float seconds)
         {
             var f = Ensure();
             f.StartCoroutine(f.BannerSeq(text, color, seconds));
+        }
+
+        /// 러닝 출발: 화면 한가운데에 크게 「출발」이 팡 하고 뜬다.
+        public static void Go(string text, float seconds = 0.95f)
+        {
+            var f = Ensure();
+            if (f._goCo != null) f.StopCoroutine(f._goCo);
+            f._goCo = f.StartCoroutine(f.GoSeq(text, null, seconds));
+        }
+
+        /// 러닝 출발: 「챕터 N 시작!」을 크게, 아래엔 장소/제목.
+        public static void ChapterStart(int chapter, string place, string storyTitle, float seconds = 1.45f)
+        {
+            var f = Ensure();
+            if (f._goCo != null) f.StopCoroutine(f._goCo);
+            string head = Loc.T($"챕터 {chapter} 시작!", $"CHAPTER {chapter}");
+            string sub = !string.IsNullOrEmpty(place) ? place : storyTitle;
+            if (!string.IsNullOrEmpty(place) && !string.IsNullOrEmpty(storyTitle) && place != storyTitle)
+                sub = $"{place}\n{storyTitle}";
+            f._goCo = f.StartCoroutine(f.GoSeq(head, sub, seconds));
+        }
+
+        private Text _goText;
+        private Text _goSub;
+        private IEnumerator GoSeq(string text, string sub, float seconds)
+        {
+            if (_goText == null)
+            {
+                var parent = _fx != null ? _fx : _root;
+                _goText = CoastHudLayout.MakeText(parent, "Go", "", 128, TextAnchor.MiddleCenter,
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-480f, -100f), new Vector2(480f, 160f));
+                _goText.fontStyle = FontStyle.Bold; _goText.raycastTarget = false;
+                _goText.horizontalOverflow = HorizontalWrapMode.Overflow;
+                _goText.verticalOverflow = VerticalWrapMode.Overflow;
+                CoastUiArt.OutlineText(_goText, new Color(0.35f, 0.12f, 0.02f, 1f), 5f);
+                _goSub = CoastHudLayout.MakeText(parent, "GoSub", "", 36, TextAnchor.MiddleCenter,
+                    new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-460f, -220f), new Vector2(460f, -40f));
+                _goSub.fontStyle = FontStyle.Bold; _goSub.raycastTarget = false;
+                _goSub.horizontalOverflow = HorizontalWrapMode.Wrap;
+                _goSub.verticalOverflow = VerticalWrapMode.Overflow;
+                CoastUiArt.OutlineText(_goSub, new Color(0.08f, 0.05f, 0.18f, 0.95f), 3f);
+            }
+            bool hasSub = !string.IsNullOrEmpty(sub);
+            _goText.gameObject.SetActive(true);
+            _goText.text = text;
+            _goText.fontSize = CoastHudLayout.Scaled(hasSub ? 72 : 84);
+            if (_goSub != null)
+            {
+                _goSub.gameObject.SetActive(hasSub);
+                _goSub.text = hasSub ? sub : "";
+                _goSub.fontSize = CoastHudLayout.Scaled(28);
+            }
+            var srt = _goText.rectTransform;
+            var subRt = _goSub != null ? _goSub.rectTransform : null;
+            float t = 0f;
+            while (t < seconds)
+            {
+                t += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(t / seconds);
+                float pop = u < 0.16f ? Mathf.Lerp(2.6f, 1.08f, u / 0.16f)
+                    : u < 0.72f ? 1.08f + Mathf.Sin(t * 9f) * 0.035f
+                    : Mathf.Lerp(1.08f, 1.28f, (u - 0.72f) / 0.28f);
+                srt.localScale = Vector3.one * pop;
+                srt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 7f) * 2.8f);
+                srt.anchoredPosition = new Vector2(0f, hasSub ? 70f : 40f);
+                var c = Color.Lerp(new Color(1f, 0.88f, 0.35f), Color.white, (Mathf.Sin(t * 14f) + 1f) * 0.16f);
+                c.a = u > 0.78f ? 1f - (u - 0.78f) / 0.22f : 1f;
+                _goText.color = c;
+                if (hasSub && subRt != null)
+                {
+                    float su = Mathf.Clamp01((u - 0.08f) / 0.2f);
+                    subRt.localScale = Vector3.one * Mathf.Lerp(0.7f, 1f, su);
+                    subRt.anchoredPosition = new Vector2(0f, -55f);
+                    var sc = new Color(1f, 0.96f, 0.9f, c.a * su);
+                    _goSub.color = sc;
+                }
+                yield return null;
+            }
+            _goText.gameObject.SetActive(false);
+            if (_goSub != null) _goSub.gameObject.SetActive(false);
+            _goCo = null;
         }
         private IEnumerator BannerSeq(string text, Color color, float seconds)
         {
@@ -91,9 +179,11 @@ namespace CoastRun
         public static void Impact(string word)
         {
             var f = Ensure();
-            f.StartCoroutine(f.ImpactSeq(word));
+            if (f._impactCo != null) f.StopCoroutine(f._impactCo);
+            f._impactCo = f.StartCoroutine(f.ImpactSeq(word));
         }
 
+        private Coroutine _impactCo;
         private IEnumerator ImpactSeq(string word)
         {
             if (_vignette == null)
@@ -105,6 +195,10 @@ namespace CoastRun
                 _slam.fontStyle = FontStyle.Bold; _slam.raycastTarget = false;
                 CoastUiArt.OutlineText(_slam, new Color(0.35f, 0.02f, 0.05f, 1f), 5f);
             }
+            // 「출발」 글자와 겹치면 꽈당이 안 보이는 것처럼 느껴져서 끈다.
+            if (_goText != null) _goText.gameObject.SetActive(false);
+            if (_goCo != null) { StopCoroutine(_goCo); _goCo = null; }
+
             _vignette.gameObject.SetActive(true); _flash.gameObject.SetActive(true); _slam.gameObject.SetActive(true);
             _slam.text = word;
             var srt = _slam.rectTransform;
@@ -131,6 +225,7 @@ namespace CoastRun
             }
             _fx.localRotation = r0; _fx.anchoredPosition = p0;
             _vignette.gameObject.SetActive(false); _flash.gameObject.SetActive(false); _slam.gameObject.SetActive(false);
+            _impactCo = null;
         }
 
         private Image MakeFull(string name, Texture2D tex)

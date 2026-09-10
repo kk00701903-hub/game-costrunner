@@ -114,9 +114,17 @@ namespace CoastRun
             var log = new List<string>();
             switch (o)
             {
-                case Outcome.GreatSuccess: log.Add(Loc.IsKo ? $"★ {d.Name} 대성공!  (성공률 {pSuccess:P0})" : $"★ {d.Name} — great success!  ({pSuccess:P0})"); break;
-                case Outcome.Success: log.Add(d.deterministic ? (Loc.IsKo ? $"{d.Name} 수업 완료" : $"{d.Name} — lesson done") : (Loc.IsKo ? $"{d.Name} 성공  (성공률 {pSuccess:P0})" : $"{d.Name} — success  ({pSuccess:P0})")); break;
-                default: log.Add(Loc.IsKo ? $"{d.Name} 실패…  (성공률 {pSuccess:P0})" : $"{d.Name} — failed…  ({pSuccess:P0})"); break;
+                case Outcome.GreatSuccess:
+                    log.Add(Loc.T("★★★ 대성공 ★★★", "★★★ GREAT SUCCESS ★★★"));
+                    log.Add(Loc.IsKo ? $"★ {d.Name}  (성공률 {pSuccess:P0})" : $"★ {d.Name}  ({pSuccess:P0})");
+                    break;
+                case Outcome.Success:
+                    log.Add(d.deterministic ? (Loc.IsKo ? $"{d.Name} 수업 완료" : $"{d.Name} — lesson done") : (Loc.IsKo ? $"{d.Name} 성공  (성공률 {pSuccess:P0})" : $"{d.Name} — success  ({pSuccess:P0})"));
+                    break;
+                default:
+                    log.Add(Loc.T("✕ 실패", "✕ FAIL"));
+                    log.Add(Loc.IsKo ? $"{d.Name}…  (성공률 {pSuccess:P0})" : $"{d.Name}…  ({pSuccess:P0})");
+                    break;
             }
             if (seasonMul > 1f) log.Add(Loc.IsKo ? $"  {Timeline.SeasonName(season)} 보너스 ×{seasonMul:0.##}" : $"  {Timeline.SeasonName(season)} bonus ×{seasonMul:0.##}");
             Delta(log, Loc.T("체력", "Stamina"), before.stamina, after.stamina);
@@ -128,7 +136,7 @@ namespace CoastRun
             Delta(log, Loc.T("돈", "Money"), before.money, after.money);
             Delta(log, Loc.T("말랑이 하트", "Hearts"), before.hearts, after.hearts);
             if (after.trouble > before.trouble && after.trouble >= 30 && before.trouble < 30) log.Add(Loc.T("  …요즘 밤에 자꾸 나간다고 누가 그러더라.", "  …someone said you've been out late a lot."));
-            if (after.Burnout) log.Add(Loc.T("⚠ 스트레스가 체력을 넘었어. 휴식이 필요해.", "⚠ Stress is over stamina. Rest is needed."));
+            if (after.Burnout) log.Add(Loc.T("⚠ 번아웃 — 스트레스가 체력을 넘었어. 휴식이 필요해.", "⚠ BURNOUT — stress over stamina. Rest needed."));
 
             return new PhaseResult
             {

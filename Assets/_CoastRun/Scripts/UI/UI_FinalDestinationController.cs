@@ -532,7 +532,7 @@ namespace CoastRun
             textGo.transform.SetParent(go.transform, false);
             var trt = textGo.GetComponent<RectTransform>();
             trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
-            trt.offsetMin = new Vector2(40f, 0f); trt.offsetMax = new Vector2(-44f, -1f);
+            trt.offsetMin = new Vector2(52f, 0f); trt.offsetMax = new Vector2(-56f, -1f);
             _timerLabel = textGo.AddComponent<Text>();
             CoastUiArt.OutlineText(_timerLabel, new Color(0.05f, 0.07f, 0.18f, 0.95f), 1.5f);
             _timerLabel.font = CoastHudLayout.Font();

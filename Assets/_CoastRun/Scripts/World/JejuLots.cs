@@ -39,12 +39,14 @@ namespace CoastRun
                 JejuKit.Recolor(go, "Trim", Color.white);
                 BuildingOutline.Attach(go.transform, 0.03f);
             }
+            if (go == null) return;
             // 마당: 감귤나무 한두 그루, 돌담
             JejuKit.Spawn("Prop_OrangeTree", pivot, new Vector3(-1.2f, 0f, 3.9f), (float)rng.NextDouble() * 360f, 0.85f);
             if (rng.Next(2) == 0) JejuKit.Spawn("Prop_OrangeTree", pivot, new Vector3(-2.5f, 0f, -4.0f), (float)rng.NextDouble() * 360f, 0.8f);
             for (int side = -1; side <= 1; side += 2)
                 JejuKit.Spawn("Prop_StoneWall", pivot, new Vector3(0.55f, 0f, side * 3.6f), 0f, 0.55f);
             if (rng.Next(2) == 0) StreetDressing.Hydrangea(pivot, new Vector3(0.8f, 0f, 2.6f), rng, 0.9f);
+            PromenadeSegmentBuilder.SeatOnKerb(go);
         }
 
         /// 공터: 돌담으로 둘린 자갈 마당 + 감귤나무 + 귤 상자 + (가끔) 돌하르방

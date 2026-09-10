@@ -48,13 +48,19 @@ namespace CoastRun
                     b.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(c, 0.6f);
                 }
             }
-            // 위 현수막: 빨간 판 + 흰 FINISH
-            var banner = Box(go.transform, "Banner", new Vector3(0f, postH - 0.35f, 0f), new Vector3(half * 2f + 0.3f, 0.7f, 0.08f), red);
-            var trim = Box(go.transform, "BannerTrim", new Vector3(0f, postH - 0.35f, 0f), new Vector3(half * 2f + 0.34f, 0.76f, 0.05f), CoastMaterials.CreateUnlit(Color.white));
-            var lb1 = Label(go.transform, "FINISH", new Vector3(0f, postH - 0.35f, -0.06f), 0.52f, Quaternion.Euler(0f, 180f, 0f));
-            var lb2 = Label(go.transform, "FINISH", new Vector3(0f, postH - 0.35f, 0.06f), 0.52f, Quaternion.identity);
+            // 위 현수막: 도로 폭에 맞춘 빨간 판 + 가운데 FINISH(가로비 맞춘 텍스처 → 글자 안 늘어남)
+            float bannerW = half * 2f + 0.3f;
+            float bannerH = 0.7f;
+            float bannerY = postH - 0.35f;
+            var bannerMat = CoastMaterials.CreateUnlit(Color.white);
+            var finishMap = FinishBannerTex(bannerW / bannerH);
+            if (bannerMat.HasProperty("_BaseMap")) bannerMat.SetTexture("_BaseMap", finishMap);
+            else bannerMat.mainTexture = finishMap;
+            var bannerFront = BannerFace(go.transform, "BannerFront", new Vector3(0f, bannerY, -0.04f), bannerW, bannerH, Quaternion.identity, bannerMat);
+            var bannerBack = BannerFace(go.transform, "BannerBack", new Vector3(0f, bannerY, 0.04f), bannerW, bannerH, Quaternion.Euler(0f, 180f, 0f), bannerMat);
+            var trim = Box(go.transform, "BannerTrim", new Vector3(0f, bannerY, 0f), new Vector3(bannerW + 0.04f, bannerH + 0.06f, 0.05f), CoastMaterials.CreateUnlit(Color.white));
             // 24차-5c: 골인 고정 카메라(리본 뒤 2.8 m, 높이 1.2 m)에서 머리 위 현수막 뒷면이 화면 상단을 붉게 덮었다 → 통과 0.9 s 뒤 숨김
-            fr._overhead.Add(banner); fr._overhead.Add(trim); fr._overhead.Add(lb1); fr._overhead.Add(lb2);
+            fr._overhead.Add(bannerFront); fr._overhead.Add(bannerBack); fr._overhead.Add(trim);
             // 리본: 가슴 높이(1.25 m), 두껍게(0.5 m), 진빨강 언릿 + 흰 가장자리 줄 — 멀리서도 '빨간 띠'로 읽힌다
             var tape = CoastMaterials.CreateUnlit(Color.white);
             tape.mainTexture = RibbonTex();
@@ -66,15 +72,95 @@ namespace CoastRun
             return fr;
         }
 
-        private static GameObject Label(Transform parent, string text, Vector3 pos, float size, Quaternion rot)
+        private static GameObject BannerFace(Transform parent, string name, Vector3 pos, float width, float height, Quaternion rot, Material mat)
         {
-            var t = new GameObject("Label").AddComponent<TextMesh>();
-            t.transform.SetParent(parent, false);
-            t.transform.localPosition = pos; t.transform.localRotation = rot;
-            t.text = text; t.anchor = TextAnchor.MiddleCenter; t.alignment = TextAlignment.Center;
-            t.fontSize = 64; t.characterSize = size * 0.16f; t.color = Color.white; t.fontStyle = FontStyle.Bold;
-            var r = t.GetComponent<MeshRenderer>(); r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            return t.gameObject;
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            q.name = name;
+            q.transform.SetParent(parent, false);
+            q.transform.localPosition = pos;
+            q.transform.localRotation = rot;
+            q.transform.localScale = new Vector3(width, height, 1f);
+            CoastEditUtil.DestroyCollider(q);
+            var r = q.GetComponent<Renderer>();
+            r.sharedMaterial = mat;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
+            return q;
+        }
+
+        private static Texture2D _finishBannerTexV3;
+        private static float _finishBannerAspect = -1f;
+
+        /// 빨간 배경 + 가운데 흰 FINISH. aspect(=width/height)에 맞춰 그려 가로로 안 늘어나게.
+        private static Texture2D FinishBannerTex(float aspect)
+        {
+            aspect = Mathf.Clamp(aspect, 2f, 16f);
+            if (_finishBannerTexV3 != null && Mathf.Abs(_finishBannerAspect - aspect) < 0.05f)
+                return _finishBannerTexV3;
+            string[] glyphs =
+            {
+                "11110;10000;11110;10000;10000;10000;10000", // F
+                "11111;00100;00100;00100;00100;00100;11111", // I
+                "10001;11001;10101;10011;10001;10001;10001", // N
+                "11111;00100;00100;00100;00100;00100;11111", // I
+                "01110;10001;10000;01110;00001;10001;01110", // S
+                "10001;10001;10001;11111;10001;10001;10001", // H
+            };
+            const int gw = 5, gh = 7, gap = 1, scale = 12;
+            int textCols = glyphs.Length * gw + (glyphs.Length - 1) * gap;
+            // 글자 블록이 높이의 ~70% — 양옆은 빨간 여백
+            int hCells = gh + 4;
+            int wCells = Mathf.Max(textCols + 8, Mathf.RoundToInt(hCells * aspect));
+            int w = wCells * scale;
+            int h = hCells * scale;
+            int textOx = (wCells - textCols) / 2;
+            int textOy = (hCells - gh) / 2;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false)
+            {
+                name = "FinishBanner",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                anisoLevel = 4,
+            };
+            var red = new Color32(237, 26, 41, 255);
+            var white = new Color32(255, 255, 255, 255);
+            var px = new Color32[w * h];
+            for (int i = 0; i < px.Length; i++) px[i] = red;
+
+            void Plot(int cx, int cy)
+            {
+                for (int oy = 0; oy < scale; oy++)
+                for (int ox = 0; ox < scale; ox++)
+                {
+                    int x = (textOx + cx) * scale + ox;
+                    int y = (textOy + cy) * scale + oy;
+                    if ((uint)x >= (uint)w || (uint)y >= (uint)h) continue;
+                    float nx = (ox + 0.5f) / scale * 2f - 1f;
+                    float ny = (oy + 0.5f) / scale * 2f - 1f;
+                    if (nx * nx + ny * ny > 1.15f) continue;
+                    px[y * w + x] = white;
+                }
+            }
+
+            for (int gi = 0; gi < glyphs.Length; gi++)
+            {
+                string[] rows = glyphs[gi].Split(';');
+                int ox = gi * (gw + gap);
+                for (int ry = 0; ry < gh; ry++)
+                {
+                    string row = rows[ry];
+                    int cy = gh - 1 - ry;
+                    for (int rx = 0; rx < gw; rx++)
+                        if (rx < row.Length && row[rx] == '1')
+                            Plot(ox + rx, cy);
+                }
+            }
+
+            tex.SetPixels32(px);
+            tex.Apply(false, true);
+            _finishBannerTexV3 = tex;
+            _finishBannerAspect = aspect;
+            return tex;
         }
 
         private static Transform Half(Transform parent, float postX, float half, Material m)

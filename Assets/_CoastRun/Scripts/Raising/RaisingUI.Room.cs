@@ -30,7 +30,7 @@ namespace CoastRun
             });
             foreach (var h in items)
             {
-                var d = HomeData.Find(h.id); if (d == null) continue;
+                var d = HomeData.Find(h.id); if (d == null || !HomeData.IsActive(d)) continue;
                 var size = HomeData.Size(d) * 0.9f;
                 var go = HomeUI.DecoVisual(_decoLayer, d, size, !HomeData.IsWall(d));
                 var rt = go.GetComponent<RectTransform>();

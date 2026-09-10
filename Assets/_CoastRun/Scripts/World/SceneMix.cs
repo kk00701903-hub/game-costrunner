@@ -54,6 +54,14 @@ namespace CoastRun
         /// 타일 → 장면. runLength 타일씩 같은 결과. 같은 장면이 3번 연속이면 다음은 다른 것으로(지루함 방지).
         public static void Pick(int chapter, int segmentIndex, out LeftKind left, out RightKind right)
         {
+            // Opening stretch: always town left + sea right so the first view isn't bare field + sky seam.
+            if (segmentIndex >= 0 && segmentIndex < 3)
+            {
+                left = LeftKind.Town;
+                right = RightKind.Sea;
+                return;
+            }
+
             var p = Get(chapter);
             int run = Mathf.Max(1, p.runLength);
             int block = segmentIndex / run;

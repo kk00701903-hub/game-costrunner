@@ -43,24 +43,61 @@ namespace CoastRun
         public static GameObject Spawn(ObstacleId id, Transform parent, Vector3 worldPos, int lane)
         {
             var go = SpawnInner(id, parent, worldPos, lane);
-            // 38차 전수조사: 어떤 장애물이든 발밑에 붉은 깜빡이 링이 반드시 하나 있게(없으면 크기에 맞춰 붙인다)
-            if (go != null && go.GetComponentInChildren<HazardRing>() == null)
-            {
-                float rr = 0.7f;
-                var rs = go.GetComponentsInChildren<Renderer>();
-                if (rs.Length > 0)
-                {
-                    var b = rs[0].bounds; foreach (var r in rs) if (r.enabled && r.gameObject.name != "Outline") b.Encapsulate(r.bounds);
-                    rr = Mathf.Clamp(Mathf.Max(b.extents.x, b.extents.z) * 1.15f, 0.55f, 1.6f);
-                }
-                HazardRing.Attach(go.transform, rr);
-            }
+            EnsureHazardRing(go, id);
             // 38차: 도로 점유표에 등록 + 근처 코인·말랑이 걷어내기(오리 장애물은 전 레인)
             bool wide = id == ObstacleId.OverheadBar || id == ObstacleId.Clothesline || id == ObstacleId.LanternString;
             RoadOccupancy.OnObstacle(DownhillPath.DistanceAlong(worldPos), wide ? RoadOccupancy.AllLanes : lane);
-            // 14차-10: 첫 등장 하이라이트('!' + 통통 + 빨간 테두리) — 피할 시간을 준다
-            ObstacleWarning.Attach(go);
+            // 14차-10: 첫 등장 하이라이트 — 웅덩이(바닥 데칼만)는 실루엣이 없어 경고 띠를 달지 않음
+            if (id != ObstacleId.PuddleSlow)
+                ObstacleWarning.Attach(go);
             return go;
+        }
+
+        /// 모든 장애물에 붉은 깜빡이 링. 종류별 크기를 맞추고, 이미 있으면 크기만 보정.
+        private static void EnsureHazardRing(GameObject go, ObstacleId id)
+        {
+            if (go == null) return;
+            float rr = RingRadiusFor(id, go);
+            HazardRing.Attach(go.transform, rr);
+        }
+
+        private static float RingRadiusFor(ObstacleId id, GameObject go)
+        {
+            switch (id)
+            {
+                case ObstacleId.OverheadBar:
+                case ObstacleId.Clothesline:
+                case ObstacleId.LanternString: return 1.05f;
+                case ObstacleId.ParkedBus: return 1.45f;
+                case ObstacleId.TouristCluster: return 0.95f;
+                case ObstacleId.PuddleSlow: return 0.9f;
+                case ObstacleId.SnowDrift:
+                case ObstacleId.LeafDrift: return 0.85f;
+                case ObstacleId.BikeFallen: return 0.75f;
+                case ObstacleId.ScooterParked: return 0.85f;
+                case ObstacleId.StoneStatue: return 0.85f;
+                case ObstacleId.Barrier: return 0.9f;
+                case ObstacleId.Slime: return 0.85f;
+                case ObstacleId.TrafficCone: return 0.65f;
+                default: break;
+            }
+            float rr = 0.7f;
+            var rs = go.GetComponentsInChildren<Renderer>();
+            if (rs.Length > 0)
+            {
+                Bounds b = default; bool any = false;
+                foreach (var r in rs)
+                {
+                    if (r == null || !r.enabled) continue;
+                    string n = r.gameObject.name;
+                    if (n == "Outline" || n == "BlobShadow" || n == "HazardRing" || n.StartsWith("Decal_")) continue;
+                    if (!any) { b = r.bounds; any = true; }
+                    else b.Encapsulate(r.bounds);
+                }
+                if (any)
+                    rr = Mathf.Clamp(Mathf.Max(b.extents.x, b.extents.z) * 1.05f, 0.55f, 1.6f);
+            }
+            return rr;
         }
 
         private static GameObject SpawnInner(ObstacleId id, Transform parent, Vector3 worldPos, int lane)
@@ -122,7 +159,20 @@ namespace CoastRun
             string paintedKey = null, float paintedHeight = 1f)
         {
             GameObject root = null;
-            // 14차-11: Blender 3D 키트(Obs3_<key>.fbx)가 있으면 그림 대신 진짜 입체 모델 + 잉크 테두리.
+            // 그림(Obs_*.png)이 있으면 우선 — 멀리서도 실루엣이 읽히고, 경고 띠와 짝이 맞는다.
+            // Obs3 3D 는 그림이 없을 때만.
+            if (paintedKey != null && PaintedProp.Available(paintedKey))
+            {
+                root = new GameObject(name);
+                root.transform.SetParent(parent, false);
+                root.transform.position = worldPos;
+                root.transform.rotation = DownhillPath.Rotation;
+                PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false, outline: true);
+                AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
+                BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
+                HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));
+                return root;
+            }
             if (paintedKey != null && JejuKit.Load("Obs3_" + paintedKey) != null)
             {
                 root = new GameObject(name);
@@ -134,20 +184,6 @@ namespace CoastRun
                 BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
                 HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));
                 ObstacleOutline.Attach(root.transform);
-                return root;
-            }
-            // Firefly painting first (Resources/CoastRun/Obs_<key>.png); the block below
-            // stays as the fallback when no painting exists yet.
-            if (paintedKey != null && PaintedProp.Available(paintedKey))
-            {
-                root = new GameObject(name);
-                root.transform.SetParent(parent, false);
-                root.transform.position = worldPos;
-                root.transform.rotation = DownhillPath.Rotation;
-                PaintedProp.Attach(root.transform, paintedKey, paintedHeight, replace: false, outline: true);   // 38차: 붉은 굵은 테두리 원복(바닥 링으로 대신)
-                AttachTriggers(root, lane, hardRadius, hardHeight, hardRadius * 2.0f, hardHeight * 1.25f);
-                BlobShadow.Attach(root.transform, Mathf.Max(0.45f, visualScale.x * 0.85f));
-                HazardRing.Attach(root.transform, Mathf.Max(0.55f, hardRadius * 1.9f));
                 return root;
             }
             var prefab = PrefabLibrary.TryInstantiate(name, parent, Vector3.zero);

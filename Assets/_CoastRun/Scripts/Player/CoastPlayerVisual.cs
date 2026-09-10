@@ -92,7 +92,6 @@ namespace CoastRun
                     _rootVisual = _visualRoot;
                     ApplyCharacterOutlines(rig.transform);
                     CacheBasePose();
-                    BlobShadow.Attach(transform, 0.85f * ScreenOccupancyScale);
                     return;
                 }
             }
@@ -109,7 +108,6 @@ namespace CoastRun
                 CacheBones(prefabRoot.transform);
                 CacheBasePose();
                 TryAttachPaintedBillboard();
-                BlobShadow.Attach(transform, 0.85f * ScreenOccupancyScale);
                 return;
             }
 
@@ -121,7 +119,6 @@ namespace CoastRun
             ApplyCharacterOutlines(_visualRoot);
             CacheBasePose();
             TryAttachPaintedBillboard();
-            BlobShadow.Attach(transform, 0.85f * ScreenOccupancyScale);
         }
 
         private void TryAttachPaintedBillboard()
@@ -175,6 +172,11 @@ namespace CoastRun
                 var child = transform.GetChild(i);
                 CoastEditUtil.DestroyObject(child.gameObject);
             }
+
+            // 주인공 발밑 블롭 섀도우 제거(재빌드·핫리로드 잔여분 포함)
+            var blob = GetComponent<BlobShadow>();
+            if (blob != null)
+                CoastEditUtil.DestroyObject(blob);
 
             _hair = null;
             _backpack = null;
@@ -405,6 +407,14 @@ namespace CoastRun
 
         private void LateUpdate()
         {
+            // 거인 모드: SkaterRig 없는 비주얼(빌보드·프리팹)도 스케일 반영
+            if (_player != null && _visualRoot != null && _visualRoot.GetComponentInChildren<SkaterRig>() == null)
+            {
+                float mul = Mathf.Max(0.5f, _player.VisualScaleMul);
+                float baseSc = _visualRoot.name == "GirlSkater" ? 0.92f * ScreenOccupancyScale : ScreenOccupancyScale;
+                _visualRoot.localScale = Vector3.one * (baseSc * mul);
+            }
+
             UpdatePose();
             ApplyCrouchBillboard();
 
@@ -439,6 +449,12 @@ namespace CoastRun
             bool mirror = false;
             if (_menuPose)
                 want = _poseRun;
+            else if (_player.State == SkateState.Finish)
+            {
+                // 도착: 킥/기울기 사이클 멈추고 런 포즈로 고정
+                want = _poseRun != null ? _poseRun : _poseCurrent;
+                _pushClock = PushHold;
+            }
             else if (_player.State == SkateState.Air && _poseJump != null)
                 want = _poseJump;
             else if (_player.IsCrouching && _poseCrouch != null)

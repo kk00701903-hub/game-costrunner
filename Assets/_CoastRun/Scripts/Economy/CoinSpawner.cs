@@ -9,22 +9,30 @@ namespace CoastRun
         [SerializeField] private CoinWallet wallet;
         [SerializeField] private UpgradeManager upgrades;
         [SerializeField] private UI_FeedbackController feedback;
-        [SerializeField] private float spawnAhead = 80f;
-        [SerializeField] private float spawnInterval = 13f;   // jellies are the main breadcrumb now; coins stay the currency
+        [SerializeField] private float spawnAhead = 60f;
+        [SerializeField] private float spawnInterval = 14f;  // Gold Run: clear asphalt between coin guides
         [SerializeField] private float laneWidth = 2.2f;
 
-        private float _nextSpawnZ = 8f;
+        private float _nextSpawnZ = 22f;
         private Transform _root;
         // 24차-8(점검 3-2): 스테이지 리셋이 없어 재도전 뒤 이전 도달점까지 코인이 0이었고, UnityEngine.Random이라
         // 같은 시드=같은 코스 원칙이 코인에서만 깨졌다. 장애물·젤리와 같은 방식으로 시드 RNG를 쓴다.
         private System.Random _rng = new System.Random(777);
 
+        // 활공 보상 트레일: 플레이어 앞을 계속 채워 하늘에서 먹이가 끊기지 않게.
+        private bool _glideTrail;
+        private float _glideNextZ;
+        private float _glideHeight;
+        private int _glideLane;
+        private int _glideCount;
+
         public void ResetForStage(int stageIndex, float startZ)
         {
             _rng = new System.Random(700 + stageIndex * 6131);
-            _nextSpawnZ = startZ + 8f;
+            _nextSpawnZ = startZ + 22f;
             RoadOccupancy.Clear();
             _lineLane = 0;
+            EndGlideTrail();
             if (_root == null) return;
             for (int i = _root.childCount - 1; i >= 0; i--)
             {
@@ -73,11 +81,20 @@ namespace CoastRun
             if (player == null || wallet == null || _root == null)
                 return;
 
+            if (_glideTrail)
+            {
+                if (player.IsGliding) FillGlideTrail();
+                else EndGlideTrail();
+            }
+
             float z = player.PathDistance;
             while (_nextSpawnZ < z + spawnAhead)
             {
-                SpawnPattern(_nextSpawnZ);
-                _nextSpawnZ += (spawnInterval + Rnd(-1.5f, 2.5f)) * RunRhythm.CoinIntervalMul(_nextSpawnZ);
+                // Pattern length + breath — Gold Run empty asphalt between guides.
+                float len = SpawnPattern(_nextSpawnZ);
+                float breath = Rnd(12f, 20f);
+                float paced = (spawnInterval + Rnd(-1f, 2f)) * RunRhythm.CoinIntervalMul(_nextSpawnZ);
+                _nextSpawnZ += Mathf.Max(paced, len + breath);
             }
 
             for (int i = _root.childCount - 1; i >= 0; i--)
@@ -94,49 +111,93 @@ namespace CoastRun
 
         private int _lineLane;   // 코인 라인 구간: 줄이 레인을 옮겨 가며 이어진다(S자)
 
-        private void SpawnPattern(float z)
+        /// Prefer a lane clear of nearby obstacles so coin lines guide the open path.
+        private int PickOpenLane(float z, int preferred)
         {
-            int lane = Rnd(-1, 2);
-            int pattern = Rnd(0, 4);
-            Transform follow = player != null ? player.transform : null;
+            int[] order = preferred == 0
+                ? new[] { 0, -1, 1 }
+                : preferred < 0 ? new[] { -1, 0, 1 } : new[] { 1, 0, -1 };
+            for (int i = 0; i < order.Length; i++)
+            {
+                if (!RoadOccupancy.Near(RoadOccupancy.Kind.Obstacle, z, order[i], 3f))
+                    return order[i];
+            }
+            return preferred;
+        }
 
-            // 14차 리듬: 코인 라인 구간엔 한 레인에 길게, 다음 줄은 옆 레인으로 — '따라가면 되는' 길.
+        /// Returns the pattern's length along Z so the next spawn can leave a clear gap.
+        private float SpawnPattern(float z)
+        {
+            int lane = PickOpenLane(z, Rnd(-1, 2));
+            Transform follow = player != null ? player.transform : null;
             var phase = RunRhythm.At(z);
+
+            // CoinLine: one long single-lane breadcrumb (Gold Run pass1/pass3).
             if (phase == RunRhythm.Phase.CoinLine)
             {
-                int count = 9 + Rnd(0, 4);
+                _lineLane = PickOpenLane(z, _lineLane);
+                // ~25% dual parallel lanes like Gold Run pass3; else single lane.
+                bool dual = Rnd(0, 4) == 0;
+                int count = 7 + Rnd(0, 3);   // 7..9
+                const float spacing = 2.4f;
+                int other = _lineLane == 0 ? (Rnd(0, 2) == 0 ? -1 : 1) : 0;
                 for (int i = 0; i < count; i++)
-                    Place(z + i * 2.0f, _lineLane, i % 5 == 4, follow);
+                {
+                    Place(z + i * spacing, _lineLane, i % 5 == 4, follow);
+                    if (dual) Place(z + i * spacing, other, false, follow);
+                }
                 int step = Rnd(0, 2) == 0 ? -1 : 1;
                 _lineLane = Mathf.Clamp(_lineLane + step, -1, 1);
-                if (_lineLane == 0 && Rnd(0, 3) == 0) _lineLane = step;   // 가운데에만 머물지 않게
-                return;
+                if (_lineLane == 0 && Rnd(0, 3) == 0) _lineLane = step;
+                return (count - 1) * spacing;
             }
+
+            // Easy: almost always a short straight single-lane guide (Gold Run pass1).
+            // Crisis: jump-arc tease or diagonal onto open lane.
+            int pattern;
             if (phase == RunRhythm.Phase.Crisis)
-                pattern = Rnd(0, 2) == 0 ? 3 : 1;   // 위기 구간: 점프 아치·지그재그 위주
+                pattern = Rnd(0, 3) == 0 ? 1 : 3;
+            else
+            {
+                int roll = Rnd(0, 10);
+                if (roll < 8) pattern = 0;       // straight
+                else if (roll < 9) pattern = 4;  // mild diagonal into next open lane
+                else pattern = 3;               // elevated tease
+            }
 
             if (pattern == 0)
             {
-                int count = 4 + Rnd(0, 3);
+                int count = 5 + Rnd(0, 3);   // 5..7 — readable single-lane trail
+                const float spacing = 2.4f;
                 for (int i = 0; i < count; i++)
-                    Place(z + i * 2.2f, lane, false, follow);
+                    Place(z + i * spacing, lane, false, follow);
+                return (count - 1) * spacing;
             }
-            else if (pattern == 1)
+            if (pattern == 1)
             {
-                for (int i = 0; i < 5; i++)
-                    Place(z + i * 2.4f, (i % 3) - 1, i % 2 == 1, follow);
+                // Zigzag teach-swipe — keep sparse
+                for (int i = 0; i < 4; i++)
+                    Place(z + i * 2.8f, PickOpenLane(z + i * 2.8f, (i % 3) - 1), i % 2 == 1, follow);
+                return 3f * 2.8f;
             }
-            else if (pattern == 2)
+            if (pattern == 4)
             {
-                for (int l = -1; l <= 1; l++)
-                    Place(z, l, false, follow);
+                // Mild diagonal: stay in lane then step once (Gold Run S-curve lite)
+                int count = 6;
+                const float spacing = 2.3f;
+                int to = Mathf.Clamp(lane + (Rnd(0, 2) == 0 ? -1 : 1), -1, 1);
+                for (int i = 0; i < count; i++)
+                {
+                    int l = i < count / 2 ? lane : to;
+                    Place(z + i * spacing, l, false, follow);
+                }
+                return (count - 1) * spacing;
             }
-            else
-            {
-                for (int i = 0; i < 3; i++)
-                    Place(z + i * 2f, lane, true, follow);
-                Place(z + 7f, lane, false, follow);
-            }
+            // Jump-arc tease
+            for (int i = 0; i < 3; i++)
+                Place(z + i * 2f, lane, true, follow);
+            Place(z + 7f, lane, false, follow);
+            return 7f;
         }
 
         public static CoinSpawner Instance { get; private set; }
@@ -160,13 +221,11 @@ namespace CoastRun
             }
         }
 
-        /// 17차: 빨래줄 활공 코인 — 줄 높이에 1.8 m 간격, 앞 1/3은 잡은 레인, 그 뒤는 옆 레인으로 물결(조종 유도). 5개마다 은화.
+        /// 17차: 빨래줄 활공 코인 — 한 번에 깔아 두는 고정 줄(길이만큼). 연속 트레일은 BeginGlideTrail 사용.
         public void SpawnGlideLine(float z, int lane, float height, float length)
         {
             if (_root == null) return;
             Transform follow = player != null ? player.transform : null;
-            // 33차: 하늘 코인 — 촘촘하게(1.4 m), 앞 절반은 잡은 레인 그대로(그냥 날면 먹힌다), 뒤 절반은 옆 레인으로 물결.
-            // 높이는 줄보다 0.35 m 위(가슴 앞)로, 위아래로 살짝 파도치게 해서 '하늘에 떠 있는 코인 줄'로 읽힌다.
             int n = Mathf.Clamp(Mathf.FloorToInt(length / 1.4f), 8, 48);
             for (int i = 0; i < n; i++)
             {
@@ -180,6 +239,60 @@ namespace CoastRun
                 float wave = Mathf.Sin(t * Mathf.PI * 3f) * 0.25f;
                 Vector3 pos = RoadPlacement.OnRoad(z + i * 1.4f, l * laneWidth, height + 0.35f + wave);
                 CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, i % 5 == 4);
+            }
+        }
+
+        /// 활공 시작: 플레이어 앞 ~24 m를 계속 채워 동전·말랑이·하트가 끊기지 않게 나온다.
+        public void BeginGlideTrail(int lane, float height)
+        {
+            if (player == null || _root == null) return;
+            _glideTrail = true;
+            _glideLane = lane;
+            _glideHeight = height;
+            _glideNextZ = player.PathDistance + 2.2f;
+            _glideCount = 0;
+            player.OnGlideEnd -= EndGlideTrail;
+            player.OnGlideEnd += EndGlideTrail;
+            FillGlideTrail();
+        }
+
+        private void EndGlideTrail()
+        {
+            _glideTrail = false;
+            if (player != null) player.OnGlideEnd -= EndGlideTrail;
+        }
+
+        private void FillGlideTrail()
+        {
+            if (player == null || _root == null) return;
+            const float lead = 24f;
+            const float spacing = 1.0f;
+            float target = player.PathDistance + lead;
+            Transform follow = player.transform;
+            while (_glideNextZ < target)
+            {
+                int n = _glideCount;
+                int l = _glideLane;
+                // 앞쪽 몇 개는 잡은 레인 고정, 그 뒤는 옆 레인 물결(조종 유도)
+                if (n >= 6)
+                {
+                    int seg = (n - 6) / 3;
+                    l = _glideLane == 0 ? (seg % 2 == 0 ? 1 : -1) : (seg % 2 == 0 ? 0 : _glideLane);
+                }
+                float wave = Mathf.Sin(n * 0.55f) * 0.28f;
+                float h = _glideHeight + 0.35f + wave;
+                // 7개마다 말랑이, 14개마다 하트 — 나머지는 동전(5번째마다 은화)
+                if (n > 0 && n % 14 == 0)
+                    JellySpawner.Instance?.SpawnGlideReward(PickupKind.Heart, _glideNextZ, l, h);
+                else if (n > 0 && n % 7 == 0)
+                    JellySpawner.Instance?.SpawnGlideReward(PickupKind.Jelly, _glideNextZ, l, h);
+                else
+                {
+                    Vector3 pos = RoadPlacement.OnRoad(_glideNextZ, l * laneWidth, h);
+                    CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, n % 5 == 4);
+                }
+                _glideNextZ += spacing;
+                _glideCount++;
             }
         }
 
@@ -209,7 +322,10 @@ namespace CoastRun
             float lateral = lane * laneWidth;
             // Waist-height float like the coastal mock (not glued to asphalt).
             Vector3 pos = RoadPlacement.OnRoad(z, lateral, 0.5f);   // coin centre ends up ~0.7 m: waist height, not floating
-            CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, silver);
+            // 은화 / 금화 / 꾸러미(금화×10). 꾸러미는 ~7% — 라인 중간중간 보물처럼.
+            CoinTier tier = silver ? CoinTier.Silver
+                : (Rnd(0, 100) < 7 ? CoinTier.Bundle : CoinTier.Gold);
+            CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, tier);
         }
     }
 }

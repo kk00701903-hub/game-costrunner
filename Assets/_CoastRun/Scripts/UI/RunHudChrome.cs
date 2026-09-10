@@ -244,7 +244,7 @@ namespace CoastRun
             srt.offsetMin = new Vector2(4f, 0f); srt.offsetMax = new Vector2(-4f, -3f); shine.raycastTarget = false;
 
             _hpGaugeText = CoastHudLayout.MakeText(trt, "Value", "100", 20, TextAnchor.MiddleRight,
-                new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(-12f, 0f));
+                new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(10f, 0f), new Vector2(-18f, 0f));
             _hpGaugeText.fontStyle = FontStyle.Bold; _hpGaugeText.color = Color.white; _hpGaugeText.raycastTarget = false;
             CoastUiArt.OutlineText(_hpGaugeText, new Color(0.05f, 0.07f, 0.18f, 0.95f), 2f);
 
@@ -283,7 +283,7 @@ namespace CoastRun
                 im.sprite = icon; im.preserveAspect = true; im.raycastTarget = false;
             }
             _heartsText = CoastHudLayout.MakeText(_heartsPill, "Value", "", 30, TextAnchor.MiddleRight,
-                Vector2.zero, Vector2.one, new Vector2(64f, 0f), new Vector2(-16f, 0f));
+                Vector2.zero, Vector2.one, new Vector2(68f, 0f), new Vector2(-20f, 0f));
             _heartsText.color = new Color(1f, 0.85f, 0.9f);
             _heartsText.fontStyle = FontStyle.Bold;
             CoastUiArt.OutlineText(_heartsText, new Color(0.05f, 0.07f, 0.18f, 0.9f), 2f);
@@ -676,7 +676,7 @@ namespace CoastRun
             _scoreCg = pill.gameObject.AddComponent<CanvasGroup>();
 
             _scoreText = CoastHudLayout.MakeText(rt, "Score", "00000", 36, TextAnchor.MiddleRight,
-                Vector2.zero, Vector2.one, new Vector2(110f, 0f), new Vector2(-18f, 0f));
+                Vector2.zero, Vector2.one, new Vector2(138f, 0f), new Vector2(-22f, 0f));
             _scoreText.color = ScoreYellow;
             _scoreText.fontStyle = FontStyle.Bold;
             _scoreText.horizontalOverflow = HorizontalWrapMode.Wrap;   // 32차: 6자리 점수도 칸 안에
@@ -688,8 +688,8 @@ namespace CoastRun
             _multBadge = badge.rectTransform;
             _multBadge.anchorMin = _multBadge.anchorMax = new Vector2(0f, 0.5f);
             _multBadge.pivot = new Vector2(0f, 0.5f);
-            _multBadge.anchoredPosition = new Vector2(8f, 0f);
-            _multBadge.sizeDelta = new Vector2(104f, 48f);
+            _multBadge.anchoredPosition = new Vector2(10f, 0f);
+            _multBadge.sizeDelta = new Vector2(96f, 48f);
             _multCg = badge.gameObject.AddComponent<CanvasGroup>();
             var star = CoastUiArt.Icon("Star");
             if (star != null)
@@ -699,13 +699,14 @@ namespace CoastRun
                 var srt = sgo.GetComponent<RectTransform>();
                 srt.anchorMin = srt.anchorMax = new Vector2(1f, 0.5f);
                 srt.pivot = new Vector2(0.5f, 0.5f);
-                srt.anchoredPosition = new Vector2(-2f, 6f);
-                srt.sizeDelta = new Vector2(54f, 54f);
+                // 점수 숫자와 겹치지 않게 배지 안쪽으로
+                srt.anchoredPosition = new Vector2(-14f, 6f);
+                srt.sizeDelta = new Vector2(44f, 44f);
                 var si = sgo.GetComponent<Image>();
                 si.sprite = star; si.preserveAspect = true; si.raycastTarget = false;
             }
             _multText = CoastHudLayout.MakeText(_multBadge, "Mult", "x1", 26, TextAnchor.MiddleCenter,
-                Vector2.zero, Vector2.one, new Vector2(6f, 0f), new Vector2(star != null ? -30f : -6f, 0f));
+                Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(star != null ? -28f : -8f, 0f));
             _multText.color = Color.white;
             _multText.fontStyle = FontStyle.Bold;
             CoastUiArt.OutlineText(_multText, new Color(0.45f, 0.18f, 0.02f, 0.9f), 1.5f);
@@ -718,7 +719,7 @@ namespace CoastRun
             rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
             rt.pivot = new Vector2(1f, 1f);
             rt.anchoredPosition = new Vector2(-6f, -76f);
-            rt.sizeDelta = new Vector2(196f, 54f);   // 32차: 5자리(12409)가 넘치던 것 — 폭 176→196 + 글자 자동 축소
+            rt.sizeDelta = new Vector2(204f, 54f);
             _coinCg = pill.gameObject.AddComponent<CanvasGroup>();
 
             var iconGo = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
@@ -726,23 +727,25 @@ namespace CoastRun
             var irt = iconGo.GetComponent<RectTransform>();
             irt.anchorMin = irt.anchorMax = new Vector2(1f, 0.5f);
             irt.pivot = new Vector2(1f, 0.5f);
-            irt.anchoredPosition = new Vector2(-4f, 4f);
-            irt.sizeDelta = new Vector2(50f, 50f);
+            irt.anchoredPosition = new Vector2(-10f, 4f);
+            irt.sizeDelta = new Vector2(46f, 46f);
             var icon = iconGo.GetComponent<Image>();
             icon.sprite = CoastUiArt.AsSprite(ArtAssets.LoadTexture("Icon_Coin"), 100f);
             icon.preserveAspect = true;
             icon.raycastTarget = false;
 
             _coinText = CoastHudLayout.MakeText(rt, "Coins", "0", 30, TextAnchor.MiddleRight,
-                Vector2.zero, Vector2.one, new Vector2(16f, 0f), new Vector2(-56f, 0f));
+                Vector2.zero, Vector2.one, new Vector2(22f, 0f), new Vector2(-60f, 0f));
             _coinText.color = ScoreYellow;
             _coinText.fontStyle = FontStyle.Bold;
-            _coinText.horizontalOverflow = HorizontalWrapMode.Wrap;   // 32차: 칸 안에서 자동 축소(Overflow면 축소가 안 됨)
+            _coinText.horizontalOverflow = HorizontalWrapMode.Wrap;
             _coinText.verticalOverflow = VerticalWrapMode.Truncate; _coinText.resizeTextForBestFit = true; _coinText.resizeTextMinSize = 18; _coinText.resizeTextMaxSize = CoastHudLayout.Scaled(30);
             CoastUiArt.OutlineText(_coinText, new Color(0.05f, 0.07f, 0.18f, 0.9f), 2f);
         }
 
         // ── Runtime ──────────────────────────────────────────────────────────
+
+        private float _stuckScaleSince = -1f;
 
         private void Update()
         {
@@ -752,6 +755,26 @@ namespace CoastRun
                 if (_heartsPop > 0f) { _heartsPop -= Time.unscaledDeltaTime; float k = Mathf.Clamp01(_heartsPop / 0.22f); _heartsPill.localScale = Vector3.one * (1f + 0.18f * Mathf.Sin(k * Mathf.PI)); }
                 else if (_heartsPill.localScale != Vector3.one) _heartsPill.localScale = Vector3.one;
             }
+
+            // Esc / P — accidental pause is a common "keyboard stopped working" report.
+            if (_runOverOverlay == null
+                && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)))
+                TogglePause();
+
+            // Hit-stop is ≤0.15s. If time stays near-zero while not paused, force resume.
+            if (!_paused && _player != null && _player.Speed > 0.5f && Time.timeScale < 0.05f)
+            {
+                if (_stuckScaleSince < 0f) _stuckScaleSince = Time.unscaledTime;
+                else if (Time.unscaledTime - _stuckScaleSince > 0.35f)
+                {
+                    Time.timeScale = 1f;
+                    AudioListener.pause = false;
+                    _stuckScaleSince = -1f;
+                }
+            }
+            else
+                _stuckScaleSince = -1f;
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // 에디터 검증용: 런오버 패널에서 R = 다시, Return = 두 번째 버튼.
             if (_runOverOverlay != null)

@@ -13,20 +13,21 @@ namespace CoastRun
     {
         [SerializeField] private PlayerController player;
         [SerializeField] private UpgradeManager upgrades;
-        [SerializeField] private float spawnAhead = 90f;
+        [SerializeField] private float spawnAhead = 50f;
         [SerializeField] private float laneWidth = 2.2f;
         [SerializeField] private float jellyHeight = 0.35f;
         [Header("Pacing (metres)")]
-        [SerializeField] private float trailGapMin = 6f;
-        [SerializeField] private float trailGapMax = 14f;
+        [SerializeField] private float trailGapMin = 22f;  // coins lead; jelly only in quiet stretches
+        [SerializeField] private float trailGapMax = 36f;
         [SerializeField] private float potionEvery = 110f;   // 17차: 피해 ↑ 만큼 물약도 자주(180→110 m)
         [SerializeField] private float starEvery = 900f;
 
         private Transform _root;
-        private float _nextTrailZ = 12f;
+        private float _nextTrailZ = 48f;
         private float _nextPotionZ = 60f;
         private float _nextStarZ = 200f;
         private float _nextCardZ = 420f;   // 38차: 포토카드 아이템
+        private float _nextGiantZ = 160f;  // 거인 무적
         private float _bonusFillZ;
         private float _nextHeartZ;
         private float _heartSpacing = 80f;
@@ -57,11 +58,12 @@ namespace CoastRun
         public void ResetForStage(int stageIndex, float startZ)
         {
             _rng = new System.Random(500 + stageIndex * 4271);
-            _nextTrailZ = startZ + 12f;
+            _nextTrailZ = startZ + 48f;   // Gold Run: first beat is coins/obstacles, not jelly carpet
             _nextPotionZ = startZ + 90f + (float)_rng.NextDouble() * 60f;
             _nextStarZ = startZ + 320f + (float)_rng.NextDouble() * 120f;
             _nextCardZ = startZ + 380f + (float)_rng.NextDouble() * 180f;
-            _nextHeartZ = startZ + _heartSpacing * 0.6f;
+            _nextGiantZ = startZ + 140f + (float)_rng.NextDouble() * 80f;
+            _nextHeartZ = Mathf.Max(startZ + 40f, startZ + _heartSpacing * 0.6f);
             _heartsLeft = RunTuning.HeartsPerStage;
             ClearAll();
         }
@@ -126,6 +128,12 @@ namespace CoastRun
             {
                 while (_nextTrailZ < z + spawnAhead)
                 {
+                    // Gold Run: during coin-guide beats, leave the road to coins (no jelly carpet).
+                    if (RunRhythm.At(_nextTrailZ) == RunRhythm.Phase.CoinLine)
+                    {
+                        _nextTrailZ += 28f;
+                        continue;
+                    }
                     float len = SpawnTrail(_nextTrailZ);
                     _nextTrailZ += len + Mathf.Lerp(trailGapMin, trailGapMax, (float)_rng.NextDouble());
                 }
@@ -145,6 +153,12 @@ namespace CoastRun
                 {
                     Place(PickupKind.BonusStar, _nextStarZ, _rng.Next(3) - 1, 0.5f);
                     _nextStarZ += starEvery * (0.85f + (float)_rng.NextDouble() * 0.4f);
+                }
+
+                if (_nextGiantZ < z + spawnAhead)
+                {
+                    Place(PickupKind.Giant, _nextGiantZ, _rng.Next(3) - 1, 0.45f);
+                    _nextGiantZ += 220f + (float)_rng.NextDouble() * 120f;   // 스테이지당 대략 1~2개
                 }
 
                 // 말랑이 하트: 트랙 전체에 고르게, 레인은 시드 난수. 점프 높이(1.2 m)에 놓이는
@@ -170,23 +184,22 @@ namespace CoastRun
         /// Returns the trail's length in metres.
         private float SpawnTrail(float z)
         {
-            int pattern = _rng.Next(4);
+            // Prefer short single-lane trails — Gold Run style, not a pour.
+            int roll = _rng.Next(10);   // 0-5 straight, 6-7 zig, 8 arc, 9 rare double
             int lane = PickLane();
-            const float step = 1.5f;
+            const float step = 1.8f;
 
-            if (pattern == 0)
+            if (roll <= 5)
             {
-                // Straight run.
-                int count = 7 + _rng.Next(6);
+                int count = 4 + _rng.Next(4);   // 4..7
                 for (int i = 0; i < count; i++)
                     Place(PickupKind.Jelly, z + i * step, lane, jellyHeight, i % 5);
                 return count * step;
             }
 
-            if (pattern == 1)
+            if (roll <= 7)
             {
-                // Zigzag across lanes — teaches the swipe rhythm.
-                int count = 9;
+                int count = 6;
                 int dir = lane <= 0 ? 1 : -1;
                 int l = lane;
                 for (int i = 0; i < count; i++)
@@ -202,10 +215,9 @@ namespace CoastRun
                 return count * step * 1.4f;
             }
 
-            if (pattern == 2)
+            if (roll == 8)
             {
-                // Jump arc: rises to 1.6 m — the reward for hopping.
-                int count = 8;
+                int count = 5;
                 for (int i = 0; i < count; i++)
                 {
                     float u = i / (float)(count - 1);
@@ -215,9 +227,9 @@ namespace CoastRun
                 return count * step;
             }
 
-            // Double lane run (two parallel lines) — greed test.
+            // Rare double lane — greed test.
             {
-                int count = 6;
+                int count = 4;
                 int other = lane == 1 ? 0 : lane + 1;
                 for (int i = 0; i < count; i++)
                 {
@@ -261,12 +273,21 @@ namespace CoastRun
         private void Place(PickupKind kind, float z, int lane, float height, int color = -1)
         {
             // 38차: 말랑이는 장애물 3 m 안엔 안 놓고, 아이템(물약/별/하트)은 장애물 4.5 m·다른 픽업 3.5 m 떨어진 자리로 미룬다
-            bool item = kind == PickupKind.Potion || kind == PickupKind.BonusStar || kind == PickupKind.Heart || kind == PickupKind.Photocard;
+            bool item = kind == PickupKind.Potion || kind == PickupKind.BonusStar || kind == PickupKind.Heart
+                        || kind == PickupKind.Photocard || kind == PickupKind.Giant;
             if (item) z = RoadOccupancy.FindClear(z, lane, 4.5f, 3.5f);
             else if (RoadOccupancy.Near(RoadOccupancy.Kind.Obstacle, z, lane, 3f)) return;
             RoadOccupancy.Add(item ? RoadOccupancy.Kind.Item : RoadOccupancy.Kind.Pickup, z, lane);
             Vector3 pos = RoadPlacement.OnRoad(z, lane * laneWidth, height);
             JellyPickup.Spawn(kind, _root, pos, player != null ? player.transform : null, upgrades, color);
+        }
+
+        /// 활공 하늘 보상 — 지면 점유 검사 없이 줄 높이에 바로 놓는다.
+        public void SpawnGlideReward(PickupKind kind, float z, int lane, float height)
+        {
+            if (_root == null) return;
+            Vector3 pos = RoadPlacement.OnRoad(z, lane * laneWidth, height);
+            JellyPickup.Spawn(kind, _root, pos, player != null ? player.transform : null, upgrades);
         }
     }
 }

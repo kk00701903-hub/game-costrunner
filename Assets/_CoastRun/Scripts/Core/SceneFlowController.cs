@@ -303,9 +303,11 @@ namespace CoastRun
                 clear.Show(stage, chapterComplete,
                     () => OnStageClearContinue(stage, chapterComplete),
                     () => OnStageClearRetry());
+                // 정산 칩이 끝난 뒤에 회상 — 클리어 화면을 그림이 바로 덮지 않게
+                while (clear != null && clear.IsSettling)
+                    yield return null;
             }
 
-            // Memory overlay on top of clear screen — no scene load.
             var mem = MemoryDirector.Instance ?? UnityEngine.Object.FindAnyObjectByType<MemoryDirector>();
             if (mem != null)
                 yield return mem.PlayQueuedIfAny();

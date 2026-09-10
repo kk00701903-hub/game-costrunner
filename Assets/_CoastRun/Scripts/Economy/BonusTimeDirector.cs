@@ -92,7 +92,7 @@ namespace CoastRun
             if (_player != null)
             {
                 _player.SpeedBoost = 1f;
-                _player.Invincible = false;
+                _player.Invincible = GiantMode.Active || PlayerController.DebugGod;
             }
             if (_health != null)
                 _health.Frozen = false;
