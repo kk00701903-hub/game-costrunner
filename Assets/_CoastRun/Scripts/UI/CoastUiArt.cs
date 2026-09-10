@@ -246,6 +246,27 @@ namespace CoastRun
             return outer;
         }
 
+        /// 39차: 시안(Meta AI) 버튼 — 크림 테두리 없이 큰 라운드, 진한 아랫입술(그림자) + 본체 + 윗광택.
+        /// 반환 Image가 바깥(입술) 모양. 자식 텍스트/아이콘은 본체 위에 올라간다.
+        public static Image GlossyPill(Transform parent, string name, Color fill, int radius = 30, int lip = 10)
+        {
+            var outer = Panel(parent, name, Color.Lerp(fill, Color.black, 0.62f), radius);            // 바깥 어두운 테두리 선
+            var lipImg = Panel(outer.transform, "Lip", Color.Lerp(fill, Color.black, 0.42f), Mathf.Max(2, radius - 2));
+            Stretch(lipImg.rectTransform, 2f, 2f, -2f, -2f);
+            var body = Panel(outer.transform, "Fill", fill, Mathf.Max(2, radius - 2));
+            Stretch(body.rectTransform, 2f, lip + 2f, -2f, -2f);
+            var gloss = Panel(outer.transform, "Gloss", new Color(1f, 1f, 1f, 0.20f), Mathf.Max(2, radius - 4));
+            var g = gloss.rectTransform;
+            g.anchorMin = new Vector2(0f, 0.52f);
+            g.anchorMax = new Vector2(1f, 1f);
+            g.offsetMin = new Vector2(6f, 0f);
+            g.offsetMax = new Vector2(-6f, -4f);
+            return outer;
+        }
+
+        /// 39차: Resources/CoastRun/<name>.png 를 UI 스프라이트로(없으면 null).
+        public static Sprite Art(string name) => AsSprite(ArtAssets.LoadTexture(name), 100f);
+
         private static void Stretch(RectTransform rt, float l, float b, float r, float t)
         {
             rt.anchorMin = Vector2.zero;

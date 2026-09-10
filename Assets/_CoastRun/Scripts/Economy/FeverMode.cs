@@ -179,10 +179,11 @@ namespace CoastRun
         {
             if (_player == null) _player = FindAnyObjectByType<PlayerController>();
             if (_player == null) return;
+            var pt = _player.transform;
             foreach (var c in FindObjectsByType<CoinPickup>(FindObjectsSortMode.None))
-                c?.BeginFeverPull(_player);
+                c?.BeginFeverPull(pt);
             foreach (var j in FindObjectsByType<JellyPickup>(FindObjectsSortMode.None))
-                j?.BeginFeverPull(_player);
+                j?.BeginFeverPull(pt);
         }
 
         /// 경로 기준 피버 흡입 범위(전방·전 레인). 구형 자석보다 러너에 맞게.

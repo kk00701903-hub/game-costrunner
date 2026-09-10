@@ -917,8 +917,39 @@ namespace CoastRun
 
             var dim = CoastHudLayout.MakeImage(root, "Dim", Vector2.zero, Vector2.one,
                 new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad),
-                new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad), new Color(0.02f, 0.05f, 0.12f, 0.72f));
+                new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad), new Color(0.02f, 0.05f, 0.12f, 0.80f));   // 39차: 시안만큼 어둡게
             dim.raycastTarget = true;
+
+            System.Action resume = Resume;
+            System.Action retry = () => { Resume(); StageManager.Instance?.RetryCurrent(); };
+            System.Action toTitle = () =>
+            {
+                Resume();
+                var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
+                if (flow != null)
+                    _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
+            };
+
+            // 39차: 시안(크림 카드 + 남색 테두리 + "일시정지" 입체 제목 + 초록/주황/파랑 버튼)을 그림 한 장으로(UI_PauseCard),
+            // 버튼은 그림 위 투명 히트 영역. 그림이 없으면 옛 코드 카드.
+            var cardArt = CoastUiArt.Art("UI_PauseCard");
+            if (cardArt != null)
+            {
+                var card = new GameObject("Card", typeof(RectTransform), typeof(Image));
+                card.transform.SetParent(root, false);
+                var img = card.GetComponent<Image>();
+                img.sprite = cardArt; img.preserveAspect = true; img.raycastTarget = true;
+                var crt = card.GetComponent<RectTransform>();
+                crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f);
+                crt.pivot = new Vector2(0.5f, 0.5f);
+                // 시안 1152×2128 기준 크롭(1070×1330) → 720 단위 ×0.61
+                crt.anchoredPosition = new Vector2(0f, 18f);
+                crt.sizeDelta = new Vector2(653f, 811f);
+                HitButton(crt, "Resume", new Vector2(2f, 135f), new Vector2(462f, 144f), resume);
+                HitButton(crt, "Retry", new Vector2(2f, -49f), new Vector2(462f, 144f), retry);
+                HitButton(crt, "Title", new Vector2(2f, -232f), new Vector2(462f, 144f), toTitle);
+                return;
+            }
 
             var panel = CoastUiArt.Panel(root, "Panel", new Color(0.97f, 0.95f, 0.90f, 1f), 28);
             var prt = panel.rectTransform;
@@ -930,19 +961,26 @@ namespace CoastRun
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -100f), new Vector2(0f, -24f));
             title.color = PillNavy;
 
-            MakeBigButton(prt, "Resume", "계속하기", new Color(0.30f, 0.72f, 0.36f), -150f, Resume);
-            MakeBigButton(prt, "Retry", "다시 시작", BadgeOrange, -230f, () =>
-            {
-                Resume();
-                StageManager.Instance?.RetryCurrent();
-            });
-            MakeBigButton(prt, "Title", "메인으로", new Color(0.35f, 0.45f, 0.70f), -310f, () =>
-            {
-                Resume();
-                var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
-                if (flow != null)
-                    _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
-            });
+            MakeBigButton(prt, "Resume", "계속하기", new Color(0.30f, 0.72f, 0.36f), -150f, () => resume());
+            MakeBigButton(prt, "Retry", "다시 시작", BadgeOrange, -230f, () => retry());
+            MakeBigButton(prt, "Title", "메인으로", new Color(0.35f, 0.45f, 0.70f), -310f, () => toTitle());
+        }
+
+        /// 39차: 그림 위 투명 버튼(히트 영역). pos는 부모 중심 기준.
+        public static Button HitButton(Transform parent, string name, Vector2 pos, Vector2 size, System.Action onClick)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos; rt.sizeDelta = size;
+            var img = go.GetComponent<Image>();
+            img.color = new Color(0f, 0f, 0f, 0f); img.raycastTarget = true;
+            var btn = go.GetComponent<Button>();
+            btn.transition = Selectable.Transition.None;
+            btn.onClick.AddListener(() => onClick?.Invoke());
+            return btn;
         }
 
         public static Button MakeBigButton(Transform parent, string name, string label, Color color, float y,

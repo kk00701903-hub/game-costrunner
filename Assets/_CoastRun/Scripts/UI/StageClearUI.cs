@@ -68,7 +68,7 @@ namespace CoastRun
                 ch = gm.Save.chapter;
                 chName = ChapterLocation.Get(ch).Name;
                 var grade = gm.LastGrade;
-                _title.text = Loc.T($"챕터 {ch} 클리어!", $"CHAPTER {ch} CLEAR!");
+                _title.text = "STAGE CLEAR!";   // 39차: 시안대로
                 _title.color = grade == ChapterGrade.S ? new Color(1f, 0.85f, 0.3f) : new Color(1f, 0.93f, 0.55f);
                 CoastAudioManager.PlayAnywhere(grade == ChapterGrade.S ? CoastSfx.RankS : CoastSfx.ChapterClear);
                 string heartLine = gm.Save.CurrentChapter != null
@@ -97,9 +97,9 @@ namespace CoastRun
             }
             else
             {
-                _title.text = Loc.T($"챕터 {ch} 클리어!", $"CHAPTER {ch} CLEAR!");
-                _title.color = new Color(1f, 0.93f, 0.55f);
-                _stageLabel.text = Loc.T($"{chName}\nS{stage.stageIndex:00}  {stage.stageName}", $"{chName}\nS{stage.stageIndex:00}  {stage.stageName}");
+                _title.text = "STAGE CLEAR!";
+                _title.color = new Color(1f, 0.85f, 0.30f);
+                _stageLabel.text = $"S{stage.stageIndex:00}  {stage.stageName}";   // 39차: 시안대로 한 줄
                 CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear);
             }
 
@@ -116,7 +116,7 @@ namespace CoastRun
                 var g = GameManager.I.LastGrade;
                 _gradeText.text = ChapterGrading.GradeLabel(g);
                 _gradeBadge.color = g == ChapterGrade.S ? new Color(1f, 0.80f, 0.25f) : g == ChapterGrade.A ? new Color(1f, 0.44f, 0.57f) : new Color(0.45f, 0.68f, 0.90f);
-                _gradeBadge.gameObject.SetActive(true);
+                _gradeBadge.gameObject.SetActive(false);   // 39차: 시안엔 등급 배지 없음(등급은 소제목 줄에)
             }
             else if (_gradeBadge != null) _gradeBadge.gameObject.SetActive(false);
 
@@ -208,7 +208,7 @@ namespace CoastRun
             SetButtons(false);
 
             if (_faceBubble != null)
-                _faceBubble.text = Loc.T("오늘도 찢었다! 오운완", "Crushed it today! Workout done");
+                _faceBubble.text = Loc.T("해냈다!", "Made it!");
             // 제목이 '쾅' 들어온다
             yield return PunchIn(_banner, 0.35f);
             yield return Wait(0.15f);
@@ -216,9 +216,10 @@ namespace CoastRun
             // 22차-5: 먹은 아이템을 ×N 칩으로 하나씩(게임 화면 위에서)
             int i = 0;
             yield return Chip(i++, "Coin_Gold", Loc.T("코인", "Coins"), coinCount, coinValue);
-            if (jellies > 0) yield return Chip(i++, "Jelly_Lemon", Loc.T("말랑이", "Jellies"), jellies, 0);
-            if (hearts > 0) yield return Chip(i++, "Heart", Loc.T("하트", "Hearts"), hearts, 0);
-            if (potions > 0) yield return Chip(i++, "Potion", Loc.T("물약", "Potions"), potions, 0);
+            // 39차: 시안대로 말랑이·하트·물약은 0이어도 항상 네 줄
+            yield return Chip(i++, "Jelly_Lemon", Loc.T("말랑이", "Jellies"), jellies, 0);
+            yield return Chip(i++, "Heart", Loc.T("하트", "Hearts"), hearts, 0);
+            yield return Chip(i++, "Potion", Loc.T("물약", "Potions"), potions, 0);
             if (stars > 0) yield return Chip(i++, "Star", Loc.T("보너스 별", "Bonus stars"), stars, 0);
             if (nmCount > 0) yield return Chip(i++, null, Loc.T("니어미스", "Near miss"), nmCount, nmValue);
 
@@ -257,21 +258,22 @@ namespace CoastRun
                 var go = new GameObject("Chip" + _chips.Count, typeof(RectTransform), typeof(Image));
                 go.transform.SetParent(_chipHost, false);
                 var img = go.GetComponent<Image>();
-                img.sprite = CoastUiArt.RoundedRect(14); img.type = Image.Type.Sliced; img.color = new Color(0.06f, 0.05f, 0.12f, 0.62f); img.raycastTarget = false;
+                // 39차: 시안 — 남색 반투명 둥근 띠(325×57, 간격 63), 아이콘 44, 글자 20
+                img.sprite = CoastUiArt.RoundedRect(16); img.type = Image.Type.Sliced; img.color = new Color(0.10f, 0.13f, 0.30f, 0.74f); img.raycastTarget = false;
                 var rt = go.GetComponent<RectTransform>();
                 rt.anchorMin = new Vector2(0f, 1f); rt.anchorMax = new Vector2(0f, 1f); rt.pivot = new Vector2(0f, 1f);
-                rt.sizeDelta = new Vector2(330f, 58f);
+                rt.sizeDelta = new Vector2(347f, 60f);
                 var icon = new GameObject("Icon", typeof(RectTransform), typeof(Image)); icon.transform.SetParent(go.transform, false);
-                var irt = icon.GetComponent<RectTransform>(); irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f); irt.anchoredPosition = new Vector2(34f, 0f); irt.sizeDelta = new Vector2(46f, 46f);
+                var irt = icon.GetComponent<RectTransform>(); irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f); irt.anchoredPosition = new Vector2(36f, 0f); irt.sizeDelta = new Vector2(52f, 52f);
                 icon.GetComponent<Image>().preserveAspect = true; icon.GetComponent<Image>().raycastTarget = false;
-                var t = CoastHudLayout.MakeText(rt, "T", "", 22, TextAnchor.MiddleLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(68f, 0f), new Vector2(-12f, 0f));
-                t.color = Color.white; t.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.5f), 1.5f);
+                var t = CoastHudLayout.MakeText(rt, "T", "", 24, TextAnchor.MiddleLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(72f, 0f), new Vector2(-12f, 0f));
+                t.color = Color.white; t.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1f);
                 _chips.Add(go);
             }
             var chip = _chips[index];
             chip.SetActive(true);
             var crt = chip.GetComponent<RectTransform>();
-            crt.anchoredPosition = new Vector2(0f, -index * 66f);
+            crt.anchoredPosition = new Vector2(0f, -index * 70f);
             var iconImg = chip.transform.Find("Icon").GetComponent<Image>();
             var tex = iconKey != null ? PaintedProp.Load(iconKey) : null;
             iconImg.enabled = tex != null;
@@ -285,7 +287,7 @@ namespace CoastRun
             {
                 t0 += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t0 / slideDur);
                 float e = 1f - (1f - u) * (1f - u);
-                crt.anchoredPosition = new Vector2(Mathf.Lerp(-200f, 0f, e), -index * 66f);
+                crt.anchoredPosition = new Vector2(Mathf.Lerp(-200f, 0f, e), -index * 70f);
                 crt.localScale = Vector3.one * (u < 0.7f ? Mathf.Lerp(0.8f, 1.08f, u / 0.7f) : Mathf.Lerp(1.08f, 1f, (u - 0.7f) / 0.3f));
                 yield return null;
             }
@@ -427,7 +429,10 @@ namespace CoastRun
                 _continueBtn.gameObject.SetActive(on);
             if (_retryBtn != null)
                 _retryBtn.gameObject.SetActive(on);
+            if (_homeBtn != null)
+                _homeBtn.gameObject.SetActive(on);
         }
+        private Button _homeBtn;
 
         // ────────────────────────────────────────────────────────────────
 
@@ -453,33 +458,33 @@ namespace CoastRun
             _banner = new GameObject("Banner", typeof(RectTransform)).GetComponent<RectTransform>();
             _banner.SetParent(_card, false);
             _banner.anchorMin = new Vector2(0f, 1f); _banner.anchorMax = new Vector2(1f, 1f); _banner.pivot = new Vector2(0.5f, 1f);
-            _banner.anchoredPosition = new Vector2(0f, -70f); _banner.sizeDelta = new Vector2(0f, 150f);
-            var band = CoastUiArt.Panel(_banner, "Band", new Color(0.05f, 0.04f, 0.12f, 0.45f), 0);
-            var brt = band.rectTransform; brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one; brt.offsetMin = Vector2.zero; brt.offsetMax = Vector2.zero; band.raycastTarget = false;
-            _title = CoastHudLayout.MakeText(_banner, "Title", "STAGE CLEAR!", 46, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(20f, -70f), new Vector2(-20f, -6f));
-            _title.color = new Color(1f, 0.93f, 0.55f); _title.fontStyle = FontStyle.Bold;
-            CoastUiArt.OutlineText(_title, new Color(0.25f, 0.08f, 0.05f, 0.95f), 3f);
-            _stageLabel = CoastHudLayout.MakeText(_banner, "Stage", "", 15, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -150f), new Vector2(-16f, -72f));
-            _stageLabel.resizeTextForBestFit = true; _stageLabel.resizeTextMinSize = 12; _stageLabel.resizeTextMaxSize = 17;
+            // 39차: 시안(ref_clear) 배치 — 어두운 띠 없이 하늘 위에 금색 제목(y≈98) + 스테이지 소제목(y≈170)
+            _banner.anchoredPosition = new Vector2(0f, -30f); _banner.sizeDelta = new Vector2(0f, 150f);
+            _title = CoastHudLayout.MakeText(_banner, "Title", "STAGE CLEAR!", 56, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(20f, -110f), new Vector2(-20f, -20f));
+            _title.color = new Color(1f, 0.85f, 0.30f); _title.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_title, new Color(0.30f, 0.12f, 0.02f, 0.9f), 2.5f);
+            _stageLabel = CoastHudLayout.MakeText(_banner, "Stage", "", 14, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -190f), new Vector2(-16f, -118f));
+            _stageLabel.resizeTextForBestFit = true; _stageLabel.resizeTextMinSize = 12; _stageLabel.resizeTextMaxSize = 20;
             _stageLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
             _stageLabel.color = Color.white; CoastUiArt.OutlineText(_stageLabel, new Color(0f, 0f, 0f, 0.7f), 1.5f);
 
             // 23차-1: 뒤돌아 포즈 잡을 때 메인페이지의 그 얼굴 — 배너 왼쪽에 동그란 컷인 + 말풍선
-            var faceTex = ArtAssets.LoadTexture("UI_Face_Girl");
+            // 39차: 시안 — 흰 테두리 원형 초상(UI_Face_Ring, 150, 중심 615/295) + 그 아래 흰 말풍선 "해냈다!"(213×48, 중심 594/410)
+            var faceTex = ArtAssets.LoadTexture("UI_Face_Ring") ?? ArtAssets.LoadTexture("UI_Face_Girl");
             if (faceTex != null)
             {
                 _face = new GameObject("Face", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-                _face.transform.SetParent(_banner, false); _face.raycastTarget = false;
+                _face.transform.SetParent(_card, false); _face.raycastTarget = false;
                 _face.sprite = CoastUiArt.AsSprite(faceTex); _face.preserveAspect = true;
-                var frt0 = _face.rectTransform; frt0.anchorMin = frt0.anchorMax = new Vector2(1f, 0f); frt0.pivot = new Vector2(1f, 1f);
-                frt0.anchoredPosition = new Vector2(-10f, -6f); frt0.sizeDelta = new Vector2(170f, 170f);
-                var bub = CoastUiArt.CutePill(_banner, "FaceBubble", Color.white, 18, 3);
-                var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(1f, 0f); brt2.pivot = new Vector2(1f, 1f);
-                // 26차-b: 말풍선이 초상 왼쪽에 붙어 코인 칩과 겹치고 긴 문장("봤지? 나 좀 빨라")이 잘렸다 → 초상 아래로, 폭 넉넉히, 글자 자동 축소.
-                brt2.anchoredPosition = new Vector2(-6f, -182f); brt2.sizeDelta = new Vector2(230f, 54f); bub.raycastTarget = false;
-                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 24, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-10f, 0f));
-                _faceBubble.color = new Color(0.25f, 0.12f, 0.2f); _faceBubble.fontStyle = FontStyle.Bold;
-                _faceBubble.resizeTextForBestFit = true; _faceBubble.resizeTextMinSize = 16; _faceBubble.resizeTextMaxSize = 24; _faceBubble.horizontalOverflow = HorizontalWrapMode.Wrap;
+                var frt0 = _face.rectTransform; frt0.anchorMin = frt0.anchorMax = new Vector2(0f, 1f); frt0.pivot = new Vector2(0.5f, 0.5f);
+                frt0.anchoredPosition = new Vector2(622f, -295f); frt0.sizeDelta = new Vector2(160f, 160f);
+                var bub = CoastUiArt.CutePill(_card, "FaceBubble", Color.white, 14, 3);
+                var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(0f, 1f); brt2.pivot = new Vector2(0.5f, 0.5f);
+                brt2.anchoredPosition = new Vector2(598f, -415f); brt2.sizeDelta = new Vector2(233f, 50f); bub.raycastTarget = false;
+                foreach (var im in bub.GetComponentsInChildren<Image>()) if (im.name == "Lip") im.color = new Color(0.82f, 0.82f, 0.86f, 1f);
+                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-10f, 0f));
+                _faceBubble.color = new Color(0.16f, 0.16f, 0.22f); _faceBubble.fontStyle = FontStyle.Bold;
+                _faceBubble.resizeTextForBestFit = true; _faceBubble.resizeTextMinSize = 14; _faceBubble.resizeTextMaxSize = 24; _faceBubble.horizontalOverflow = HorizontalWrapMode.Wrap;
             }
             _gradeBadge = CoastUiArt.Panel(_banner, "Grade", new Color(1f, 0.80f, 0.25f), 40);
             var grt = _gradeBadge.rectTransform; grt.anchorMin = grt.anchorMax = new Vector2(1f, 1f); grt.pivot = new Vector2(1f, 1f);
@@ -496,10 +501,10 @@ namespace CoastRun
             _chipHost = new GameObject("Chips", typeof(RectTransform)).GetComponent<RectTransform>();
             _chipHost.SetParent(_card, false);
             _chipHost.anchorMin = new Vector2(0f, 1f); _chipHost.anchorMax = new Vector2(0f, 1f); _chipHost.pivot = new Vector2(0f, 1f);
-            _chipHost.anchoredPosition = new Vector2(18f, -240f); _chipHost.sizeDelta = new Vector2(340f, 400f);
+            _chipHost.anchoredPosition = new Vector2(22f, -220f); _chipHost.sizeDelta = new Vector2(340f, 400f);
 
             // 아래쪽: 콤보/합계/보유/여정 + 버튼(반투명 띠 위)
-            var foot = CoastUiArt.Panel(_card, "Foot", new Color(0.05f, 0.04f, 0.12f, 0.55f), 22);
+            var foot = CoastUiArt.Panel(_card, "Foot", new Color(0.05f, 0.04f, 0.12f, 0f), 22);   // 39차: 시안엔 띠 없음
             var frt = foot.rectTransform; frt.anchorMin = new Vector2(0f, 0f); frt.anchorMax = new Vector2(1f, 0f); frt.pivot = new Vector2(0.5f, 0f);
             // 25차-5: 정산 화면 단순화(사용자) — 합계·보유·콤보·"송전탑까지 N km" 전부 제거, 버튼만 남긴다.
             frt.anchoredPosition = new Vector2(0f, 14f); frt.sizeDelta = new Vector2(-24f, 170f); foot.raycastTarget = false;
@@ -519,10 +524,17 @@ namespace CoastRun
             sht.offsetMin = Vector2.zero;
             sht.offsetMax = Vector2.zero;
 
-            _continueBtn = MakeButton(frt, "Continue", new Vector2(0.5f, 0f), new Vector2(0f, 82f), new Vector2(520f, 60f),
-                Loc.T("다음 스테이지", "Next stage"), new Color(1f, 0.44f, 0.57f), () => _onContinue?.Invoke());
-            _retryBtn = MakeButton(frt, "Retry", new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(520f, 56f),
-                Loc.T("다시 달리기", "Run again"), new Color(0.62f, 0.60f, 0.66f), () => _onRetry?.Invoke());
+            // 39차: 시안 — 590×141 큰 광택 버튼 셋(핑크 →, 주황 ⟳, 파랑 ⌂), 중심 y 479 / 300 / 129
+            _continueBtn = MakeButton(_card, "Continue", new Vector2(0.5f, 0f), new Vector2(0f, 479f), new Vector2(590f, 141f),
+                Loc.T("다음 스테이지", "Next stage"), new Color(0.93f, 0.22f, 0.52f), () => _onContinue?.Invoke(), "Icon_Arrow");
+            _retryBtn = MakeButton(_card, "Retry", new Vector2(0.5f, 0f), new Vector2(0f, 300f), new Vector2(590f, 141f),
+                Loc.T("다시 달리기", "Run again"), new Color(1f, 0.50f, 0.08f), () => _onRetry?.Invoke(), "Icon_Refresh");
+            _homeBtn = MakeButton(_card, "Home", new Vector2(0.5f, 0f), new Vector2(0f, 129f), new Vector2(590f, 141f),
+                Loc.T("메인으로", "Main menu"), new Color(0.12f, 0.50f, 0.92f), () =>
+                {
+                    var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
+                    if (flow != null) _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
+                }, "Icon_Home");
         }
 
         private Text FootLabel(RectTransform host, string name, int size, float y, float h)
@@ -584,20 +596,31 @@ namespace CoastRun
         }
 
         private static Button MakeButton(Transform parent, string name, Vector2 anchor, Vector2 pos, Vector2 size,
-            string label, Color color, Action onClick)
+            string label, Color color, Action onClick, string iconName = null)
         {
-            var pill = CoastUiArt.CutePill(parent, name, color, 18, 4);
+            var pill = CoastUiArt.GlossyPill(parent, name, color, 44, 14);
             var rt = pill.rectTransform;
-            rt.anchorMin = rt.anchorMax = anchor; rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchorMin = rt.anchorMax = anchor; rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = pos; rt.sizeDelta = size;
             pill.raycastTarget = true;
             var btn = pill.gameObject.AddComponent<Button>();
             btn.transition = Selectable.Transition.None;
             btn.onClick.AddListener(() => onClick?.Invoke());
-            var t = CoastHudLayout.MakeText(pill.transform, "Label", label, 21, TextAnchor.MiddleCenter,
-                Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            float textLeft = 0f;
+            var iconSpr = iconName != null ? CoastUiArt.Art(iconName) : null;
+            if (iconSpr != null)
+            {
+                var ic = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                ic.transform.SetParent(pill.transform, false); ic.raycastTarget = false;
+                ic.sprite = iconSpr; ic.preserveAspect = true;
+                var irt = ic.rectTransform; irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f); irt.pivot = new Vector2(0.5f, 0.5f);
+                irt.anchoredPosition = new Vector2(80f, 8f); irt.sizeDelta = new Vector2(82f, 82f);
+                textLeft = 70f;
+            }
+            var t = CoastHudLayout.MakeText(pill.transform, "Label", label, 40, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.one, new Vector2(textLeft, 10f), new Vector2(-16f, 8f));
             t.color = Color.white; t.fontStyle = FontStyle.Bold;
-            CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.5f);
+            CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.30f), 1.5f);
             return btn;
         }
     }

@@ -92,6 +92,26 @@ namespace CoastRun
         private static bool _openingShownThisSession;
         private Image _loadFill;
         private Text _loadLabel;
+        private RectTransform _loadCover;   // 39차: 시안 로딩바(그림) 위 '아직 안 찬 부분' 덮개 — 오른쪽 끝 고정, 왼쪽이 줄어든다
+        private Text _loadPct;              // 39차: 큰 "70%" 숫자
+        private const float LoadCoverW = 295f;
+
+        private void SetLoad(float u)
+        {
+            u = Mathf.Clamp01(u);
+            if (_loadFill != null)
+            {
+                var frt = _loadFill.rectTransform;
+                frt.anchorMin = Vector2.zero; frt.anchorMax = new Vector2(u, 1f);
+                frt.offsetMin = frt.offsetMax = Vector2.zero;
+            }
+            if (_loadCover != null)
+                _loadCover.sizeDelta = new Vector2(LoadCoverW * (1f - u), _loadCover.sizeDelta.y);
+            if (_loadPct != null)
+                _loadPct.text = $"{Mathf.RoundToInt(u * 100f)}%";
+            if (_loadLabel != null)
+                _loadLabel.text = Loc.T($"불러오는 중… {Mathf.RoundToInt(u * 100f)}%", $"Loading… {Mathf.RoundToInt(u * 100f)}%");
+        }
 
         private IEnumerator SplashThenUi(float splashSeconds)
         {
@@ -105,15 +125,7 @@ namespace CoastRun
                 float u = Mathf.Clamp01(t / splashSeconds);
                 // ease-out + 살짝 멈칫
                 float eased = 1f - Mathf.Pow(1f - u, 1.6f);
-                if (_loadFill != null)
-                {
-                    var frt = _loadFill.rectTransform;
-                    frt.anchorMin = new Vector2(0f, 0f);
-                    frt.anchorMax = new Vector2(eased, 1f);
-                    frt.offsetMin = frt.offsetMax = Vector2.zero;
-                }
-                if (_loadLabel != null)
-                    _loadLabel.text = Loc.T($"불러오는 중… {Mathf.RoundToInt(eased * 100f)}%", $"Loading… {Mathf.RoundToInt(eased * 100f)}%");
+                SetLoad(eased);
                 if (!skip && (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
                     (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)))
                 {
@@ -125,25 +137,14 @@ namespace CoastRun
                         catchUp += Time.unscaledDeltaTime * 4f;
                         float uu = Mathf.Clamp01(catchUp / splashSeconds);
                         float ee = 1f - Mathf.Pow(1f - uu, 1.2f);
-                        if (_loadFill != null)
-                        {
-                            var frt = _loadFill.rectTransform;
-                            frt.anchorMin = Vector2.zero; frt.anchorMax = new Vector2(ee, 1f);
-                            frt.offsetMin = frt.offsetMax = Vector2.zero;
-                        }
-                        if (_loadLabel != null)
-                            _loadLabel.text = Loc.T($"불러오는 중… {Mathf.RoundToInt(ee * 100f)}%", $"Loading… {Mathf.RoundToInt(ee * 100f)}%");
+                        SetLoad(ee);
                         yield return null;
                     }
                     break;
                 }
                 yield return null;
             }
-            if (_loadFill != null)
-            {
-                var frt = _loadFill.rectTransform;
-                frt.anchorMin = Vector2.zero; frt.anchorMax = Vector2.one; frt.offsetMin = frt.offsetMax = Vector2.zero;
-            }
+            SetLoad(1f);
             if (_loadLabel != null) _loadLabel.text = Loc.T("완료!", "Ready!");
 
             if (_splashCg != null)
@@ -279,6 +280,35 @@ namespace CoastRun
             splashImg.color = new Color(0.10f, 0.07f, 0.10f, 1f);
             splashImg.raycastTarget = true;
             _splashCg = go.GetComponent<CanvasGroup>();
+
+            // 39차: 시안 로딩 화면(UI_Loading_Mock: 노을 배경 + 네온 유리 카드 + "로딩중..." + 이퀄라이저 + 바 + 귤)을 통째로.
+            // 시안에서 "70%"만 지워 두고(Photoshop) 숫자는 여기서 그린다. 바는 그림의 초록 부분을 덮개로 가렸다가 드러낸다.
+            var mockLoad = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Loading_Mock");
+            if (mockLoad != null)
+            {
+                splashImg.sprite = CoastUiArt.AsSprite(mockLoad, 100f);
+                splashImg.color = Color.white;
+                splashImg.preserveAspect = false;
+
+                var cover = new GameObject("LoadCover", typeof(RectTransform), typeof(Image));
+                cover.transform.SetParent(go.transform, false);
+                _loadCover = cover.GetComponent<RectTransform>();
+                _loadCover.anchorMin = _loadCover.anchorMax = new Vector2(0f, 1f);
+                _loadCover.pivot = new Vector2(1f, 0.5f);
+                _loadCover.anchoredPosition = new Vector2(420f, -981f);
+                _loadCover.sizeDelta = new Vector2(LoadCoverW, 44f);
+                var cimg = cover.GetComponent<Image>();
+                cimg.sprite = CoastUiArt.RoundedRect(14); cimg.type = Image.Type.Sliced;
+                cimg.color = new Color(0.09f, 0.11f, 0.19f, 0.97f); cimg.raycastTarget = false;
+
+                _loadPct = CreateLabel(go.transform, "LoadPct", "0%", 92, FontStyle.Bold,
+                    new Color(0.80f, 0.93f, 1f), new Vector2(0f, 1f), new Vector2(520f, 150f));
+                _loadPct.rectTransform.anchoredPosition = new Vector2(373f, -1105f);
+                CoastUiArt.OutlineText(_loadPct, Color.white, 4f);
+                var glow = _loadPct.gameObject.AddComponent<Shadow>();
+                glow.effectColor = new Color(0.25f, 0.60f, 1f, 0.85f); glow.effectDistance = new Vector2(0f, -6f); glow.useGraphicAlpha = true;
+                return;
+            }
 
             // 로딩 키아트(없으면 타이틀 게이트/배경으로 폴백)
             var loadArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_LoadingScreen")
@@ -453,8 +483,12 @@ namespace CoastRun
         private void BuildGateUi(Transform root)
         {
             var pad = CoastUiCanvas.HudPad;
+            // 39차: 시안(UI_Title_Mock — 같은 키아트 위에 스토리 모드/더보기 사각 버튼, CH 칩, K-POP 러닝모드 Play 판이 그려진 그림)이 있으면
+            // 그림을 통째로 깔고 버튼은 투명 히트 영역으로. 제목·부제도 그림에 있으니 글자 라벨은 생략. CH 칩만 실제 챕터로 덮어 그린다.
+            var mockArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Mock");
+            bool useMock = mockArt != null;
             var bg = CoastHudLayout.MakeImage(root, "GateArt", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), Color.white);
-            bg.sprite = CoastUiArt.AsSprite(_gateArt, 100f);
+            bg.sprite = CoastUiArt.AsSprite(useMock ? mockArt : _gateArt, 100f);
             bg.preserveAspect = false;
             bg.raycastTarget = false;
             bg.transform.SetAsFirstSibling();
@@ -481,28 +515,47 @@ namespace CoastRun
             });
             tapAny.transform.SetAsFirstSibling();
 
-            // 14차-8: 제목은 글자로(언어별) — 키아트엔 로고가 없다. 상단 하늘 영역, 크림색 + 짙은 테두리.
-            string title = Loc.T(AlbumTable.AlbumKo, AlbumTable.AlbumEn);
-            var titleLbl = CreateLabel(ui.transform, "Title", title, 60, FontStyle.Bold,
-                new Color(1f, 0.96f, 0.86f), new Vector2(0.5f, 0.905f), new Vector2(680f, 90f));
-            CoastUiArt.OutlineText(titleLbl, new Color(0.22f, 0.10f, 0.06f, 0.95f), 3f);
-            var sub = CreateLabel(ui.transform, "TitleSub", Loc.IsKo ? "COAST RUN · JEJU" : "너와 나의 주파수 · COAST RUN", 20, FontStyle.Normal,
-                new Color(1f, 0.93f, 0.78f, 0.9f), new Vector2(0.5f, 0.855f), new Vector2(600f, 30f));
-            CoastUiArt.OutlineText(sub, new Color(0.22f, 0.10f, 0.06f, 0.8f), 1.5f);
-
-            // 메뉴 2개(스토리 모드 / 더보기) — 육성하기는 더보기 › 새로하기로.
             bool hasSave = _gm != null && _gm.HasSave;
             float btnW = 220f, btnH = 62f, gapX = 12f;
             float rowY = 172f;   // 26차: 아래에 K-POP 러닝모드 바가 들어가서 한 칸 위로 (31차: 바가 커져서 172)
-            CoastOrnate.GlassButton(ui.transform, "StoryBtn", Loc.T("스토리 모드", "Story Mode"), new Vector2(0.5f, 0f),
-                new Vector2(-(btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) OnStoryMode(); }, 0.4f, 26, true);
-            _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
-                new Vector2((btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
-            _moreLabel = _moreBtn.GetComponentInChildren<Text>();
-            // 26차: 스토리 모드와 분리된 러닝 모드 진입 — 화면 맨 아래 넓은 바.
             System.Action startKpop = () => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm); } };
-            var kpopArt = ArtAssets.LoadTexture("UI_KpopBar");   // 29차: 네온 글라스 바 그림(Tools/KlingGen/out/kpop_btn → Python 합성)
-            if (kpopArt != null)
+            if (!useMock)
+            {
+                // 14차-8: 제목은 글자로(언어별) — 키아트엔 로고가 없다. 상단 하늘 영역, 크림색 + 짙은 테두리.
+                string title = Loc.T(AlbumTable.AlbumKo, AlbumTable.AlbumEn);
+                var titleLbl = CreateLabel(ui.transform, "Title", title, 60, FontStyle.Bold,
+                    new Color(1f, 0.96f, 0.86f), new Vector2(0.5f, 0.905f), new Vector2(680f, 90f));
+                CoastUiArt.OutlineText(titleLbl, new Color(0.22f, 0.10f, 0.06f, 0.95f), 3f);
+                var sub = CreateLabel(ui.transform, "TitleSub", Loc.IsKo ? "COAST RUN · JEJU" : "너와 나의 주파수 · COAST RUN", 20, FontStyle.Normal,
+                    new Color(1f, 0.93f, 0.78f, 0.9f), new Vector2(0.5f, 0.855f), new Vector2(600f, 30f));
+                CoastUiArt.OutlineText(sub, new Color(0.22f, 0.10f, 0.06f, 0.8f), 1.5f);
+
+                // 메뉴 2개(스토리 모드 / 더보기) — 육성하기는 더보기 › 새로하기로.
+                CoastOrnate.GlassButton(ui.transform, "StoryBtn", Loc.T("스토리 모드", "Story Mode"), new Vector2(0.5f, 0f),
+                    new Vector2(-(btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) OnStoryMode(); }, 0.4f, 26, true);
+                _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
+                    new Vector2((btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
+                _moreLabel = _moreBtn.GetComponentInChildren<Text>();
+            }
+            else
+            {
+                // 시안 좌표(1184×2096 → 720×1280 ×0.608) — 인셋(28 패딩) 기준 좌하단 앵커. 히트 영역은 RunHudChrome.HitButton(투명).
+                System.Func<string, Vector2, Vector2, System.Action, Button> hit = (n, c, sz, a) =>
+                {
+                    var b = RunHudChrome.HitButton(ui.transform, n, Vector2.zero, sz, a);
+                    var r = b.GetComponent<RectTransform>();
+                    r.anchorMin = r.anchorMax = Vector2.zero; r.anchoredPosition = c - new Vector2(pad, pad);
+                    return b;
+                };
+                hit("StoryBtn", new Vector2(88f, 992f), new Vector2(130f, 146f), () => { if (_ready) OnStoryMode(); });
+                _moreBtn = hit("MoreBtn", new Vector2(88f, 833f), new Vector2(130f, 122f), () => { if (_ready) ToggleMore(); });
+                _moreLabel = null;
+                hit("KpopBtn", new Vector2(358f, 181f), new Vector2(425f, 293f), () => startKpop());
+            }
+            // 26차: 스토리 모드와 분리된 러닝 모드 진입 — 화면 맨 아래 넓은 바.
+            var kpopArt = useMock ? null : ArtAssets.LoadTexture("UI_KpopBar");   // 29차: 네온 글라스 바 그림(Tools/KlingGen/out/kpop_btn → Python 합성)
+            if (useMock) { }
+            else if (kpopArt != null)
             {
                 // 그림 1320×260 = UI 660×130(글로우 여백 포함, 본체 626×96). 31차: 시안 비율(높이 ↑). 그림 자체에 헤드폰·글자·이퀄라이저·음표·반짝이가 들어 있다.
                 var go = new GameObject("KpopBtn", typeof(RectTransform), typeof(Image), typeof(Button), typeof(KpopBarPulse));
@@ -530,7 +583,26 @@ namespace CoastRun
             }
             // 38차-fix: K-POP 바 오른쪽 — 같은 라벤더→핑크 유리 칩(UI_ChapterChip) + CH 번호 오버레이
             var sdChip = hasSave && _gm != null ? (_gm.Save ?? _gm.SaveSys.Load()) : null;
-            if (sdChip != null)
+            if (useMock)
+            {
+                // 39차: 시안의 "CH 1. 이름" 칩 자리(중심 501/319)를 실제 챕터로 덮어 그린다 — 파란 광택 알약 + 흰 글자 + ▾
+                int nextCh = sdChip != null ? Mathf.Clamp(sdChip.chapter, 1, Timeline.Chapters) : 1;
+                var chip = CoastUiArt.GlossyPill(ui.transform, "ChapterChip", new Color(0.22f, 0.58f, 0.97f), 21, 5);
+                var crt = chip.rectTransform;
+                crt.anchorMin = crt.anchorMax = Vector2.zero; crt.pivot = new Vector2(0.5f, 0.5f);
+                crt.anchoredPosition = new Vector2(501f - pad, 319f - pad); crt.sizeDelta = new Vector2(126f, 40f);
+                chip.raycastTarget = true;
+                var cb = chip.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None;
+                cb.onClick.AddListener(() => { if (_ready) { if (sdChip != null) OnChapterSelect(); else OnStoryMode(); } });
+                string chTitle = ChapterScript.Title(nextCh);
+                if (string.IsNullOrEmpty(chTitle)) chTitle = Loc.T("이름", "Name");
+                if (chTitle.Length > 5) chTitle = chTitle.Substring(0, 5);
+                var ct = CreateLabel(chip.transform, "T", $"CH {nextCh}. {chTitle} ▾", 13, FontStyle.Bold,
+                    Color.white, new Vector2(0.5f, 0.5f), new Vector2(126f, 30f));
+                ct.rectTransform.anchoredPosition = new Vector2(0f, 3f);
+                CoastUiArt.OutlineText(ct, new Color(0.05f, 0.20f, 0.50f, 0.8f), 1.2f);
+            }
+            else if (sdChip != null)
             {
                 int nextCh = Mathf.Clamp(sdChip.chapter, 1, Timeline.Chapters);
                 var chipArt = ArtAssets.LoadTexture("UI_ChapterChip");
@@ -578,7 +650,7 @@ namespace CoastRun
                 CoastUiArt.OutlineText(ct, new Color(0.35f, 0.12f, 0.50f, 0.75f), 1.2f);
             }
             // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
-            if (PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
+            if (!useMock && PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
             {
                 _openingHint = CreateLabel(ui.transform, "OpeningHint", Loc.T("이야기가 궁금하면  더보기 › 오프닝", "Curious about the story?  More › Opening"), 17, FontStyle.Normal,
                     new Color(1f, 0.96f, 0.86f, 0.9f), new Vector2(0.5f, 0f), new Vector2(600f, 26f));
@@ -622,8 +694,9 @@ namespace CoastRun
             _moreRt.anchorMin = _moreRt.anchorMax = new Vector2(1f, 0f);
             _moreRt.pivot = new Vector2(1f, 0f);
             _moreRt.sizeDelta = new Vector2(mW + 24f, total + 24f);
-            _moreHidden = new Vector2(mW + 60f, rowY + btnH * 0.5f + 26f);
-            _moreShown = new Vector2(-10f, rowY + btnH * 0.5f + 26f);
+            float moreY = useMock ? 400f : rowY + btnH * 0.5f + 26f;   // 39차: 시안 배치에선 Play 판 위, 화면 중간 높이
+            _moreHidden = new Vector2(mW + 60f, moreY);
+            _moreShown = new Vector2(-10f, moreY);
             _moreRt.anchoredPosition = _moreHidden;
             _moreCg.alpha = 0f; _moreCg.interactable = false; _moreCg.blocksRaycasts = false;
             var backing = CoastUiArt.Panel(col.transform, "Backing", new Color(0.05f, 0.04f, 0.08f, 0.35f), 16);
