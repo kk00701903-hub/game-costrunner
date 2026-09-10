@@ -188,8 +188,7 @@ namespace CoastRun
             weatherFx.Bind(player != null ? player.transform : transform);
             seasonWeather.Bind(player, dayCycle, weatherFx);
 
-            // Season/weather HUD is gone for good — the one-day lightingT design has no
-            // season cycle to display, and nothing builds that widget any more.
+            // 날씨·낮/밤 칩은 RunHudChrome 상단 가운데(WeatherChip)에서 표시.
 
             if (audio == null)
                 audio = gameObject.GetComponent<CoastAudioManager>() ?? gameObject.AddComponent<CoastAudioManager>();

@@ -229,9 +229,12 @@ namespace CoastRun
             if (mesh != null)
             {
                 mesh.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
-                ApplyCoinBodyMaterial(mesh, silver);
-                AttachCoinSilhouette(mesh.transform, silver);
-                AttachCoinFaces(visRoot, silver, radius: 0.44f, halfThick: 0.13f, y: 0.32f);
+                ApplyCoinBodyMaterial(mesh, silver, allRenderers: true);   // 39차-3: FBX 자식 전부 황금 재질로
+                // 39차-3: FBX 코인엔 인버티드 헐(Outline) 생략 — Blender 내보내기 와인딩이 반대라 Cull Front 껍데기가
+                // 바깥으로 그려져 코인 전체가 검게 덮였다(별 릴리프까지 검정). 잉크 림만으로 윤곽을 잡는다.
+                AttachCoinSilhouette(mesh.transform, silver, hull: false);
+                // 39차-3: FBX 몸통 두께 ±0.17, 잉크 림 ±0.10 → 면 그림은 그 바깥(±0.18)에. (전엔 0.13이라 림 캡(±0.145) 안에 묻혀 검게 보였다)
+                AttachCoinFaces(visRoot, silver, radius: 0.44f, halfThick: 0.18f, y: 0.32f);
             }
             else
             {
@@ -306,13 +309,14 @@ namespace CoastRun
         }
 
         /// 메시 인버티드 헐 + 두꺼운 어두운 림 — 멀리서도 원형 윤곽이 읽히게.
-        private static void AttachCoinSilhouette(Transform body, bool silver)
+        private static void AttachCoinSilhouette(Transform body, bool silver, bool hull = true)
         {
             if (body == null) return;
             var outline = OutlineMaterial();
 
             foreach (var mf in body.GetComponentsInChildren<MeshFilter>(true))
             {
+                if (!hull) break;
                 if (mf == null || mf.sharedMesh == null) continue;
                 string n = mf.gameObject.name;
                 if (n.StartsWith("CoinFace") || n.StartsWith("CoinBezel") || n == "Outline" || n == "InkRim") continue;
@@ -345,7 +349,7 @@ namespace CoastRun
             {
                 ink.transform.localPosition = Vector3.zero;
                 ink.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
-                ink.transform.localScale = new Vector3(1.12f, 0.22f, 1.12f);
+                ink.transform.localScale = new Vector3(1.06f, 0.15f, 1.06f);   // 39차-3: 1.12/0.22 → 1.06/0.15 (면 그림보다 얇게, 테두리는 가늘게)
             }
             var ir = ink.GetComponent<Renderer>();
             ir.sharedMaterial = BezelMaterial();
@@ -365,23 +369,31 @@ namespace CoastRun
         private static Material BezelMaterial()
         {
             if (_bezelMat != null) return _bezelMat;
-            _bezelMat = CoastMaterials.CreateUnlit(new Color(0.14f, 0.09f, 0.05f, 1f));
+            _bezelMat = CoastMaterials.CreateUnlit(new Color(0.48f, 0.30f, 0.06f, 1f));   // 39차-3: 검정 → 진한 금갈색(옆에서 봐도 황금)
             return _bezelMat;
         }
 
-        private static void ApplyCoinBodyMaterial(GameObject root, bool silver)
+        private static Material _bodyGold, _bodySilver;
+
+        private static void ApplyCoinBodyMaterial(GameObject root, bool silver, bool allRenderers = false)
         {
+            // 39차-3: 코인 몸통이 흑갈색으로 보이던 것 — Coin_Gold.fbx(38차)의 법선/서브메시가 툰 조명과 안 맞아
+            // 옆·뒤로 돈 코인이 검게 덮였다. 몸통은 무조명 황금(툰 ×) + 모든 서브메시 슬롯에 같은 재질, 코인마다 새 재질 만들지 않고 공유.
             Color coinFace = silver
-                ? Color.Lerp(CoastPalette.TownCream, CoastPalette.SkyBlue, 0.28f) * 1.35f
-                : new Color(1.15f, 0.88f, 0.28f, 1f);   // 진한 황금 — 멀리서도 반짝이게
-            var mat = CoastMaterials.CreateToon(coinFace, null, null, silver ? 0.42f : 0.55f);
-            CoastMaterials.SetShadow(mat, Color.Lerp(coinFace, new Color(0.45f, 0.28f, 0.05f), 0.35f), silver ? 0.4f : 0.32f);
+                ? Color.Lerp(CoastPalette.TownCream, CoastPalette.SkyBlue, 0.28f)
+                : new Color(1.0f, 0.80f, 0.22f, 1f);   // 진한 황금
+            Material mat;
+            if (silver) mat = _bodySilver ??= CoastMaterials.CreateUnlit(coinFace);
+            else mat = _bodyGold ??= CoastMaterials.CreateUnlit(coinFace);
             foreach (var r in root.GetComponentsInChildren<Renderer>(true))
             {
                 if (r == null) continue;
                 string n = r.gameObject.name;
-                if (n == "Outline" || n == "InkRim" || n.StartsWith("CoinFace") || n.StartsWith("CoinBezel")) continue;
-                r.sharedMaterial = mat;
+                // FBX(JejuKit) 몸통은 자식 이름이 "CoinFace_*" 같이 겹칠 수 있어(별 릴리프 노드) 이름 필터를 건너뛴다 — 안 그러면 FBX 기본 재질(검정)이 남는다.
+                if (!allRenderers && (n == "Outline" || n == "InkRim" || n.StartsWith("CoinFace") || n.StartsWith("CoinBezel"))) continue;
+                var slots = r.sharedMaterials;
+                if (slots == null || slots.Length <= 1) r.sharedMaterial = mat;
+                else { for (int i = 0; i < slots.Length; i++) slots[i] = mat; r.sharedMaterials = slots; }
                 r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             }
         }
@@ -543,7 +555,7 @@ namespace CoastRun
             int amount = Mathf.Max(1, Mathf.RoundToInt(value * mult));
             _wallet?.Add(amount);
             StageRunStats.Instance?.NotifyCoin(amount);
-            _feedback?.ShowFloatingReward(transform.position + Vector3.up * 0.6f, amount, 1);
+            // +N 플로트는 JuiceDirector.PlayCoinCollect → PickupFloat 한 곳만(이중 표시·잔상 방지)
 
             var juice = JuiceDirector.Instance;
             if (_visualRoot != null) _visualRoot.gameObject.SetActive(false);

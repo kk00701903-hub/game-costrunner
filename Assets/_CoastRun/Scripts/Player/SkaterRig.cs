@@ -288,7 +288,13 @@ namespace CoastRun
 
         private void HandleJump()
         {
-            if (_anim != null) _anim.SetTrigger(HashJump);
+            if (_anim != null)
+            {
+                // 골인 직후 speed=0 잔여가 있으면 점프 클립이 안 돈다
+                if (_anim.speed < 0.01f) _anim.speed = 1f;
+                _anim.SetBool(HashGrounded, false);
+                _anim.SetTrigger(HashJump);
+            }
             var c = Cfg; float stretch = c != null ? c.jumpStretch : 1.16f;
             _squash = Mathf.Max(_squash, stretch); _squashVel = 2.2f;   // 위로 쭉
         }
@@ -446,8 +452,16 @@ namespace CoastRun
             }
             if (_glideBlend <= 0.001f)
             {
-                // 25차-2: 점프(공중) 클립에서 왼다리가 바깥(왼쪽)으로 벌어진다 → 공중에 있는 동안 왼다리를 오른다리의 거울상으로 맞춘다.
-                if (_player != null && _player.State == SkateState.Air)
+                // 25차-2: 점프 클립에서 왼다리가 바깥으로 벌어지는 문제 보정.
+                // 40차: Air 전체에서 허벅지를 거울상으로 덮어쓰면 Jump 클립 자체가 죽어
+                // '옛 점프'처럼 보인다 → Jump 스테이트일 땐 클립을 그대로 두고, 발끝 yaw만 고친다.
+                bool inJumpClip = false;
+                if (_anim != null)
+                {
+                    var st = _anim.GetCurrentAnimatorStateInfo(0);
+                    inJumpClip = st.IsName("Jump") || st.IsTag("Jump");
+                }
+                if (_player != null && _player.State == SkateState.Air && !inJumpClip)
                 {
                     var lT = _anim.GetBoneTransform(HumanBodyBones.LeftUpperLeg);  var lS = _anim.GetBoneTransform(HumanBodyBones.LeftLowerLeg);  var lF = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
                     var rT = _anim.GetBoneTransform(HumanBodyBones.RightUpperLeg); var rS = _anim.GetBoneTransform(HumanBodyBones.RightLowerLeg); var rF = _anim.GetBoneTransform(HumanBodyBones.RightFoot);
@@ -473,13 +487,15 @@ namespace CoastRun
                     Vector3 runFwd = transform.parent != null ? transform.parent.forward : transform.forward;
                     var toes = _anim.GetBoneTransform(HumanBodyBones.LeftToes);
                     float fix = leftFootYawFix;
+                    // Jump 클립 중엔 보정 세기를 낮춰 도약 실루엣을 지킨다
+                    if (inJumpClip) fix *= 0.35f;
                     if (toes != null)
                     {
                         Vector3 d = toes.position - lf.position; d.y = 0f;
                         if (d.sqrMagnitude > 1e-6f)
                         {
                             float err = Vector3.SignedAngle(runFwd, d.normalized, Vector3.up);   // −: 왼쪽으로 벌어짐
-                            fix = -err * 0.85f;
+                            fix = -err * (inJumpClip ? 0.35f : 0.85f);
                         }
                     }
                     lf.rotation = Quaternion.AngleAxis(fix, Vector3.up) * lf.rotation;

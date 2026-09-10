@@ -66,6 +66,13 @@ namespace CoastRun
             }
 
             EnsureUi();
+            if (_canvas != null)
+            {
+                _canvas.enabled = true;
+                // StageClearCanvas 는 클리어 때 600까지 올린다 — 회상이 그 위에 와야 함
+                if (_canvas.sortingOrder < 620)
+                    _canvas.sortingOrder = 620;
+            }
             _onClosed = onClosed;
             _skipRequested = false;
             if (_playRoutine != null)
@@ -74,6 +81,25 @@ namespace CoastRun
         }
 
         public void RequestSkip() => _skipRequested = true;
+
+        /// 스테이지 클리어 직전 등 — 남아 있던 회상 UI를 강제로 닫는다.
+        public void ForceAbort()
+        {
+            if (_playRoutine != null)
+            {
+                StopCoroutine(_playRoutine);
+                _playRoutine = null;
+            }
+            PlayCallNoise(false);
+            StopMemoryBgm();
+            ClearSaturationVolume();
+            if (_rootCg != null)
+                _rootCg.gameObject.SetActive(false);
+            _playing = false;
+            var cb = _onClosed;
+            _onClosed = null;
+            cb?.Invoke();
+        }
 
         private IEnumerator PlayRoutine(MemoryFragmentDef def, bool fromGallery)
         {
@@ -548,7 +574,10 @@ namespace CoastRun
         private void EnsureUi()
         {
             if (_canvas != null)
+            {
+                _canvas.enabled = true;
                 return;
+            }
 
             _canvas = CoastUiCanvas.Create("MemoryPopupCanvas", 360);
             DontDestroyOnLoad(_canvas.gameObject);

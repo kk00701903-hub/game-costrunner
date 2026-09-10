@@ -67,9 +67,21 @@ namespace CoastRun
         public CanvasGroup ScoreGroup => _scoreCg;
         public CanvasGroup ComboGroup => _multCg;
         public CanvasGroup CoinGroup => _coinCg;
+        public CanvasGroup WeatherGroup => _wxCg;
         public Text CoinText => _coinText;
         public int Score => Mathf.FloorToInt(_distanceScore) + _bonus;
         public bool IsPaused => _paused;
+
+        // 상단 가운데: 낮/밤 + 날씨 칩
+        private CanvasGroup _wxCg;
+        private Image _timeDisc;
+        private Image _timeAccent;
+        private Image _wxDot;
+        private Text _wxLabel;
+        private RectTransform _timeDiscRt;
+        private WeatherKind _shownWx = (WeatherKind)(-1);
+        private bool _shownNight;
+        private SeasonWeatherDirector _wx;
 
         public void Build(Canvas canvas, PlayerController player, CoinWallet wallet, NearMissSystem nearMiss)
         {
@@ -82,6 +94,7 @@ namespace CoastRun
             BuildPause(root);
             BuildScorePill(root);
             BuildCoinPill(root);
+            BuildWeatherChip(root);
             BuildHealthBar(root);
             // (노을 시계는 UI_FinalDestinationController 의 여정 바/타이머가 맡는다 — BuildSunMeter 는 예비)
             BuildHeartsGoal(root);
@@ -639,6 +652,108 @@ namespace CoastRun
 
         // ── Layout ───────────────────────────────────────────────────────────
 
+        /// 상단 가운데 빈 공간: 낮/밤 + 현재 날씨. ChapterClock / SeasonWeatherDirector 연동.
+        private void BuildWeatherChip(RectTransform root)
+        {
+            var pill = CoastUiArt.CutePill(root, "WeatherChip", PillNavy, 18, 3);
+            var rt = pill.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.anchoredPosition = new Vector2(0f, -10f);
+            rt.sizeDelta = new Vector2(236f, 52f);
+            _wxCg = pill.gameObject.AddComponent<CanvasGroup>();
+            _wxCg.blocksRaycasts = false;
+            _wxCg.interactable = false;
+
+            var disc = CoastUiArt.Panel(rt, "TimeDisc", new Color(1f, 0.86f, 0.35f), 16);
+            _timeDisc = disc;
+            _timeDiscRt = disc.rectTransform;
+            _timeDiscRt.anchorMin = _timeDiscRt.anchorMax = new Vector2(0f, 0.5f);
+            _timeDiscRt.pivot = new Vector2(0.5f, 0.5f);
+            _timeDiscRt.anchoredPosition = new Vector2(30f, 1f);
+            _timeDiscRt.sizeDelta = new Vector2(32f, 32f);
+            disc.raycastTarget = false;
+
+            var accent = CoastUiArt.Panel(_timeDiscRt, "Accent", new Color(0.12f, 0.16f, 0.32f, 1f), 12);
+            _timeAccent = accent;
+            var art = accent.rectTransform;
+            art.anchorMin = art.anchorMax = new Vector2(0.55f, 0.55f);
+            art.pivot = new Vector2(0.5f, 0.5f);
+            art.anchoredPosition = Vector2.zero;
+            art.sizeDelta = new Vector2(24f, 24f);
+            accent.raycastTarget = false;
+            accent.enabled = false;
+
+            var glow = CoastUiArt.Panel(_timeDiscRt, "Glow", new Color(1f, 0.9f, 0.45f, 0.35f), 18);
+            var grt = glow.rectTransform;
+            grt.anchorMin = Vector2.zero; grt.anchorMax = Vector2.one;
+            grt.offsetMin = new Vector2(-4f, -4f); grt.offsetMax = new Vector2(4f, 4f);
+            glow.raycastTarget = false;
+            glow.transform.SetAsFirstSibling();
+
+            var wxDot = CoastUiArt.Panel(rt, "WxDot", SeasonWeatherDirector.WeatherTint(WeatherKind.Clear), 8);
+            _wxDot = wxDot;
+            var drt = wxDot.rectTransform;
+            drt.anchorMin = drt.anchorMax = new Vector2(0f, 0.5f);
+            drt.pivot = new Vector2(0.5f, 0.5f);
+            drt.anchoredPosition = new Vector2(58f, 1f);
+            drt.sizeDelta = new Vector2(14f, 14f);
+            wxDot.raycastTarget = false;
+
+            _wxLabel = CoastHudLayout.MakeText(rt, "Label", Loc.T("낮 · 맑음", "Day · Clear"), 22, TextAnchor.MiddleLeft,
+                Vector2.zero, Vector2.one, new Vector2(74f, 0f), new Vector2(-12f, 0f));
+            _wxLabel.color = Color.white;
+            _wxLabel.fontStyle = FontStyle.Bold;
+            _wxLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+            _wxLabel.resizeTextForBestFit = true;
+            _wxLabel.resizeTextMinSize = 14;
+            _wxLabel.resizeTextMaxSize = CoastHudLayout.Scaled(22);
+            CoastUiArt.OutlineText(_wxLabel, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.5f);
+
+            RefreshWeatherChip(true);
+        }
+
+        private void RefreshWeatherChip(bool force = false)
+        {
+            if (_wxLabel == null) return;
+            if (_wx == null)
+                _wx = Object.FindAnyObjectByType<SeasonWeatherDirector>();
+
+            int ch = 1;
+            if (StageManager.Instance != null) ch = StageManager.Instance.ChapterIndex;
+            else if (GameManager.Active) ch = GameManager.I.Save.chapter;
+            bool night = ChapterClock.IsNight(ch);
+            var wx = _wx != null ? _wx.CurrentWeather : WeatherKind.Clear;
+            if (!force && night == _shownNight && wx == _shownWx) return;
+            _shownNight = night;
+            _shownWx = wx;
+
+            if (_timeDisc != null)
+            {
+                _timeDisc.color = night
+                    ? new Color(0.78f, 0.86f, 1f)
+                    : new Color(1f, 0.86f, 0.32f);
+            }
+            if (_timeAccent != null)
+            {
+                // 밤: 해 디스크 위에 남색 원을 살짝 겹쳐 초승달처럼 읽힌다.
+                _timeAccent.enabled = night;
+                if (night)
+                {
+                    var art = _timeAccent.rectTransform;
+                    art.anchoredPosition = new Vector2(5f, 4f);
+                    art.sizeDelta = new Vector2(24f, 24f);
+                    _timeAccent.color = PillNavy;
+                }
+            }
+            if (_wxDot != null)
+                _wxDot.color = SeasonWeatherDirector.WeatherTint(wx);
+
+            string time = ChapterClock.Label(ch);
+            string weather = SeasonWeatherDirector.WeatherName(wx);
+            _wxLabel.text = Loc.T($"{time} · {weather}", $"{time} · {weather}");
+        }
+
         private void BuildPause(RectTransform root)
         {
             var outer = CoastUiArt.CutePill(root, "PauseButton", PillNavy, 20);
@@ -784,6 +899,12 @@ namespace CoastRun
             }
 #endif
             UpdateCookieHud();
+            RefreshWeatherChip();
+            if (_timeDiscRt != null)
+            {
+                float pulse = 1f + 0.04f * Mathf.Sin(Time.unscaledTime * (_shownNight ? 2.2f : 3.4f));
+                _timeDiscRt.localScale = Vector3.one * pulse;
+            }
             if (_sunLate && _sunLabel != null)
             {
                 _sunPulse += Time.unscaledDeltaTime * 6f;

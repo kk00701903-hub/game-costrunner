@@ -128,23 +128,37 @@ namespace CoastRun
             _settle = StartCoroutine(Settle(stage));
         }
 
-        // 9차: 정산 카드가 뜰 때 런 HUD(체력·점수·여정 바)를 숨긴다 — 겹쳐 보이던 것 정리.
+        // 9차: 정산 카드가 뜰 때 런 HUD·픽업 FX·회상 잔여를 숨긴다.
+        // (구버전: sortingOrder>=200 스킵 → PickupFloat 560 / MemoryPopup 360 이 클리어 위에 남음)
         private readonly System.Collections.Generic.List<Canvas> _hiddenHud = new System.Collections.Generic.List<Canvas>();
+        private const int ClearCanvasOrder = 600;
         private void HideRunHud(bool hide)
         {
             if (hide)
             {
                 _hiddenHud.Clear();
+                PickupFloat.ClearAll();
+                FeverMode.Instance?.DismissOffer();
+                var mem = UI_MemoryPopup.Instance;
+                if (mem != null && mem.IsPlaying)
+                    mem.ForceAbort();
+
                 foreach (var c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
                 {
-                    if (c == null || c == _canvas || !c.enabled || c.sortingOrder >= 200) continue;
-                    c.enabled = false; _hiddenHud.Add(c);
+                    if (c == null || c == _canvas || !c.enabled) continue;
+                    // 페이드 베일만 유지(알파 0이면 안 보임). 그 외 런/FX 캔버스는 전부 숨김.
+                    if (c.name == "FlowUIRoot") continue;
+                    c.enabled = false;
+                    _hiddenHud.Add(c);
                 }
+                if (_canvas != null) _canvas.sortingOrder = ClearCanvasOrder;
             }
             else
             {
                 foreach (var c in _hiddenHud) if (c != null) c.enabled = true;
                 _hiddenHud.Clear();
+                if (_canvas != null) _canvas.sortingOrder = 200;
+                PickupFloat.Resume();
             }
         }
 
@@ -208,7 +222,7 @@ namespace CoastRun
             SetButtons(false);
 
             if (_faceBubble != null)
-                _faceBubble.text = Loc.T("해냈다!", "Made it!");
+                _faceBubble.text = Loc.T("오늘도 찢었다! 오운완", "Crushed it today! Workout done");
             // 제목이 '쾅' 들어온다
             yield return PunchIn(_banner, 0.35f);
             yield return Wait(0.15f);
@@ -469,7 +483,7 @@ namespace CoastRun
             _stageLabel.color = Color.white; CoastUiArt.OutlineText(_stageLabel, new Color(0f, 0f, 0f, 0.7f), 1.5f);
 
             // 23차-1: 뒤돌아 포즈 잡을 때 메인페이지의 그 얼굴 — 배너 왼쪽에 동그란 컷인 + 말풍선
-            // 39차: 시안 — 흰 테두리 원형 초상(UI_Face_Ring, 150, 중심 615/295) + 그 아래 흰 말풍선 "해냈다!"(213×48, 중심 594/410)
+            // 40차: 얼굴 2배(160→320), 말풍선 「오늘도 찢었다! 오운완」(시안 초안 "해냈다!" 아님)
             var faceTex = ArtAssets.LoadTexture("UI_Face_Ring") ?? ArtAssets.LoadTexture("UI_Face_Girl");
             if (faceTex != null)
             {
@@ -477,14 +491,14 @@ namespace CoastRun
                 _face.transform.SetParent(_card, false); _face.raycastTarget = false;
                 _face.sprite = CoastUiArt.AsSprite(faceTex); _face.preserveAspect = true;
                 var frt0 = _face.rectTransform; frt0.anchorMin = frt0.anchorMax = new Vector2(0f, 1f); frt0.pivot = new Vector2(0.5f, 0.5f);
-                frt0.anchoredPosition = new Vector2(622f, -295f); frt0.sizeDelta = new Vector2(160f, 160f);
+                frt0.anchoredPosition = new Vector2(622f, -340f); frt0.sizeDelta = new Vector2(320f, 320f);
                 var bub = CoastUiArt.CutePill(_card, "FaceBubble", Color.white, 14, 3);
                 var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(0f, 1f); brt2.pivot = new Vector2(0.5f, 0.5f);
-                brt2.anchoredPosition = new Vector2(598f, -415f); brt2.sizeDelta = new Vector2(233f, 50f); bub.raycastTarget = false;
+                brt2.anchoredPosition = new Vector2(598f, -520f); brt2.sizeDelta = new Vector2(280f, 52f); bub.raycastTarget = false;
                 foreach (var im in bub.GetComponentsInChildren<Image>()) if (im.name == "Lip") im.color = new Color(0.82f, 0.82f, 0.86f, 1f);
-                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-10f, 0f));
+                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-8f, 0f));
                 _faceBubble.color = new Color(0.16f, 0.16f, 0.22f); _faceBubble.fontStyle = FontStyle.Bold;
-                _faceBubble.resizeTextForBestFit = true; _faceBubble.resizeTextMinSize = 14; _faceBubble.resizeTextMaxSize = 24; _faceBubble.horizontalOverflow = HorizontalWrapMode.Wrap;
+                _faceBubble.resizeTextForBestFit = true; _faceBubble.resizeTextMinSize = 12; _faceBubble.resizeTextMaxSize = 20; _faceBubble.horizontalOverflow = HorizontalWrapMode.Wrap;
             }
             _gradeBadge = CoastUiArt.Panel(_banner, "Grade", new Color(1f, 0.80f, 0.25f), 40);
             var grt = _gradeBadge.rectTransform; grt.anchorMin = grt.anchorMax = new Vector2(1f, 1f); grt.pivot = new Vector2(1f, 1f);

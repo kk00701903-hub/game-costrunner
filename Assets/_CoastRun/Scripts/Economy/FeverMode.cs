@@ -48,6 +48,9 @@ namespace CoastRun
             _nextOffer = Time.time + FirstOfferAfter;
         }
 
+        /// 클리어 UI 등 — 제안 버튼만 즉시 숨긴다(타이머는 유지).
+        public void DismissOffer() => HideOfferQuiet();
+
         private void Awake()
         {
             Instance = this;
@@ -69,7 +72,8 @@ namespace CoastRun
             _btn.pivot = new Vector2(1f, 0.5f);
             // 기존 150 → 150% = 225
             _btn.sizeDelta = new Vector2(225f, 225f);
-            _btnBasePos = new Vector2(-10f, 0f);
+            // 러닝 TAP 옆 꼬마 얼굴 — ~3cm 위로(디자인 px ≈ 40/cm)
+            _btnBasePos = new Vector2(-10f, 120f);
             _btn.anchoredPosition = _btnBasePos;
 
             _face = go.GetComponent<Image>();
@@ -90,12 +94,12 @@ namespace CoastRun
             b.targetGraphic = _face;
             b.onClick.AddListener(OnPressed);
 
-            // 작은 TAP 힌트만(문구 말풍선 없음)
+            // 작은 TAP 힌트만(문구 말풍선 없음) — 40차: 원 하단에서 ~2cm 위로(턱·얼굴 쪽)
             var tap = CoastUiArt.CutePill(go.transform, "Tap", new Color(1f, 0.55f, 0.28f), 12, 2);
             var trt = tap.rectTransform;
             trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0f);
             trt.pivot = new Vector2(0.5f, 0.5f);
-            trt.anchoredPosition = new Vector2(0f, 8f);
+            trt.anchoredPosition = new Vector2(0f, 88f);
             trt.sizeDelta = new Vector2(88f, 34f);
             tap.raycastTarget = false;
             var tl = CoastHudLayout.MakeText(trt, "T", "TAP!", 18, TextAnchor.MiddleCenter,

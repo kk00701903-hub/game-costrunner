@@ -150,24 +150,35 @@ namespace CoastRun
 
             private IEnumerator Animate(Vector3 worldPos, Camera cam)
             {
-                if (cam == null)
-                    cam = Camera.main;
+                try
+                {
+                    if (cam == null)
+                        cam = Camera.main;
 
-                Vector2 screen = cam != null
-                    ? (Vector2)cam.WorldToScreenPoint(worldPos)
-                    : new Vector2(Screen.width * 0.5f, Screen.height * 0.35f);
+                    Vector2 screen = cam != null
+                        ? (Vector2)cam.WorldToScreenPoint(worldPos)
+                        : new Vector2(Screen.width * 0.5f, Screen.height * 0.35f);
 
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    _rt.parent as RectTransform, screen, null, out Vector2 local);
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                        _rt.parent as RectTransform, screen, null, out Vector2 local);
 
-                Vector2 from = local;
-                Vector2 to = local + new Vector2(Random.Range(-24f, 24f), 90f);
-                _rt.anchoredPosition = from;
-                _cg.alpha = 1f;
+                    Vector2 from = local;
+                    Vector2 to = local + new Vector2(Random.Range(-24f, 24f), 90f);
+                    _rt.anchoredPosition = from;
+                    _cg.alpha = 1f;
 
-                yield return SimpleTween.MoveFade(_rt, _cg, from, to, 1f, 0f, 0.85f);
-                gameObject.SetActive(false);
-                _onDone?.Invoke();
+                    yield return SimpleTween.MoveFade(_rt, _cg, from, to, 1f, 0f, 0.85f);
+                }
+                finally
+                {
+                    if (this != null && gameObject != null)
+                    {
+                        if (_cg != null) _cg.alpha = 0f;
+                        gameObject.SetActive(false);
+                        _onDone?.Invoke();
+                        _onDone = null;
+                    }
+                }
             }
         }
     }

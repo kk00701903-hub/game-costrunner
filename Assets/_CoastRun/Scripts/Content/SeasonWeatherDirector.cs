@@ -23,6 +23,32 @@ namespace CoastRun
         public WeatherKind CurrentWeather => weather;
         public SeasonPalettes.Snapshot Snapshot => SeasonPalettes.Get(_season);
 
+        public static string WeatherName(WeatherKind w)
+        {
+            switch (w)
+            {
+                case WeatherKind.Cloudy: return Loc.T("흐림", "Cloudy");
+                case WeatherKind.Rain: return Loc.T("비", "Rain");
+                case WeatherKind.Snow: return Loc.T("눈", "Snow");
+                case WeatherKind.Mist: return Loc.T("안개", "Mist");
+                case WeatherKind.Wind: return Loc.T("바람", "Windy");
+                default: return Loc.T("맑음", "Clear");
+            }
+        }
+
+        public static Color WeatherTint(WeatherKind w)
+        {
+            switch (w)
+            {
+                case WeatherKind.Cloudy: return new Color(0.72f, 0.78f, 0.86f);
+                case WeatherKind.Rain: return new Color(0.45f, 0.70f, 0.95f);
+                case WeatherKind.Snow: return new Color(0.92f, 0.96f, 1f);
+                case WeatherKind.Mist: return new Color(0.78f, 0.84f, 0.88f);
+                case WeatherKind.Wind: return new Color(0.55f, 0.88f, 0.78f);
+                default: return new Color(0.55f, 0.82f, 1f);
+            }
+        }
+
         public void Bind(PlayerController playerController, DynamicEnvironmentManager env, WeatherFx fx)
         {
             weatherFx = fx;

@@ -143,7 +143,7 @@ namespace CoastRun
             if (prefab != null)
             {
                 _body = prefab.transform;
-                RoadPlacement.FitHeight(prefab, _kind == PetKind.WildGoose ? 0.7f : 0.45f);
+                RoadPlacement.FitHeight(prefab, _kind == PetKind.WildGoose ? 0.85f : 0.55f);
                 // 8차: Blender 새(Tools/blender/bird_pet.py) — 날개 오브젝트를 이름으로 찾아 날갯짓
                 foreach (var t in prefab.GetComponentsInChildren<Transform>(true))
                 {
@@ -158,7 +158,8 @@ namespace CoastRun
             if (PaintedProp.Available("Pet_" + _kind))
             {
                 float h = _kind == PetKind.BikerThug ? 1.1f : _kind == PetKind.WildGoose ? 0.65f : 0.34f;   // 14차-8: 조금 작게
-                PaintedProp.Attach(_body, "Pet_" + _kind, h, replace: false);
+                // 40차: 구운 아웃라인으로 빌보드에도 두께감
+                PaintedProp.Attach(_body, "Pet_" + _kind, h, replace: false, outline: true);
                 return;
             }
             switch (_kind)
@@ -172,17 +173,30 @@ namespace CoastRun
 
         private void BuildBird(float scale, Color back, Color belly)
         {
+            // 40차: 평면 큐브 날개 → 통통한 구·타원 조형(FBX 없을 때 폴백)
             var root = new GameObject("Bird").transform;
             root.SetParent(_body, false);
             root.localScale = Vector3.one * scale;
-            Part(root, "Torso", PrimitiveType.Sphere, Vector3.zero, new Vector3(0.36f, 0.28f, 0.5f), back);
-            Part(root, "Belly", PrimitiveType.Sphere, new Vector3(0f, -0.06f, 0.02f), new Vector3(0.3f, 0.2f, 0.4f), belly);
-            Part(root, "Head", PrimitiveType.Sphere, new Vector3(0f, 0.16f, 0.26f), Vector3.one * 0.22f, back);
-            Part(root, "Beak", PrimitiveType.Cube, new Vector3(0f, 0.14f, 0.4f), new Vector3(0.06f, 0.05f, 0.14f), CoastPalette.AccentOrange);
-            Part(root, "EyeL", PrimitiveType.Sphere, new Vector3(-0.07f, 0.2f, 0.33f), Vector3.one * 0.05f, Color.black);
-            Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.07f, 0.2f, 0.33f), Vector3.one * 0.05f, Color.black);
-            _wingL = Part(root, "WingL", PrimitiveType.Cube, new Vector3(-0.32f, 0.04f, 0f), new Vector3(0.5f, 0.04f, 0.26f), back).transform;
-            _wingR = Part(root, "WingR", PrimitiveType.Cube, new Vector3(0.32f, 0.04f, 0f), new Vector3(0.5f, 0.04f, 0.26f), back).transform;
+            Color cheek = Color.Lerp(back, new Color(0.85f, 0.55f, 0.35f), 0.35f);
+            Part(root, "Torso", PrimitiveType.Sphere, Vector3.zero, new Vector3(0.48f, 0.42f, 0.58f), back);
+            Part(root, "Fluff", PrimitiveType.Sphere, new Vector3(0f, 0.02f, -0.04f), new Vector3(0.44f, 0.36f, 0.48f), back);
+            Part(root, "Belly", PrimitiveType.Sphere, new Vector3(0f, -0.05f, 0.06f), new Vector3(0.38f, 0.30f, 0.46f), belly);
+            Part(root, "Head", PrimitiveType.Sphere, new Vector3(0f, 0.20f, 0.30f), Vector3.one * 0.30f, back);
+            Part(root, "Face", PrimitiveType.Sphere, new Vector3(0f, 0.16f, 0.38f), new Vector3(0.22f, 0.18f, 0.18f), belly);
+            Part(root, "CheekL", PrimitiveType.Sphere, new Vector3(-0.12f, 0.18f, 0.34f), Vector3.one * 0.10f, cheek);
+            Part(root, "CheekR", PrimitiveType.Sphere, new Vector3(0.12f, 0.18f, 0.34f), Vector3.one * 0.10f, cheek);
+            Part(root, "Beak", PrimitiveType.Sphere, new Vector3(0f, 0.14f, 0.48f), new Vector3(0.08f, 0.07f, 0.14f), CoastPalette.AccentOrange);
+            // 눈: 흰자 + 동공 + 하이라이트
+            Part(root, "EyeWL", PrimitiveType.Sphere, new Vector3(-0.09f, 0.24f, 0.40f), Vector3.one * 0.08f, Color.white);
+            Part(root, "EyeWR", PrimitiveType.Sphere, new Vector3(0.09f, 0.24f, 0.40f), Vector3.one * 0.08f, Color.white);
+            Part(root, "EyeL", PrimitiveType.Sphere, new Vector3(-0.09f, 0.25f, 0.44f), Vector3.one * 0.045f, Color.black);
+            Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.09f, 0.25f, 0.44f), Vector3.one * 0.045f, Color.black);
+            Part(root, "ShineL", PrimitiveType.Sphere, new Vector3(-0.11f, 0.27f, 0.46f), Vector3.one * 0.02f, Color.white);
+            Part(root, "ShineR", PrimitiveType.Sphere, new Vector3(0.07f, 0.27f, 0.46f), Vector3.one * 0.02f, Color.white);
+            Part(root, "Tail", PrimitiveType.Sphere, new Vector3(0f, 0.06f, -0.32f), new Vector3(0.18f, 0.08f, 0.28f), back);
+            // 두툼한 날개(어깨 피벗)
+            _wingL = Part(root, "WingL", PrimitiveType.Sphere, new Vector3(-0.28f, 0.04f, 0.02f), new Vector3(0.42f, 0.14f, 0.28f), back).transform;
+            _wingR = Part(root, "WingR", PrimitiveType.Sphere, new Vector3(0.28f, 0.04f, 0.02f), new Vector3(0.42f, 0.14f, 0.28f), back).transform;
         }
 
         /// 제주 흑돼지: 검은 몸통에 분홍 코·귀, 짧은 다리. 프리팹/그림이 없을 때의 대체.
@@ -192,16 +206,19 @@ namespace CoastRun
             Color pink = new Color(0.98f, 0.62f, 0.70f);
             var root = new GameObject("Pig").transform;
             root.SetParent(_body, false);
-            Part(root, "Torso", PrimitiveType.Sphere, new Vector3(0f, 0.34f, 0f), new Vector3(0.46f, 0.40f, 0.62f), black);
-            Part(root, "Head", PrimitiveType.Sphere, new Vector3(0f, 0.44f, 0.36f), Vector3.one * 0.34f, black);
-            Part(root, "Snout", PrimitiveType.Cylinder, new Vector3(0f, 0.40f, 0.53f), new Vector3(0.16f, 0.04f, 0.16f), pink).transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            Part(root, "EarL", PrimitiveType.Cube, new Vector3(-0.12f, 0.6f, 0.34f), new Vector3(0.09f, 0.12f, 0.04f), pink);
-            Part(root, "EarR", PrimitiveType.Cube, new Vector3(0.12f, 0.6f, 0.34f), new Vector3(0.09f, 0.12f, 0.04f), pink);
-            Part(root, "EyeL", PrimitiveType.Sphere, new Vector3(-0.09f, 0.5f, 0.48f), Vector3.one * 0.05f, Color.white);
-            Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.09f, 0.5f, 0.48f), Vector3.one * 0.05f, Color.white);
+            Part(root, "Torso", PrimitiveType.Sphere, new Vector3(0f, 0.34f, 0f), new Vector3(0.52f, 0.46f, 0.68f), black);
+            Part(root, "Fluff", PrimitiveType.Sphere, new Vector3(0f, 0.38f, -0.06f), new Vector3(0.46f, 0.40f, 0.55f), black);
+            Part(root, "Head", PrimitiveType.Sphere, new Vector3(0f, 0.46f, 0.38f), Vector3.one * 0.38f, black);
+            Part(root, "Snout", PrimitiveType.Sphere, new Vector3(0f, 0.40f, 0.58f), new Vector3(0.18f, 0.14f, 0.16f), pink);
+            Part(root, "EarL", PrimitiveType.Sphere, new Vector3(-0.14f, 0.62f, 0.34f), new Vector3(0.10f, 0.14f, 0.06f), pink);
+            Part(root, "EarR", PrimitiveType.Sphere, new Vector3(0.14f, 0.62f, 0.34f), new Vector3(0.10f, 0.14f, 0.06f), pink);
+            Part(root, "EyeWL", PrimitiveType.Sphere, new Vector3(-0.10f, 0.52f, 0.52f), Vector3.one * 0.07f, Color.white);
+            Part(root, "EyeWR", PrimitiveType.Sphere, new Vector3(0.10f, 0.52f, 0.52f), Vector3.one * 0.07f, Color.white);
+            Part(root, "EyeL", PrimitiveType.Sphere, new Vector3(-0.10f, 0.53f, 0.55f), Vector3.one * 0.04f, Color.black);
+            Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.10f, 0.53f, 0.55f), Vector3.one * 0.04f, Color.black);
             for (int i = 0; i < 4; i++)
-                Part(root, "Leg" + i, PrimitiveType.Cube, new Vector3(i % 2 == 0 ? -0.13f : 0.13f, 0.1f, i < 2 ? 0.18f : -0.18f), new Vector3(0.1f, 0.2f, 0.1f), black);
-            Part(root, "Tail", PrimitiveType.Sphere, new Vector3(0f, 0.42f, -0.33f), Vector3.one * 0.08f, pink);
+                Part(root, "Leg" + i, PrimitiveType.Sphere, new Vector3(i % 2 == 0 ? -0.14f : 0.14f, 0.12f, i < 2 ? 0.18f : -0.18f), new Vector3(0.12f, 0.22f, 0.12f), black);
+            Part(root, "Tail", PrimitiveType.Sphere, new Vector3(0f, 0.44f, -0.36f), Vector3.one * 0.10f, pink);
         }
 
         private void BuildThug()

@@ -79,8 +79,11 @@ namespace CoastRun
                     radius = 0.6f;
                     break;
                 case PickupKind.Heart:
-                    if (PaintedProp.Available("Heart")) PaintedProp.Attach(vis, "Heart", 0.9f, replace: false, outline: true);
-                    else BuildHeart(vis);
+                    if (!TryAttachHeartMesh(vis))
+                    {
+                        if (PaintedProp.Available("Heart")) PaintedProp.Attach(vis, "Heart", 0.9f, replace: false, outline: true);
+                        else BuildHeart(vis);
+                    }
                     radius = 0.7f;
                     break;
                 case PickupKind.Photocard:
@@ -190,6 +193,15 @@ namespace CoastRun
             v.transform.localScale = new Vector3(0.06f, 0.2f, 0.04f);
             Object.Destroy(v.GetComponent<Collider>());
             v.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(Color.white);
+        }
+
+        /// 말랑이 하트: Blender 캔디 메시(Heart.fbx) 우선. 없으면 절차형/스프라이트.
+        private static bool TryAttachHeartMesh(Transform root)
+        {
+            if (JejuKit.Load("Heart") == null) return false;
+            // 곡선 하트 dims ≈ 1.2×1.1×0.44 → 픽업 높이 ~0.85
+            var mesh = JejuKit.Spawn("Heart", root, new Vector3(0f, 0.38f, 0f), yawDegrees: 0f, scale: 0.72f);
+            return mesh != null;
         }
 
         /// 말랑이 하트: 두 개의 둥근 볼 + 45° 큐브로 만든 통통한 하트. 은은한 흰 하이라이트.

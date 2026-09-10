@@ -20,14 +20,59 @@ namespace CoastRun
         {
             if (_inst != null)
             {
-                if (_inst._canvas != null && _inst._canvas.sortingOrder < 560)
-                    _inst._canvas.sortingOrder = 560;
+                if (_inst._canvas != null)
+                {
+                    _inst._canvas.enabled = true;
+                    if (_inst._canvas.sortingOrder < 560)
+                        _inst._canvas.sortingOrder = 560;
+                }
                 return _inst;
             }
             var go = new GameObject("PickupFloat");
             _inst = go.AddComponent<PickupFloat>();
             _inst.Build();
             return _inst;
+        }
+
+        /// 스테이지 클리어 등 — 떠 있는 +N·날아가는 코인·배너를 전부 치우고 캔버스를 끈다.
+        public static void ClearAll()
+        {
+            if (_inst == null) return;
+            var self = _inst;
+            self.StopAllCoroutines();
+            self._goCo = null;
+            self._impactCo = null;
+            for (int i = self._live.Count - 1; i >= 0; i--)
+                self.RecycleFloat(self._live[i].t);
+            self._live.Clear();
+            if (self._goText != null) self._goText.gameObject.SetActive(false);
+            if (self._goSub != null) self._goSub.gameObject.SetActive(false);
+            if (self._bannerText != null) self._bannerText.gameObject.SetActive(false);
+            if (self._slam != null) self._slam.gameObject.SetActive(false);
+            if (self._vignette != null) self._vignette.gameObject.SetActive(false);
+            if (self._flash != null) self._flash.gameObject.SetActive(false);
+            if (self._fx != null)
+            {
+                self._fx.localRotation = Quaternion.identity;
+                self._fx.anchoredPosition = Vector2.zero;
+            }
+            if (self._root != null)
+            {
+                for (int i = 0; i < self._root.childCount; i++)
+                {
+                    var ch = self._root.GetChild(i);
+                    if (ch == null) continue;
+                    if (ch.name == "Float" || ch.name == "FlyCoin")
+                        ch.gameObject.SetActive(false);
+                }
+            }
+            if (self._canvas != null) self._canvas.enabled = false;
+        }
+
+        public static void Resume()
+        {
+            if (_inst != null && _inst._canvas != null)
+                _inst._canvas.enabled = true;
         }
 
         private void Build()
@@ -271,37 +316,103 @@ namespace CoastRun
                 f.StartCoroutine(f.FlyToHud(world, i * 0.05f));
         }
 
+        private const float FloatLife = 0.65f;
+        private readonly List<(Text t, float dieAt)> _live = new List<(Text, float)>(16);
+
+        private void LateUpdate()
+        {
+            // 코루틴이 끊겨도(씬 전환·예외) +N 이 화면에 남는 걸 막는다
+            float now = Time.unscaledTime;
+            for (int i = _live.Count - 1; i >= 0; i--)
+            {
+                var e = _live[i];
+                if (e.t == null) { _live.RemoveAt(i); continue; }
+                if (now < e.dieAt) continue;
+                RecycleFloat(e.t);
+                _live.RemoveAt(i);
+            }
+        }
+
         private IEnumerator FloatText(Vector3 world, string text, Color color, float size)
         {
-            Text t = _pool.Count > 0 ? _pool.Pop() : MakeText();
+            Text t = RentFloat();
+            var cg = t.GetComponent<CanvasGroup>() ?? t.gameObject.AddComponent<CanvasGroup>();
             t.gameObject.SetActive(true);
-            t.text = text; t.color = color;
-            t.fontSize = Mathf.RoundToInt(52 * size);
+            t.text = text;
+            t.color = new Color(color.r, color.g, color.b, 1f);
+            t.fontSize = Mathf.RoundToInt(CoastHudLayout.Scaled(52) * size);
+            cg.alpha = 1f;
             var rt = t.rectTransform;
+            rt.localScale = Vector3.one;
             Vector2 start = ToCanvas(world) + new Vector2(Random.Range(-18f, 18f), 110f);
-            float dur = 0.62f, time = 0f;
-            while (time < dur)
+            float dieAt = Time.unscaledTime + FloatLife + 0.15f;
+            _live.Add((t, dieAt));
+
+            float dur = FloatLife, time = 0f;
+            try
             {
-                time += Time.unscaledDeltaTime;
-                float u = time / dur;
-                float pop = u < 0.18f ? Mathf.Lerp(0.4f, 1.25f, u / 0.18f) : Mathf.Lerp(1.25f, 1f, Mathf.Clamp01((u - 0.18f) / 0.2f));
-                rt.localScale = Vector3.one * pop;
-                rt.anchoredPosition = start + new Vector2(0f, 150f * u);
-                var c = color; c.a = u < 0.6f ? 1f : 1f - (u - 0.6f) / 0.4f;
-                t.color = c;
-                yield return null;
+                while (time < dur)
+                {
+                    if (t == null) yield break;
+                    time += Time.unscaledDeltaTime;
+                    float u = Mathf.Clamp01(time / dur);
+                    float pop = u < 0.18f ? Mathf.Lerp(0.4f, 1.25f, u / 0.18f)
+                        : Mathf.Lerp(1.25f, 1f, Mathf.Clamp01((u - 0.18f) / 0.2f));
+                    rt.localScale = Vector3.one * pop;
+                    rt.anchoredPosition = start + new Vector2(0f, 150f * u);
+                    cg.alpha = u < 0.55f ? 1f : 1f - (u - 0.55f) / 0.45f;
+                    yield return null;
+                }
             }
+            finally
+            {
+                if (t != null)
+                {
+                    for (int i = _live.Count - 1; i >= 0; i--)
+                        if (_live[i].t == t) _live.RemoveAt(i);
+                    RecycleFloat(t);
+                }
+            }
+        }
+
+        private Text RentFloat()
+        {
+            while (_pool.Count > 0)
+            {
+                var t = _pool.Pop();
+                if (t != null) return t;
+            }
+            return MakeText();
+        }
+
+        private void RecycleFloat(Text t)
+        {
+            if (t == null) return;
+            var cg = t.GetComponent<CanvasGroup>();
+            if (cg != null) cg.alpha = 0f;
             t.gameObject.SetActive(false);
+            t.rectTransform.localScale = Vector3.one;
             _pool.Push(t);
         }
 
         private Text MakeText()
         {
-            var t = CoastHudLayout.MakeText(_root, "Float", "+1", 44, TextAnchor.MiddleCenter,
-                new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-120f, -40f), new Vector2(120f, 40f));
+            var go = new GameObject("Float", typeof(RectTransform), typeof(CanvasGroup));
+            go.transform.SetParent(_root, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(280f, 90f);
+            var t = go.AddComponent<Text>();
+            t.font = CoastHudLayout.Font();
+            t.fontSize = CoastHudLayout.Scaled(52);
             t.fontStyle = FontStyle.Bold;
+            t.alignment = TextAnchor.MiddleCenter;
             t.raycastTarget = false;
+            t.horizontalOverflow = HorizontalWrapMode.Overflow;
+            t.verticalOverflow = VerticalWrapMode.Overflow;
             CoastUiArt.OutlineText(t, new Color(0.05f, 0.05f, 0.15f, 0.95f), 2.5f);
+            go.SetActive(false);
             return t;
         }
 

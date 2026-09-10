@@ -429,6 +429,21 @@ namespace CoastRun
                 case "Tire": return CoastMaterials.CreateToon(new Color(0.10f, 0.10f, 0.11f), null, null, 0.1f);
                 case "Light": return CoastMaterials.CreateUnlit(new Color(1f, 0.95f, 0.6f));
                 case "Chrome": return CoastMaterials.CreateToon(new Color(0.75f, 0.78f, 0.82f), null, null, 0.7f);
+                // 말랑이 하트(Heart.fbx) — 캔디 핑크
+                case "Heart":
+                case "HeartPink":
+                {
+                    var hm = CoastMaterials.CreateLit(new Color(1f, 0.42f, 0.58f), 0.5f);
+                    CoastMaterials.SetShadow(hm, new Color(0.95f, 0.55f, 0.68f, 1f), 0.28f);
+                    return hm;
+                }
+                case "HeartDeep":
+                {
+                    var hm = CoastMaterials.CreateLit(new Color(0.92f, 0.28f, 0.48f), 0.4f);
+                    CoastMaterials.SetShadow(hm, new Color(0.85f, 0.40f, 0.55f, 1f), 0.28f);
+                    return hm;
+                }
+                case "HeartGloss": return CoastMaterials.CreateUnlit(new Color(1f, 0.96f, 0.98f));
                 default: return CoastMaterials.CreateLit(() => CoastPalette.TownCream);
             }
         }
