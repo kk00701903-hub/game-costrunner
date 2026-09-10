@@ -137,19 +137,40 @@ namespace CoastRun
             if (Instance == this) Instance = null;
         }
 
+        /// 47차: Blender FBX(+Y 얼굴·+Z 위)가 Unity 에서 얼굴 +Y·정수리 +Z 로 들어온다(bake_space_transform=False) → X 90° 뒤 Z 180°.
+        public static Quaternion PetFbxFix = Quaternion.Euler(0f, 0f, 180f) * Quaternion.Euler(90f, 0f, 0f);
+
         private void Build()
         {
+            // 47차(사용자: "펫은 블렌더로 입체로 — 주인공처럼 뒷모습"): Blender 펫 키트(Tools/blender/pet_kit.py → Pet_<Kind>.fbx)가 있으면
+            // **입체 FBX 를 최우선**. 모델 전방 = +Z(주인공 진행 방향)이라 카메라에는 자연히 뒷모습. 그림(Obs_Pet_*)은 FBX 가 없을 때만.
             var prefab = PrefabLibrary.TryInstantiate("Pet_" + _kind, transform, Vector3.zero);
             if (prefab != null)
             {
-                _body = prefab.transform;
-                RoadPlacement.FitHeight(prefab, _kind == PetKind.WildGoose ? 0.85f : 0.55f);
-                // 8차: Blender 새(Tools/blender/bird_pet.py) — 날개 오브젝트를 이름으로 찾아 날갯짓
+                // 래퍼 Body 아래에 FBX. Blender +Y(얼굴) → Unity +Z(진행 방향) 그대로라 카메라에는 뒷모습(r47_pet3 확인). 180° 돌리면 정면이 된다.
+                _body = new GameObject("Body").transform;
+                _body.SetParent(transform, false);
+                prefab.transform.SetParent(_body, false);
+                prefab.transform.localPosition = Vector3.zero;
+                prefab.transform.localRotation = PetFbxFix;   // FBX 축 보정: 부리가 +Y(위)·정수리가 +Z 로 들어온다(로그 [Pet]) → 얼굴 +Z·정수리 +Y
+                float fh = _kind == PetKind.BikerThug ? 1.35f : _kind == PetKind.WildGoose ? 0.85f : _kind == PetKind.BlackPig ? 0.62f : 0.58f;
+                RoadPlacement.FitHeight(prefab, fh);
+                // 8차: Blender 새 — 날개 WingL/WingR 로 날갯짓. 47차: 스쿠터 바퀴 WheelF/WheelB 스핀.
                 foreach (var t in prefab.GetComponentsInChildren<Transform>(true))
                 {
                     if (t.name.StartsWith("WingL")) _wingL = t;
                     else if (t.name.StartsWith("WingR")) _wingR = t;
+                    else if (t.name == "WheelF") _wheelF = t;
+                    else if (t.name == "WheelB") _wheelB = t;
                 }
+                return;
+            }
+            if (PaintedProp.Available("Pet_" + _kind))
+            {
+                _body = new GameObject("Body").transform;
+                _body.SetParent(transform, false);
+                float hp = _kind == PetKind.BikerThug ? 1.1f : _kind == PetKind.WildGoose ? 0.8f : 0.5f;
+                PaintedProp.Attach(_body, "Pet_" + _kind, hp, replace: false, outline: true);
                 return;
             }
 

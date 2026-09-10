@@ -208,6 +208,17 @@ namespace CoastRun
             audio?.PlaySfx(CoastSfx.NearMiss);
         }
 
+        /// 47차: 2단 점프 — 발밑에 흰 구름 퍼프 + 작은 링(허공을 디딘 자국).
+        public void OnDoubleJump(Vector3 worldPos)
+        {
+            EnsurePopBursts();
+            SpawnPop(_popPuff, worldPos, new Color(1f, 1f, 1f, 0.9f), 7);
+            StartCoroutine(FlashRing(worldPos, new Color(1f, 1f, 1f, 0.75f), 1.3f));
+            speedLines?.Burst(14);
+            CoastPrefs.Vibrate();
+            audio?.PlaySfx(CoastSfx.NearMiss);
+        }
+
         public void OnJumpPad(Vector3 worldPos)
         {
             cameraRig?.Shake(0.18f, 0.12f);

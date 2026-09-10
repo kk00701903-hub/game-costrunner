@@ -54,6 +54,8 @@ namespace CoastRun
         private int _carLaneMask;
         private float _carMeetZ;
         private int _rowsUntilCar = 6;
+        /// 46차(사용자): 차·버스 출현 빈도 +50% — 차 사이 줄 수를 1/1.5 로(5→3, 3→2 줄).
+        private const float CarFreqMul = 1f / 1.5f;
 
         private float _nextSpawnZ = 32f;
         private Transform _root;
@@ -86,7 +88,7 @@ namespace CoastRun
             _rng = new System.Random(SeedOverride ?? (1000 + stageIndex * 7919));
             _nextSpawnZ = startZ + 32f;   // Gold Run: long clear lead-in before first row
             _prevOpen = 0b111;
-            _rowsUntilCar = carEveryRowsStart;
+            _rowsUntilCar = Mathf.Max(1, Mathf.RoundToInt(carEveryRowsStart * CarFreqMul));
             if (_car != null)
                 Destroy(_car.gameObject);
             _car = null;
@@ -320,8 +322,9 @@ namespace CoastRun
             float gap = RowGap(speed, progress, _prevOpen, open) + speed * 0.5f;
             _prevOpen = open;
             _nextSpawnZ += gap;
-            _rowsUntilCar = Mathf.RoundToInt(Mathf.Lerp(carEveryRowsStart, carEveryRowsEnd, progress) * ChapterDifficulty.CarEveryMul)
+            _rowsUntilCar = Mathf.RoundToInt(Mathf.Lerp(carEveryRowsStart, carEveryRowsEnd, progress) * ChapterDifficulty.CarEveryMul * CarFreqMul)
                             + _rng.Next(3) - 1;
+            _rowsUntilCar = Mathf.Max(1, _rowsUntilCar);
             // 17챕터부터 가끔 차 두 대가 연달아 온다.
             if (ChapterDifficulty.Stage >= ChapterDifficulty.DoubleCarFrom && _rng.NextDouble() < 0.3)
                 _rowsUntilCar = Mathf.Min(_rowsUntilCar, 2);

@@ -24,6 +24,9 @@ namespace CoastRun
         {
             if (host == null)
                 return null;
+            // 41차: 장애물 발밑 붉은 링 제거(사용자 요청). color 를 준 아이템(파란 링)만 남긴다.
+            if (!color.HasValue && !ObstacleWarning.Enabled)
+                return null;
             var h = host.GetComponent<HazardRing>() ?? host.gameObject.AddComponent<HazardRing>();
             h._phase = Random.value * 6.28f;
             h._color = color ?? Warn;

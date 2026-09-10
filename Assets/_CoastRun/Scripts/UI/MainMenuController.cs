@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 namespace CoastRun
 {
@@ -95,6 +96,12 @@ namespace CoastRun
         private RectTransform _loadCover;   // 39차: 시안 로딩바(그림) 위 '아직 안 찬 부분' 덮개 — 오른쪽 끝 고정, 왼쪽이 줄어든다
         private Text _loadPct;              // 39차: 큰 "70%" 숫자
         private const float LoadCoverW = 295f;
+        // 47차: 로딩 화면 대신 옛 오프닝의 「멀리서 버스 가는」 영상(Resources/CoastRun/Title_Bus.mp4, 옛 VID_CH01_Open) 한 번.
+        private VideoPlayer _splashPlayer;
+        private RenderTexture _splashRt;
+        private RawImage _splashVideo;
+        private bool _splashIsVideo;
+        private const float SplashVideoMax = 5.6f;   // 클립 6초 — 끝나기 직전에 페이드
 
         private void SetLoad(float u)
         {
@@ -115,10 +122,33 @@ namespace CoastRun
 
         private IEnumerator SplashThenUi(float splashSeconds)
         {
-            // 로딩바 0→1 채우기(스킵 가능, 스킵해도 바는 끝까지 채운 뒤 페이드)
             float t = 0f;
-            splashSeconds = Mathf.Max(0.8f, splashSeconds);
             bool skip = false;
+            if (_splashIsVideo)
+            {
+                // 47차: 로딩바 없음 — 버스 영상이 준비되면 바로 재생, 끝나거나(≈5.6초) 탭하면 타이틀로.
+                float prep = 0f;
+                while (_splashPlayer != null && !_splashPlayer.isPrepared && prep < 3f) { prep += Time.unscaledDeltaTime; yield return null; }
+#if UNITY_EDITOR
+                Debug.LogWarning("[Title] splash video prepared=" + (_splashPlayer != null && _splashPlayer.isPrepared) + " after " + prep.ToString("0.00") + "s");
+#endif
+                if (_splashPlayer != null && _splashPlayer.isPrepared)
+                {
+                    _splashPlayer.Play();
+                    if (_splashVideo != null) _splashVideo.color = Color.white;
+                    float len = Mathf.Min(SplashVideoMax, (float)_splashPlayer.length - 0.3f);
+                    while (t < len)
+                    {
+                        t += Time.unscaledDeltaTime;
+                        if (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
+                            (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)) break;
+                        yield return null;
+                    }
+                }
+                goto fadeOut;
+            }
+            // 로딩바 0→1 채우기(스킵 가능, 스킵해도 바는 끝까지 채운 뒤 페이드)
+            splashSeconds = Mathf.Max(0.8f, splashSeconds);
             while (t < splashSeconds)
             {
                 t += Time.unscaledDeltaTime;
@@ -147,6 +177,7 @@ namespace CoastRun
             SetLoad(1f);
             if (_loadLabel != null) _loadLabel.text = Loc.T("완료!", "Ready!");
 
+        fadeOut:
             if (_splashCg != null)
             {
                 float f = 0f;
@@ -159,6 +190,8 @@ namespace CoastRun
 
                 _splashCg.gameObject.SetActive(false);
             }
+            if (_splashPlayer != null) { _splashPlayer.Stop(); Destroy(_splashPlayer); _splashPlayer = null; }
+            if (_splashRt != null) { _splashRt.Release(); Destroy(_splashRt); _splashRt = null; }
 
             if (_uiCg != null)
             {
@@ -280,6 +313,41 @@ namespace CoastRun
             splashImg.color = new Color(0.10f, 0.07f, 0.10f, 1f);
             splashImg.raycastTarget = true;
             _splashCg = go.GetComponent<CanvasGroup>();
+
+            // 47차: 로딩 화면 삭제 → 옛 오프닝의 버스 영상(멀리 해안도로를 버스가 지나가는 컷)을 타이틀 앞에 한 번.
+            var busClip = Resources.Load<VideoClip>(ArtAssets.ResourceRoot + "Title_Bus");
+#if UNITY_EDITOR
+            Debug.LogWarning("[Title] Title_Bus clip=" + (busClip != null ? busClip.length.ToString("0.0") + "s" : "null"));
+#endif
+            if (busClip != null)
+            {
+                _splashIsVideo = true;
+                splashImg.color = new Color(0.98f, 0.80f, 0.55f, 1f);   // 노을빛 — 영상 첫 프레임 전 잠깐
+                var vgo = new GameObject("BusVideo", typeof(RectTransform), typeof(RawImage));
+                vgo.transform.SetParent(go.transform, false);
+                var vrt = vgo.GetComponent<RectTransform>();
+                vrt.anchorMin = Vector2.zero; vrt.anchorMax = Vector2.one;
+                vrt.offsetMin = vrt.offsetMax = Vector2.zero;
+                _splashVideo = vgo.GetComponent<RawImage>();
+                _splashVideo.raycastTarget = false;
+                _splashVideo.color = new Color(1f, 1f, 1f, 0f);
+                _splashRt = new RenderTexture(720, 1280, 0);
+                _splashVideo.texture = _splashRt;
+                _splashPlayer = gameObject.AddComponent<VideoPlayer>();
+                _splashPlayer.playOnAwake = false;
+                _splashPlayer.renderMode = VideoRenderMode.RenderTexture;
+                _splashPlayer.targetTexture = _splashRt;
+                _splashPlayer.audioOutputMode = VideoAudioOutputMode.None;
+                _splashPlayer.isLooping = true;
+                _splashPlayer.skipOnDrop = true;
+                _splashPlayer.clip = busClip;
+                _splashPlayer.Prepare();
+
+                var hint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 16, FontStyle.Bold,
+                    new Color(1f, 1f, 1f, 0.75f), new Vector2(0.5f, 0.05f), new Vector2(400f, 26f));
+                CoastUiArt.OutlineText(hint, new Color(0f, 0f, 0f, 0.6f), 2f);
+                return;
+            }
 
             // 39차: 시안 로딩 화면(UI_Loading_Mock: 노을 배경 + 네온 유리 카드 + "로딩중..." + 이퀄라이저 + 바 + 귤)을 통째로.
             // 시안에서 "70%"만 지워 두고(Photoshop) 숫자는 여기서 그린다. 바는 그림의 초록 부분을 덮개로 가렸다가 드러낸다.
@@ -609,6 +677,7 @@ namespace CoastRun
                     if (!_ready) return;
                     _audio?.PlayClick();
                     if (_moreOpen) ToggleMore();
+                    KpopChapterSelect.TitleUi = _uiCg;   // 47차: 챕터 화면 동안 타이틀 글자·Play 바 숨김
                     KpopChapterSelect.Open(_gm, _ => refreshChip(),
                         ch => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm, ch); } });
                 });
@@ -663,21 +732,21 @@ namespace CoastRun
             // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
             if (!useMock && PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
             {
-                _openingHint = CreateLabel(ui.transform, "OpeningHint", Loc.T("이야기가 궁금하면  더보기 › 오프닝", "Curious about the story?  More › Opening"), 17, FontStyle.Normal,
+                _openingHint = CreateLabel(ui.transform, "OpeningHint", Loc.T("이야기가 궁금하면  더보기 › 시네마", "Curious about the story?  More › Cinema"), 17, FontStyle.Normal,
                     new Color(1f, 0.96f, 0.86f, 0.9f), new Vector2(0.5f, 0f), new Vector2(600f, 26f));
                 _openingHint.rectTransform.anchoredPosition = new Vector2(0f, rowY + btnH * 0.5f + 20f);
                 CoastUiArt.OutlineText(_openingHint, new Color(0.2f, 0.1f, 0.06f, 0.85f), 1.5f);
             }
 
-            // 더보기 열: 오른쪽에서 슬라이드. 새로하기 / 챕터 선택 / 컬렉션 / 오프닝 / 설정.
+            // 더보기 열: 오른쪽에서 슬라이드. 새로하기 / 컬렉션 / 레코드 / 시네마 / 설정.
+            // 42차(사용자): 「챕터 선택」 항목 삭제(챕터는 타이틀 CHAPTER 칩), 컬렉션은 모은 사진(포토카드 탭)으로 바로,
+            //             레코드 옆 새 항목 점(•) 제거, 「오프닝」 → 「시네마」(컷씬 골라 보기, CinemaSelect).
             var more = new System.Collections.Generic.List<(string, System.Action)>();
             more.Add((Loc.T("새로하기", "New Game"), () => { if (_ready) { if (_moreOpen) ToggleMore(); StartNewFlow(); } }));
-            if (hasSave) more.Add((Loc.T("챕터 선택", "Chapters"), OnChapterSelect));
             // 38차: 「노을 달리기」 항목 제거(K-POP 러닝모드 바로 통합)
-            more.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(); }));
+            more.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(null, 1); }));   // 42차: 1 = 포토카드(모은 사진)
             // 37차: 레코드 — 컷씬 음악 7곡. 타이틀 곡을 멈추고 들어가서, 닫으면 다시 튼다.
-            bool recNew = _gm != null && RecordTable.HasNew(_gm.Profile);
-            more.Add((Loc.T("레코드", "Records") + (recNew ? "  •" : ""), () =>
+            more.Add((Loc.T("레코드", "Records"), () =>
             {
                 _audio?.PlayClick();
                 _audio?.StopMenu();
@@ -685,14 +754,24 @@ namespace CoastRun
                 _ready = false;
                 CollectionUI.Open(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; }, 0);   // 38차: 시안대로 컬렉션 › 레코드 탭
             }));
-            more.Add((Loc.T("오프닝", "Opening"), () =>
+            // 44차: 미니게임 — 챕터 미션에서 이긴 놀이만 다시하기(ChapterMissionUI.OpenMenu)
+            more.Add((Loc.T("미니게임", "Mini-games"), () =>
             {
                 _audio?.PlayClick();
-                _audio?.StopMenu();
-                PlayerPrefs.SetInt("CoastRun_OpeningSeen", 1);
+                if (_moreOpen) ToggleMore();
+                _ready = false;
+                ChapterMissionUI.OpenMenu(_gm, () => { if (this == null) return; _ready = true; });
+            }));
+            more.Add((Loc.T("시네마", "Cinema"), () =>
+            {
+                _audio?.PlayClick();
+                if (_moreOpen) ToggleMore();
                 if (_openingHint != null) _openingHint.gameObject.SetActive(false);
                 _ready = false;
-                OpeningCinematic.Play(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; });
+                bool played = false;
+                CinemaSelect.Open(_gm,
+                    onPlayStart: () => { played = true; _audio?.StopMenu(); },
+                    onClose: () => { if (this == null) return; if (played) _audio?.PlayMenu(_cleared); _ready = true; });
             }));
             more.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
 

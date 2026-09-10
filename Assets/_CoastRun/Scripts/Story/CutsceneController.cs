@@ -47,7 +47,8 @@ namespace CoastRun
 
         public void Play(CutsceneDef def, Action<CutsceneController> onComplete)
         {
-            if (def == null)
+            // 47차: 옛 원고(약속의 스마트폰·정류장 전광판·작년에도·16:40)는 지웠다. 새 대본(ChapterVN PRO/CHxx)이 있으면 이 컨트롤러는 즉시 끝난다.
+            if (def == null || ChapterScript.Has("PRO"))
             {
                 onComplete?.Invoke(this);
                 return;
@@ -124,23 +125,8 @@ namespace CoastRun
 
         private IEnumerator PlayPrologueBeats()
         {
-            // P1 0:40 — phone message; send-time field visible (tiny).
-            yield return ShowBeat(
-                "약속의 스마트폰",
-                "「노을 질 때, 우리 어릴 적 비밀 기지였던\n그 송전탑 아래에서 만나자.\n꼭 할 말이 있어.」",
-                8f, showSendTime: true, showStickers: false);
-
-            // P2 0:50 — station board
-            yield return ShowBeat(
-                "예기치 못한 장애",
-                "정류장 전광판\n『정비 중 · 운행 중단』",
-                8f, showSendTime: false, showStickers: false);
-
-            // P3 0:40 — board underside stickers MUST be visible
-            yield return ShowBeat(
-                "소녀의 결심",
-                "보드를 뒤집는다.",
-                8f, showSendTime: false, showStickers: true);
+            // 47차: 옛 원고 3비트(스마트폰·전광판·보드) 삭제 — 새 프롤로그는 ChapterVN "PRO". 여기는 폴백 빈 화면.
+            yield return ShowBeat("", "", 2f, showSendTime: false, showStickers: false);
 
             // P4 0:20 — not a rendered clip; handoff frame
             yield return ShowBeat(
@@ -155,16 +141,7 @@ namespace CoastRun
         {
             string title = def.id;
             string body = "";
-            if (def.id == "CH3_Close")
-            {
-                title = "작년에도";
-                body = "같은 길. 다른 계절.";
-            }
-            else if (def.id == "CH4_Close")
-            {
-                title = "16:40";
-                body = "발신 시각이 보인다.";
-            }
+            // 47차: 옛 원고("작년에도 / 16:40") 삭제 — 제목만 남긴 빈 화면.
 
             float hold = Mathf.Clamp(def.duration * 0.15f, 4f, 12f);
             float t = 0f;

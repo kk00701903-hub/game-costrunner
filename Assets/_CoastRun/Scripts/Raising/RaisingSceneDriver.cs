@@ -19,7 +19,7 @@ namespace CoastRun
             new GameObject("RaisingSceneDriver").AddComponent<RaisingSceneDriver>();
         }
 
-        private RaisingUI _ui;
+        private TamaRaisingUI _ui;   // 45차: 다마고치식 터치 육성(TamaRaisingUI) — 프메식 RaisingUI 는 파일만 남김
 
         private void Start()
         {
@@ -36,7 +36,7 @@ namespace CoastRun
             }
 
             EnsureCamera();
-            _ui = gameObject.AddComponent<RaisingUI>();
+            _ui = gameObject.AddComponent<TamaRaisingUI>();
             _ui.Bind(gm);
 
             if (gm.OpenTimelineOnRaising)

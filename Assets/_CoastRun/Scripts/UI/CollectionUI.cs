@@ -20,7 +20,8 @@ namespace CoastRun
             DontDestroyOnLoad(go);
             _active = go.AddComponent<CollectionUI>();
             _active._onClose = onClose;
-            _active._tab = tab;
+            _active._tab = OnlyCards ? (tab == 0 ? 0 : 1) : tab;
+            if (OnlyCards) _active._cardPage = (PublicFrom - 1) / 9;   // 45차: 공개 카드(22~30) 페이지부터   // 45차: 더보기 › 레코드(0)는 레코드만, 그 외는 포토카드만 — 탭 바는 숨김
             _active.Build();
         }
 
@@ -28,6 +29,8 @@ namespace CoastRun
         private Canvas _canvas;
         private RectTransform _root, _content;
         private int _tab;                       // 0 레코드 / 1 포토카드 / 2 팬아트 / 3 트로피
+        public const bool OnlyCards = true;     // 45차: 포토카드 탭만 노출
+        public const int PublicFrom = 22;       // 45차: 22~30번만 공개, 1~21번은 「미공개」
         private Button[] _tabBtns = new Button[4];
         private AudioSource _preview;
         private GameObject _detail;             // 카드 상세 / 트랙 상세
@@ -85,12 +88,15 @@ namespace CoastRun
             // 탭 4개 — 흰 알약(선택) / 반투명 알약, 앞에 작은 아이콘 색 점
             string[] names = { Loc.T("레코드", "Records"), Loc.T("포토카드", "Photocards"), Loc.T("팬아트", "Fan Art"), Loc.T("트로피", "Trophies") };
             Color[] dots = { new Color(1f, 0.45f, 0.35f), new Color(0.45f, 0.8f, 1f), new Color(0.75f, 0.55f, 1f), new Color(1f, 0.8f, 0.3f) };
+            // 45차(사용자): 컬렉션은 **포토카드만** — 레코드·팬아트·트로피 탭은 만들되 숨긴다(코드는 유지, 되살리려면 OnlyCards=false)
+            if (OnlyCards && _tab != 0) _tab = 1;
             for (int i = 0; i < 4; i++)
             {
                 int idx = i;
-                float x = -255f + i * 170f;
+                float x = OnlyCards ? 0f : -255f + i * 170f;
                 var pill = CoastUiArt.CutePill(_root, "Tab" + i, Color.white, 20, 3);
                 Place(pill.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(x, -128f), new Vector2(160f, 46f));
+                if (OnlyCards) pill.gameObject.SetActive(false);   // 탭 전환 없음(레코드는 더보기 › 레코드로만)
                 pill.raycastTarget = true;
                 var dot = CoastUiArt.Panel(pill.transform, "Dot", dots[i], 8);
                 dot.raycastTarget = false;
@@ -261,7 +267,9 @@ namespace CoastRun
         {
             int perPage = 9, pages = Mathf.CeilToInt(PhotocardTable.Count / (float)perPage);
             _cardPage = Mathf.Clamp(_cardPage, 0, pages - 1);
-            var title = CoastOrnate.Label(_content, "Cnt", Loc.T($"바인더 {_cardPage + 1}/{pages}  ·  {Collection.CardsOwned}/{PhotocardTable.Count}장  ·  러닝 중 포토카드 아이템으로 얻는다", $"Binder {_cardPage + 1}/{pages}  ·  {Collection.CardsOwned}/{PhotocardTable.Count}  ·  found as items while running"), 14, new Color(1f, 0.92f, 0.75f));
+            int pubTotal = PhotocardTable.Count - (PublicFrom - 1), pubOwned = 0;
+            for (int k = PublicFrom; k <= PhotocardTable.Count; k++) if (Collection.HasCard(k)) pubOwned++;
+            var title = CoastOrnate.Label(_content, "Cnt", Loc.T($"바인더 {_cardPage + 1}/{pages}  ·  공개 {pubOwned}/{pubTotal}장  ·  러닝 중 포토카드 아이템으로 얻는다", $"Binder {_cardPage + 1}/{pages}  ·  {pubOwned}/{pubTotal} released  ·  found as items while running"), 14, new Color(1f, 0.92f, 0.75f));
             Place(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -12f), new Vector2(0f, 24f));
             // 등급 확률 표
             var odds = CoastOrnate.Label(_content, "Odds", $"N {Collection.GradeWeights[0]}%  ·  R {Collection.GradeWeights[1]}%  ·  SR {Collection.GradeWeights[2]}%  ·  SSR {Collection.GradeWeights[3]}%", 12, new Color(1f, 0.85f, 1f, 0.75f));
@@ -274,7 +282,8 @@ namespace CoastRun
                 if (id > PhotocardTable.Count) break;
                 int col = i % 3, row = i / 3;
                 var card = PhotocardTable.Get(id);
-                bool has = Collection.HasCard(id);
+                bool unreleased = id < PublicFrom;              // 45차: 1~21 미공개
+                bool has = !unreleased && Collection.HasCard(id);
                 var grade = PhotocardTable.GradeOf(id);
                 // 카드 틀: 소유 = 크림 폴라로이드, 잠김 = 짙은 남보라 + ? + 자물쇠
                 var slot = CoastUiArt.CutePill(_content, "Slot" + id, has ? new Color(0.99f, 0.97f, 0.93f) : new Color(0.22f, 0.16f, 0.40f), 14, 3);
@@ -294,6 +303,12 @@ namespace CoastRun
                     Place(badge.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -22f), new Vector2(50f, 22f));
                     var gl = CoastOrnate.Label(badge.transform, "T", Collection.GradeName(grade), 11, Color.white); gl.fontStyle = FontStyle.Bold;
                 }
+                else if (unreleased)
+                {
+                    var q = CoastOrnate.Label(img.transform, "Q", Loc.T("미공개", "Unreleased"), 22, new Color(1f, 1f, 1f, 0.55f));
+                    Place(q.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(160f, 40f));
+                    q.fontStyle = FontStyle.Bold;
+                }
                 else
                 {
                     var q = CoastOrnate.Label(img.transform, "Q", "?", 54, new Color(1f, 1f, 1f, 0.28f));
@@ -309,7 +324,7 @@ namespace CoastRun
                     Place(gb.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -22f), new Vector2(50f, 22f));
                     var gl = CoastOrnate.Label(gb.transform, "T", Collection.GradeName(grade), 11, new Color(1f, 1f, 1f, 0.85f));
                 }
-                var cap = CoastOrnate.Label(slot.transform, "Cap", has ? $"{id:00}  " + card.Name : $"{id:00}  ???", 12, has ? new Color(0.3f, 0.2f, 0.35f) : new Color(1f, 1f, 1f, 0.6f));
+                var cap = CoastOrnate.Label(slot.transform, "Cap", has ? $"{id:00}  " + card.Name : unreleased ? $"{id:00}  " + Loc.T("미공개", "Unreleased") : $"{id:00}  ???", 12, has ? new Color(0.3f, 0.2f, 0.35f) : new Color(1f, 1f, 1f, 0.6f));
                 Place(cap.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 24f), new Vector2(0f, 26f));
                 cap.horizontalOverflow = HorizontalWrapMode.Wrap;
                 if (has && Collection.CardIsNew(id))
@@ -321,7 +336,7 @@ namespace CoastRun
                 }
                 int cid = id;
                 var b = slot.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
-                b.onClick.AddListener(() => { if (has) OpenCard(cid); else Toast(Loc.T($"잠김 · [{Collection.GradeName(grade)}] 러닝 중 포토카드 아이템에서 {Collection.GradeWeights[(int)grade]}%", $"Locked · [{Collection.GradeName(grade)}] {Collection.GradeWeights[(int)grade]}% from photocard items")); });
+                b.onClick.AddListener(() => { if (has) OpenCard(cid); else if (unreleased) Toast(Loc.T("아직 공개되지 않은 포토카드예요", "This photocard is not released yet")); else Toast(Loc.T($"잠김 · [{Collection.GradeName(grade)}] 러닝 중 포토카드 아이템에서 {Collection.GradeWeights[(int)grade]}%", $"Locked · [{Collection.GradeName(grade)}] {Collection.GradeWeights[(int)grade]}% from photocard items")); });
             }
             CoastOrnate.GlassButton(_content, "Prev", "◀", new Vector2(0.5f, 0f), new Vector2(-70f, 12f), new Vector2(110f, 40f), () => { _cardPage = Mathf.Max(0, _cardPage - 1); Refresh(); }, 0.45f, 18, false);
             CoastOrnate.GlassButton(_content, "Next", "▶", new Vector2(0.5f, 0f), new Vector2(70f, 12f), new Vector2(110f, 40f), () => { _cardPage = Mathf.Min(pages - 1, _cardPage + 1); Refresh(); }, 0.45f, 18, false);

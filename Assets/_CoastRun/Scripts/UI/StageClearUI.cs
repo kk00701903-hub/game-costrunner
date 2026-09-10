@@ -491,10 +491,11 @@ namespace CoastRun
                 _face.transform.SetParent(_card, false); _face.raycastTarget = false;
                 _face.sprite = CoastUiArt.AsSprite(faceTex); _face.preserveAspect = true;
                 var frt0 = _face.rectTransform; frt0.anchorMin = frt0.anchorMax = new Vector2(0f, 1f); frt0.pivot = new Vector2(0.5f, 0.5f);
-                frt0.anchoredPosition = new Vector2(622f, -340f); frt0.sizeDelta = new Vector2(320f, 320f);
+                // 43차: 20% 축소(320→256) + 오른쪽이 잘리지 않게 안쪽으로(중심 622→524: 오른쪽 끝 652 ≤ 인셋 664)
+                frt0.anchoredPosition = new Vector2(524f, -330f); frt0.sizeDelta = new Vector2(256f, 256f);
                 var bub = CoastUiArt.CutePill(_card, "FaceBubble", Color.white, 14, 3);
                 var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(0f, 1f); brt2.pivot = new Vector2(0.5f, 0.5f);
-                brt2.anchoredPosition = new Vector2(598f, -520f); brt2.sizeDelta = new Vector2(280f, 52f); bub.raycastTarget = false;
+                brt2.anchoredPosition = new Vector2(520f, -490f); brt2.sizeDelta = new Vector2(280f, 52f); bub.raycastTarget = false;   // 43차: 얼굴 아래·화면 안
                 foreach (var im in bub.GetComponentsInChildren<Image>()) if (im.name == "Lip") im.color = new Color(0.82f, 0.82f, 0.86f, 1f);
                 _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-8f, 0f));
                 _faceBubble.color = new Color(0.16f, 0.16f, 0.22f); _faceBubble.fontStyle = FontStyle.Bold;

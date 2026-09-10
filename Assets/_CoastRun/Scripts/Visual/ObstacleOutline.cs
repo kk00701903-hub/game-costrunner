@@ -15,6 +15,9 @@ namespace CoastRun
         {
             if (root == null)
                 return;
+            // 41차: 장애물 인버티드 헐 테두리도 장애물 효과와 함께 끔(ObstacleWarning.Enabled 하나로 관리).
+            if (!ObstacleWarning.Enabled)
+                return;
             _ink ??= Make();
             foreach (var mf in root.GetComponentsInChildren<MeshFilter>())
             {

@@ -81,6 +81,8 @@ namespace CoastRun
         private RectTransform _timeDiscRt;
         private WeatherKind _shownWx = (WeatherKind)(-1);
         private bool _shownNight;
+        private int _shownPhase = -1;
+        private DynamicEnvironmentManager _env;
         private SeasonWeatherDirector _wx;
 
         public void Build(Canvas canvas, PlayerController player, CoinWallet wallet, NearMissSystem nearMiss)
@@ -726,9 +728,21 @@ namespace CoastRun
             int ch = 1;
             if (StageManager.Instance != null) ch = StageManager.Instance.ChapterIndex;
             else if (GameManager.Active) ch = GameManager.I.Save.chapter;
-            bool night = ChapterClock.IsNight(ch);
+            // 42차: 칩은 챕터 고정표(ChapterClock)가 아니라 **지금 화면의 조명 시각**을 읽는다.
+            // 전엔 노을이 다 저물어 하늘이 남색인데도 「낮」이라고 떠 있었다(사용자 캡처 "노을까지 0:18").
+            // 낮(t<0.55) → 노을(0.55~0.88, DynamicEnvironmentManager.GoldenHour) → 밤(≥0.88, BlueHour).
+            if (_env == null) _env = Object.FindAnyObjectByType<DynamicEnvironmentManager>();
+            int phase;   // 0 낮, 1 노을, 2 밤
+            if (_env != null)
+            {
+                float t = _env.LightingT;
+                phase = t >= 0.88f ? 2 : t >= 0.55f ? 1 : 0;
+            }
+            else phase = ChapterClock.IsNight(ch) ? 2 : 0;
+            bool night = phase == 2;
             var wx = _wx != null ? _wx.CurrentWeather : WeatherKind.Clear;
-            if (!force && night == _shownNight && wx == _shownWx) return;
+            if (!force && phase == _shownPhase && wx == _shownWx) return;
+            _shownPhase = phase;
             _shownNight = night;
             _shownWx = wx;
 
@@ -736,6 +750,7 @@ namespace CoastRun
             {
                 _timeDisc.color = night
                     ? new Color(0.78f, 0.86f, 1f)
+                    : phase == 1 ? new Color(1f, 0.55f, 0.28f)   // 노을: 주황 해
                     : new Color(1f, 0.86f, 0.32f);
             }
             if (_timeAccent != null)
@@ -753,7 +768,7 @@ namespace CoastRun
             if (_wxDot != null)
                 _wxDot.color = SeasonWeatherDirector.WeatherTint(wx);
 
-            string time = ChapterClock.Label(ch);
+            string time = phase == 2 ? Loc.T("밤", "Night") : phase == 1 ? Loc.T("노을", "Dusk") : Loc.T("낮", "Day");
             string weather = SeasonWeatherDirector.WeatherName(wx);
             _wxLabel.text = Loc.T($"{time} · {weather}", $"{time} · {weather}");
         }

@@ -328,16 +328,22 @@ namespace CoastRun
         {
             Time.timeScale = 1f;
             FindFirstObjectByType<StageClearUI>()?.Hide();
+#if UNITY_EDITOR
+            Debug.LogWarning($"[Flow] StageClearContinue stage={stage.stageIndex} gmActive={GameManager.Active} retry={(GameManager.Active && GameManager.I.IsRetry)} pending={(GameManager.Active && ChapterMission.Pending(GameManager.I, stage.stageIndex))}");
+#endif
 
             if (GameManager.Active)
             {
-                // v5: 여름 끝(CH10)·가을 끝(CH15)에만 옛 시네마틱(CH1_Close·CH2_Close)을 재활용. 재도전 중엔 생략.
-                int legacyArc = stage.stageIndex == 10 ? 1 : stage.stageIndex == 15 ? 2 : 0;
-                if (legacyArc > 0 && !GameManager.I.IsRetry)
+                // 44차: 롱컷(CH4·7·10·13·15 오프닝) 직전 챕터(3·6·9·12·14)는 정산 뒤 **미션 미니게임**을 이겨야 넘어간다.
+                //       지면 그 자리에서 다시하기. 재도전 샌드박스·이번 회차에서 이미 깬 미션은 건너뜀.
+                if (!GameManager.I.IsRetry && ChapterMission.Pending(GameManager.I, stage.stageIndex)
+                    && ChapterMission.TryGetForChapter(stage.stageIndex, out var mission))
                 {
-                    StartCoroutine(ChapterCutsceneBridge(legacyArc));
+                    ChapterMissionUI.Play(mission.kind, false, _ => { if (this != null) OnStageClearContinue(stage, chapterComplete); });
                     return;
                 }
+                // 47차: CH10·CH15 뒤에 틀던 옛 시네마틱(CutsceneController CH1_Close·CH2_Close — 옛 원고 "작년에도/16:40") 제거.
+                //       클로징은 이미 ChapterVN(새 대본 CHxx_Close)이 정산 전에 튼다.
                 GameManager.I.AfterChapterContinue();
                 return;
             }
@@ -350,9 +356,7 @@ namespace CoastRun
                     StartCoroutine(GoToRoutine(FlowState.Ending, TransitionType.None));
                     return;
                 }
-
-                StartCoroutine(ChapterCutsceneBridge(stage.chapterIndex));
-                return;
+                // 47차: 옛 타임라인 컷씬(ChapterCutsceneBridge → CutsceneController 옛 원고) 안 탄다 — 바로 다음 스테이지.
             }
 
             _pendingChapter = stage.chapterIndex;

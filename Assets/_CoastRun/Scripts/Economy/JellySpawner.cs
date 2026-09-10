@@ -114,6 +114,21 @@ namespace CoastRun
 
             float z = player.PathDistance;
 
+            // 43차: 피버 중엔 말랑이도 3배 이상 — 세 레인 지그재그로 1.2 m 간격 카펫(평소 트레일은 그대로 유지).
+            if (FeverMode.Active && !BonusMode)
+            {
+                if (_feverFillZ < z + 5f) _feverFillZ = z + 5f;
+                while (_feverFillZ < z + spawnAhead)
+                {
+                    int step = (int)(_feverFillZ / 1.2f);
+                    int lane = (step % 4 == 0 || step % 4 == 2) ? 0 : (step % 4 == 1 ? -1 : 1);
+                    Vector3 pos = RoadPlacement.OnRoad(_feverFillZ, lane * laneWidth, jellyHeight + 0.15f);
+                    JellyPickup.Spawn(PickupKind.Jelly, _root, pos, player.transform, upgrades, step % 5);
+                    _feverFillZ += 1.2f;
+                }
+            }
+            else _feverFillZ = 0f;
+
             if (BonusMode)
             {
                 while (_bonusFillZ < z + spawnAhead)
@@ -270,6 +285,7 @@ namespace CoastRun
             }
         }
 
+        private float _feverFillZ;
         private void Place(PickupKind kind, float z, int lane, float height, int color = -1)
         {
             // 38차: 말랑이는 장애물 3 m 안엔 안 놓고, 아이템(물약/별/하트)은 장애물 4.5 m·다른 픽업 3.5 m 떨어진 자리로 미룬다

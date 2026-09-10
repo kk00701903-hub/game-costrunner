@@ -34,6 +34,18 @@ namespace CoastRun
             return _inst;
         }
 
+        /// 42차: PickupFloat 오브젝트를 host 가 있는 씬으로 옮긴다.
+        /// 런 씬은 타이틀 위에 additive 로 미리 로드되므로, 「챕터 N 시작!」을 페이드 중에 띄우면
+        /// PickupFloat 이 그때의 활성 씬(타이틀)에 만들어졌다가 타이틀 언로드와 함께 사라졌다(카드가 0.5초 만에 끊김).
+        public static void BindToScene(GameObject host)
+        {
+            var f = Ensure();
+            if (f == null || host == null) return;
+            var target = host.scene;
+            if (!target.IsValid() || !target.isLoaded || f.gameObject.scene == target) return;
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(f.gameObject, target);
+        }
+
         /// 스테이지 클리어 등 — 떠 있는 +N·날아가는 코인·배너를 전부 치우고 캔버스를 끈다.
         public static void ClearAll()
         {
@@ -90,7 +102,10 @@ namespace CoastRun
             if (tex != null) _coinSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
         }
 
-        private void OnDestroy() { if (_inst == this) _inst = null; }
+        private void OnDestroy()
+        {
+            if (_inst == this) _inst = null;
+        }
 
         /// 월드 위치 → 캔버스 로컬 좌표.
         private Vector2 ToCanvas(Vector3 world)
@@ -166,7 +181,8 @@ namespace CoastRun
             float t = 0f;
             while (t < seconds)
             {
-                t += Time.unscaledDeltaTime;
+                // 42차: 씬 로드 직후의 긴 프레임(1초 이상)이 한 번에 더해져 카드가 0.3초 만에 끝났다 → 프레임당 최대 50 ms
+                t += Mathf.Min(Time.unscaledDeltaTime, 0.05f);
                 float u = Mathf.Clamp01(t / seconds);
                 float pop = u < 0.16f ? Mathf.Lerp(2.6f, 1.08f, u / 0.16f)
                     : u < 0.72f ? 1.08f + Mathf.Sin(t * 9f) * 0.035f

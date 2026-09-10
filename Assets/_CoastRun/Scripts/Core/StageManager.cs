@@ -201,34 +201,39 @@ namespace CoastRun
         {
             // 씬·HUD가 한 프레임 잡힌 뒤
             yield return null;
-            // 페이드 베일(정렬 500)이 걷힐 때까지 대기 — LoadStage는 검은 화면 중에 불려서
-            // 예전엔 「챕터 N 시작」이 베일 뒤에서 재생되고 끝나 보이지 않았다.
-            float waited = 0f;
-            while (waited < 3.5f)
+            // 41차: 베일이 걷힐 때까지 3.5초씩 기다리지 않는다(사용자: "챕터 소개는 시작하자마자").
+            // 43차: 단, 베일에 그려지는 로딩 그림(UI_Loading_Mock)은 **낮 풍경**이라 그 위에 카드를 띄우면
+            //       밤 챕터도 "낮이었다가 카드 뒤에 밤"으로 보였다(사용자 보고). 베일이 반쯤 걷힐 때까지만(최대 0.6초) 기다린다.
             {
-                var ui = GameDirector.Instance != null ? GameDirector.Instance.UI : null;
-                float veil = ui != null ? ui.VeilAlpha : 0f;
-                if (veil < 0.4f) break;
-                // 대기 중에도 출발 홀드 유지(페이드 끝나면 바로 뛰지 않게)
-                if (player != null) player.HoldForStart(0.35f);
-                waited += Time.unscaledDeltaTime;
-                yield return null;
+                float waited = 0f;
+                while (waited < 0.6f)
+                {
+                    var uiV = GameDirector.Instance != null ? GameDirector.Instance.UI : null;
+                    float veil = uiV != null ? uiV.VeilAlpha : 0f;
+                    if (veil < 0.45f) break;
+                    if (player != null) player.HoldForStart(0.35f);
+                    waited += Time.unscaledDeltaTime;
+                    yield return null;
+                }
             }
 
             const float hold = 1.55f;
             if (player != null) player.HoldForStart(hold);
-            if (ArcadeRun.Active)
-            {
-                PickupFloat.Go(Loc.T("출발", "GO"), hold + 0.15f);
-            }
-            else
+            PickupFloat.BindToScene(gameObject);   // 42차: 타이틀 언로드에 카드가 같이 지워지지 않게 런 씬으로
+            // 42차: K-POP(아케이드) 런도 「출발」 대신 챕터 소개 카드(사용자: "몇 챕터인지 안 나온다").
+            // 아케이드는 StageIndex 가 곧 선택한 챕터(ArcadeRun.StartKpop). 스토리는 세이브 챕터.
             {
                 int ch = _current != null ? _current.stageIndex : ChapterIndex;
-                if (GameManager.Active) ch = Mathf.Clamp(GameManager.I.Save.chapter, 1, 20);
+                if (!ArcadeRun.Active && GameManager.Active) ch = Mathf.Clamp(GameManager.I.Save.chapter, 1, 20);
                 ch = Mathf.Clamp(ch, 1, 20);
                 string place = ChapterLocation.Get(ch).Name;
                 string story = ChapterScript.Title(ch);
                 PickupFloat.ChapterStart(ch, place, story, hold + 0.25f);
+                var ui0 = GameDirector.Instance != null ? GameDirector.Instance.UI : null;
+#if UNITY_EDITOR
+                // 에디터 브릿지(unity_log)는 경고 이상만 모으므로 타이밍 확인용으로 경고 레벨 사용
+                Debug.LogWarning($"[StageManager] 챕터 {ch} 소개 카드 표시 t={Time.realtimeSinceStartup:F2} veil={(ui0 != null ? ui0.VeilAlpha : 0f):F2}");
+#endif
             }
             CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.55f);
             yield return new WaitForSecondsRealtime(hold);

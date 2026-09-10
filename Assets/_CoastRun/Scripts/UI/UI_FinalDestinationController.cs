@@ -251,7 +251,7 @@ namespace CoastRun
                     if (!sm.SunsetLate)
                     {
                         int sec = Mathf.CeilToInt(left);
-                        _timerLabel.text = Loc.T("노을까지  ", "sunset in  ") + string.Format("{0}:{1:00}", sec / 60, sec % 60);
+                        _timerLabel.text = Loc.T("노을까지 ", "sunset in ") + string.Format("{0}:{1:00}", sec / 60, sec % 60);
                         _timerLabel.color = left < 12f ? new Color(1f, 0.55f, 0.35f) : new Color(0.9f, 0.95f, 1f);
                     }
                     else
@@ -264,7 +264,7 @@ namespace CoastRun
                 {
                     // 9차: 무한 모드엔 노을 시계가 없다 — 달린 거리를 보여준다.
                     float d = sm != null ? sm.StageLocalDistance : (player != null ? player.PathDistance : 0f);
-                    _timerLabel.text = Loc.T("거리  ", "dist  ") + Mathf.RoundToInt(d) + " m";
+                    _timerLabel.text = Mathf.RoundToInt(d) + " m";   // 42차: 「거리」 글자 제거(사용자)
                     _timerLabel.color = new Color(0.9f, 0.95f, 1f);
                 }
                 else
@@ -538,7 +538,7 @@ namespace CoastRun
             _timerLabel = textGo.AddComponent<Text>();
             CoastUiArt.OutlineText(_timerLabel, new Color(0.05f, 0.07f, 0.18f, 0.95f), 1.5f);
             _timerLabel.font = CoastHudLayout.Font();
-            _timerLabel.fontSize = CoastHudLayout.Scaled(13);   // 39차-5: 한 줄 고정
+            _timerLabel.fontSize = CoastHudLayout.Scaled(20);   // 42차: 체력 숫자(20)와 같은 크기(사용자) — 39차-5의 13 → 20
             _timerLabel.fontStyle = FontStyle.Bold;
             _timerLabel.alignment = TextAnchor.MiddleCenter;
             _timerLabel.color = new Color(0.9f, 0.95f, 1f);

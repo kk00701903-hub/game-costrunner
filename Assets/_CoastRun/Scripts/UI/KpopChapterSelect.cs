@@ -12,6 +12,7 @@ namespace CoastRun
         private static Canvas _canvas;
         private static Image[] _cards = new Image[Timeline.Chapters];
         private static bool[] _unlocked = new bool[Timeline.Chapters];
+        private static int[] _gradeOf = new int[Timeline.Chapters];
         private static Text _bigLabel;
         private static int _picked;
         private static Action<int> _onPick;
@@ -24,9 +25,13 @@ namespace CoastRun
         private static readonly Color Navy = new Color(0.10f, 0.13f, 0.30f);
 
         /// onPick: 카드를 골랐을 때(닫기 포함) 현재 선택 챕터. onPlay: 「CH n 달리기」.
+        /// 47차: 타이틀 UI(제목 글자·K-POP Play 바)가 딤 뒤로 비쳐 시안과 달랐다 → 열려 있는 동안 숨긴다(MainMenuController 가 넣어 줌).
+        public static CanvasGroup TitleUi;
+
         public static void Open(GameManager gm, Action<int> onPick, Action<int> onPlay)
         {
             Close();
+            if (TitleUi != null) TitleUi.alpha = 0f;
             _onPick = onPick; _onPlay = onPlay;
             _picked = ArcadeRun.KpopChapter(gm);
             if (!IsUnlocked(_picked, gm != null ? gm.Profile : null)) _picked = Mathf.Clamp(ArcadeRun.KpopLastClear + 1, 1, Timeline.Chapters);
@@ -35,7 +40,7 @@ namespace CoastRun
             var root = CoastUiCanvas.Root(_canvas);
             var pad = CoastUiCanvas.HudPad;
 
-            var dim = CoastHudLayout.MakeImage(root, "Dim", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), new Color(0.03f, 0.05f, 0.14f, 0.66f));   // 39차-6: 시안처럼 뒤가 비쳐 보이게
+            var dim = CoastHudLayout.MakeImage(root, "Dim", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), new Color(0.03f, 0.05f, 0.14f, 0.70f));   // 39차-6: 시안처럼 뒤(키아트)가 비쳐 보이게 · 47차 0.70
             dim.raycastTarget = true;
 
             // 39차-6: 시안(ref_chapter) — 금색 입체 CHAPTER(크롭 그림), 우상단 파란 X, 「챕터 N」 카드 5×4(계절별 2줄씩 묶음), 아래 핑크 큰 버튼
@@ -81,8 +86,13 @@ namespace CoastRun
                 int col = i % 5, row = i / 5;
                 bool open = IsUnlocked(n, prof);
                 _unlocked[i] = open;
-                var fill = open ? SeasonFill[(n - 1) / 5] : new Color(0.66f, 0.66f, 0.70f);
-                var card = CoastUiArt.GlossyPill(root, "Card" + n, fill, 16, 9);
+                int g = prof != null && prof.trackGrade != null && i < prof.trackGrade.Length ? prof.trackGrade[i] : 0;
+                // 46차(사용자 시안): COMPLETED(등급 메달) / CURRENT(금색·자물쇠) / UNREACHED(회색·자물쇠)
+                _gradeOf[i] = g;
+                bool completed = open && g > 0;
+                bool current = open && !completed;
+                var fill = completed ? SeasonFill[(n - 1) / 5] : current ? new Color(1f, 0.80f, 0.25f) : new Color(0.30f, 0.30f, 0.34f);
+                var card = CoastUiArt.GlossyPill(root, "Card" + n, fill, 18, 9);
                 var crt = card.rectTransform;
                 crt.anchorMin = crt.anchorMax = new Vector2(0f, 1f); crt.pivot = new Vector2(0f, 1f);
                 crt.anchoredPosition = new Vector2(x0 + col * (cw + gap), -rowY[row]);
@@ -90,28 +100,27 @@ namespace CoastRun
                 card.raycastTarget = true;
                 _cards[i] = card;
 
-                var num = CoastHudLayout.MakeText(crt, "N", Loc.T($"챕터 {n}", $"Ch. {n}"), 23, TextAnchor.MiddleCenter,
-                    new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -62f), new Vector2(0f, -8f));
-                num.color = open ? Navy : new Color(0.33f, 0.33f, 0.38f); num.fontStyle = FontStyle.Bold;
-                int g = prof != null && prof.trackGrade != null && i < prof.trackGrade.Length ? prof.trackGrade[i] : 0;
-                string stars = ""; for (int st2 = 0; st2 < 4; st2++) stars += st2 < g ? "★" : "☆";
-                var st = CoastHudLayout.MakeText(crt, "S", stars, 12, TextAnchor.MiddleCenter,
-                    new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 18f), new Vector2(0f, 42f));
-                st.color = open ? Color.Lerp(SeasonFill[(n - 1) / 5], Color.black, 0.35f) : new Color(0.45f, 0.45f, 0.50f);
-                if (!open)
+                var num = CoastHudLayout.MakeText(crt, "N", Loc.T($"챕터 {n}", $"Ch. {n}"), 21, TextAnchor.MiddleCenter,
+                    new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -44f), new Vector2(0f, -4f));
+                num.color = completed ? Navy : current ? Navy : new Color(0.12f, 0.12f, 0.14f);
+                CoastUiArt.OutlineText(num, new Color(1f, 1f, 1f, completed || current ? 0.55f : 0.15f), 1.2f);
+                // 가운데 그림: 등급 메달(S/A/B/C) 또는 자물쇠
+                string art = completed ? (g >= 4 ? "UI_Medal_S" : g == 3 ? "UI_Medal_A" : g == 2 ? "UI_Medal_B" : "UI_Medal_C") : "UI_Lock_Q";
+                var spr = CoastUiArt.Art(art);
+                if (spr != null)
                 {
-                    var lk = CoastHudLayout.MakeText(crt, "Lock", Loc.T("잠김", "Locked"), 11, TextAnchor.MiddleCenter,
-                        new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, -12f), new Vector2(0f, 12f));
-                    lk.color = new Color(0.30f, 0.30f, 0.36f);
+                    var im = new GameObject("Art", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    im.transform.SetParent(crt, false); im.sprite = spr; im.preserveAspect = true; im.raycastTarget = false;
+                    var irt = im.rectTransform; irt.anchorMin = irt.anchorMax = new Vector2(0.5f, 0f); irt.pivot = new Vector2(0.5f, 0f);
+                    irt.anchoredPosition = new Vector2(0f, 8f); irt.sizeDelta = completed ? new Vector2(88f, 88f) : new Vector2(64f, 64f);
+                    if (!completed && !current) im.color = new Color(0.75f, 0.75f, 0.78f, 0.85f);
                 }
-                else if (n == lastClear + 1 && lastClear > 0)
-                {
-                    var tag = CoastUiArt.CutePill(crt, "Next", new Color(1f, 0.35f, 0.55f), 10, 2);
-                    var trt2 = tag.rectTransform; trt2.anchorMin = trt2.anchorMax = new Vector2(1f, 1f); trt2.pivot = new Vector2(1f, 1f);
-                    trt2.anchoredPosition = new Vector2(4f, 8f); trt2.sizeDelta = new Vector2(44f, 20f); tag.raycastTarget = false;
-                    var tt = CoastHudLayout.MakeText(trt2, "T", "NEXT", 8, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-                    tt.color = Color.white; tt.fontStyle = FontStyle.Bold;
-                }
+                // 카드 아래 상태 글자
+                string stateTxt = completed ? "COMPLETED" : current ? "CURRENT" : "UNREACHED";
+                var st = CoastHudLayout.MakeText(root, "St" + n, stateTxt, 11, TextAnchor.MiddleCenter,
+                    new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0 + col * (cw + gap) - 6f, -rowY[row] - ch - 22f), new Vector2(x0 + col * (cw + gap) + cw + 6f, -rowY[row] - ch - 2f));
+                st.color = completed ? new Color(0.75f, 0.90f, 1f) : current ? new Color(1f, 0.85f, 0.30f) : new Color(0.62f, 0.62f, 0.66f);
+                st.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(st, new Color(0f, 0f, 0f, 0.6f), 1.2f);
 
                 int pick = n;
                 var btn = card.gameObject.AddComponent<Button>();
@@ -158,15 +167,16 @@ namespace CoastRun
             {
                 var c = _cards[i]; if (c == null) continue;
                 bool on = i + 1 == _picked;
-                var baseFill = _unlocked[i] ? SeasonFill[i / 5] : new Color(0.66f, 0.66f, 0.70f);
-                c.color = on ? new Color(1f, 0.75f, 0.10f) : Color.Lerp(baseFill, Color.black, 0.62f);   // 바깥 테두리색: 선택은 금
+                var baseFill = _unlocked[i] ? (_gradeOf[i] > 0 ? SeasonFill[i / 5] : new Color(1f, 0.80f, 0.25f)) : new Color(0.30f, 0.30f, 0.34f);
+                c.color = on ? new Color(1f, 0.95f, 0.55f) : Color.Lerp(baseFill, Color.black, 0.62f);   // 바깥 테두리색: 선택은 밝은 금(시안의 CURRENT 글로우)
                 c.rectTransform.localScale = Vector3.one * (on ? 1.08f : 1f);
             }
-            if (_bigLabel != null) _bigLabel.text = Loc.T($"챕터 {_picked} 달리기!", $"Run Chapter {_picked}!");
+            if (_bigLabel != null) _bigLabel.text = Loc.T($"챕터 {_picked} 도전하기!", $"Challenge Chapter {_picked}!");
         }
 
         public static void Close()
         {
+            if (TitleUi != null && _canvas != null) TitleUi.alpha = 1f;
             if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject);
             _canvas = null;
             for (int i = 0; i < _cards.Length; i++) _cards[i] = null;

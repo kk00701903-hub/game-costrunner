@@ -28,6 +28,39 @@ namespace CoastRun
             var post = CoastMaterials.CreateLit(new Color(0.97f, 0.97f, 0.99f), 0.25f);
             var red = CoastMaterials.CreateUnlit(new Color(0.93f, 0.10f, 0.16f));
             var gold = CoastMaterials.CreateLit(new Color(1f, 0.82f, 0.25f), 0.5f);
+            // 43차: Kling 그림 골인 게이트(Obs_FinishGate — 기둥·FINISH 현수막·풍선이 한 장, 실제 알파)가 있으면
+            //       절차 기둥/현수막/풍선 대신 도로 폭에 맞춘 **고정 판(빌보드 아님, 양면)** 하나로 세운다. 리본·관중은 그대로.
+            var gateTex = PaintedProp.Load("FinishGate");
+            if (gateTex != null)
+            {
+                float gw = half * 2f + 0.6f;
+                float gh = gw * gateTex.height / (float)gateTex.width;
+                var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                q.name = "Painted_FinishGate";
+                q.transform.SetParent(go.transform, false);
+                CoastEditUtil.DestroyCollider(q);
+                q.transform.localPosition = new Vector3(0f, gh * 0.5f, 0f);
+                q.transform.localScale = new Vector3(gw, gh, 1f);
+                var shader = Shader.Find("CoastRun/ChromaUnlit") ?? CoastMaterials.UnlitShader;
+                var gm = new Material(shader);
+                if (gm.HasProperty("_BaseMap")) gm.SetTexture("_BaseMap", gateTex); else gm.mainTexture = gateTex;
+                if (gm.HasProperty("_BaseColor")) gm.SetColor("_BaseColor", Color.white);
+                if (gm.HasProperty("_KeyColor")) gm.SetColor("_KeyColor", new Color(1f, 0f, 1f, 1f));
+                if (gm.HasProperty("_Shade")) gm.SetFloat("_Shade", 0.35f);
+                var gr = q.GetComponent<Renderer>();
+                gr.sharedMaterial = gm;
+                gr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                gr.receiveShadows = false;
+                fr._overhead.Add(q);   // 통과 뒤 위로 올리며 숨김(24차-5c 규칙 그대로)
+                var tapeG = CoastMaterials.CreateUnlit(Color.white);
+                tapeG.mainTexture = RibbonTex();
+                if (tapeG.HasProperty("_BaseMap")) tapeG.SetTexture("_BaseMap", RibbonTex());
+                fr._left = Half(go.transform, -half, half, tapeG);
+                fr._right = Half(go.transform, half, half, tapeG);
+                fr.SpawnCrowd(half);
+                _current = fr;
+                return fr;
+            }
             // 기둥(굵게) + 밑동 + 꼭대기 금색 공
             foreach (float x in new[] { -half, half })
             {

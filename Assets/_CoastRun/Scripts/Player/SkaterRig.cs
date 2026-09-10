@@ -239,6 +239,7 @@ namespace CoastRun
             if (_player != null)
             {
                 _player.OnJumped += HandleJump;
+                _player.OnDoubleJumped += HandleDoubleJump;   // 47차
                 _player.OnSoftHit += HandleHit;
                 _player.OnLanded += HandleLanded;      // 27차
                 _player.OnCrouched += HandleCrouched;  // 27차
@@ -262,6 +263,7 @@ namespace CoastRun
             if (_player != null)
             {
                 _player.OnJumped -= HandleJump;
+                _player.OnDoubleJumped -= HandleDoubleJump;
                 _player.OnSoftHit -= HandleHit;
                 _player.OnLanded -= HandleLanded;
                 _player.OnCrouched -= HandleCrouched;
@@ -298,6 +300,57 @@ namespace CoastRun
             var c = Cfg; float stretch = c != null ? c.jumpStretch : 1.16f;
             _squash = Mathf.Max(_squash, stretch); _squashVel = 2.2f;   // 위로 쭉
         }
+        // ── 47차: 2단 점프 「허공 디딤」 ─────────────────────────────────
+        // 공중에서 두 번째 점프: 0.1초 웅크렸다(무릎 두 개 가슴으로) → 오른발로 허공을 딛듯 아래로 쭉 뻗고 왼무릎·양팔은 위로. 0.45초 뒤 원래 Air 포즈로.
+        private float _djTimer;
+        private const float DjDur = 0.45f;
+        private void HandleDoubleJump()
+        {
+            _djTimer = DjDur;
+            _squash = Mathf.Min(_squash, 0.84f); _squashVel = 3.4f;   // 살짝 움츠렸다 위로 쭉
+            _bagPitchVel += 200f;
+            JuiceDirector.Instance?.OnDoubleJump(transform.position + Vector3.down * 0.05f);
+        }
+        private void DoubleJumpPoseLate()
+        {
+            if (_djTimer <= 0f || _anim == null) return;
+            float u = 1f - _djTimer / DjDur;                 // 0 → 1
+            float tuck = Mathf.Clamp01(1f - u / 0.28f);      // 앞 28%: 웅크림
+            float push = Mathf.Clamp01((u - 0.22f) / 0.30f); // 22~52%: 밀어 차기, 그 뒤 유지하다가
+            float fade = Mathf.Clamp01((1f - u) / 0.25f);    // 마지막 25%: 원래 포즈로
+            float k = Mathf.Max(tuck, push) * fade;
+            if (k <= 0.001f) return;
+            Vector3 fwd = transform.parent != null ? transform.parent.forward : transform.forward;
+            Vector3 up = Vector3.up;
+            Vector3 right = Vector3.Cross(up, fwd).normalized;
+            var lT = _anim.GetBoneTransform(HumanBodyBones.LeftUpperLeg);  var lS = _anim.GetBoneTransform(HumanBodyBones.LeftLowerLeg);  var lF = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
+            var rT = _anim.GetBoneTransform(HumanBodyBones.RightUpperLeg); var rS = _anim.GetBoneTransform(HumanBodyBones.RightLowerLeg); var rF = _anim.GetBoneTransform(HumanBodyBones.RightFoot);
+            var lUp = _anim.GetBoneTransform(HumanBodyBones.LeftUpperArm);  var lLo = _anim.GetBoneTransform(HumanBodyBones.LeftLowerArm);  var lH = _anim.GetBoneTransform(HumanBodyBones.LeftHand);
+            var rUp = _anim.GetBoneTransform(HumanBodyBones.RightUpperArm); var rLo = _anim.GetBoneTransform(HumanBodyBones.RightLowerArm); var rH = _anim.GetBoneTransform(HumanBodyBones.RightHand);
+            // 무릎 위로(웅크림): 허벅지 앞·위, 정강이 아래·뒤
+            Vector3 kneeUp = (fwd * 0.9f + up * 0.55f).normalized;
+            Vector3 shinTuck = (-up * 0.8f - fwd * 0.5f).normalized;
+            // 허공 디딤(오른발): 허벅지 아래·살짝 앞, 정강이 곧게 아래 — 발바닥으로 공기를 누른다
+            Vector3 stomp = (-up * 0.95f + fwd * 0.18f).normalized;
+            float wL = tuck * fade + push * fade;   // 왼다리는 계속 올린다
+            float wR = k;
+            if (lT != null && lS != null) Aim(lT, lS, kneeUp - right * 0.06f, wL * 0.9f);
+            if (lS != null && lF != null) Aim(lS, lF, shinTuck - right * 0.03f, wL * 0.9f);
+            Vector3 rThighDir = Vector3.Slerp(kneeUp, stomp, push);
+            Vector3 rShinDir = Vector3.Slerp(shinTuck, stomp, push);
+            if (rT != null && rS != null) Aim(rT, rS, rThighDir + right * 0.06f, wR * 0.9f);
+            if (rS != null && rF != null) Aim(rS, rF, rShinDir + right * 0.03f, wR * 0.9f);
+            // 팔: 웅크릴 땐 몸 앞으로 모았다가, 밀어 찰 때 두 팔 위로 번쩍
+            Vector3 armIn = (fwd * 0.6f - up * 0.3f).normalized;
+            Vector3 armUp = (up * 0.9f + fwd * 0.25f).normalized;
+            Vector3 aDir = Vector3.Slerp(armIn, armUp, push);
+            float wA = k * 0.85f;
+            if (rUp != null && rLo != null) Aim(rUp, rLo, aDir + right * 0.35f, wA);
+            if (rLo != null && rH != null) Aim(rLo, rH, aDir + right * 0.15f, wA);
+            if (lUp != null && lLo != null) Aim(lUp, lLo, aDir - right * 0.35f, wA);
+            if (lLo != null && lH != null) Aim(lLo, lH, aDir - right * 0.15f, wA);
+        }
+
         private void HandleLanded()
         {
             var c = Cfg; float sq = c != null ? c.landSquash : 0.78f;
@@ -461,7 +514,12 @@ namespace CoastRun
                     var st = _anim.GetCurrentAnimatorStateInfo(0);
                     inJumpClip = st.IsName("Jump") || st.IsTag("Jump");
                 }
-                if (_player != null && _player.State == SkateState.Air && !inJumpClip)
+                if (_djTimer > 0f && _player != null && _player.State == SkateState.Air)
+                {
+                    // 47차: 2단 점프 허공 디딤 — 이 동안은 다리 거울 보정 대신 디딤 포즈
+                    DoubleJumpPoseLate();
+                }
+                else if (_player != null && _player.State == SkateState.Air && !inJumpClip)
                 {
                     var lT = _anim.GetBoneTransform(HumanBodyBones.LeftUpperLeg);  var lS = _anim.GetBoneTransform(HumanBodyBones.LeftLowerLeg);  var lF = _anim.GetBoneTransform(HumanBodyBones.LeftFoot);
                     var rT = _anim.GetBoneTransform(HumanBodyBones.RightUpperLeg); var rS = _anim.GetBoneTransform(HumanBodyBones.RightLowerLeg); var rF = _anim.GetBoneTransform(HumanBodyBones.RightFoot);
@@ -567,6 +625,7 @@ namespace CoastRun
                 return;
             float dt = Time.deltaTime;
             _collectCooldown -= dt;
+            if (_djTimer > 0f) { _djTimer -= dt; if (_player.State != SkateState.Air) _djTimer = 0f; }
 
             _tilt = Mathf.SmoothDamp(_tilt, 0f, ref _tiltVel, 0.28f, 400f, dt);
             // 7차: 레인 이동 중 몸을 진행 방향으로 살짝 기울이고(roll) 고개를 돌린다(yaw) — 미끄러지듯 옆으로.

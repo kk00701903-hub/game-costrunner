@@ -52,15 +52,21 @@ namespace CoastRun
             return rt;
         }
 
-        static Font _bold, _medium;
-        /// 8차: Pretendard(본문 Bold) — 없으면 내장 폰트. 일·태국어 등은 OS 폴백.
+        static Font _bold, _medium, _display;
+        /// 42차: 게임 전체 글꼴을 **BM Jua(주아체, SIL OFL 1.1 — 무료·상업 사용 가능)** 하나로 통일(사용자: 일시정지 카드 글꼴로 통일).
+        /// 일시정지 카드(UI_PauseCard)는 Kling 그림이라 글꼴 파일이 없고, 그 둥글고 두꺼운 손글씨 느낌에 가장 가까운
+        /// 무료 글꼴이 Jua 다. Resources/CoastRun/Fonts/Jua-Regular.ttf(+LICENSE_Jua_OFL.txt). 없으면 8차 Pretendard → 내장 순.
         public static Font Font()
         {
+            if (_display == null) _display = Resources.Load<Font>("CoastRun/Fonts/Jua-Regular");
+            if (_display != null) return _display;
             if (_bold == null) _bold = Resources.Load<Font>("CoastRun/Fonts/Pretendard-Bold");
             if (_bold != null) return _bold;
             return Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
                    ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
         }
+        /// 통일 글꼴(Jua/Pretendard-Bold)이면 가짜 볼드를 끈다 — Jua 는 단일 굵기라 Bold 스타일을 주면 뭉개진다.
+        public static bool HasRealBold => _display != null || _bold != null;
 
         /// 10차: 모바일 가독성 — 모든 헬퍼 글자를 한 번에 키운다(×1.15, 최소 14). 레이아웃 숫자는 그대로, Overflow 로 넘친다.
         public const float TextScale = 1.4f;   // 14차-8: 폰 기준 한 단계 더(최소 19) // 11차: 갤럭시 S(6.7", 2340×1080) 기준 본문 16sp ≈ 기준 캔버스 22 → 최소 16
@@ -79,7 +85,7 @@ namespace CoastRun
             var text = go.AddComponent<Text>();
             text.font = Font();
             text.fontSize = Scaled(size);
-            text.fontStyle = _bold != null ? FontStyle.Normal : FontStyle.Bold;   // 8차: 볼드 폰트면 가짜 볼드 끔
+            text.fontStyle = HasRealBold ? FontStyle.Normal : FontStyle.Bold;   // 8차: 볼드 폰트면 가짜 볼드 끔
             text.color = Color.white;
             text.alignment = align;
             text.text = content;

@@ -229,12 +229,14 @@ namespace CoastRun
             if (mesh != null)
             {
                 mesh.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                // 43차: 동전 두께 70% 축소(사용자) — Y 90° 회전이라 두께축은 메시 로컬 X. 몸통 ±0.17 → ±0.05
+                { var ls = mesh.transform.localScale; ls.x *= 0.3f; mesh.transform.localScale = ls; }
                 ApplyCoinBodyMaterial(mesh, silver, allRenderers: true);   // 39차-3: FBX 자식 전부 황금 재질로
                 // 39차-3: FBX 코인엔 인버티드 헐(Outline) 생략 — Blender 내보내기 와인딩이 반대라 Cull Front 껍데기가
                 // 바깥으로 그려져 코인 전체가 검게 덮였다(별 릴리프까지 검정). 잉크 림만으로 윤곽을 잡는다.
                 AttachCoinSilhouette(mesh.transform, silver, hull: false);
                 // 39차-3: FBX 몸통 두께 ±0.17, 잉크 림 ±0.10 → 면 그림은 그 바깥(±0.18)에. (전엔 0.13이라 림 캡(±0.145) 안에 묻혀 검게 보였다)
-                AttachCoinFaces(visRoot, silver, radius: 0.44f, halfThick: 0.18f, y: 0.32f);
+                AttachCoinFaces(visRoot, silver, radius: 0.44f, halfThick: 0.062f, y: 0.32f);   // 43차: 얇아진 몸통(±0.05) 바로 바깥
             }
             else
             {
@@ -312,6 +314,10 @@ namespace CoastRun
         private static void AttachCoinSilhouette(Transform body, bool silver, bool hull = true)
         {
             if (body == null) return;
+            // 42차: 사용자 요청 — 동전의 밤색 테두리(InkRim 실린더 + 어두운 인버티드 헐)를 그리지 않는다.
+            // 금색 몸통·면 그림만 남긴다. 되살리려면 이 return 만 지우면 된다.
+            return;
+#pragma warning disable CS0162
             var outline = OutlineMaterial();
 
             foreach (var mf in body.GetComponentsInChildren<MeshFilter>(true))
@@ -355,6 +361,7 @@ namespace CoastRun
             ir.sharedMaterial = BezelMaterial();
             ir.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             ir.receiveShadows = false;
+#pragma warning restore CS0162
         }
 
         private static Material OutlineMaterial()

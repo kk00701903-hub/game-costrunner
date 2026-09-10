@@ -354,13 +354,30 @@ namespace CoastRun
             OnLaneChanged?.Invoke(_lane - prev);
         }
 
+        // ── 47차: 2단 점프 ─────────────────────────────────────────────
+        private bool _doubleJumpUsed;
+        public bool DoubleJumpUsed => _doubleJumpUsed;
+        public const float DoubleJumpMul = 0.88f;
+        /// 공중에서 두 번째 점프가 나간 순간(허공 디딤 연출용). OnJumped 도 같이 나간다.
+        public event Action OnDoubleJumped;
+
         private void TryJump()
         {
             // Coyote time: a jump issued just after the wheels leave the ground still
             // counts. Without it, a jump at the lip of anything reads as ignored.
             bool canJump = IsGrounded || _coyoteTimer > 0f;
             if (!canJump)
+            {
+                // 47차: 2단 점프 — 공중에서 위로 한 번 더 밀면 허공을 딛고 다시 뛴다(공중당 1회, 활공·피니시 제외).
+                if (_state == SkateState.Air && !_doubleJumpUsed && !_gliding)
+                {
+                    _doubleJumpUsed = true;
+                    _verticalVelocity = Mathf.Max(_verticalVelocity, 0f) * 0.15f + config.jumpForce * DoubleJumpMul;
+                    OnDoubleJumped?.Invoke();
+                    OnJumped?.Invoke();
+                }
                 return;
+            }
 
             // Jumping out of a crouch is allowed — it is the natural way to cancel a duck
             // when the next obstacle is a low one. Stand up first so the capsule and
@@ -547,6 +564,7 @@ namespace CoastRun
                     _state = SkateState.Run;
                     OnLanded?.Invoke();
                 }
+                _doubleJumpUsed = false;
                 _coyoteTimer = 0.12f;
             }
             else if (wasGrounded && _state != SkateState.Air)

@@ -248,13 +248,27 @@ namespace CoastRun
 
         private void PollTouch()
         {
+            Touch t;
             if (Input.touchCount == 0)
             {
-                _touchActive = false;
-                return;
+                // 43차: 마우스(에디터·PC) 폴백 — 전엔 터치만 읽어서 마우스 드래그로는 주인공이 안 움직였다("커서가 안 움직인다").
+                // 마우스 버튼을 손가락 하나로 흉내 낸다: 누름=Began, 드래그=Moved, 뗌=Ended.
+                if (!Input.mousePresent || (!Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0)))
+                {
+                    _touchActive = false;
+                    return;
+                }
+                t = new Touch
+                {
+                    fingerId = -1,
+                    position = Input.mousePosition,
+                    phase = Input.GetMouseButtonDown(0) ? TouchPhase.Began
+                          : Input.GetMouseButtonUp(0) ? TouchPhase.Ended
+                          : TouchPhase.Moved,
+                };
             }
-
-            Touch t = Input.GetTouch(0);
+            else
+                t = Input.GetTouch(0);
 
             if (t.phase == TouchPhase.Began)
             {
@@ -265,7 +279,7 @@ namespace CoastRun
                 _touchStart = Time.unscaledTime;
                 // 18차-3: 일시정지 등 UI 위에서 시작한 터치는 게임 조작으로 쓰지 않는다
                 var es = UnityEngine.EventSystems.EventSystem.current;
-                _touchOnUi = es != null && es.IsPointerOverGameObject(t.fingerId);
+                _touchOnUi = es != null && (t.fingerId < 0 ? es.IsPointerOverGameObject() : es.IsPointerOverGameObject(t.fingerId));
                 return;
             }
 

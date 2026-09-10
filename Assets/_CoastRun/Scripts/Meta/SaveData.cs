@@ -101,6 +101,7 @@ namespace CoastRun
         public bool forfeitPending;          // 잠수: 이번 챕터 노을을 놓쳐 자동 C급 처리 대기
         public PetKind equippedPet = PetKind.None;
         public int ownedPetMask;
+        public int missionDoneMask;             // 44차: 이번 회차에서 깬 챕터 미션(ChapterMission.Kind 비트) — 롱컷 직전 게이트
         public string[] queuedSchedule = new string[3];
         public EndingKind reachedEnding = EndingKind.None;
         public int playthrough = 1;
@@ -180,6 +181,7 @@ namespace CoastRun
         public bool starterCardsGiven;           // 38차: 실사 포토카드(21~26) 기본 지급 완료
         public int decoOwnedMask;                // 28차: 방 장식 보유 비트(RoomDeco.All 순서)
         public int decoNewMask;                  // 28차: 아직 안 본 새 장식 비트
+        public int missionClearMask;             // 44차: 한 번이라도 깬 챕터 미션 비트 — 더보기 › 미니게임 다시하기 해금(회차를 넘어 남는다)
         public string[] roomSlots = new string[RoomDeco.SlotCount];   // 28차: 슬롯별 배치된 장식 id(30차부터는 homeItems로 이관)
         public HomeItem[] homeItems = new HomeItem[0];                  // 30차: 방 안 자유 배치(id, x, y)
         public bool homeCompleteRewarded;                                 // 31차: 방 완성 보상(300G) 지급 여부

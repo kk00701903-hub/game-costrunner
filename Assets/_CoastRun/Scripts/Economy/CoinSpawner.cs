@@ -88,6 +88,20 @@ namespace CoastRun
             }
 
             float z = player.PathDistance;
+            // 43차: 피버 중엔 코인이 3배 이상 — 평소 패턴은 그대로 두고, 그 위에 **3레인 코인 카펫**(1.5 m 간격)을 앞쪽에 깐다.
+            // 평소 라인은 한 레인 7~9개/약 40 m 이므로 카펫(3레인 × 40 m/1.5 = 80개)만으로도 8배가 넘는다.
+            if (FeverMode.Active)
+            {
+                if (_feverFillZ < z + 4f) _feverFillZ = z + 4f;
+                var followF = player.transform;
+                while (_feverFillZ < z + spawnAhead)
+                {
+                    for (int lane = -1; lane <= 1; lane++)
+                        PlaceFever(_feverFillZ, lane, followF);
+                    _feverFillZ += 1.5f;
+                }
+            }
+            else _feverFillZ = 0f;
             while (_nextSpawnZ < z + spawnAhead)
             {
                 // Pattern length + breath — Gold Run empty asphalt between guides.
@@ -312,6 +326,14 @@ namespace CoastRun
                 var cp = c.GetComponent<CoinPickup>();
                 if (cp != null) cp.Recycle(); else Destroy(c.gameObject);
             }
+        }
+
+        private float _feverFillZ;
+        /// 43차: 피버 카펫 — 점유표 검사 없이(장애물 옆에도) 금화를 놓는다. 피버는 흡입이 있어 어차피 다 먹힌다.
+        private void PlaceFever(float z, int lane, Transform follow)
+        {
+            Vector3 pos = RoadPlacement.OnRoad(z, lane * laneWidth, 0.5f);
+            CoinPickup.Spawn(_root, pos, wallet, upgrades, feedback, follow, CoinTier.Gold);
         }
 
         private void Place(float z, int lane, bool silver, Transform follow)

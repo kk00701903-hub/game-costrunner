@@ -164,8 +164,13 @@ namespace CoastRun
         private Renderer _stripeR;
         private float _topY = 1f;
 
+        /// 41차: 사용자 요청 — 장애물 효과(머리 위 '!' 배지·바닥 경고 띠·본체 색 펄스)를 전부 끈다.
+        /// 다시 켜려면 이 플래그만 true 로. Attach 가 컴포넌트를 안 붙이므로 어디서도 다시 나오지 않는다.
+        public static readonly bool Enabled = false;
+
         public static void Attach(GameObject root)
         {
+            if (!Enabled) return;
             if (root != null && root.GetComponent<ObstacleWarning>() == null)
                 root.AddComponent<ObstacleWarning>();
         }
