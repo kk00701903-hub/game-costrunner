@@ -31,6 +31,7 @@ namespace CoastRun
         private Canvas _canvas;
         private PlayerController _player;
         private Vector2 _btnBasePos;
+        private CanvasGroup _tapCg;   // 40차-b: TAP! 깜빡임
 
         public static FeverMode Ensure()
         {
@@ -70,8 +71,8 @@ namespace CoastRun
             _btn = go.GetComponent<RectTransform>();
             _btn.anchorMin = _btn.anchorMax = new Vector2(1f, 0.42f);
             _btn.pivot = new Vector2(1f, 0.5f);
-            // 기존 150 → 150% = 225
-            _btn.sizeDelta = new Vector2(225f, 225f);
+            // 기존 150 → 150% = 225 → 40차-b(사용자): 30% 축소 = 158
+            _btn.sizeDelta = new Vector2(158f, 158f);
             // 러닝 TAP 옆 꼬마 얼굴 — ~3cm 위로(디자인 px ≈ 40/cm)
             _btnBasePos = new Vector2(-10f, 120f);
             _btn.anchoredPosition = _btnBasePos;
@@ -94,19 +95,20 @@ namespace CoastRun
             b.targetGraphic = _face;
             b.onClick.AddListener(OnPressed);
 
-            // 작은 TAP 힌트만(문구 말풍선 없음) — 40차: 원 하단에서 ~2cm 위로(턱·얼굴 쪽)
+            // 40차-b(사용자): TAP! 알약은 얼굴과 분리해 **얼굴 아래**에, 깜빡인다(_tapCg). 알약도 눌리게(Button 자식 → 부모로 버블).
             var tap = CoastUiArt.CutePill(go.transform, "Tap", new Color(1f, 0.55f, 0.28f), 12, 2);
             var trt = tap.rectTransform;
             trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0f);
-            trt.pivot = new Vector2(0.5f, 0.5f);
-            trt.anchoredPosition = new Vector2(0f, 88f);
+            trt.pivot = new Vector2(0.5f, 1f);
+            trt.anchoredPosition = new Vector2(0f, -6f);
             trt.sizeDelta = new Vector2(88f, 34f);
-            tap.raycastTarget = false;
+            tap.raycastTarget = true;
+            _tapCg = tap.gameObject.AddComponent<CanvasGroup>();
             var tl = CoastHudLayout.MakeText(trt, "T", "TAP!", 18, TextAnchor.MiddleCenter,
                 Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             tl.color = Color.white;
             tl.fontStyle = FontStyle.Bold;
-            tl.raycastTarget = false;
+            tl.raycastTarget = true;
 
             go.SetActive(false);
         }
@@ -142,6 +144,7 @@ namespace CoastRun
                 {
                     float bob = Mathf.Sin(Time.time * 6f) * 8f;
                     _btn.anchoredPosition = _btnBasePos + new Vector2(0f, bob);
+                    if (_tapCg != null) _tapCg.alpha = 0.25f + 0.75f * Mathf.Abs(Mathf.Sin(Time.time * 5f));   // TAP! 깜빡임(초당 ~1.6회)
                     // 깜빡여도 레이캐스트는 유지(알파만 살짝)
                     _cg.alpha = left < 1.5f ? (0.55f + 0.45f * Mathf.Abs(Mathf.Sin(Time.time * 14f))) : 1f;
                     _cg.blocksRaycasts = true;

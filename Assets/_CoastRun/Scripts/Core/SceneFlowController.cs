@@ -295,6 +295,7 @@ namespace CoastRun
 
         private IEnumerator EnterStageClear(StageDef stage, bool chapterComplete)
         {
+            ArcadeRun.NoteKpopClear(stage.stageIndex);   // 39차-4: K-POP 챕터 선택의 '마지막 클리어' 갱신
             // SlowMotion 0.3s then UI.
             yield return GoToRoutine(FlowState.StageClear, TransitionType.SlowMotion);
             var clear = UnityEngine.Object.FindAnyObjectByType<StageClearUI>();

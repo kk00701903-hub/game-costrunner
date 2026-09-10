@@ -585,22 +585,33 @@ namespace CoastRun
             var sdChip = hasSave && _gm != null ? (_gm.Save ?? _gm.SaveSys.Load()) : null;
             if (useMock)
             {
-                // 39차: 시안의 "CH 1. 이름" 칩 자리(중심 501/319)를 실제 챕터로 덮어 그린다 — 파란 광택 알약 + 흰 글자 + ▾
-                int nextCh = sdChip != null ? Mathf.Clamp(sdChip.chapter, 1, Timeline.Chapters) : 1;
+                // 39차-4: 시안의 "CH 1. 이름" 칩 자리(중심 501/319) → 「CHAPTER ▾」 칩 + 오른쪽 위 번호 배지.
+                // 누르면 K-POP 러닝 챕터 선택 페이지(1~20). 안 고르면 마지막 클리어 다음 챕터가 자동(ArcadeRun.KpopChapter).
                 var chip = CoastUiArt.GlossyPill(ui.transform, "ChapterChip", new Color(0.22f, 0.58f, 0.97f), 21, 5);
                 var crt = chip.rectTransform;
                 crt.anchorMin = crt.anchorMax = Vector2.zero; crt.pivot = new Vector2(0.5f, 0.5f);
-                crt.anchoredPosition = new Vector2(501f - pad, 319f - pad); crt.sizeDelta = new Vector2(126f, 40f);
+                crt.anchoredPosition = new Vector2(501f - pad, 319f - pad); crt.sizeDelta = new Vector2(132f, 42f);
                 chip.raycastTarget = true;
-                var cb = chip.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None;
-                cb.onClick.AddListener(() => { if (_ready) { if (sdChip != null) OnChapterSelect(); else OnStoryMode(); } });
-                string chTitle = ChapterScript.Title(nextCh);
-                if (string.IsNullOrEmpty(chTitle)) chTitle = Loc.T("이름", "Name");
-                if (chTitle.Length > 5) chTitle = chTitle.Substring(0, 5);
-                var ct = CreateLabel(chip.transform, "T", $"CH {nextCh}. {chTitle} ▾", 13, FontStyle.Bold,
-                    Color.white, new Vector2(0.5f, 0.5f), new Vector2(126f, 30f));
-                ct.rectTransform.anchoredPosition = new Vector2(0f, 3f);
+                var ct = CreateLabel(chip.transform, "T", "CHAPTER ▾", 14, FontStyle.Bold,
+                    Color.white, new Vector2(0.5f, 0.5f), new Vector2(132f, 30f));
+                ct.rectTransform.anchoredPosition = new Vector2(-4f, 3f);
                 CoastUiArt.OutlineText(ct, new Color(0.05f, 0.20f, 0.50f, 0.8f), 1.2f);
+                var badge = CoastUiArt.CutePill(chip.transform, "Badge", new Color(1f, 0.35f, 0.55f), 12, 2);
+                var brt = badge.rectTransform; brt.anchorMin = brt.anchorMax = new Vector2(1f, 1f); brt.pivot = new Vector2(0.5f, 0.5f);
+                brt.anchoredPosition = new Vector2(-4f, 2f); brt.sizeDelta = new Vector2(34f, 24f); badge.raycastTarget = false;
+                var bt = CreateLabel(badge.transform, "T", "", 11, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.5f), new Vector2(34f, 20f));
+                bt.rectTransform.anchoredPosition = new Vector2(0f, 1f);
+                System.Action refreshChip = () => { bt.text = ArcadeRun.KpopChapter(_gm).ToString(); };
+                refreshChip();
+                var cb = chip.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None;
+                cb.onClick.AddListener(() =>
+                {
+                    if (!_ready) return;
+                    _audio?.PlayClick();
+                    if (_moreOpen) ToggleMore();
+                    KpopChapterSelect.Open(_gm, _ => refreshChip(),
+                        ch => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm, ch); } });
+                });
             }
             else if (sdChip != null)
             {

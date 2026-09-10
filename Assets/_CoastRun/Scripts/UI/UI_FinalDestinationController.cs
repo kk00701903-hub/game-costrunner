@@ -232,7 +232,7 @@ namespace CoastRun
             if (_towerIcon != null)
             {
                 _towerIcon.anchorMin = _towerIcon.anchorMax = new Vector2(1f, 0.5f);
-                _towerIcon.anchoredPosition = new Vector2(-2f, 6f);
+                _towerIcon.anchoredPosition = new Vector2(2f, 0f);   // 39차-5: 배지와 같은 자리
             }
 
             if (_himIcon != null && _himIcon.gameObject.activeSelf)
@@ -434,22 +434,24 @@ namespace CoastRun
             var wrt = wrap.GetComponent<RectTransform>();
             // Below the pause / score / coin row so the top corners stay clean.
             // 14차: 상단 중앙 타임바 하나 — 좌(하트) / 중(노을·여정) / 우(점수·코인) 세 덩어리로 정리.
-            wrt.anchorMin = new Vector2(0.265f, 1f);
-            wrt.anchorMax = new Vector2(0.685f, 1f);   // 32차: 오른쪽 코인 알약(196px)과 안 겹치게 0.72→0.685
+            // 39차-5: 상단 2줄 격자 — 2줄 가운데 칸 x 216~456, y -74, 높이 52 (체력 6~206 · 코인 468~658 과 같은 줄)
+            wrt.anchorMin = new Vector2(216f / 664f, 1f);
+            wrt.anchorMax = new Vector2(456f / 664f, 1f);
             wrt.pivot = new Vector2(0.5f, 1f);
-            wrt.anchoredPosition = new Vector2(0f, -84f);   // 하트·코인과 같은 둘째 줄 → 상단 2줄로 끝
-            wrt.sizeDelta = new Vector2(0f, 42f);
+            wrt.anchoredPosition = new Vector2(0f, -74f);
+            wrt.sizeDelta = new Vector2(0f, 52f);
             _progressCg = wrap.GetComponent<CanvasGroup>();
 
             var start = MakeText(wrap.transform, "Start", "◀", 14,
                 new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(8f, 0f), new Vector2(24f, 24f));
             start.alignment = TextAnchor.MiddleLeft;
+            start.gameObject.SetActive(false);   // 39차-5: 격자 정렬 — 왼쪽 ◀ 글리프는 뺀다
 
             // 10차: 크림 테두리를 자식이 아니라 '바깥 알약'으로 — 자식이던 테두리가 남색 트랙을 덮어 바 전체가 크림색으로 보였다.
             var ring = CoastUiArt.Panel(wrap.transform, "Ring", CoastUiArt.CreamOutline, 16);
             var ringRt = ring.rectTransform;
-            ringRt.anchorMin = new Vector2(0.06f, 0.06f);
-            ringRt.anchorMax = new Vector2(0.90f, 0.94f);
+            ringRt.anchorMin = new Vector2(0f, 0f);         // 39차-5: 칸(52 높이)을 꽉 채우고 오른쪽 8%는 송전탑 배지가 걸치는 자리
+            ringRt.anchorMax = new Vector2(0.92f, 1f);
             ringRt.offsetMin = Vector2.zero; ringRt.offsetMax = Vector2.zero;
             ring.raycastTarget = false;
             var track = new GameObject("Track", typeof(RectTransform), typeof(Image));
@@ -499,7 +501,7 @@ namespace CoastRun
             var tbRt = towerBadge.rectTransform;
             tbRt.anchorMin = tbRt.anchorMax = new Vector2(1f, 0.5f);
             tbRt.pivot = new Vector2(0.5f, 0.5f);
-            tbRt.anchoredPosition = new Vector2(-2f, 6f);
+            tbRt.anchoredPosition = new Vector2(2f, 0f);   // 39차-5: 바 오른쪽 끝에 세로 중앙
             tbRt.sizeDelta = new Vector2(42f, 42f);
             towerBadge.raycastTarget = false;
             var tbRing = CoastUiArt.Panel(tbRt, "Ring", CoastUiArt.CreamOutline, 22);
@@ -532,17 +534,17 @@ namespace CoastRun
             textGo.transform.SetParent(go.transform, false);
             var trt = textGo.GetComponent<RectTransform>();
             trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
-            trt.offsetMin = new Vector2(52f, 0f); trt.offsetMax = new Vector2(-56f, -1f);
+            trt.offsetMin = new Vector2(30f, 0f); trt.offsetMax = new Vector2(-34f, -1f);   // 39차-5: 별·탑 배지만 피하고 한 줄로
             _timerLabel = textGo.AddComponent<Text>();
             CoastUiArt.OutlineText(_timerLabel, new Color(0.05f, 0.07f, 0.18f, 0.95f), 1.5f);
             _timerLabel.font = CoastHudLayout.Font();
-            _timerLabel.fontSize = CoastHudLayout.Scaled(18);
+            _timerLabel.fontSize = CoastHudLayout.Scaled(13);   // 39차-5: 한 줄 고정
             _timerLabel.fontStyle = FontStyle.Bold;
             _timerLabel.alignment = TextAnchor.MiddleCenter;
             _timerLabel.color = new Color(0.9f, 0.95f, 1f);
             _timerLabel.raycastTarget = false;
-            _timerLabel.horizontalOverflow = HorizontalWrapMode.Wrap;   // 32차: "거리 863 m"가 바를 넘지 않게 자동 축소
-            _timerLabel.resizeTextForBestFit = true; _timerLabel.resizeTextMinSize = 14; _timerLabel.resizeTextMaxSize = CoastHudLayout.Scaled(18);
+            _timerLabel.horizontalOverflow = HorizontalWrapMode.Overflow;   // 39차-5: 두 줄로 접히지 않게 — 13pt면 "노을까지 2:04"·"거리 863 m" 모두 칸 안
+            _timerLabel.resizeTextForBestFit = false;
             _timerLabel.verticalOverflow = VerticalWrapMode.Truncate;   // 32차: 자동 축소가 세로도 맞추게(예전 Overflow는 축소를 막았다)
             _timerLabel.text = "노을까지  --:--";
         }

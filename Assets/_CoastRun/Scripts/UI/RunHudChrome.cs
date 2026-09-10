@@ -174,8 +174,8 @@ namespace CoastRun
             _sunBar = track.rectTransform;
             _sunBar.anchorMin = _sunBar.anchorMax = new Vector2(0f, 1f);
             _sunBar.pivot = new Vector2(0f, 1f);
-            _sunBar.anchoredPosition = new Vector2(6f, -134f);
-            _sunBar.sizeDelta = new Vector2(330f, 26f);
+            _sunBar.anchoredPosition = new Vector2(240f, -74f);   // 39차-5: 2줄 가운데 칸(240~430), 코인 알약과 같은 높이
+            _sunBar.sizeDelta = new Vector2(190f, 52f);
             _sunCg = track.gameObject.AddComponent<CanvasGroup>();
             var grad = new Texture2D(64, 1, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
             for (int x = 0; x < 64; x++)
@@ -186,7 +186,7 @@ namespace CoastRun
                 grad.SetPixel(x, 0, c);
             }
             grad.Apply();
-            _sunTrack = CoastHudLayout.MakeImage(_sunBar, "Track", Vector2.zero, Vector2.one, new Vector2(8f, 7f), new Vector2(-8f, -7f), Color.white);
+            _sunTrack = CoastHudLayout.MakeImage(_sunBar, "Track", Vector2.zero, Vector2.one, new Vector2(10f, 15f), new Vector2(-10f, -15f), Color.white);
             _sunTrack.sprite = Sprite.Create(grad, new Rect(0, 0, 64, 1), new Vector2(0.5f, 0.5f), 100f);
             _sunTrack.type = Image.Type.Simple; _sunTrack.raycastTarget = false;
             var dot = CoastUiArt.Panel(_sunBar, "Sun", new Color(1f, 0.95f, 0.6f, 1f), 9);
@@ -198,8 +198,8 @@ namespace CoastRun
             var glow = CoastUiArt.Panel(_sunDot, "Glow", new Color(1f, 0.85f, 0.4f, 0.45f), 13);
             var grt = glow.rectTransform; grt.anchorMin = Vector2.zero; grt.anchorMax = Vector2.one; grt.offsetMin = new Vector2(-5f, -5f); grt.offsetMax = new Vector2(5f, 5f);
             glow.raycastTarget = false;
-            _sunLabel = CoastHudLayout.MakeText(_sunBar, "Label", Loc.T("노을까지", "until sunset"), 12, TextAnchor.MiddleRight,
-                Vector2.zero, Vector2.one, new Vector2(0f, 0f), new Vector2(-10f, 0f));
+            _sunLabel = CoastHudLayout.MakeText(_sunBar, "Label", Loc.T("노을까지", "until sunset"), 13, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.one, new Vector2(0f, 0f), new Vector2(0f, 0f));
             _sunLabel.color = new Color(1f, 1f, 1f, 0.9f);
             CoastUiArt.OutlineText(_sunLabel, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.2f);
         }
@@ -208,12 +208,15 @@ namespace CoastRun
         public void SetSunset(float tau, bool late)
         {
             if (_sunBar == null) return;
-            float w = _sunBar.sizeDelta.x - 32f;
-            _sunDot.anchoredPosition = new Vector2(16f + w * Mathf.Clamp01(tau), late ? -2f : 0f);
+            float w = _sunBar.sizeDelta.x - 36f;
+            _sunDot.anchoredPosition = new Vector2(18f + w * Mathf.Clamp01(tau), late ? -2f : 0f);
             if (!late)
             {
                 float left = 1f - tau;
-                _sunLabel.text = left > 0.3f ? Loc.T("노을까지", "until sunset") : Loc.T("해가 진다…", "sun is setting…");
+                // 39차-5: 남은 시간(m:ss)을 같이 — 폰 캡처와 동일하게 「노을까지 2:10」
+                int secs = StageManager.Instance != null ? Mathf.CeilToInt(left * StageManager.Instance.SunsetSeconds) : 0;
+                string clock = secs > 0 ? $" {secs / 60}:{secs % 60:00}" : "";
+                _sunLabel.text = left > 0.3f ? Loc.T("노을까지", "until sunset") + clock : Loc.T("해가 진다…", "sun is setting…") + clock;
                 _sunLabel.color = left > 0.3f ? new Color(1f, 1f, 1f, 0.9f) : new Color(1f, 0.75f, 0.45f, 1f);
             }
         }
@@ -235,14 +238,14 @@ namespace CoastRun
             _hpBar = wrap.GetComponent<RectTransform>();
             _hpBar.anchorMin = _hpBar.anchorMax = new Vector2(0f, 1f);
             _hpBar.pivot = new Vector2(0f, 1f);
-            _hpBar.anchoredPosition = new Vector2(6f, -84f);
-            _hpBar.sizeDelta = new Vector2(190f, 48f);
+            _hpBar.anchoredPosition = new Vector2(6f, -74f);   // 39차-5: 2줄 y -74, 높이 52
+            _hpBar.sizeDelta = new Vector2(200f, 52f);
             _hpCg = wrap.GetComponent<CanvasGroup>();
 
             // 게이지 트랙(남색 알약 + 크림 테두리)
             var track = CoastUiArt.CutePill(_hpBar, "Track", PillNavy, 14, 3);
             var trt = track.rectTransform; trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f); trt.pivot = new Vector2(0f, 1f);
-            trt.anchoredPosition = new Vector2(26f, -9f); trt.sizeDelta = new Vector2(150f, 30f);
+            trt.anchoredPosition = new Vector2(26f, -4f); trt.sizeDelta = new Vector2(174f, 44f);   // 39차-5: 2줄 알약들과 같은 높이감
             track.raycastTarget = false;
 
             var fill = CoastUiArt.Panel(trt, "Fill", new Color(0.45f, 0.9f, 0.25f, 1f), 10);
@@ -265,7 +268,7 @@ namespace CoastRun
             var heartIcon = CoastUiArt.Icon("Heart");
             var heart = CoastUiArt.Panel(_hpBar, "HeartIcon", Color.white, 12);
             _hpHeartRt = heart.rectTransform; _hpHeartRt.anchorMin = _hpHeartRt.anchorMax = new Vector2(0f, 1f); _hpHeartRt.pivot = new Vector2(0.5f, 0.5f);
-            _hpHeartRt.anchoredPosition = new Vector2(26f, -24f); _hpHeartRt.sizeDelta = new Vector2(52f, 52f);
+            _hpHeartRt.anchoredPosition = new Vector2(26f, -26f); _hpHeartRt.sizeDelta = new Vector2(52f, 52f);
             if (heartIcon != null) { heart.sprite = heartIcon; heart.type = Image.Type.Simple; heart.preserveAspect = true; }
             heart.raycastTarget = false;
             _hpFill = _hpGaugeFill;
@@ -288,7 +291,7 @@ namespace CoastRun
             _heartsPill.anchorMin = _heartsPill.anchorMax = new Vector2(1f, 1f);
             _heartsPill.pivot = new Vector2(1f, 1f);
             _heartsPill.anchoredPosition = new Vector2(-6f, -6f);
-            _heartsPill.sizeDelta = new Vector2(232f, 66f);
+            _heartsPill.sizeDelta = new Vector2(300f, 60f);   // 39차-5: 점수 알약과 같은 칸
             var icon = CoastUiArt.Icon("Heart");
             if (icon != null)
             {
@@ -657,10 +660,11 @@ namespace CoastRun
         {
             var pill = CoastUiArt.CutePill(root, "WeatherChip", PillNavy, 18, 3);
             var rt = pill.rectTransform;
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
-            rt.pivot = new Vector2(0.5f, 1f);
-            rt.anchoredPosition = new Vector2(0f, -10f);
-            rt.sizeDelta = new Vector2(236f, 52f);
+            // 39차-5: 일시정지(6~66)와 점수 알약(358~)의 사이 칸에 왼쪽 정렬 — 겹침 없이 1줄 격자
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(78f, -6f);
+            rt.sizeDelta = new Vector2(264f, 60f);
             _wxCg = pill.gameObject.AddComponent<CanvasGroup>();
             _wxCg.blocksRaycasts = false;
             _wxCg.interactable = false;
@@ -763,7 +767,7 @@ namespace CoastRun
             rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
             rt.pivot = new Vector2(0f, 1f);
             rt.anchoredPosition = new Vector2(6f, -6f);
-            rt.sizeDelta = new Vector2(66f, 66f);
+            rt.sizeDelta = new Vector2(60f, 60f);   // 39차-5: 1줄 높이 60으로 통일
             go.AddComponent<Button>();
 
             // Two bars — no glyph font dependency.
@@ -787,7 +791,7 @@ namespace CoastRun
             rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
             rt.pivot = new Vector2(1f, 1f);
             rt.anchoredPosition = new Vector2(-6f, -6f);
-            rt.sizeDelta = new Vector2(300f, 66f);
+            rt.sizeDelta = new Vector2(300f, 60f);   // 39차-5
             _scoreCg = pill.gameObject.AddComponent<CanvasGroup>();
 
             _scoreText = CoastHudLayout.MakeText(rt, "Score", "00000", 36, TextAnchor.MiddleRight,
@@ -833,8 +837,8 @@ namespace CoastRun
             var rt = pill.rectTransform;
             rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f);
             rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(-6f, -76f);
-            rt.sizeDelta = new Vector2(204f, 54f);
+            rt.anchoredPosition = new Vector2(-6f, -74f);   // 39차-5: 2줄 오른쪽 칸(468~658)
+            rt.sizeDelta = new Vector2(190f, 52f);
             _coinCg = pill.gameObject.AddComponent<CanvasGroup>();
 
             var iconGo = new GameObject("CoinIcon", typeof(RectTransform), typeof(Image));
@@ -958,10 +962,10 @@ namespace CoastRun
                 {
                     _hpShake -= Time.unscaledDeltaTime;
                     float k = _hpShake / 0.35f;
-                    _hpBar.anchoredPosition = new Vector2(6f + Mathf.Sin(Time.unscaledTime * 60f) * 6f * k, -84f);
+                    _hpBar.anchoredPosition = new Vector2(6f + Mathf.Sin(Time.unscaledTime * 60f) * 6f * k, -74f);
                 }
                 else
-                    _hpBar.anchoredPosition = new Vector2(6f, -84f);
+                    _hpBar.anchoredPosition = new Vector2(6f, -74f);
             }
             if (_flash != null && _flash.color.a > 0f)
             {

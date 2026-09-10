@@ -143,7 +143,31 @@ namespace CoastRun
 
         /// 26차: K-POP 러닝모드 시작. 육성 세이브가 있으면 그 스탯으로(RunTuning.Configure), 없으면 기본값.
         /// 계절은 해금된 것 중 가장 늦은 계절, 코스는 매번 새 시드.
-        public static void StartKpop(GameManager gm)
+        // 39차-4: K-POP 챕터 선택. 마지막 클리어 챕터(PlayerPrefs)와 사용자가 고른 챕터(0 = 자동 = 마지막 클리어 + 1).
+        private const string PrefLastClear = "CoastRun_KpopLastClear", PrefPick = "CoastRun_KpopPick";
+        public static int KpopLastClear => PlayerPrefs.GetInt(PrefLastClear, 0);
+        public static int KpopPick => PlayerPrefs.GetInt(PrefPick, 0);
+        public static void SetKpopPick(int chapter) { PlayerPrefs.SetInt(PrefPick, Mathf.Clamp(chapter, 0, Timeline.Chapters)); PlayerPrefs.Save(); }
+        /// 실제로 달릴 챕터: 고른 게 있으면 그것, 없으면 마지막 클리어 다음(없으면 1, 20 넘으면 20).
+        public static int KpopChapter(GameManager gm)
+        {
+            int pick = KpopPick;
+            if (pick >= 1 && pick <= Timeline.Chapters) return pick;
+            return Mathf.Clamp(KpopLastClear + 1, 1, Timeline.Chapters);
+        }
+        /// K-POP 모드에서 스테이지를 클리어할 때(SceneFlowController.EnterStageClear) — 다음 자동 선택이 한 칸 나아간다. 고른 챕터는 초기화(다음엔 자동).
+        public static void NoteKpopClear(int stage)
+        {
+            if (!KpopMode) return;
+            if (stage > KpopLastClear) PlayerPrefs.SetInt(PrefLastClear, Mathf.Clamp(stage, 1, Timeline.Chapters));
+            if (KpopPick == stage) PlayerPrefs.SetInt(PrefPick, 0);
+            PlayerPrefs.Save();
+        }
+
+        public static void StartKpop(GameManager gm) => StartKpop(gm, KpopChapter(gm));
+
+        /// 39차-4: 챕터를 지정해 K-POP 러닝 시작. 계절은 챕터의 계절(5챕터 = 1계절), 코스는 매번 새 시드.
+        public static void StartKpop(GameManager gm, int chapter)
         {
             var p = gm != null ? gm.Profile : null;
             var save = gm != null ? gm.PeekSave() : null;
@@ -151,13 +175,11 @@ namespace CoastRun
             KpopMode = true;
             ReturnToRaising = false;
             Seed = Environment.TickCount;
-            Season = SeasonKind.Spring;
-            for (int s = 3; s >= 0; s--)
-                if (SeasonUnlocked(p, (SeasonKind)s)) { Season = (SeasonKind)s; break; }
+            chapter = Mathf.Clamp(chapter, 1, Timeline.Chapters);
+            Season = (SeasonKind)((chapter - 1) / 5);
             Conditions = new DailyCondition[0];
             ConditionDone = new bool[3];
-            var rng = new System.Random(Seed);
-            StageIndex = StageFor(Season, rng);
+            StageIndex = chapter;
             Distance = 0f; HitsFirst500 = 0; LastScore = 0; LastStamped = false;
 
             RunTuning.Configure(save);   // 세이브 null이면 Reset()과 같다
