@@ -3,13 +3,36 @@ using UnityEngine;
 namespace CoastRun
 {
     /// Title-screen BGM + UI SFX (procedural until real clips land).
+    /// 48차-6(사용자): 타이틀 BGM(M5)은 앱을 켜자마자(00_Boot) 시작하고, 씬이 바뀌어도 살아남는 전역 소스(DontDestroyOnLoad)에서
+    /// 계속 나온다. PlayMenu 는 같은 곡이 이미 나오고 있으면 끊지 않는다. StopMenu 는 러닝/육성으로 나갈 때만.
     public class TitleAudio : MonoBehaviour
     {
-        private AudioSource _bgm;
+        private static AudioSource s_bgm;
+        private AudioSource _bgm => EnsureBgm();
         private AudioSource _sfx;
         private AudioClip _click;
         private AudioClip _start;
         private bool _cleared;
+
+        private static AudioSource EnsureBgm()
+        {
+            if (s_bgm != null) return s_bgm;
+            var go = new GameObject("TitleBgm(Global)");
+            Object.DontDestroyOnLoad(go);
+            s_bgm = go.AddComponent<AudioSource>();
+            s_bgm.playOnAwake = false;
+            s_bgm.spatialBlend = 0f;
+            return s_bgm;
+        }
+
+        /// 00_Boot 에서 호출 — 리스너·타이틀 UI 가 뜨기 전에 곡부터 튼다.
+        public static void PlayMenuEarly()
+        {
+            var src = EnsureBgm();
+            var real = CoastBgmLibrary.Load(CoastBgmLibrary.Menu(false));
+            if (real == null || (src.isPlaying && src.clip == real)) return;
+            src.clip = real; src.volume = 0.85f; src.loop = true; src.Play();
+        }
 
         public void PlayMenu(bool cleared)
         {
@@ -17,6 +40,7 @@ namespace CoastRun
             Ensure();
             // Real track from Resources/CoastRun/BGM when it exists, procedural bed until then.
             var real = CoastBgmLibrary.Load(CoastBgmLibrary.Menu(cleared));
+            if (real != null && _bgm.isPlaying && _bgm.clip == real) return;   // 이미 나오는 중 — 이어서
             _bgm.clip = real != null
                 ? real
                 : cleared
@@ -53,14 +77,7 @@ namespace CoastRun
 
         private void Ensure()
         {
-            if (_bgm == null)
-            {
-                var go = new GameObject("TitleBgm");
-                go.transform.SetParent(transform, false);
-                _bgm = go.AddComponent<AudioSource>();
-                _bgm.playOnAwake = false;
-                _bgm.spatialBlend = 0f;
-            }
+            EnsureBgm();
 
             if (_sfx == null)
             {

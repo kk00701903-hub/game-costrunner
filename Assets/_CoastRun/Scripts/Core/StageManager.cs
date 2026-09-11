@@ -418,26 +418,27 @@ namespace CoastRun
         private bool _kpopOutro, _kpopChorusOffered, _kpopFinishing;
         private void UpdateKpop()
         {
-            ArcadeRun.TickKpop(_stageElapsed);
+            float t = Mathf.Max(0f, _stageElapsed - ArcadeRun.KpopMusicDelay);   // 곡은 1초 뒤에 시작(CoastAudioManager)
+            ArcadeRun.TickKpop(t);
             var track = ArcadeRun.KpopTrack;
             // 후렴 진입: 꼬마 피버 제안(한 번) + 배너
-            if (!_kpopChorusOffered && _stageElapsed >= track.chorusStart)
+            if (!_kpopChorusOffered && t >= track.chorusStart)
             {
                 _kpopChorusOffered = true;
                 FeverMode.Ensure().ForceOffer();
                 PickupFloat.Banner(Loc.T("후렴! 코인 ×2", "CHORUS! Coins ×2"), new Color(1f, 0.55f, 0.85f), 1.6f);
             }
             // 아웃트로: 장애물 없음 + 리본
-            if (!_kpopOutro && _stageElapsed >= track.length - ArcadeRun.KpopOutroSeconds)
+            if (!_kpopOutro && t >= track.length - ArcadeRun.KpopOutroSeconds)
             {
                 _kpopOutro = true;
                 foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.SetSuppressed(true);
                 float speed = Mathf.Max(6f, player.Speed);
-                _kpopFinishZ = player.PathDistance + speed * (ArcadeRun.KpopOutroSeconds - 0.6f);
+                _kpopFinishZ = player.PathDistance + speed * (ArcadeRun.KpopOutroSeconds - 1.2f);   // 곡이 끝나기 조금 전에 리본을 지나도록(피격 감속 여유)
                 _ribbon = FinishRibbon.Spawn(_kpopFinishZ);
-                CoastAudioManager.Instance?.SetRunBgmFade(3f);
             }
-            if (!_kpopFinishing && (player.PathDistance >= _kpopFinishZ || _stageElapsed >= track.length + 1.5f))
+            // 48차-4(사용자): 페이드아웃은 리본 통과가 기준 — 리본을 지나는 순간부터 곡이 잦아든다. 리본 도달 전에는 끝내지 않는다(보호용 +6초).
+            if (!_kpopFinishing && (player.PathDistance >= _kpopFinishZ || t >= track.length + 6f))
             {
                 _kpopFinishing = true;
                 StartCoroutine(KpopFinishCo());
@@ -449,13 +450,14 @@ namespace CoastRun
             _stageActive = false;
             ArcadeRun.MarkKpopFinished();
             _ribbon?.Break();
+            CoastAudioManager.Instance?.SetRunBgmFade(2.2f);   // 리본 통과 = 곡 페이드아웃 시작
             player?.FinishRun();
             float sweepZ = player != null ? player.PathDistance - 1f : 0f;
             foreach (var c in FindObjectsByType<CoinSpawner>(FindObjectsSortMode.None)) c.ClearAhead(sweepZ);
             foreach (var j in FindObjectsByType<JellySpawner>(FindObjectsSortMode.None)) j.ClearAhead(sweepZ);
             FeverMode.Ensure().DismissOffer();
             PickupFloat.Banner(Loc.T("한 곡 완주! ♪", "SONG COMPLETE! ♪"), new Color(1f, 0.85f, 0.3f), 1.4f);
-            yield return new WaitForSeconds(1.2f);
+            yield return new WaitForSeconds(1.8f);   // 페이드가 거의 끝난 뒤 결과 카드(카드가 AudioListener 를 멈춘다)
             _kpopFinishing = false;
             var session = UnityEngine.Object.FindAnyObjectByType<GameSession>();
             if (session != null) session.EndKpopRun();

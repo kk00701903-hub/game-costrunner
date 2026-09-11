@@ -91,11 +91,6 @@ namespace CoastRun
 
         private Texture2D _gateArt;
         private static bool _openingShownThisSession;
-        private Image _loadFill;
-        private Text _loadLabel;
-        private RectTransform _loadCover;   // 39차: 시안 로딩바(그림) 위 '아직 안 찬 부분' 덮개 — 오른쪽 끝 고정, 왼쪽이 줄어든다
-        private Text _loadPct;              // 39차: 큰 "70%" 숫자
-        private const float LoadCoverW = 295f;
         // 47차: 로딩 화면 대신 옛 오프닝의 「멀리서 버스 가는」 영상(Resources/CoastRun/Title_Bus.mp4, 옛 VID_CH01_Open) 한 번.
         private VideoPlayer _splashPlayer;
         private RenderTexture _splashRt;
@@ -103,32 +98,14 @@ namespace CoastRun
         private bool _splashIsVideo;
         private const float SplashVideoMax = 5.6f;   // 클립 6초 — 끝나기 직전에 페이드
 
-        private void SetLoad(float u)
-        {
-            u = Mathf.Clamp01(u);
-            if (_loadFill != null)
-            {
-                var frt = _loadFill.rectTransform;
-                frt.anchorMin = Vector2.zero; frt.anchorMax = new Vector2(u, 1f);
-                frt.offsetMin = frt.offsetMax = Vector2.zero;
-            }
-            if (_loadCover != null)
-                _loadCover.sizeDelta = new Vector2(LoadCoverW * (1f - u), _loadCover.sizeDelta.y);
-            if (_loadPct != null)
-                _loadPct.text = $"{Mathf.RoundToInt(u * 100f)}%";
-            if (_loadLabel != null)
-                _loadLabel.text = Loc.T($"불러오는 중… {Mathf.RoundToInt(u * 100f)}%", $"Loading… {Mathf.RoundToInt(u * 100f)}%");
-        }
-
         private IEnumerator SplashThenUi(float splashSeconds)
         {
             float t = 0f;
-            bool skip = false;
             if (_splashIsVideo)
             {
                 // 47차: 로딩바 없음 — 버스 영상이 준비되면 바로 재생, 끝나거나(≈5.6초) 탭하면 타이틀로.
                 float prep = 0f;
-                while (_splashPlayer != null && !_splashPlayer.isPrepared && prep < 3f) { prep += Time.unscaledDeltaTime; yield return null; }
+                while (_splashPlayer != null && !_splashPlayer.isPrepared && prep < 6f)   // 48차-8: 폰 첫 실행은 디코더 준비가 느려 6초까지 { prep += Time.unscaledDeltaTime; yield return null; }
 #if UNITY_EDITOR
                 Debug.LogWarning("[Title] splash video prepared=" + (_splashPlayer != null && _splashPlayer.isPrepared) + " after " + prep.ToString("0.00") + "s");
 #endif
@@ -147,35 +124,14 @@ namespace CoastRun
                 }
                 goto fadeOut;
             }
-            // 로딩바 0→1 채우기(스킵 가능, 스킵해도 바는 끝까지 채운 뒤 페이드)
-            splashSeconds = Mathf.Max(0.8f, splashSeconds);
-            while (t < splashSeconds)
+            // 48차-8: 영상이 없을 때의 폴백 — 로딩바·퍼센트 없이 노을빛 화면 0.8초(탭으로 건너뛰기)
+            while (t < 0.8f)
             {
                 t += Time.unscaledDeltaTime;
-                float u = Mathf.Clamp01(t / splashSeconds);
-                // ease-out + 살짝 멈칫
-                float eased = 1f - Mathf.Pow(1f - u, 1.6f);
-                SetLoad(eased);
-                if (!skip && (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
-                    (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)))
-                {
-                    skip = true;
-                    // 빠르게 끝까지
-                    float catchUp = t;
-                    while (catchUp < splashSeconds)
-                    {
-                        catchUp += Time.unscaledDeltaTime * 4f;
-                        float uu = Mathf.Clamp01(catchUp / splashSeconds);
-                        float ee = 1f - Mathf.Pow(1f - uu, 1.2f);
-                        SetLoad(ee);
-                        yield return null;
-                    }
-                    break;
-                }
+                if (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
+                    (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)) break;
                 yield return null;
             }
-            SetLoad(1f);
-            if (_loadLabel != null) _loadLabel.text = Loc.T("완료!", "Ready!");
 
         fadeOut:
             if (_splashCg != null)
@@ -349,100 +305,13 @@ namespace CoastRun
                 return;
             }
 
-            // 39차: 시안 로딩 화면(UI_Loading_Mock: 노을 배경 + 네온 유리 카드 + "로딩중..." + 이퀄라이저 + 바 + 귤)을 통째로.
-            // 시안에서 "70%"만 지워 두고(Photoshop) 숫자는 여기서 그린다. 바는 그림의 초록 부분을 덮개로 가렸다가 드러낸다.
-            var mockLoad = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Loading_Mock");
-            if (mockLoad != null)
-            {
-                splashImg.sprite = CoastUiArt.AsSprite(mockLoad, 100f);
-                splashImg.color = Color.white;
-                splashImg.preserveAspect = false;
-
-                var cover = new GameObject("LoadCover", typeof(RectTransform), typeof(Image));
-                cover.transform.SetParent(go.transform, false);
-                _loadCover = cover.GetComponent<RectTransform>();
-                _loadCover.anchorMin = _loadCover.anchorMax = new Vector2(0f, 1f);
-                _loadCover.pivot = new Vector2(1f, 0.5f);
-                _loadCover.anchoredPosition = new Vector2(420f, -981f);
-                _loadCover.sizeDelta = new Vector2(LoadCoverW, 44f);
-                var cimg = cover.GetComponent<Image>();
-                cimg.sprite = CoastUiArt.RoundedRect(14); cimg.type = Image.Type.Sliced;
-                cimg.color = new Color(0.09f, 0.11f, 0.19f, 0.97f); cimg.raycastTarget = false;
-
-                _loadPct = CreateLabel(go.transform, "LoadPct", "0%", 92, FontStyle.Bold,
-                    new Color(0.80f, 0.93f, 1f), new Vector2(0f, 1f), new Vector2(520f, 150f));
-                _loadPct.rectTransform.anchoredPosition = new Vector2(373f, -1105f);
-                CoastUiArt.OutlineText(_loadPct, Color.white, 4f);
-                var glow = _loadPct.gameObject.AddComponent<Shadow>();
-                glow.effectColor = new Color(0.25f, 0.60f, 1f, 0.85f); glow.effectDistance = new Vector2(0f, -6f); glow.useGraphicAlpha = true;
-                return;
-            }
-
-            // 로딩 키아트(없으면 타이틀 게이트/배경으로 폴백)
-            var loadArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_LoadingScreen")
-                ?? _gateArt
-                ?? Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_TitleBackground");
-            if (loadArt != null)
-            {
-                splashImg.sprite = CoastUiArt.AsSprite(loadArt, 100f);
-                splashImg.color = Color.white;
-                splashImg.preserveAspect = false;
-            }
-
-            // 하단 어두운 띠 + 로고/로딩바
-            var band = new GameObject("LoadBand", typeof(RectTransform), typeof(Image));
-            band.transform.SetParent(go.transform, false);
-            var brt = band.GetComponent<RectTransform>();
-            brt.anchorMin = new Vector2(0f, 0f);
-            brt.anchorMax = new Vector2(1f, 0.22f);
-            brt.offsetMin = brt.offsetMax = Vector2.zero;
-            band.GetComponent<Image>().color = new Color(0.05f, 0.04f, 0.07f, 0.55f);
-            band.GetComponent<Image>().raycastTarget = false;
-
-            CreateLabel(go.transform, "SplashLogo", Loc.T("너와 나의 주파수", "Our Frequency"), 36, FontStyle.Bold,
-                new Color(1f, 0.96f, 0.90f), new Vector2(0.5f, 0.145f), new Vector2(620f, 48f));
-            CreateLabel(go.transform, "SplashSub", "COAST RUN · JEJU", 16, FontStyle.Bold,
-                new Color(1f, 0.85f, 0.55f, 0.95f), new Vector2(0.5f, 0.105f), new Vector2(420f, 28f));
-
-            // 로딩바 트랙
-            var track = new GameObject("LoadTrack", typeof(RectTransform), typeof(Image));
-            track.transform.SetParent(go.transform, false);
-            var trt = track.GetComponent<RectTransform>();
-            trt.anchorMin = new Vector2(0.5f, 0f);
-            trt.anchorMax = new Vector2(0.5f, 0f);
-            trt.pivot = new Vector2(0.5f, 0f);
-            trt.anchoredPosition = new Vector2(0f, 36f);
-            trt.sizeDelta = new Vector2(520f, 18f);
-            var trackImg = track.GetComponent<Image>();
-            trackImg.sprite = CoastUiArt.RoundedRect(9);
-            trackImg.type = Image.Type.Sliced;
-            trackImg.color = new Color(1f, 1f, 1f, 0.22f);
-            trackImg.raycastTarget = false;
-
-            var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
-            fillGo.transform.SetParent(track.transform, false);
-            _loadFill = fillGo.GetComponent<Image>();
-            _loadFill.sprite = CoastUiArt.RoundedRect(9);
-            _loadFill.type = Image.Type.Sliced;
-            _loadFill.color = new Color(1f, 0.62f, 0.35f, 1f);   // 노을 코랄
-            _loadFill.raycastTarget = false;
-            var frt = _loadFill.rectTransform;
-            frt.anchorMin = Vector2.zero;
-            frt.anchorMax = new Vector2(0.02f, 1f);
-            frt.offsetMin = frt.offsetMax = Vector2.zero;
-
-            // 하이라이트 줄
-            var shine = new GameObject("Shine", typeof(RectTransform), typeof(Image));
-            shine.transform.SetParent(fillGo.transform, false);
-            var srt = shine.GetComponent<RectTransform>();
-            srt.anchorMin = new Vector2(0f, 0.55f); srt.anchorMax = new Vector2(1f, 1f);
-            srt.offsetMin = new Vector2(4f, 0f); srt.offsetMax = new Vector2(-4f, -2f);
-            var simg = shine.GetComponent<Image>();
-            simg.sprite = CoastUiArt.RoundedRect(6); simg.type = Image.Type.Sliced;
-            simg.color = new Color(1f, 1f, 1f, 0.35f); simg.raycastTarget = false;
-
-            _loadLabel = CreateLabel(go.transform, "LoadPct", Loc.T("불러오는 중… 0%", "Loading… 0%"), 15, FontStyle.Bold,
-                new Color(1f, 0.95f, 0.88f, 0.95f), new Vector2(0.5f, 0.045f), new Vector2(400f, 24f));
+            // 48차-8(사용자): 첫 화면은 버스 영상만. 영상이 없으면 노을빛 단색 + 안내 한 줄(옛 로딩 시안·로딩바·퍼센트 코드 삭제).
+            Debug.LogWarning("[Title] Title_Bus 영상이 없어 단색 스플래시로 폴백");
+            _splashIsVideo = false;
+            splashImg.color = new Color(0.98f, 0.80f, 0.55f, 1f);
+            var fbHint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 16, FontStyle.Bold,
+                new Color(1f, 1f, 1f, 0.75f), new Vector2(0.5f, 0.05f), new Vector2(400f, 26f));
+            CoastUiArt.OutlineText(fbHint, new Color(0f, 0f, 0f, 0.6f), 2f);
         }
 
         private void BuildMainUi(Transform root)

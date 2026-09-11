@@ -15,6 +15,11 @@ namespace CoastRun
         private CanvasGroup _veilCg;
         private Sprite _loadingSprite;
         private bool _usingArt;
+        // 48차-8(사용자): 로딩 그림(UI_Loading_Mock) 위에 올라가는 숫자·바. 그림은 720×1280 시안 좌표라 1.5배 스케일 컨테이너 안에 그린다.
+        private RectTransform _loadOverlay, _loadCover;
+        private Text _loadPct;
+        private float _loadT;
+        private const float LoadCoverW = 295f, LoadFillSeconds = 1.3f;
 
         public void EnsureBuilt()
         {
@@ -44,6 +49,7 @@ namespace CoastRun
             _veilCg.blocksRaycasts = false;
 
             CacheLoadingSprite();
+            BuildLoadOverlay(veilGo.transform);
             ApplyLoadingArt();
 
             var tipParent = CoastUiCanvas.Root(_canvas);
@@ -56,6 +62,52 @@ namespace CoastRun
             _loaderDot.color = new Color(1f, 1f, 1f, 0.35f);
             _loaderDot.raycastTarget = false;
             SetLoader(false);
+        }
+
+        private void BuildLoadOverlay(Transform veil)
+        {
+            var go = new GameObject("LoadOverlay", typeof(RectTransform));
+            go.transform.SetParent(veil, false);
+            _loadOverlay = go.GetComponent<RectTransform>();
+            _loadOverlay.anchorMin = _loadOverlay.anchorMax = new Vector2(0.5f, 0.5f);
+            _loadOverlay.sizeDelta = new Vector2(720f, 1280f);
+            _loadOverlay.localScale = Vector3.one * 1.5f;   // 시안 좌표(720×1280) → 캔버스(1080×1920)
+
+            var cover = new GameObject("LoadCover", typeof(RectTransform), typeof(Image));
+            cover.transform.SetParent(go.transform, false);
+            _loadCover = cover.GetComponent<RectTransform>();
+            _loadCover.anchorMin = _loadCover.anchorMax = new Vector2(0f, 1f);
+            _loadCover.pivot = new Vector2(1f, 0.5f);
+            _loadCover.anchoredPosition = new Vector2(420f, -981f);
+            _loadCover.sizeDelta = new Vector2(LoadCoverW, 44f);
+            var cimg = cover.GetComponent<Image>();
+            cimg.sprite = CoastUiArt.RoundedRect(14); cimg.type = Image.Type.Sliced;
+            cimg.color = new Color(0.09f, 0.11f, 0.19f, 0.97f); cimg.raycastTarget = false;
+
+            var tgo = new GameObject("LoadPct", typeof(RectTransform));
+            tgo.transform.SetParent(go.transform, false);
+            _loadPct = tgo.AddComponent<Text>();
+            _loadPct.font = CoastHudLayout.Font();
+            _loadPct.fontSize = 92; _loadPct.fontStyle = FontStyle.Bold;
+            _loadPct.alignment = TextAnchor.MiddleCenter;
+            _loadPct.color = new Color(0.80f, 0.93f, 1f);
+            _loadPct.raycastTarget = false;
+            _loadPct.horizontalOverflow = HorizontalWrapMode.Overflow; _loadPct.verticalOverflow = VerticalWrapMode.Overflow;
+            var prt = _loadPct.rectTransform;
+            prt.anchorMin = prt.anchorMax = new Vector2(0f, 1f);
+            prt.sizeDelta = new Vector2(520f, 150f);
+            prt.anchoredPosition = new Vector2(373f, -1105f);
+            CoastUiArt.OutlineText(_loadPct, Color.white, 4f);
+            var glow = tgo.AddComponent<Shadow>();
+            glow.effectColor = new Color(0.25f, 0.60f, 1f, 0.85f); glow.effectDistance = new Vector2(0f, -6f); glow.useGraphicAlpha = true;
+            SetLoadProgress(0f);
+        }
+
+        private void SetLoadProgress(float u)
+        {
+            u = Mathf.Clamp01(u);
+            if (_loadCover != null) _loadCover.sizeDelta = new Vector2(LoadCoverW * (1f - u), 44f);
+            if (_loadPct != null) _loadPct.text = Mathf.RoundToInt(u * 100f) + "%";
         }
 
         private void CacheLoadingSprite()
@@ -86,6 +138,7 @@ namespace CoastRun
                 _veil.color = Color.black;
                 _usingArt = false;
             }
+            if (_loadOverlay != null) _loadOverlay.gameObject.SetActive(_usingArt);
         }
 
         private void ApplySolid(Color c)
@@ -94,6 +147,7 @@ namespace CoastRun
             _veil.sprite = null;
             _veil.color = c;
             _usingArt = false;
+            if (_loadOverlay != null) _loadOverlay.gameObject.SetActive(false);
         }
 
         /// 씬 전환 페이드 베일 알파(1=완전 가림). 챕터 시작 연출은 이게 내려간 뒤에 띄운다.
@@ -116,7 +170,16 @@ namespace CoastRun
             // Keep veil above any late-spawned siblings on this canvas.
             if (block && _veil != null && _veil.transform.GetSiblingIndex() != _veil.transform.parent.childCount - 1)
                 _veil.transform.SetAsLastSibling();
+            // 로딩 그림이 덮고 있는 동안 숫자·바가 0→100% 로 올라간다(씬 로드 길이와 무관한 연출, 걷힐 때 100%).
+            if (_usingArt && _loadOverlay != null && _loadOverlay.gameObject.activeSelf)
+            {
+                if (_veilCg.alpha > 0.5f) _loadT += Time.unscaledDeltaTime;
+                float u = 1f - Mathf.Pow(1f - Mathf.Clamp01(_loadT / LoadFillSeconds), 1.6f);
+                if (_fadingOut) u = 1f;
+                SetLoadProgress(u);
+            }
         }
+        private bool _fadingOut;
 
         public void SetLoader(bool on)
         {
@@ -132,6 +195,8 @@ namespace CoastRun
             bool useArt = !color.HasValue || IsNearBlack(color.Value);
             if (useArt) ApplyLoadingArt();
             else ApplySolid(color.Value);
+            if (to > from) { _loadT = 0f; _fadingOut = false; SetLoadProgress(0f); }   // 덮기 시작 — 0%부터
+            else _fadingOut = true;                                                    // 걷기 — 100%
 
             _veilCg.blocksRaycasts = true;
             float t = 0f;
@@ -147,7 +212,10 @@ namespace CoastRun
             _veilCg.alpha = to;
             _veilCg.blocksRaycasts = to > 0.01f;
             if (to <= 0.01f)
+            {
+                _fadingOut = false; _loadT = 0f; SetLoadProgress(0f);
                 ApplyLoadingArt(); // restore default look for the next cover
+            }
         }
 
         public IEnumerator WhiteFlash(float flashSeconds, float fadeSeconds)
@@ -173,6 +241,7 @@ namespace CoastRun
             bool useArt = !color.HasValue || IsNearBlack(color.Value);
             if (useArt) ApplyLoadingArt();
             else ApplySolid(color.Value);
+            if (alpha > 0.5f) { _loadT = 0f; _fadingOut = false; SetLoadProgress(0f); }
             _veilCg.alpha = alpha;
             _veilCg.blocksRaycasts = alpha > 0.01f;
         }
@@ -181,3 +250,4 @@ namespace CoastRun
             c.r < 0.08f && c.g < 0.08f && c.b < 0.08f && c.a > 0.5f;
     }
 }
+

@@ -103,7 +103,7 @@ namespace CoastRun
             BuildBonusBanner(root);
             BuildTutorial(root);
             BuildFlash(root);
-            if (ArcadeRun.KpopMode) BuildKpopChips(root);
+            if (ArcadeRun.KpopMode) { BuildKpopChips(root); BuildKpopSongLabel(root); }
 
             var health = HealthSystem.Instance;
             if (health != null)
@@ -473,7 +473,7 @@ namespace CoastRun
             var conds = ArcadeRun.Conditions;
             for (int i = 0; i < 3 && i < conds.Length; i++)
             {
-                var pill = CoastUiArt.CutePill(root, "KpopChip" + i, ArcadeRun.ConditionDone[i] ? ChipOn : ChipOff, 12, 2);
+                var pill = CoastUiArt.CutePill(root, "KpopChip" + i, ArcadeRun.IsKpopMissionDone(i) ? ChipOn : ChipOff, 12, 2);
                 var rt = pill.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f); rt.pivot = new Vector2(0f, 1f);
                 rt.anchoredPosition = new Vector2(8f, -134f - i * 36f); rt.sizeDelta = new Vector2(230f, 32f);
                 pill.raycastTarget = false;
@@ -486,7 +486,24 @@ namespace CoastRun
             ArcadeRun.OnKpopMissionDone -= HandleKpopMission;
             ArcadeRun.OnKpopMissionDone += HandleKpopMission;
         }
-        private static string ChipLabel(int i) => (ArcadeRun.ConditionDone[i] ? "☑ " : "☐ ") + ArcadeRun.Conditions[i].Text;
+        /// 48차-5: 우하단 곡 정보 「♪ 제목 — 우히&히시」.
+        private void BuildKpopSongLabel(RectTransform root)
+        {
+            var pill = CoastUiArt.CutePill(root, "KpopSong", new Color(0.07f, 0.16f, 0.30f, 0.72f), 12, 2);
+            // 48차-6(사용자): 우상단 동전 알약(y -74, 높이 52) 바로 아래
+            var rt = pill.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(-6f, -132f); rt.sizeDelta = new Vector2(400f, 32f);
+            pill.raycastTarget = false;
+            var t = CoastHudLayout.MakeText(pill.transform, "T", "♪ " + ArcadeRun.KpopTrack.Credit, 15, TextAnchor.MiddleRight, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-12f, 0f));
+            t.color = new Color(1f, 0.96f, 0.85f); t.fontStyle = FontStyle.Bold; t.raycastTarget = false;
+            t.horizontalOverflow = HorizontalWrapMode.Overflow; t.verticalOverflow = VerticalWrapMode.Truncate;
+            CoastUiArt.OutlineText(t, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.2f);
+            // 글자 폭에 맞춰 알약 줄이기
+            float w = t.preferredWidth + 26f;
+            rt.sizeDelta = new Vector2(Mathf.Clamp(w, 120f, 420f), 32f);
+        }
+
+        private static string ChipLabel(int i) => (ArcadeRun.IsKpopMissionDone(i) ? "☑ " : "☐ ") + ArcadeRun.Conditions[i].Text;
         private void HandleKpopMission(int i)
         {
             if (i < 0 || i >= 3 || _kpopChipText[i] == null) return;
@@ -550,7 +567,7 @@ namespace CoastRun
             bool kpopDone = ArcadeRun.KpopMode && ArcadeRun.KpopFinished;   // 48차: 한 곡 완주 결과
             var title = CoastHudLayout.MakeText(band.transform, "Title", kpopDone ? Loc.T("한 곡 완주! ♪", "Song complete! ♪") : Loc.T("아쉽지만 다음에!", "Next time!"), 30, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), new Vector2(0f, 0f));
             title.color = new Color(0.30f, 0.20f, 0.14f); title.fontStyle = FontStyle.Bold;
-            var sub = CoastHudLayout.MakeText(root, "Sub", ArcadeRun.KpopMode ? Loc.T("K-POP 한 곡 달리기 · ", "One-Song Run · ") + ArcadeRun.KpopTrack.Title : Loc.T("달리기 결과", "Run result"), 22, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -196f), new Vector2(0f, -156f));
+            var sub = CoastHudLayout.MakeText(root, "Sub", ArcadeRun.KpopMode ? Loc.T("K-POP 한 곡 달리기 · ", "One-Song Run · ") + ArcadeRun.KpopTrack.Credit : Loc.T("달리기 결과", "Run result"), 22, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -196f), new Vector2(0f, -156f));
             sub.color = new Color(1f, 0.82f, 0.35f); sub.fontStyle = FontStyle.Bold;
             CoastUiArt.OutlineText(sub, new Color(0.25f, 0.12f, 0.05f, 0.9f), 2f);
 

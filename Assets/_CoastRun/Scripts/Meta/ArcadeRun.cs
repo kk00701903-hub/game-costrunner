@@ -64,6 +64,9 @@ namespace CoastRun
         { this.num = num; this.start = start; this.length = length; this.chorusStart = chorusStart; this.chorusEnd = chorusEnd; }
         public string Clip => "BGM_M" + num;
         public string Title => RecordTable.TitleOf(num);
+        /// 48차-5(사용자): 러닝 HUD 우하단 표기 — 「제목 — 우히&히시」(M1. 같은 번호 없이).
+        public const string Artist = "우히&히시";
+        public string Credit => Title + " — " + Artist;
     }
 
     public static class ArcadeRun
@@ -102,6 +105,8 @@ namespace CoastRun
         public static bool KpopChorus => KpopMode && KpopElapsed >= KpopTrack.chorusStart && KpopElapsed < KpopTrack.chorusEnd;
         /// 아웃트로(마지막 8초): 장애물 없음, 리본.
         public const float KpopOutroSeconds = 8f;
+        /// 48차-7(사용자): 러닝 시작 뒤 1초 쉬었다가 곡이 나온다. 곡 시계(KpopElapsed)도 그만큼 늦게 출발.
+        public const float KpopMusicDelay = 1f;
         public static bool KpopOutro => KpopMode && KpopElapsed >= KpopTrack.length - KpopOutroSeconds;
         /// 이번 런에서 곡 끝까지 달렸나(리본 통과).
         public static bool KpopFinished { get; private set; }
@@ -112,6 +117,14 @@ namespace CoastRun
         public static int KpopMissionMaskToday(MetaProfile p) => p != null && p.kpopMissionDate == Today ? p.kpopMissionDoneMask : 0;
         public static int KpopMissionCountToday(MetaProfile p) { int m = KpopMissionMaskToday(p), n = 0; for (int i = 0; i < 3; i++) if ((m & (1 << i)) != 0) n++; return n; }
         public static bool KpopStampedToday(MetaProfile p) => DailyDoneToday(p);
+        /// 이번 런 또는 오늘 누적으로 이미 이룬 미션인가(HUD 칩·결과 카드 공용).
+        public static bool IsKpopMissionDone(int i)
+        {
+            if (i < 0 || i >= 3) return false;
+            if (ConditionDone[i]) return true;
+            var p = GameManager.I != null ? GameManager.I.Profile : null;
+            return (KpopMissionMaskToday(p) & (1 << i)) != 0;
+        }
         /// 코인 감쇠: 오늘 4번째 런부터 ×0.5, 8번째부터 ×0.25(파밍 방지, 점수·미션은 감쇠 없음).
         public static float KpopCoinDecay(MetaProfile p)
         {

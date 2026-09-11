@@ -33,9 +33,10 @@ namespace CoastRun
 
         public static bool Has(string name) => Load(name) != null;
 
-        /// 타이틀 대문 테마(BGM_Title)가 있으면 그것, 없으면 옛 BGM_Menu(_Cleared).
+        /// 48차-5(사용자): 첫 시작(스플래시)·메인 화면 음악은 레코드 M5 「돌아온 제주」. 없으면 BGM_Title → 옛 BGM_Menu(_Cleared).
         public static string Menu(bool cleared) =>
-            Has("BGM_Title") ? "BGM_Title"
+            Has("BGM_M5") ? "BGM_M5"
+            : Has("BGM_Title") ? "BGM_Title"
             : cleared && Has("BGM_Menu_Cleared") ? "BGM_Menu_Cleared" : "BGM_Menu";
         /// 26차: K-POP 러닝모드 트랙 — Resources/CoastRun/BGM/BGM_KPOP_1.ogg … 순서대로. 없으면 null(챕터 스템으로 폴백).
         public static AudioClip Kpop(int index)

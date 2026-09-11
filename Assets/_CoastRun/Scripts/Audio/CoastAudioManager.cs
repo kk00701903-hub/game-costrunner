@@ -283,7 +283,7 @@ namespace CoastRun
                 _runBgm = _stems[0];
 
                 // Start every stem on the same DSP tick so they stay phase-locked.
-                double start = AudioSettings.dspTime + 0.1;
+                double start = AudioSettings.dspTime + (kpop ? ArcadeRun.KpopMusicDelay : 0.1f);   // 48차-7: K-POP 은 1초 쉬고 시작
                 if (kpop && _stems[0].clip != null) _stems[0].time = Mathf.Clamp(ArcadeRun.KpopTrack.start, 0f, Mathf.Max(0f, _stems[0].clip.length - 1f));
                 for (int i = 0; i < _stems.Length; i++)
                     if (_stems[i].clip != null)
