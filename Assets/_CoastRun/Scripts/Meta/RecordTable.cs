@@ -42,6 +42,13 @@ namespace CoastRun
 
         private static MetaProfile P => GameManager.I != null ? GameManager.I.Profile : null;
 
+        /// 48차: 곡 번호 → 제목(K-POP 한 곡 달리기 HUD·결과 카드).
+        public static string TitleOf(int num)
+        {
+            foreach (var t in All) if (t.num == num) return Loc.T(t.ko, t.en);
+            return "M" + num;
+        }
+
         public static int SCount(MetaProfile p)
         {
             if (p == null || p.trackGrade == null) return 0;

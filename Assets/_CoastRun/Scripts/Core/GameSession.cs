@@ -300,13 +300,7 @@ namespace CoastRun
             _bonus?.ForceEnd();
             if (ArcadeRun.Active)
             {
-                // 아케이드: 점수 정산 + 결과창(다시/나가기)
-                runStats?.EndStage();
-                ArcadeRun.Settle(GameManager.I, runStats);
-                // 38차: K-POP 러닝도 시안 결과 화면(아쉽지만 다음에!)으로 — 옛 '노을 달리기 결과' 카드는 안 쓴다
-                var ac = feedback != null ? feedback.Chrome : null;
-                if (ac != null) ac.ShowRunOver(() => stages?.RetryCurrent(), () => ArcadeRun.Exit(), "나가기");
-                else ArcadeResultUI.Show(runStats, () => stages?.RetryCurrent(), ArcadeRun.Exit);
+                ArcadeRunOver();
                 return;
             }
             var chrome = feedback != null ? feedback.Chrome : null;
@@ -331,6 +325,27 @@ namespace CoastRun
                         _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
                 },
                 meta ? "육성으로 돌아가기" : "메인으로");
+        }
+
+        /// 아케이드(K-POP 포함) 런 종료: 점수 정산 + 결과창(다시/나가기). 사망·완주 공용.
+        private void ArcadeRunOver()
+        {
+            runStats?.EndStage();
+            ArcadeRun.Settle(GameManager.I, runStats);
+            // 38차: K-POP 러닝도 시안 결과 화면(아쉽지만 다음에!)으로 — 옛 '노을 달리기 결과' 카드는 안 쓴다. 48차: 완주면 「한 곡 완주!」 변형.
+            var ac = feedback != null ? feedback.Chrome : null;
+            if (ac != null) ac.ShowRunOver(() => stages?.RetryCurrent(), () => ArcadeRun.Exit(), "나가기");
+            else ArcadeResultUI.Show(runStats, () => stages?.RetryCurrent(), ArcadeRun.Exit);
+        }
+
+        /// 48차: K-POP 한 곡 달리기 — 곡 끝 리본 통과(StageManager.KpopFinishCo)에서 호출. 체력이 남아 있어도 런을 끝낸다.
+        public void EndKpopRun()
+        {
+            if (!IsRunning && !ArcadeRun.KpopFinished) return;
+            IsRunning = false;
+            if (input != null) input.enabled = false;
+            _bonus?.ForceEnd();
+            ArcadeRunOver();
         }
 
         private void HandleStageStart(StageDef stage)

@@ -60,7 +60,6 @@ namespace CoastRun
         private int _bgmStage = -1;
         private readonly float[] _stemTarget = new float[4];
         private int _bgmChapter = -1;
-        private int _kpopIndex;
         private const float StemVolume = 0.9f;   // music leads; the procedural bed ducks under it
 
         private struct BedStemSnapshot
@@ -255,8 +254,11 @@ namespace CoastRun
             // 앨범 트랙(Suno, Resources/CoastRun/BGM/Track_CHnn)이 있으면 그 챕터는 풀 트랙 하나로 간다 — 스템 대신.
             int metaStage = (chapter - 1) * 4 + stageInChapter;
             var full = CoastBgmLibrary.Load(AlbumTable.Get(metaStage).Clip);
-            if (ArcadeRun.KpopMode) { var k = CoastBgmLibrary.Kpop(_kpopIndex++); if (k != null) full = k; }   // 26차: K-POP 러닝모드는 스테이지마다 다음 곡
-            bool reload = chapter != _bgmChapter || (full != null && metaStage != _bgmStage) || (full == null && _fullTrack);
+            // 48차: K-POP 한 곡 달리기 — ArcadeRun 이 고른 곡(M2/M4/M7)을 창 시작점부터. 재도전도 처음부터 다시.
+            bool kpop = ArcadeRun.KpopMode;
+            if (kpop) { var k = CoastBgmLibrary.Load(ArcadeRun.KpopTrack.Clip); if (k != null) full = k; }
+            bool reload = kpop || chapter != _bgmChapter || (full != null && metaStage != _bgmStage) || (full == null && _fullTrack);
+            _bgmFadeScale = 1f;
             if (reload)
             {
                 _bgmChapter = chapter; _bgmStage = metaStage;
@@ -282,6 +284,7 @@ namespace CoastRun
 
                 // Start every stem on the same DSP tick so they stay phase-locked.
                 double start = AudioSettings.dspTime + 0.1;
+                if (kpop && _stems[0].clip != null) _stems[0].time = Mathf.Clamp(ArcadeRun.KpopTrack.start, 0f, Mathf.Max(0f, _stems[0].clip.length - 1f));
                 for (int i = 0; i < _stems.Length; i++)
                     if (_stems[i].clip != null)
                         _stems[i].PlayScheduled(start);
@@ -322,9 +325,14 @@ namespace CoastRun
                 if (s == null || s.clip == null)
                     continue;
                 // 3 s fades — the 발주서 asks for stems to breathe in, never to pop.
-                s.volume = Mathf.MoveTowards(s.volume, _stemTarget[i], dt / 3f * StemVolume);
+                float target = _stemTarget[i] * (i == 0 ? _bgmFadeScale : 1f);
+                s.volume = Mathf.MoveTowards(s.volume, target, dt / (_bgmFadeSeconds > 0f ? _bgmFadeSeconds : 3f) * StemVolume);
             }
         }
+
+        // 48차: K-POP 곡 창 끝 — 런 BGM 만 seconds 동안 페이드아웃(다음 스테이지 시작에서 1로 복귀).
+        private float _bgmFadeScale = 1f, _bgmFadeSeconds;
+        public void SetRunBgmFade(float seconds) { _bgmFadeScale = 0f; _bgmFadeSeconds = Mathf.Max(0.1f, seconds); }
 
         private void EnsureSources()
         {

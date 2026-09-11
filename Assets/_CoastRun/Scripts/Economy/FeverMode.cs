@@ -47,10 +47,21 @@ namespace CoastRun
             HideOfferQuiet();
             _until = -1f;
             _nextOffer = Time.time + FirstOfferAfter;
+            RestoreInvincible();
         }
 
         /// 클리어 UI 등 — 제안 버튼만 즉시 숨긴다(타이머는 유지).
         public void DismissOffer() => HideOfferQuiet();
+
+        /// 48차: 다음 프레임에 바로 제안(K-POP 후렴 진입).
+        public void ForceOffer() { if (!Active) { HideOfferQuiet(); _nextOffer = Time.time; } }
+
+        private void RestoreInvincible()
+        {
+            if (_player == null) _player = FindAnyObjectByType<PlayerController>();
+            if (_player == null) return;
+            _player.Invincible = GiantMode.Active || PlayerController.DebugGod;
+        }
 
         private void Awake()
         {
@@ -118,7 +129,7 @@ namespace CoastRun
             if (_player == null) _player = FindAnyObjectByType<PlayerController>();
             if (_player == null || !_player.enabled) return false;
             if (_player.State == SkateState.Finish) return false;
-            if (ArcadeRun.Active) return false;
+            if (ArcadeRun.Active && !ArcadeRun.KpopMode) return false;   // 48차: K-POP 한 곡 달리기는 후렴에서 제안
             if (StageManager.Instance == null || !StageManager.Instance.IsStageActive) return false;
             if (RunHudChrome.Instance != null && RunHudChrome.Instance.IsPaused) return false;
             return true;
@@ -175,8 +186,11 @@ namespace CoastRun
 
         public void Trigger()
         {
+            ArcadeRun.NoteFever();   // 48차: K-POP 미션(후렴에서 피버)
             _until = Time.time + Duration;
             _nextOffer = Time.time + OfferEvery;
+            if (_player == null) _player = FindAnyObjectByType<PlayerController>();
+            if (_player != null) _player.Invincible = true;   // 피버 중 장애물 피해 없음
             VacuumNearby();
             StartCoroutine(FeverFx());
         }
@@ -219,8 +233,11 @@ namespace CoastRun
                     pulse = 0f;
                     VacuumNearby();
                 }
+                // 거인/갓과 겹쳐도 피버 동안은 무적 유지
+                if (_player != null) _player.Invincible = true;
                 yield return null;
             }
+            RestoreInvincible();
             juice?.OnFeverEnd();
         }
     }

@@ -642,7 +642,7 @@ namespace CoastRun
             if (_gliding)
                 EndGlide();
 
-            if (Invincible || _iFrameTimer > 0f)
+            if (Invincible || _iFrameTimer > 0f || FeverMode.Active)
                 return false;
 
             StageRunStats.Instance?.NotifySoftHit();

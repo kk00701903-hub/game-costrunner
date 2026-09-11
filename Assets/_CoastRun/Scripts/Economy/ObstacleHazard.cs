@@ -57,8 +57,8 @@ namespace CoastRun
                 if (!player.SoftHitApplied(ClassifyHit(player), BounceSide(player)))
                 {
                     player.PendingHitDamageMul = 1f;
-                    // 거인 무적 중엔 꽈당 대신 그냥 팡 — HP·경직 없음
-                    if (!GiantMode.Active)
+                    // 거인·피버 무적 중엔 꽈당 대신 그냥 팡 — HP·경직 없음
+                    if (!GiantMode.Active && !FeverMode.Active)
                         JuiceDirector.Instance?.PlayHitImpact();
                 }
                 // 14차-14: 부딪힌 장애물은 '팡' 하고 귀엽게 터진다 — 납작해졌다 별·하트로 흩어지고 사라진다.

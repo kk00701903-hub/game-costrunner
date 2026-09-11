@@ -174,7 +174,8 @@ namespace CoastRun
             environment?.ResetLightingTo(def.lightingTStart);
             BeginSunsetClock();
             MonochromeWorld.Arm(ChapterIndex);   // 19차-1: 20장은 10초 뒤 세상이 흑백
-            if (!ArcadeRun.Active) FeverMode.Ensure().ArmForStage();   // 꼬마 도움 버튼 → 피버
+            if (!ArcadeRun.Active || ArcadeRun.KpopMode) FeverMode.Ensure().ArmForStage();   // 꼬마 도움 버튼 → 피버 (48차: K-POP 도 — 후렴에서 제안)
+            _kpopFinishZ = float.PositiveInfinity; _kpopOutro = false; _kpopChorusOffered = false; _kpopFinishing = false;
             GiantMode.Ensure().EndNow();
 
             if (player != null && !player.enabled)
@@ -228,6 +229,14 @@ namespace CoastRun
                 ch = Mathf.Clamp(ch, 1, 20);
                 string place = ChapterLocation.Get(ch).Name;
                 string story = ChapterScript.Title(ch);
+                if (ArcadeRun.KpopMode)
+                {
+                    // 48차: 한 곡 달리기 — 챕터 카드 대신 「♪ 곡 제목 / 오늘의 미션」
+                    var sb = new System.Text.StringBuilder();
+                    for (int i = 0; i < 3 && i < ArcadeRun.Conditions.Length; i++) { if (i > 0) sb.Append(" · "); sb.Append(ArcadeRun.Conditions[i].Text); }
+                    PickupFloat.ChapterStart(ch, "♪ " + ArcadeRun.KpopTrack.Title, sb.ToString(), hold + 0.25f);
+                }
+                else
                 PickupFloat.ChapterStart(ch, place, story, hold + 0.25f);
                 var ui0 = GameDirector.Instance != null ? GameDirector.Instance.UI : null;
 #if UNITY_EDITOR
@@ -268,7 +277,8 @@ namespace CoastRun
 
             environment?.ResetLightingTo(_current.lightingTStart);
             BeginSunsetClock();
-            if (!ArcadeRun.Active) FeverMode.Ensure().ArmForStage();
+            if (!ArcadeRun.Active || ArcadeRun.KpopMode) FeverMode.Ensure().ArmForStage();
+            _kpopFinishZ = float.PositiveInfinity; _kpopOutro = false; _kpopChorusOffered = false; _kpopFinishing = false;
             GiantMode.Ensure().EndNow();
             OnStageStart?.Invoke(_current);
             AnnounceStart();
@@ -362,6 +372,7 @@ namespace CoastRun
             if (ArcadeRun.Active)
             {
                 ArcadeRun.Tick(StageLocalDistance, StageRunStats.Instance);
+                if (ArcadeRun.KpopMode) UpdateKpop();
                 return;
             }
 
@@ -398,7 +409,57 @@ namespace CoastRun
         private RunnerCameraRig _finishCam;
         private SkaterRig _finishRig;
         /// 23차-3: 결승선 앞뒤 이 구간엔 장애물 행을 놓지 않는다(리본이 가려지지 않게).
-        public float FinishPathZ => _current != null && _stageActive ? _stageOriginDistance + _current.targetDistance : float.PositiveInfinity;
+        public float FinishPathZ => ArcadeRun.KpopMode ? _kpopFinishZ : (_current != null && _stageActive ? _stageOriginDistance + _current.targetDistance : float.PositiveInfinity);
+
+        // ── 48차: K-POP 한 곡 달리기 — 시간 골인 ──
+        // 곡 창(ArcadeRun.KpopTrack.length)이 끝나는 순간이 골인. 마지막 8초(아웃트로)에 장애물 스폰을 멈추고
+        // 「지금 속도 × 남은 초」 앞에 리본을 놓는다. 리본을 지나면 완주 → GameSession.EndKpopRun(완주 결과 카드).
+        private float _kpopFinishZ = float.PositiveInfinity;
+        private bool _kpopOutro, _kpopChorusOffered, _kpopFinishing;
+        private void UpdateKpop()
+        {
+            ArcadeRun.TickKpop(_stageElapsed);
+            var track = ArcadeRun.KpopTrack;
+            // 후렴 진입: 꼬마 피버 제안(한 번) + 배너
+            if (!_kpopChorusOffered && _stageElapsed >= track.chorusStart)
+            {
+                _kpopChorusOffered = true;
+                FeverMode.Ensure().ForceOffer();
+                PickupFloat.Banner(Loc.T("후렴! 코인 ×2", "CHORUS! Coins ×2"), new Color(1f, 0.55f, 0.85f), 1.6f);
+            }
+            // 아웃트로: 장애물 없음 + 리본
+            if (!_kpopOutro && _stageElapsed >= track.length - ArcadeRun.KpopOutroSeconds)
+            {
+                _kpopOutro = true;
+                foreach (var o in FindObjectsByType<ObstacleSpawner>(FindObjectsSortMode.None)) o.SetSuppressed(true);
+                float speed = Mathf.Max(6f, player.Speed);
+                _kpopFinishZ = player.PathDistance + speed * (ArcadeRun.KpopOutroSeconds - 0.6f);
+                _ribbon = FinishRibbon.Spawn(_kpopFinishZ);
+                CoastAudioManager.Instance?.SetRunBgmFade(3f);
+            }
+            if (!_kpopFinishing && (player.PathDistance >= _kpopFinishZ || _stageElapsed >= track.length + 1.5f))
+            {
+                _kpopFinishing = true;
+                StartCoroutine(KpopFinishCo());
+            }
+        }
+
+        private System.Collections.IEnumerator KpopFinishCo()
+        {
+            _stageActive = false;
+            ArcadeRun.MarkKpopFinished();
+            _ribbon?.Break();
+            player?.FinishRun();
+            float sweepZ = player != null ? player.PathDistance - 1f : 0f;
+            foreach (var c in FindObjectsByType<CoinSpawner>(FindObjectsSortMode.None)) c.ClearAhead(sweepZ);
+            foreach (var j in FindObjectsByType<JellySpawner>(FindObjectsSortMode.None)) j.ClearAhead(sweepZ);
+            FeverMode.Ensure().DismissOffer();
+            PickupFloat.Banner(Loc.T("한 곡 완주! ♪", "SONG COMPLETE! ♪"), new Color(1f, 0.85f, 0.3f), 1.4f);
+            yield return new WaitForSeconds(1.2f);
+            _kpopFinishing = false;
+            var session = UnityEngine.Object.FindAnyObjectByType<GameSession>();
+            if (session != null) session.EndKpopRun();
+        }
 
         private System.Collections.IEnumerator FinishThenClear(StageDef cleared, bool chapterEnd)
         {

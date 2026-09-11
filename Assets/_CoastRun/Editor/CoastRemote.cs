@@ -220,6 +220,20 @@ namespace CoastRun.Editor
                     }
                 case "key":
                     CoastRemoteKeys.Press(arg); return J("ok", "key " + arg);
+                case "vn":
+                    // 통합테스트: ChapterVN 씬 재생. 예) vn PRO / vn CH04_Open / vn END_A / vn skip
+                    {
+                        Play();
+                        if (arg.Equals("skip", StringComparison.OrdinalIgnoreCase) || arg == "S")
+                        {
+                            CoastRemoteKeys.Press("S");
+                            return J("ok", "vn skip");
+                        }
+                        if (string.IsNullOrEmpty(arg)) return J("error", "vn <sceneId>");
+                        ChapterVN.HoldBlackOnNext = false;
+                        ChapterVN.Play(arg, null);
+                        return J("ok", "vn " + arg);
+                    }
                 case "timescale": Time.timeScale = float.Parse(arg, System.Globalization.CultureInfo.InvariantCulture); return J("ok", "timescale " + arg);
                 case "gameview":
                     { var gv = GetGameView(); gv?.Focus(); return J("ok", gv != null ? "focused" : "no gameview"); }

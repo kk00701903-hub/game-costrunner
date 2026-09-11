@@ -3,7 +3,8 @@ using UnityEngine;
 namespace CoastRun
 {
     /// 챕터 미션 — 챕터마다 별 3개: ★1 클리어, ★2·★3 조건. 총 60별. 별 수로 팬아트가 열린다.
-    public enum MissionKind { NoHit, NearMiss, Coins, Combo, Hearts, MaxHits, Fast }
+    /// 48차: Finish(곡 끝까지 달리기)·Fever(후렴에서 꼬마 도움) — K-POP 한 곡 달리기 일일 미션 전용(ArcadeRun.DailyCondition).
+    public enum MissionKind { NoHit, NearMiss, Coins, Combo, Hearts, MaxHits, Fast, Finish, Fever }
 
     public struct MissionDef
     {

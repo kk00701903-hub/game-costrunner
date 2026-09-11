@@ -23,8 +23,9 @@ namespace CoastRun
                 onDone?.Invoke();
                 return;
             }
+            // 감사 3-12: Destroy만 하면 Finish/_onDone·IsPlaying·레이캐스트가 남을 수 있음 → 조용히 정리 후 교체
             if (_active != null)
-                UnityEngine.Object.Destroy(_active.gameObject);
+                _active.AbortForReplace();
             var go = new GameObject("ChapterVN");
             UnityEngine.Object.DontDestroyOnLoad(go);
             _active = go.AddComponent<ChapterVN>();
@@ -597,6 +598,7 @@ namespace CoastRun
         private void Finish()
         {
             IsPlaying = false;
+            StopAllCoroutines();
             VnMusic.Stop(0.8f);
             RecordTable.OnSceneWatched(_sceneId);   // 37차: 롱컷을 보면 레코드 해금
             var cb = _onDone;
@@ -613,6 +615,20 @@ namespace CoastRun
             if (_active == this) _active = null;
             UnityEngine.Object.Destroy(gameObject);
             cb?.Invoke();
+        }
+
+        /// 다른 컷씬으로 교체할 때 — 콜백 없이 UI/음악만 내린다(소프트락·이중 콜백 방지).
+        private void AbortForReplace()
+        {
+            IsPlaying = false;
+            StopAllCoroutines();
+            VnMusic.Stop(0.35f);
+            _onDone = null;
+            HoldBlackOnNext = false;
+            if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject);
+            _canvas = null;
+            if (_active == this) _active = null;
+            UnityEngine.Object.Destroy(gameObject);
         }
     }
 
@@ -637,6 +653,8 @@ namespace CoastRun
             if (float.TryParse(pitchCell, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var pt)) pitch = Mathf.Clamp(pt, 0.5f, 1.5f);
             var clip = CoastBgmLibrary.Load("BGM_" + k);
             if (clip == null) { Debug.LogWarning("[VnMusic] 곡 없음: " + key); Stop(0.5f); return; }
+            // 타이틀 메뉴 BGM과 겹치지 않게
+            UnityEngine.Object.FindAnyObjectByType<TitleAudio>()?.StopMenu();
             Ensure().Play(clip, vol, pitch, k);   // 전체 볼륨은 AudioListener(CoastPrefs.VolumeStep)가 맡는다
         }
 

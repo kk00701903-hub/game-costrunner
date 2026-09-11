@@ -559,6 +559,7 @@ namespace CoastRun
             if (_sparkleRoot != null) _sparkleRoot.gameObject.SetActive(false);
 
             float mult = (_upgrades != null ? _upgrades.GetCoinMultiplier() : 1f) * PetCompanion.CoinBonus * RunTuning.CoinMul;
+            if (ArcadeRun.KpopChorus) mult *= 2f;   // 48차: K-POP 후렴 구간 코인 ×2
             int amount = Mathf.Max(1, Mathf.RoundToInt(value * mult));
             _wallet?.Add(amount);
             StageRunStats.Instance?.NotifyCoin(amount);

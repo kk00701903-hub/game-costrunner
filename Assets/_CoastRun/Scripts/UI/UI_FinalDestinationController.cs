@@ -219,6 +219,7 @@ namespace CoastRun
                     ? Mathf.Clamp01(player.PathDistance / Mathf.Max(1f, upgrades.TowerDistance))
                     : 0f);
 
+            if (ArcadeRun.KpopMode) progress = ArcadeRun.KpopProgress01;   // 48차: K-POP 은 곡 진행이 곧 여정
             if (_fill != null)
                 _fill.fillAmount = progress;
 
@@ -259,6 +260,13 @@ namespace CoastRun
                         _timerLabel.text = Loc.T("해가 졌어…", "sun is down…");
                         _timerLabel.color = Color.Lerp(new Color(1f, 0.4f, 0.4f), new Color(1f, 0.8f, 0.8f), 0.5f + 0.5f * Mathf.Sin(Time.time * 6f));
                     }
+                }
+                else if (ArcadeRun.KpopMode)
+                {
+                    // 48차: 한 곡 달리기 — 곡 남은 시간. 후렴은 분홍, 마지막 10초는 주황.
+                    int sec = Mathf.CeilToInt(ArcadeRun.KpopSecondsLeft);
+                    _timerLabel.text = "♪ " + string.Format("{0}:{1:00}", sec / 60, sec % 60);
+                    _timerLabel.color = ArcadeRun.KpopChorus ? new Color(1f, 0.6f, 0.85f) : sec <= 10 ? new Color(1f, 0.55f, 0.35f) : new Color(0.9f, 0.95f, 1f);
                 }
                 else if (ArcadeRun.Active)
                 {

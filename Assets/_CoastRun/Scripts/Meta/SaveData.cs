@@ -185,6 +185,14 @@ namespace CoastRun
         public string[] roomSlots = new string[RoomDeco.SlotCount];   // 28차: 슬롯별 배치된 장식 id(30차부터는 homeItems로 이관)
         public HomeItem[] homeItems = new HomeItem[0];                  // 30차: 방 안 자유 배치(id, x, y)
         public bool homeCompleteRewarded;                                 // 31차: 방 완성 보상(300G) 지급 여부
+        // ── 48차: K-POP 한 곡 달리기(데일리). 도장·스트릭은 dailyStamps/dailyStreak/lastDailyDate 를 그대로 쓴다 ──
+        public int kpopMissionDoneMask;          // 오늘 미션 3비트(kpopMissionDate != 오늘이면 0)
+        public int kpopMissionDate;
+        public int kpopAllClearDate;             // 올클리어 보상을 준 날짜
+        public int kpopRunsToday, kpopRunsDate;  // 코인 감쇠용(4번째 런부터 ×0.5, 8번째부터 ×0.25)
+        public int kpopTodayBest, kpopTodayDate;
+        public int[] kpopBestByChapter = new int[20];
+        public int kpopSongsFinished;            // 완주 누적
         public int EndingsSeenCount { get { int n = 0; for (int i = 0; i < 7; i++) if ((endingMask & (1 << i)) != 0) n++; return n; } }
 
         public int StarsTotal { get { int n = 0; if (starMask != null) foreach (var m in starMask) n += (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1); return n; } }
@@ -202,6 +210,7 @@ namespace CoastRun
             if (bestCombo == null || bestCombo.Length < 20) bestCombo = Grow(bestCombo, 20);
             if (bestNearMiss == null || bestNearMiss.Length < 20) bestNearMiss = Grow(bestNearMiss, 20);
             if (dailyStamps == null) dailyStamps = new int[0];
+            if (kpopBestByChapter == null || kpopBestByChapter.Length < 20) kpopBestByChapter = Grow(kpopBestByChapter, 20);
             RoomDeco.Ensure(this);
         }
         static int[] Grow(int[] a, int n) { var r = new int[n]; if (a != null) Array.Copy(a, r, Math.Min(a.Length, n)); return r; }

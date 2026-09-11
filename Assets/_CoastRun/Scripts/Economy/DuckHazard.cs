@@ -24,7 +24,7 @@ namespace CoastRun
                 return;
 
             nearMiss?.NotifyHardHit();
-            if (!player.SoftHitApplied(HitKind.Trip, 0) && !GiantMode.Active)
+            if (!player.SoftHitApplied(HitKind.Trip, 0) && !GiantMode.Active && !FeverMode.Active)
                 JuiceDirector.Instance?.PlayHitImpact();
             ObstacleHazard.PopFrom(transform);   // 18차: 허들·빨랫줄·등불 줄도 닿으면 팡
         }

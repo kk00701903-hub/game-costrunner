@@ -51,7 +51,7 @@ namespace CoastRun
             if (_fx != null) { StopCoroutine(_fx); _fx = null; }
             if (_player != null)
             {
-                if (!PlayerController.DebugGod && !BonusTimeDirector.IsActive)
+                if (!PlayerController.DebugGod && !BonusTimeDirector.IsActive && !FeverMode.Active)
                     _player.Invincible = false;
                 _player.VisualScaleMul = 1f;
             }
@@ -100,7 +100,7 @@ namespace CoastRun
 
             if (_player != null)
             {
-                if (!PlayerController.DebugGod && !BonusTimeDirector.IsActive)
+                if (!PlayerController.DebugGod && !BonusTimeDirector.IsActive && !FeverMode.Active)
                     _player.Invincible = false;
                 _player.VisualScaleMul = 1f;
             }
