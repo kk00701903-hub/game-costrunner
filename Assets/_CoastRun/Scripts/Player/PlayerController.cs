@@ -357,7 +357,8 @@ namespace CoastRun
         // ── 47차: 2단 점프 ─────────────────────────────────────────────
         private bool _doubleJumpUsed;
         public bool DoubleJumpUsed => _doubleJumpUsed;
-        public const float DoubleJumpMul = 0.88f;
+        /// 48차-9(사용자): 2단 점프 최고점 = 1단 점프 최고점의 2배. 현재 높이에서 그 최고점까지 남은 거리로 초기속도를 역산한다.
+        public const float DoubleJumpHeightMul = 2f;
         /// 공중에서 두 번째 점프가 나간 순간(허공 디딤 연출용). OnJumped 도 같이 나간다.
         public event Action OnDoubleJumped;
 
@@ -372,7 +373,12 @@ namespace CoastRun
                 if (_state == SkateState.Air && !_doubleJumpUsed && !_gliding)
                 {
                     _doubleJumpUsed = true;
-                    _verticalVelocity = Mathf.Max(_verticalVelocity, 0f) * 0.15f + config.jumpForce * DoubleJumpMul;
+                    // 1단 최고 높이 h1 = v²/2g → 목표 최고점 2·h1(바닥 기준). 지금 높이 y0 에서 남은 (2h1 − y0) 만큼 오르는 속도.
+                    float g = Mathf.Max(0.01f, -config.gravity);
+                    float h1 = config.jumpForce * config.jumpForce / (2f * g);
+                    float y0 = Mathf.Max(0f, _hop - (_groundY + _bodyHeight * 0.5f));
+                    float remain = Mathf.Max(h1 * 0.6f, h1 * DoubleJumpHeightMul - y0);   // 너무 늦게 눌러도 최소 0.6·h1 은 더 오른다
+                    _verticalVelocity = Mathf.Sqrt(2f * g * remain);
                     OnDoubleJumped?.Invoke();
                     OnJumped?.Invoke();
                 }

@@ -63,6 +63,8 @@ namespace CoastRun.Editor
                     c.keepOriginalPositionY = true;
                     c.keepOriginalPositionXZ = true;
                     c.mirror = false;
+                    // 48차-9: Mixamo "Running Forward Flip"(34프레임) 중 공중 구간만 — 도약 10 ~ 착지 27 (Blender 분석: 15~23 프레임에 머리가 골반 아래)
+                    if (c.name == "DoubleJump" && c.lastFrame > 30f) { c.firstFrame = 10f; c.lastFrame = 27f; }
                     clips[i] = c;
                 }
                 importer.clipAnimations = clips;
@@ -140,7 +142,7 @@ namespace CoastRun.Editor
                 Debug.LogError("[Mixamo] Need at least Anim_Skate.fbx.");
                 return;
             }
-            BuildController(Folder + "SkaterAnimator.controller", "Skate", skate, Clip("Push"), Clip("Jump"), Clip("Hit"), Clip("Collect"));
+            BuildController(Folder + "SkaterAnimator.controller", "Skate", skate, Clip("Push"), Clip("Jump"), Clip("Hit"), Clip("Collect"), Clip("DoubleJump", quiet: true));
 
             // v2 러닝 모드: Anim_Run.fbx가 있으면 RunnerAnimator도 만든다. 점프/피격/수집은
             // 러닝 전용 클립(Anim_RunJump 등)이 없으면 스케이트 클립을 그대로 쓴다.
@@ -150,13 +152,14 @@ namespace CoastRun.Editor
                 BuildController(Folder + "RunnerAnimator.controller", "Run", run, null,
                     Clip("RunJump", quiet: true) ?? Clip("Jump"),
                     Clip("RunHit", quiet: true) ?? Clip("Hit"),
-                    Clip("RunCollect", quiet: true) ?? Clip("Collect"));
+                    Clip("RunCollect", quiet: true) ?? Clip("Collect"),
+                    Clip("DoubleJump", quiet: true));   // 48차-9: Blender 제작 2단 점프(공중 앞돌기) — Anim_DoubleJump.fbx
             else
                 Debug.Log("[Mixamo] Anim_Run.fbx 없음 — 러닝 모드는 스케이터 리그(보드 숨김)로 동작합니다.");
         }
 
         private static void BuildController(string ctrlPath, string baseName, AnimationClip skate,
-            AnimationClip push, AnimationClip jump, AnimationClip hit, AnimationClip collect)
+            AnimationClip push, AnimationClip jump, AnimationClip hit, AnimationClip collect, AnimationClip doubleJump = null)
         {
             var ctrl = AssetDatabase.LoadAssetAtPath<AnimatorController>(ctrlPath);
             if (ctrl != null)
@@ -169,6 +172,7 @@ namespace CoastRun.Editor
             ctrl.AddParameter("Grounded", AnimatorControllerParameterType.Bool);
             ctrl.AddParameter("HitMirror", AnimatorControllerParameterType.Bool);
             ctrl.AddParameter("Speed", AnimatorControllerParameterType.Float);
+            if (doubleJump != null) ctrl.AddParameter("DoubleJump", AnimatorControllerParameterType.Trigger);
 
             var sm = ctrl.layers[0].stateMachine;
             var sSkate = sm.AddState(baseName);
@@ -197,6 +201,20 @@ namespace CoastRun.Editor
                 land.hasExitTime = true; land.exitTime = 0.6f; land.duration = 0.15f;
                 var landLate = sJump.AddTransition(sSkate);
                 landLate.hasExitTime = true; landLate.exitTime = 0.98f; landLate.duration = 0.1f;
+            }
+            if (doubleJump != null)
+            {
+                // 48차-9: 2단 점프 — 공중 어디서든(주로 Jump 중) 트리거, 클립 끝(≈0.63s)이나 착지에 기본 상태로.
+                var sDj = sm.AddState("DoubleJump");
+                sDj.motion = doubleJump; sDj.tag = "Jump";
+                var t = sm.AddAnyStateTransition(sDj);
+                t.AddCondition(AnimatorConditionMode.If, 0, "DoubleJump");
+                t.hasExitTime = false; t.duration = 0.06f; t.canTransitionToSelf = false;
+                var land = sDj.AddTransition(sSkate);
+                land.AddCondition(AnimatorConditionMode.If, 0, "Grounded");
+                land.hasExitTime = true; land.exitTime = 0.5f; land.duration = 0.12f;
+                var end = sDj.AddTransition(sSkate);
+                end.hasExitTime = true; end.exitTime = 0.97f; end.duration = 0.12f;
             }
             if (hit != null)
             {

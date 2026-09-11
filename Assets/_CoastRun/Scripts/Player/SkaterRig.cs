@@ -22,6 +22,7 @@ namespace CoastRun
         private static readonly int HashGrounded = Animator.StringToHash("Grounded");
         private static readonly int HashSpeed = Animator.StringToHash("Speed");
         private static readonly int HashHitMirror = Animator.StringToHash("HitMirror");
+        private static readonly int HashDoubleJump = Animator.StringToHash("DoubleJump");   // 48차-9
         // Sideways knock: the whole rig tips away from the impact and eases back.
         private float _tilt, _tiltVel;
         private float _lean, _leanVel, _yaw, _yawVel;
@@ -295,7 +296,8 @@ namespace CoastRun
                 // 골인 직후 speed=0 잔여가 있으면 점프 클립이 안 돈다
                 if (_anim.speed < 0.01f) _anim.speed = 1f;
                 _anim.SetBool(HashGrounded, false);
-                _anim.SetTrigger(HashJump);
+                // 48차-9: 2단 점프 직후의 OnJumped 는 Jump 클립을 다시 틀지 않는다(DoubleJump 클립이 이미 트리거됨)
+                if (!(_djClip && _player != null && _player.DoubleJumpUsed)) _anim.SetTrigger(HashJump);
             }
             var c = Cfg; float stretch = c != null ? c.jumpStretch : 1.16f;
             _squash = Mathf.Max(_squash, stretch); _squashVel = 2.2f;   // 위로 쭉
@@ -304,9 +306,15 @@ namespace CoastRun
         // 공중에서 두 번째 점프: 0.1초 웅크렸다(무릎 두 개 가슴으로) → 오른발로 허공을 딛듯 아래로 쭉 뻗고 왼무릎·양팔은 위로. 0.45초 뒤 원래 Air 포즈로.
         private float _djTimer;
         private const float DjDur = 0.45f;
+        private bool _djClip;   // 48차-9: 컨트롤러에 DoubleJump 클립(Blender 앞돌기)이 있으면 절차적 포즈 대신 클립
         private void HandleDoubleJump()
         {
-            _djTimer = DjDur;
+            _djClip = _anim != null && HasParameter(_anim, "DoubleJump");
+            if (_djClip) { _anim.ResetTrigger(HashJump); _anim.SetTrigger(HashDoubleJump); _djTimer = 0f; }
+            else _djTimer = DjDur;
+#if UNITY_EDITOR
+            Debug.LogWarning("[DJ] double jump: clip=" + _djClip + " t=" + Time.time.ToString("F2"));
+#endif
             _squash = Mathf.Min(_squash, 0.84f); _squashVel = 3.4f;   // 살짝 움츠렸다 위로 쭉
             _bagPitchVel += 200f;
             JuiceDirector.Instance?.OnDoubleJump(transform.position + Vector3.down * 0.05f);
@@ -512,7 +520,7 @@ namespace CoastRun
                 if (_anim != null)
                 {
                     var st = _anim.GetCurrentAnimatorStateInfo(0);
-                    inJumpClip = st.IsName("Jump") || st.IsTag("Jump");
+                    inJumpClip = st.IsName("Jump") || st.IsTag("Jump") || st.IsName("DoubleJump");
                 }
                 if (_djTimer > 0f && _player != null && _player.State == SkateState.Air)
                 {
