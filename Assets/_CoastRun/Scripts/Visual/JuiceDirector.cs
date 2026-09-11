@@ -209,14 +209,37 @@ namespace CoastRun
         }
 
         /// 47차: 2단 점프 — 발밑에 흰 구름 퍼프 + 작은 링(허공을 디딘 자국).
-        public void OnDoubleJump(Vector3 worldPos)
+        public void OnDoubleJump(Vector3 worldPos) => OnDoubleJump(worldPos, null);
+
+        /// 48차-11(사용자): 엉덩이에서 뿡 하고 쓩 올라가는 느낌 — 엉덩이 뒤·아래로 큰 퍼프 터짐 + 0.35초 동안 뒤따르는 제트 꼬리(따라오며 아래로 뿜음)
+        ///          + 링 + 스피드라인 + FOV 살짝 넓힘 + 「뿡→쓩」 효과음.
+        public void OnDoubleJump(Vector3 worldPos, Transform follow)
         {
             EnsurePopBursts();
-            SpawnPop(_popPuff, worldPos, new Color(1f, 1f, 1f, 0.9f), 7);
-            StartCoroutine(FlashRing(worldPos, new Color(1f, 1f, 1f, 0.75f), 1.3f));
-            speedLines?.Burst(14);
+            SpawnPop(_popPuff, worldPos, new Color(1f, 1f, 1f, 0.95f), 16);
+            SpawnPop(_popPuff, worldPos + Vector3.down * 0.25f, new Color(1f, 0.95f, 0.75f, 0.9f), 8);   // 노르스름한 안쪽
+            StartCoroutine(FlashRing(worldPos, new Color(1f, 1f, 1f, 0.8f), 1.6f));
+            if (follow != null) StartCoroutine(ButtJet(follow, worldPos - follow.position, 0.35f));
+            speedLines?.Burst(30);
+            cameraRig?.FovKick(+4f, 0.25f);
             CoastPrefs.Vibrate();
-            audio?.PlaySfx(CoastSfx.NearMiss);
+            audio?.PlaySfx(CoastSfx.Boost);
+        }
+
+        private IEnumerator ButtJet(Transform follow, Vector3 offset, float seconds)
+        {
+            float t = 0f; int i = 0;
+            while (t < seconds && follow != null)
+            {
+                t += Time.deltaTime;
+                if (i++ % 2 == 0)
+                {
+                    float k = 1f - t / seconds;
+                    var pos = follow.position + offset + Vector3.down * (0.15f + 0.5f * (1f - k));
+                    SpawnPop(_popPuff, pos, new Color(1f, 1f, 1f, 0.55f + 0.4f * k), 3);
+                }
+                yield return null;
+            }
         }
 
         public void OnJumpPad(Vector3 worldPos)

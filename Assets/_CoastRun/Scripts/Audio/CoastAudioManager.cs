@@ -17,7 +17,8 @@ namespace CoastRun
         Purchase,       // 앨범 구매 성공
         RadioSting,     // 라디오 스팅어(엔딩·편지)
         MenuOpen,       // 패널 열림
-        Fail            // 실패·잠수
+        Fail,           // 실패·잠수
+        Boost           // 48차-11: 2단 점프 「뿡→쓩」 (저음 툭 + 위로 휘는 휘파람 노이즈)
     }
 
     /// Procedural ambient + skate SFX (no external clips required).
@@ -48,6 +49,7 @@ namespace CoastRun
         private AudioClip _clipSoftHit;
         private AudioClip _clipLand;
         private AudioClip _clipJump;
+        private AudioClip _clipBoost;
         private bool _bedMuted;
         private bool _stemFrozen;
         private BedStemSnapshot _savedStem;
@@ -373,6 +375,8 @@ namespace CoastRun
                 _clipJump = ProceduralAudio.CreateBlip(360f, 0.05f);
             if (_clipHorn == null)
                 _clipHorn = ProceduralAudio.CreateHorn(0.45f);
+            if (_clipBoost == null)
+                _clipBoost = ProceduralAudio.CreateWhoosh(0.34f);
         }
 
         private AudioSource CreateSource(string name, float vol, bool loop)
@@ -487,6 +491,8 @@ namespace CoastRun
                     clip = _clipCoin; vol = 0.5f; pitch = 1.25f; break;
                 case CoastSfx.Fail:
                     clip = _clipSoftHit; vol = 0.5f; pitch = 0.6f; break;
+                case CoastSfx.Boost:
+                    clip = _clipBoost; vol = 0.75f; pitch = Random.Range(0.95f, 1.08f); break;
                 case CoastSfx.RadioSting:
                 case CoastSfx.MenuOpen:
                     clip = _clipJump; vol = 0.3f; pitch = 1f; break;
@@ -576,6 +582,35 @@ namespace CoastRun
             }
 
             var clip = AudioClip.Create("Horn", samples, 1, sampleRate, false);
+            clip.SetData(data, 0);
+            return clip;
+        }
+
+        /// 48차-11: 「뿡→쓩」 — 앞 40ms 는 낮은 툭(70→40Hz), 그 뒤 220→1400Hz 로 휘어 올라가는 톤 + 밴드 노이즈, 끝은 짧게.
+        public static AudioClip CreateWhoosh(float seconds)
+        {
+            int sampleRate = 44100;
+            int samples = Mathf.CeilToInt(sampleRate * seconds);
+            var data = new float[samples];
+            var rng = new System.Random(7);
+            float phase = 0f, lp = 0f;
+            for (int i = 0; i < samples; i++)
+            {
+                float t = i / (float)sampleRate;
+                float u = t / seconds;
+                // 저음 툭
+                float thump = t < 0.05f ? Mathf.Sin(2f * Mathf.PI * (70f - 600f * t) * t) * (1f - t / 0.05f) * 0.9f : 0f;
+                // 위로 휘는 톤(지수 스윕)
+                float f = 220f * Mathf.Pow(1400f / 220f, Mathf.Clamp01((t - 0.03f) / (seconds - 0.03f)));
+                phase += 2f * Mathf.PI * f / sampleRate;
+                float env = t < 0.03f ? 0f : Mathf.Sin(Mathf.PI * Mathf.Clamp01((u - 0.08f) / 0.92f));
+                float tone = Mathf.Sin(phase) * 0.5f + Mathf.Sin(phase * 2f) * 0.15f;
+                // 숨소리 노이즈(간단 저역 통과)
+                float n = ((float)rng.NextDouble() * 2f - 1f); lp += (n - lp) * 0.35f;
+                float wave = thump + (tone * 0.7f + lp * 0.6f) * env;
+                data[i] = Mathf.Clamp(wave * 0.6f, -0.9f, 0.9f);
+            }
+            var clip = AudioClip.Create("Whoosh", samples, 1, sampleRate, false);
             clip.SetData(data, 0);
             return clip;
         }

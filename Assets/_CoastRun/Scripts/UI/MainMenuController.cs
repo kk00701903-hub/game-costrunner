@@ -105,7 +105,12 @@ namespace CoastRun
             {
                 // 47차: 로딩바 없음 — 버스 영상이 준비되면 바로 재생, 끝나거나(≈5.6초) 탭하면 타이틀로.
                 float prep = 0f;
-                while (_splashPlayer != null && !_splashPlayer.isPrepared && prep < 6f)   // 48차-8: 폰 첫 실행은 디코더 준비가 느려 6초까지 { prep += Time.unscaledDeltaTime; yield return null; }
+                // 48차-8: 폰 첫 실행은 디코더 준비가 느려 6초까지 대기. (본문을 주석에 넣으면 while이 LogWarning만 돌며 메인스레드가 멈춤)
+                while (_splashPlayer != null && !_splashPlayer.isPrepared && prep < 6f)
+                {
+                    prep += Time.unscaledDeltaTime;
+                    yield return null;
+                }
 #if UNITY_EDITOR
                 Debug.LogWarning("[Title] splash video prepared=" + (_splashPlayer != null && _splashPlayer.isPrepared) + " after " + prep.ToString("0.00") + "s");
 #endif

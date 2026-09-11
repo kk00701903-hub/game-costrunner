@@ -15,11 +15,12 @@ namespace CoastRun
         private CanvasGroup _veilCg;
         private Sprite _loadingSprite;
         private bool _usingArt;
-        // 48차-8(사용자): 로딩 그림(UI_Loading_Mock) 위에 올라가는 숫자·바. 그림은 720×1280 시안 좌표라 1.5배 스케일 컨테이너 안에 그린다.
-        private RectTransform _loadOverlay, _loadCover;
+        // 48차-8(사용자): 로딩 그림(UI_Loading_Mock) 위에 올라가는 %. 그림은 720×1280 시안 좌표라 1.5배 스케일 컨테이너 안에 그린다.
+        // 바를 가리던 LoadCover(남색 라운드)는 시안 초록 바 위에 검은 덩어리로 보여서 제거 — %만 애니.
+        private RectTransform _loadOverlay;
         private Text _loadPct;
         private float _loadT;
-        private const float LoadCoverW = 295f, LoadFillSeconds = 1.3f;
+        private const float LoadFillSeconds = 1.3f;
 
         public void EnsureBuilt()
         {
@@ -73,17 +74,6 @@ namespace CoastRun
             _loadOverlay.sizeDelta = new Vector2(720f, 1280f);
             _loadOverlay.localScale = Vector3.one * 1.5f;   // 시안 좌표(720×1280) → 캔버스(1080×1920)
 
-            var cover = new GameObject("LoadCover", typeof(RectTransform), typeof(Image));
-            cover.transform.SetParent(go.transform, false);
-            _loadCover = cover.GetComponent<RectTransform>();
-            _loadCover.anchorMin = _loadCover.anchorMax = new Vector2(0f, 1f);
-            _loadCover.pivot = new Vector2(1f, 0.5f);
-            _loadCover.anchoredPosition = new Vector2(420f, -981f);
-            _loadCover.sizeDelta = new Vector2(LoadCoverW, 44f);
-            var cimg = cover.GetComponent<Image>();
-            cimg.sprite = CoastUiArt.RoundedRect(14); cimg.type = Image.Type.Sliced;
-            cimg.color = new Color(0.09f, 0.11f, 0.19f, 0.97f); cimg.raycastTarget = false;
-
             var tgo = new GameObject("LoadPct", typeof(RectTransform));
             tgo.transform.SetParent(go.transform, false);
             _loadPct = tgo.AddComponent<Text>();
@@ -105,9 +95,7 @@ namespace CoastRun
 
         private void SetLoadProgress(float u)
         {
-            u = Mathf.Clamp01(u);
-            if (_loadCover != null) _loadCover.sizeDelta = new Vector2(LoadCoverW * (1f - u), 44f);
-            if (_loadPct != null) _loadPct.text = Mathf.RoundToInt(u * 100f) + "%";
+            if (_loadPct != null) _loadPct.text = Mathf.RoundToInt(Mathf.Clamp01(u) * 100f) + "%";
         }
 
         private void CacheLoadingSprite()

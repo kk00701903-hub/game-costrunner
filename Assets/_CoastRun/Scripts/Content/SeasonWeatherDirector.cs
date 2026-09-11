@@ -94,6 +94,10 @@ namespace CoastRun
 
         private void Update()
         {
+#if UNITY_EDITOR
+            // 48차-10: 원격 검증용 — F9 = 비 ↔ 눈 토글(unity_cmd "key F9")
+            if (CoastRemoteKeys.Down(KeyCode.F9)) { weather = weather == WeatherKind.Rain ? WeatherKind.Snow : WeatherKind.Rain; _changeTimer = 0f; Apply(); }
+#endif
             if (Time.timeScale <= 0f) return;
             _changeTimer += Time.deltaTime;
             if (_changeTimer < _nextChange) return;

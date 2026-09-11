@@ -317,7 +317,11 @@ namespace CoastRun
 #endif
             _squash = Mathf.Min(_squash, 0.84f); _squashVel = 3.4f;   // 살짝 움츠렸다 위로 쭉
             _bagPitchVel += 200f;
-            JuiceDirector.Instance?.OnDoubleJump(transform.position + Vector3.down * 0.05f);
+            // 48차-11: 엉덩이(Hips 뼈) 뒤·아래에서 뿜는다 + 리그를 따라오는 제트 꼬리
+            var hipsT = _anim != null ? _anim.GetBoneTransform(HumanBodyBones.Hips) : null;
+            Vector3 fwd = transform.parent != null ? transform.parent.forward : transform.forward;
+            Vector3 butt = (hipsT != null ? hipsT.position : transform.position + Vector3.up * 0.9f) - fwd * 0.18f + Vector3.down * 0.12f;
+            JuiceDirector.Instance?.OnDoubleJump(butt, transform);
         }
         private void DoubleJumpPoseLate()
         {

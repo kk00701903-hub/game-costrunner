@@ -71,6 +71,13 @@ namespace CoastRun
 
     public static class ArcadeRun
     {
+        /// 48차-11: 에디터 「도메인 리로드 없이 플레이」에서 정적 상태(KpopMode 등)가 다음 플레이로 새는 것 방지.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            Kind = ArcadeKind.None; KpopMode = false; KpopFinished = false; KpopElapsed = 0f; FeverInChorus = 0;
+            Conditions = new DailyCondition[0]; ConditionDone = new bool[3]; ObstacleSpawner.SeedOverride = null;
+        }
         public static ArcadeKind Kind { get; private set; }
         public static bool Active => Kind != ArcadeKind.None;
         public static int Seed { get; private set; }
