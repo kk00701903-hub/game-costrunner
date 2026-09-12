@@ -267,9 +267,9 @@ namespace CoastRun
 
             string[] lines = EndingLetter.LinesFor(GameManager.I != null ? GameManager.I.PendingEnding : EndingKind.None);
             float per = seconds / Mathf.Max(1, lines.Length);
-            var spoken = ProceduralAudio.CreateLoop(180f, 0.02f, 2f); // soft VO bed, not speech content
+            AudioClip spoken = null;   // 56차(사용자): 합성 VO 베드(180 Hz 톤) 제거
 
-            if (_vo != null)
+            if (_vo != null && spoken != null)
             {
                 _vo.clip = spoken;
                 _vo.volume = 0.12f;
@@ -582,8 +582,7 @@ namespace CoastRun
             var clip = CoastBgmLibrary.Load(key)
                        ?? Resources.Load<AudioClip>("CoastRun/Audio/" + key);
             bool real = clip != null;
-            if (clip == null)
-                clip = ProceduralAudio.CreateLoop(freq, noise, 8f);
+            if (clip == null) { if (_bgm.isPlaying) _bgm.Stop(); _bgm.clip = null; return; }   // 56차: 합성 대체 음악 금지
             _bgm.clip = clip;
             // Composed ending cues are through-written (Arrival/Letter); Descent is the loop.
             _bgm.loop = real ? loop && (key == "BGM_End_Descent" || key == "BGM_Sting_Radio") : loop;
@@ -611,10 +610,8 @@ namespace CoastRun
         private void PlayPulse()
         {
             EnsureAudio();
-            _pulse.clip = ProceduralAudio.CreateLoop(48f, 0.01f, 2f);
-            _pulse.volume = 0.05f;
-            _pulse.loop = true;
-            _pulse.Play();
+            // 56차(사용자): 합성 저음 펄스(음악성 대체음) 제거
+            _pulse.clip = null;
         }
 
         private void StopPulse()
@@ -626,10 +623,8 @@ namespace CoastRun
         private void PlayPianoNote()
         {
             EnsureAudio();
-            _piano.clip = ProceduralAudio.CreateBlip(523.25f, 1.8f); // C5
-            _piano.volume = 0.35f;
-            _piano.pitch = 0.85f;
-            _piano.Play();
+            // 56차(사용자): 합성 피아노 음 제거 — 음악은 M 곡만
+            _piano.clip = null;
         }
 
         private void StartFootsteps()

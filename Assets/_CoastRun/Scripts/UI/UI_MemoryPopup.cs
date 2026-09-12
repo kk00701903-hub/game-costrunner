@@ -480,11 +480,7 @@ namespace CoastRun
 
             var clip = CoastBgmLibrary.Load(def.bgmKey)
                        ?? Resources.Load<AudioClip>("CoastRun/Audio/" + def.bgmKey);
-            if (clip == null)
-            {
-                float freq = def.IsColdTone ? 130f : def.chapter >= 3 ? 165f : 196f;
-                clip = ProceduralAudio.CreateLoop(freq, def.IsColdTone ? 0.06f : 0.03f, 8f);
-            }
+            if (clip == null) return;   // 56차(사용자): 합성 대체 음악 금지 — M 곡(별칭 BGM_M6)이 없으면 무음
 
             _memBgm.clip = clip;
             _memBgm.volume = 0f;

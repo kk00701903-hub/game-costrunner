@@ -27,7 +27,7 @@ namespace CoastRun
             var r = new WeekReport();
             if (s == null) return r;
             r.hungerBefore = s.hunger; r.condBefore = s.condition;
-            // 텃밭: 주가 바뀌면 비가 와서 심어 둔 것이 한 단계 자란다
+            // 텃밭: 주가 바뀌면 심어 둔 것이 한 주 자란다(수확은 마이룸에서 직접 — 성공 확률)
             r.harvested = HomeData.WeeklyGrow(s);
             // 쌀
             if (s.rice > 0) { s.rice--; r.ateRice = true; s.hunger += 35; s.starveWeeks = 0; }
@@ -59,7 +59,7 @@ namespace CoastRun
             // 요약 문장
             r.lines.Add(r.ateRice ? Loc.T($"쌀 1주분 먹음 · 남은 쌀 {s.rice}주분", $"Ate rice · {s.rice} wk left") : Loc.T("쌀이 없어 굶었다…", "No rice — went hungry…"));
             r.lines.Add(r.ateSide ? Loc.T($"반찬 먹음 · 남은 반찬 {s.sideDish}", $"Side dish · {s.sideDish} left") : Loc.T("반찬 없이 맨밥", "No side dish"));
-            if (r.harvested > 0) r.lines.Add(Loc.T($"텃밭에서 수확 · 반찬 +{r.harvested}", $"Harvested · side +{r.harvested}"));
+            if (r.harvested > 0) r.lines.Add(Loc.T($"텃밭에 다 자란 작물 {r.harvested}개 — 마이룸에서 수확", $"{r.harvested} crop(s) ready — harvest in My Room"));
             r.lines.Add(r.slept ? Loc.T("잘 잤다", "Slept well") : Loc.T($"잠을 못 잤다 ({s.sleepDebt}주째)", $"No sleep ({s.sleepDebt} wk)"));
             r.lines.Add(r.clothesWorn ? Loc.T("옷이 낡아서 못 입겠다 — 새 옷을 사자", "Clothes worn out — buy new") : Loc.T($"옷 {s.clothesWeeks}주 남음", $"Clothes {s.clothesWeeks} wk left"));
             r.lines.Add(Loc.T($"배부름 {r.hungerBefore} → {s.hunger}  ·  컨디션 {r.condBefore} → {s.condition}", $"Fullness {r.hungerBefore} → {s.hunger}  ·  Condition {r.condBefore} → {s.condition}"));

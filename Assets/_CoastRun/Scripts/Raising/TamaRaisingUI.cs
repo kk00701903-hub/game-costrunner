@@ -23,7 +23,7 @@ namespace CoastRun
         private Image _girl;
         private RectTransform _girlRt;
         private Text _bubble, _weekLabel, _moneyLabel, _gateLabel, _autoLabel, _actionsLeft, _levelLabel, _lifeLabel;
-        private Image _bubbleBg, _staminaFill, _energyFill;
+        private Image _bubbleBg, _staminaFill, _energyFill, _gateMark;
         private Text _staminaTxt, _energyTxt;
         private readonly Button[] _actBtn = new Button[3];
         private readonly Text[] _actDots = new Text[3];
@@ -158,14 +158,19 @@ namespace CoastRun
             Anchor(_girlRt, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 440f), new Vector2(420f, 520f));
             _girlRt.pivot = new Vector2(0.5f, 0f);
             var relay = girlGo.GetComponent<TouchRelay>(); relay.ui = this;
-            _bubbleBg = CoastUiArt.CutePill(_root, "Bubble", Color.white, 18, 3);
-            Anchor(_bubbleBg.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 985f), new Vector2(460f, 56f)); _bubbleBg.raycastTarget = false;
-            _bubble = CoastHudLayout.MakeText(_bubbleBg.rectTransform, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(16f, 0f), new Vector2(-16f, 0f));
+            // 56차(사용자): 말풍선은 오른쪽(하늘이 머리 옆)에 꼬리 달린 풍선으로 — 위쪽 버튼·생활 알약과 안 겹치게
+            _bubbleBg = CoastUiArt.CutePill(_root, "Bubble", Color.white, 20, 3);
+            Anchor(_bubbleBg.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-6f, 905f), new Vector2(330f, 92f)); _bubbleBg.raycastTarget = false;
+            var tail = CoastUiArt.Panel(_bubbleBg.transform, "Tail", Color.white, 4); tail.raycastTarget = false;
+            var trt = tail.rectTransform; trt.anchorMin = trt.anchorMax = new Vector2(0f, 0f); trt.pivot = new Vector2(0.5f, 0.5f); trt.anchoredPosition = new Vector2(26f, 2f); trt.sizeDelta = new Vector2(26f, 26f); trt.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            _bubble = CoastHudLayout.MakeText(_bubbleBg.rectTransform, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(14f, 4f), new Vector2(-14f, -4f));
             _bubble.color = Navy; _bubble.resizeTextForBestFit = true; _bubble.resizeTextMinSize = 12; _bubble.resizeTextMaxSize = CoastHudLayout.Scaled(18); _bubble.horizontalOverflow = HorizontalWrapMode.Wrap;
             _bubbleBg.gameObject.SetActive(false);
 
             // ── 게이지 2개: 체력(게이트) · 기운(100−스트레스) ──
             _staminaFill = Gauge(new Vector2(0f, 0f), new Vector2(6f, 372f), new Vector2(322f, 54f), Loc.T("체력", "Stamina"), new Color(0.95f, 0.35f, 0.40f), out _staminaTxt);
+            _gateMark = CoastHudLayout.MakeImage(_staminaFill.transform.parent, "GateMark", new Vector2(0.2f, 0f), new Vector2(0.2f, 1f), new Vector2(-2f, 0f), new Vector2(2f, 0f), new Color(1f, 1f, 1f, 0.85f));
+            _gateMark.raycastTarget = false;
             _energyFill = Gauge(new Vector2(1f, 0f), new Vector2(-6f, 372f), new Vector2(322f, 54f), Loc.T("기운", "Energy"), new Color(0.35f, 0.75f, 0.95f), out _energyTxt);
             _gateLabel = CoastHudLayout.MakeText(_root, "Gate", "", 13, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 340f), new Vector2(0f, 368f));
             _gateLabel.color = new Color(1f, 0.95f, 0.80f); CoastUiArt.OutlineText(_gateLabel, new Color(0f, 0f, 0f, 0.6f), 1.2f);
@@ -250,9 +255,11 @@ namespace CoastRun
             _moneyLabel.text = $"{LevelSystem.FormatK(s.money)}G  ♥{Save.chapterHearts}";   // 53차: 1000 단위 k
             if (_levelLabel != null) _levelLabel.text = Loc.T($"Lv {Mathf.Max(1, Save.level)} 상태창", $"Lv {Mathf.Max(1, Save.level)} Status");
             int need = StoryGate.Required(Save);
-            _staminaFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(s.stamina / (float)Mathf.Max(need, 1) * 0.5f + (s.stamina >= need ? 0.5f * Mathf.Clamp01((s.stamina - need) / (float)Mathf.Max(1, PlayerStats.StatMax - need)) : 0f)), 1f);
+            // 57차(사용자 「체력바 확인」): 「123 / 36」이 헷갈렸다 → 막대 = 체력/최대(200), 게이트 자리에 흰 눈금, 글자 = 「체력 123 · 게이트 36 ✓」
+            _staminaFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(s.stamina / (float)PlayerStats.StatMax), 1f);
             _staminaFill.color = s.stamina >= need ? new Color(0.35f, 0.85f, 0.45f) : new Color(0.95f, 0.35f, 0.40f);
-            _staminaTxt.text = $"{s.stamina} / {need}";
+            if (_gateMark != null) { _gateMark.rectTransform.anchorMin = new Vector2(Mathf.Clamp01(need / (float)PlayerStats.StatMax), 0f); _gateMark.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(need / (float)PlayerStats.StatMax), 1f); }
+            _staminaTxt.text = s.stamina >= need ? Loc.T($"{s.stamina} · 게이트 {need} ✓", $"{s.stamina} · gate {need} ✓") : Loc.T($"{s.stamina} · 게이트 {need} 부족", $"{s.stamina} · gate {need} short");
             int energy = Mathf.Clamp(100 - s.stress, 0, 100);
             _energyFill.rectTransform.anchorMax = new Vector2(energy / 100f, 1f);
             _energyFill.color = energy < 30 ? new Color(0.95f, 0.55f, 0.25f) : new Color(0.35f, 0.75f, 0.95f);

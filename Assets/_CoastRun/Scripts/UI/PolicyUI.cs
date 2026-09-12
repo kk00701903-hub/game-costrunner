@@ -60,7 +60,7 @@ namespace CoastRun
             _title = CoastHudLayout.MakeText(_root, "Title", Loc.T("이용약관·정책", "Terms & Policies"), 30, TextAnchor.MiddleLeft,
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(22f, -74f), new Vector2(-150f, -18f));
             _title.color = new Color(1f, 0.96f, 0.86f); CoastUiArt.OutlineText(_title, new Color(0.15f, 0.08f, 0.25f, 0.9f), 2f);
-            CoastOrnate.GlassButton(_root, "Close", Loc.T("✕ 닫기", "✕ Close"), new Vector2(1f, 1f), new Vector2(-14f, -22f), new Vector2(124f, 48f), Close, 0.5f, 18, false);
+            CoastOrnate.GlassButton(_root, "Close", Loc.T("✕ 닫기", "✕ Close"), new Vector2(1f, 1f), new Vector2(-76f, -46f), new Vector2(124f, 48f), Close, 0.5f, 18, false);   // 56차-2: 피벗이 가운데라 반이 화면 밖으로 나가던 것 안쪽으로
 
             // 탭 4개(2줄 × 2)
             string[] labels = { Title(Doc.Terms), Title(Doc.Privacy), Title(Doc.Ops), Title(Doc.Youth) };

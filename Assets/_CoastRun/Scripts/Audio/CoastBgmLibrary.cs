@@ -24,11 +24,29 @@ namespace CoastRun
                 return null;
 
             clip = Resources.Load<AudioClip>(Folder + name);
+            if (clip == null)
+            {
+                // 56차(사용자): M 곡만 들린다 — 옛 이름(BGM_End_*/Memory_*/Cine_*/Menu/Title …)은 M 곡으로 바꿔 튼다(합성 대체음 금지).
+                string alt = Alias(name);
+                if (alt != null && alt != name) clip = Resources.Load<AudioClip>(Folder + alt);
+            }
             if (clip != null)
                 Cache[name] = clip;
             else
                 Missing.Add(name);
             return clip;
+        }
+
+        /// 옛 BGM 키 → M 곡. 모르는 키(스팅어 등)는 null = 아무것도 안 튼다.
+        public static string Alias(string name)
+        {
+            if (string.IsNullOrEmpty(name) || name.StartsWith("BGM_M")) return null;
+            if (name.StartsWith("BGM_Menu") || name == "BGM_Title") return "BGM_M5";
+            if (name.StartsWith("BGM_End")) return name.Contains("Descent") ? "BGM_M1" : "BGM_M3";
+            if (name.StartsWith("BGM_Memory") || name.StartsWith("BGM_Cine")) return "BGM_M6";
+            if (name.StartsWith("BGM_CH") || name.StartsWith("Track_")) return "BGM_M9";
+            if (name.StartsWith("BGM_KPOP")) return "BGM_M8";
+            return null;
         }
 
         public static bool Has(string name) => Load(name) != null;

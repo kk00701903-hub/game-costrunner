@@ -29,7 +29,7 @@ namespace CoastRun
 
             var card = CoastUiArt.CutePill(root, "Card", Cream, 28, 5);
             var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.pivot = new Vector2(0.5f, 0.5f);
-            crt.anchoredPosition = new Vector2(0f, 10f); crt.sizeDelta = new Vector2(640f, 800f); card.raycastTarget = true;
+            crt.anchoredPosition = new Vector2(0f, 10f); crt.sizeDelta = new Vector2(640f, 850f); card.raycastTarget = true;   // 56차-2: 생활 구역만큼 키움
 
             int lv = Mathf.Max(1, save.level);
             // 머리: 얼굴 + 레벨 배지 + 칭호
@@ -90,6 +90,29 @@ namespace CoastRun
             var how = CoastHudLayout.MakeText(crt, "How", Loc.T($"경험치: 젤리 {LevelSystem.ExpJelly} · 큰 젤리 {LevelSystem.ExpBigJelly} · 행동 {LevelSystem.ExpAction}(대성공 {LevelSystem.ExpActionGreat}) · 이야기 {LevelSystem.ExpChapterRead} · 미니게임 {LevelSystem.ExpMinigame} · K-POP 완주 {LevelSystem.ExpKpopFinish} · 보스 {LevelSystem.ExpBoss} · 스토리 러닝 {LevelSystem.ExpStoryRun}",
                 $"EXP: jelly {LevelSystem.ExpJelly} · big jelly {LevelSystem.ExpBigJelly} · action {LevelSystem.ExpAction}(great {LevelSystem.ExpActionGreat}) · story {LevelSystem.ExpChapterRead} · mini-game {LevelSystem.ExpMinigame} · K-POP finish {LevelSystem.ExpKpopFinish} · boss {LevelSystem.ExpBoss} · story run {LevelSystem.ExpStoryRun}"), 12, TextAnchor.UpperCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(24f, y2 - 112f), new Vector2(-24f, y2 - 60f));
             how.color = new Color(0.40f, 0.36f, 0.48f); how.horizontalOverflow = HorizontalWrapMode.Wrap;
+
+            // 56차-2(UX): 비어 있던 아래쪽에 「생활」 — 배부름·컨디션 막대 + 쌀·반찬·옷 재고
+            float y3 = y2 - 124f;
+            var lh = CoastHudLayout.MakeText(crt, "LifeH", Loc.T("생활", "Life"), 16, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(26f, y3 - 24f), new Vector2(-20f, y3));
+            lh.color = Navy; lh.fontStyle = FontStyle.Bold;
+            (string ko, string en, int v, Color c)[] life = { ("배부름", "Fullness", save.hunger, new Color(1f, 0.70f, 0.30f)), ("컨디션", "Condition", save.condition, new Color(0.40f, 0.80f, 0.55f)) };
+            for (int i = 0; i < life.Length; i++)
+            {
+                float y = y3 - 30f - i * 36f;
+                var l = CoastHudLayout.MakeText(crt, "LL" + i, Loc.T(life[i].ko, life[i].en), 14, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(26f, y - 26f), new Vector2(120f, y));
+                l.color = Navy; l.fontStyle = FontStyle.Bold;
+                var bg = CoastUiArt.CutePill(crt, "LB" + i, new Color(0.88f, 0.86f, 0.90f), 10, 2); bg.raycastTarget = false;
+                var bgr = bg.rectTransform; bgr.anchorMin = bgr.anchorMax = new Vector2(0f, 1f); bgr.pivot = new Vector2(0f, 1f); bgr.anchoredPosition = new Vector2(126f, y - 2f); bgr.sizeDelta = new Vector2(400f, 22f);
+                var fl = CoastUiArt.Panel(bgr, "F", life[i].v < 30 ? new Color(0.95f, 0.35f, 0.35f) : life[i].c, 8); fl.raycastTarget = false;
+                fl.rectTransform.anchorMin = Vector2.zero; fl.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(life[i].v / 100f), 1f); fl.rectTransform.offsetMin = new Vector2(3f, 3f); fl.rectTransform.offsetMax = new Vector2(-3f, -3f);
+                var v = CoastHudLayout.MakeText(crt, "LV" + i, $"{life[i].v}", 14, TextAnchor.MiddleRight, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(530f, y - 26f), new Vector2(-24f, y));
+                v.color = Navy; v.fontStyle = FontStyle.Bold;
+            }
+            string stock = Loc.T($"쌀 {save.rice}주분  ·  반찬 {save.sideDish}주분  ·  옷 {(save.clothesWeeks <= 0 ? "낡음!" : save.clothesWeeks + "주 남음")}  ·  {(save.restedThisWeek ? "이번 주 잠 잤음" : "이번 주 아직 안 잠")}",
+                $"Rice {save.rice}w  ·  Side {save.sideDish}w  ·  Clothes {(save.clothesWeeks <= 0 ? "worn!" : save.clothesWeeks + "w")}  ·  {(save.restedThisWeek ? "rested this week" : "not rested yet")}");
+            var stT = CoastHudLayout.MakeText(crt, "Stock", stock, 13, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(20f, y3 - 128f), new Vector2(-20f, y3 - 100f));
+            stT.color = new Color(0.45f, 0.30f, 0.10f); stT.fontStyle = FontStyle.Bold; stT.horizontalOverflow = HorizontalWrapMode.Wrap;
+            stT.resizeTextForBestFit = true; stT.resizeTextMinSize = 10; stT.resizeTextMaxSize = CoastHudLayout.Scaled(13);
 
             var close = CoastUiArt.CutePill(crt, "Close", new Color(0.62f, 0.62f, 0.70f), 18, 3);
             var clrt = close.rectTransform; clrt.anchorMin = clrt.anchorMax = new Vector2(0.5f, 0f); clrt.pivot = new Vector2(0.5f, 0f); clrt.anchoredPosition = new Vector2(0f, 16f); clrt.sizeDelta = new Vector2(220f, 50f); close.raycastTarget = true;

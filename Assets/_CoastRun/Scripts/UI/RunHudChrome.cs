@@ -206,6 +206,9 @@ namespace CoastRun
                 Vector2.zero, Vector2.one, new Vector2(0f, 0f), new Vector2(0f, 0f));
             _sunLabel.color = new Color(1f, 1f, 1f, 0.9f);
             CoastUiArt.OutlineText(_sunLabel, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.2f);
+            // 56차-2: 「노을까지 1:51」이 상자보다 5px 넓어 별 아이콘에 걸렸다 → 상자에 맞춰 줄어들기
+            _sunLabel.resizeTextForBestFit = true; _sunLabel.resizeTextMinSize = 9; _sunLabel.resizeTextMaxSize = CoastHudLayout.Scaled(13);
+            _sunLabel.rectTransform.offsetMin = new Vector2(6f, 0f); _sunLabel.rectTransform.offsetMax = new Vector2(-6f, 0f);
         }
 
         /// StageManager 가 매 프레임 호출. tau 0..1 = 해가 지기까지 남은 시간 비율.

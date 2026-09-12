@@ -92,7 +92,7 @@ namespace CoastRun
                 if (gm.LastStarsGained > 0) starLine += Loc.T($"   (+{gm.LastStarsGained}★, 총 {prof.StarsTotal}/60)", $"   (+{gm.LastStarsGained}★, total {prof.StarsTotal}/60)");
                 if (gm.LastRecord) starLine += Loc.T("   · 개인 기록", "   · Personal best");
                 string gradeLine = Loc.T($"등급 {ChapterGrading.GradeLabel(grade)}", $"Rank {ChapterGrading.GradeLabel(grade)}");
-                _stageLabel.text = $"{chName}\n{gradeLine}\n{heartLine}\n{starLine}";
+                _stageLabel.text = $"{chName}  ·  {gradeLine}\n{heartLine}\n{starLine}";   // 56차-2: 3줄(4줄은 아이템 칩에 가렸다)
                 continueLabel = gm.IsRetry ? Loc.T("타임라인으로", "To timeline") : gm.Save.chapter >= Timeline.Chapters ? Loc.T("송전탑으로", "To the tower") : Loc.T("육성으로", "Back home");
             }
             else
@@ -477,7 +477,7 @@ namespace CoastRun
             _title = CoastHudLayout.MakeText(_banner, "Title", "STAGE CLEAR!", 56, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(20f, -110f), new Vector2(-20f, -20f));
             _title.color = new Color(1f, 0.85f, 0.30f); _title.fontStyle = FontStyle.Bold;
             CoastUiArt.OutlineText(_title, new Color(0.30f, 0.12f, 0.02f, 0.9f), 2.5f);
-            _stageLabel = CoastHudLayout.MakeText(_banner, "Stage", "", 14, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -190f), new Vector2(-16f, -118f));
+            _stageLabel = CoastHudLayout.MakeText(_banner, "Stage", "", 14, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -206f), new Vector2(-16f, -118f));   // 56차-2: 3줄이 들어가게 높이 88
             _stageLabel.resizeTextForBestFit = true; _stageLabel.resizeTextMinSize = 12; _stageLabel.resizeTextMaxSize = 20;
             _stageLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
             _stageLabel.color = Color.white; CoastUiArt.OutlineText(_stageLabel, new Color(0f, 0f, 0f, 0.7f), 1.5f);
@@ -516,7 +516,7 @@ namespace CoastRun
             _chipHost = new GameObject("Chips", typeof(RectTransform)).GetComponent<RectTransform>();
             _chipHost.SetParent(_card, false);
             _chipHost.anchorMin = new Vector2(0f, 1f); _chipHost.anchorMax = new Vector2(0f, 1f); _chipHost.pivot = new Vector2(0f, 1f);
-            _chipHost.anchoredPosition = new Vector2(22f, -220f); _chipHost.sizeDelta = new Vector2(340f, 400f);
+            _chipHost.anchoredPosition = new Vector2(22f, -232f); _chipHost.sizeDelta = new Vector2(340f, 400f);   // 56차-2: 설명 3줄 아래로
 
             // 아래쪽: 콤보/합계/보유/여정 + 버튼(반투명 띠 위)
             var foot = CoastUiArt.Panel(_card, "Foot", new Color(0.05f, 0.04f, 0.12f, 0f), 22);   // 39차: 시안엔 띠 없음

@@ -45,6 +45,33 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Life - Test turn end (odd week, phase 2)")] public static void TestTurnEnd() { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; var rec = s.CurrentChapter; if (s.week % 2 == 0) s.week++; if (rec != null && rec.weekEnd <= s.week) rec.weekEnd = s.week + 2; s.phaseIndex = 2; s.boundaryPending = false; GameManager.I.Persist(); }
         [MenuItem("Coast Run/Dev/Life - Test boundary (last week, phase 2)")] public static void TestBoundary() { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; var rec = s.CurrentChapter; if (s.week % 2 == 0) s.week++; if (rec != null) { rec.weekEnd = s.week; rec.cleared = false; } s.phaseIndex = 2; s.boundaryPending = false; s.stats.stamina = System.Math.Max(s.stats.stamina, 120); GameManager.I.Persist(); }
         [MenuItem("Coast Run/Dev/Contest - Close all")] public static void ContestClose() { ContestIntroUI.Close(); ContestResultUI.Close(); WeekPassUI.Close(); GroceryUI.Close(); GameOverUI.Close(); Time.timeScale = 1f; }
+        // 56차-2(사용자): 글자가 상자를 넘는지 검사 — 화면의 모든 Text 를 훑어 preferred 크기가 rect 보다 크면 경로·글자·크기를 로그로.
+        [MenuItem("Coast Run/Dev/UI - Overflow audit")]
+        public static void OverflowAudit()
+        {
+            if (!Application.isPlaying) return;
+            var sb = new System.Text.StringBuilder(); int n = 0, total = 0;
+            foreach (var t in Object.FindObjectsByType<UnityEngine.UI.Text>(FindObjectsSortMode.None))
+            {
+                if (t == null || !t.isActiveAndEnabled || string.IsNullOrWhiteSpace(t.text)) continue;
+                if (!t.gameObject.activeInHierarchy) continue;
+                var r = t.rectTransform.rect; total++;
+                if (r.width < 4f || r.height < 4f) continue;
+                if (t.resizeTextForBestFit) continue;
+                bool wrap = t.horizontalOverflow == HorizontalWrapMode.Wrap;
+                float pw = t.preferredWidth, ph = t.preferredHeight;
+                bool over = wrap ? (t.verticalOverflow == VerticalWrapMode.Truncate ? ph > r.height + 2f : ph > r.height + 2f) : (pw > r.width + 2f || (t.verticalOverflow == VerticalWrapMode.Truncate && ph > r.height + 2f));
+                if (!over) continue;
+                // 부모 레이아웃이 높이를 정하는 것(리더 본문 등)은 제외
+                if (t.GetComponentInParent<UnityEngine.UI.LayoutGroup>() != null && wrap && ph <= r.height + 40f) continue;
+                string path = t.name; var p = t.transform.parent; int d = 0;
+                while (p != null && d++ < 5) { path = p.name + "/" + path; p = p.parent; }
+                string txt = t.text.Replace("\n", "⏎"); if (txt.Length > 40) txt = txt.Substring(0, 40) + "…";
+                sb.Append($"\n  {path}  [{txt}]  need {pw:0}x{ph:0} > box {r.width:0}x{r.height:0} font {t.fontSize}{(wrap ? " wrap" : "")}");
+                n++;
+            }
+            Debug.LogWarning($"[UIAudit] overflow {n}/{total}: " + sb);
+        }
         [MenuItem("Coast Run/Dev/Collection - Unlock all (F9)")] public static void UnlockAll() { if (Application.isPlaying) Collection.DebugUnlockAll(); }
     }
 }

@@ -327,11 +327,13 @@ namespace CoastRun
                 _ => go.AddComponent<MugunghwaMission3D>(),
             };
             g.Init(rt, true, r => onDone?.Invoke(r > 0));
-            // 미션은 「그만」으로 도망 못 간다(다시하기만). 다시하기 모드는 그만 = 패배로 처리돼 메뉴로.
-            if (!replay)
+            // 57차(사용자): 미니게임에 「종료하기」 — 미션 모드도 언제든 나갈 수 있다(진 것으로, 보상 없이 다음으로).
+            var q = rt.Find("Head/Quit");
+            if (q != null)
             {
-                var q = rt.Find("Head/Quit");
-                if (q != null) q.gameObject.SetActive(false);
+                q.gameObject.SetActive(true);
+                var qt = q.GetComponentInChildren<Text>(); if (qt != null) qt.text = Loc.T("종료하기", "Exit");
+                var qrt = q as RectTransform; if (qrt != null) qrt.sizeDelta = new Vector2(130f, 44f);
             }
         }
 
@@ -348,6 +350,7 @@ namespace CoastRun
             private readonly List<Marble> _ms = new List<Marble>();
             private Marble _me;
             private int _shots = 3, _knocked;
+            private MiniKit _kit; private RectTransform _fireRt;
             private const int Need = 6;   // 51차(사용자): 8개 중 2개 이하 남아야 승리 = 6개 이상 밖으로
             private enum Step { Aim, Power, Rolling, Done }
             private Step _step = Step.Aim;
@@ -374,8 +377,10 @@ namespace CoastRun
                 var footRt = foot as RectTransform;
                 if (footRt != null) { footRt.anchorMin = new Vector2(0f, 0f); footRt.anchorMax = new Vector2(1f, 0.28f); }
                 var footImg = foot.GetComponent<Image>(); if (footImg != null) footImg.color = new Color(0.12f, 0.16f, 0.34f);
-                Rect(Status.rectTransform, new Vector2(0f, 0.86f), new Vector2(1f, 1f), new Vector2(16f, 0f), new Vector2(-16f, -2f));
-                Status.fontSize = 14; Status.fontStyle = FontStyle.Bold; Status.alignment = TextAnchor.MiddleCenter; Status.color = new Color(1f, 0.96f, 0.75f);
+                if (frame != null) _kit = MiniKit.Attach(frame, "Marbles");   // 58차
+                Rect(Status.rectTransform, new Vector2(0f, 0.83f), new Vector2(1f, 1f), new Vector2(12f, 0f), new Vector2(-12f, -2f));   // 56차-2: 두 줄까지
+                Status.fontSize = CoastHudLayout.Scaled(13); Status.fontStyle = FontStyle.Bold; Status.alignment = TextAnchor.MiddleCenter; Status.color = new Color(1f, 0.96f, 0.75f);   // 56차-2: 배율 적용
+                Status.resizeTextForBestFit = true; Status.resizeTextMinSize = 10; Status.resizeTextMaxSize = CoastHudLayout.Scaled(13); Status.horizontalOverflow = HorizontalWrapMode.Wrap;
                 CoastUiArt.OutlineText(Status, new Color(0f, 0f, 0f, 0.6f), 1.5f);
 
                 _stage = MiniStage3D.Create(Field, "UI_MG_Yard_Marbles", 56f, 38f, 10f);
@@ -407,6 +412,8 @@ namespace CoastRun
 
                 BuildPanel(foot);
                 Status.text = Loc.T($"남은 발 3 · 삼각형 안에 2개 이하로 남기기(8개 중 {Need}개 밖으로) — [방향 확정]", $"Shots 3 · leave ≤2 inside ({Need} of 8 out) — [Set aim]");
+                _kit?.Goal(Loc.T($"3발로 구슬 {Need}개를 밖으로!", $"Knock {Need} marbles out in 3 shots!")); _kit?.Pips(3, _shots); _kit?.Score($"{_knocked} / {Need}");
+                _kit?.TapHint(_fireRt, Loc.T("바늘이 구슬을 볼 때 탭!", "Tap when it points at the marbles!")); _kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
                 Place(_me); foreach (var m in _ms) Place(m);
                 PlaceAim();
             }
@@ -416,7 +423,7 @@ namespace CoastRun
             {
                 // 왼쪽 카드: 방향 선택
                 var dir = CoastUiArt.CutePill(foot, "DirCard", PanelNavy, 18, 3);
-                Rect(dir.rectTransform, new Vector2(0.02f, 0.05f), new Vector2(0.34f, 0.82f), Vector2.zero, Vector2.zero); dir.raycastTarget = false;
+                Rect(dir.rectTransform, new Vector2(0.02f, 0.04f), new Vector2(0.34f, 0.80f), Vector2.zero, Vector2.zero); dir.raycastTarget = false;
                 var dt = Txt(dir.transform, "T", Loc.T("방향 선택", "Direction"), 17, new Color(1f, 0.93f, 0.55f), TextAnchor.UpperCenter);
                 Rect(dt.rectTransform, new Vector2(0f, 0.76f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -6f)); dt.fontStyle = FontStyle.Bold;
                 CoastUiArt.OutlineText(dt, new Color(0f, 0f, 0f, 0.5f), 1.5f);
@@ -449,7 +456,7 @@ namespace CoastRun
 
                 // 가운데 카드: 힘 선택
                 var pow = CoastUiArt.CutePill(foot, "PowCard", PanelNavy, 18, 3);
-                Rect(pow.rectTransform, new Vector2(0.36f, 0.05f), new Vector2(0.60f, 0.82f), Vector2.zero, Vector2.zero); pow.raycastTarget = false;
+                Rect(pow.rectTransform, new Vector2(0.36f, 0.04f), new Vector2(0.60f, 0.80f), Vector2.zero, Vector2.zero); pow.raycastTarget = false;
                 var pt = Txt(pow.transform, "T", Loc.T("힘 선택", "Power"), 17, new Color(1f, 0.93f, 0.55f), TextAnchor.UpperCenter);
                 Rect(pt.rectTransform, new Vector2(0f, 0.76f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -6f)); pt.fontStyle = FontStyle.Bold;
                 CoastUiArt.OutlineText(pt, new Color(0f, 0f, 0f, 0.5f), 1.5f);
@@ -483,7 +490,8 @@ namespace CoastRun
 
                 // 오른쪽: 발사! 큰 노란 버튼
                 var fire = CoastUiArt.GlossyPill(foot, "Fire", new Color(1f, 0.80f, 0.20f), 22, 10);
-                Rect(fire.rectTransform, new Vector2(0.62f, 0.05f), new Vector2(0.98f, 0.82f), Vector2.zero, Vector2.zero); fire.raycastTarget = true;
+                Rect(fire.rectTransform, new Vector2(0.62f, 0.04f), new Vector2(0.98f, 0.80f), Vector2.zero, Vector2.zero); fire.raycastTarget = true;
+                _fireRt = fire.rectTransform; MiniKit.Pulse(_fireRt, true);
                 _fireFill = fire.transform.Find("Fill")?.GetComponent<Image>();
                 var fb = fire.gameObject.AddComponent<Button>(); fb.transition = Selectable.Transition.None;
                 fb.onClick.AddListener(() => { CoastPrefs.Vibrate(); OnButton(); });
@@ -596,6 +604,7 @@ namespace CoastRun
                     var dir = new Vector2(Mathf.Sin(_angle * Mathf.Deg2Rad), Mathf.Cos(_angle * Mathf.Deg2Rad));
                     _me.vel = dir * (0.6f + _power * 2.6f);
                     _shots--;
+                    _kit?.Pips(3, _shots);
                     PlaceAim();
                     _btnLabel.text = Loc.T("굴러가는 중", "Rolling…"); if (_fireFill != null) _fireFill.color = new Color(0.85f, 0.75f, 0.45f);
                     _powHint.text = Loc.T($"{Mathf.RoundToInt(_power * 100f)}% 로 발사!", $"Shot at {Mathf.RoundToInt(_power * 100f)}%!");
@@ -652,6 +661,7 @@ namespace CoastRun
                         m.swirl.SetColor("_BaseColor", Color.Lerp(m.color, new Color(0.5f, 0.5f, 0.5f), 0.6f));
                         m.blob.localScale *= 0.75f;
                         CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.6f);
+                        _kit?.Score($"{_knocked} / {Need}"); _kit?.Pop(Loc.T("밖으로!", "OUT!"), true);
                         Status.text = Loc.T($"남은 발 {_shots} · 남은 구슬 {8 - _knocked}개(2개 이하면 승리)", $"Shots {_shots} · {8 - _knocked} left (≤2 wins)");
                     }
                 }
@@ -684,8 +694,8 @@ namespace CoastRun
                     if (len > 1e-5f) m.tr.Rotate(Vector3.Cross(Vector3.up, mv / len), len / _radius * Mathf.Rad2Deg, Space.World);
                 }
                 if (Moving()) return;
-                if (_knocked >= Need) { _step = Step.Done; Status.text = Loc.T($"성공! {_knocked}개를 밖으로", $"Done! {_knocked} out"); StartCoroutine(EndAfter(0.9f, 1)); }
-                else if (_shots <= 0) { _step = Step.Done; Status.text = Loc.T($"{8 - _knocked}개 남았다… 2개 이하여야 해", $"{8 - _knocked} left… need ≤2"); StartCoroutine(EndAfter(1.0f, 0)); }
+                if (_knocked >= Need) { _step = Step.Done; _kit?.Pop(Loc.T("성공!", "SUCCESS!"), true); Status.text = Loc.T($"성공! {_knocked}개를 밖으로", $"Done! {_knocked} out"); StartCoroutine(EndAfter(0.9f, 1)); }
+                else if (_shots <= 0) { _step = Step.Done; _kit?.Pop(Loc.T($"{8 - _knocked}개 남았다…", $"{8 - _knocked} left…"), false); Status.text = Loc.T($"{8 - _knocked}개 남았다… 2개 이하여야 해", $"{8 - _knocked} left… need ≤2"); StartCoroutine(EndAfter(1.0f, 0)); }
                 else
                 {
                     // 흰 구슬이 삼각형 안에 멈추면 밑으로 되돌린다(다음 발 조준)

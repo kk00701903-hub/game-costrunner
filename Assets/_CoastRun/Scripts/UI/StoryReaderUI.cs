@@ -8,7 +8,7 @@ namespace CoastRun
     /// 52차(사용자): 스토리 모드 컷씬을 **웹소설 읽듯** 보는 리더 — 챕터마다 하나(오프닝+엔딩 대본을 이어서).
     /// 55차(사용자, 첨부 시안): 화면 구성을 시안대로 — 위 리본 제목「제 N화 제목」+ A-/A+/건너뛰기, 위 42 %는 **삽화 고정**(스크롤에
     ///   따라 그 장면의 컷으로 바뀜), 아래는 **어두운 반투명 패널** 안에 본문 스크롤(지문은 밝은 글씨, 대사는 색 알약 이름표 + 「대사」),
-    ///   맨 아래 「다음」 단추. 54차-2 산문 층(지난 이야기·장면 캡션·소설 지문·제주말 풀이)은 그대로.
+    ///   맨 아래 「다음」 단추. 57차(사용자): 글자가 작다 → 본문 20(≈12pt)·대사 20·이름표 15·캡션 15·요약 18 — 스크롤이 길어지는 건 괜찮다. 54차-2 산문 층(지난 이야기·장면 캡션·소설 지문·제주말 풀이)은 그대로.
     ///   다 읽으면 ChapterVN 과 같은 흔적을 남긴다(PlayerPrefs CoastRun_VN_<id>, RecordTable.OnSceneWatched) — 롱컷 카운트·레코드 해금 공유.
     public static class StoryReaderUI
     {
@@ -102,7 +102,7 @@ namespace CoastRun
             _content.offsetMin = Vector2.zero; _content.offsetMax = Vector2.zero;
             var vl = _content.GetComponent<VerticalLayoutGroup>();
             vl.childControlHeight = true; vl.childControlWidth = true; vl.childForceExpandHeight = false; vl.childForceExpandWidth = true;
-            vl.spacing = 12f; vl.padding = new RectOffset(6, 6, 10, 30);
+            vl.spacing = 14f; vl.padding = new RectOffset(6, 6, 12, 30);
             var fit = _content.GetComponent<ContentSizeFitter>(); fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             _scroll = panel.gameObject.AddComponent<ScrollRect>();
             _scroll.viewport = viewport; _scroll.content = _content; _scroll.horizontal = false; _scroll.vertical = true;
@@ -130,7 +130,7 @@ namespace CoastRun
             string gloss = Loc.IsKo ? StoryProse.Glossary(_dialogue) : null;
             if (!string.IsNullOrEmpty(gloss)) Glossary(gloss);
             var endT = Block("End", new RectOffset(6, 6, 6, 0));
-            MakeBody(endT.transform, Loc.T("— 이번 화 끝 —", "— end of chapter —"), 14, Soft, TextAnchor.MiddleCenter);
+            MakeBody(endT.transform, Loc.T("— 이번 화 끝 —", "— end of chapter —"), 17, Soft, TextAnchor.MiddleCenter);
 
             // ── 맨 아래 「다음」 ──
             var next = CoastUiArt.GlossyPill(_root, "Next", new Color(0.99f, 0.98f, 0.96f), 26, 6);
@@ -256,22 +256,22 @@ namespace CoastRun
             if (string.IsNullOrEmpty(s)) return;
             s = s.Trim(' ', '—', '-', '–');
             var v = Block("Caption", new RectOffset(6, 6, 8, 0));
-            var t = MakeBody(v.transform, "—  " + s + "  —", 12, Soft, TextAnchor.MiddleCenter); t.fontStyle = FontStyle.Bold;
+            var t = MakeBody(v.transform, "—  " + s + "  —", 15, Soft, TextAnchor.MiddleCenter); t.fontStyle = FontStyle.Bold;
         }
 
         /// [게이트] 속마음 줄 — 작고 흐린 기울임.
         private static void Aside(string s)
         {
             var v = Block("Aside", new RectOffset(18, 6, 0, 0));
-            var t = MakeBody(v.transform, s, 14, Soft, TextAnchor.UpperLeft); t.fontStyle = FontStyle.Italic;
+            var t = MakeBody(v.transform, s, 18, Soft, TextAnchor.UpperLeft); t.fontStyle = FontStyle.Italic;
         }
 
         private static void Recap(string kicker, string s)
         {
             var v = Block("Recap", new RectOffset(16, 16, 10, 12), 4f);
             var im = v.gameObject.AddComponent<Image>(); im.sprite = CoastUiArt.RoundedRect(12); im.type = Image.Type.Sliced; im.color = new Color(1f, 1f, 1f, 0.08f); im.raycastTarget = false;
-            var k = MakeBody(v.transform, kicker, 11, Rose, TextAnchor.UpperLeft); k.fontStyle = FontStyle.Bold;
-            MakeBody(v.transform, s, 14, Soft, TextAnchor.UpperLeft);
+            var k = MakeBody(v.transform, kicker, 14, Rose, TextAnchor.UpperLeft); k.fontStyle = FontStyle.Bold;
+            MakeBody(v.transform, s, 18, Soft, TextAnchor.UpperLeft);
         }
 
         private static void Glossary(string s)
@@ -279,14 +279,14 @@ namespace CoastRun
             Divider();
             var v = Block("Gloss", new RectOffset(16, 16, 10, 12), 4f);
             var im = v.gameObject.AddComponent<Image>(); im.sprite = CoastUiArt.RoundedRect(12); im.type = Image.Type.Sliced; im.color = new Color(1f, 1f, 1f, 0.08f); im.raycastTarget = false;
-            var k = MakeBody(v.transform, "제주말 풀이", 11, Sea, TextAnchor.UpperLeft); k.fontStyle = FontStyle.Bold;
-            MakeBody(v.transform, s, 13, Soft, TextAnchor.UpperLeft);
+            var k = MakeBody(v.transform, "제주말 풀이", 14, Sea, TextAnchor.UpperLeft); k.fontStyle = FontStyle.Bold;
+            MakeBody(v.transform, s, 17, Soft, TextAnchor.UpperLeft);
         }
 
         private static void Para(string s)
         {
             var v = Block("Para", new RectOffset(4, 4, 0, 0));
-            MakeBody(v.transform, s, 15, Ink, TextAnchor.UpperLeft);
+            MakeBody(v.transform, s, 20, Ink, TextAnchor.UpperLeft);
         }
 
         /// 55차(시안): 색 알약 이름표 + 「대사」 — 하늘 = 하늘색, 아빠 = 금색, 그 외 = 분홍.
@@ -300,11 +300,11 @@ namespace CoastRun
             Color pillCol = who == "하늘" ? Sea : (who.Contains("아빠") || who.Contains("아버지")) ? Gold : Rose;
             var pill = CoastUiArt.CutePill(go.transform, "Name", pillCol, 10, 2); pill.raycastTarget = false;
             var le = pill.gameObject.AddComponent<LayoutElement>();
-            float w = Mathf.Max(44f, 14f * Mathf.Max(2, who.Length) + 18f);
-            le.preferredWidth = w; le.minWidth = w; le.preferredHeight = 26f; le.minHeight = 26f; le.flexibleWidth = 0f;
-            var n = CoastHudLayout.MakeText(pill.rectTransform, "T", who, 12, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(2f, 1f), new Vector2(-2f, 0f));
-            n.color = Navy; n.fontStyle = FontStyle.Bold; n.resizeTextForBestFit = true; n.resizeTextMinSize = 8; n.resizeTextMaxSize = CoastHudLayout.Scaled(12);
-            var t = MakeBody(go.transform, "「" + s + "」", 15, Ink, TextAnchor.UpperLeft);
+            float w = Mathf.Max(52f, 17f * Mathf.Max(2, who.Length) + 20f);
+            le.preferredWidth = w; le.minWidth = w; le.preferredHeight = 32f; le.minHeight = 32f; le.flexibleWidth = 0f;
+            var n = CoastHudLayout.MakeText(pill.rectTransform, "T", who, 15, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(2f, 1f), new Vector2(-2f, 0f));
+            n.color = Navy; n.fontStyle = FontStyle.Bold; n.resizeTextForBestFit = true; n.resizeTextMinSize = 9; n.resizeTextMaxSize = CoastHudLayout.Scaled(15);
+            var t = MakeBody(go.transform, "「" + s + "」", 20, Ink, TextAnchor.UpperLeft);
             var tle = t.gameObject.AddComponent<LayoutElement>(); tle.flexibleWidth = 1f; tle.minWidth = 100f;
         }
 
@@ -312,7 +312,7 @@ namespace CoastRun
         {
             var v = Block("Letter", new RectOffset(18, 18, 12, 12));
             var im = v.gameObject.AddComponent<Image>(); im.sprite = CoastUiArt.RoundedRect(12); im.type = Image.Type.Sliced; im.color = new Color(0.98f, 0.94f, 0.82f, 0.92f); im.raycastTarget = false;
-            var t = MakeBody(v.transform, s, 14, new Color(0.35f, 0.27f, 0.20f), TextAnchor.UpperLeft); t.fontStyle = FontStyle.Italic;
+            var t = MakeBody(v.transform, s, 18, new Color(0.35f, 0.27f, 0.20f), TextAnchor.UpperLeft); t.fontStyle = FontStyle.Italic;
         }
 
         private static void Divider()
@@ -334,7 +334,7 @@ namespace CoastRun
 
         private static void SetScale(float s)
         {
-            _fontScale = Mathf.Clamp(s, 0.8f, 1.5f);
+            _fontScale = Mathf.Clamp(s, 0.9f, 1.6f);
             PlayerPrefs.SetFloat("CoastRun_ReaderScale", _fontScale);
             for (int i = 0; i < _texts.Count && i < _baseSizes.Count; i++) if (_texts[i] != null) _texts[i].fontSize = Mathf.RoundToInt(_baseSizes[i] * _fontScale);
         }

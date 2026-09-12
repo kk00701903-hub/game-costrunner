@@ -41,12 +41,10 @@ namespace CoastRun
             // Real track from Resources/CoastRun/BGM when it exists, procedural bed until then.
             var real = CoastBgmLibrary.Load(CoastBgmLibrary.Menu(cleared));
             if (real != null && _bgm.isPlaying && _bgm.clip == real) return;   // 이미 나오는 중 — 이어서
-            _bgm.clip = real != null
-                ? real
-                : cleared
-                    ? ProceduralAudio.CreateLoop(110f, 0.05f, 8f)   // BGM_Menu_Cleared — darker
-                    : ProceduralAudio.CreateLoop(196f, 0.04f, 8f);  // BGM_Menu — warm noon
-            _bgm.volume = real != null ? 0.85f : (cleared ? 0.28f : 0.32f);
+            // 56차(사용자): 합성 대체 음악 금지 — M 곡이 없으면 아무것도 안 튼다.
+            if (real == null) { if (_bgm.isPlaying) _bgm.Stop(); _bgm.clip = null; return; }
+            _bgm.clip = real;
+            _bgm.volume = 0.85f;
             _bgm.loop = true;
             if (!_bgm.isPlaying)
                 _bgm.Play();

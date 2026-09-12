@@ -264,8 +264,7 @@ namespace CoastRun
             var clip = CoastBgmLibrary.Load(def.bgmKey)
                        ?? Resources.Load<AudioClip>("CoastRun/Audio/" + def.bgmKey);
             bool real = clip != null;
-            if (clip == null)
-                clip = ProceduralAudio.CreateLoop(def.isTwistCut ? 98f : 160f, 0.04f, 6f);
+            if (clip == null) return;   // 56차(사용자): 합성 대체 음악 금지 — M 곡(별칭 포함)이 없으면 무음
             bgmSource.clip = clip;
             bgmSource.loop = !real;          // a composed cue plays once, to picture
             bgmSource.volume = real ? 0.85f : 0.45f;

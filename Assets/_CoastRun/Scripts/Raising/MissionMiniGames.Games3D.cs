@@ -24,6 +24,8 @@ namespace CoastRun
         internal abstract class Stage3DMission : HomeMiniGames.MiniBase
         {
             protected MiniStage3D S;
+            protected MiniKit Kit;              // 58차: 목표 띠·팝·탭 안내
+            protected RectTransform BigRect;    // 58차: 큰 버튼(맥동·탭 안내용)
             protected abstract string Backdrop { get; }
             protected virtual float Pitch => 56f;
             protected virtual float Fov => 38f;
@@ -36,17 +38,20 @@ namespace CoastRun
                 var footRt = foot as RectTransform;
                 if (footRt != null) { footRt.anchorMin = new Vector2(0f, 0f); footRt.anchorMax = new Vector2(1f, 0.28f); }
                 var footImg = foot.GetComponent<Image>(); if (footImg != null) footImg.color = new Color(0.12f, 0.16f, 0.34f);
-                Rect(Status.rectTransform, new Vector2(0f, 0.86f), new Vector2(1f, 1f), new Vector2(16f, 0f), new Vector2(-16f, -2f));
-                Status.fontSize = 14; Status.fontStyle = FontStyle.Bold; Status.alignment = TextAnchor.MiddleCenter; Status.color = new Color(1f, 0.96f, 0.75f);
+                Rect(Status.rectTransform, new Vector2(0f, 0.83f), new Vector2(1f, 1f), new Vector2(12f, 0f), new Vector2(-12f, -2f));   // 56차-2: 두 줄까지
+                // 56차-2: 캔버스 배율을 안 곱해 글자가 깨알만 했다 → Scaled(15) + 상자에 맞춰 줄어들기
+                Status.fontSize = CoastHudLayout.Scaled(13); Status.fontStyle = FontStyle.Bold; Status.alignment = TextAnchor.MiddleCenter; Status.color = new Color(1f, 0.96f, 0.75f);
+                Status.resizeTextForBestFit = true; Status.resizeTextMinSize = 10; Status.resizeTextMaxSize = CoastHudLayout.Scaled(13); Status.horizontalOverflow = HorizontalWrapMode.Wrap;
                 CoastUiArt.OutlineText(Status, new Color(0f, 0f, 0f, 0.6f), 1.5f);
                 S = MiniStage3D.Create(Field, Backdrop, Pitch, Fov, 10f);
+                if (frame != null) Kit = MiniKit.Attach(frame, GetType().Name);
             }
 
             /// 남색 카드(제목 포함). x0~x1 은 발판 폭 비율.
             protected Image Card(Transform foot, string name, float x0, float x1, string title)
             {
                 var card = CoastUiArt.CutePill(foot, name, PanelNavy, 18, 3);
-                Rect(card.rectTransform, new Vector2(x0, 0.05f), new Vector2(x1, 0.82f), Vector2.zero, Vector2.zero); card.raycastTarget = false;
+                Rect(card.rectTransform, new Vector2(x0, 0.04f), new Vector2(x1, 0.80f), Vector2.zero, Vector2.zero); card.raycastTarget = false;
                 if (!string.IsNullOrEmpty(title))
                 {
                     var t = Txt(card.transform, "T", title, 17, PanelTitle, TextAnchor.UpperCenter);
@@ -60,7 +65,8 @@ namespace CoastRun
             protected Button BigButton(Transform foot, float x0, float x1, string label, Action onClick, out Text labelTxt, out Text arrowTxt, Color? color = null)
             {
                 var fire = CoastUiArt.GlossyPill(foot, "Big", color ?? BtnYellow, 22, 10);
-                Rect(fire.rectTransform, new Vector2(x0, 0.05f), new Vector2(x1, 0.82f), Vector2.zero, Vector2.zero); fire.raycastTarget = true;
+                Rect(fire.rectTransform, new Vector2(x0, 0.04f), new Vector2(x1, 0.80f), Vector2.zero, Vector2.zero); fire.raycastTarget = true;
+                BigRect = fire.rectTransform; MiniKit.Pulse(BigRect, true);
                 var fb = fire.gameObject.AddComponent<Button>(); fb.transition = Selectable.Transition.None;
                 fb.onClick.AddListener(() => { CoastPrefs.Vibrate(); onClick?.Invoke(); });
                 labelTxt = Txt(fire.transform, "T", label, 30, color.HasValue ? Color.white : BtnInk, TextAnchor.MiddleCenter);
@@ -262,6 +268,7 @@ namespace CoastRun
                 Hint(prog.transform, Loc.T("같은 칸 = 잡기!", "Same cell = catch!"));
                 BigButton(foot, 0.62f, 0.98f, Loc.T("던지기!", "Throw!"), () => { if (_myTurn && !_busy && !_ended) StartCoroutine(Turn(true)); }, out _btnLabel, out _btnArrow);
                 Status.text = Loc.T("내 차례 — [던지기!] 도담이보다 먼저 한 바퀴", "Your turn — [Throw!] Get around before Dodam");
+                Kit?.Goal(Loc.T("도담이보다 먼저 한 바퀴!", "Get around before Dodam!")); Kit?.Score(Loc.T($"나 {_me}  ·  도담 {_ai}", $"Me {_me} · Dodam {_ai}")); Kit?.TapHint(BigRect, Loc.T("여기를 탭!", "Tap here!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
             }
 
             private RectTransform Track(Transform card, float y, Color c, string label, out Text lbl)
@@ -341,6 +348,7 @@ namespace CoastRun
                 switch (flats) { case 1: move = 1; name = "도"; en = "Do"; break; case 2: move = 2; name = "개"; en = "Gae"; break; case 3: move = 3; name = "걸"; en = "Geol"; break; case 4: move = 4; name = "윷"; en = "Yut"; again = true; break; default: move = 5; name = "모"; en = "Mo"; again = true; break; }
                 _resultBig.text = Loc.T(name, en) + $" +{move}";
                 _resultBig.color = again ? new Color(1f, 0.55f, 0.35f) : new Color(1f, 0.9f, 0.4f);
+                if (me) Kit?.Pop(Loc.T(name, en) + $"  +{move}" + (again ? Loc.T("  한 번 더!", "  again!") : ""), true);
                 _resultSub.text = (me ? Loc.T("나", "Me") : Loc.T("도담", "Dodam")) + (again ? Loc.T(" · 한 번 더!", " · again!") : "");
                 yield return new WaitForSecondsRealtime(0.45f);
                 for (int k = 0; k < move; k++)
@@ -352,8 +360,9 @@ namespace CoastRun
                 if (!me && _ai == _me && _me > 0 && _me < Cells) { _me = 0; PlaceToken(_meTok, _meBlob, 0, false); _resultSub.text = Loc.T("잡혔다… 처음부터", "Caught… back to start"); again = true; CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.6f); }
                 UpdateBars();
                 yield return new WaitForSecondsRealtime(0.35f);
-                if (_me >= Cells) { _ended = true; Status.text = Loc.T("먼저 들어왔다! 승리!", "Home first! Victory!"); _resultBig.text = Loc.T("승리!", "WIN!"); CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.8f); yield return new WaitForSecondsRealtime(1.0f); Finish(1); yield break; }
-                if (_ai >= Cells) { _ended = true; Status.text = Loc.T("도담이가 먼저…", "Dodam got home first…"); _resultBig.text = Loc.T("패배…", "Lost…"); yield return new WaitForSecondsRealtime(1.0f); Finish(0); yield break; }
+                Kit?.Score(Loc.T($"나 {Mathf.Min(_me, Cells)}  ·  도담 {Mathf.Min(_ai, Cells)}", $"Me {Mathf.Min(_me, Cells)} · Dodam {Mathf.Min(_ai, Cells)}"));
+                if (_me >= Cells) { _ended = true; Kit?.Pop(Loc.T("승리!", "WIN!"), true); Status.text = Loc.T("먼저 들어왔다! 승리!", "Home first! Victory!"); _resultBig.text = Loc.T("승리!", "WIN!"); CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.8f); yield return new WaitForSecondsRealtime(1.0f); Finish(1); yield break; }
+                if (_ai >= Cells) { _ended = true; Kit?.Pop(Loc.T("도담이가 먼저…", "Dodam first…"), false); Status.text = Loc.T("도담이가 먼저…", "Dodam got home first…"); _resultBig.text = Loc.T("패배…", "Lost…"); yield return new WaitForSecondsRealtime(1.0f); Finish(0); yield break; }
                 _busy = false;
                 if (again) { if (!me) StartCoroutine(Turn(false)); else { Status.text = Loc.T("한 번 더 던져!", "Throw again!"); _btnLabel.text = Loc.T("던지기!", "Throw!"); } yield break; }
                 _myTurn = !me;
@@ -404,7 +413,8 @@ namespace CoastRun
             private const int Need = 3;
             // 배경 그림(한옥 마당)은 원근 그림이라 바닥이 아래 절반 — 소품은 n.y 0.45 아래에만.
             private static readonly Vector2 StartN = new Vector2(0.5f, 0.09f), JarN = new Vector2(0.5f, 0.30f);
-            private const float AimTol = 6f, PowerTol = 0.09f, NeedPower = 0.62f;
+            // 56차(사용자): 힘 게이지 10 % 느리게(2.2 → 1.98 Hz), 들어갈 확률 ↑(방향 ±6° → ±8°, 힘 띠 ±0.09 → ±0.12)
+            private const float AimTol = 8f, PowerTol = 0.12f, NeedPower = 0.62f, PowerHz = 1.98f;
             private Transform _arrow, _jar, _arrowBlob;
             private float _arrowLen, _jarH;
             private RectTransform _needle, _powerFill;
@@ -439,6 +449,7 @@ namespace CoastRun
                 _powerFill = VGauge(pow.transform, 0.30f, 0.74f, out _powerTxt, NeedPower - PowerTol, NeedPower + PowerTol);
                 _powHint = Hint(pow.transform, Loc.T("흰 띠 안에서 멈춰!", "Stop inside the band!"));
                 BigButton(foot, 0.62f, 0.98f, Loc.T("방향 확정", "Set aim"), OnButton, out _btnLabel, out _btnArrow);
+                Kit?.Goal(Loc.T("5발 중 3발 항아리에!", "3 of 5 in the jar!")); Kit?.Pips(5, _left); Kit?.Score($"{_in} / {Need}"); Kit?.TapHint(BigRect, Loc.T("바늘이 항아리를 볼 때 탭!", "Tap when it points at the jar!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
                 ResetArrow();
                 // 남은 화살 5개 핍(마당 위 상태띠 아래)
                 for (int i = 0; i < 5; i++)
@@ -485,7 +496,7 @@ namespace CoastRun
                 }
                 else if (_step == Step.Power)
                 {
-                    _t += Time.unscaledDeltaTime; _power = 0.5f + 0.5f * Mathf.Sin(_t * 2.2f * Mathf.PI - Mathf.PI * 0.5f);
+                    _t += Time.unscaledDeltaTime; _power = 0.5f + 0.5f * Mathf.Sin(_t * PowerHz * Mathf.PI - Mathf.PI * 0.5f);
                     _powerFill.anchorMax = new Vector2(1f, _power); _powerTxt.text = $"{Mathf.RoundToInt(_power * 100f)}%";
                 }
                 if (_step == Step.Aim || _step == Step.Power)
@@ -544,6 +555,7 @@ namespace CoastRun
                     sh.rotation = Quaternion.LookRotation(flatDir, Vector3.up) * Quaternion.Euler(90f, 0f, 0f);
                 }
                 string why = hit ? "" : Mathf.Abs(_angle) > AimTol ? Loc.T("(방향이 빗나감)", "(off aim)") : _power < NeedPower ? Loc.T("(힘이 약함)", "(too weak)") : Loc.T("(힘이 셈)", "(too strong)");
+                Kit?.Pop(hit ? Loc.T("쏙!", "IN!") : Loc.T("빗나감 " + why, "Miss " + why), hit); Kit?.Pips(5, _left); Kit?.Score($"{_in} / {Need}");
                 Status.text = hit ? Loc.T($"쏙! 넣은 것 {_in}/{Need} · 남은 화살 {_left}", $"In! {_in}/{Need} · arrows {_left}")
                                   : Loc.T($"빗나감 {why} · 넣은 것 {_in}/{Need} · 남은 화살 {_left}", $"Miss {why} · {_in}/{Need} · arrows {_left}");
                 yield return new WaitForSecondsRealtime(0.4f);
@@ -612,6 +624,7 @@ namespace CoastRun
                 }
                 _triesTxt = Hint(tries.transform, Loc.T("3번 안에 한번 뒤집기", "Flip once in 3 tries"));
                 BigButton(foot, 0.62f, 0.98f, Loc.T("내리치기!", "Slam!"), () => { if (!_busy && !_ended) StartCoroutine(Slam()); }, out _btnLabel, out _btnArrow);
+                Kit?.Goal(Loc.T("3번 안에 한 번 뒤집기!", "Flip it once in 3 tries!")); Kit?.Pips(3, _left, new Color(1f, 0.45f, 0.45f)); Kit?.TapHint(BigRect, Loc.T("노란 구간에서 탭!", "Tap in the yellow zone!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
                 _btnArrow.text = "↓";
                 Status.text = Loc.T($"노란 구간에서 내리쳐! 남은 기회 {_left}", $"Slam in the yellow zone! Tries {_left}");
             }
@@ -769,7 +782,7 @@ namespace CoastRun
                     if (_target != null) _target.gameObject.SetActive(false);
                     _theirs.rotation = r0 * Quaternion.Euler(0f, 0f, 180f); _theirs.position = g + Vector3.up * 0.012f;
                     _ended = true;
-                    Status.text = Loc.T("넘어갔다! 내 딱지!", "Flipped! It's mine!");
+                    Status.text = Loc.T("넘어갔다! 내 딱지!", "Flipped! It's mine!"); Kit?.Pop(Loc.T("넘어갔다!", "FLIP!"), true);
                     _btnLabel.text = Loc.T("성공!", "Nice!");
                     yield return new WaitForSecondsRealtime(0.9f);
                     Finish(1); yield break;
@@ -792,6 +805,7 @@ namespace CoastRun
                     Lay(_mine, _mineBlob, MineN, -10f);
                 }
                 Status.text = v < ZoneL ? Loc.T($"약해! 남은 기회 {_left}", $"Too weak! Tries {_left}") : Loc.T($"너무 세서 튕겼어! 남은 기회 {_left}", $"Too hard, it bounced! Tries {_left}");
+                Kit?.Pop(v < ZoneL ? Loc.T("약해!", "Too weak!") : Loc.T("튕겼어!", "Bounced!"), false); Kit?.Pips(3, _left, new Color(1f, 0.45f, 0.45f));
                 yield return new WaitForSecondsRealtime(0.35f);
                 if (_left <= 0) { _ended = true; yield return new WaitForSecondsRealtime(0.5f); Finish(0); yield break; }
                 _busy = false;
@@ -842,9 +856,11 @@ namespace CoastRun
                 if (_me.GetComponent<Renderer>().sharedMaterial.GetTexture("_BaseMap") == null) { Destroy(_me.gameObject); _me = Sprite("GirlSkater_Back", _meH); }
                 _meBlob = S.Blob(_meH * 0.26f, 0.4f).transform;
                 _chant = Txt(Field.parent, "Chant", "", 22, new Color(1f, 1f, 1f), TextAnchor.MiddleCenter);
-                Rect(_chant.rectTransform, new Vector2(0.05f, 0.90f), new Vector2(0.95f, 0.99f), Vector2.zero, Vector2.zero);
+                // 58차: 목표 띠(마당 맨 위)와 겹치지 않게 구호는 띠 바로 아래, 안내(Status)는 그 아래
+                Rect(_chant.rectTransform, new Vector2(0.05f, 0.80f), new Vector2(0.95f, 0.895f), Vector2.zero, Vector2.zero);
                 _chant.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_chant, new Color(0.1f, 0.05f, 0.2f, 0.85f), 2f);
-                Status.rectTransform.anchorMin = new Vector2(0f, 0.78f); Status.rectTransform.anchorMax = new Vector2(1f, 0.90f);
+                _chant.resizeTextForBestFit = true; _chant.resizeTextMinSize = 12; _chant.resizeTextMaxSize = CoastHudLayout.Scaled(22);
+                Status.rectTransform.anchorMin = new Vector2(0f, 0.70f); Status.rectTransform.anchorMax = new Vector2(1f, 0.80f);
 
                 // 발판: [술래 상태] [진행도·목숨] [달리기 (꾹)]
                 _stateCard = Card(foot, "StateCard", 0.02f, 0.34f, Loc.T("술래", "Tagger"));
@@ -867,11 +883,12 @@ namespace CoastRun
                 }
                 Hint(prog.transform, Loc.T("3번 걸리면 실패", "Caught 3 times = lose"));
                 var b = BigButton(foot, 0.62f, 0.98f, Loc.T("달리기", "Run"), () => { if (_touchable && !_ended) StartCoroutine(Win()); }, out _btnLabel, out _btnArrow, new Color(0.93f, 0.22f, 0.52f));
-                _btnArrow.text = Loc.T("(꾹 누르기)", "(hold)"); _btnArrow.fontSize = 16;
+                _btnArrow.text = Loc.T("(꾹 누르기)", "(hold)"); _btnArrow.fontSize = CoastHudLayout.Scaled(14);
                 var hold = b.gameObject.AddComponent<HoldRelay>(); hold.target = this;
                 NextPhase(false);
                 _progress = 0f; PlaceMe();
                 Status.text = Loc.T("[달리기]를 꾹 — 술래가 돌아보면 손을 떼! 끝까지 가면 [술래 터치!]", "Hold [Run] — let go when the tagger turns! Reach the end and [Tag!]");
+                Kit?.Goal(Loc.T("술래에게 닿기! 돌아보면 멈춰", "Reach the tagger! Freeze when it turns")); Kit?.Pips(3, 3, new Color(1f, 0.45f, 0.45f)); Kit?.TapHint(BigRect, Loc.T("꾹 누르면 달려!", "Hold to run!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
             }
 
             public void OnPointerDown(PointerEventData e) { _holding = true; }
@@ -915,7 +932,7 @@ namespace CoastRun
                         _progress = 0f; _holding = false;
                         CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.8f); CoastPrefs.Vibrate();
                         if (_caught - 1 < _lives.Count) _lives[3 - _caught].color = new Color(1f, 1f, 1f, 0.25f);
-                        Status.text = Loc.T($"걸렸다! 처음부터 (걸린 횟수 {_caught}/3)", $"Caught! Back to start ({_caught}/3)");
+                        Status.text = Loc.T($"걸렸다! 처음부터 (걸린 횟수 {_caught}/3)", $"Caught! Back to start ({_caught}/3)"); Kit?.Pop(Loc.T("걸렸다!", "CAUGHT!"), false); Kit?.Pips(3, 3 - _caught, new Color(1f, 0.45f, 0.45f));
                         if (_caught >= 3) { _ended = true; _chant.text = Loc.T("아웃!", "OUT!"); StartCoroutine(EndAfter(0.9f, 0)); return; }
                     }
                     else { _progress = Mathf.Min(1f, _progress + dt * 0.22f); moving = true; }
@@ -937,7 +954,7 @@ namespace CoastRun
             {
                 _ended = true;
                 CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.8f);
-                Status.text = Loc.T("술래 터치! 이겼다!", "Tagged! You win!");
+                Status.text = Loc.T("술래 터치! 이겼다!", "Tagged! You win!"); Kit?.Pop(Loc.T("터치! 이겼다!", "TAG! WIN!"), true);
                 _chant.text = Loc.T("만세!", "Hooray!"); _chant.color = new Color(1f, 0.9f, 0.4f);
                 if (_taggerBack != null) { _taggerBack.gameObject.SetActive(false); _taggerFront.gameObject.SetActive(true); }
                 float t = 0f;

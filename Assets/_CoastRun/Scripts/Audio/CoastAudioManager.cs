@@ -341,9 +341,9 @@ namespace CoastRun
         {
             if (_ambient == null)
             {
-                _ambient = CreateSource("Ambient", 0f, true);   // 49차: Update 가 볼륨을 정하기 전엔 무음(첫 프레임 드론 방지)
-                _ambient.clip = ProceduralAudio.CreateLoop(220f, 0.08f, 4f);
-                _ambient.Play();
+                // 56차(사용자): 합성 드론(220 Hz 음악 대체음)은 더 이상 안 튼다 — 소스만 두고 클립 없음(음악은 M 곡만).
+                _ambient = CreateSource("Ambient", 0f, true);
+                _ambient.clip = null;
             }
 
             if (_wind == null)
