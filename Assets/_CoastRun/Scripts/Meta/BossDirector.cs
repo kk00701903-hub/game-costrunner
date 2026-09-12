@@ -68,10 +68,10 @@ namespace CoastRun
         private float Elapsed => ArcadeRun.KpopMode ? ArcadeRun.KpopElapsed : Time.timeSinceLevelLoad;
 
         // 52차: 속도 부스트를 내가 관리 — 가속 구간 1.35 / 보스 중 1.2 / 평소 1.0, 올릴 땐 빠르게·내릴 땐 천천히(뚝 떨어지는 「느려짐」 없이).
-        private float _boost = 1f, _applied = 1f;
+        private float _boost = 1f, _applied = 1f, _fxNext;
         private void DriveBoost(float dt)
         {
-            float want = _surging ? 1.35f : Active ? 1.2f : 1f;
+            float want = _surging ? 1.35f : Active ? 1.4f : 1f;   // 63차(사용자): 보스 중 「느려지는」 느낌 → 더 확실히 빠르게(1.2 → 1.4)
             _boost = Mathf.MoveTowards(_boost, want, dt * (want > _boost ? 0.9f : 0.08f));
             float cur = _player.SpeedBoost;
             if (Mathf.Approximately(cur, _applied) || cur < _boost) _player.SpeedBoost = _boost;   // 다른 주체(보너스타임·빨래줄)가 더 올려 둔 값은 존중
@@ -83,6 +83,13 @@ namespace CoastRun
             if (_player == null || !_player.enabled) return;
             float e = Elapsed;
             DriveBoost(Time.deltaTime);
+            // 63차(사용자): 보스 중엔 코인·장애물이 줄어 속도감이 죽는다 → 속도선·FOV 를 계속 밀어 「더 빨라졌다」가 보이게
+            if (Active && (_fxNext -= Time.deltaTime) <= 0f)
+            {
+                _fxNext = 0.3f;
+                var j = JuiceDirector.Instance;
+                if (j != null) j.BossSpeedPulse();
+            }
             // 가속 구간
             if (!_surging && !Active && e >= _surgeNext)
             {

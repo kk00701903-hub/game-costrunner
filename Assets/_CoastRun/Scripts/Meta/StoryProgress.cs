@@ -47,5 +47,22 @@ namespace CoastRun
             return new string[0];
         }
         public static bool ChapterRead(int chapter) => SceneSeen(ChapterScript.OpenId(chapter));
+
+        // ── 61차(사용자): 컷씬은 **8개** — 러닝 챕터(1·4·7·10·13·15·18·20)마다 하나, 그 사이 챕터 이야기를 한 편으로 묶어 리더로 읽는다.
+        //    「오프닝/클로징」 구분 없이 「컷씬 N」. 시네마도 이 8개만.
+        public static int CutsceneCount => RunChapters.Length;
+        /// chapter 가 컷씬이 열리는 챕터면 1..8, 아니면 0.
+        public static int CutsceneIndex(int chapter) { for (int i = 0; i < RunChapters.Length; i++) if (RunChapters[i] == chapter) return i + 1; return 0; }
+        public static int CutsceneChapter(int index) => RunChapters[Mathf.Clamp(index, 1, RunChapters.Length) - 1];
+        public static int CutsceneFirstChapter(int index) => index <= 1 ? 1 : RunChapters[index - 2] + 1;
+        /// 컷씬 N 에 묶인 챕터 이야기 씬 id 전부(앞 챕터부터).
+        public static string[] CutsceneSceneIds(int index)
+        {
+            var list = new System.Collections.Generic.List<string>();
+            for (int c = CutsceneFirstChapter(index); c <= CutsceneChapter(index); c++) list.AddRange(ChapterSceneIds(c));
+            return list.ToArray();
+        }
+        public static bool CutsceneRead(int index) => ChapterRead(CutsceneChapter(index));
+        public static string CutsceneTitle(int index) => ChapterScript.Title(CutsceneChapter(index));
     }
 }

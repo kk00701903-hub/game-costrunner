@@ -22,7 +22,47 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Policy - Terms")] public static void PolicyTerms() { if (Application.isPlaying) PolicyUI.Open(PolicyUI.Doc.Terms); }
         [MenuItem("Coast Run/Dev/Policy - Youth")] public static void PolicyYouth() { if (Application.isPlaying) PolicyUI.Open(PolicyUI.Doc.Youth); }
         // 51차: 보스전·하늘 위협 확인용
+        [MenuItem("Coast Run/Dev/Mission - Slow flight toggle")] public static void SlowFlight() { MissionMiniGames.DebugSlowFlight = !MissionMiniGames.DebugSlowFlight; Debug.LogWarning("[Dev] slow flight " + MissionMiniGames.DebugSlowFlight); }
+        [MenuItem("Coast Run/Dev/Fx - Double jump cloud (slow x40)")] public static void DjCloud()
+        {
+            var p = Object.FindAnyObjectByType<PlayerController>(); var rig = Object.FindAnyObjectByType<SkaterRig>();
+            Debug.LogWarning($"[Dev] dj cloud: player={(p != null)} juice={(JuiceDirector.Instance != null)} puff={(ArtAssets.LoadTexture("Fx_Cloud_Puff") != null)} flat={(ArtAssets.LoadTexture("Fx_Cloud_Flat") != null)}");
+            if (p == null || JuiceDirector.Instance == null) return;
+            JuiceDirector.DebugFxSlow = 40f;
+            JuiceDirector.Instance.OnDoubleJump(p.transform.position + Vector3.up * 0.9f, rig != null ? rig.transform : p.transform);
+        }
+        [MenuItem("Coast Run/Dev/Input - Probe UI raycast")] public static void ProbeUi()
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current; if (es == null) { Debug.LogWarning("[Probe] no EventSystem"); return; }
+            foreach (var f in new[] { new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.3f), new Vector2(0.2f, 0.5f), new Vector2(0.8f, 0.5f) })
+            {
+                var pd = new UnityEngine.EventSystems.PointerEventData(es) { position = new Vector2(f.x * Screen.width, f.y * Screen.height) };
+                var hits = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+                es.RaycastAll(pd, hits);
+                var sb = new System.Text.StringBuilder($"[Probe] {f}: {hits.Count} hits");
+                foreach (var h in hits) { var tr = h.gameObject.transform; string path = tr.name; for (int i = 0; i < 4 && tr.parent != null; i++) { tr = tr.parent; path = tr.name + "/" + path; } sb.Append("\n  ").Append(path); }
+                Debug.LogWarning(sb.ToString());
+            }
+        }
         [MenuItem("Coast Run/Dev/Boss - Rush")] public static void BossRush() { if (Application.isPlaying) ArcadeRun.StartBossRush(GameManager.I); }
+        [MenuItem("Coast Run/Dev/Fx - Item guide (6s)")] public static void ItemGuide() { if (Application.isPlaying) { PickupFloat.ChapterStart(8, "테스트", "안내 띠 확인", 6f); PickupFloat.ItemGuide(6f); } }
+        [MenuItem("Coast Run/Dev/Fx - Weather probe")] public static void WeatherProbe()
+        {
+            var fx = Object.FindAnyObjectByType<WeatherFx>();
+            if (fx == null) { Debug.LogWarning("[WeatherProbe] no WeatherFx"); return; }
+            var sb = new System.Text.StringBuilder($"[WeatherProbe] weather={fx.Current} pos={fx.transform.position}");
+            foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                var r = ps.GetComponent<ParticleSystemRenderer>();
+                sb.Append($"\n  {ps.name} playing={ps.isPlaying} n={ps.particleCount} active={ps.gameObject.activeInHierarchy} mat={(r != null && r.sharedMaterial != null ? r.sharedMaterial.shader.name : "-")} tex={(r != null && r.sharedMaterial != null && r.sharedMaterial.HasProperty("_BaseMap") && r.sharedMaterial.GetTexture("_BaseMap") != null ? r.sharedMaterial.GetTexture("_BaseMap").name : "-")} pos={ps.transform.position}");
+            }
+            Debug.LogWarning(sb.ToString());
+        }
+        // 63차: 계절 요소 확인용 — 챕터로 계절이 정해진다(1~5 봄, 6~10 여름, 11~15 가을, 16~20 겨울)
+        [MenuItem("Coast Run/Dev/Season - Spring run (ch3)")] public static void RunSpring() { if (Application.isPlaying) ArcadeRun.StartKpop(GameManager.I, 3); }
+        [MenuItem("Coast Run/Dev/Season - Summer run (ch8)")] public static void RunSummer() { if (Application.isPlaying) ArcadeRun.StartKpop(GameManager.I, 8); }
+        [MenuItem("Coast Run/Dev/Season - Autumn run (ch13)")] public static void RunAutumn() { if (Application.isPlaying) ArcadeRun.StartKpop(GameManager.I, 13); }
+        [MenuItem("Coast Run/Dev/Season - Winter run (ch18)")] public static void RunWinter() { if (Application.isPlaying) ArcadeRun.StartKpop(GameManager.I, 18); }
         [MenuItem("Coast Run/Dev/Sky - Drop rock")] public static void DropRock() { var p = Object.FindAnyObjectByType<PlayerController>(); if (p != null) SkyHazards.DropRock(p.PathDistance + p.Speed * 1.4f + 6f, p.Lane, 1.15f); }
         [MenuItem("Coast Run/Dev/Sky - Missile")] public static void Missile() { var p = Object.FindAnyObjectByType<PlayerController>(); if (p != null) SkyHazards.FireMissile(p.PathDistance + 40f, p.Lane, p.Speed + 13f); }
         [MenuItem("Coast Run/Dev/Sky - Tornado")] public static void Tornado() { var p = Object.FindAnyObjectByType<PlayerController>(); if (p != null) SkyHazards.SpawnTornado(p.PathDistance + 45f, p.Speed * 0.55f + 6f, 2.0f, 0.4f, 7f); }

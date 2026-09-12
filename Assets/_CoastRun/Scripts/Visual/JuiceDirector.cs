@@ -184,8 +184,11 @@ namespace CoastRun
             EnsureRunDust();
             if (_runDust == null) return;
             var ep = new ParticleSystem.EmitParams { position = footPos + Vector3.up * 0.03f };
-            _runDust.Emit(ep, 9);   // 14차-8: 발 디딤 먼지 더 또렷하게
+            _runDust.Emit(ep, 12);   // 14차-8: 발 디딤 먼지 더 또렷하게 · 63차: 조금 더
         }
+
+        /// 63차(사용자): 발이 바닥에 닿는 「쿵」 — 아주 작은 카메라 흔들림(0.012, 0.07 s). 속도선은 없음.
+        public void StepThump() { cameraRig?.Shake(0.07f, 0.012f); }
 
         /// 17차: 빨래줄 잡기 — 반짝 + 스피드라인 + 진동 + 코인 버스트
         /// 19차-1: 세상이 흑백으로 바뀌는 순간 — 긴 링 플래시 + 낮은 카메라 흔들림. 소리는 BGM이 그대로, SFX만.
@@ -211,27 +214,122 @@ namespace CoastRun
         /// 47차: 2단 점프 — 발밑에 흰 구름 퍼프 + 작은 링(허공을 디딘 자국).
         public void OnDoubleJump(Vector3 worldPos) => OnDoubleJump(worldPos, null);
 
-        /// 51차(사용자): 2단 점프가 충돌 팡(흰 퍼프+링)과 똑같이 보였다 → 「공기를 밟고 쏘아 올라가는」 전용 연출:
-        ///   발밑 하늘색 공기 파문(Fx_AirRing, 납작하게 퍼지며 사라짐) + 발 아래로 뿜는 제트 기둥(Fx_JetBlast, 0.4초 따라오며 늘어났다 사라짐)
-        ///   + 하늘색 바람 입자(아래로) + 스피드라인 + FOV 킥 + 「뿡→쓩」 효과음. 그림이 없으면 옛 퍼프로 폴백.
+        /// 62차(사용자 「2단 점프가 아직 별 모양 — 별 말고 구름 같은 효과로」): 「구름 밟기」 연출.
+        ///   발밑에 뭉게구름(Fx_Cloud_Puff)이 퐁 하고 부풀어 오르고 → 밟혀서 납작해진 구름(Fx_Cloud_Flat)으로 바뀌며 뒤로 흘러가 사라진다
+        ///   + 작은 구름 조각(Fx_Cloud_Wisp)들이 좌우로 흩어지고 + 발 아래 짧게 따라오는 구름 꼬리. 구름 그림이 없으면 옛 퍼프.
+        ///   (51차의 하늘색 공기 파문 Fx_AirRing 은 가시가 있어 별처럼 보였다 → 사용 안 함)
         public void OnDoubleJump(Vector3 worldPos, Transform follow)
         {
-            var ringTex = ArtAssets.LoadTexture("Fx_AirRing");
-            var jetTex = ArtAssets.LoadTexture("Fx_JetBlast");
-            if (ringTex != null) StartCoroutine(AirRing(worldPos + Vector3.down * 0.05f, ringTex));
-            if (jetTex != null && follow != null) StartCoroutine(JetColumn(follow, worldPos - follow.position, jetTex, 0.42f));
+            var puff = ArtAssets.LoadTexture("Fx_Cloud_Puff");
+            var flat = ArtAssets.LoadTexture("Fx_Cloud_Flat") ?? puff;
+            var wisp = ArtAssets.LoadTexture("Fx_Cloud_Wisp") ?? flat;
             EnsurePopBursts();
-            if (ringTex == null || jetTex == null)
+            if (puff == null)
             {
                 SpawnPop(_popPuff, worldPos, new Color(1f, 1f, 1f, 0.95f), 16);
                 StartCoroutine(FlashRing(worldPos, new Color(1f, 1f, 1f, 0.8f), 1.6f));
             }
             else
-                SpawnPop(_popPuff, worldPos + Vector3.down * 0.35f, new Color(0.70f, 0.95f, 1f, 0.75f), 6);   // 하늘색 바람 부스러기 조금만
-            speedLines?.Burst(40);
+            {
+                StartCoroutine(CloudStomp(worldPos + Vector3.down * 0.15f, puff, flat));
+                for (int i = 0; i < 4; i++) StartCoroutine(CloudWisp(worldPos + Vector3.down * 0.1f, wisp, (i - 1.5f) * 0.9f, 0.15f + i * 0.04f));
+                if (follow != null) StartCoroutine(CloudTail(follow, worldPos - follow.position, wisp, 0.3f));
+            }
+            speedLines?.Burst(36);
             cameraRig?.FovKick(+5f, 0.25f);
             CoastPrefs.Vibrate();
             audio?.PlaySfx(CoastSfx.Boost);
+        }
+
+        private static Material _cloudPuffMat, _cloudFlatMat, _cloudWispMat;
+        /// 62차 개발용: 구름 연출 시간 배율(캡처용, 1 = 정상).
+        public static float DebugFxSlow = 1f;
+        private static float FxDt => Time.unscaledDeltaTime / Mathf.Max(0.01f, DebugFxSlow);
+
+        /// 카메라를 보는 구름 쿼드 하나.
+        private GameObject CloudQuad(string name, Texture2D tex, ref Material cache)
+        {
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad); q.name = name; CoastEditUtil.DestroyCollider(q);
+            var mr = q.GetComponent<Renderer>(); mr.sharedMaterial = FxMat(ref cache, tex); mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; mr.receiveShadows = false;
+            return q;
+        }
+        private static void FaceCam(Transform q)
+        {
+            var cam = Camera.main != null ? Camera.main.transform : null;
+            if (cam == null) return;
+            var fwd = q.position - cam.position; fwd.y = 0f; if (fwd.sqrMagnitude > 1e-4f) q.rotation = Quaternion.LookRotation(fwd.normalized, Vector3.up);
+        }
+
+        /// 발밑 구름: 0.10 s 퐁(0.4 → 1.5 m, 위아래로 통통) → 밟힌 구름으로 바뀌어 납작·넓게(2.2 m) 퍼지며 뒤·아래로 흘러가 0.45 s 에 사라진다.
+        private IEnumerator CloudStomp(Vector3 pos, Texture2D puff, Texture2D flat)
+        {
+            var q = CloudQuad("CloudStomp", puff, ref _cloudPuffMat);
+            var mr = q.GetComponent<Renderer>(); var mpb = new MaterialPropertyBlock();
+#if UNITY_EDITOR
+            if (DebugFxSlow > 1f && Camera.main != null) Debug.LogWarning($"[DJ-Cloud] pos={pos} cam={Camera.main.transform.position} vp={Camera.main.WorldToViewportPoint(pos)} shader={mr.sharedMaterial.shader.name} tex={puff.width}x{puff.height}");
+#endif
+            float ap = puff.width / (float)puff.height, af = flat.width / (float)flat.height;
+            Vector3 back = player != null ? -player.transform.forward : Vector3.back;
+            float t = 0f; const float dur = 0.55f; bool swapped = false;
+            while (t < dur && q != null)
+            {
+                t += FxDt; float u = Mathf.Clamp01(t / dur);
+                if (!swapped && t > 0.12f) { swapped = true; mr.sharedMaterial = FxMat(ref _cloudFlatMat, flat); }
+                float w, h;
+                if (!swapped)
+                {   // 퐁: 커지며 살짝 넘치게(overshoot)
+                    float k = Mathf.Clamp01(t / 0.12f); float pop = 1f + 0.35f * Mathf.Sin(k * Mathf.PI);
+                    h = Mathf.Lerp(0.4f, 1.3f, k) * pop; w = h * ap * (1f + 0.15f * (1f - k));
+                }
+                else
+                {   // 밟힘: 넓고 납작하게, 뒤·아래로 흘러감
+                    float k = Mathf.Clamp01((t - 0.12f) / (dur - 0.12f));
+                    w = Mathf.Lerp(1.6f, 2.4f, 1f - (1f - k) * (1f - k)); h = w / af * Mathf.Lerp(1f, 0.55f, k);
+                }
+                float drift = swapped ? Mathf.Clamp01((t - 0.12f) / (dur - 0.12f)) : 0f;
+                q.transform.position = pos + back * drift * 1.6f + Vector3.down * drift * 0.6f;
+                q.transform.localScale = new Vector3(w, h, 1f);
+                FaceCam(q.transform);
+                float a = swapped ? Mathf.Clamp01(1.15f - drift * 1.3f) : 1f;
+                mpb.SetColor(RingColorId, new Color(1f, 1f, 1f, a)); mr.SetPropertyBlock(mpb);
+                yield return null;
+            }
+            if (q != null) Object.Destroy(q);
+        }
+
+        /// 옆으로 튀는 작은 구름 조각(포물선).
+        private IEnumerator CloudWisp(Vector3 pos, Texture2D tex, float side, float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay * 0.3f);
+            var q = CloudQuad("CloudWisp", tex, ref _cloudWispMat);
+            var mr = q.GetComponent<Renderer>(); var mpb = new MaterialPropertyBlock();
+            float ar = tex.width / (float)tex.height;
+            Vector3 right = player != null ? player.transform.right : Vector3.right;
+            Vector3 back = player != null ? -player.transform.forward : Vector3.back;
+            float t = 0f; const float dur = 0.5f; float size = Random.Range(0.35f, 0.6f);
+            while (t < dur && q != null)
+            {
+                t += FxDt; float u = Mathf.Clamp01(t / dur);
+                q.transform.position = pos + right * side * (0.3f + 1.4f * u) + Vector3.up * (0.5f * u - 0.9f * u * u) + back * u * 0.8f;
+                float sc = size * (0.6f + 0.6f * Mathf.Sin(u * Mathf.PI * 0.5f));
+                q.transform.localScale = new Vector3(sc * ar, sc, 1f);
+                FaceCam(q.transform);
+                mpb.SetColor(RingColorId, new Color(1f, 1f, 1f, Mathf.Clamp01(1.3f - u * 1.4f))); mr.SetPropertyBlock(mpb);
+                yield return null;
+            }
+            if (q != null) Object.Destroy(q);
+        }
+
+        /// 발 아래 따라오는 구름 꼬리(짧게): 0.3 s 동안 6 개가 발밑에서 떨어져 뒤에 남는다.
+        private IEnumerator CloudTail(Transform follow, Vector3 offset, Texture2D tex, float seconds)
+        {
+            float t = 0f, next = 0f;
+            while (t < seconds && follow != null)
+            {
+                t += FxDt;
+                if (t >= next) { next += seconds / 6f; StartCoroutine(CloudWisp(follow.position + offset + Vector3.down * 0.2f, tex, Random.Range(-0.4f, 0.4f), 0f)); }
+                yield return null;
+            }
         }
 
         private static Material _airRingMat, _jetMat;
@@ -316,7 +414,7 @@ namespace CoastRun
         {
             // 17차: 타격감 — 순간 정지(0.07 s) + 큰 흔들림 + 진동. 파편은 주인공 좌표계에서 흩어져 뒤에 남지 않는다.
             if (_hitStopRoutine != null) StopCoroutine(_hitStopRoutine);
-            _hitStopRoutine = StartCoroutine(HitStop(0.04f, 0.07f));
+            _hitStopRoutine = StartCoroutine(PlayerController.NoHitSlow ? HitStop(0.6f, 0.04f) : HitStop(0.04f, 0.07f));   // 63차: 보스 중 슬로모 최소
             cameraRig?.Shake(0.32f, 0.16f);
             cameraRig?.FovKick(-5f, 0.15f);
             CoastPrefs.Vibrate();
@@ -757,13 +855,21 @@ namespace CoastRun
             _softHitCo = StartCoroutine(SoftHitSequence());
         }
 
+        /// 63차: 보스 중 속도감 유지 — 속도선 한 줌 + FOV 살짝 넓힘(BossDirector 가 0.3 s 마다 부른다).
+        public void BossSpeedPulse()
+        {
+            speedLines?.Burst(14);
+            cameraRig?.FovKick(+4f, 0.45f);
+        }
+
         private IEnumerator SoftHitSequence()
         {
             // 23차-2: '꽈당' — 공격당했다는 불쾌한 충격이 화면에 와야 피하고 싶어진다.
             // 순간 정지(0.10 s) → 큰 흔들림 → 화면이 기울며 붉게 번쩍 + "꽈당!" + 채도 뚝.
             // (예전 0.05s 대기는 짧은 피격에서 연출이 씹히는 경우가 있어 바로 켠다)
+            // 63차(사용자): 보스 중엔 피격 순간 정지(슬로모)를 거의 없앤다 — 연타 피격이 「느려지는 보스」로 느껴졌다
             if (_hitStopRoutine != null) StopCoroutine(_hitStopRoutine);
-            _hitStopRoutine = StartCoroutine(HitStop(0.03f, 0.10f));
+            _hitStopRoutine = StartCoroutine(PlayerController.NoHitSlow ? HitStop(0.6f, 0.04f) : HitStop(0.03f, 0.10f));
             cameraRig?.Shake(0.55f, 0.38f);
             PunchSaturation(-70f, 0.55f);
             player?.FreezeInput(0.12f);   // brief only — long SoftHit lock felt like dead keyboard

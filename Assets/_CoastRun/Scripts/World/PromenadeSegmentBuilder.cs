@@ -78,6 +78,39 @@ namespace CoastRun
                 : SeasonKind.Summer;
             if (has3dTown && (leftKind == LeftKind.Town || leftKind == LeftKind.Village))
                 SegmentDecorator.Decorate(root, segmentIndex, season);
+            // 63차(사용자): 겨울엔 건물·돌담 위에 눈이 쌓인다
+            if (season == SeasonKind.Winter) SnowCaps(root, segmentIndex);
+        }
+
+        private static Material _snowMat;
+        /// 63차: 겨울 눈 모자 — 세그먼트 안의 큰 물체(건물·돌담·소품) 윗면에 흰 판을 얹는다(길·밭·울타리·빌보드는 제외).
+        private static void SnowCaps(Transform root, int index)
+        {
+            var rng = new System.Random(index * 977 + 13);
+            _snowMat ??= CoastMaterials.CreateLit(new Color(0.97f, 0.98f, 1f), 0.15f);
+            int n = 0;
+            var rs = root.GetComponentsInChildren<Renderer>();
+            foreach (var r in rs)
+            {
+                if (r == null || n >= 48) continue;
+                string nm = r.gameObject.name;
+                if (nm.StartsWith("Road") || nm.Contains("Field") || nm.Contains("Slab") || nm.Contains("Kerb") || nm.Contains("Fence") || nm.Contains("Painted") || nm.Contains("Blob")
+                    || nm.Contains("Ring") || nm.Contains("Snow") || nm.Contains("Ground") || nm.Contains("Verge") || nm.Contains("Sand") || nm.Contains("Cliff") || nm.Contains("Shore")
+                    || nm.Contains("Bloom") || nm.Contains("Leaf") || nm.Contains("Flag") || nm.Contains("Wire") || nm.Contains("Lamp") || nm.Contains("Post") || nm.Contains("Pole")
+                    || nm.Contains("Palm") || nm.Contains("Tree") || nm.Contains("Shadow") || nm.Contains("Dash") || nm.Contains("Hydrangea") || nm.Contains("Chalk")) continue;
+                var b = r.bounds;
+                if (b.size.y < 0.45f || b.size.x * b.size.z < 0.6f || b.size.x > 14f || b.size.z > 14f) continue;
+                bool building = b.size.y > 2.5f;
+                float th = building ? 0.22f : 0.12f;
+                var cap = GameObject.CreatePrimitive(PrimitiveType.Cube); cap.name = "SnowCap"; CoastEditUtil.DestroyCollider(cap);
+                cap.transform.SetParent(root, false);
+                cap.transform.position = new Vector3(b.center.x, b.max.y + th * 0.5f - 0.02f, b.center.z);
+                cap.transform.rotation = Quaternion.identity;
+                float shrink = building ? 0.92f : 0.85f;
+                cap.transform.localScale = new Vector3(b.size.x * shrink + 0.1f, th + (float)rng.NextDouble() * 0.06f, b.size.z * shrink + 0.1f);
+                var mr = cap.GetComponent<Renderer>(); mr.sharedMaterial = _snowMat; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                n++;
+            }
         }
 
         private static Material _roadMat;
@@ -213,11 +246,15 @@ namespace CoastRun
                 CreateBox(lamp, "Head", new Vector3(0.55f, 3.55f, 0f), new Vector3(0.34f, 0.26f, 0.34f),
                     () => Color.Lerp(CoastPalette.CoinYellow, Color.white, 0.35f));
 
-                var planter = UprightPivot(root, "Planter", new Vector3(lampX - 0.1f, 0f, z + 7.5f));
-                CreateBox(planter, "Box", new Vector3(0f, 0.28f, 0f), new Vector3(0.8f, 0.55f, 0.5f),
-                    () => Color.Lerp(CoastPalette.AccentOrange, CoastPalette.TownCream, 0.35f));
-                CreateBox(planter, "Bloom", new Vector3(0f, 0.68f, 0f), new Vector3(0.7f, 0.3f, 0.42f),
-                    () => rng.NextDouble() < 0.5 ? CoastPalette.AccentOrange : Color.Lerp(CoastPalette.SeaTeal, Color.white, 0.3f));
+                // 59차: 똑같은 주황 상자가 15 m 마다 반복되던 자리 — Blender 소품 6종(KerbProps)으로, 위치도 조금씩 흔든다
+                var planter = UprightPivot(root, "Planter", new Vector3(lampX - 0.15f, 0f, z + 5.5f + (float)rng.NextDouble() * 4f));
+                if (!KerbProps.Spawn(planter, Vector3.zero, rng))
+                {
+                    CreateBox(planter, "Box", new Vector3(0f, 0.28f, 0f), new Vector3(0.8f, 0.55f, 0.5f),
+                        () => Color.Lerp(CoastPalette.AccentOrange, CoastPalette.TownCream, 0.35f));
+                    CreateBox(planter, "Bloom", new Vector3(0f, 0.68f, 0f), new Vector3(0.7f, 0.3f, 0.42f),
+                        () => rng.NextDouble() < 0.5 ? CoastPalette.AccentOrange : Color.Lerp(CoastPalette.SeaTeal, Color.white, 0.3f));
+                }
             }
 
             // Short bollards on the sea side between the wooden posts.

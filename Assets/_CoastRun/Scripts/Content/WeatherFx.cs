@@ -9,6 +9,7 @@ namespace CoastRun
         private ParticleSystem _snow, _snowNear;   // 48차-10: 큰 눈송이 근경 층
         private ParticleSystem _mist;
         private ParticleSystem _wind;    // 35차: 바람에 날리는 꽃잎·낙엽·눈보라
+        private ParticleSystem _petals, _petalsNear;  // 63차: 봄엔 날씨와 상관없이 벚꽃잎이 흩날린다(원경·근경)
         private Transform _follow;
         private float _windTilt;         // 비·눈이 옆으로 기울어지는 각도(바람 세기)
         private WeatherKind _weather = WeatherKind.Clear;
@@ -60,6 +61,14 @@ namespace CoastRun
             }
             if (_mist == null)
                 _mist = CreateSpray("MistFx", new Color(0.85f, 0.88f, 0.9f, 0.25f), 80, 0.8f, 0.55f, 2f);
+            if (_petals == null)
+            {
+                // 63차(사용자): 봄 벚꽃 — 위에서 살랑살랑 떨어지는 분홍 꽃잎(회전·노이즈), 원경 + 근경 두 겹.
+                //   첫 확인에서 희미해 눈에 안 띄었다 → 채도·개수 올리고 카메라 앞 근경 층을 추가(근경은 너무 크면 분홍 덩어리로 보여 0.16~0.28).
+                var petalTex = ArtAssets.LoadTexture("Fx_Petal");
+                _petals = MakePetals("PetalFx", 120, new ParticleSystem.MinMaxCurve(0.14f, 0.26f), new Vector3(22f, 1f, 30f), Vector3.zero, petalTex);
+                _petalsNear = MakePetals("PetalNearFx", 40, new ParticleSystem.MinMaxCurve(0.16f, 0.28f), new Vector3(9f, 1f, 8f), new Vector3(0f, -2.5f, -5f), petalTex);
+            }
             if (_wind == null)
             {
                 _wind = CreateSpray("WindFx", new Color(1f, 0.8f, 0.85f, 0.9f), 90, 7f, 0.16f, 4f);
@@ -80,6 +89,23 @@ namespace CoastRun
             var r = ps.GetComponent<ParticleSystemRenderer>();
             r.renderMode = ParticleSystemRenderMode.Stretch;
             r.lengthScale = 0f; r.velocityScale = velocityScale;
+        }
+
+        /// 63차: 벚꽃잎 층 하나 — 진한 분홍~연분홍, 회전하며 노이즈로 흔들리며 천천히 떨어진다.
+        private ParticleSystem MakePetals(string name, int rate, ParticleSystem.MinMaxCurve size, Vector3 box, Vector3 localPos, Texture2D tex)
+        {
+            var ps = CreateSpray(name, new Color(1f, 0.66f, 0.80f, 1f), rate, 1.2f, 0.3f, 7f);
+            var m = ps.main; m.startSize = size; m.startSpeed = new ParticleSystem.MinMaxCurve(0.9f, 1.7f); m.gravityModifier = 0.05f;
+            m.startRotation = new ParticleSystem.MinMaxCurve(0f, 6.28f);
+            m.startColor = new ParticleSystem.MinMaxGradient(new Color(1f, 0.62f, 0.78f, 1f), new Color(1f, 0.86f, 0.92f, 1f));
+            var rot = ps.rotationOverLifetime; rot.enabled = true; rot.z = new ParticleSystem.MinMaxCurve(-4f, 4f);
+            var noise = ps.noise; noise.enabled = true; noise.strength = 1.6f; noise.frequency = 0.45f; noise.scrollSpeed = 0.4f;
+            var sh = ps.shape; sh.scale = box;
+            ps.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            ps.transform.localPosition = localPos;
+            var pr = ps.GetComponent<ParticleSystemRenderer>();
+            if (tex != null && pr.material.HasProperty("_BaseMap")) pr.material.SetTexture("_BaseMap", tex);
+            return ps;
         }
 
         private ParticleSystem CreateSpray(string name, Color color, int rate, float speed, float size, float lifetime)
@@ -155,6 +181,8 @@ namespace CoastRun
             SetActive(_rain, rain); SetActive(_rainNear, rain);
             SetActive(_snow, snow); SetActive(_snowNear, snow);
             SetActive(_mist, weather == WeatherKind.Mist || weather == WeatherKind.Cloudy);
+            bool petals = season == SeasonKind.Spring && weather != WeatherKind.Rain;   // 63차: 봄이면 늘 벚꽃잎
+            SetActive(_petals, petals); SetActive(_petalsNear, petals);
             // 35차: 바람 — 계절별 날리는 것: 봄 벚꽃·유채 꽃잎 / 여름 초록 잎·물보라 / 가을 낙엽 / 겨울 눈보라
             Color leaf = season == SeasonKind.Spring ? new Color(1f, 0.78f, 0.86f, 0.95f)
                 : season == SeasonKind.Autumn ? new Color(0.92f, 0.52f, 0.18f, 0.95f)

@@ -280,6 +280,16 @@ namespace CoastRun
                 // 18차-3: 일시정지 등 UI 위에서 시작한 터치는 게임 조작으로 쓰지 않는다
                 var es = UnityEngine.EventSystems.EventSystem.current;
                 _touchOnUi = es != null && (t.fingerId < 0 ? es.IsPointerOverGameObject() : es.IsPointerOverGameObject(t.fingerId));
+#if UNITY_EDITOR
+                if (es != null)
+                {
+                    var pd = new UnityEngine.EventSystems.PointerEventData(es) { position = t.position };
+                    var hits = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+                    es.RaycastAll(pd, hits);
+                    string top = hits.Count > 0 ? hits[0].gameObject.name + " < " + (hits[0].gameObject.transform.parent != null ? hits[0].gameObject.transform.parent.name : "-") : "-";
+                    Debug.LogWarning($"[Touch] began onUi={_touchOnUi} hits={hits.Count} top={top}");
+                }
+#endif
                 return;
             }
 

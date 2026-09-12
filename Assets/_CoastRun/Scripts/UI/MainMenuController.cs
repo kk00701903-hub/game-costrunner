@@ -661,7 +661,7 @@ namespace CoastRun
                     onPlayStart: () => { played = true; _audio?.StopMenu(); },
                     onClose: () => { if (this == null) return; if (played) _audio?.PlayMenu(_cleared); _ready = true; });
             }));
-            more.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); if (_moreOpen) ToggleMore(); ShowPanel(_settingsPanel, true); }));
+            // 61차(사용자): 「설정」은 더보기에서 빼고 우상단 톱니 아이콘으로(BuildSettingsIcon)
             // 51차(사용자): 보스전 — K-POP 한 곡 창에 보스(갈매기 해적·돌하르방 골렘·태풍 도깨비)만 연달아. 난이도는 해금 챕터 기준 랜덤.
             more.Add((Loc.T("보스전", "Boss Rush"), () =>
             {
@@ -708,7 +708,7 @@ namespace CoastRun
             var ver = CreateLabel(ui.transform, "Version", Loc.T("스튜디오 우히히시 v", "Studio Woohee-Heesi v") + Application.version, 13, FontStyle.Normal,   // 51차(사용자): 스튜디오 이름 + 살짝 아래
                 new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0.018f), new Vector2(300f, 20f));
             ver.alignment = TextAnchor.MiddleRight; ver.rectTransform.anchorMin = ver.rectTransform.anchorMax = new Vector2(1f, 0f);
-            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, 2f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석
+            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, -12f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석 · 61차(사용자): 살짝 더 아래
 
             BuildGalleryPanel(root);
             BuildCreditsPanel(root);
@@ -716,9 +716,41 @@ namespace CoastRun
             BuildRecordPanel(root);
             _root = root;
             // 52차(사용자): 우상단 「기부부탁」 아이콘 — 메인(타이틀)에서만 보이고 더보기·다른 페이지·팝업 중엔 숨는다.
-            DonateUI.AttachIcon(ui.transform, () => _ready && !_moreOpen && !DonateUI.IsOpen && !KpopChapterSelect.IsOpen && !CollectionUI.IsOpen && !ChapterMissionUI.IsOpen && !PolicyUI.IsOpen
+            System.Func<bool> onMain = () => _ready && !_moreOpen && !DonateUI.IsOpen && !KpopChapterSelect.IsOpen && !CollectionUI.IsOpen && !ChapterMissionUI.IsOpen && !PolicyUI.IsOpen
                                                   && !(_settingsPanel != null && _settingsPanel.activeSelf) && !(_galleryPanel != null && _galleryPanel.activeSelf)
-                                                  && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf), OpenDonate);   // 38차: 캐릭터 선택 페이지 삭제(BuildCharacterSelect 미호출)
+                                                  && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf);
+            DonateUI.AttachIcon(ui.transform, onMain, OpenDonate);   // 38차: 캐릭터 선택 페이지 삭제(BuildCharacterSelect 미호출)
+            BuildSettingsIcon(ui.transform, onMain);
+        }
+
+        /// 61차(사용자): 설정은 메인 화면 우상단 톱니 아이콘(Icon_Gear) — 기부 컵 위. 메인에서만 보인다.
+        private void BuildSettingsIcon(Transform ui, System.Func<bool> visible)
+        {
+            var go = new GameObject("SettingsIcon", typeof(RectTransform), typeof(Image), typeof(Button), typeof(VisibleWhen));
+            go.transform.SetParent(ui, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(-50f, -48f); rt.sizeDelta = new Vector2(84f, 84f);   // 63차(사용자): 우측 맨 위 구석 · 아이콘은 Kling 젤리 버튼(Icon_Gear)
+            var img = go.GetComponent<Image>();
+            var gear = CoastUiArt.Art("Icon_Gear");
+            if (gear != null) { img.sprite = gear; img.preserveAspect = true; img.color = Color.white; }
+            else { img.sprite = CoastUiArt.RoundedRect(30); img.type = Image.Type.Sliced; img.color = new Color(0.25f, 0.45f, 0.85f, 0.9f); }
+            img.raycastTarget = true;
+            var b = go.GetComponent<Button>(); b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(() => { if (!_ready) return; _audio?.PlayClick(); if (_moreOpen) ToggleMore(); ShowPanel(_settingsPanel, true); });
+            var vw = go.GetComponent<VisibleWhen>(); vw.visible = visible;
+        }
+
+        private class VisibleWhen : MonoBehaviour
+        {
+            public System.Func<bool> visible; private CanvasGroup _cg;
+            private void Update()
+            {
+                if (_cg == null && !TryGetComponent(out _cg)) _cg = gameObject.AddComponent<CanvasGroup>();
+                bool on = visible == null || visible();
+                _cg.alpha = Mathf.MoveTowards(_cg.alpha, on ? 1f : 0f, Time.unscaledDeltaTime * 6f);
+                _cg.interactable = on; _cg.blocksRaycasts = on;
+            }
         }
 
         /// 세이브가 있을 때: 육성 화면을 챕터 선택(타임라인)이 열린 상태로 연다.

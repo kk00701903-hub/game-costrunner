@@ -138,7 +138,7 @@ namespace CoastRun
         }
     }
 
-    /// 대회 안내(육성 턴 시작, 러닝 직전) — 이름·조건·제한시간 → 「출발!」.
+    /// 대회 안내(육성 턴 시작, 러닝 직전) — 이름·조건·제한시간 → 「출발!」. 60차: EventCardKit(크림 카드·젤리 제목·아이콘 줄) 스타일.
     public static class ContestIntroUI
     {
         private static Canvas _canvas;
@@ -146,31 +146,25 @@ namespace CoastRun
         {
             Close();
             if (d == null) { onGo?.Invoke(); return; }
-            _canvas = CoastUiCanvas.Create("ContestIntroCanvas", 466);
-            var root = CoastUiCanvas.Root(_canvas);
-            float pad = CoastUiCanvas.HudPad;
-            var dim = CoastHudLayout.MakeImage(root, "Dim", Vector2.zero, Vector2.one, new Vector2(-pad - 400f, -pad - 400f), new Vector2(pad + 400f, pad + 400f), new Color(0.04f, 0.03f, 0.08f, 0.72f));
-            dim.raycastTarget = true;
-            var card = CoastUiArt.CutePill(root, "Card", new Color(0.99f, 0.96f, 0.90f), 28, 5);
-            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.pivot = new Vector2(0.5f, 0.5f); crt.anchoredPosition = new Vector2(0f, 30f); crt.sizeDelta = new Vector2(620f, 480f); card.raycastTarget = true;
-            var kicker = CoastHudLayout.MakeText(crt, "K", Loc.T("이번 주 대회", "This week's contest"), 16, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -54f), new Vector2(0f, -20f));
-            kicker.color = new Color(0.86f, 0.32f, 0.45f); kicker.fontStyle = FontStyle.Bold;
-            var title = CoastHudLayout.MakeText(crt, "T", d.Name, 32, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(10f, -120f), new Vector2(-10f, -54f));
-            title.color = new Color(0.16f, 0.14f, 0.30f); title.fontStyle = FontStyle.Bold; title.horizontalOverflow = HorizontalWrapMode.Wrap;
+            var crt = EventCardKit.Card("ContestIntroCanvas", 466, new Vector2(640f, 640f), out _canvas, 20f);
+            var kicker = CoastHudLayout.MakeText(crt, "K", Loc.T("이번 주 대회", "This week's contest"), 18, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -56f), new Vector2(0f, -24f));
+            kicker.color = new Color(0.90f, 0.32f, 0.45f); kicker.fontStyle = FontStyle.Bold;
+            EventCardKit.JellyTitle(crt, d.Name, new Color(0.45f, 0.35f, 0.95f), new Color(0.20f, 0.12f, 0.45f), 56f, 84f, 44);
+            EventCardKit.Divider(crt, 148f);
             int m = Mathf.FloorToInt(d.seconds / 60f), sec = Mathf.FloorToInt(d.seconds % 60f);
-            var body = CoastHudLayout.MakeText(crt, "B", Loc.T($"조건: {d.GoalText}\n제한시간: {m}:{sec:00}\n\n이야기와 상관없는 마을 대회야.\n조건을 못 채우면 이 주는 넘어가지 않아.", $"Goal: {d.GoalText}\nTime limit: {m}:{sec:00}\n\nA village contest, unrelated to the story.\nMiss the goal and the week doesn't advance."), 18, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(30f, 100f), new Vector2(-30f, -124f));
-            body.color = new Color(0.20f, 0.16f, 0.14f); body.horizontalOverflow = HorizontalWrapMode.Wrap;
-            var b = CoastUiArt.GlossyPill(crt, "Go", new Color(1f, 0.50f, 0.08f), 24, 8);
-            var brt = b.rectTransform; brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0f); brt.pivot = new Vector2(0.5f, 0f); brt.anchoredPosition = new Vector2(0f, 22f); brt.sizeDelta = new Vector2(380f, 64f); b.raycastTarget = true;
-            var bt = CoastHudLayout.MakeText(brt, "T", Loc.T("출발!  ▶", "GO!  ▶"), 24, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero); bt.color = Color.white; bt.fontStyle = FontStyle.Bold;
-            var btn = b.gameObject.AddComponent<Button>(); btn.transition = Selectable.Transition.None;
-            btn.onClick.AddListener(() => { CoastPrefs.Vibrate(); Close(); onGo?.Invoke(); });
+            string icon = d.goal == StoryContest.Goal.Photos ? "Icon_Camera" : d.goal == StoryContest.Goal.Coins ? "Icon_Coin" : d.goal == StoryContest.Goal.Boss ? "Icon_Bang" : "Icon_Tower";
+            EventCardKit.IconRow(crt, icon, new Color(1f, 0.85f, 0.45f), Loc.T("조건 · ", "Goal · ") + d.GoalText, 180f, 64f, 24);
+            EventCardKit.IconRow(crt, "Icon_Speed", new Color(0.70f, 0.80f, 1f), Loc.T($"제한시간 · {m}:{sec:00}", $"Time limit · {m}:{sec:00}"), 254f, 64f, 24);
+            var box = EventCardKit.InfoBox(crt, 336f, 150f);
+            EventCardKit.IconRow(box, "Icon_Bulb", new Color(0.80f, 0.88f, 1f), Loc.T("이야기와 상관없는 마을 대회야.", "A village contest, unrelated to the story."), 14f, 52f, 19, null, null, 18f, 14f);
+            EventCardKit.IconRow(box, "Icon_Bang", new Color(1f, 0.85f, 0.45f), Loc.T("조건을 못 채우면 이 주는 넘어가지 않아.", "Miss the goal and the week doesn't advance."), 82f, 52f, 19, null, null, 18f, 14f);
+            EventCardKit.IconButton(crt, "Go", "Icon_Arrow", Loc.T("출발!", "GO!"), new Color(1f, 0.52f, 0.10f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(440f, 84f), () => { Close(); onGo?.Invoke(); }, 32);
             CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.5f);
         }
         public static void Close() { if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject); _canvas = null; }
     }
 
-    /// 대회 결과(미달) 화면 — 다시 도전 / 육성으로(주차는 그대로).
+    /// 대회 결과(미달) 화면 — 다시 도전 / 육성으로(주차는 그대로). 60차(사용자 시안): 크림 카드 · 젤리 「대회 미달…」 · 아이콘 줄 · 흰 안내 상자 · 주황/파랑 버튼.
     public static class ContestResultUI
     {
         private static Canvas _canvas;
@@ -181,38 +175,29 @@ namespace CoastRun
             Close();
             var d = StoryContest.Current; if (d == null) return;
             Time.timeScale = 0f;
-            _canvas = CoastUiCanvas.Create("ContestResultCanvas", 470);
-            var root = CoastUiCanvas.Root(_canvas);
-            float pad = CoastUiCanvas.HudPad;
-            var dim = CoastHudLayout.MakeImage(root, "Dim", Vector2.zero, Vector2.one, new Vector2(-pad - 400f, -pad - 400f), new Vector2(pad + 400f, pad + 400f), new Color(0.04f, 0.03f, 0.08f, 0.78f));
-            dim.raycastTarget = true;
-            var card = CoastUiArt.CutePill(root, "Card", new Color(0.99f, 0.96f, 0.90f), 28, 5);
-            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.pivot = new Vector2(0.5f, 0.5f); crt.sizeDelta = new Vector2(620f, 520f); card.raycastTarget = true;
-            var title = CoastHudLayout.MakeText(crt, "Title", Loc.T("대회 미달…", "Contest failed…"), 32, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -90f), new Vector2(0f, -24f));
-            title.color = new Color(0.75f, 0.20f, 0.30f); title.fontStyle = FontStyle.Bold;
+            var crt = EventCardKit.Card("ContestResultCanvas", 470, new Vector2(640f, 760f), out _canvas, 10f);
+            EventCardKit.JellyTitle(crt, Loc.T("대회 미달…", "Contest failed…"), new Color(0.96f, 0.22f, 0.25f), new Color(0.55f, 0.08f, 0.12f), 34f, 96f, 60);
+            EventCardKit.Divider(crt, 140f);
+            string icon = d.goal == StoryContest.Goal.Photos ? "Icon_Camera" : d.goal == StoryContest.Goal.Coins ? "Icon_Coin" : d.goal == StoryContest.Goal.Boss ? "Icon_Bang" : "Icon_Tower";
+            EventCardKit.IconRow(crt, icon, new Color(1f, 0.85f, 0.45f), d.Name, 172f, 64f, 30);
+            string prog = StoryContest.ProgressText();
+            EventCardKit.IconRow(crt, "Icon_Card", new Color(0.78f, 0.80f, 1f), d.GoalText, 248f, 60f, 22, prog, new Color(0.98f, 0.45f, 0.35f));
+            var box = EventCardKit.InfoBox(crt, 330f, 232f);
             string why = timeout ? Loc.T("제한시간이 끝났어.", "Time's up.") : Loc.T("결승선은 넘었지만 조건을 못 채웠어.", "Crossed the line but missed the goal.");
-            var body = CoastHudLayout.MakeText(crt, "Body", $"{d.Name}\n{d.GoalText}  —  {StoryContest.ProgressText()}\n\n{why}\n" + Loc.T("대회를 깨야 다음 주로 넘어갈 수 있어.\n이 주를 다시 키우고 도전하거나, 지금 바로 다시!", "You must win to move on.\nRaise this week again or retry now!"), 18, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(30f, 150f), new Vector2(-30f, -100f));
-            body.color = new Color(0.20f, 0.16f, 0.14f); body.horizontalOverflow = HorizontalWrapMode.Wrap;
-            MakeBtn(crt, "Retry", Loc.T("지금 다시 도전", "Retry now"), new Color(1f, 0.50f, 0.08f), new Vector2(0f, 84f), () =>
+            EventCardKit.IconRow(box, "Icon_Bang", new Color(1f, 0.85f, 0.45f), why, 14f, 56f, 19, null, null, 18f, 14f);
+            EventCardKit.IconRow(box, "Icon_Bulb", new Color(0.80f, 0.88f, 1f), Loc.T("대회를 깨야 다음 주로 넘어갈 수 있어.", "You must win to move on to next week."), 86f, 56f, 19, null, null, 18f, 14f);
+            EventCardKit.IconRow(box, "Icon_Refresh", new Color(0.70f, 0.92f, 0.85f), Loc.T("이 주를 다시 키우고 도전하거나, 지금 바로 다시!!", "Raise this week again, or retry right now!!"), 158f, 60f, 19, null, null, 18f, 14f);
+            EventCardKit.IconButton(crt, "Retry", "Icon_Arrow", Loc.T("지금 다시 도전", "Retry now"), new Color(1f, 0.52f, 0.10f), new Vector2(0f, 0f), new Vector2(26f, 32f), new Vector2(276f, 88f), () =>
             {
                 Close(); Time.timeScale = 1f;
                 StageManager.Instance?.RetryCurrent();
-            });
-            MakeBtn(crt, "Back", Loc.T("육성으로 (이 주 다시)", "Back home (redo week)"), new Color(0.45f, 0.55f, 0.75f), new Vector2(0f, 20f), () =>
+            }, 24);
+            EventCardKit.IconButton(crt, "Back", "Icon_Home", Loc.T("육성으로\n(이 주 다시)", "Back home\n(redo week)"), new Color(0.30f, 0.55f, 0.95f), new Vector2(1f, 0f), new Vector2(-26f, 32f), new Vector2(276f, 88f), () =>
             {
                 Close(); Time.timeScale = 1f;
                 if (GameManager.Active) GameManager.I.ContestFail();
-            });
+            }, 22);
             CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.6f);
-        }
-
-        private static void MakeBtn(RectTransform parent, string name, string label, Color col, Vector2 pos, Action onClick)
-        {
-            var b = CoastUiArt.GlossyPill(parent, name, col, 22, 8);
-            var rt = b.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f); rt.pivot = new Vector2(0.5f, 0f); rt.anchoredPosition = pos; rt.sizeDelta = new Vector2(420f, 56f); b.raycastTarget = true;
-            var t = CoastHudLayout.MakeText(rt, "T", label, 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero); t.color = Color.white; t.fontStyle = FontStyle.Bold;
-            var bt = b.gameObject.AddComponent<Button>(); bt.transition = Selectable.Transition.None;
-            bt.onClick.AddListener(() => { CoastPrefs.Vibrate(); onClick?.Invoke(); });
         }
 
         public static void Close() { if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject); _canvas = null; }

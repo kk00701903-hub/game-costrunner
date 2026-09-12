@@ -15,6 +15,8 @@ namespace CoastRun
     ///   무궁화: 운동장 레인 · 술래(집사 꼬마: 등/앞 그림 교체) · 나(하늘이 뒷모습) · 꾹 누르면 전진, 돌아보면 멈춤, 끝에서 [술래 터치!].
     public static partial class MissionMiniGames
     {
+        /// 60차 개발용: 투호 화살 비행을 8배 느리게(궤적 캡처).
+        public static bool DebugSlowFlight;
         private static readonly Color PanelNavy = new Color(0.16f, 0.22f, 0.42f);
         private static readonly Color PanelTitle = new Color(1f, 0.93f, 0.55f);
         private static readonly Color BtnYellow = new Color(1f, 0.80f, 0.20f);
@@ -412,7 +414,7 @@ namespace CoastRun
             private int _left = 5, _in;
             private const int Need = 3;
             // 배경 그림(한옥 마당)은 원근 그림이라 바닥이 아래 절반 — 소품은 n.y 0.45 아래에만.
-            private static readonly Vector2 StartN = new Vector2(0.5f, 0.09f), JarN = new Vector2(0.5f, 0.30f);
+            private static readonly Vector2 StartN = new Vector2(0.5f, 0.09f), JarN = new Vector2(0.5f, 0.29f);   // 60차(시안): 항아리를 더 크게·가운데
             // 56차(사용자): 힘 게이지 10 % 느리게(2.2 → 1.98 Hz), 들어갈 확률 ↑(방향 ±6° → ±8°, 힘 띠 ±0.09 → ±0.12)
             private const float AimTol = 8f, PowerTol = 0.12f, NeedPower = 0.62f, PowerHz = 1.98f;
             private Transform _arrow, _jar, _arrowBlob;
@@ -421,12 +423,13 @@ namespace CoastRun
             private Text _angleTxt, _powerTxt, _btnLabel, _btnArrow, _dirHint, _powHint;
             private readonly List<Image> _pips = new List<Image>();
             private Material _arrowMat;
+            private TrailRenderer _trail;   // 60차(시안): 분홍 빛 궤적
 
             protected override void Build(Transform foot)
             {
                 SetupStage(foot);
                 float wpn = S.WorldPerNorm(new Vector2(0.5f, 0.5f));
-                _jarH = wpn * 0.10f; _arrowLen = wpn * 0.115f;
+                _jarH = wpn * 0.145f; _arrowLen = wpn * 0.115f;
                 var jar = S.Spawn("MG_Jar"); _jar = jar.transform;
                 jar.transform.localScale = Vector3.one * _jarH;
                 Tint(jar, MiniStage3D.Lit(new Color(0.46f, 0.30f, 0.20f), 0.45f));
@@ -440,6 +443,17 @@ namespace CoastRun
                 _arrowMat = MiniStage3D.Lit(new Color(0.80f, 0.22f, 0.18f), 0.4f);
                 _arrow = MakeArrow();
                 _arrowBlob = S.Blob(_arrowLen * 0.25f, 0.35f).transform;
+                // 60차(시안): 화살 뒤로 분홍 빛 꼬리(TrailRenderer, 무대 RT 에서 보이게 Lit 투명)
+                var trailGo = new GameObject("Trail"); trailGo.transform.SetParent(_arrow, false); trailGo.transform.localPosition = new Vector3(0f, 0f, 0.25f);
+                _trail = trailGo.AddComponent<TrailRenderer>();
+                _trail.time = 0.5f; _trail.minVertexDistance = 0.01f; _trail.emitting = false; _trail.autodestruct = false;
+                _trail.widthCurve = AnimationCurve.EaseInOut(0f, _arrowLen * 0.14f, 1f, 0.0f);
+                var grad = new Gradient();
+                grad.SetKeys(new[] { new GradientColorKey(new Color(1f, 0.55f, 0.95f), 0f), new GradientColorKey(new Color(1f, 0.30f, 0.80f), 0.5f), new GradientColorKey(new Color(0.85f, 0.45f, 1f), 1f) },
+                             new[] { new GradientAlphaKey(1f, 0f), new GradientAlphaKey(0.85f, 0.4f), new GradientAlphaKey(0f, 1f) });
+                _trail.colorGradient = grad;
+                _trail.sharedMaterial = MiniStage3D.Neon(new Color(1f, 0.38f, 0.85f, 0.85f), 0.7f, true);   // URP Lit 은 정점색을 안 쓴다 → 색은 재질에서, 발광은 약하게(세면 하얗게 날림)
+                _trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; _trail.receiveShadows = false; _trail.alignment = LineAlignment.View;
 
                 // 발판: [방향] [힘] [버튼]
                 var dir = Card(foot, "DirCard", 0.02f, 0.34f, Loc.T("방향 선택", "Direction"));
@@ -475,6 +489,7 @@ namespace CoastRun
                 _step = Step.Aim; _t = 0f; _power = 0f; _powerFill.anchorMax = new Vector2(1f, 0f); _powerTxt.text = "0%";
                 _btnLabel.text = Loc.T("방향 확정", "Set aim");
                 var g = S.GroundPoint(StartN);
+                if (_trail != null) { _trail.emitting = false; _trail.Clear(); }
                 _arrow.position = g + Vector3.up * _arrowLen * 0.55f;
                 _arrowBlob.position = g + Vector3.up * 0.004f;
             }
@@ -520,8 +535,9 @@ namespace CoastRun
                 Vector3 a = S.GroundPoint(StartN) + Vector3.up * _arrowLen * 0.55f;
                 Vector3 b = hit ? _jar.position + Vector3.up * _jarH * 1.0f : S.GroundPoint(endN);
                 float arc = _jarH * (hit ? 2.2f : 1.4f + _power);
-                float t = 0f, dur = 0.55f;
+                float t = 0f, dur = 0.62f * (DebugSlowFlight ? 8f : 1f);
                 Vector3 prev = a;
+                if (_trail != null) { _trail.Clear(); _trail.emitting = true; _trail.time = 0.5f * (DebugSlowFlight ? 8f : 1f); }
                 while (t < dur)
                 {
                     t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / dur);
@@ -531,6 +547,8 @@ namespace CoastRun
                     _arrowBlob.position = S.GroundPoint(Vector2.Lerp(StartN, endN, u)) + Vector3.up * 0.004f;
                     yield return null;
                 }
+                if (_trail != null) _trail.emitting = false;
+                StartCoroutine(Burst(b, hit ? new Color(1f, 0.55f, 0.95f) : new Color(1f, 0.85f, 0.5f), hit ? 10 : 5));
                 if (hit)
                 {
                     _in++; CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.7f);
@@ -569,6 +587,37 @@ namespace CoastRun
                 float t = 0f; var rot = tr.rotation;
                 while (t < 0.5f) { t += Time.unscaledDeltaTime; tr.rotation = rot * Quaternion.Euler(0f, 0f, Mathf.Sin(t * 30f) * 6f * (1f - t * 2f)); yield return null; }
                 tr.rotation = rot;
+            }
+
+            /// 60차(시안): 착지 반짝이 — 작은 빛 원판들이 튀어 올라 사라진다.
+            private IEnumerator Burst(Vector3 at, Color col, int n)
+            {
+                var list = new List<Transform>(); var vel = new List<Vector3>();
+                var mat = MiniStage3D.SoftDisc(col);
+                for (int i = 0; i < n; i++)
+                {
+                    var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Destroy(q.GetComponent<Collider>()); q.name = "Spark";
+                    q.transform.SetParent(S.Root, false); q.transform.position = at; q.transform.localScale = Vector3.one * _arrowLen * UnityEngine.Random.Range(0.10f, 0.22f);
+                    var r = q.GetComponent<Renderer>(); r.sharedMaterial = mat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+                    list.Add(q.transform);
+                    float ang = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
+                    vel.Add(new Vector3(Mathf.Cos(ang) * 0.6f, UnityEngine.Random.Range(1.2f, 2.2f), Mathf.Sin(ang) * 0.6f) * _arrowLen * 2.2f);
+                }
+                float t = 0f;
+                while (t < 0.55f)
+                {
+                    t += Time.unscaledDeltaTime; float k = t / 0.55f;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        if (list[i] == null) continue;
+                        vel[i] += Vector3.down * _arrowLen * 6f * Time.unscaledDeltaTime;
+                        list[i].position += vel[i] * Time.unscaledDeltaTime;
+                        list[i].rotation = S.Cam.transform.rotation;
+                        list[i].localScale = Vector3.one * _arrowLen * 0.18f * (1f - k);
+                    }
+                    yield return null;
+                }
+                foreach (var l in list) if (l != null) Destroy(l.gameObject);
             }
         }
 
@@ -830,19 +879,38 @@ namespace CoastRun
             private Image _stateCard, _runBtn;
             private RectTransform _progFill;
             private readonly List<Image> _lives = new List<Image>();
-            private static readonly Vector2 MeStart = new Vector2(0.5f, 0.08f), MeEnd = new Vector2(0.5f, 0.44f), TaggerN = new Vector2(0.5f, 0.52f);   // 운동장 그림 지평선 ≈ 0.55
+            private static readonly Vector2 MeStart = new Vector2(0.5f, 0.15f), MeEnd = new Vector2(0.5f, 0.44f), TaggerN = new Vector2(0.5f, 0.52f);   // 운동장 그림 지평선 ≈ 0.55 · 60차: 주인공은 앞(카메라 쪽)에 크게
             private float _meH, _tagH, _bob;
+            private float _lastTap = -9f, _speed;   // 60차(시안): 「연타 누르기」 — 탭마다 앞으로
 
             protected override void Build(Transform foot)
             {
                 SetupStage(foot);
                 float wpn = S.WorldPerNorm(new Vector2(0.5f, 0.45f));
-                _meH = wpn * 0.20f; _tagH = S.WorldPerNorm(TaggerN) * 0.17f;
-                // 레인 분필 두 줄
-                var lmat = MiniStage3D.SoftDisc(new Color(1f, 1f, 1f, 0.55f));
-                S.Bar(S.GroundPoint(new Vector2(0.40f, 0.04f)), S.GroundPoint(new Vector2(0.44f, 0.52f)), wpn * 0.012f, 0.004f, MiniStage3D.Lit(new Color(1f, 1f, 1f, 0.9f), 0f));
-                S.Bar(S.GroundPoint(new Vector2(0.60f, 0.04f)), S.GroundPoint(new Vector2(0.56f, 0.52f)), wpn * 0.012f, 0.004f, MiniStage3D.Lit(new Color(1f, 1f, 1f, 0.9f), 0f));
-                Chalk(MeStart, wpn * 0.10f, new Color(1f, 1f, 1f, 0.5f));
+                _meH = wpn * 0.30f; _tagH = S.WorldPerNorm(TaggerN) * 0.17f;
+                // 60차(시안): 네온 레인 — 하늘색 발광 선 두 줄(+ 넓은 반투명 빛) 과 가운데 점선 화살표 3개
+                var neon = MiniStage3D.Neon(new Color(0.30f, 0.85f, 1f), 2.4f);
+                var halo = MiniStage3D.Lit(new Color(0.45f, 0.90f, 1f, 0.28f), 0f, 0f, true);
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    var la = S.GroundPoint(new Vector2(0.5f + side * 0.16f, 0.02f)); var lb = S.GroundPoint(new Vector2(0.5f + side * 0.055f, 0.52f));
+                    S.Bar(la, lb, wpn * 0.040f, 0.002f, halo);
+                    S.Bar(la, lb, wpn * 0.012f, 0.006f, neon);
+                    // 끝 화살촉
+                    var tip = S.GroundPoint(new Vector2(0.5f + side * 0.055f, 0.56f));
+                    S.Bar(lb, tip, wpn * 0.012f, 0.006f, neon);
+                }
+                for (int k = 0; k < 3; k++)
+                {
+                    float y = 0.23f + k * 0.09f;
+                    var s0 = S.GroundPoint(new Vector2(0.5f, y)); var s1 = S.GroundPoint(new Vector2(0.5f, y + 0.035f));
+                    S.Bar(s0, s1, wpn * 0.008f, 0.005f, neon);
+                    float hw = 0.014f;
+                    S.Bar(S.GroundPoint(new Vector2(0.5f - hw, y + 0.018f)), s1, wpn * 0.008f, 0.005f, neon);
+                    S.Bar(S.GroundPoint(new Vector2(0.5f + hw, y + 0.018f)), s1, wpn * 0.008f, 0.005f, neon);
+                    for (int d = 0; d < 2; d++) Chalk(new Vector2(0.5f, y - 0.012f - d * 0.012f), wpn * 0.009f, new Color(0.6f, 0.95f, 1f, 0.9f));
+                }
+                Chalk(MeStart, wpn * 0.12f, new Color(0.6f, 0.95f, 1f, 0.35f));
                 Chalk(new Vector2(0.5f, 0.47f), wpn * 0.07f, new Color(1f, 0.85f, 0.3f, 0.6f));
                 // 술래(앞/뒤 그림 두 장 교체) + 나(하늘이 뒷모습)
                 _taggerFront = Sprite("UI_Butler_Boy", _tagH);
@@ -863,14 +931,30 @@ namespace CoastRun
                 Status.rectTransform.anchorMin = new Vector2(0f, 0.70f); Status.rectTransform.anchorMax = new Vector2(1f, 0.80f);
 
                 // 발판: [술래 상태] [진행도·목숨] [달리기 (꾹)]
-                _stateCard = Card(foot, "StateCard", 0.02f, 0.34f, Loc.T("술래", "Tagger"));
-                _stateBig = Txt(_stateCard.transform, "Big", "", 26, Color.white, TextAnchor.MiddleCenter);
-                Rect(_stateBig.rectTransform, new Vector2(0f, 0.40f), new Vector2(1f, 0.74f), Vector2.zero, Vector2.zero); _stateBig.fontStyle = FontStyle.Bold;
+                // 60차(시안): [👁 술래 보고 있다! / 멈춰! / ⚠ 멈추면 안전] [남은 거리 · ♥♥♥] [⚡ 달리기! (연타 누르기!)]
+                _stateCard = Card(foot, "StateCard", 0.02f, 0.34f, "");
+                var eye = CoastUiArt.Art("Icon_Eye");
+                if (eye != null)
+                {
+                    var ei = new GameObject("Eye", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    ei.transform.SetParent(_stateCard.transform, false); ei.sprite = eye; ei.preserveAspect = true; ei.raycastTarget = false;
+                    Rect(ei.rectTransform, new Vector2(0.06f, 0.78f), new Vector2(0.34f, 0.98f), Vector2.zero, Vector2.zero);
+                }
+                _stateBig = Txt(_stateCard.transform, "Big", "", 20, Color.white, TextAnchor.MiddleCenter);
+                Rect(_stateBig.rectTransform, new Vector2(0.02f, 0.50f), new Vector2(0.98f, 0.76f), Vector2.zero, Vector2.zero); _stateBig.fontStyle = FontStyle.Bold;
+                _stateBig.resizeTextForBestFit = true; _stateBig.resizeTextMinSize = 10; _stateBig.resizeTextMaxSize = CoastHudLayout.Scaled(20);
                 CoastUiArt.OutlineText(_stateBig, new Color(0f, 0f, 0f, 0.5f), 2f);
-                _stateSub = Hint(_stateCard.transform, "");
-                var prog = Card(foot, "ProgCard", 0.36f, 0.60f, Loc.T("남은 거리", "Distance"));
+                _stateSub = Txt(_stateCard.transform, "Sub", "", 32, new Color(1f, 0.9f, 0.3f), TextAnchor.MiddleCenter);
+                Rect(_stateSub.rectTransform, new Vector2(0f, 0.22f), new Vector2(1f, 0.50f), Vector2.zero, Vector2.zero); _stateSub.fontStyle = FontStyle.Bold;
+                _stateSub.resizeTextForBestFit = true; _stateSub.resizeTextMinSize = 12; _stateSub.resizeTextMaxSize = CoastHudLayout.Scaled(32);
+                CoastUiArt.OutlineText(_stateSub, new Color(0f, 0f, 0f, 0.5f), 2f);
+                var safe = Hint(_stateCard.transform, Loc.T("⚠ 멈추면 안전", "⚠ Freeze = safe")); safe.color = new Color(1f, 0.85f, 0.55f);
+                var prog = Card(foot, "ProgCard", 0.36f, 0.60f, "");
+                var pt = Txt(prog.transform, "PT", Loc.T("남은 거리", "Distance"), 20, Color.white, TextAnchor.MiddleCenter);
+                Rect(pt.rectTransform, new Vector2(0f, 0.24f), new Vector2(1f, 0.50f), Vector2.zero, Vector2.zero); pt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(pt, new Color(0f, 0f, 0f, 0.5f), 1.5f);
+                var pimg = prog.transform.GetComponent<Image>(); if (pimg != null) pimg.color = new Color(0.20f, 0.45f, 0.90f);   // 파란 카드
                 var bg = CoastUiArt.Panel(prog.transform, "Bg", new Color(0.06f, 0.08f, 0.18f), 6); bg.raycastTarget = false;
-                Rect(bg.rectTransform, new Vector2(0.10f, 0.50f), new Vector2(0.90f, 0.62f), Vector2.zero, Vector2.zero);
+                Rect(bg.rectTransform, new Vector2(0.10f, 0.84f), new Vector2(0.90f, 0.94f), Vector2.zero, Vector2.zero);   // 60차: 진행 막대는 카드 맨 위
                 var fill = CoastUiArt.Panel(bg.transform, "Fill", new Color(0.35f, 0.9f, 0.5f), 5); fill.raycastTarget = false;
                 Rect(fill.rectTransform, new Vector2(0f, 0f), new Vector2(0.01f, 1f), new Vector2(2f, 2f), new Vector2(0f, -2f)); _progFill = fill.rectTransform;
                 for (int i = 0; i < 3; i++)
@@ -878,21 +962,53 @@ namespace CoastRun
                     var h = new GameObject("H" + i, typeof(RectTransform), typeof(Image)).GetComponent<Image>();
                     h.transform.SetParent(prog.transform, false); h.sprite = CoastUiArt.Icon("Heart"); h.preserveAspect = true; h.raycastTarget = false;
                     if (h.sprite == null) h.color = new Color(0.95f, 0.35f, 0.45f);
-                    h.rectTransform.anchorMin = h.rectTransform.anchorMax = new Vector2(0.5f, 0.30f); h.rectTransform.anchoredPosition = new Vector2((i - 1) * 30f, 0f); h.rectTransform.sizeDelta = new Vector2(26f, 26f);
+                    h.rectTransform.anchorMin = h.rectTransform.anchorMax = new Vector2(0.5f, 0.64f); h.rectTransform.anchoredPosition = new Vector2((i - 1) * 34f, 0f); h.rectTransform.sizeDelta = new Vector2(30f, 30f);
                     _lives.Add(h);
                 }
                 Hint(prog.transform, Loc.T("3번 걸리면 실패", "Caught 3 times = lose"));
-                var b = BigButton(foot, 0.62f, 0.98f, Loc.T("달리기", "Run"), () => { if (_touchable && !_ended) StartCoroutine(Win()); }, out _btnLabel, out _btnArrow, new Color(0.93f, 0.22f, 0.52f));
-                _btnArrow.text = Loc.T("(꾹 누르기)", "(hold)"); _btnArrow.fontSize = CoastHudLayout.Scaled(14);
-                var hold = b.gameObject.AddComponent<HoldRelay>(); hold.target = this;
+                var b = BigButton(foot, 0.62f, 0.98f, Loc.T("달리기!", "Run!"), () => { if (_touchable && !_ended) StartCoroutine(Win()); else Tap(); }, out _btnLabel, out _btnArrow, new Color(0.93f, 0.22f, 0.52f));
+                _btnArrow.text = Loc.T("(연타 누르기!)", "(tap fast!)"); _btnArrow.fontSize = CoastHudLayout.Scaled(15);
+                Rect(_btnLabel.rectTransform, new Vector2(0f, 0.46f), new Vector2(1f, 0.80f), Vector2.zero, Vector2.zero);
+                Rect(_btnArrow.rectTransform, new Vector2(0f, 0.30f), new Vector2(1f, 0.46f), Vector2.zero, Vector2.zero);
+                var bolt = CoastUiArt.Art("Icon_Bolt"); var tapIc = CoastUiArt.Art("Icon_Tap");
+                if (bolt != null)
+                {
+                    var bi = new GameObject("Bolt", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    bi.transform.SetParent(BigRect, false); bi.sprite = bolt; bi.preserveAspect = true; bi.raycastTarget = false;
+                    Rect(bi.rectTransform, new Vector2(0.06f, 0.80f), new Vector2(0.30f, 0.98f), Vector2.zero, Vector2.zero);
+                }
+                if (tapIc != null)
+                    for (int k = 0; k < 2; k++)
+                    {
+                        var ti = new GameObject("Tap" + k, typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                        ti.transform.SetParent(BigRect, false); ti.sprite = tapIc; ti.preserveAspect = true; ti.raycastTarget = false;
+                        Rect(ti.rectTransform, new Vector2(0.28f + k * 0.26f, 0.04f), new Vector2(0.48f + k * 0.26f, 0.28f), Vector2.zero, Vector2.zero);
+                    }
                 NextPhase(false);
                 _progress = 0f; PlaceMe();
-                Status.text = Loc.T("[달리기]를 꾹 — 술래가 돌아보면 손을 떼! 끝까지 가면 [술래 터치!]", "Hold [Run] — let go when the tagger turns! Reach the end and [Tag!]");
-                Kit?.Goal(Loc.T("술래에게 닿기! 돌아보면 멈춰", "Reach the tagger! Freeze when it turns")); Kit?.Pips(3, 3, new Color(1f, 0.45f, 0.45f)); Kit?.TapHint(BigRect, Loc.T("꾹 누르면 달려!", "Hold to run!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
+                Status.text = Loc.T("[달리기!]를 연타 — 술래가 돌아보면 멈춰! 끝까지 가면 [술래 터치!]", "Tap [Run!] fast — freeze when the tagger turns! Reach the end and [Tag!]");
+                Kit?.Goal(Loc.T("술래에게 닿기!! 돌아보면 멈춰", "Reach the tagger!! Freeze when it turns")); Kit?.Pips(3, 3, new Color(1f, 0.45f, 0.45f), CoastUiArt.Icon("Heart")); Kit?.TapHint(BigRect, Loc.T("연타로 달려!", "Tap fast to run!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
             }
 
-            public void OnPointerDown(PointerEventData e) { _holding = true; }
-            public void OnPointerUp(PointerEventData e) { _holding = false; }
+            public void OnPointerDown(PointerEventData e) { Tap(); }
+            public void OnPointerUp(PointerEventData e) { }
+            /// 60차: 연타 한 번 = 한 걸음(+짧은 관성). 술래가 보고 있을 때 탭하면 걸린다.
+            private void Tap()
+            {
+                if (_ended) return;
+                _lastTap = Time.unscaledTime; _speed = 1f;
+                if (_turned && _phaseT > 0.18f) Caught();
+                else _progress = Mathf.Min(1f, _progress + 0.045f);
+            }
+            private void Caught()
+            {
+                _caught++;
+                _progress = 0f; _speed = 0f; _lastTap = -9f;
+                CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.8f); CoastPrefs.Vibrate();
+                if (_caught - 1 < _lives.Count) _lives[3 - _caught].color = new Color(1f, 1f, 1f, 0.25f);
+                Status.text = Loc.T($"걸렸다! 처음부터 (걸린 횟수 {_caught}/3)", $"Caught! Back to start ({_caught}/3)"); Kit?.Pop(Loc.T("걸렸다!", "CAUGHT!"), false); Kit?.Pips(3, 3 - _caught, new Color(1f, 0.45f, 0.45f), CoastUiArt.Icon("Heart"));
+                if (_caught >= 3) { _ended = true; _chant.text = Loc.T("아웃!", "OUT!"); StartCoroutine(EndAfter(0.9f, 0)); }
+            }
 
             private void NextPhase(bool turned)
             {
@@ -902,11 +1018,14 @@ namespace CoastRun
                 else _taggerFront.GetComponent<Renderer>().sharedMaterial.SetColor("_BaseColor", turned ? Color.white : new Color(0.55f, 0.55f, 0.62f));
                 _chant.text = turned ? Loc.T("돌아봤다!", "Looking!") : Loc.T("무궁화 꽃이 피었습니다…", "Red light, green light…");
                 _chant.color = turned ? new Color(1f, 0.35f, 0.35f) : Color.white;
-                _stateBig.text = turned ? Loc.T("보고 있다!", "LOOKING!") : Loc.T("등 돌림", "Back turned");
-                _stateBig.color = turned ? new Color(1f, 0.35f, 0.35f) : new Color(0.45f, 1f, 0.6f);
-                _stateSub.text = turned ? Loc.T("멈춰!", "Freeze!") : Loc.T("지금 달려!", "Run now!");
+                _stateBig.text = turned ? Loc.T("술래 보고 있다!", "Tagger is LOOKING!") : Loc.T("술래 등 돌렸다!", "Tagger turned away!");
+                _stateBig.color = Color.white;
+                _stateSub.text = turned ? Loc.T("멈춰!", "Freeze!") : Loc.T("달려!", "RUN!");
+                _stateSub.color = turned ? new Color(1f, 0.92f, 0.30f) : new Color(0.55f, 1f, 0.65f);
                 var fillImg = _stateCard.transform.Find("Fill")?.GetComponent<Image>();
-                if (fillImg != null) fillImg.color = turned ? new Color(0.55f, 0.16f, 0.22f) : PanelNavy;
+                if (fillImg != null) fillImg.color = turned ? new Color(0.88f, 0.22f, 0.28f) : new Color(0.20f, 0.62f, 0.40f);
+                var cardImg = _stateCard.GetComponent<Image>();
+                if (cardImg != null) cardImg.color = turned ? new Color(0.88f, 0.22f, 0.28f) : new Color(0.20f, 0.62f, 0.40f);
             }
 
             private void PlaceMe()
@@ -923,19 +1042,13 @@ namespace CoastRun
                 float dt = Time.unscaledDeltaTime;
                 _phaseT += dt;
                 if (_phaseT >= _phaseLen) NextPhase(!_turned);
-                bool moving = false;
-                if (_holding)
+                // 60차: 연타 관성 — 마지막 탭 뒤 0.25초 동안은 「움직이는 중」(술래가 보면 걸린다), 그 사이 조금 더 미끄러진다
+                bool moving = Time.unscaledTime - _lastTap < 0.25f;
+                if (moving)
                 {
-                    if (_turned && _phaseT > 0.18f)
-                    {
-                        _caught++;
-                        _progress = 0f; _holding = false;
-                        CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.8f); CoastPrefs.Vibrate();
-                        if (_caught - 1 < _lives.Count) _lives[3 - _caught].color = new Color(1f, 1f, 1f, 0.25f);
-                        Status.text = Loc.T($"걸렸다! 처음부터 (걸린 횟수 {_caught}/3)", $"Caught! Back to start ({_caught}/3)"); Kit?.Pop(Loc.T("걸렸다!", "CAUGHT!"), false); Kit?.Pips(3, 3 - _caught, new Color(1f, 0.45f, 0.45f));
-                        if (_caught >= 3) { _ended = true; _chant.text = Loc.T("아웃!", "OUT!"); StartCoroutine(EndAfter(0.9f, 0)); return; }
-                    }
-                    else { _progress = Mathf.Min(1f, _progress + dt * 0.22f); moving = true; }
+                    _speed = Mathf.Max(0f, _speed - dt * 4f);
+                    if (_turned && _phaseT > 0.18f) { Caught(); if (_ended) return; }
+                    else _progress = Mathf.Min(1f, _progress + dt * 0.10f * _speed);
                 }
                 _bob = moving ? Mathf.Abs(Mathf.Sin(Time.unscaledTime * 14f)) * _meH * 0.05f : 0f;
                 PlaceMe();
@@ -947,7 +1060,7 @@ namespace CoastRun
                     _btnLabel.text = Loc.T("술래 터치!", "Tag!"); _btnArrow.text = "★";
                     if (!_turned) _chant.text = Loc.T("지금! 술래를 터치!", "Now! Tap the tagger!");
                 }
-                else if (was) { _btnLabel.text = Loc.T("달리기", "Run"); _btnArrow.text = Loc.T("(꾹 누르기)", "(hold)"); }
+                else if (was) { _btnLabel.text = Loc.T("달리기!", "Run!"); _btnArrow.text = Loc.T("(연타 누르기!)", "(tap fast!)"); }
             }
 
             private IEnumerator Win()

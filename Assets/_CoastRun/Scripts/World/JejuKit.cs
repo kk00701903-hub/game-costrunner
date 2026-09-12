@@ -429,6 +429,17 @@ namespace CoastRun
                 case "Tire": return CoastMaterials.CreateToon(new Color(0.10f, 0.10f, 0.11f), null, null, 0.1f);
                 case "Light": return CoastMaterials.CreateUnlit(new Color(1f, 0.95f, 0.6f));
                 case "Chrome": return CoastMaterials.CreateToon(new Color(0.75f, 0.78f, 0.82f), null, null, 0.7f);
+                // 59차: 도로변 소품 키트(Kerb_*) — 흙·옹기·부표·밧줄·꽃(꽃은 KerbProps 가 MPB 로 색을 바꾼다)
+                case "Soil": return CoastMaterials.CreateLit(new Color(0.30f, 0.20f, 0.13f));
+                case "Glaze": return CoastMaterials.CreateToon(new Color(0.50f, 0.30f, 0.19f), null, null, 0.45f);
+                case "GlazeDark": return CoastMaterials.CreateToon(new Color(0.32f, 0.19f, 0.12f), null, null, 0.35f);
+                case "BuoyOrange": return CoastMaterials.CreateToon(new Color(0.98f, 0.45f, 0.15f), null, null, 0.3f);
+                case "BuoyWhite": return CoastMaterials.CreateToon(new Color(0.96f, 0.95f, 0.90f), null, null, 0.3f);
+                case "Rope": return CoastMaterials.CreateLit(new Color(0.80f, 0.70f, 0.45f));
+                case "BloomBlue": return CoastMaterials.CreateLit(new Color(0.45f, 0.60f, 0.95f), 0.2f);
+                case "BloomPink": return CoastMaterials.CreateLit(new Color(0.98f, 0.55f, 0.72f), 0.2f);
+                case "BloomYellow": return CoastMaterials.CreateLit(new Color(1f, 0.85f, 0.20f), 0.2f);
+                case "BloomWhite": return CoastMaterials.CreateLit(new Color(0.98f, 0.97f, 0.92f), 0.2f);
                 // 말랑이 하트(Heart.fbx) — 캔디 핑크
                 case "Heart":
                 case "HeartPink":

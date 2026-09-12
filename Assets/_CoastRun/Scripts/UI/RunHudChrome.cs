@@ -1125,6 +1125,7 @@ namespace CoastRun
             if (_pauseOverlay == null)
                 BuildPauseOverlay();
             _pauseOverlay.SetActive(true);
+            if (_pauseCardCanvas != null) _pauseCardCanvas.SetActive(true);
         }
 
         public void Resume()
@@ -1136,8 +1137,11 @@ namespace CoastRun
             AudioListener.pause = false;
             if (_pauseOverlay != null)
                 _pauseOverlay.SetActive(false);
+            if (_pauseCardCanvas != null)
+                _pauseCardCanvas.SetActive(false);
         }
 
+        private GameObject _pauseCardCanvas;   // 60차: 육성 모드 일시정지 카드(별도 캔버스)
         private void BuildPauseOverlay()
         {
             var canvas = CoastUiCanvas.Create("PauseOverlay", 400);
@@ -1151,13 +1155,30 @@ namespace CoastRun
 
             System.Action resume = Resume;
             System.Action retry = () => { Resume(); StageManager.Instance?.RetryCurrent(); };
+            // 60차(사용자): 육성 모드의 러닝(대회)은 「메인으로」 대신 **육성으로** — 주차 그대로 육성 화면 복귀(GameManager.ContestFail).
+            bool story = GameManager.Active && !ArcadeRun.Active;
             System.Action toTitle = () =>
             {
                 Resume();
+                if (story) { StoryContest.End(); GameManager.I.ContestFail(); return; }
                 var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
                 if (flow != null)
                     _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
             };
+            if (story)
+            {
+                // 육성 모드 전용 카드(EventCardKit): 젤리 「일시정지」 + 초록 계속 / 주황 다시 / 파랑 육성으로
+                var crt = EventCardKit.Card("PauseOverlayCard", 401, new Vector2(560f, 560f), out var cardCanvas, 10f);
+                _pauseCardCanvas = cardCanvas.gameObject;
+                EventCardKit.JellyTitle(crt, Loc.T("일시정지", "Paused"), new Color(0.40f, 0.60f, 0.98f), new Color(0.12f, 0.20f, 0.55f), 34f, 96f, 56);
+                EventCardKit.Divider(crt, 140f);
+                EventCardKit.IconButton(crt, "Resume", "Icon_Arrow", Loc.T("계속하기", "Resume"), new Color(0.30f, 0.75f, 0.40f), new Vector2(0.5f, 1f), new Vector2(0f, -176f), new Vector2(440f, 88f), () => resume(), 28);
+                EventCardKit.IconButton(crt, "Retry", "Icon_Refresh", Loc.T("다시 시작", "Restart"), new Color(1f, 0.52f, 0.10f), new Vector2(0.5f, 1f), new Vector2(0f, -284f), new Vector2(440f, 88f), () => retry(), 28);
+                EventCardKit.IconButton(crt, "Home", "Icon_Home", Loc.T("육성으로 돌아가기", "Back to raising"), new Color(0.30f, 0.55f, 0.95f), new Vector2(0.5f, 1f), new Vector2(0f, -392f), new Vector2(440f, 88f), () => toTitle(), 26);
+                var note = CoastHudLayout.MakeText(crt, "Note", Loc.T("육성으로 가면 이 대회는 미달 — 이 주를 다시 키운다", "Leaving fails this contest — redo this week"), 14, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(20f, 18f), new Vector2(-20f, 52f));
+                note.color = new Color(0.45f, 0.40f, 0.38f); note.resizeTextForBestFit = true; note.resizeTextMinSize = 9; note.resizeTextMaxSize = CoastHudLayout.Scaled(14);
+                return;
+            }
 
             // 39차: 시안(크림 카드 + 남색 테두리 + "일시정지" 입체 제목 + 초록/주황/파랑 버튼)을 그림 한 장으로(UI_PauseCard),
             // 버튼은 그림 위 투명 히트 영역. 그림이 없으면 옛 코드 카드.

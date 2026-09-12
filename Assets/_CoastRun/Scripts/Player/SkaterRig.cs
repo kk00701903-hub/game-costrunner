@@ -696,7 +696,8 @@ namespace CoastRun
                     _stepClock -= stepPeriod;
                     _stepSide = -_stepSide;
                     JuiceDirector.Instance?.PuffStep(transform.position + transform.right * (0.14f * _stepSide));
-                    _bounceVel = -0.55f;   // 착지 충격: 아래로
+                    JuiceDirector.Instance?.StepThump();   // 63차: 발이 닿는 「쿵」 — 카메라 미세 흔들림
+                    _bounceVel = -0.85f;   // 착지 충격: 아래로 (63차: 더 세게 — 발이 바닥을 때리는 느낌)
                 }
             }
             // 스프링: 착지 → 살짝 내려앉음 → 튕겨 올라옴
@@ -728,7 +729,8 @@ namespace CoastRun
             else
             {
                 transform.localRotation = Quaternion.Euler(_pitch, _yaw, _tilt + _lean + side + _laneKick);   // 27차: 레인 킥
-                transform.localPosition = new Vector3(0f, running ? Mathf.Clamp(_bounce, -0.05f, 0.04f) : 0f, 0f);
+                // 63차(사용자 「공중에 살짝 떠다니는 느낌」): 달릴 땐 몸을 3.5 cm 가라앉혀 발이 바닥을 확실히 딛게 + 착지 스프링 폭 ↑
+                transform.localPosition = new Vector3(0f, running ? Mathf.Clamp(_bounce, -0.08f, 0.04f) - 0.035f : 0f, 0f);
             }
             TickJuice(dt, running);   // 27차
 

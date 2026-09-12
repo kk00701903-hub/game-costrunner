@@ -12,6 +12,10 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Build Pets 3D (Blender)")]
         public static void BuildPets() => RunBat("build_pets.bat", "pet_log.txt");
 
+        /// 59차: 도로변 소품 6종(Kerb_*.fbx) — Tools/blender/build_kerb.bat → kerb_kit.py. 로그: kerb_log.txt
+        [MenuItem("Coast Run/Build Kerb Props 3D (Blender)")]
+        public static void BuildKerb() => RunBat("build_kerb.bat", "kerb_log.txt");
+
         private static void RunBat(string bat, string log)
         {
             string dir = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Tools", "blender"));

@@ -76,7 +76,10 @@ namespace CoastRun
         private static void VergeDressing(Transform root, System.Random rng, float x0, float x1, int count, float zPad = 0.8f)
         {
             var s = SeasonLook.Current;
-            bool canola = s == SeasonKind.Spring || s == SeasonKind.Summer;
+            // 63차(사용자): 계절 꽃 — 봄 유채 · 여름 해바라기 · 가을 코스모스(겨울만 억새).
+            bool canola = s != SeasonKind.Winter;
+            string flowerKey = SeasonFlowerKey(FieldKind.Canola);
+            float flowerH = flowerKey == "Sunflower" ? 1.5f : flowerKey == "Cosmos" ? 1.05f : 0.85f;
             for (int i = 0; i < count; i++)
             {
                 float z = zPad + (float)rng.NextDouble() * (Length - zPad * 2f);
@@ -89,7 +92,7 @@ namespace CoastRun
                 }
                 else if (canola && roll < 6)
                 {
-                    if (!PaintedClump(root, "Canola", new Vector3(x, 0f, z), 0.85f + (float)rng.NextDouble() * 0.35f))
+                    if (!PaintedClump(root, flowerKey, new Vector3(x, 0f, z), flowerH + (float)rng.NextDouble() * 0.35f))
                         CreateBox(root, "Bloom", new Vector3(x, 0.4f, z), new Vector3(0.5f, 0.3f, 0.5f), () => new Color(1f, 0.86f, 0.18f));
                 }
                 else

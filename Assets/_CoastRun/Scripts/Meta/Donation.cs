@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace CoastRun
 {
-    /// 52차(사용자): 「기부부탁」 — 광고·현질 없는 게임을 지속 업데이트하기 위한 커피 한 잔 값($3, 구글 결제 소모성 상품) 기부.
+    /// 52차(사용자): 「기부부탁」 — 광고·현질 없는 게임을 지속 업데이트하기 위한 커피 한 잔 값($4, 구글 결제 소모성 상품) 기부. 63차(사용자): $3 → $4.
     ///   기부자는 선물 하나를 고른다: ① 히든 트랙(M9·M10 — 레코드에 열리고 K-POP 런 풀에도 들어감) ② 모든 게임 열림(히든 패스코드 — 다른 기기에서도 설정 › 비밀코드로)
     ///   ③ 아무것도 안 받음. 여러 번 기부 가능(잔 수 누적). 상태는 MetaProfile(profile.json).
     public static class Donation
     {
         public enum Gift { None = 0, HiddenTrack = 1, UnlockAll = 2 }
 
-        public const string ProductId = "coastrun_donate_coffee";   // 소모성, ₩3,900 / $2.99
-        public const string PriceLabelFallback = "$3";
+        public const string ProductId = "coastrun_donate_coffee";   // 소모성, ₩5,500 / $3.99 (63차: $4)
+        public const string PriceLabelFallback = "$4";
         /// 기부 선물 ② 패스코드 — 설정 › 비밀코드에 넣으면 다른 기기에서도 전부 열린다(테스트용 1111 과 별개).
         public const string DonorPasscode = "7799";
         public const string SeenKey = "CoastRun_DonateSeen";

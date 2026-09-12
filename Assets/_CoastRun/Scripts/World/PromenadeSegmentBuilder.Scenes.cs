@@ -119,11 +119,12 @@ namespace CoastRun
                 }
                 if (rng.Next(2) == 0) JejuKit.Spawn("Prop_OrangeStall", root, new Vector3(side * (inner + 0.6f), 0f, 12f + (float)rng.NextDouble() * 8f), side < 0 ? 180f : 0f);
             }
-            else if (flower != Color.clear && !snow && PaintedProp.Available(kind == FieldKind.SilverGrass ? "SilverGrass" : "Canola") && kind != FieldKind.Buckwheat)
+            else if (flower != Color.clear && !snow && PaintedProp.Available(SeasonFlowerKey(kind)) && kind != FieldKind.Buckwheat)
             {
                 // 49차: 그림 포기(억새/유채)로 무성하게 — 앞줄 촘촘, 뒷줄 듬성
-                string key = kind == FieldKind.SilverGrass ? "SilverGrass" : "Canola";
-                float hBase = kind == FieldKind.SilverGrass ? 1.3f : 0.9f;
+                // 63차(사용자): 계절 꽃 — 여름 해바라기(Sunflower) · 가을 코스모스(Cosmos) · 봄 유채(Canola)
+                string key = SeasonFlowerKey(kind);
+                float hBase = key == "SilverGrass" ? 1.3f : key == "Sunflower" ? 1.7f : key == "Cosmos" ? 1.1f : 0.9f;
                 for (int i = 0; i < 22; i++)
                 {
                     float x = side * (inner + 0.6f + (float)rng.NextDouble() * (i < 12 ? 2.6f : 7f));
@@ -224,6 +225,15 @@ namespace CoastRun
             }
         }
 
+        /// 63차: 계절별 꽃밭 그림 키 — 봄 유채 · 여름 해바라기 · 가을 코스모스 · (억새는 그대로). 그림이 없으면 유채로.
+        private static string SeasonFlowerKey(FieldKind kind)
+        {
+            if (kind == FieldKind.SilverGrass) return "SilverGrass";
+            var s = SeasonLook.Current;
+            string key = s == SeasonKind.Summer ? "Sunflower" : s == SeasonKind.Autumn ? "Cosmos" : "Canola";
+            return PaintedProp.Available(key) ? key : "Canola";
+        }
+
         // ── 오름 언덕(오른쪽) ─────────────────────────────────────────────
         private static void BuildHillSide(Transform root, int index)
         {
@@ -241,8 +251,9 @@ namespace CoastRun
             for (int i = 0; i < 12; i++)
             {
                 float cx = railX + 0.9f + (float)rng.NextDouble() * 5.5f; float cy = (cx - railX) * 0.25f - 0.05f;
-                string key = rng.Next(3) == 0 && (SeasonLook.Current == SeasonKind.Spring || SeasonLook.Current == SeasonKind.Summer) ? "Canola" : "SilverGrass";
-                PaintedClump(root, key, new Vector3(cx, cy, (float)rng.NextDouble() * Length), key == "Canola" ? 0.9f + (float)rng.NextDouble() * 0.3f : 1.2f + (float)rng.NextDouble() * 0.6f);
+                string key = rng.Next(3) == 0 && SeasonLook.Current != SeasonKind.Winter ? SeasonFlowerKey(FieldKind.Canola) : "SilverGrass";
+                if (!PaintedProp.Available(key)) key = "SilverGrass";
+                PaintedClump(root, key, new Vector3(cx, cy, (float)rng.NextDouble() * Length), key == "SilverGrass" ? 1.2f + (float)rng.NextDouble() * 0.6f : key == "Sunflower" ? 1.5f + (float)rng.NextDouble() * 0.4f : 0.9f + (float)rng.NextDouble() * 0.3f);
             }
             for (int i = 0; i < 5; i++)
             {

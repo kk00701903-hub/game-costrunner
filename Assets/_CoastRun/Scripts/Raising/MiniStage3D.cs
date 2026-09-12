@@ -195,6 +195,14 @@ namespace CoastRun
             return m;
         }
 
+        /// 60차: 네온(발광) 재질 — 무궁화 레인 선. 바탕색 + 같은 색 발광.
+        public static Material Neon(Color color, float glow = 1.6f, bool transparent = false)
+        {
+            var m = Lit(color, 0.2f, 0f, transparent);
+            if (m.HasProperty("_EmissionColor")) { m.SetColor("_EmissionColor", color * glow); m.EnableKeyword("_EMISSION"); m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive; }
+            return m;
+        }
+
         /// URP Lit 런타임 머티리얼(귀여운 반짝 구슬용). transparent 면 알파 블렌드.
         public static Material Lit(Color color, float smoothness = 0.6f, float metallic = 0f, bool transparent = false)
         {

@@ -42,8 +42,25 @@ namespace CoastRun
         {
             string id = $"CH{chapter:00}";
             var cover = ArtAssets.LoadTexture("Cut_" + id + "_Open") ?? ArtAssets.LoadTexture("Cut_" + id + "_Mid") ?? ArtAssets.LoadTexture("Cut_" + id + "_Close");
+            _headings.Clear();
             Open(StoryProgress.ChapterSceneIds(chapter), Loc.T($"제 {chapter}화", $"Ch. {chapter}"), ChapterScript.Title(chapter), onDone, cover, chapter);
         }
+
+        /// 61차(사용자): 컷씬 N(1..8) — 러닝 챕터까지의 챕터 이야기를 한 편으로. 챕터가 바뀌는 자리엔 「제 n화 · 제목」 소제목.
+        public static void OpenCutscene(int index, Action onDone)
+        {
+            int last = StoryProgress.CutsceneChapter(index), first = StoryProgress.CutsceneFirstChapter(index);
+            string id = $"CH{last:00}";
+            var cover = ArtAssets.LoadTexture("Cut_" + id + "_Open") ?? ArtAssets.LoadTexture($"Cut_CH{first:00}_Open") ?? ArtAssets.LoadTexture("Cut_" + id + "_Close");
+            _headings.Clear();
+            for (int c = first; c <= last; c++)
+            {
+                var ids = StoryProgress.ChapterSceneIds(c);
+                if (ids.Length > 0 && last > first) _headings[ids[0]] = Loc.T($"제 {c}화 · {ChapterScript.Title(c)}", $"Ch. {c} · {ChapterScript.Title(c)}");
+            }
+            Open(StoryProgress.CutsceneSceneIds(index), Loc.T($"컷씬 {index} / {StoryProgress.CutsceneCount}", $"Cutscene {index} / {StoryProgress.CutsceneCount}"), StoryProgress.CutsceneTitle(index), onDone, cover, first);
+        }
+        private static readonly Dictionary<string, string> _headings = new Dictionary<string, string>();
 
         /// 54차-2: chapter 를 주면 「지난 이야기」 요약·장면 캡션·소설 지문(StoryProse)·제주말 풀이를 붙인다(한국어).
         public static void Open(string[] sceneIds, string kicker, string title, Action onDone, Texture2D cover = null, int chapter = 0)
@@ -124,6 +141,11 @@ namespace CoastRun
                 if (s > 0) Divider();
                 var sceneArt = ArtAssets.LoadTexture("Cut_" + _ids[s]) ?? (s == 0 ? cover : null);
                 if (sceneArt != null) Mark(sceneArt);
+                if (_headings.TryGetValue(_ids[s], out var head))
+                {
+                    var hb = Block("Head", new RectOffset(6, 6, 10, 4));
+                    MakeBody(hb.transform, head, 19, Gold, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
+                }
                 Build(_ids[s]);
             }
             // 54차-2: 대사에 나온 제주말 풀이(있을 때만)

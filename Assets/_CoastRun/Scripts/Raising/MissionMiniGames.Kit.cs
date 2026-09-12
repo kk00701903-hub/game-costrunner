@@ -53,18 +53,30 @@ namespace CoastRun
             /// 오른쪽 점수(예: 「1 / 3」).
             public void Score(string s) { if (_score != null) _score.text = s; }
             /// 남은 기회 알약: total 개 중 left 개가 켜짐(색 = 알약 색).
-            public void Pips(int total, int left, Color? color = null)
+            public void Pips(int total, int left, Color? color = null, Sprite sprite = null)
             {
                 if (_pipHost == null) return;
                 while (_pips.Count < total)
                 {
-                    var p = CoastUiArt.Panel(_pipHost, "P" + _pips.Count, Color.white, 9); p.raycastTarget = false;
-                    p.rectTransform.anchorMin = p.rectTransform.anchorMax = new Vector2(0.5f, 0.5f); p.rectTransform.sizeDelta = new Vector2(18f, 18f);
+                    Image p;
+                    if (sprite != null)
+                    {
+                        // 60차: 하트 등 아이콘 알약(무궁화 목숨)
+                        p = new GameObject("P" + _pips.Count, typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                        p.transform.SetParent(_pipHost, false); p.sprite = sprite; p.preserveAspect = true; p.raycastTarget = false;
+                        p.rectTransform.anchorMin = p.rectTransform.anchorMax = new Vector2(0.5f, 0.5f); p.rectTransform.sizeDelta = new Vector2(26f, 26f);
+                    }
+                    else
+                    {
+                        p = CoastUiArt.Panel(_pipHost, "P" + _pips.Count, Color.white, 9); p.raycastTarget = false;
+                        p.rectTransform.anchorMin = p.rectTransform.anchorMax = new Vector2(0.5f, 0.5f); p.rectTransform.sizeDelta = new Vector2(18f, 18f);
+                    }
                     _pips.Add(p);
                 }
                 var c = color ?? new Color(1f, 0.85f, 0.30f);
+                if (sprite != null) c = Color.white;
                 float w = _pipHost.rect.width; if (w < 10f) w = 120f;
-                float step = Mathf.Min(24f, w / Mathf.Max(1, total));
+                float step = Mathf.Min(sprite != null ? 30f : 24f, w / Mathf.Max(1, total));
                 for (int i = 0; i < _pips.Count; i++)
                 {
                     bool on = i < total; _pips[i].gameObject.SetActive(on); if (!on) continue;

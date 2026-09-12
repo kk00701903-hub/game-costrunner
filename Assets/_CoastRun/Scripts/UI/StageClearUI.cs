@@ -541,7 +541,7 @@ namespace CoastRun
 
             // 39차: 시안 — 590×141 큰 광택 버튼 셋(핑크 →, 주황 ⟳, 파랑 ⌂), 중심 y 479 / 300 / 129
             _continueBtn = MakeButton(_card, "Continue", new Vector2(0.5f, 0f), new Vector2(0f, 479f), new Vector2(590f, 141f),
-                Loc.T("다음 스테이지", "Next stage"), new Color(0.93f, 0.22f, 0.52f), () => _onContinue?.Invoke(), "Icon_Arrow");
+                GameManager.Active && !ArcadeRun.Active ? Loc.T("육성으로 돌아가기", "Back to raising") : Loc.T("다음 스테이지", "Next stage"), new Color(0.93f, 0.22f, 0.52f), () => _onContinue?.Invoke(), GameManager.Active && !ArcadeRun.Active ? "Icon_Home" : "Icon_Arrow");   // 60차: 육성 모드 대회는 끝나면 육성으로
             _retryBtn = MakeButton(_card, "Retry", new Vector2(0.5f, 0f), new Vector2(0f, 300f), new Vector2(590f, 141f),
                 Loc.T("다시 달리기", "Run again"), new Color(1f, 0.50f, 0.08f), () => _onRetry?.Invoke(), "Icon_Refresh");
             _homeBtn = MakeButton(_card, "Home", new Vector2(0.5f, 0f), new Vector2(0f, 129f), new Vector2(590f, 141f),
