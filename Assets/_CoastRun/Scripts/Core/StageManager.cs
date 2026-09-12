@@ -221,7 +221,7 @@ namespace CoastRun
             }
 
             // 63차(사용자): 시작할 때 아이템·장애물을 살짝 소개 — 카드 아래 안내 띠, 그동안 조금 더 기다린다(1.55 → 2.6 s)
-            const float hold = 2.0f;   // 65차(사용자): 장애물 안내 2초
+            const float hold = 3.0f;   // 66차-2(사용자): 장애물 안내 3초(65차 2초)
             if (player != null) player.HoldForStart(hold);
             PickupFloat.BindToScene(gameObject);   // 42차: 타이틀 언로드에 카드가 같이 지워지지 않게 런 씬으로
             // 42차: K-POP(아케이드) 런도 「출발」 대신 챕터 소개 카드(사용자: "몇 챕터인지 안 나온다").

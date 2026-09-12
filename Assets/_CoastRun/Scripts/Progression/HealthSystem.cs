@@ -21,7 +21,7 @@ namespace CoastRun
         // and finishes a long stage in the red; a sloppy one dies near the minute mark.
         [SerializeField] private float drainPerSecond = 1.6f;
         [SerializeField] private float hitDamage = 30f;
-        public const float DamageScale = 4f;   // 65차: 장애물 피해 배율
+        public const float DamageScale = 5f;   // 66차-2(사용자): 장애물 피해 5배(65차 4배)
         [SerializeField] private float jellyHeal = 0.4f;
         [SerializeField] private float potionHeal = 40f;   // 17차: 물약 회복 25→40
 
@@ -101,8 +101,8 @@ namespace CoastRun
                 return;
             float mul = _player != null ? Mathf.Max(0.1f, _player.PendingHitDamageMul) : 1f;
             if (_player != null) _player.PendingHitDamageMul = 1f;
-            // 65차(사용자): 장애물 피해 4배 — 단, 한 방에 죽지는 않게 최대 체력의 90 %까지(버스 즉사는 그대로). 배율은 DamageScale.
-            float dmg = mul >= 50f ? max + 1f : Mathf.Min(max * 0.9f, hitDamage * mul * DamageScale);
+            // 66차-2(사용자): 장애물 피해 5배 — 상한은 최대 체력의 98 %(한 방에 체력 2 %만 남는다 → 물약이 아니면 다음 한 방에 끝). 버스 즉사는 그대로. 배율은 DamageScale.
+            float dmg = mul >= 50f ? max + 1f : Mathf.Min(max * 0.98f, hitDamage * mul * DamageScale);
             Apply(-dmg, silent: false);
             OnDamaged?.Invoke(dmg);
         }
