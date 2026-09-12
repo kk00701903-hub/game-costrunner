@@ -143,23 +143,28 @@ namespace CoastRun
             return _roadMat;
         }
 
-        private static Material _walkMat;
+        private static Material _walkMat, _tactileMat;
 
         /// 48차-14: 인도용 돌포장 — 도로와 같은 텍스처, 타일 크기 동일(폭 2.2 m ↔ 도로 8 m = 3타일), 조금 밝은 톤
+        /// 64차(사용자): 인도는 한국 보도블록(회색 블록 + 적갈색 테두리, Tex_Sidewalk_KR) — 차도 돌포장과 확실히 구분. 그림이 없으면 옛 방식.
+        private static bool _walkKr;
         private static Material SidewalkMaterial()
         {
             if (_walkMat == null)
             {
                 _walkMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
-                Texture2D tex = ArtAssets.LoadTexture("Tex_Pavement_Cream") ?? RoadTextureGenerator.Flagstone();
+                Texture2D kr = ArtAssets.LoadTexture("Tex_Sidewalk_KR");
+                _walkKr = kr != null;
+                Texture2D tex = kr ?? ArtAssets.LoadTexture("Tex_Pavement_Cream") ?? RoadTextureGenerator.Flagstone();
                 if (_walkMat.HasProperty("_BaseMap"))
                 {
                     _walkMat.SetTexture("_BaseMap", tex);
-                    _walkMat.SetTextureScale("_BaseMap", new Vector2(3f * 2.2f / (RoadHalfWidth * 2f), 12f));
+                    _walkMat.SetTextureScale("_BaseMap", _walkKr ? new Vector2(1f, Length / 2.2f) : new Vector2(3f * 2.2f / (RoadHalfWidth * 2f), 12f));
                 }
                 else { _walkMat.mainTexture = tex; _walkMat.mainTextureScale = new Vector2(0.6f, 8f); }
             }
-            var tint = Color.Lerp(SeasonLook.RoadTint(SeasonLook.Current), Color.white, 0.18f);
+            var tint = _walkKr ? Color.Lerp(Color.white, SeasonLook.RoadTint(SeasonLook.Current), 0.35f)
+                               : Color.Lerp(SeasonLook.RoadTint(SeasonLook.Current), Color.white, 0.18f);
             if (_walkMat.HasProperty("_BaseColor")) _walkMat.SetColor("_BaseColor", tint);
             else if (_walkMat.HasProperty("_Color")) _walkMat.SetColor("_Color", tint);
             return _walkMat;
@@ -192,13 +197,21 @@ namespace CoastRun
 
             // 48차-14(사용자 시안): 건물 옆 인도는 차도와 같은 돌포장이 건물 앞까지 이어진다 — 크림색 평판 대신
             // 도로 텍스처(조금 밝게)를 깔고, 연석은 낮고 옅은 돌색 한 줄로만. 바다쪽 연석은 그대로.
+            SidewalkMaterial();   // 64차: _walkKr 확정(연석 색 분기)
             CreateBox(root, "CurbL", new Vector3(-RoadHalfWidth - 0.10f, 0.05f, Length * 0.5f),
-                new Vector3(0.22f, 0.12f, Length), () => Color.Lerp(CoastPalette.Sidewalk, CoastPalette.RoadGrey, 0.45f));
+                new Vector3(0.22f, 0.12f, Length), () => _walkKr ? new Color(0.72f, 0.72f, 0.70f) : Color.Lerp(CoastPalette.Sidewalk, CoastPalette.RoadGrey, 0.45f));
             CreateBox(root, "CurbR", new Vector3(RoadHalfWidth + 0.12f, 0.08f, Length * 0.5f),
                 new Vector3(0.28f, 0.18f, Length), () => CoastPalette.Curb);
 
             CreateBox(root, "SidewalkL", new Vector3(-RoadHalfWidth - 1.35f, 0.04f, Length * 0.5f),
                 new Vector3(2.2f, 0.10f, Length), () => CoastPalette.Sidewalk, SidewalkMaterial());
+            if (_walkKr)
+            {
+                // 64차: 연석 쪽 노란 점자블록 띠(한국 인도의 표식) + 연석은 콘크리트 회색으로 차도와 구분
+                _tactileMat ??= CoastMaterials.CreateLit(() => new Color(0.95f, 0.78f, 0.18f), 0.05f);
+                var tac = CreateBox(root, "Tactile", new Vector3(-RoadHalfWidth - 0.40f, 0.095f, Length * 0.5f), new Vector3(0.30f, 0.012f, Length), null, _tactileMat);
+                tac.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
             // 건물 기단 앞 좁은 크림 띠(시안의 상가 앞 콘크리트 턱)
             CreateBox(root, "SidewalkBase", new Vector3(-RoadHalfWidth - 2.35f, 0.05f, Length * 0.5f),
                 new Vector3(0.5f, 0.12f, Length), () => CoastPalette.Sidewalk);
@@ -390,10 +403,11 @@ namespace CoastRun
                 int lotRoll = rng.Next(100);
                 bool hasHouse = JejuKit.Load("House_A") != null;
                 // 16차: 지루함 방지 — 상가가 2채 연속이면 다음은 반드시 집/공터/공원. 상가 45 / 집 22 / 공터 15 / 공원 18
+                // 64차(사용자): 제주 집(초가·기와)이 간간이 — 상가 40 / 집 27(절반은 JHouse) / 공터 15 / 공원 18
                 if (_shopStreak >= 2 && lotRoll < 50) lotRoll = 50 + rng.Next(50);
                 if (village && lotRoll < 50) lotRoll = 50 + rng.Next(50);   // 35차: 마을 장면 — 상가 없이 집/공터/공원만
-                if (lotRoll < 45 || !hasHouse) _shopStreak++; else _shopStreak = 0;
-                if (lotRoll < 45 || !hasHouse)
+                if (lotRoll < 40 || !hasHouse) _shopStreak++; else _shopStreak = 0;
+                if (lotRoll < 40 || !hasHouse)
                 {
                     // The FBX handedness swap mirrors Blender's X: the kit's front (+X in
                     // Blender) imports facing -X, so a half turn puts the shopfront on the

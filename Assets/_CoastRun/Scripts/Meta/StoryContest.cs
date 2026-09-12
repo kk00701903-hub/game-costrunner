@@ -73,7 +73,7 @@ namespace CoastRun
             int fake = 6 + 3 * (Current.target - 1);
             BossDirector.Create(player, obstacles, fake, false, Current.chapter * 977 + (stage != null ? stage.stageIndex : 0));
         }
-        public static void End() { Active = false; Current = null; if (_hud != null) UnityEngine.Object.Destroy(_hud.gameObject); _hud = null; }
+        public static void End() { Active = false; Current = null; if (_hud != null) UnityEngine.Object.Destroy(_hud.gameObject); _hud = null; ContestRivals.Clear(); }
 
         public static void NotePhoto() { if (Active) Photos++; }
         public static void NoteBoss() { if (Active) Bosses++; }
@@ -125,7 +125,8 @@ namespace CoastRun
                 if (!Active || _t == null) return;
                 var d = Current; float rem = Remaining;
                 bool met = GoalMet;
-                _t.text = $"{d.Name}  ·  {d.ShortGoal} {ProgressText()}  ·  {Mathf.FloorToInt(rem / 60f)}:{Mathf.FloorToInt(rem % 60f):00}";
+                string rank = ContestRivals.RankText();   // 66차-1: 라이벌 순위
+                _t.text = $"{d.Name}  ·  {d.ShortGoal} {ProgressText()}  ·  {Mathf.FloorToInt(rem / 60f)}:{Mathf.FloorToInt(rem % 60f):00}" + (rank.Length > 0 ? $"  ·  {rank}" : "");
                 _pill.color = met ? new Color(0.15f, 0.45f, 0.25f, 0.92f) : rem < 20f ? new Color(0.55f, 0.15f, 0.15f, 0.92f) : new Color(0.10f, 0.13f, 0.30f, 0.90f);
                 if (rem <= 0f && !met && !_failShown && d.goal != Goal.Finish)
                 {
@@ -164,39 +165,62 @@ namespace CoastRun
         public static void Close() { if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject); _canvas = null; }
     }
 
-    /// 대회 결과(미달) 화면 — 다시 도전 / 육성으로(주차는 그대로). 60차(사용자 시안): 크림 카드 · 젤리 「대회 미달…」 · 아이콘 줄 · 흰 안내 상자 · 주황/파랑 버튼.
+    /// 대회 결과(미달) 화면 — 다시 도전 / 스토리로(주차는 그대로). 66차(사용자 시안): 금테 크림 카드 · 젤리 「대회 미달…」 · 아이콘 줄 2 · 흰 안내 상자 3개(! / 전구 / 새로고침) · 주황 「지금 다시 도전」 / 파랑 「스토리화면으로」.
     public static class ContestResultUI
     {
         private static Canvas _canvas;
         public static bool IsOpen => _canvas != null;
+        private static readonly Color Gold = new Color(0.96f, 0.78f, 0.38f);
+
+        /// 흰 상자(얇은 금테) + 동그란 아이콘 + 글. 상자 위치 yTop, 높이 h.
+        private static void Box(RectTransform card, float yTop, float h, string icon, Color iconBg, string text, int size)
+        {
+            var edge = CoastUiArt.Panel(card, "BoxEdge", new Color(0.93f, 0.80f, 0.50f), 26); edge.raycastTarget = false;
+            var er = edge.rectTransform; er.anchorMin = new Vector2(0f, 1f); er.anchorMax = new Vector2(1f, 1f); er.pivot = new Vector2(0.5f, 1f);
+            er.offsetMin = new Vector2(30f, -yTop - h); er.offsetMax = new Vector2(-30f, -yTop);
+            var box = CoastUiArt.Panel(er, "Box", Color.white, 23); box.raycastTarget = false;
+            var br = box.rectTransform; br.anchorMin = Vector2.zero; br.anchorMax = Vector2.one; br.offsetMin = new Vector2(3f, 3f); br.offsetMax = new Vector2(-3f, -3f);
+            float ih = 54f;
+            EventCardKit.IconRow(br, icon, iconBg, text, (h - ih) * 0.5f - 3f, ih, size, null, null, 14f, 14f);
+        }
 
         public static void ShowFail(bool timeout)
         {
             Close();
             var d = StoryContest.Current; if (d == null) return;
             Time.timeScale = 0f;
-            var crt = EventCardKit.Card("ContestResultCanvas", 470, new Vector2(640f, 760f), out _canvas, 10f);
-            EventCardKit.JellyTitle(crt, Loc.T("대회 미달…", "Contest failed…"), new Color(0.96f, 0.22f, 0.25f), new Color(0.55f, 0.08f, 0.12f), 34f, 96f, 60);
-            EventCardKit.Divider(crt, 140f);
+            var crt = EventCardKit.Card("ContestResultCanvas", 470, new Vector2(648f, 1040f), out _canvas, 0f);
+            // 금테(카드 가장자리 금색 띠 + 안쪽 크림) — 카드 배경 바로 위, 스파클 아래
+            var rim = CoastUiArt.Panel(crt, "Rim", Gold, 28); rim.raycastTarget = false;
+            var rr = rim.rectTransform; rr.anchorMin = Vector2.zero; rr.anchorMax = Vector2.one; rr.offsetMin = new Vector2(6f, 6f); rr.offsetMax = new Vector2(-6f, -6f);
+            rim.transform.SetSiblingIndex(3);
+            var inner = CoastUiArt.Panel(crt, "RimIn", EventCardKit.Cream, 25); inner.raycastTarget = false;
+            var ir = inner.rectTransform; ir.anchorMin = Vector2.zero; ir.anchorMax = Vector2.one; ir.offsetMin = new Vector2(10f, 10f); ir.offsetMax = new Vector2(-10f, -10f);
+            inner.transform.SetSiblingIndex(4);
+            EventCardKit.Sparkle(crt, new Vector2(0.5f, 1f), new Vector2(-150f, -70f), 18, Gold);
+            EventCardKit.Sparkle(crt, new Vector2(0.5f, 1f), new Vector2(170f, -60f), 22, Gold);
+            EventCardKit.Sparkle(crt, new Vector2(0.5f, 1f), new Vector2(230f, -150f), 12, Gold);
+            EventCardKit.Sparkle(crt, new Vector2(0.5f, 0f), new Vector2(-260f, 150f), 14, Gold);
+            EventCardKit.Sparkle(crt, new Vector2(0.5f, 0f), new Vector2(250f, 160f), 18, Gold);
+            EventCardKit.JellyTitle(crt, Loc.T("대회 미달…", "Contest failed…"), new Color(0.98f, 0.22f, 0.22f), new Color(0.60f, 0.06f, 0.10f), 96f, 120f, 78);
             string icon = d.goal == StoryContest.Goal.Photos ? "Icon_Camera" : d.goal == StoryContest.Goal.Coins ? "Icon_Coin" : d.goal == StoryContest.Goal.Boss ? "Icon_Bang" : "Icon_Tower";
-            EventCardKit.IconRow(crt, icon, new Color(1f, 0.85f, 0.45f), d.Name, 172f, 64f, 30);
+            EventCardKit.IconRow(crt, icon, new Color(1f, 0.80f, 0.35f), d.Name, 266f, 66f, 32, null, null, 44f, 44f);
             string prog = StoryContest.ProgressText();
-            EventCardKit.IconRow(crt, "Icon_Card", new Color(0.78f, 0.80f, 1f), d.GoalText, 248f, 60f, 22, prog, new Color(0.98f, 0.45f, 0.35f));
-            var box = EventCardKit.InfoBox(crt, 330f, 232f);
+            EventCardKit.IconRow(crt, "Icon_Card", new Color(0.55f, 0.72f, 1f), d.GoalText, 352f, 60f, 24, prog, new Color(1f, 0.55f, 0.20f), 44f, 44f);
             string why = timeout ? Loc.T("제한시간이 끝났어.", "Time's up.") : Loc.T("결승선은 넘었지만 조건을 못 채웠어.", "Crossed the line but missed the goal.");
-            EventCardKit.IconRow(box, "Icon_Bang", new Color(1f, 0.85f, 0.45f), why, 14f, 56f, 19, null, null, 18f, 14f);
-            EventCardKit.IconRow(box, "Icon_Bulb", new Color(0.80f, 0.88f, 1f), Loc.T("대회를 깨야 다음 주로 넘어갈 수 있어.", "You must win to move on to next week."), 86f, 56f, 19, null, null, 18f, 14f);
-            EventCardKit.IconRow(box, "Icon_Refresh", new Color(0.70f, 0.92f, 0.85f), Loc.T("이 주를 다시 키우고 도전하거나, 지금 바로 다시!!", "Raise this week again, or retry right now!!"), 158f, 60f, 19, null, null, 18f, 14f);
-            EventCardKit.IconButton(crt, "Retry", "Icon_Arrow", Loc.T("지금 다시 도전", "Retry now"), new Color(1f, 0.52f, 0.10f), new Vector2(0f, 0f), new Vector2(26f, 32f), new Vector2(276f, 88f), () =>
+            Box(crt, 452f, 92f, "Icon_Bang", new Color(1f, 0.82f, 0.30f), why, 22);
+            Box(crt, 570f, 92f, "Icon_Bulb", new Color(0.62f, 0.80f, 1f), Loc.T("대회를 깨야 다음 주로 넘어갈 수 있어.", "You must win to move on to next week."), 22);
+            Box(crt, 688f, 116f, "Icon_Refresh", new Color(0.45f, 0.85f, 0.75f), Loc.T("이 주를 다시 키우고 도전하거나,\n지금 바로 다시!", "Raise this week again, or\nretry right now!"), 22);
+            EventCardKit.IconButton(crt, "Retry", "Icon_Arrow", Loc.T("지금 다시 도전", "Retry now"), new Color(1f, 0.55f, 0.12f), new Vector2(0f, 0f), new Vector2(30f, 40f), new Vector2(284f, 84f), () =>
             {
                 Close(); Time.timeScale = 1f;
                 StageManager.Instance?.RetryCurrent();
-            }, 24);
-            EventCardKit.IconButton(crt, "Back", "Icon_Home", Loc.T("육성으로\n(이 주 다시)", "Back home\n(redo week)"), new Color(0.30f, 0.55f, 0.95f), new Vector2(1f, 0f), new Vector2(-26f, 32f), new Vector2(276f, 88f), () =>
+            }, 26);
+            EventCardKit.IconButton(crt, "Back", "Icon_Book", Loc.T("스토리화면으로", "To story"), new Color(0.28f, 0.58f, 0.98f), new Vector2(1f, 0f), new Vector2(-30f, 40f), new Vector2(284f, 84f), () =>
             {
                 Close(); Time.timeScale = 1f;
                 if (GameManager.Active) GameManager.I.ContestFail();
-            }, 22);
+            }, 26);
             CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.6f);
         }
 

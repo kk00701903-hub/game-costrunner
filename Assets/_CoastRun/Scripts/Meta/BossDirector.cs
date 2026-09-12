@@ -119,6 +119,13 @@ namespace CoastRun
         }
 
         private static string Name(Kind k) => k switch { Kind.Seagull => Loc.T("갈매기 해적", "Seagull Pirate"), Kind.Golem => Loc.T("돌하르방 골렘", "Hareubang Golem"), _ => Loc.T("태풍 도깨비", "Typhoon Dokkaebi") };
+        /// 65차: 보스마다 뭘 하는지 한 줄 — 등장 띠에 표시
+        private static string Effect(Kind k) => k switch
+        {
+            Kind.Seagull => Loc.T("앞에서 미사일을 쏜다(내 레인 60%) — 레인을 옮겨 피하자!\n보스 동안 코인·장애물 없음 · 버티면 +100 코인", "Fires missiles down the lanes (60% yours) — switch lanes!\nNo coins/obstacles meanwhile · survive for +100 coins"),
+            Kind.Golem => Loc.T("하늘에서 바위가 끝없이 떨어진다 — 바닥 그림자를 보고 비키자!\n보스 동안 코인·장애물 없음 · 버티면 +100 코인", "Rocks keep falling — watch the ground shadows!\nNo coins/obstacles meanwhile · survive for +100 coins"),
+            _ => Loc.T("태풍이 예측 못 하게 레인을 옮겨 다닌다 — 닿으면 피해!\n보스 동안 코인·장애물 없음 · 버티면 +100 코인", "A typhoon wanders across lanes — don't touch it!\nNo coins/obstacles meanwhile · survive for +100 coins"),
+        };
         private static string Art(Kind k) => k switch { Kind.Seagull => "Boss_Seagull", Kind.Golem => "Boss_Golem", _ => "Boss_Dokkaebi" };
 
         private IEnumerator BossPhase(Kind kind, float seconds)
@@ -126,6 +133,7 @@ namespace CoastRun
             Active = true; Current = kind;
             _obstacles?.SetSuppressed(true);
             PickupFloat.Banner(Name(kind), new Color(1f, 0.35f, 0.35f), 1.6f);   // 배너는 8자 안팎만 들어간다 — 이름만
+            PickupFloat.InfoStrip("Obs_" + Art(kind), Name(kind), Effect(kind), new Color(1f, 0.55f, 0.45f), 3.2f);   // 65차(사용자): 보스 효과 설명
             CoastAudioManager.PlayAnywhere(CoastSfx.Horn, 0.8f);
             JuiceDirector.Instance?.PlayHitImpact();
             // 보스 본체

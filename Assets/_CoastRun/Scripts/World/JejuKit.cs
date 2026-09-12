@@ -436,6 +436,12 @@ namespace CoastRun
                 case "BuoyOrange": return CoastMaterials.CreateToon(new Color(0.98f, 0.45f, 0.15f), null, null, 0.3f);
                 case "BuoyWhite": return CoastMaterials.CreateToon(new Color(0.96f, 0.95f, 0.90f), null, null, 0.3f);
                 case "Rope": return CoastMaterials.CreateLit(new Color(0.80f, 0.70f, 0.45f));
+                // 64차: 제주 집 키트(JHouse_*) — 초가·기와·창호지·회벽
+                case "Thatch": return CoastMaterials.CreateLit(new Color(0.74f, 0.60f, 0.36f), 0.02f);
+                case "Tile": return CoastMaterials.CreateLit(new Color(0.34f, 0.36f, 0.40f), 0.08f);
+                case "TileRidge": return CoastMaterials.CreateLit(new Color(0.17f, 0.18f, 0.21f), 0.08f);
+                case "Paper": return CoastMaterials.CreateLit(new Color(0.97f, 0.93f, 0.82f), 0.0f);
+                case "Plaster": return CoastMaterials.CreateLit(new Color(0.94f, 0.90f, 0.79f), 0.02f);
                 case "BloomBlue": return CoastMaterials.CreateLit(new Color(0.45f, 0.60f, 0.95f), 0.2f);
                 case "BloomPink": return CoastMaterials.CreateLit(new Color(0.98f, 0.55f, 0.72f), 0.2f);
                 case "BloomYellow": return CoastMaterials.CreateLit(new Color(1f, 0.85f, 0.20f), 0.2f);

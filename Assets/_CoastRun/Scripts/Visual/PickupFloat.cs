@@ -146,7 +146,8 @@ namespace CoastRun
             f._goCo = f.StartCoroutine(f.GoSeq(head, sub, seconds));
         }
 
-        /// 63차(사용자): 러닝 시작 때 아이템·장애물을 살짝 소개 — 챕터 카드 아래 크림 띠 두 줄(모으기 / 피하기), seconds 뒤 사라짐.
+        /// 63차(사용자): 러닝 시작 때 장애물을 살짝 소개 — 챕터 카드 아래 반투명 띠 한 줄(피하기), seconds 뒤 사라짐.
+        /// 65차(사용자): 아이템(모으기) 줄은 빼고 장애물만, 배경은 살짝 반투명, 2초.
         public static void ItemGuide(float seconds)
         {
             var f = Ensure();
@@ -155,43 +156,74 @@ namespace CoastRun
         private IEnumerator ItemGuideSeq(float seconds)
         {
             var parent = _fx != null ? _fx : _root;
-            var strip = CoastUiArt.CutePill(parent, "ItemGuide", new Color(0.99f, 0.96f, 0.90f, 0.96f), 22, 4);
+            var strip = CoastUiArt.Panel(parent, "ItemGuide", new Color(0.10f, 0.08f, 0.16f, 0.55f), 26);
             var srt = strip.rectTransform; srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 0.5f); srt.pivot = new Vector2(0.5f, 0.5f);
-            srt.anchoredPosition = new Vector2(0f, -300f); srt.sizeDelta = new Vector2(600f, 236f); strip.raycastTarget = false;
+            srt.anchoredPosition = new Vector2(0f, -300f); srt.sizeDelta = new Vector2(600f, 132f); strip.raycastTarget = false;
             var cg = strip.gameObject.AddComponent<CanvasGroup>(); cg.alpha = 0f; cg.blocksRaycasts = false; cg.interactable = false;
-            string[][] rows =
+            string[] row = { Loc.T("피하기", "AVOID"), "Obs_Cone", Loc.T("콘 · 점프", "Cone · jump"), "Obs_Barrier", Loc.T("바리케이드", "Barrier"), "Obs_Clothesline", Loc.T("빨래줄 · 숙이기", "Line · duck"), "Obs_BusFront", Loc.T("버스 · 피하기", "Bus · dodge") };
+            float y = -14f;
+            var lab = CoastUiArt.GlossyPill(srt, "Lab", new Color(0.85f, 0.25f, 0.30f), 14, 5); lab.raycastTarget = false;
+            var lrt = lab.rectTransform; lrt.anchorMin = lrt.anchorMax = new Vector2(0f, 1f); lrt.pivot = new Vector2(0f, 1f); lrt.anchoredPosition = new Vector2(14f, y - 30f); lrt.sizeDelta = new Vector2(84f, 34f);
+            var lt = CoastHudLayout.MakeText(lrt, "T", row[0], 16, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero);
+            lt.color = Color.white; lt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(lt, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+            for (int i = 0; i < 4; i++)
             {
-                new[] { Loc.T("모으기", "COLLECT"), "Obs_Coin_Gold", Loc.T("코인", "Coin"), "Obs_Jelly_Strawberry", Loc.T("말랑이", "Jelly"), "Obs_Potion", Loc.T("물약", "Potion"), "Obs_Heart", Loc.T("하트", "Heart") },
-                new[] { Loc.T("피하기", "AVOID"), "Obs_Cone", Loc.T("콘 · 점프", "Cone · jump"), "Obs_Barrier", Loc.T("바리케이드", "Barrier"), "Obs_Clothesline", Loc.T("빨래줄 · 숙이기", "Line · duck"), "Obs_BusFront", Loc.T("버스 · 피하기", "Bus · dodge") },
-            };
-            Color[] rowCol = { new Color(0.20f, 0.60f, 0.35f), new Color(0.85f, 0.25f, 0.30f) };
-            for (int r = 0; r < rows.Length; r++)
-            {
-                float y = r == 0 ? -14f : -122f;
-                var lab = CoastUiArt.GlossyPill(srt, "Lab" + r, rowCol[r], 14, 5); lab.raycastTarget = false;
-                var lrt = lab.rectTransform; lrt.anchorMin = lrt.anchorMax = new Vector2(0f, 1f); lrt.pivot = new Vector2(0f, 1f); lrt.anchoredPosition = new Vector2(14f, y - 30f); lrt.sizeDelta = new Vector2(84f, 34f);
-                var lt = CoastHudLayout.MakeText(lrt, "T", rows[r][0], 16, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero);
-                lt.color = Color.white; lt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(lt, new Color(0f, 0f, 0f, 0.35f), 1.2f);
-                for (int i = 0; i < 4; i++)
+                float x = 112f + i * 122f;
+                var tex = ArtAssets.LoadTexture(row[1 + i * 2]);
+                if (tex != null)
                 {
-                    float x = 112f + i * 122f;
-                    var tex = ArtAssets.LoadTexture(rows[r][1 + i * 2]);
-                    if (tex != null)
-                    {
-                        var im = new GameObject("I", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-                        im.transform.SetParent(srt, false); im.sprite = CoastUiArt.AsSprite(tex, 100f); im.preserveAspect = true; im.raycastTarget = false;
-                        var irt = im.rectTransform; irt.anchorMin = irt.anchorMax = new Vector2(0f, 1f); irt.pivot = new Vector2(0.5f, 1f); irt.anchoredPosition = new Vector2(x + 50f, y - 4f); irt.sizeDelta = new Vector2(64f, 64f);
-                    }
-                    var nt = CoastHudLayout.MakeText(srt, "N", rows[r][2 + i * 2], 13, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x - 6f, y - 96f), new Vector2(x + 106f, y - 70f));
-                    nt.color = new Color(0.22f, 0.18f, 0.16f); nt.fontStyle = FontStyle.Bold; nt.raycastTarget = false;
-                    nt.resizeTextForBestFit = true; nt.resizeTextMinSize = 8; nt.resizeTextMaxSize = CoastHudLayout.Scaled(13);
+                    var im = new GameObject("I", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    im.transform.SetParent(srt, false); im.sprite = CoastUiArt.AsSprite(tex, 100f); im.preserveAspect = true; im.raycastTarget = false;
+                    var irt = im.rectTransform; irt.anchorMin = irt.anchorMax = new Vector2(0f, 1f); irt.pivot = new Vector2(0.5f, 1f); irt.anchoredPosition = new Vector2(x + 50f, y - 4f); irt.sizeDelta = new Vector2(64f, 64f);
                 }
+                var nt = CoastHudLayout.MakeText(srt, "N", row[2 + i * 2], 13, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x - 6f, y - 96f), new Vector2(x + 106f, y - 70f));
+                nt.color = new Color(1f, 0.96f, 0.90f); nt.fontStyle = FontStyle.Bold; nt.raycastTarget = false; CoastUiArt.OutlineText(nt, new Color(0f, 0f, 0f, 0.5f), 1.2f);
+                nt.resizeTextForBestFit = true; nt.resizeTextMinSize = 8; nt.resizeTextMaxSize = CoastHudLayout.Scaled(13);
             }
             float t = 0f;
             while (t < seconds && strip != null)
             {
                 t += Time.unscaledDeltaTime;
                 float a = Mathf.Clamp01(t / 0.25f) * Mathf.Clamp01((seconds - t) / 0.3f);
+                cg.alpha = a; srt.localScale = Vector3.one * (0.92f + 0.08f * Mathf.Clamp01(t / 0.25f));
+                yield return null;
+            }
+            if (strip != null) Destroy(strip.gameObject);
+        }
+
+        /// 65차(사용자): 보스 등장 때 「이 보스는 뭘 하나」 안내 — 반투명 띠(왼쪽 보스 그림 + 이름 + 효과 두 줄), seconds 뒤 사라짐.
+        public static void InfoStrip(string iconRes, string title, string body, Color titleCol, float seconds)
+        {
+            var f = Ensure();
+            f.StartCoroutine(f.InfoStripSeq(iconRes, title, body, titleCol, seconds));
+        }
+        private IEnumerator InfoStripSeq(string iconRes, string title, string body, Color titleCol, float seconds)
+        {
+            var parent = _fx != null ? _fx : _root;
+            var strip = CoastUiArt.Panel(parent, "InfoStrip", new Color(0.10f, 0.08f, 0.16f, 0.62f), 26);
+            var srt = strip.rectTransform; srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 0.5f); srt.pivot = new Vector2(0.5f, 0.5f);
+            srt.anchoredPosition = new Vector2(0f, 150f); srt.sizeDelta = new Vector2(620f, 150f); strip.raycastTarget = false;
+            var cg = strip.gameObject.AddComponent<CanvasGroup>(); cg.alpha = 0f; cg.blocksRaycasts = false; cg.interactable = false;
+            var tex = ArtAssets.LoadTexture(iconRes);
+            float textL = 24f;
+            if (tex != null)
+            {
+                var im = new GameObject("I", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                im.transform.SetParent(srt, false); im.sprite = CoastUiArt.AsSprite(tex, 100f); im.preserveAspect = true; im.raycastTarget = false;
+                var irt = im.rectTransform; irt.anchorMin = new Vector2(0f, 0f); irt.anchorMax = new Vector2(0f, 1f); irt.pivot = new Vector2(0f, 0.5f); irt.anchoredPosition = new Vector2(14f, 0f); irt.sizeDelta = new Vector2(122f, -14f);
+                textL = 150f;
+            }
+            var tt = CoastHudLayout.MakeText(srt, "T", title, 24, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(textL, -56f), new Vector2(-14f, -10f));
+            tt.color = titleCol; tt.fontStyle = FontStyle.Bold; tt.raycastTarget = false; CoastUiArt.OutlineText(tt, new Color(0f, 0f, 0f, 0.6f), 1.6f);
+            tt.resizeTextForBestFit = true; tt.resizeTextMinSize = 12; tt.resizeTextMaxSize = CoastHudLayout.Scaled(24);
+            var bt = CoastHudLayout.MakeText(srt, "B", body, 16, TextAnchor.UpperLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(textL, 10f), new Vector2(-14f, -60f));
+            bt.color = new Color(1f, 0.96f, 0.90f); bt.fontStyle = FontStyle.Bold; bt.raycastTarget = false; bt.horizontalOverflow = HorizontalWrapMode.Wrap; CoastUiArt.OutlineText(bt, new Color(0f, 0f, 0f, 0.5f), 1.2f);
+            bt.resizeTextForBestFit = true; bt.resizeTextMinSize = 10; bt.resizeTextMaxSize = CoastHudLayout.Scaled(16);
+            float t = 0f;
+            while (t < seconds && strip != null)
+            {
+                t += Time.unscaledDeltaTime;
+                float a = Mathf.Clamp01(t / 0.25f) * Mathf.Clamp01((seconds - t) / 0.35f);
                 cg.alpha = a; srt.localScale = Vector3.one * (0.92f + 0.08f * Mathf.Clamp01(t / 0.25f));
                 yield return null;
             }

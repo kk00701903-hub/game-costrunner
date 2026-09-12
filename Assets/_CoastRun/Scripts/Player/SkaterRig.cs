@@ -390,18 +390,34 @@ namespace CoastRun
             float sec = c != null ? c.secondaryAmount : 1f;
             // 걸음 착지 스프링(_bounce, m)을 스케일에도 반영: 내려앉을 때 납작
             float target = 1f + (running ? _bounce * stepAmt : 0f);
-            _squashVel += ((target - _squash) * k - _squashVel * d) * dt;
-            _squash += _squashVel * dt;
+            for (float r2 = Mathf.Min(dt, 0.25f); r2 > 0f;)
+            {
+                float h = Mathf.Min(r2, 1f / 90f); r2 -= h;
+                _squashVel += ((target - _squash) * k - _squashVel * d) * h;
+                _squash += _squashVel * h;
+            }
             _squash = Mathf.Clamp(_squash, 0.6f, 1.35f);
-            // 레인 킥(°): 임계 감쇠보다 살짝 덜 감쇠 → 한 번 튕김
-            _laneKickVel += (-_laneKick * 320f - _laneKickVel * 16f) * dt;
-            _laneKick += _laneKickVel * dt;
-            // 가방 secondary: 세로 가속(_bounceVel)과 레인 킥을 따라 늦게 움직인다
+            // 66차-7(사용자 「러닝할 때 사람이 옆으로 돌아간다」): 스프링을 명시적 오일러로 한 번에 적분하면
+            // 프레임이 튀거나(로딩·GC·에디터 렉) timescale이 높을 때 dt 가 0.1 s 를 넘어 발산 → 몸이 옆으로 누움/NaN.
+            // → 1/90 s 이하로 잘게 나눠 적분하고 값도 안전 범위로 묶는다.
             float bagPitchTarget = Mathf.Clamp(-_bounceVel * 40f, -25f, 25f) * sec;
-            _bagPitchVel += ((bagPitchTarget - _bagPitch) * 180f - _bagPitchVel * 11f) * dt;
-            _bagPitch += _bagPitchVel * dt;
-            _bagRollVel += ((-_laneKick * 1.4f * sec - _bagRoll) * 200f - _bagRollVel * 10f) * dt;
-            _bagRoll += _bagRollVel * dt;
+            float rem = Mathf.Min(dt, 0.25f);
+            while (rem > 0f)
+            {
+                float h = Mathf.Min(rem, 1f / 90f); rem -= h;
+                // 레인 킥(°): 임계 감쇠보다 살짝 덜 감쇠 → 한 번 튕김
+                _laneKickVel += (-_laneKick * 320f - _laneKickVel * 16f) * h;
+                _laneKick += _laneKickVel * h;
+                // 가방 secondary: 세로 가속(_bounceVel)과 레인 킥을 따라 늦게 움직인다
+                _bagPitchVel += ((bagPitchTarget - _bagPitch) * 180f - _bagPitchVel * 11f) * h;
+                _bagPitch += _bagPitchVel * h;
+                _bagRollVel += ((-_laneKick * 1.4f * sec - _bagRoll) * 200f - _bagRollVel * 10f) * h;
+                _bagRoll += _bagRollVel * h;
+            }
+            if (float.IsNaN(_laneKick) || float.IsInfinity(_laneKick)) { _laneKick = 0f; _laneKickVel = 0f; }
+            _laneKick = Mathf.Clamp(_laneKick, -28f, 28f); _laneKickVel = Mathf.Clamp(_laneKickVel, -900f, 900f);
+            if (float.IsNaN(_bagPitch) || float.IsNaN(_bagRoll)) { _bagPitch = _bagRoll = 0f; _bagPitchVel = _bagRollVel = 0f; }
+            if (float.IsNaN(_squash)) { _squash = 1f; _squashVel = 0f; }
             return _squash;
         }
 
@@ -700,9 +716,15 @@ namespace CoastRun
                     _bounceVel = -0.85f;   // 착지 충격: 아래로 (63차: 더 세게 — 발이 바닥을 때리는 느낌)
                 }
             }
-            // 스프링: 착지 → 살짝 내려앉음 → 튕겨 올라옴
-            _bounceVel += (-_bounce * 260f - _bounceVel * 18f) * dt;
-            _bounce += _bounceVel * dt;
+            // 스프링: 착지 → 살짝 내려앉음 → 튕겨 올라옴 (66차-7: 잘게 나눠 적분 — 큰 dt 에서 발산 방지)
+            for (float rem = Mathf.Min(dt, 0.25f); rem > 0f;)
+            {
+                float h = Mathf.Min(rem, 1f / 90f); rem -= h;
+                _bounceVel += (-_bounce * 260f - _bounceVel * 18f) * h;
+                _bounce += _bounceVel * h;
+            }
+            if (float.IsNaN(_bounce)) { _bounce = 0f; _bounceVel = 0f; }
+            _bounce = Mathf.Clamp(_bounce, -0.3f, 0.3f);
             float side = running ? Mathf.Sin(_stepClock / stepPeriod * Mathf.PI) * 0.6f * _stepSide : 0f;   // 어깨 좌우 흔들림(°)
             // 19차-2: 빨래줄 활공 — 슈퍼맨 자세. 몸을 78° 앞으로 눕히고(엉덩이 기준으로 회전) 살짝 출렁인다.
             // 팔·다리는 LateUpdate에서 뼈를 직접 펴서 앞으로 뻗는다(믹사모 클립 없이 절차적으로).

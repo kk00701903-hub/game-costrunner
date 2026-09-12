@@ -48,6 +48,25 @@ namespace CoastRun
                 _score.resizeTextForBestFit = true; _score.resizeTextMinSize = 10; _score.resizeTextMaxSize = CoastHudLayout.Scaled(22);
             }
 
+            /// 65차(윷놀이 시안): 목표 띠를 알약 둘로 — 왼쪽(목표) 색 / 오른쪽(점수) 색. 알약(남은 기회)은 숨김.
+            public void TwoPillStyle(Color leftCol, Color rightCol, Color textCol)
+            {
+                if (_strip == null) return;
+                _strip.GetComponent<Image>().color = Color.clear;
+                foreach (Transform ch in _strip) if (ch.name == "Lip" || ch.name == "Fill" || ch.name == "Gloss") ch.gameObject.SetActive(false);
+                _strip.sizeDelta = new Vector2(-16f, 66f);
+                if (_pipHost != null) _pipHost.gameObject.SetActive(false);
+                var l = CoastUiArt.GlossyPill(_strip, "LPill", leftCol, 24, 7); l.raycastTarget = false; l.transform.SetAsFirstSibling();
+                Rect(l.rectTransform, new Vector2(0f, 0f), new Vector2(0.485f, 1f), Vector2.zero, Vector2.zero);
+                var r = CoastUiArt.GlossyPill(_strip, "RPill", rightCol, 24, 7); r.raycastTarget = false; r.transform.SetAsFirstSibling();
+                Rect(r.rectTransform, new Vector2(0.515f, 0f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
+                Rect(_goal.rectTransform, new Vector2(0f, 0f), new Vector2(0.485f, 1f), new Vector2(10f, 4f), new Vector2(-10f, 0f));
+                _goal.alignment = TextAnchor.MiddleCenter; _goal.color = textCol; _goal.resizeTextMaxSize = CoastHudLayout.Scaled(19);
+                Rect(_score.rectTransform, new Vector2(0.515f, 0f), new Vector2(1f, 1f), new Vector2(10f, 4f), new Vector2(-10f, 0f));
+                _score.alignment = TextAnchor.MiddleCenter; _score.color = textCol; _score.resizeTextMaxSize = CoastHudLayout.Scaled(19);
+            }
+            private static void Rect(RectTransform rt, Vector2 aMin, Vector2 aMax, Vector2 oMin, Vector2 oMax) { rt.anchorMin = aMin; rt.anchorMax = aMax; rt.offsetMin = oMin; rt.offsetMax = oMax; }
+
             /// 목표 한 줄(예: 「5발 중 3발 넣기」).
             public void Goal(string s) { if (_goal != null) _goal.text = s; }
             /// 오른쪽 점수(예: 「1 / 3」).

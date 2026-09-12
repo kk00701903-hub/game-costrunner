@@ -23,8 +23,31 @@ namespace CoastRun
         }
 
         /// 제주 낮은 집: 현무암 기단 + 크림 벽 + 진짜 지붕색 4종. 마당 돌담·감귤나무.
+        /// 64차(사용자): 제주스러운 집 — 초가(현무암 돌집 + 둥근 초가지붕 + 정낭) 2종, 기와집(들린 처마) 2종(Blender JHouse_*).
+        private static readonly string[] JejuHouses = { "JHouse_Thatch_A", "JHouse_Thatch_B", "JHouse_Tile_A", "JHouse_Tile_B" };
+        public static bool JejuHouseAvailable => JejuKit.Load(JejuHouses[0]) != null;
+        private static int _lastJeju = -1;
+
+        /// 제주 집 한 채(직전과 다른 종류). 마당 감귤나무·돌담은 House 와 같다. 키트가 없으면 false.
+        public static bool JejuHouse(Transform pivot, System.Random rng)
+        {
+            if (!JejuHouseAvailable) return false;
+            int k = rng.Next(JejuHouses.Length); if (k == _lastJeju) k = (k + 1) % JejuHouses.Length; _lastJeju = k;
+            var go = JejuKit.Spawn(JejuHouses[k], pivot, Vector3.zero, 180f, 1f);
+            if (go == null) return false;
+            BuildingOutline.Attach(go.transform, 0.03f);
+            JejuKit.Spawn("Prop_OrangeTree", pivot, new Vector3(-1.4f, 0f, k < 2 ? -3.9f : 3.9f), (float)rng.NextDouble() * 360f, 0.85f);
+            for (int side = -1; side <= 1; side += 2)
+                JejuKit.Spawn("Prop_StoneWall", pivot, new Vector3(0.55f, 0f, side * 3.6f), 0f, 0.55f);
+            if (rng.Next(2) == 0) StreetDressing.Hydrangea(pivot, new Vector3(0.8f, 0f, -2.6f), rng, 0.9f);
+            PromenadeSegmentBuilder.SeatOnKerb(go);
+            return true;
+        }
+
         public static void House(Transform pivot, System.Random rng, bool twoStorey)
         {
+            // 64차: 집 필지의 절반은 제주 집(초가·기와)
+            if (rng.Next(2) == 0 && JejuHouse(pivot, rng)) return;
             // 15차-3: 그림 파사드 기와집이 있으면 그것(사진풍), 없으면 파트 키트
             var go = JejuKit.SpawnFHouse(rng.Next(1000000), pivot, Vector3.zero, 180f);
             if (go == null)

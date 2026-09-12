@@ -45,7 +45,7 @@ namespace CoastRun
         {
             switch (k)
             {
-                case ChapterMission.Kind.Yut: return new[] { ("[던지기!]로 윷 4개를 던져요", "Tap [Throw!] to toss 4 sticks"), ("도·개·걸·윷·모 만큼 말이 가요", "Move by Do·Gae·Geol·Yut·Mo"), ("같은 칸에 서면 잡고 한 번 더!", "Land on Dodam to catch & throw again") };
+                case ChapterMission.Kind.Yut: return new[] { ("[던지기!!]로 윷 4개를 던져요 (나 ↔ 꼬마 번갈아)", "Tap [THROW!!] — you and the kid alternate"), ("배가 위로 온 수만큼: 도1·개2·걸3·윷4·모5", "Flat sides up = cells: 1·2·3·4, none = 5"), ("같은 칸에 서면 잡고 한 번 더! 먼저 3바퀴!", "Catch on the same cell & throw again — 3 laps first!") };
                 case ChapterMission.Kind.Tuho: return new[] { ("바늘이 항아리를 향할 때 [방향 확정]", "Set aim when the needle points at the jar"), ("힘 게이지 흰 띠 안에서 [발사!]", "Throw inside the white band"), ("화살이 포물선을 그리며 쏙!", "The arrow arcs into the jar") };
                 case ChapterMission.Kind.Ddakji: return new[] { ("게이지가 오르내려요", "The timing bar swings"), ("노란 띠 안에서 [내리치기!]", "Slam inside the yellow band"), ("상대 딱지가 뒤집히면 내 것!", "Flip Dodam's ddakji to win") };
                 case ChapterMission.Kind.Mugunghwa: return new[] { ("[달리기]를 꾹 누르면 앞으로", "Hold [Run] to move forward"), ("술래가 돌아보면 손을 떼요", "Let go when the tagger looks"), ("끝까지 가서 [술래 터치!]", "Reach the end and [Tag!]") };
@@ -56,7 +56,7 @@ namespace CoastRun
         {
             switch (k)
             {
-                case ChapterMission.Kind.Yut: return ("도담이보다 먼저 한 바퀴", "Get around before Dodam");
+                case ChapterMission.Kind.Yut: return ("꼬마보다 먼저 3바퀴", "3 laps before the kid");
                 case ChapterMission.Kind.Tuho: return ("5발 중 3발 넣기", "3 of 5 in the jar");
                 case ChapterMission.Kind.Ddakji: return ("3번 안에 한 번 넘기기", "Flip once in 3 tries");
                 case ChapterMission.Kind.Mugunghwa: return ("3번 걸리기 전에 술래 터치", "Tag before 3 catches");

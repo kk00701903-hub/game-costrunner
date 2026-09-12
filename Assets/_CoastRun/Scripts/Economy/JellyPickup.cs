@@ -90,6 +90,9 @@ namespace CoastRun
                     if (PaintedProp.Available("Photocard")) PaintedProp.Attach(vis, "Photocard", 1.0f, replace: false, outline: true);
                     else BuildStar(vis);
                     radius = 0.75f;
+                    // 66차-2(사용자): 사진(포토카드) 대회 중엔 미션 대상 아이템 위에 느낌표 표식
+                    if (StoryContest.Active && StoryContest.Current != null && StoryContest.Current.goal == StoryContest.Goal.Photos)
+                        MissionMarker.Attach(vis, 1.35f);
                     break;
                 case PickupKind.Giant:
                     if (PaintedProp.Available("Star")) PaintedProp.Attach(vis, "Star", 1.35f, replace: false, outline: true,
@@ -449,6 +452,35 @@ namespace CoastRun
                 juice.PlayCoinCollect(null, PickupReach.PopPos(_player, transform.position), _kind == PickupKind.Jelly ? 0 : 2, tint);
             }
             Destroy(gameObject);
+        }
+    }
+
+    /// 66차-2: 미션 대상 아이템 위에 떠서 까딱이는 느낌표(노란 동그라미 + 빨간 !). 카메라를 향해 서 있는 쿼드.
+    public class MissionMarker : MonoBehaviour
+    {
+        private float _phase; private Vector3 _base;
+        public static void Attach(Transform root, float y)
+        {
+            var tex = ArtAssets.LoadTexture("Fx_BangMarker");
+            if (tex == null) return;
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            q.name = "MissionMarker";
+            q.transform.SetParent(root, false);
+            CoastEditUtil.DestroyCollider(q);
+            q.transform.localPosition = new Vector3(0f, y, 0f);
+            q.transform.localScale = new Vector3(0.62f, 0.62f, 1f);
+            var mr = q.GetComponent<Renderer>();
+            mr.sharedMaterial = CoastMaterials.CreateTexturedTransparentNoFog(tex, Color.white);
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; mr.receiveShadows = false;
+            q.AddComponent<YawBillboard>();
+            var m = q.AddComponent<MissionMarker>(); m._base = q.transform.localPosition; m._phase = Random.value * 6.28f;
+        }
+        private void Update()
+        {
+            _phase += Time.deltaTime * 5f;
+            float s = 1f + Mathf.Sin(_phase * 2f) * 0.08f;
+            transform.localPosition = _base + new Vector3(0f, Mathf.Abs(Mathf.Sin(_phase)) * 0.18f, 0f);
+            transform.localScale = new Vector3(0.62f * s, 0.62f * s, 1f);
         }
     }
 }

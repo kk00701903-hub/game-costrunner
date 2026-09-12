@@ -20,7 +20,7 @@ namespace CoastRun
             new Def { kind = Kind.Marbles,   chapter = 3,  nameKo = "구슬치기", nameEn = "Marbles",
                       ruleKo = "[방향 선택] → [발사!] 힘 선택으로 흰 구슬을 쏴요.\n3발 안에 삼각형 안 구슬을 2개 이하로 남기면 승리(8개 중 6개 밖으로)", ruleEn = "Pick aim, then power, then shoot. Leave 2 or fewer marbles inside the triangle after 3 shots (6 of 8 out)." },
             new Def { kind = Kind.Yut,       chapter = 6,  nameKo = "윷놀이", nameEn = "Yut Nori",
-                      ruleKo = "윷을 던져 한 바퀴!\n도담이보다 먼저 들어오면 승리", ruleEn = "Throw the yut sticks. Get around the board before Dodam." },
+                      ruleKo = "윷을 던져 3바퀴!\n꼬마보다 먼저 돌면 승리", ruleEn = "Throw the yut sticks. Finish 3 laps before the kid." },
             new Def { kind = Kind.Tuho,      chapter = 9,  nameKo = "투호", nameEn = "Tuho",
                       ruleKo = "[방향 선택] → 힘 게이지 흰 띠에서 [발사!]\n5발 중 3발을 항아리에 넣으면 승리", ruleEn = "Pick aim, then power inside the white band, then throw. 3 of 5 in wins." },
             new Def { kind = Kind.Ddakji,    chapter = 12, nameKo = "딱지치기", nameEn = "Ddakji",

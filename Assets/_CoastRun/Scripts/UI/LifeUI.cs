@@ -45,7 +45,8 @@ namespace CoastRun
         public static void Show(int fromWeek, int toWeek, SeasonKind season, Survival.WeekReport rep, string nextNote, Action onDone)
         {
             Close();
-            Action finish = () => { Close(); onDone?.Invoke(); };
+            bool done = false;
+            Action finish = () => { if (done) return; done = true; Close(); onDone?.Invoke(); };
             _canvas = LifeUiKit.Dim("WeekPassCanvas", 466, out var root, finish);
             UnityEngine.Object.DontDestroyOnLoad(_canvas.gameObject);
             var card = CoastUiArt.CutePill(root, "Card", LifeUiKit.Cream, 34, 6);
@@ -53,7 +54,7 @@ namespace CoastRun
             bool hasNote = !string.IsNullOrEmpty(nextNote);
             int rows = 4 + (rep != null && rep.harvested > 0 ? 1 : 0);
             float listH = 26f + rows * 52f;
-            float h = 250f + listH + 24f + 2 * 104f + (hasNote ? 62f : 0f) + 110f;
+            float h = 250f + listH + 24f + 2 * 104f + (hasNote ? 62f : 0f) + 34f;   // 65차: 아래 단추 없음
             crt.anchoredPosition = new Vector2(0f, 10f); crt.sizeDelta = new Vector2(640f, h); card.raycastTarget = true;
             var cb = card.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None; cb.onClick.AddListener(() => finish());
 
@@ -109,12 +110,13 @@ namespace CoastRun
                 nt.color = new Color(0.48f, 0.29f, 0f); nt.fontStyle = FontStyle.Bold; nt.horizontalOverflow = HorizontalWrapMode.Wrap;
                 nt.resizeTextForBestFit = true; nt.resizeTextMinSize = 11; nt.resizeTextMaxSize = CoastHudLayout.Scaled(15);
             }
-            // 분홍 큰 단추
-            var btn = CoastUiArt.GlossyPill(crt, "Tap", Pink, 30, 10);
-            var brt = btn.rectTransform; brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0f); brt.pivot = new Vector2(0.5f, 0f); brt.anchoredPosition = new Vector2(0f, 22f); brt.sizeDelta = new Vector2(470f, 66f); btn.raycastTarget = true;
-            var bb = btn.gameObject.AddComponent<Button>(); bb.transition = Selectable.Transition.None; bb.onClick.AddListener(() => { CoastPrefs.Vibrate(); finish(); });
-            var bt = CoastHudLayout.MakeText(brt, "T", Loc.T("터치해서 다음으로  ▶", "Tap to continue  ▶"), 24, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 4f), new Vector2(0f, 2f));
-            bt.color = Color.white; bt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(bt, new Color(0.4f, 0.05f, 0.15f, 0.5f), 1.5f);
+            // 65차(사용자): 「터치해서 다음으로」 단추 삭제 — 1초 뒤 자동으로 닫힌다. 빨리 닫으려면 우상단 ✕(또는 카드 터치).
+            var x = CoastUiArt.GlossyPill(crt, "X", new Color(0.55f, 0.58f, 0.66f), 18, 5);
+            var xrt = x.rectTransform; xrt.anchorMin = xrt.anchorMax = new Vector2(1f, 1f); xrt.pivot = new Vector2(1f, 1f); xrt.anchoredPosition = new Vector2(-12f, -12f); xrt.sizeDelta = new Vector2(52f, 52f); x.raycastTarget = true;
+            var xb = x.gameObject.AddComponent<Button>(); xb.transition = Selectable.Transition.None; xb.onClick.AddListener(() => { CoastPrefs.Vibrate(); finish(); });
+            var xt = CoastHudLayout.MakeText(xrt, "T", "✕", 26, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
+            xt.color = Color.white; xt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(xt, new Color(0f, 0f, 0f, 0.4f), 1.5f);
+            var ac = _canvas.gameObject.AddComponent<AutoCloser>(); ac.delay = AutoCloseSeconds; ac.act = finish;
             foreach (var (sx, sy, sz) in new[] { (-286f, 110f, 26), (300f, 40f, 22), (-300f, 30f, 16), (290f, 118f, 18) })
             {
                 var sp = CoastHudLayout.MakeText(crt, "Spark", "✦", sz, TextAnchor.MiddleCenter, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(sx - 20f, sy - 20f), new Vector2(sx + 20f, sy + 20f));
@@ -158,6 +160,8 @@ namespace CoastRun
             y -= 104f;
         }
 
+        public static float AutoCloseSeconds = 1.0f;   // 65차(사용자): 1초 뒤 자동 닫힘
+        private class AutoCloser : MonoBehaviour { public Action act; public float delay = 1f; private System.Collections.IEnumerator Start() { yield return new WaitForSecondsRealtime(delay); act?.Invoke(); } }
         private class TapPulse : MonoBehaviour { public Text t; private void Update() { if (t != null) { var c = t.color; c.a = 0.55f + 0.45f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 2.5f + t.rectTransform.anchoredPosition.x * 0.01f)); t.color = c; } } }
 
         public static void Close() { if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject); _canvas = null; }

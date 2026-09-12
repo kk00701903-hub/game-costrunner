@@ -208,26 +208,39 @@ namespace CoastRun
 
         // ══════════════════════════════════════════════════════════════════
         // 윷놀이 — 멍석 위 3D
+        // 64차(사용자 시안): 크림 발판(분홍 「내 차례 — [던지기!]」 제목 · 노란 젤리 「윷 결과」 카드 · 흰 「3바퀴 경주」 카드(바퀴 점 + 칸 막대) ·
+        //   불꽃 「던지기!!」 큰 버튼) · 유리구슬 말 · 큰 윷가락 4개 · 시작 전 「하는 법」 튜토리얼 카드 ·
+        //   승리 = 20칸 말판을 먼저 3바퀴 · 사람 승률 ≈ 60 %(배 확률 나 0.55 / 도담 0.45, 시뮬레이션 2만 판) ·
+        //   턴 교대를 한 곳(NextTurn)에서만 정하고 도담 차례엔 버튼을 흐리게 + 제목이 파랗게 바뀐다.
         // ══════════════════════════════════════════════════════════════════
         private class YutMission3D : Stage3DMission
         {
             protected override string Title => Loc.T("미션 · 윷놀이", "Mission · Yut Nori");
-            protected override string Backdrop => "UI_MG_Yard_Yut";
-            private const int Cells = 20;
-            private int _me, _ai;
-            private bool _myTurn = true, _busy, _ended;
+            protected override string Backdrop => ArtAssets.LoadTexture("UI_MG_Yard_Yut2") != null ? "UI_MG_Yard_Yut2" : "UI_MG_Yard_Yut";   // 65차: 한옥 마당 + 보석 금테 멍석(Kling)
+            private const int Cells = 20, Laps = 3, Total = Cells * Laps;
+            private const float PMe = 0.55f, PAi = 0.45f;   // 배(평평한 면)가 위로 올 확률 — 사람 승률 60 %
+            private int _me, _ai;                          // 0..Total(누적 칸)
+            private bool _myTurn = true, _busy, _ended, _tutorial;
             private readonly List<Vector2> _cellPos = new List<Vector2>();
             private readonly Transform[] _sticks = new Transform[4];
             private readonly Material[] _stickMat = new Material[4];
-            private Material _woodMat, _barkMat;
             private Transform _meTok, _aiTok, _meBlob, _aiBlob;
-            private Text _resultBig, _resultSub, _meLbl, _aiLbl, _btnLabel, _btnArrow;
+            private Text _turnTitle, _resultBig, _resultWho, _meLbl, _aiLbl, _btnLabel, _btnArrow;
             private RectTransform _meBar, _aiBar;
+            private Text[] _meLapPips = new Text[Laps], _aiLapPips = new Text[Laps];
+            private Text _whoTxt; private float _faceH;
+            private CanvasGroup _btnCg;
+            private GameObject _tutorialGo;
             private float _stickLen, _tokH;
+            private static readonly Color Pink = new Color(0.95f, 0.36f, 0.56f), Blue = new Color(0.30f, 0.55f, 0.95f), Red = new Color(0.95f, 0.30f, 0.32f);
+            private static readonly Color Ink = new Color(0.30f, 0.20f, 0.14f), CreamFoot = new Color(0.99f, 0.96f, 0.90f);
+            private static string AiName => Loc.T("꼬마", "Kid");   // 65차(사용자): 나와 꼬마의 대결
 
             protected override void Build(Transform foot)
             {
                 SetupStage(foot);
+                var footImg = foot.GetComponent<Image>(); if (footImg != null) footImg.color = CreamFoot;   // 시안: 크림 발판
+                Status.gameObject.SetActive(false);   // 상태문 자리는 분홍 차례 제목(_turnTitle)이 쓴다
                 // 말판: 정사각 둘레 20칸(왼아래 출발, 시계 반대) — 분필 원, 모서리는 크고 진하게
                 for (int i = 0; i <= Cells; i++) _cellPos.Add(CellAnchor(i));
                 float wpn = S.WorldPerNorm(new Vector2(0.5f, 0.5f));
@@ -235,14 +248,12 @@ namespace CoastRun
                 for (int i = 0; i < Cells; i++)
                 {
                     bool corner = i % 5 == 0;
-                    // 칸 사이 분필 선 + 칸(흰 원, 모서리는 노란 큰 원 + 갈색 점)
                     S.Bar(S.GroundPoint(_cellPos[i]), S.GroundPoint(_cellPos[i + 1]), wpn * 0.008f, 0.003f, lineMat);
                     Chalk(_cellPos[i], wpn * (corner ? 0.055f : 0.036f), corner ? new Color(1f, 0.85f, 0.35f, 1f) : new Color(1f, 1f, 1f, 1f));
                     if (corner) Chalk(_cellPos[i], wpn * 0.026f, new Color(0.40f, 0.22f, 0.10f, 1f));
                 }
-                // 윷가락 4개 — 멍석 가운데 나란히
-                _woodMat = MiniStage3D.Lit(Wood, 0.35f); _barkMat = MiniStage3D.Lit(Bark, 0.25f);
-                _stickLen = wpn * 0.26f;
+                // 윷가락 4개 — 멍석 가운데 나란히(시안처럼 큼직하게)
+                _stickLen = wpn * 0.30f;
                 for (int i = 0; i < 4; i++)
                 {
                     var st = S.Spawn("MG_YutStick");
@@ -250,54 +261,226 @@ namespace CoastRun
                     _stickMat[i] = MiniStage3D.Lit(Wood, 0.35f);
                     Tint(st, _stickMat[i]);
                     _sticks[i] = st.transform;
-                    RestStick(i, false);
+                    RestStick(i, i % 2 == 0, (i - 1.5f) * 6f);
                 }
-                // 말 두 개
-                _tokH = wpn * 0.08f;
-                _meTok = MakeToken(new Color(0.95f, 0.30f, 0.32f), out _meBlob);
-                _aiTok = MakeToken(new Color(0.30f, 0.55f, 0.95f), out _aiBlob);
+                // 65차(사용자): 말 = 내 얼굴(분홍 테) / 꼬마 얼굴(파란 테) — 둥근 얼굴 그림 빌보드(MG_Token_Girl / MG_Token_Kid)
+                _tokH = wpn * 0.075f; _faceH = wpn * 0.115f;
+                _meTok = MakeFace("MG_Token_Girl", Red, out _meBlob);
+                _aiTok = MakeFace("MG_Token_Kid", Blue, out _aiBlob);
                 PlaceToken(_meTok, _meBlob, 0, false); PlaceToken(_aiTok, _aiBlob, 0, true);
 
-                // 발판: [결과 카드] [진행 카드] [던지기!]
-                var res = Card(foot, "ResCard", 0.02f, 0.34f, Loc.T("윷 결과", "Throw"));
-                _resultBig = Txt(res.transform, "Big", "—", 40, new Color(1f, 0.9f, 0.4f), TextAnchor.MiddleCenter);
-                Rect(_resultBig.rectTransform, new Vector2(0f, 0.34f), new Vector2(1f, 0.74f), Vector2.zero, Vector2.zero); _resultBig.fontStyle = FontStyle.Bold;
-                CoastUiArt.OutlineText(_resultBig, new Color(0f, 0f, 0f, 0.5f), 2f);
-                _resultSub = Hint(res.transform, Loc.T("도1 · 개2 · 걸3 · 윷4 · 모5", "Do1 · Gae2 · Geol3 · Yut4 · Mo5"));
-                var prog = Card(foot, "ProgCard", 0.36f, 0.60f, Loc.T("한 바퀴 경주", "Race"));
-                _meBar = Track(prog.transform, 0.52f, new Color(0.95f, 0.30f, 0.32f), Loc.T("나", "Me"), out _meLbl);
-                _aiBar = Track(prog.transform, 0.28f, new Color(0.30f, 0.55f, 0.95f), Loc.T("도담", "Dodam"), out _aiLbl);
-                Hint(prog.transform, Loc.T("같은 칸 = 잡기!", "Same cell = catch!"));
-                BigButton(foot, 0.62f, 0.98f, Loc.T("던지기!", "Throw!"), () => { if (_myTurn && !_busy && !_ended) StartCoroutine(Turn(true)); }, out _btnLabel, out _btnArrow);
-                Status.text = Loc.T("내 차례 — [던지기!] 도담이보다 먼저 한 바퀴", "Your turn — [Throw!] Get around before Dodam");
-                Kit?.Goal(Loc.T("도담이보다 먼저 한 바퀴!", "Get around before Dodam!")); Kit?.Score(Loc.T($"나 {_me}  ·  도담 {_ai}", $"Me {_me} · Dodam {_ai}")); Kit?.TapHint(BigRect, Loc.T("여기를 탭!", "Tap here!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
+                // 발판(시안): 위 분홍 제목 줄 / [윷 결과(노란 젤리)] [3바퀴 경주(흰 카드)] [던지기!!(불꽃)]
+                _turnTitle = Txt(foot, "Turn", "", 17, Pink, TextAnchor.MiddleCenter);
+                Rect(_turnTitle.rectTransform, new Vector2(0f, 0.80f), new Vector2(1f, 0.99f), new Vector2(8f, 0f), new Vector2(-8f, 0f));
+                _turnTitle.fontStyle = FontStyle.Bold; _turnTitle.resizeTextForBestFit = true; _turnTitle.resizeTextMinSize = 10; _turnTitle.resizeTextMaxSize = CoastHudLayout.Scaled(17);
+                CoastUiArt.OutlineText(_turnTitle, new Color(1f, 1f, 1f, 0.9f), 1.5f);
+
+                var res = CoastUiArt.GlossyPill(foot, "ResCard", new Color(1f, 0.76f, 0.22f), 20, 8); res.raycastTarget = false;
+                Rect(res.rectTransform, new Vector2(0.02f, 0.03f), new Vector2(0.30f, 0.76f), Vector2.zero, Vector2.zero);
+                var rt0 = Txt(res.transform, "T", Loc.T("윷 결과", "Throw"), 12, new Color(0.55f, 0.32f, 0.05f), TextAnchor.UpperCenter);
+                Rect(rt0.rectTransform, new Vector2(0f, 0.72f), new Vector2(1f, 0.98f), Vector2.zero, Vector2.zero); rt0.fontStyle = FontStyle.Bold;
+                _resultBig = Txt(res.transform, "Big", "—", 34, Ink, TextAnchor.MiddleCenter);
+                Rect(_resultBig.rectTransform, new Vector2(0f, 0.30f), new Vector2(1f, 0.74f), Vector2.zero, Vector2.zero); _resultBig.fontStyle = FontStyle.Bold;
+                _resultBig.resizeTextForBestFit = true; _resultBig.resizeTextMinSize = 14; _resultBig.resizeTextMaxSize = CoastHudLayout.Scaled(34);
+                CoastUiArt.OutlineText(_resultBig, new Color(1f, 1f, 1f, 0.55f), 1.5f);
+                var who = CoastUiArt.GlossyPill(res.transform, "WhoPill", new Color(1f, 0.55f, 0.72f), 14, 5); who.raycastTarget = false;   // 65차 시안: 분홍 알약 「✦ 꼬마」
+                Rect(who.rectTransform, new Vector2(0.14f, 0.07f), new Vector2(0.86f, 0.27f), Vector2.zero, Vector2.zero);
+                _resultWho = Txt(who.transform, "Who", Loc.T("✦ 도1 개2 걸3 윷4 모5", "✦ 1·2·3·4·5"), 11, Color.white, TextAnchor.MiddleCenter);
+                Rect(_resultWho.rectTransform, Vector2.zero, Vector2.one, new Vector2(4f, 2f), new Vector2(-4f, 0f)); _resultWho.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(_resultWho, new Color(0.5f, 0.1f, 0.25f, 0.6f), 1.2f);
+                _resultWho.resizeTextForBestFit = true; _resultWho.resizeTextMinSize = 8; _resultWho.resizeTextMaxSize = CoastHudLayout.Scaled(12);
+
+                var prog = CoastUiArt.CutePill(foot, "ProgCard", new Color(1f, 0.99f, 0.96f), 18, 3); prog.raycastTarget = false;
+                Rect(prog.rectTransform, new Vector2(0.32f, 0.03f), new Vector2(0.64f, 0.76f), Vector2.zero, Vector2.zero);
+                var pt = Txt(prog.transform, "T", Loc.T("3바퀴 경주", "3-lap race"), 13, Ink, TextAnchor.UpperCenter);
+                Rect(pt.rectTransform, new Vector2(0f, 0.78f), new Vector2(1f, 0.99f), Vector2.zero, new Vector2(0f, -4f)); pt.fontStyle = FontStyle.Bold;
+                _meBar = Track(prog.transform, 0.58f, new Color(1f, 0.45f, 0.66f), Loc.T("나", "Me"), _meLapPips, "♥", new Color(1f, 0.45f, 0.66f), out _meLbl);
+                _aiBar = Track(prog.transform, 0.32f, new Color(0.30f, 0.55f, 0.95f), AiName, _aiLapPips, "★", new Color(0.30f, 0.55f, 0.95f), out _aiLbl);
+                var hintPill = CoastUiArt.GlossyPill(prog.transform, "HintPill", new Color(0.30f, 0.72f, 0.42f), 14, 5); hintPill.raycastTarget = false;   // 65차 시안: 초록 알약
+                Rect(hintPill.rectTransform, new Vector2(0.08f, 0.03f), new Vector2(0.92f, 0.17f), Vector2.zero, Vector2.zero);
+                var hint = Txt(hintPill.transform, "Hint", Loc.T("✓ 같은 칸 = 잡기!", "✓ Same cell = catch!"), 11, Color.white, TextAnchor.MiddleCenter);
+                Rect(hint.rectTransform, Vector2.zero, Vector2.one, new Vector2(2f, 2f), new Vector2(-2f, 0f)); hint.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(hint, new Color(0f, 0.3f, 0.1f, 0.5f), 1.2f);
+                hint.resizeTextForBestFit = true; hint.resizeTextMinSize = 8; hint.resizeTextMaxSize = CoastHudLayout.Scaled(12);
+
+                var fb = BigButton(foot, 0.66f, 0.98f, Loc.T("펑!!\n던지기!!", "BAM!!\nTHROW!!"), OnThrowTap, out _btnLabel, out _btnArrow, new Color(0.96f, 0.36f, 0.14f));
+                Rect(BigRect, new Vector2(0.66f, 0.03f), new Vector2(0.98f, 0.76f), Vector2.zero, Vector2.zero);
+                _btnCg = BigRect.gameObject.AddComponent<CanvasGroup>();
+                var fire = ArtAssets.LoadTexture("Fx_FireBurst");
+                if (fire != null)
+                {
+                    var fi = new GameObject("Fire", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    fi.transform.SetParent(BigRect, false); fi.transform.SetSiblingIndex(Mathf.Max(0, BigRect.childCount - 3));
+                    fi.sprite = CoastUiArt.AsSprite(fire, 100f); fi.preserveAspect = true; fi.raycastTarget = false;
+                    Rect(fi.rectTransform, new Vector2(0.08f, 0.22f), new Vector2(0.92f, 1.0f), Vector2.zero, new Vector2(0f, 6f));
+                }
+                // 65차 시안: 불꽃 위에 「펑!! / 던지기!!」 두 줄 큰 글자
+                Rect(_btnLabel.rectTransform, new Vector2(0f, 0.06f), new Vector2(1f, 0.90f), Vector2.zero, Vector2.zero);
+                _btnLabel.fontSize = CoastHudLayout.Scaled(30); _btnLabel.lineSpacing = 0.95f; _btnLabel.color = new Color(1f, 0.93f, 0.55f); CoastUiArt.OutlineText(_btnLabel, new Color(0.55f, 0.08f, 0.02f, 0.95f), 2.6f);
+                _btnLabel.resizeTextForBestFit = true; _btnLabel.resizeTextMinSize = 16; _btnLabel.resizeTextMaxSize = CoastHudLayout.Scaled(30);
+                _btnArrow.gameObject.SetActive(false);
+
+                Kit?.TwoPillStyle(new Color(0.62f, 0.84f, 1f), new Color(1f, 0.62f, 0.80f), new Color(0.22f, 0.16f, 0.40f));   // 65차 시안: 파란 목표 알약 / 분홍 점수 알약
+                Kit?.Goal(Loc.T($"★ {AiName}보다 먼저 3바퀴! ★", $"★ 3 laps before {AiName}! ★"));
+                UpdateBars();
+                SetTurnUi();
+                ShowTutorial();
             }
 
-            private RectTransform Track(Transform card, float y, Color c, string label, out Text lbl)
+            // ── 튜토리얼 카드(시작 전) ─────────────────────────────────────────
+            private void ShowTutorial()
             {
-                lbl = Txt(card, "L", label, 12, new Color(1f, 1f, 1f, 0.9f), TextAnchor.MiddleLeft);
-                Rect(lbl.rectTransform, new Vector2(0.06f, y + 0.06f), new Vector2(0.94f, y + 0.20f), Vector2.zero, Vector2.zero);
-                var bg = CoastUiArt.Panel(card, "Bg", new Color(0.06f, 0.08f, 0.18f), 6); bg.raycastTarget = false;
-                Rect(bg.rectTransform, new Vector2(0.06f, y - 0.05f), new Vector2(0.94f, y + 0.05f), Vector2.zero, Vector2.zero);
-                var fill = CoastUiArt.Panel(bg.transform, "Fill", c, 5); fill.raycastTarget = false;
+                _tutorial = true;
+                _tutorialGo = new GameObject("Tutorial", typeof(RectTransform), typeof(Image));
+                _tutorialGo.transform.SetParent(Root, false);
+                var dim = _tutorialGo.GetComponent<Image>(); dim.color = new Color(0f, 0f, 0f, 0.62f); dim.raycastTarget = true;
+                Rect((RectTransform)_tutorialGo.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                var card = CoastUiArt.CutePill(_tutorialGo.transform, "Card", new Color(1f, 0.97f, 0.90f), 26, 5); card.raycastTarget = true;
+                var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.52f); crt.pivot = new Vector2(0.5f, 0.5f);
+                crt.anchoredPosition = Vector2.zero; crt.sizeDelta = new Vector2(600f, 760f);
+                var title = Txt(card.transform, "T", Loc.T("윷놀이 하는 법", "How to play Yut"), 30, Pink, TextAnchor.MiddleCenter);
+                Rect(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -86f), new Vector2(0f, -16f)); title.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(title, new Color(1f, 1f, 1f, 0.9f), 2f);
+                // 윷가락 면 그림: 배(크림, 평평) / 등(갈색, 둥긂)
+                var legend = Txt(card.transform, "Lg", Loc.T("윷가락은 「배(평평·밝음)」와 「등(둥긂·갈색)」 두 면", "Each stick has a flat pale side and a round dark side"), 13, Ink, TextAnchor.MiddleCenter);
+                Rect(legend.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -120f), new Vector2(-16f, -90f));
+                for (int i = 0; i < 4; i++)
+                {
+                    bool flat = i < 2;
+                    var st = CoastUiArt.GlossyPill(card.transform, "St" + i, flat ? new Color(0.96f, 0.88f, 0.70f) : new Color(0.45f, 0.29f, 0.17f), 12, 5); st.raycastTarget = false;
+                    var srt = st.rectTransform; srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 1f); srt.pivot = new Vector2(0.5f, 1f);
+                    srt.anchoredPosition = new Vector2(-150f + i * 100f, -128f); srt.sizeDelta = new Vector2(34f, 96f);
+                    var lab = Txt(card.transform, "Sl" + i, flat ? Loc.T("배", "flat") : Loc.T("등", "round"), 12, Ink, TextAnchor.MiddleCenter);
+                    var lrt = lab.rectTransform; lrt.anchorMin = lrt.anchorMax = new Vector2(0.5f, 1f); lrt.pivot = new Vector2(0.5f, 1f);
+                    lrt.anchoredPosition = new Vector2(-150f + i * 100f, -228f); lrt.sizeDelta = new Vector2(80f, 22f); lab.fontStyle = FontStyle.Bold;
+                }
+                string[] rows =
+                {
+                    Loc.T("「던지기!!」를 누르면 윷가락 4개가 튀어 오른다.", "Tap THROW to toss the four sticks."),
+                    Loc.T("배가 위로 온 개수만큼 간다 — 도1 · 개2 · 걸3 · 윷4 · 모5(모두 등). 윷·모는 한 번 더!", "Move as many cells as flat sides up — 1·2·3·4, none = 5. 4 or 5: throw again!"),
+                    Loc.T($"{AiName}와 같은 칸에 서면 잡는다 → 잡힌 말은 그 바퀴 출발점으로. 잡으면 한 번 더!", $"Land on {AiName} to catch them back to the lap start — and throw again!"),
+                    Loc.T($"나 ↔ {AiName} 번갈아 던져서, 20칸 말판을 먼저 3바퀴 도는 쪽이 이긴다!", "Take turns; first to finish 3 laps of the 20-cell board wins!"),
+                };
+                Color[] badge = { Pink, new Color(1f, 0.62f, 0.18f), new Color(0.20f, 0.65f, 0.40f), Blue };
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    float y = -270f - i * 92f;
+                    var b = CoastUiArt.GlossyPill(card.transform, "B" + i, badge[i], 16, 5); b.raycastTarget = false;
+                    var brt = b.rectTransform; brt.anchorMin = brt.anchorMax = new Vector2(0f, 1f); brt.pivot = new Vector2(0f, 1f);
+                    brt.anchoredPosition = new Vector2(22f, y); brt.sizeDelta = new Vector2(44f, 44f);
+                    var bn = Txt(b.transform, "N", (i + 1).ToString(), 20, Color.white, TextAnchor.MiddleCenter); bn.fontStyle = FontStyle.Bold;
+                    CoastUiArt.OutlineText(bn, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+                    var tx = Txt(card.transform, "R" + i, rows[i], 15, Ink, TextAnchor.MiddleLeft);
+                    Rect(tx.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(78f, y - 78f), new Vector2(-18f, y + 4f));
+                    tx.horizontalOverflow = HorizontalWrapMode.Wrap; tx.resizeTextForBestFit = true; tx.resizeTextMinSize = 10; tx.resizeTextMaxSize = CoastHudLayout.Scaled(15);
+                }
+                var go = CoastUiArt.GlossyPill(card.transform, "Go", Pink, 24, 10); go.raycastTarget = true;
+                var grt = go.rectTransform; grt.anchorMin = grt.anchorMax = new Vector2(0.5f, 0f); grt.pivot = new Vector2(0.5f, 0f);
+                grt.anchoredPosition = new Vector2(0f, 22f); grt.sizeDelta = new Vector2(380f, 84f);
+                var gb = go.gameObject.AddComponent<Button>(); gb.transition = Selectable.Transition.None;
+                gb.onClick.AddListener(() => { CoastPrefs.Vibrate(); CloseTutorial(); });
+                var gt = Txt(go.transform, "T", Loc.T("알겠어! 시작 ▶", "Got it! Start ▶"), 24, Color.white, TextAnchor.MiddleCenter);
+                Rect(gt.rectTransform, Vector2.zero, Vector2.one, new Vector2(0f, 6f), Vector2.zero); gt.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(gt, new Color(0.45f, 0.1f, 0.2f, 0.8f), 2f);
+                MiniKit.Pulse(grt, true);
+                Status.text = Loc.T("먼저 하는 법을 읽어 보자", "Read how to play first");
+            }
+
+            private void CloseTutorial()
+            {
+                if (_tutorialGo != null) Destroy(_tutorialGo);
+                _tutorialGo = null; _tutorial = false;
+                Kit?.TapHint(BigRect, Loc.T("여기를 탭!", "Tap here!")); Kit?.Flash(Loc.T("준비 — 시작!", "Ready — Go!"));
+                SetTurnUi();
+            }
+
+            private void OnThrowTap()
+            {
+#if UNITY_EDITOR
+                Debug.LogWarning($"[Yut] tap tutorial={_tutorial} busy={_busy} myTurn={_myTurn} me={_me} ai={_ai}");
+#endif
+                if (_tutorial || _ended || _busy) return;
+                if (!_myTurn) { Kit?.Pop(Loc.T($"{AiName} 차례!", $"{AiName}'s turn!"), false); return; }
+                StartCoroutine(Turn(true));
+            }
+
+            /// 차례 표시를 한 곳에서: 제목 줄·상태문·버튼 밝기. 도담 차례엔 버튼이 흐려지고 제목이 파랗다.
+            private void SetTurnUi()
+            {
+                if (_ended) return;
+                if (_myTurn)
+                {
+                    _turnTitle.text = Loc.T("✦♥ ★ 3바퀴 경주 — 내 차례! ★ ♥✦", "✦♥ ★ 3-lap race — your turn! ★ ♥✦"); _turnTitle.color = Pink;   // 65차 시안
+                    Status.text = Loc.T($"내 차례 — [던지기!!] {AiName}보다 먼저 3바퀴", $"Your turn — [THROW!!] 3 laps before {AiName}");
+                    _btnLabel.text = Loc.T("펑!!\n던지기!!", "BAM!!\nTHROW!!"); if (_btnCg != null) _btnCg.alpha = 1f; MiniKit.Pulse(BigRect, true);
+                }
+                else
+                {
+                    _turnTitle.text = Loc.T($"✦ {AiName} 차례… 기다리자 ✦", $"✦ {AiName}'s turn… ✦"); _turnTitle.color = Blue;
+                    Status.text = Loc.T($"{AiName} 차례… 던지는 중", $"{AiName}'s turn… throwing");
+                    _btnLabel.text = Loc.T($"{AiName}\n차례", $"{AiName}…"); if (_btnCg != null) _btnCg.alpha = 0.45f; MiniKit.Pulse(BigRect, false);
+                }
+            }
+
+            private RectTransform Track(Transform card, float y, Color c, string label, Text[] pips, string glyph, Color pipCol, out Text lbl)
+            {
+                lbl = Txt(card, "L", label, 11, Ink, TextAnchor.MiddleLeft);
+                Rect(lbl.rectTransform, new Vector2(0.06f, y + 0.07f), new Vector2(0.56f, y + 0.21f), Vector2.zero, Vector2.zero); lbl.fontStyle = FontStyle.Bold;
+                lbl.resizeTextForBestFit = true; lbl.resizeTextMinSize = 8; lbl.resizeTextMaxSize = CoastHudLayout.Scaled(11);
+                // 65차 시안: 바퀴 표시 = 하트(나) / 별(꼬마) 글리프 3개(돌 때마다 진해짐)
+                for (int i = 0; i < Laps; i++)
+                {
+                    var p = Txt(card, "Lap" + i, glyph, 13, new Color(pipCol.r, pipCol.g, pipCol.b, 0.30f), TextAnchor.MiddleCenter); p.raycastTarget = false; p.fontStyle = FontStyle.Bold;
+                    var prt = p.rectTransform; prt.anchorMin = prt.anchorMax = new Vector2(0.62f + i * 0.13f, y + 0.14f); prt.sizeDelta = new Vector2(22f, 22f);
+                    pips[i] = p;
+                }
+                var bg = CoastUiArt.Panel(card, "Bg", Color.Lerp(c, Color.white, 0.62f), 8); bg.raycastTarget = false;
+                Rect(bg.rectTransform, new Vector2(0.06f, y - 0.06f), new Vector2(0.94f, y + 0.06f), Vector2.zero, Vector2.zero);
+                var fill = CoastUiArt.Panel(bg.transform, "Fill", c, 7); fill.raycastTarget = false;
                 Rect(fill.rectTransform, new Vector2(0f, 0f), new Vector2(0.02f, 1f), new Vector2(2f, 2f), new Vector2(0f, -2f));
+                var ic = Txt(bg.transform, "Ic", glyph, 11, Color.white, TextAnchor.MiddleLeft); ic.raycastTarget = false; ic.fontStyle = FontStyle.Bold;
+                Rect(ic.rectTransform, Vector2.zero, Vector2.one, new Vector2(6f, 0f), Vector2.zero); CoastUiArt.OutlineText(ic, new Color(0f, 0f, 0f, 0.35f), 1f);
                 return fill.rectTransform;
             }
 
-            private Transform MakeToken(Color c, out Transform blob)
+            /// 65차: 얼굴 말 — 둥근 얼굴 그림(색 테두리 포함)을 카메라 쪽으로 세운 빌보드 + 바닥 그림자. 그림이 없으면 색 구슬.
+            private Transform MakeFace(string res, Color fallback, out Transform blob)
             {
-                var t = S.Spawn("MG_Token"); t.transform.localScale = Vector3.one * _tokH;
-                var m = MiniStage3D.Lit(c, 0.55f); Tint(t, m);
-                blob = S.Blob(_tokH * 0.6f, 0.45f).transform;
-                return t.transform;
+                Transform t;
+                var faceTex = ArtAssets.LoadTexture(res);
+                if (faceTex != null)
+                {
+                    // 배경판과 같은 언릿 투명 재질(UnlitCurved, 평면 고정) — Lit 투명 쿼드는 이 무대(피치 56)에서 그려지지 않았다
+                    var q = GameObject.CreatePrimitive(PrimitiveType.Quad); q.name = "Face_" + res; Destroy(q.GetComponent<Collider>());
+                    q.transform.SetParent(S.Root, false); q.transform.localScale = new Vector3(_faceH, _faceH, 1f);
+                    var fm = CoastMaterials.CreateTexturedTransparentNoFog(faceTex, Color.white); CoastMaterials.SetFlat(fm); MiniStage3D.OpaqueAlpha(fm);
+                    var fr = q.GetComponent<Renderer>(); fr.sharedMaterial = fm; fr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; fr.receiveShadows = false;
+                    t = q.transform;
+                }
+                else
+                {
+                    var g = GameObject.CreatePrimitive(PrimitiveType.Sphere); g.name = "Marble"; Destroy(g.GetComponent<Collider>());
+                    g.transform.SetParent(S.Root, false); g.transform.localScale = Vector3.one * _tokH * 1.1f; Tint(g, MiniStage3D.Lit(fallback, 0.92f, 0.05f)); t = g.transform;
+                }
+                blob = S.Blob(_faceH * 0.42f, 0.45f).transform;
+                return t;
             }
 
-            private void PlaceToken(Transform tok, Transform blob, int cell, bool ai)
+            /// 65차: 얼굴 말은 바닥에 눕힌 원판(분필 원처럼 위를 향함) — 세운 빌보드는 이 무대(피치 56)에서 안 그려졌다.
+            private void Lay(Transform tok, Vector3 g)
             {
-                var n = _cellPos[Mathf.Clamp(cell, 0, Cells)];
+                if (tok.name.StartsWith("Face_")) { tok.rotation = Quaternion.Euler(90f, 0f, 0f); tok.position = g + Vector3.up * 0.02f; }
+                else tok.position = g + Vector3.up * _tokH * 0.55f;
+            }
+
+            private static int Cell(int steps) => steps >= Total ? 0 : steps % Cells;
+            private static int Lap(int steps) => Mathf.Min(Laps, steps / Cells);
+
+            private void PlaceToken(Transform tok, Transform blob, int steps, bool ai)
+            {
+                var n = _cellPos[Cell(steps)];
                 if (ai) n += new Vector2(0.03f, -0.02f); else n += new Vector2(-0.02f, 0.015f);
                 var g = S.GroundPoint(n);
-                tok.position = g; blob.position = g + Vector3.up * 0.004f;
+                Lay(tok, g); blob.position = g + Vector3.up * 0.004f;
             }
 
             private static Vector2 CellAnchor(int i)
@@ -313,7 +496,7 @@ namespace CoastRun
             /// 가운데 나란히 눕힘. flat = 평평한 면(배)이 위.
             private void RestStick(int i, bool flat, float yawJitter = 0f)
             {
-                var g = S.GroundPoint(new Vector2(0.38f + i * 0.08f, 0.50f));
+                var g = S.GroundPoint(new Vector2(0.36f + i * 0.093f, 0.50f));
                 _sticks[i].position = g + Vector3.up * _stickLen * 0.11f;
                 _sticks[i].rotation = Quaternion.Euler(0f, yawJitter, flat ? 180f : 0f);
                 _stickMat[i].SetColor("_BaseColor", flat ? new Color(0.96f, 0.88f, 0.70f) : Bark);
@@ -322,22 +505,22 @@ namespace CoastRun
             private IEnumerator Turn(bool me)
             {
                 _busy = true;
-                _btnLabel.text = me ? Loc.T("던지는 중", "Throwing") : Loc.T("도담 차례", "Dodam");
+                if (me) { _btnLabel.text = Loc.T("던지는\n중…", "Throwing…"); MiniKit.Pulse(BigRect, false); }
+                else yield return new WaitForSecondsRealtime(0.55f);   // 도담이 윷을 집는 사이
                 CoastAudioManager.PlayAnywhere(CoastSfx.Jump, 0.6f);
+                float p = me ? PMe : PAi;
                 bool[] flat = new bool[4]; int flats = 0;
-                for (int i = 0; i < 4; i++) { flat[i] = UnityEngine.Random.value < 0.55f; if (flat[i]) flats++; }
+                for (int i = 0; i < 4; i++) { flat[i] = UnityEngine.Random.value < p; if (flat[i]) flats++; }
                 float[] spin = new float[4]; float[] jit = new float[4];
                 for (int i = 0; i < 4; i++) { spin[i] = 540f + UnityEngine.Random.Range(0f, 360f); jit[i] = UnityEngine.Random.Range(-14f, 14f); }
                 float dur = 0.85f, t = 0f;
-                Vector3[] from = new Vector3[4];
-                for (int i = 0; i < 4; i++) from[i] = _sticks[i].position;
                 while (t < dur)
                 {
                     t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / dur);
                     float h = Mathf.Sin(u * Mathf.PI) * _stickLen * 1.6f;
                     for (int i = 0; i < 4; i++)
                     {
-                        var g = S.GroundPoint(new Vector2(0.38f + i * 0.08f, 0.50f + Mathf.Sin(u * Mathf.PI) * 0.04f));
+                        var g = S.GroundPoint(new Vector2(0.36f + i * 0.093f, 0.50f + Mathf.Sin(u * Mathf.PI) * 0.04f));
                         _sticks[i].position = g + Vector3.up * (h + _stickLen * 0.11f);
                         float roll = spin[i] * u + (flat[i] ? 180f : 0f);
                         _sticks[i].rotation = Quaternion.Euler(Mathf.Sin(u * 9f + i) * 25f * (1f - u), jit[i] * u, roll);
@@ -349,40 +532,66 @@ namespace CoastRun
                 int move; string name, en; bool again = false;
                 switch (flats) { case 1: move = 1; name = "도"; en = "Do"; break; case 2: move = 2; name = "개"; en = "Gae"; break; case 3: move = 3; name = "걸"; en = "Geol"; break; case 4: move = 4; name = "윷"; en = "Yut"; again = true; break; default: move = 5; name = "모"; en = "Mo"; again = true; break; }
                 _resultBig.text = Loc.T(name, en) + $" +{move}";
-                _resultBig.color = again ? new Color(1f, 0.55f, 0.35f) : new Color(1f, 0.9f, 0.4f);
-                if (me) Kit?.Pop(Loc.T(name, en) + $"  +{move}" + (again ? Loc.T("  한 번 더!", "  again!") : ""), true);
-                _resultSub.text = (me ? Loc.T("나", "Me") : Loc.T("도담", "Dodam")) + (again ? Loc.T(" · 한 번 더!", " · again!") : "");
+                _resultBig.color = again ? new Color(0.85f, 0.18f, 0.10f) : Ink;
+                _resultWho.text = (me ? Loc.T("✦ 나", "✦ Me") : Loc.T($"✦ {AiName}", $"✦ {AiName}")) + (again ? Loc.T(" · 한 번 더!", " · again!") : "");
+                Kit?.Pop((me ? "" : (AiName + ": ")) + Loc.T(name, en) + $"  +{move}" + (again ? Loc.T("  한 번 더!", "  again!") : ""), me);
                 yield return new WaitForSecondsRealtime(0.45f);
+                int before = me ? _me : _ai;
                 for (int k = 0; k < move; k++)
                 {
-                    if (me) _me = Mathf.Min(Cells, _me + 1); else _ai = Mathf.Min(Cells, _ai + 1);
+                    if (me) _me = Mathf.Min(Total, _me + 1); else _ai = Mathf.Min(Total, _ai + 1);
                     yield return Hop(me);
+                    int now = me ? _me : _ai;
+                    if (now < Total && now % Cells == 0 && now > before) { Kit?.Pop(Loc.T($"{now / Cells}바퀴!", $"Lap {now / Cells}!"), me); CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.5f); }
                 }
-                if (me && _me == _ai && _ai > 0 && _ai < Cells) { _ai = 0; PlaceToken(_aiTok, _aiBlob, 0, true); _resultSub.text = Loc.T("도담이를 잡았다! 한 번 더", "Caught Dodam! Again"); again = true; CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.7f); }
-                if (!me && _ai == _me && _me > 0 && _me < Cells) { _me = 0; PlaceToken(_meTok, _meBlob, 0, false); _resultSub.text = Loc.T("잡혔다… 처음부터", "Caught… back to start"); again = true; CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.6f); }
+                // 잡기: 같은 칸(바퀴와 무관) — 잡힌 말은 그 바퀴 출발점으로
+                int mc = Cell(_me), ac = Cell(_ai);
+                if (me && _ai % Cells != 0 && _ai < Total && _me < Total && mc == ac)
+                {
+                    _ai = (_ai / Cells) * Cells; PlaceToken(_aiTok, _aiBlob, _ai, true);
+                    _resultWho.text = Loc.T($"✦ {AiName}를 잡았다! 한 번 더", $"✦ Caught {AiName}! Again"); again = true;
+                    Kit?.Pop(Loc.T("잡았다!", "Caught!"), true); CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.7f);
+                }
+                else if (!me && _me % Cells != 0 && _me < Total && _ai < Total && ac == mc)
+                {
+                    _me = (_me / Cells) * Cells; PlaceToken(_meTok, _meBlob, _me, false);
+                    _resultWho.text = Loc.T("✦ 잡혔다… 바퀴 출발점으로", "✦ Caught… back to lap start"); again = true;
+                    Kit?.Pop(Loc.T("잡혔다…", "Caught…"), false); CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.6f);
+                }
                 UpdateBars();
                 yield return new WaitForSecondsRealtime(0.35f);
-                Kit?.Score(Loc.T($"나 {Mathf.Min(_me, Cells)}  ·  도담 {Mathf.Min(_ai, Cells)}", $"Me {Mathf.Min(_me, Cells)} · Dodam {Mathf.Min(_ai, Cells)}"));
-                if (_me >= Cells) { _ended = true; Kit?.Pop(Loc.T("승리!", "WIN!"), true); Status.text = Loc.T("먼저 들어왔다! 승리!", "Home first! Victory!"); _resultBig.text = Loc.T("승리!", "WIN!"); CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.8f); yield return new WaitForSecondsRealtime(1.0f); Finish(1); yield break; }
-                if (_ai >= Cells) { _ended = true; Kit?.Pop(Loc.T("도담이가 먼저…", "Dodam first…"), false); Status.text = Loc.T("도담이가 먼저…", "Dodam got home first…"); _resultBig.text = Loc.T("패배…", "Lost…"); yield return new WaitForSecondsRealtime(1.0f); Finish(0); yield break; }
+                if (_me >= Total) { _ended = true; Kit?.Pop(Loc.T("승리!", "WIN!"), true); Status.text = Loc.T("3바퀴 먼저 돌았다! 승리!", "3 laps first! Victory!"); _turnTitle.text = Loc.T("★ 승리! ★", "★ WIN! ★"); _resultBig.text = Loc.T("승리!", "WIN!"); CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.8f); yield return new WaitForSecondsRealtime(1.0f); Finish(1); yield break; }
+                if (_ai >= Total) { _ended = true; Kit?.Pop(Loc.T($"{AiName}가 먼저…", $"{AiName} first…"), false); Status.text = Loc.T($"{AiName}가 먼저 3바퀴…", $"{AiName} finished 3 laps first…"); _turnTitle.text = Loc.T($"{AiName} 승리…", $"{AiName} wins…"); _resultBig.text = Loc.T("패배…", "Lost…"); yield return new WaitForSecondsRealtime(1.0f); Finish(0); yield break; }
                 _busy = false;
-                if (again) { if (!me) StartCoroutine(Turn(false)); else { Status.text = Loc.T("한 번 더 던져!", "Throw again!"); _btnLabel.text = Loc.T("던지기!", "Throw!"); } yield break; }
-                _myTurn = !me;
-                if (_myTurn) { Status.text = Loc.T("내 차례 — [던지기!]", "Your turn — [Throw!]"); _btnLabel.text = Loc.T("던지기!", "Throw!"); }
-                else { Status.text = Loc.T("도담이 차례…", "Dodam's turn…"); yield return new WaitForSecondsRealtime(0.5f); StartCoroutine(Turn(false)); }
+#if UNITY_EDITOR
+                Debug.LogWarning($"[Yut] turn me={me} {name}+{move} again={again} → me={_me} ai={_ai}");
+#endif
+                NextTurn(again ? me : !me);
+            }
+
+            /// 턴 교대는 여기서만: 다음에 던질 쪽을 정하고 UI 를 맞춘 뒤, 도담이면 스스로 던진다.
+            private void NextTurn(bool myTurn)
+            {
+                _myTurn = myTurn;
+                SetTurnUi();
+                if (_myTurn) { if (_btnLabel != null) Status.text = Loc.T("내 차례 — [던지기!!]", "Your turn — [THROW!!]"); }
+                else StartCoroutine(Turn(false));
             }
 
             private IEnumerator Hop(bool me)
             {
                 var tok = me ? _meTok : _aiTok; var blob = me ? _meBlob : _aiBlob; int pos = me ? _me : _ai;
-                var n0 = _cellPos[Mathf.Max(0, pos - 1)] + (me ? new Vector2(-0.02f, 0.015f) : new Vector2(0.03f, -0.02f));
-                var n1 = _cellPos[pos] + (me ? new Vector2(-0.02f, 0.015f) : new Vector2(0.03f, -0.02f));
+                var off = me ? new Vector2(-0.02f, 0.015f) : new Vector2(0.03f, -0.02f);
+                int c1 = Cell(pos), c0 = (pos - 1) % Cells;
+                var n0 = _cellPos[c0] + off;
+                var n1 = _cellPos[c1 == 0 && pos < Total ? Cells : c1] + off;   // 20칸째는 출발점과 같은 자리(말판 끝)
+                if (pos >= Total) n1 = _cellPos[Cells] + off;
                 float t = 0f, dur = 0.16f;
                 while (t < dur)
                 {
                     t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / dur);
                     var g = S.GroundPoint(Vector2.Lerp(n0, n1, u));
-                    tok.position = g + Vector3.up * Mathf.Sin(u * Mathf.PI) * _tokH * 1.2f;
+                    Lay(tok, g + Vector3.up * (Mathf.Sin(u * Mathf.PI) * _faceH * 0.9f));
                     blob.position = g + Vector3.up * 0.004f;
                     yield return null;
                 }
@@ -392,10 +601,17 @@ namespace CoastRun
 
             private void UpdateBars()
             {
-                _meBar.anchorMax = new Vector2(Mathf.Max(0.02f, _me / (float)Cells), 1f);
-                _aiBar.anchorMax = new Vector2(Mathf.Max(0.02f, _ai / (float)Cells), 1f);
-                _meLbl.text = Loc.T("나", "Me") + $"  {_me}/{Cells}";
-                _aiLbl.text = Loc.T("도담", "Dodam") + $"  {_ai}/{Cells}";
+                int mc = _me >= Total ? Cells : _me % Cells, ac = _ai >= Total ? Cells : _ai % Cells;
+                _meBar.anchorMax = new Vector2(Mathf.Max(0.02f, mc / (float)Cells), 1f);
+                _aiBar.anchorMax = new Vector2(Mathf.Max(0.02f, ac / (float)Cells), 1f);
+                _meLbl.text = Loc.T("나", "Me") + $"  {mc}/{Cells}";
+                _aiLbl.text = AiName + $"  {ac}/{Cells}";
+                for (int i = 0; i < Laps; i++)
+                {
+                    if (_meLapPips[i] != null) _meLapPips[i].color = i < Lap(_me) ? new Color(1f, 0.45f, 0.66f) : new Color(1f, 0.45f, 0.66f, 0.30f);
+                    if (_aiLapPips[i] != null) _aiLapPips[i].color = i < Lap(_ai) ? Blue : new Color(Blue.r, Blue.g, Blue.b, 0.30f);
+                }
+                Kit?.Score(Loc.T($"♥ 나 {Lap(_me)}/{Laps}바퀴 · {AiName} {Lap(_ai)}/{Laps}바퀴", $"♥ Me {Lap(_me)}/{Laps} · {AiName} {Lap(_ai)}/{Laps}"));
             }
         }
 

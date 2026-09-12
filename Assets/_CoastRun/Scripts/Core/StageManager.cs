@@ -221,7 +221,7 @@ namespace CoastRun
             }
 
             // 63차(사용자): 시작할 때 아이템·장애물을 살짝 소개 — 카드 아래 안내 띠, 그동안 조금 더 기다린다(1.55 → 2.6 s)
-            const float hold = 2.6f;
+            const float hold = 2.0f;   // 65차(사용자): 장애물 안내 2초
             if (player != null) player.HoldForStart(hold);
             PickupFloat.BindToScene(gameObject);   // 42차: 타이틀 언로드에 카드가 같이 지워지지 않게 런 씬으로
             // 42차: K-POP(아케이드) 런도 「출발」 대신 챕터 소개 카드(사용자: "몇 챕터인지 안 나온다").
@@ -235,13 +235,11 @@ namespace CoastRun
                 if (ArcadeRun.KpopMode)
                 {
                     // 48차: 한 곡 달리기 — 챕터 카드 대신 「♪ 곡 제목 / 오늘의 미션」
-                    var sb = new System.Text.StringBuilder();
-                    for (int i = 0; i < 3 && i < ArcadeRun.Conditions.Length; i++) { if (i > 0) sb.Append(" · "); sb.Append(ArcadeRun.Conditions[i].Text); }
-                    PickupFloat.ChapterStart(ch, "♪ " + ArcadeRun.KpopTrack.Title, sb.ToString(), hold + 0.25f);
+                    PickupFloat.ChapterStart(ch, "♪ " + ArcadeRun.KpopTrack.Title, "", hold + 0.25f);   // 65차(사용자): 카드 아래 미션 글 삭제
                 }
                 else
                 PickupFloat.ChapterStart(ch, place, story, hold + 0.25f);
-                PickupFloat.ItemGuide(hold + 0.1f);
+                PickupFloat.ItemGuide(hold);
                 var ui0 = GameDirector.Instance != null ? GameDirector.Instance.UI : null;
 #if UNITY_EDITOR
                 // 에디터 브릿지(unity_log)는 경고 이상만 모으므로 타이밍 확인용으로 경고 레벨 사용

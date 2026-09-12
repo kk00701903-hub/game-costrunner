@@ -213,7 +213,7 @@ namespace CoastRun
                 _charPos = _charTarget = new Vector2(0.5f, 0.12f);
                 // 53차: 장착한 펫이 옆에서 따라다닌다
                 var petKind = Save != null ? Save.equippedPet : PetKind.None;
-                var petTex = petKind != PetKind.None ? ArtAssets.LoadTexture("Obs_Pet_" + petKind) : null;
+                var petTex = petKind != PetKind.None ? (ArtAssets.LoadTexture("UI_Pet_" + petKind) ?? ArtAssets.LoadTexture("Obs_Pet_" + petKind)) : null;   // 66차: 시안 초상
                 if (petTex != null)
                 {
                     _petRt = new GameObject("Pet", typeof(RectTransform)).GetComponent<RectTransform>();

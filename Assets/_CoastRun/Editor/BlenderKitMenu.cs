@@ -9,12 +9,15 @@ namespace CoastRun.EditorTools
     /// 원격(unity_cmd "menu Coast Run/Build Pets 3D (Blender)")에서도 호출 가능. 로그: Tools/blender/pet_log.txt
     public static class BlenderKitMenu
     {
-        [MenuItem("Coast Run/Build Pets 3D (Blender)")]
-        public static void BuildPets() => RunBat("build_pets.bat", "pet_log.txt");
+        // 66차: 펫 Blender 키트(Pet_*.fbx)는 삭제됨 — 펫은 Kling 뒷모습 그림(Obs_Pet_*)만 쓴다.
 
         /// 59차: 도로변 소품 6종(Kerb_*.fbx) — Tools/blender/build_kerb.bat → kerb_kit.py. 로그: kerb_log.txt
         [MenuItem("Coast Run/Build Kerb Props 3D (Blender)")]
         public static void BuildKerb() => RunBat("build_kerb.bat", "kerb_log.txt");
+
+        /// 64차: 제주 집 4종(JHouse_Thatch_A/B · JHouse_Tile_A/B) — Tools/blender/build_jeju_house.bat → jeju_house_kit.py. 로그: jeju_house_log.txt
+        [MenuItem("Coast Run/Build Jeju Houses 3D (Blender)")]
+        public static void BuildJejuHouses() => RunBat("build_jeju_house.bat", "jeju_house_log.txt");
 
         private static void RunBat(string bat, string log)
         {

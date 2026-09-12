@@ -662,6 +662,14 @@ namespace CoastRun
                     onClose: () => { if (this == null) return; if (played) _audio?.PlayMenu(_cleared); _ready = true; });
             }));
             // 61차(사용자): 「설정」은 더보기에서 빼고 우상단 톱니 아이콘으로(BuildSettingsIcon)
+            // 65차(사용자): 설정은 다시 더보기 안으로(우상단 톱니 아이콘 제거)
+            more.Add((Loc.T("설정", "Settings"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayClick();
+                if (_moreOpen) ToggleMore();
+                ShowPanel(_settingsPanel, true);
+            }));
             // 51차(사용자): 보스전 — K-POP 한 곡 창에 보스(갈매기 해적·돌하르방 골렘·태풍 도깨비)만 연달아. 난이도는 해금 챕터 기준 랜덤.
             more.Add((Loc.T("보스전", "Boss Rush"), () =>
             {
@@ -720,7 +728,7 @@ namespace CoastRun
                                                   && !(_settingsPanel != null && _settingsPanel.activeSelf) && !(_galleryPanel != null && _galleryPanel.activeSelf)
                                                   && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf);
             DonateUI.AttachIcon(ui.transform, onMain, OpenDonate);   // 38차: 캐릭터 선택 페이지 삭제(BuildCharacterSelect 미호출)
-            BuildSettingsIcon(ui.transform, onMain);
+            // BuildSettingsIcon(ui.transform, onMain);   // 65차(사용자): 톱니 아이콘 대신 더보기 「설정」
         }
 
         /// 61차(사용자): 설정은 메인 화면 우상단 톱니 아이콘(Icon_Gear) — 기부 컵 위. 메인에서만 보인다.
@@ -730,7 +738,14 @@ namespace CoastRun
             go.transform.SetParent(ui, false);
             var rt = go.GetComponent<RectTransform>();
             rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = new Vector2(-50f, -48f); rt.sizeDelta = new Vector2(84f, 84f);   // 63차(사용자): 우측 맨 위 구석 · 아이콘은 Kling 젤리 버튼(Icon_Gear)
+            rt.anchoredPosition = new Vector2(-38f, -36f); rt.sizeDelta = new Vector2(64f, 64f);   // 63차(사용자): 우측 맨 위 구석 · 아이콘은 Kling 젤리 버튼(Icon_Gear) / 64차: 더 구석·조금 작게
+            // 64차(사용자: 주변과 어울리게): 하늘 위에 떠 보이지 않게 반투명 남색 원판 받침 + 흰 링
+            {
+                var back = new GameObject("Back", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                back.transform.SetParent(go.transform, false); back.transform.SetAsFirstSibling();
+                back.sprite = CoastUiArt.RoundedRect(40); back.type = Image.Type.Sliced; back.color = new Color(0.10f, 0.14f, 0.30f, 0.28f); back.raycastTarget = false;
+                var brt = back.rectTransform; brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one; brt.offsetMin = new Vector2(-8f, -8f); brt.offsetMax = new Vector2(8f, 8f);
+            }
             var img = go.GetComponent<Image>();
             var gear = CoastUiArt.Art("Icon_Gear");
             if (gear != null) { img.sprite = gear; img.preserveAspect = true; img.color = Color.white; }

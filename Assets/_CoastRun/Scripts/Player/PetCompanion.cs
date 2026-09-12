@@ -18,14 +18,14 @@ namespace CoastRun
     public class PetCompanion : MonoBehaviour
     {
         public const string PrefsKey = "CoastRun.Pet";   // 레거시 키 — v2는 SaveData.equippedPet
-        public static readonly string[] Names = { "없음", "참새", "오토바이탄 깡패", "기러기", "흑돼지" };
+        public static readonly string[] Names = { "없음", "참새", "오토바이탄 팡찌", "기러기", "흑돼지" };   // 66차 시안: 깡패 → 팡찌
         public static readonly string[] Blurbs =
         {
             "펫 없음",
-            "런닝 중 돈 획득량 ×1.2",
-            "앞을 막는 장애물을 대신 부숴줌 (쿨타임 12초, 3회)",
+            "러닝 중 돈 획득량 ×1.2",
+            "앞을 막는 장애물에 대신 부딪힘\n(쿨타임 12초, 3회)",
             "반경 7 m의 돈과 하트를 자석처럼 끌어모음",
-            "체력이 바닥나면 한 번 버텨줌 (런당 1회, 40% 회복)",
+            "체력이 바닥나면 한 번 버텨줌\n(턴당 1회, 40% 회복)",
         };
         /// 흑돼지 부활: 런당 1회. HealthSystem 이 바닥날 때 묻는다.
         public static bool TryRevive()
@@ -66,7 +66,6 @@ namespace CoastRun
         private HealthSystem _health;
         private PetKind _kind;
         private Transform _body;
-        private Transform _wingL, _wingR, _wheelF, _wheelB;
         private Vector3 _offset;
         private Vector3 _vel;
         private float _phase;
@@ -137,147 +136,23 @@ namespace CoastRun
             if (Instance == this) Instance = null;
         }
 
-        /// 47차: Blender FBX(+Y 얼굴·+Z 위)가 Unity 에서 얼굴 +Y·정수리 +Z 로 들어온다(bake_space_transform=False) → X 90° 뒤 Z 180°.
-        public static Quaternion PetFbxFix = Quaternion.Euler(0f, 0f, 180f) * Quaternion.Euler(90f, 0f, 0f);
-
+        /// 66차(사용자): 펫은 Kling 으로 다시 그린 **뒷모습 그림**(Resources/CoastRun/Obs_Pet_<Kind>.png, 마젠타 키잉) 빌보드만 쓴다 —
+        ///   옛 Blender FBX(Pet_*.fbx)·절차 조형(BuildBird/Pig/Thug)은 삭제. 그림이 없으면 작은 공 하나(폴백).
         private void Build()
         {
-            // 47차(사용자: "펫은 블렌더로 입체로 — 주인공처럼 뒷모습"): Blender 펫 키트(Tools/blender/pet_kit.py → Pet_<Kind>.fbx)가 있으면
-            // **입체 FBX 를 최우선**. 모델 전방 = +Z(주인공 진행 방향)이라 카메라에는 자연히 뒷모습. 그림(Obs_Pet_*)은 FBX 가 없을 때만.
-            var prefab = PrefabLibrary.TryInstantiate("Pet_" + _kind, transform, Vector3.zero);
-            if (prefab != null)
-            {
-                // 래퍼 Body 아래에 FBX. Blender +Y(얼굴) → Unity +Z(진행 방향) 그대로라 카메라에는 뒷모습(r47_pet3 확인). 180° 돌리면 정면이 된다.
-                _body = new GameObject("Body").transform;
-                _body.SetParent(transform, false);
-                prefab.transform.SetParent(_body, false);
-                prefab.transform.localPosition = Vector3.zero;
-                prefab.transform.localRotation = PetFbxFix;   // FBX 축 보정: 부리가 +Y(위)·정수리가 +Z 로 들어온다(로그 [Pet]) → 얼굴 +Z·정수리 +Y
-                float fh = _kind == PetKind.BikerThug ? 1.35f : _kind == PetKind.WildGoose ? 0.85f : _kind == PetKind.BlackPig ? 0.62f : 0.58f;
-                RoadPlacement.FitHeight(prefab, fh);
-                // 8차: Blender 새 — 날개 WingL/WingR 로 날갯짓. 47차: 스쿠터 바퀴 WheelF/WheelB 스핀.
-                foreach (var t in prefab.GetComponentsInChildren<Transform>(true))
-                {
-                    if (t.name.StartsWith("WingL")) _wingL = t;
-                    else if (t.name.StartsWith("WingR")) _wingR = t;
-                    else if (t.name == "WheelF") _wheelF = t;
-                    else if (t.name == "WheelB") _wheelB = t;
-                }
-                return;
-            }
-            if (PaintedProp.Available("Pet_" + _kind))
-            {
-                _body = new GameObject("Body").transform;
-                _body.SetParent(transform, false);
-                float hp = _kind == PetKind.BikerThug ? 1.1f : _kind == PetKind.WildGoose ? 0.8f : 0.5f;
-                PaintedProp.Attach(_body, "Pet_" + _kind, hp, replace: false, outline: true);
-                return;
-            }
-
             _body = new GameObject("Body").transform;
             _body.SetParent(transform, false);
             if (PaintedProp.Available("Pet_" + _kind))
             {
-                float h = _kind == PetKind.BikerThug ? 1.1f : _kind == PetKind.WildGoose ? 0.65f : 0.34f;   // 14차-8: 조금 작게
-                // 40차: 구운 아웃라인으로 빌보드에도 두께감
+                float h = _kind == PetKind.BikerThug ? 1.15f : _kind == PetKind.WildGoose ? 0.85f : _kind == PetKind.BlackPig ? 0.62f : 0.55f;
                 PaintedProp.Attach(_body, "Pet_" + _kind, h, replace: false, outline: true);
                 return;
             }
-            switch (_kind)
-            {
-                case PetKind.Sparrow: BuildBird(0.55f, new Color(0.62f, 0.45f, 0.30f), new Color(0.95f, 0.88f, 0.75f)); break;
-                case PetKind.WildGoose: BuildBird(1.0f, new Color(0.55f, 0.50f, 0.45f), new Color(0.92f, 0.92f, 0.90f)); break;
-                case PetKind.BlackPig: BuildPig(); break;
-                default: BuildThug(); break;
-            }
+            var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere); ball.name = "PetFallback"; Destroy(ball.GetComponent<Collider>());
+            ball.transform.SetParent(_body, false); ball.transform.localPosition = new Vector3(0f, 0.25f, 0f); ball.transform.localScale = Vector3.one * 0.4f;
+            ball.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateToon(new Color(0.95f, 0.8f, 0.3f), null, null, 0.3f);
         }
 
-        private void BuildBird(float scale, Color back, Color belly)
-        {
-            // 40차: 평면 큐브 날개 → 통통한 구·타원 조형(FBX 없을 때 폴백)
-            var root = new GameObject("Bird").transform;
-            root.SetParent(_body, false);
-            root.localScale = Vector3.one * scale;
-            Color cheek = Color.Lerp(back, new Color(0.85f, 0.55f, 0.35f), 0.35f);
-            Part(root, "Torso", PrimitiveType.Sphere, Vector3.zero, new Vector3(0.48f, 0.42f, 0.58f), back);
-            Part(root, "Fluff", PrimitiveType.Sphere, new Vector3(0f, 0.02f, -0.04f), new Vector3(0.44f, 0.36f, 0.48f), back);
-            Part(root, "Belly", PrimitiveType.Sphere, new Vector3(0f, -0.05f, 0.06f), new Vector3(0.38f, 0.30f, 0.46f), belly);
-            Part(root, "Head", PrimitiveType.Sphere, new Vector3(0f, 0.20f, 0.30f), Vector3.one * 0.30f, back);
-            Part(root, "Face", PrimitiveType.Sphere, new Vector3(0f, 0.16f, 0.38f), new Vector3(0.22f, 0.18f, 0.18f), belly);
-            Part(root, "CheekL", PrimitiveType.Sphere, new Vector3(-0.12f, 0.18f, 0.34f), Vector3.one * 0.10f, cheek);
-            Part(root, "CheekR", PrimitiveType.Sphere, new Vector3(0.12f, 0.18f, 0.34f), Vector3.one * 0.10f, cheek);
-            Part(root, "Beak", PrimitiveType.Sphere, new Vector3(0f, 0.14f, 0.48f), new Vector3(0.08f, 0.07f, 0.14f), CoastPalette.AccentOrange);
-            // 눈: 흰자 + 동공 + 하이라이트
-            Part(root, "EyeWL", PrimitiveType.Sphere, new Vector3(-0.09f, 0.24f, 0.40f), Vector3.one * 0.08f, Color.white);
-            Part(root, "EyeWR", PrimitiveType.Sphere, new Vector3(0.09f, 0.24f, 0.40f), Vector3.one * 0.08f, Color.white);
-            Part(root, "EyeL", PrimitiveType.Sphere, new Vector3(-0.09f, 0.25f, 0.44f), Vector3.one * 0.045f, Color.black);
-            Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.09f, 0.25f, 0.44f), Vector3.one * 0.045f, Color.black);
-            Part(root, "ShineL", PrimitiveType.Sphere, new Vector3(-0.11f, 0.27f, 0.46f), Vector3.one * 0.02f, Color.white);
-            Part(root, "ShineR", PrimitiveType.Sphere, new Vector3(0.07f, 0.27f, 0.46f), Vector3.one * 0.02f, Color.white);
-            Part(root, "Tail", PrimitiveType.Sphere, new Vector3(0f, 0.06f, -0.32f), new Vector3(0.18f, 0.08f, 0.28f), back);
-            // 두툼한 날개(어깨 피벗)
-            _wingL = Part(root, "WingL", PrimitiveType.Sphere, new Vector3(-0.28f, 0.04f, 0.02f), new Vector3(0.42f, 0.14f, 0.28f), back).transform;
-            _wingR = Part(root, "WingR", PrimitiveType.Sphere, new Vector3(0.28f, 0.04f, 0.02f), new Vector3(0.42f, 0.14f, 0.28f), back).transform;
-        }
-
-        /// 제주 흑돼지: 검은 몸통에 분홍 코·귀, 짧은 다리. 프리팹/그림이 없을 때의 대체.
-        private void BuildPig()
-        {
-            Color black = new Color(0.16f, 0.14f, 0.15f);
-            Color pink = new Color(0.98f, 0.62f, 0.70f);
-            var root = new GameObject("Pig").transform;
-            root.SetParent(_body, false);
-            Part(root, "Torso", PrimitiveType.Sphere, new Vector3(0f, 0.34f, 0f), new Vector3(0.52f, 0.46f, 0.68f), black);
-            Part(root, "Fluff", PrimitiveType.Sphere, new Vector3(0f, 0.38f, -0.06f), new Vector3(0.46f, 0.40f, 0.55f), black);
-            Part(root, "Head", PrimitiveType.Sphere, new Vector3(0f, 0.46f, 0.38f), Vector3.one * 0.38f, black);
-            Part(root, "Snout", PrimitiveType.Sphere, new Vector3(0f, 0.40f, 0.58f), new Vector3(0.18f, 0.14f, 0.16f), pink);
-            Part(root, "EarL", PrimitiveType.Sphere, new Vector3(-0.14f, 0.62f, 0.34f), new Vector3(0.10f, 0.14f, 0.06f), pink);
-            Part(root, "EarR", PrimitiveType.Sphere, new Vector3(0.14f, 0.62f, 0.34f), new Vector3(0.10f, 0.14f, 0.06f), pink);
-            Part(root, "EyeWL", PrimitiveType.Sphere, new Vector3(-0.10f, 0.52f, 0.52f), Vector3.one * 0.07f, Color.white);
-            Part(root, "EyeWR", PrimitiveType.Sphere, new Vector3(0.10f, 0.52f, 0.52f), Vector3.one * 0.07f, Color.white);
-            Part(root, "EyeL", PrimitiveType.Sphere, new Vector3(-0.10f, 0.53f, 0.55f), Vector3.one * 0.04f, Color.black);
-            Part(root, "EyeR", PrimitiveType.Sphere, new Vector3(0.10f, 0.53f, 0.55f), Vector3.one * 0.04f, Color.black);
-            for (int i = 0; i < 4; i++)
-                Part(root, "Leg" + i, PrimitiveType.Sphere, new Vector3(i % 2 == 0 ? -0.14f : 0.14f, 0.12f, i < 2 ? 0.18f : -0.18f), new Vector3(0.12f, 0.22f, 0.12f), black);
-            Part(root, "Tail", PrimitiveType.Sphere, new Vector3(0f, 0.44f, -0.36f), Vector3.one * 0.10f, pink);
-        }
-
-        private void BuildThug()
-        {
-            Color red = new Color(0.85f, 0.22f, 0.25f);
-            Color dark = new Color(0.16f, 0.16f, 0.2f);
-            Color skin = new Color(0.96f, 0.80f, 0.66f);
-            Color jacket = new Color(0.12f, 0.12f, 0.16f);
-            // 스쿠터
-            Part(_body, "Deck", PrimitiveType.Cube, new Vector3(0f, 0.32f, 0f), new Vector3(0.36f, 0.16f, 1.1f), red);
-            Part(_body, "Seat", PrimitiveType.Cube, new Vector3(0f, 0.5f, -0.25f), new Vector3(0.3f, 0.12f, 0.45f), dark);
-            Part(_body, "Handle", PrimitiveType.Cube, new Vector3(0f, 0.75f, 0.45f), new Vector3(0.5f, 0.05f, 0.05f), dark);
-            Part(_body, "Stem", PrimitiveType.Cube, new Vector3(0f, 0.55f, 0.45f), new Vector3(0.06f, 0.4f, 0.06f), dark);
-            _wheelF = Part(_body, "WheelF", PrimitiveType.Cylinder, new Vector3(0f, 0.18f, 0.5f), new Vector3(0.36f, 0.06f, 0.36f), dark).transform;
-            _wheelF.localRotation = Quaternion.Euler(0f, 0f, 90f);
-            _wheelB = Part(_body, "WheelB", PrimitiveType.Cylinder, new Vector3(0f, 0.18f, -0.5f), new Vector3(0.36f, 0.06f, 0.36f), dark).transform;
-            _wheelB.localRotation = Quaternion.Euler(0f, 0f, 90f);
-            // 라이더
-            Part(_body, "Legs", PrimitiveType.Cube, new Vector3(0f, 0.62f, -0.05f), new Vector3(0.3f, 0.26f, 0.3f), dark);
-            Part(_body, "Torso", PrimitiveType.Capsule, new Vector3(0f, 0.95f, -0.15f), new Vector3(0.36f, 0.3f, 0.3f), jacket);
-            Part(_body, "ArmL", PrimitiveType.Capsule, new Vector3(-0.2f, 0.9f, 0.15f), new Vector3(0.1f, 0.22f, 0.1f), jacket).transform.localRotation = Quaternion.Euler(60f, 0f, 0f);
-            Part(_body, "ArmR", PrimitiveType.Capsule, new Vector3(0.2f, 0.9f, 0.15f), new Vector3(0.1f, 0.22f, 0.1f), jacket).transform.localRotation = Quaternion.Euler(60f, 0f, 0f);
-            Part(_body, "Head", PrimitiveType.Sphere, new Vector3(0f, 1.3f, -0.12f), Vector3.one * 0.3f, skin);
-            Part(_body, "Helmet", PrimitiveType.Sphere, new Vector3(0f, 1.36f, -0.14f), new Vector3(0.34f, 0.26f, 0.34f), red);
-            Part(_body, "Shades", PrimitiveType.Cube, new Vector3(0f, 1.3f, 0.02f), new Vector3(0.28f, 0.07f, 0.06f), Color.black);
-        }
-
-        private static GameObject Part(Transform parent, string name, PrimitiveType type, Vector3 pos, Vector3 scale, Color color)
-        {
-            var go = GameObject.CreatePrimitive(type);
-            go.name = name;
-            go.transform.SetParent(parent, false);
-            go.transform.localPosition = pos;
-            go.transform.localScale = scale;
-            Object.Destroy(go.GetComponent<Collider>());
-            go.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(color);
-            return go;
-        }
 
         private void Update()
         {
@@ -362,18 +237,6 @@ namespace CoastRun
                 float bob = bird ? Mathf.Sin(_phase * 0.5f) * 0.12f : Mathf.Abs(Mathf.Sin(_phase)) * 0.03f;
                 _body.localPosition = new Vector3(0f, bob, 0f);
                 _body.localRotation = Quaternion.Euler(bird ? 0f : Mathf.Sin(_phase) * 2f, 0f, 0f);
-            }
-            if (_wingL != null && _wingR != null)
-            {
-                float flap = Mathf.Sin(_phase) * (_kind == PetKind.Sparrow ? 45f : 28f);
-                _wingL.localRotation = Quaternion.Euler(0f, 0f, flap);
-                _wingR.localRotation = Quaternion.Euler(0f, 0f, -flap);
-            }
-            if (_wheelF != null)
-            {
-                float spin = _player.Speed * dt / 0.18f * Mathf.Rad2Deg;
-                _wheelF.Rotate(0f, spin, 0f, Space.Self);
-                _wheelB.Rotate(0f, spin, 0f, Space.Self);
             }
         }
     }

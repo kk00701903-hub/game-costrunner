@@ -67,7 +67,7 @@ namespace CoastRun
                 //   첫 확인에서 희미해 눈에 안 띄었다 → 채도·개수 올리고 카메라 앞 근경 층을 추가(근경은 너무 크면 분홍 덩어리로 보여 0.16~0.28).
                 var petalTex = ArtAssets.LoadTexture("Fx_Petal");
                 _petals = MakePetals("PetalFx", 120, new ParticleSystem.MinMaxCurve(0.14f, 0.26f), new Vector3(22f, 1f, 30f), Vector3.zero, petalTex);
-                _petalsNear = MakePetals("PetalNearFx", 40, new ParticleSystem.MinMaxCurve(0.16f, 0.28f), new Vector3(9f, 1f, 8f), new Vector3(0f, -2.5f, -5f), petalTex);
+                _petalsNear = MakePetals("PetalNearFx", 40, new ParticleSystem.MinMaxCurve(0.11f, 0.19f), new Vector3(9f, 1f, 8f), new Vector3(0f, -2.5f, -5f), petalTex);
             }
             if (_wind == null)
             {

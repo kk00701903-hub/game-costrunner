@@ -384,6 +384,9 @@ namespace CoastRun
             if (ArcadeRun.KpopMode && player != null)
                 BossDirector.Create(player, obstacles, ArcadeRun.StageIndex, ArcadeRun.BossRush, ArcadeRun.Seed * 31 + stage.stageIndex);
             StoryContest.SpawnBoss(player, obstacles, stage);   // 55차: 보스 퇴치전이면 보스 배치(위의 Destroy 뒤에)
+            // 66차-1(사용자): 육성 대회 러닝엔 꼬마 + 라이벌 2명이 같이 달린다(경쟁·순위)
+            if (StoryContest.Active && player != null) ContestRivals.Create(player, (GameManager.Active ? GameManager.I.Save.chapter : 1) * 131 + (stage != null ? stage.stageIndex : 0));
+            else ContestRivals.Clear();
             if (player != null)
             {
                 var rain = player.GetComponent<SkyHazards.RockRain>() ?? player.gameObject.AddComponent<SkyHazards.RockRain>();

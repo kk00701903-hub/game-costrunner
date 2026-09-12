@@ -31,27 +31,8 @@ namespace CoastRun
                 PropCatalog.Spawn(id, segmentRoot, new Vector3(roadHalf + 1.35f, 0f, z), season, rng);
             }
 
-            // Road surface accents by weather/season
-            if (season == SeasonKind.Autumn && rng.NextDouble() < 0.55)
-            {
-                PropCatalog.Spawn(PropId.LeafPile, segmentRoot,
-                    new Vector3(((float)rng.NextDouble() - 0.5f) * roadHalf, 0f, 8f + (float)rng.NextDouble() * 14f),
-                    season, rng);
-            }
-
-            if (season == SeasonKind.Winter && rng.NextDouble() < 0.6)
-            {
-                PropCatalog.Spawn(PropId.SnowBank, segmentRoot,
-                    new Vector3(-roadHalf + 0.4f, 0f, 5f + (float)rng.NextDouble() * 18f),
-                    season, rng);
-            }
-
-            if (season == SeasonKind.Spring && rng.NextDouble() < 0.4)
-            {
-                PropCatalog.Spawn(PropId.PuddleDecal, segmentRoot,
-                    new Vector3(((float)rng.NextDouble() - 0.5f) * 2f, 0f, 10f + (float)rng.NextDouble() * 12f),
-                    season, rng);
-            }
+            // 65차(사용자): 차도 위 계절 상자(가을 낙엽 더미 · 겨울 눈 둑 · 봄 물웅덩이 = 반투명 네모)가 「주인공 옆 네모 오류」로 보였다 → 전부 삭제.
+            //   (낙엽·눈·꽃잎은 WeatherFx 파티클과 SnowCaps, 인도 소품으로 이미 표현된다)
         }
     }
 }

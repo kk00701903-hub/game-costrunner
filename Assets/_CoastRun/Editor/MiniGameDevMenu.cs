@@ -58,6 +58,22 @@ namespace CoastRun.EditorTools
             }
             Debug.LogWarning(sb.ToString());
         }
+        // 64차: 제주 집 키트(JHouse_*) 확인용 — 플레이어 앞 오른쪽(바다 쪽) 둔덕에 4채를 나란히(왼쪽은 상가 안에 파묻혀 안 보인다).
+        //   timescale 을 먼저 낮추고 부를 것(히트 슬로모가 timeScale 을 1로 되돌리면 금방 지나쳐 버린다).
+        [MenuItem("Coast Run/Dev/World - Jeju house showcase")] public static void JejuShowcase()
+        {
+            var p = Object.FindAnyObjectByType<PlayerController>(); if (p == null) return;
+            string[] names = { "JHouse_Thatch_A", "JHouse_Thatch_B", "JHouse_Tile_A", "JHouse_Tile_B" };
+            var host = new GameObject("JejuShowcase").transform;
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(host.gameObject, p.gameObject.scene);
+            for (int i = 0; i < names.Length; i++)
+            {
+                var pivot = new GameObject("Pivot" + i).transform; pivot.SetParent(host, false);
+                pivot.SetPositionAndRotation(RoadPlacement.OnRoad(p.PathDistance + 14f + i * 11f, 8.2f), DownhillPath.Rotation * DownhillPath.UprightLocal);
+                var go = JejuKit.Spawn(names[i], pivot, Vector3.zero, 0f, 1f);
+                Debug.LogWarning(go == null ? "[JejuShowcase] 없음: " + names[i] : $"[JejuShowcase] {names[i]} at path z={p.PathDistance + 14f + i * 11f:F0}");
+            }
+        }
         // 63차: 계절 요소 확인용 — 챕터로 계절이 정해진다(1~5 봄, 6~10 여름, 11~15 가을, 16~20 겨울)
         [MenuItem("Coast Run/Dev/Season - Spring run (ch3)")] public static void RunSpring() { if (Application.isPlaying) ArcadeRun.StartKpop(GameManager.I, 3); }
         [MenuItem("Coast Run/Dev/Season - Summer run (ch8)")] public static void RunSummer() { if (Application.isPlaying) ArcadeRun.StartKpop(GameManager.I, 8); }
@@ -84,6 +100,18 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Contest - Fail screen")] public static void ContestFail() { if (Application.isPlaying) { StoryContest.Begin(1); ContestResultUI.ShowFail(false); } }
         [MenuItem("Coast Run/Dev/Life - Test turn end (odd week, phase 2)")] public static void TestTurnEnd() { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; var rec = s.CurrentChapter; if (s.week % 2 == 0) s.week++; if (rec != null && rec.weekEnd <= s.week) rec.weekEnd = s.week + 2; s.phaseIndex = 2; s.boundaryPending = false; GameManager.I.Persist(); }
         [MenuItem("Coast Run/Dev/Life - Test boundary (last week, phase 2)")] public static void TestBoundary() { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; var rec = s.CurrentChapter; if (s.week % 2 == 0) s.week++; if (rec != null) { rec.weekEnd = s.week; rec.cleared = false; } s.phaseIndex = 2; s.boundaryPending = false; s.stats.stamina = System.Math.Max(s.stats.stamina, 120); GameManager.I.Persist(); }
+        // 66차: 대회 러닝(라이벌·느낌표) 확인용 — 육성 화면에서 챕터를 맞춘 뒤 바로 대회 러닝으로
+        [MenuItem("Coast Run/Dev/Contest - Run CH4 (photos, rivals)")] public static void ContestRunCh4() { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; s.chapter = 4; if (s.week < 7) s.week = 7; GameManager.I.Persist(); GameManager.I.StartStoryRun(); }
+        [MenuItem("Coast Run/Dev/Contest - Run CH1 (coins, rivals)")] public static void ContestRunCh1() { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; s.chapter = 1; GameManager.I.Persist(); GameManager.I.StartStoryRun(); }
+        // 66차: 펫 확인용 — 장착 후 대회 러닝(CH1)로
+        [MenuItem("Coast Run/Dev/Pet - Shop")] public static void PetShop() { if (Application.isPlaying && GameManager.Active) PetShopUI.Open(GameManager.I); }
+        [MenuItem("Coast Run/Dev/Pet - Equip Sparrow + run")] public static void PetSparrow() { PetRun(PetKind.Sparrow); }
+        [MenuItem("Coast Run/Dev/Pet - Equip BlackPig + run")] public static void PetPig() { PetRun(PetKind.BlackPig); }
+        [MenuItem("Coast Run/Dev/Pet - Equip BikerThug + run")] public static void PetThug() { PetRun(PetKind.BikerThug); }
+        [MenuItem("Coast Run/Dev/Pet - Equip WildGoose + run")] public static void PetGoose() { PetRun(PetKind.WildGoose); }
+        private static void PetRun(PetKind k) { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; s.equippedPet = k; s.chapter = 1; GameManager.I.Persist(); GameManager.I.StartStoryRun(); }
+        // 66차-8: 한 곡 완주 화면 확인용(K-POP 런 중에)
+        [MenuItem("Coast Run/Dev/Fx - Song complete screen")] public static void SongComplete() { if (!Application.isPlaying || !ArcadeRun.KpopMode || RunHudChrome.Instance == null) return; ArcadeRun.MarkKpopFinished(); RunHudChrome.Instance.ShowRunOver(() => Debug.LogWarning("[Dev] retry"), () => Debug.LogWarning("[Dev] exit"), "메인으로"); }
         [MenuItem("Coast Run/Dev/Contest - Close all")] public static void ContestClose() { ContestIntroUI.Close(); ContestResultUI.Close(); WeekPassUI.Close(); GroceryUI.Close(); GameOverUI.Close(); Time.timeScale = 1f; }
         // 56차-2(사용자): 글자가 상자를 넘는지 검사 — 화면의 모든 Text 를 훑어 preferred 크기가 rect 보다 크면 경로·글자·크기를 로그로.
         [MenuItem("Coast Run/Dev/UI - Overflow audit")]
