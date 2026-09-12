@@ -8,7 +8,7 @@ namespace CoastRun
 {
     /// 컬렉션 오버레이 — 레코드(20트랙) · 포토카드(30장) · 팬아트. 타이틀·육성 어디서든 `CollectionUI.Open()`.
     /// 앨범 미구매면 봄(1~5) 밖의 항목은 잠금 표시 + 구매 패널. 결제 자체는 IapBridge가 담당(지금은 테스트 언락).
-    public class CollectionUI : MonoBehaviour
+    public partial class CollectionUI : MonoBehaviour
     {
         public static bool IsOpen { get; private set; }
         private static CollectionUI _active;
@@ -122,11 +122,13 @@ namespace CoastRun
             _preview = gameObject.AddComponent<AudioSource>();
             _preview.playOnAwake = false; _preview.loop = false; _preview.volume = 0.85f;
             Refresh();
+            if (_tab == 1) ShowMockCard(FeaturedCard());   // 48차-14: 포토카드는 시안 화면(대표 카드)으로 시작
+            else if (_tab == 0) ShowMockRecords();          // 48차-14: 레코드도 시안 화면
         }
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace)) { if (_detail != null) { _preview.Stop(); CloseDetail(); } else Close(); }
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Backspace)) { if (_mock != null) { Destroy(_mock); _mock = null; Refresh(); } else if (_detail != null) { _preview.Stop(); CloseDetail(); } else Close(); }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (Input.GetKeyDown(KeyCode.F9)) { Collection.DebugUnlockAll(); Refresh(); Toast("DEBUG: unlock all"); }
             if (Input.GetKeyDown(KeyCode.Alpha1)) { _tab = 0; Refresh(); }
@@ -342,7 +344,9 @@ namespace CoastRun
             CoastOrnate.GlassButton(_content, "Next", "▶", new Vector2(0.5f, 0f), new Vector2(70f, 12f), new Vector2(110f, 40f), () => { _cardPage = Mathf.Min(pages - 1, _cardPage + 1); Refresh(); }, 0.45f, 18, false);
         }
 
-        private void OpenCard(int id)
+        private void OpenCard(int id) => ShowMockCard(id);   // 48차-14: 시안 화면. 옛 상세(앞/뒤 뒤집기)는 OpenCardLegacy 로 보존
+
+        private void OpenCardLegacy(int id)
         {
             var card = PhotocardTable.Get(id);
             bool isNew = Collection.CardIsNew(id);

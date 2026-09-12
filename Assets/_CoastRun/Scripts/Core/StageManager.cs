@@ -160,6 +160,8 @@ namespace CoastRun
             // 챕터별 낮/밤 고정표(ChapterClock): 1·20=낮, 2~19=낮≈70%/밤≈30%
             def.lightingTStart = ChapterClock.StartT(def.stageIndex);
             def.lightingTEnd = Mathf.Max(def.lightingTEnd, Mathf.Min(1f, def.lightingTStart + 0.25f));
+            // 52차(사용자): 스토리 러닝은 이벤트(52주에 8번) — 한 판 3분 이내로 거리를 씌운다(표의 1650~3300 m → ≤1500 m).
+            if (!ArcadeRun.Active && GameManager.Active && def.targetDistance > StoryProgress.MaxRunMeters) def.targetDistance = StoryProgress.MaxRunMeters;
             _current = def;
             StageIndex = def.stageIndex;
             ChapterIndex = def.chapterIndex;
@@ -175,7 +177,7 @@ namespace CoastRun
             BeginSunsetClock();
             MonochromeWorld.Arm(ChapterIndex);   // 19차-1: 20장은 10초 뒤 세상이 흑백
             if (!ArcadeRun.Active || ArcadeRun.KpopMode) FeverMode.Ensure().ArmForStage();   // 꼬마 도움 버튼 → 피버 (48차: K-POP 도 — 후렴에서 제안)
-            _kpopFinishZ = float.PositiveInfinity; _kpopOutro = false; _kpopChorusOffered = false; _kpopFinishing = false;
+            _kpopFinishZ = float.PositiveInfinity; _kpopOutro = false; _kpopChorusOffered = false; _kpopChorus2Offered = false; _kpopFinishing = false;
             GiantMode.Ensure().EndNow();
 
             if (player != null && !player.enabled)
@@ -244,7 +246,8 @@ namespace CoastRun
                 Debug.LogWarning($"[StageManager] 챕터 {ch} 소개 카드 표시 t={Time.realtimeSinceStartup:F2} veil={(ui0 != null ? ui0.VeilAlpha : 0f):F2}");
 #endif
             }
-            CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.55f);
+            // 49차(사용자): K-POP 런은 곡이 1초 뒤에 시작하는데 그 앞에서 스팅어가 「이전 BGM 찌꺼기」처럼 들렸다 → 스토리만.
+            if (!ArcadeRun.KpopMode) CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.55f);
             yield return new WaitForSecondsRealtime(hold);
             _announceCo = null;
         }
@@ -278,7 +281,7 @@ namespace CoastRun
             environment?.ResetLightingTo(_current.lightingTStart);
             BeginSunsetClock();
             if (!ArcadeRun.Active || ArcadeRun.KpopMode) FeverMode.Ensure().ArmForStage();
-            _kpopFinishZ = float.PositiveInfinity; _kpopOutro = false; _kpopChorusOffered = false; _kpopFinishing = false;
+            _kpopFinishZ = float.PositiveInfinity; _kpopOutro = false; _kpopChorusOffered = false; _kpopChorus2Offered = false; _kpopFinishing = false;
             GiantMode.Ensure().EndNow();
             OnStageStart?.Invoke(_current);
             AnnounceStart();
@@ -415,7 +418,7 @@ namespace CoastRun
         // 곡 창(ArcadeRun.KpopTrack.length)이 끝나는 순간이 골인. 마지막 8초(아웃트로)에 장애물 스폰을 멈추고
         // 「지금 속도 × 남은 초」 앞에 리본을 놓는다. 리본을 지나면 완주 → GameSession.EndKpopRun(완주 결과 카드).
         private float _kpopFinishZ = float.PositiveInfinity;
-        private bool _kpopOutro, _kpopChorusOffered, _kpopFinishing;
+        private bool _kpopOutro, _kpopChorusOffered, _kpopChorus2Offered, _kpopFinishing;
         private void UpdateKpop()
         {
             float t = Mathf.Max(0f, _stageElapsed - ArcadeRun.KpopMusicDelay);   // 곡은 1초 뒤에 시작(CoastAudioManager)
@@ -425,6 +428,13 @@ namespace CoastRun
             if (!_kpopChorusOffered && t >= track.chorusStart)
             {
                 _kpopChorusOffered = true;
+                FeverMode.Ensure().ForceOffer();
+                PickupFloat.Banner(Loc.T("후렴! 코인 ×2", "CHORUS! Coins ×2"), new Color(1f, 0.55f, 0.85f), 1.6f);
+            }
+            // 52차: 3분 창 — 두 번째 후렴에도 한 번 더 제안
+            if (_kpopChorusOffered && !_kpopChorus2Offered && track.chorus2Start >= 0f && t >= track.chorus2Start)
+            {
+                _kpopChorus2Offered = true;
                 FeverMode.Ensure().ForceOffer();
                 PickupFloat.Banner(Loc.T("후렴! 코인 ×2", "CHORUS! Coins ×2"), new Color(1f, 0.55f, 0.85f), 1.6f);
             }

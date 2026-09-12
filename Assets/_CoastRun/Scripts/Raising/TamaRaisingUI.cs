@@ -10,7 +10,8 @@ namespace CoastRun
     /// 45차: 스토리 모드 육성 화면 — **다마고치식 터치 육성**(RAISING_TAMAGOTCHI_v3 설계, 기존 RaisingUI 스케줄표 대체).
     ///   화면 한 장: Kling 마당 배경(UI_Tama_Yard) 위에 하늘이 스탠딩 → 만지면 반응(탭=웃음·콩, 문지르기=쓰다듬기 → 스트레스 ↓),
     ///   행동 3개(밥·놀기·알바, Kling 아이콘) = 기존 ScheduleTable 을 그대로 판정(Rest/SelfDev/Job 카드 자동 선택 → GameManager.ResolvePhase),
-    ///   행동 3번 = 한 주 → AdvanceWeek → 챕터 마감 주면 오프닝 컷씬 → 체력 게이트 → 러닝(기존 흐름 그대로).
+    ///   행동 3번 = 한 주(턴), 「다음 턴」 버튼(NextTurn)을 눌러야 넘어간다(55차-2; 행동이 남았으면 두 번 눌러 확인) → 생활 결산·「일주일이 지났다」(WeekPassUI) → 다음 턴. 챕터 마감 주였으면 다음 턴 시작에
+    ///   이야기(리더) → 대회(러닝, StoryContest) — 55차: 컷씬은 러닝과 무관, 대회를 깨야 주차가 넘어간다.
     ///   「자동」 토글이면 1.2초마다 규칙으로 스스로 행동(기운<30 밥 / 돈<100 알바 / 그 외 놀기·밥 번갈아).
     /// 기존 RaisingUI.cs 는 파일로 남겨 두되 RaisingSceneDriver 가 이 클래스를 쓴다.
     public class TamaRaisingUI : MonoBehaviour
@@ -21,7 +22,7 @@ namespace CoastRun
         private RectTransform _root;
         private Image _girl;
         private RectTransform _girlRt;
-        private Text _bubble, _weekLabel, _moneyLabel, _gateLabel, _autoLabel, _actionsLeft;
+        private Text _bubble, _weekLabel, _moneyLabel, _gateLabel, _autoLabel, _actionsLeft, _levelLabel, _lifeLabel;
         private Image _bubbleBg, _staminaFill, _energyFill;
         private Text _staminaTxt, _energyTxt;
         private readonly Button[] _actBtn = new Button[3];
@@ -38,9 +39,22 @@ namespace CoastRun
         {
             _gm = gm;
             Build();
+            LevelSystem.FlushPending();   // 53차: 세이브 없이 K-POP 에서 모은 경험치 합치기
             Refresh();
             ShowBubble(Loc.T("오늘도 힘내자!", "Let's do our best today!"), 2.5f);
             _gm.OnSaveChanged -= OnSaveChanged; _gm.OnSaveChanged += OnSaveChanged;
+            // 55차: 지난 턴이 챕터 마지막 주로 끝났으면(앱을 껐다 켰어도) 이번 턴 시작에 컷씬·대회부터.
+            if (Save != null && Save.boundaryPending) StartCoroutine(ResumeBoundary());
+        }
+
+        private IEnumerator ResumeBoundary()
+        {
+            _busy = true;
+            foreach (var b in _actBtn) if (b != null) b.interactable = false;
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return BoundaryRoutine();
+            foreach (var b in _actBtn) if (b != null) b.interactable = true;
+            _busy = false;
         }
 
         private void OnDestroy() { if (_gm != null) _gm.OnSaveChanged -= OnSaveChanged; }
@@ -86,10 +100,42 @@ namespace CoastRun
             // ── 상단 HUD: 주차·계절 / 챕터 / 돈·하트 / 홈 ──
             var wk = CoastUiArt.CutePill(_root, "Week", new Color(0.10f, 0.13f, 0.30f, 0.92f), 18, 3);
             Anchor(wk.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -6f), new Vector2(300f, 60f));
+            // 53차(사용자): 주차 아래 [상태창] [마이룸] 세로 버튼 — 레벨 배지가 상태 버튼에
+            var stBtn = CoastUiArt.GlossyPill(_root, "StatusBtn", new Color(0.55f, 0.40f, 0.95f), 18, 6);
+            Anchor(stBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -72f), new Vector2(150f, 56f)); stBtn.raycastTarget = true;
+            _levelLabel = CoastHudLayout.MakeText(stBtn.rectTransform, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
+            _levelLabel.color = Color.white; _levelLabel.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_levelLabel, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+            var sb = stBtn.gameObject.AddComponent<Button>(); sb.transition = Selectable.Transition.None;
+            sb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); StatusUI.Open(_gm, Refresh); });
+            var roomBtn = CoastUiArt.GlossyPill(_root, "RoomBtn", new Color(0.30f, 0.70f, 0.55f), 18, 6);
+            Anchor(roomBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -134f), new Vector2(150f, 56f)); roomBtn.raycastTarget = true;
+            var rl = CoastHudLayout.MakeText(roomBtn.rectTransform, "T", Loc.T("마이룸", "My Room"), 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
+            rl.color = Color.white; rl.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(rl, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+            var rb = roomBtn.gameObject.AddComponent<Button>(); rb.transition = Selectable.Transition.None;
+            rb.onClick.AddListener(OpenRoom);
+            // 55차(사용자): 장보기(쌀·반찬·옷) 버튼 + 생활 알약(쌀·반찬·옷·배부름·컨디션)
+            var shopBtn = CoastUiArt.GlossyPill(_root, "ShopBtn", new Color(0.95f, 0.60f, 0.25f), 18, 6);
+            Anchor(shopBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -196f), new Vector2(150f, 56f)); shopBtn.raycastTarget = true;
+            var sl = CoastHudLayout.MakeText(shopBtn.rectTransform, "T", Loc.T("장보기", "Shop"), 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
+            sl.color = Color.white; sl.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(sl, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+            var shb = shopBtn.gameObject.AddComponent<Button>(); shb.transition = Selectable.Transition.None;
+            shb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); GroceryUI.Open(_gm, Refresh); });
+            var life = CoastUiArt.CutePill(_root, "Life", new Color(0.10f, 0.13f, 0.30f, 0.92f), 16, 3);
+            Anchor(life.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -258f), new Vector2(470f, 46f)); life.raycastTarget = false;
+            _lifeLabel = CoastHudLayout.MakeText(life.rectTransform, "T", "", 13, TextAnchor.MiddleLeft, Vector2.zero, Vector2.one, new Vector2(14f, 0f), new Vector2(-8f, 0f));
+            _lifeLabel.color = Color.white; CoastUiArt.OutlineText(_lifeLabel, new Color(0f, 0f, 0f, 0.4f), 1.2f);
+            _lifeLabel.resizeTextForBestFit = true; _lifeLabel.resizeTextMinSize = 9; _lifeLabel.resizeTextMaxSize = CoastHudLayout.Scaled(13);
             _weekLabel = CoastHudLayout.MakeText(wk.rectTransform, "T", "", 20, TextAnchor.MiddleLeft, Vector2.zero, Vector2.one, new Vector2(20f, 0f), new Vector2(-10f, 0f));
             _weekLabel.color = Color.white; CoastUiArt.OutlineText(_weekLabel, new Color(0f, 0f, 0f, 0.4f), 1.2f);
             var money = CoastUiArt.CutePill(_root, "Money", new Color(0.10f, 0.13f, 0.30f, 0.92f), 18, 3);
-            Anchor(money.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-76f, -6f), new Vector2(270f, 60f));
+            Anchor(money.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-146f, -6f), new Vector2(210f, 60f));
+            // 52차(사용자): 펫 상점 버튼(20주차부터 열림 · 코인+젤리)
+            var pet = CoastUiArt.GlossyPill(_root, "PetBtn", new Color(0.95f, 0.55f, 0.30f), 18, 6);
+            Anchor(pet.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-76f, -6f), new Vector2(64f, 60f)); pet.raycastTarget = true;
+            var petT = CoastHudLayout.MakeText(pet.rectTransform, "T", Loc.T("펫", "Pet"), 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
+            petT.color = Color.white; petT.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(petT, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+            var pb = pet.gameObject.AddComponent<Button>(); pb.transition = Selectable.Transition.None;
+            pb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); PetShopUI.Open(_gm, Refresh); });
             _moneyLabel = CoastHudLayout.MakeText(money.rectTransform, "T", "", 20, TextAnchor.MiddleRight, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-18f, 0f));
             _moneyLabel.color = new Color(1f, 0.90f, 0.45f); CoastUiArt.OutlineText(_moneyLabel, new Color(0f, 0f, 0f, 0.4f), 1.2f);
             var home = CoastUiArt.GlossyPill(_root, "Home", new Color(0.25f, 0.55f, 0.95f), 18, 6);
@@ -158,11 +204,14 @@ namespace CoastRun
             _autoLabel.color = Color.white; CoastUiArt.OutlineText(_autoLabel, new Color(0f, 0f, 0f, 0.35f), 1.5f);
             var ab = auto.gameObject.AddComponent<Button>(); ab.transition = Selectable.Transition.None;
             ab.onClick.AddListener(() => { _auto = !_auto; _autoTimer = 0f; RefreshAuto(); ShowBubble(_auto ? Loc.T("내가 알아서 할게!", "I'll take care of myself!") : Loc.T("같이 하자.", "Let's do it together."), 2f); });
-            var prog = CoastUiArt.GlossyPill(_root, "Prog", Pink, 30, 12);
-            Anchor(prog.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-8f, 60f), new Vector2(446f, 110f)); prog.raycastTarget = false;
+            // 55차-2(사용자): 「이번 주 행동」 알약이 곧 **다음 턴** 버튼 — 누르면 한 주가 끝난다(행동을 다 안 했으면 한 번 더 눌러 확인).
+            var prog = CoastUiArt.GlossyPill(_root, "NextTurn", Pink, 30, 12);
+            Anchor(prog.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-8f, 60f), new Vector2(446f, 110f)); prog.raycastTarget = true;
             _actionsLeft = CoastHudLayout.MakeText(prog.rectTransform, "T", "", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 4f), new Vector2(-10f, 2f));
             _actionsLeft.color = Color.white; CoastUiArt.OutlineText(_actionsLeft, new Color(0f, 0f, 0f, 0.35f), 1.5f);
             _actionsLeft.resizeTextForBestFit = true; _actionsLeft.resizeTextMinSize = 12; _actionsLeft.resizeTextMaxSize = CoastHudLayout.Scaled(22);
+            var ntb = prog.gameObject.AddComponent<Button>(); ntb.transition = Selectable.Transition.None;
+            ntb.onClick.AddListener(OnNextTurnPressed);
             RefreshAuto();
         }
 
@@ -198,7 +247,8 @@ namespace CoastRun
             var rec = Save.CurrentChapter;
             int weeksLeft = rec != null ? Mathf.Max(0, rec.weekEnd - Save.week) : 0;
             _weekLabel.text = Loc.T($"{Save.week}주차 · {seasonKo} · CH{Save.chapter}", $"Week {Save.week} · {season} · CH{Save.chapter}");
-            _moneyLabel.text = $"{s.money}G  ♥{Save.chapterHearts}";
+            _moneyLabel.text = $"{LevelSystem.FormatK(s.money)}G  ♥{Save.chapterHearts}";   // 53차: 1000 단위 k
+            if (_levelLabel != null) _levelLabel.text = Loc.T($"Lv {Mathf.Max(1, Save.level)} 상태창", $"Lv {Mathf.Max(1, Save.level)} Status");
             int need = StoryGate.Required(Save);
             _staminaFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(s.stamina / (float)Mathf.Max(need, 1) * 0.5f + (s.stamina >= need ? 0.5f * Mathf.Clamp01((s.stamina - need) / (float)Mathf.Max(1, PlayerStats.StatMax - need)) : 0f)), 1f);
             _staminaFill.color = s.stamina >= need ? new Color(0.35f, 0.85f, 0.45f) : new Color(0.95f, 0.35f, 0.40f);
@@ -211,9 +261,17 @@ namespace CoastRun
                 ? Loc.T($"챕터 {Save.chapter} 송전탑까지 {weeksLeft}주 · 체력 게이트 통과!", $"{weeksLeft} weeks to the tower · gate OK!")
                 : Loc.T($"챕터 {Save.chapter} 송전탑까지 {weeksLeft}주 · 체력 {need} 필요", $"{weeksLeft} weeks to the tower · need stamina {need}");
             int done = Save.phaseIndex;
-            _actionsLeft.text = weeksLeft == 0 && done >= Timeline.PhasesPerWeek - 1
-                ? Loc.T($"이번 행동 뒤 → CH{Save.chapter} 송전탑으로!", $"After this → CH{Save.chapter} tower!")
-                : Loc.T($"이번 주 행동 {done}/{Timeline.PhasesPerWeek}  " + Dots(done), $"This week {done}/{Timeline.PhasesPerWeek}  " + Dots(done));
+            var contest = StoryContest.Get(Save.chapter);
+            string turnTail = weeksLeft == 0 ? (contest != null ? Loc.T("이야기·대회", "story·contest") : Loc.T("이야기", "story")) : "";
+            _actionsLeft.text = done >= Timeline.PhasesPerWeek
+                ? Loc.T($"행동 끝 {Dots(done)}  ▶ 다음 턴" + (turnTail.Length > 0 ? $" ({turnTail})" : ""), $"Done {Dots(done)}  ▶ Next turn" + (turnTail.Length > 0 ? $" ({turnTail})" : ""))
+                : Loc.T($"이번 주 행동 {done}/{Timeline.PhasesPerWeek} {Dots(done)}  ▶ 다음 턴", $"This week {done}/{Timeline.PhasesPerWeek} {Dots(done)}  ▶ Next turn");
+            if (_lifeLabel != null)
+            {
+                string warn = Survival.Warning(Save);
+                _lifeLabel.text = warn != null ? "⚠ " + warn : Survival.Summary(Save);
+                _lifeLabel.color = warn != null ? new Color(1f, 0.75f, 0.65f) : Color.white;
+            }
             RefreshGirl(null);
         }
 
@@ -228,6 +286,28 @@ namespace CoastRun
             if (fill != null) fill.color = _auto ? new Color(0.35f, 0.80f, 0.45f) : new Color(0.55f, 0.55f, 0.62f);
         }
 
+        // 52차(사용자): 육성 캐릭터 그림 10장(Raise_Girl_Pose_* — Kling, 얼굴 고정): 자기·밥·카페 알바·배달·해녀·웃음·화남·춤·스케이트·울음.
+        //   행동하는 동안 그 활동 포즈, 대성공 = 웃음, 실패 = 울음, 스트레스가 아주 높으면 화남. 포즈는 잠깐(_poseUntil) 붙잡았다가 기분 그림으로.
+        private string _pose; private float _poseUntil;
+        private static string PoseFor(string scheduleId, Outcome? outcome)
+        {
+            if (outcome == Outcome.GreatSuccess) return "Laugh";
+            if (outcome == Outcome.Fail) return "Cry";
+            switch (scheduleId)
+            {
+                case "job_cafe": case "job_sashimi": case "job_hall": case "job_salon": return "Cafe";
+                case "job_delivery": case "job_orange": case "job_market": case "job_night_delivery": case "job_tower_fix": case "job_lighthouse": return "Delivery";
+                case "job_haenyeo": case "les_swim": case "rest_sea": return "Haenyeo";
+                case "dev_dance": case "les_dance": return "Dance";
+                case "dev_skate": case "dev_oreum": case "les_skate": case "les_gym": return "Skate";
+                case "rest_home": return "Sleep";
+                case "les_cook": return "Eat";
+                case "dev_radio": case "job_dj_assist": case "les_ham": case "job_dangsan": return "Laugh";
+                default: return null;
+            }
+        }
+        public void HoldPose(string pose, float seconds) { _pose = pose; _poseUntil = Time.unscaledTime + seconds; RefreshGirl(null); }
+
         private void RefreshGirl(string moodKey)
         {
             if (Save == null) return;
@@ -235,7 +315,9 @@ namespace CoastRun
             float ratio = st.stamina > 0 ? st.stress / (float)st.stamina : 2f;
             string key = moodKey ?? (ratio < 0.4f ? "Happy" : ratio < 0.7f ? "Normal" : "Tired");
             string sfx = SeasonLook.Suffix(Timeline.SeasonOf(Save.week));
-            var tex = ArtAssets.LoadTexture("Raise_Girl_" + key + "_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_" + key)
+            string pose = _pose != null && Time.unscaledTime < _poseUntil ? _pose : (moodKey == null && ratio >= 0.95f ? "Angry" : null);
+            var tex = (pose != null ? ArtAssets.LoadTexture("Raise_Girl_Pose_" + pose) : null)
+                      ?? ArtAssets.LoadTexture("Raise_Girl_" + key + "_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_" + key)
                       ?? ArtAssets.LoadTexture("Raise_Girl_Normal_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_Normal");
             if (tex != null) { _girl.sprite = CoastUiArt.AsSprite(tex); _girl.enabled = true; }
         }
@@ -250,7 +332,7 @@ namespace CoastRun
         {
             if (Save == null) return;
             _hop = 1f;
-            RefreshGirl("Happy");
+            _pose = null; RefreshGirl("Happy");
             string[] lines = { "헤헤.", "왜?", "오늘 날씨 좋다!", "송전탑 보여?", "간지러워~", "같이 달릴래?" };
             ShowBubble(Loc.T(lines[UnityEngine.Random.Range(0, lines.Length)], "Hehe."), 1.6f);
             CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.35f);
@@ -268,6 +350,7 @@ namespace CoastRun
             {
                 _rubBudget--;
                 Save.stats.stress = Mathf.Max(0, Save.stats.stress - 1);
+                if (_rubBudget % 5 == 0) LevelSystem.Add(LevelSystem.ExpRubMax);
                 RefreshGirl("Happy");
                 ShowBubble(Loc.T("기분 좋아~", "That feels nice~"), 1.2f);
                 SpawnHeart(2);
@@ -314,7 +397,7 @@ namespace CoastRun
             if (_auto && !_busy && Save != null)
             {
                 _autoTimer += Time.unscaledDeltaTime;
-                if (_autoTimer >= 1.2f) { _autoTimer = 0f; DoAction(AutoPick()); }
+                if (_autoTimer >= 1.2f) { _autoTimer = 0f; if (Save.phaseIndex >= Timeline.PhasesPerWeek) StartCoroutine(WeekendOnly()); else DoAction(AutoPick()); }
             }
         }
 
@@ -332,6 +415,8 @@ namespace CoastRun
         private void DoAction(int idx)
         {
             if (_busy || Save == null) return;
+            // 55차-2: 행동 3번을 다 했으면 「다음 턴」 버튼으로 넘어간다
+            if (Save.phaseIndex >= Timeline.PhasesPerWeek) { ShowBubble(Loc.T("이번 주 행동은 다 했어 — 「다음 턴」을 눌러!", "All actions done — press Next turn!"), 2f); return; }
             var season = Timeline.SeasonOf(Save.week);
             ScheduleDef def = idx == 0 ? PickRest(season) : idx == 1 ? PickDev(season) : PickJob(season);
             if (def == null) { ShowBubble(Loc.T("지금은 할 게 없네…", "Nothing to do right now…"), 1.5f); return; }
@@ -379,12 +464,15 @@ namespace CoastRun
             CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.4f);
             float t = 0f;
             while (t < 0.45f) { t += Time.unscaledDeltaTime; _girl.color = new Color(1f, 1f, 1f, 1f - t / 0.45f); yield return null; }
+            HoldPose(PoseFor(def.id, null), 30f);   // 52차: 활동 포즈로 돌아온다
             var result = _gm.ResolvePhase(slot);
             if (idx == 0 && result.HasValue)
             {
                 // 밥: v3 규칙 — 체력 +1 보너스(주당 상한은 게이트 자체가 낮아 필요 없음), 스트레스 −5 추가
                 Save.stats.stamina = Mathf.Min(PlayerStats.StatMax, Save.stats.stamina + 1);
                 Save.stats.stress = Mathf.Max(0, Save.stats.stress - 5);
+                Survival.OnRestAction(Save);   // 55차: 밥/휴식 = 이번 주 잠을 잤다(+쌀이 있으면 배부름)
+                if (Save.rice <= 0) ShowBubble(Loc.T("쌀이 없어… 맨입으로 잤다.", "No rice… slept hungry."), 2.5f);
                 _gm.Persist();
             }
             yield return new WaitForSecondsRealtime(0.25f);
@@ -394,6 +482,8 @@ namespace CoastRun
             if (result.HasValue)
             {
                 var r = result.Value;
+                var pz = PoseFor(def.id, r.outcome); if (pz != null) HoldPose(pz, 6f);
+                LevelSystem.Add(r.outcome == Outcome.GreatSuccess ? LevelSystem.ExpActionGreat : r.outcome == Outcome.Fail ? LevelSystem.ExpActionFail : LevelSystem.ExpAction);   // 53차
                 RefreshGirl(r.outcome == Outcome.GreatSuccess ? "Happy" : r.outcome == Outcome.Fail ? "Tired" : null);
                 string line = r.logLines != null && r.logLines.Length > 0 ? r.logLines[r.logLines.Length - 1] : "";
                 string head = r.outcome == Outcome.GreatSuccess ? Loc.T("대성공! ", "Great! ") : r.outcome == Outcome.Fail ? Loc.T("으으… ", "Ugh… ") : "";
@@ -403,21 +493,93 @@ namespace CoastRun
                 if (r.outcome == Outcome.GreatSuccess) SpawnHeart(3);
             }
             Refresh();
-            if (Save.phaseIndex >= Timeline.PhasesPerWeek)
+            // 55차-2(사용자): 행동 3번이 끝나도 자동으로 안 넘어간다 — 「다음 턴」 버튼을 눌러야 한 주가 간다(자동 모드만 스스로 누름).
+            if (Save.phaseIndex >= Timeline.PhasesPerWeek && !_auto)
             {
-                yield return new WaitForSecondsRealtime(_auto ? 0.4f : 1.2f);
-                yield return EndWeek();
+                yield return new WaitForSecondsRealtime(1.0f);
+                ShowBubble(Loc.T("이번 주 행동 끝! 「다음 턴」을 눌러 줘.", "Actions done! Press Next turn."), 3f);
             }
             foreach (var b in _actBtn) if (b != null) b.interactable = true;
             _busy = false;
         }
 
+        private float _nextTurnConfirmUntil;
+        /// 55차-2: 다음 턴 버튼 — 행동이 남았으면 한 번 더 눌러 확인(6초 안), 다 했으면 바로.
+        private void OnNextTurnPressed()
+        {
+            if (_busy || Save == null) return;
+            CoastPrefs.Vibrate();
+            int left = Timeline.PhasesPerWeek - Save.phaseIndex;
+            if (left > 0 && Time.unscaledTime > _nextTurnConfirmUntil)
+            {
+                _nextTurnConfirmUntil = Time.unscaledTime + 6f;
+                ShowBubble(Loc.T($"행동이 {left}번 남았어. 그냥 넘어가려면 한 번 더 눌러.", $"{left} action(s) left. Press again to skip them."), 5f);
+                return;
+            }
+            _nextTurnConfirmUntil = 0f;
+            StartCoroutine(WeekendOnly());
+        }
+
         /// 한 주 끝(행동 3번) — 기존 RaisingUI.ExecuteWeek 의 주말 처리 그대로: 주간 감쇠 → 사이드 씬 → 컨디션 → 챕터 경계(오프닝 → 게이트 → 러닝).
+        private IEnumerator WeekendOnly()
+        {
+            _busy = true;
+            foreach (var b in _actBtn) if (b != null) b.interactable = false;
+            yield return EndWeek();
+            foreach (var b in _actBtn) if (b != null) b.interactable = true;
+            _busy = false;
+        }
+
         private IEnumerator EndWeek()
         {
+            // 52차: 격주 주말 미니게임. 55차-2(사용자): **져도 다음으로 넘어간다** — 이기면 돈 보상(ChapterMissionUI 안에서 지급).
+            if (StoryProgress.WeeklyMinigame(Save.week, out var miniKind) && Save.weekMiniDone < Save.week)
+            {
+                var md = ChapterMission.Get(miniKind);
+                bool wasAuto = _auto; _auto = false; RefreshAuto();
+                ShowBubble(Loc.T($"주말 미니게임 — {md.nameKo}! 이기면 {ChapterMission.Reward(_gm)}G.", $"Weekend mini-game — {md.nameEn}! Win for {ChapterMission.Reward(_gm)}G."), 2.5f);
+                yield return new WaitForSecondsRealtime(1.2f);
+                bool? miniRes = null;
+                ChapterMissionUI.Play(miniKind, false, ok => miniRes = ok);
+                while (miniRes == null) yield return null;
+                Save.weekMiniDone = Save.week; _gm.Persist();
+                if (miniRes == true) { HoldPose("Laugh", 4f); ShowBubble(Loc.T($"이겼다! +{ChapterMission.Reward(_gm)}G", $"Won! +{ChapterMission.Reward(_gm)}G"), 2.5f); }
+                else { HoldPose("Cry", 3f); ShowBubble(Loc.T("졌지만 한 주는 지나간다.", "Lost, but the week moves on."), 2.5f); }
+                Refresh();
+                yield return new WaitForSecondsRealtime(0.8f);
+                _auto = wasAuto; RefreshAuto();
+            }
+            // 55차(사용자): 한 턴(행동 3번) 끝 — 생활 결산(쌀·반찬·잠·옷·컨디션) → 「일주일이 지났다」 → 다음 턴.
+            //   챕터 마지막 주였으면 다음 턴 시작에 컷씬(리더) → 대회(러닝)가 온다. 러닝 중엔 컷씬 없음.
+            int fromWeek = Save.week;
+            var rep = Survival.WeekTick(Save);
             bool forced = _gm.AdvanceWeek();
             _rubBudget = 10;
             Refresh();
+            string nextNote = null;
+            if (rep.died) nextNote = Loc.T("…하늘이 일어나지 못한다.", "…Haneul can't get up.");
+            else if (forced)
+            {
+                var c = StoryContest.Get(Save.chapter);
+                nextNote = c != null
+                    ? Loc.T($"다음 턴: 챕터 {Save.chapter} 이야기 → 대회 「{c.Name}」", $"Next turn: chapter {Save.chapter} story → contest \"{c.Name}\"")
+                    : Loc.T($"다음 턴: 챕터 {Save.chapter} 이야기", $"Next turn: chapter {Save.chapter} story");
+            }
+            bool passDone = false;
+            _auto = _auto && !forced && !rep.died; RefreshAuto();
+            WeekPassUI.Show(fromWeek, Save.week, Timeline.SeasonOf(Save.week), rep, nextNote, () => passDone = true);
+            if (_auto) { float w = 0f; while (!passDone && w < 1.4f) { w += Time.unscaledDeltaTime; yield return null; } if (!passDone) WeekPassUI.Close(); }
+            else while (!passDone) yield return null;
+            if (rep.died)
+            {
+                _auto = false; RefreshAuto();
+                Save.boundaryPending = false; _gm.Persist();
+                bool revived = false;
+                GameOverUI.Show(_gm, _girl != null ? _girl.sprite : null, () => revived = true);
+                while (!revived && GameOverUI.IsOpen) yield return null;   // 「처음부터」는 씬이 바뀌므로 여기서 끝
+                if (revived) { HoldPose("Cry", 5f); Refresh(); ShowBubble(Loc.T("…병원에서 깨어났다. 장부터 보자.", "…Woke up in hospital. Shop first."), 4f); }
+                yield break;
+            }
             ShowBubble(Loc.T($"{Save.week}주차 아침이야.", $"Week {Save.week} morning."), 1.5f);
             if (!string.IsNullOrEmpty(_gm.PendingSideScene))
             {
@@ -438,35 +600,85 @@ namespace CoastRun
                 if (Save.forfeitPending) { _auto = false; RefreshAuto(); _gm.ForfeitChapter(); yield break; }
                 yield return new WaitForSecondsRealtime(_auto ? 0.5f : 1.5f);
             }
-            if (forced)
-            {
-                _auto = false; RefreshAuto();
-                var rec = Save.CurrentChapter;
-                bool firstTime = rec == null || rec.gateFails == 0;
-                if (firstTime)
-                {
-                    ShowBubble(Loc.T("이번 주가 이 챕터의 마지막 주야.", "Last week of this chapter."), 2f);
-                    yield return new WaitForSecondsRealtime(1.2f);
-                    bool doneVn = false;
-                    ChapterVN.HoldBlackOnNext = false;
-                    ChapterVN.PlayChapterOpening(Save.chapter, () => doneVn = true);
-                    while (!doneVn) yield return null;
-                }
-                if (StoryGate.Passes(Save))
-                {
-                    ShowBubble(Loc.T($"체력 {StoryGate.Stamina(Save)} / 필요 {StoryGate.Required(Save)} — 달릴 수 있어! 송전탑으로!", $"Stamina {StoryGate.Stamina(Save)} / need {StoryGate.Required(Save)} — to the tower!"), 3f);
-                    yield return new WaitForSecondsRealtime(1.4f);
-                    _gm.StartStoryRun();
-                    yield break;
-                }
-                _gm.GateFail();
-                Refresh();
-                ShowBubble(StoryGate.FailText(Save), 4f);
-                CoastToast.Show(Loc.T("아직 못 달려 — 한 주 더 키우자", "Not yet — one more week"));
-                yield break;
-            }
+            if (forced) { yield return BoundaryRoutine(); yield break; }
             var ev = _gm.RollRandomEvent();
             if (ev.HasValue) ShowEvent(ev.Value);
+        }
+
+        /// 55차: 챕터 경계 — **다음 턴 시작**에 실행. 레벨 게이트 → (1장이면 프롤로그) → 이야기(리더) → 러닝 없는 챕터면 완료 /
+        ///   러닝 챕터면 체력 게이트 → 대회 안내 → 러닝. 대회에 지면 GameManager.ContestFail 로 돌아와 이 주를 다시 키운다.
+        private IEnumerator BoundaryRoutine()
+        {
+            if (Save == null || !Save.boundaryPending) yield break;
+            _auto = false; RefreshAuto();
+            // 53차(사용자): 롱컷씬(4·7·10·13·15)과 엔딩(20)은 **레벨**이 되어야 열린다 — 젤리·행동·러닝으로 경험치를 모으자(K-POP 11챕터+의 열쇠).
+            if ((StoryProgress.IsLongCut(Save.chapter) || Save.chapter == Timeline.Chapters) && !LevelSystem.LongCutOpen(Save.chapter))
+            {
+                int needLv = LevelSystem.LevelForLongCut(Save.chapter);
+                _gm.GateFail();
+                Refresh();
+                ShowBubble(Loc.T($"이 이야기는 Lv {needLv} 이 되어야 열려 (지금 Lv {LevelSystem.Level}). 젤리와 달리기로 경험치를 모으자!", $"This story opens at Lv {needLv} (now Lv {LevelSystem.Level}). Gather EXP with jelly and runs!"), 5f);
+                CoastToast.Show(Loc.T($"롱컷씬 잠김 — Lv {needLv} 필요 · 한 주 더", $"Long cut locked — Lv {needLv} needed · one more week"));
+                yield break;
+            }
+            if (Save.chapter == 1 && !Save.prologueSeen)
+            {
+                // 55차: 프롤로그 VN 은 러닝 앞이 아니라 여기(첫 이야기 앞)에서
+                bool donePro = false;
+                ChapterVN.Play("PRO", () => donePro = true);
+                while (!donePro) yield return null;
+                Save.prologueSeen = true; _gm.Persist();
+            }
+            if (!StoryProgress.ChapterRead(Save.chapter))
+            {
+                ShowBubble(Loc.T($"챕터 {Save.chapter} 이야기.", $"Chapter {Save.chapter} story."), 1.5f);
+                yield return new WaitForSecondsRealtime(0.8f);
+                // 52차(사용자): 챕터 컷씬은 웹소설 리더로 한 편(오프닝+엔딩) — 힐링하며 읽는다.
+                bool doneVn = false;
+                StoryReaderUI.OpenChapter(Save.chapter, () => doneVn = true);
+                while (!doneVn) yield return null;
+                LevelSystem.Add(LevelSystem.ExpChapterRead);   // 53차: 이야기 한 편 = 경험치
+            }
+            // 52차: 러닝은 이벤트(52주에 8번, StoryProgress.RunChapters) — 러닝 없는 챕터는 이야기를 읽은 것으로 넘어간다.
+            if (!StoryProgress.IsRunChapter(Save.chapter))
+            {
+                int done = Save.chapter;
+                _gm.CompleteChapterNoRun();
+                Refresh();
+                ShowBubble(Loc.T($"{done}장이 지나갔어. 이제 {Save.chapter}장, {Save.week}주차.", $"Chapter {done} done. Now chapter {Save.chapter}, week {Save.week}."), 3.5f);
+                CoastToast.Show(Loc.T($"챕터 {done} 완료 — 다음 이야기로", $"Chapter {done} complete"));
+                yield break;
+            }
+            if (StoryGate.Passes(Save))
+            {
+                // 55차: 러닝 = 이야기와 무관한 마을 대회 — 안내 카드 → 출발
+                bool go = false;
+                ContestIntroUI.Show(StoryContest.Get(Save.chapter), () => go = true);
+                while (!go) yield return null;
+                ShowBubble(Loc.T("가자, 대회장으로!", "To the race!"), 1.5f);
+                yield return new WaitForSecondsRealtime(0.6f);
+                _gm.StartStoryRun();
+                yield break;
+            }
+            _gm.GateFail();
+            Refresh();
+            ShowBubble(StoryGate.FailText(Save), 4f);
+            CoastToast.Show(Loc.T("아직 못 달려 — 한 주 더 키우자", "Not yet — one more week"));
+        }
+
+        /// 53차(사용자): 마이룸(방 꾸미기 HomeUI) — 주인공 꼬마와 펫이 같이 있다.
+        private void OpenRoom()
+        {
+            if (_busy || Save == null || _gm == null) return;
+            CoastPrefs.Vibrate();
+            _busy = true;
+            HomeUI.Open(_gm, _girl != null ? _girl.sprite : null, () =>
+            {
+                _busy = false;
+                RoomDeco.ClearAllNew(_gm.Profile);
+                _gm.WriteProfileNow();
+                Refresh();
+            });
         }
 
         /// 하늘이 그림 위 터치: 짧게 = 탭, 움직이면 = 쓰다듬기.

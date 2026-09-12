@@ -55,6 +55,11 @@ namespace CoastRun
             return n;
         }
 
+        /// 48차-15: 챕터 스템(BGM_CH*)을 지웠으므로 러닝 BGM 은 레코드 M1~M7 을 스테이지마다 돌려 쓴다(앨범 Track_* 도 없을 때).
+        public static string ChapterFallback(int metaStage) => "BGM_M" + (1 + ((metaStage - 1) % 7 + 7) % 7);
+        /// 49차(사용자): 스토리 러닝 BGM 은 M9·M10 두 곡만 — 홀수 스테이지 M9, 짝수 스테이지 M10 (레코드 M1~M7·앨범 Track_* 은 더 이상 안 씀).
+        public static string Story(int metaStage) => (metaStage % 2 == 1) ? "BGM_M9" : "BGM_M10";
+
         public static string ChapterStem(int chapter, int stem) => $"BGM_CH{Mathf.Clamp(chapter, 1, 5)}_{(char)('a' + stem)}";
         public static string Memory(int chapter) => chapter >= 5 ? "BGM_Memory_Cold" : chapter >= 3 ? "BGM_Memory_Mid" : "BGM_Memory_Warm";
         public static string CineOpen(int chapter) => chapter <= 1 ? "BGM_Cine_Prologue" : $"BGM_Cine_CH{chapter}_Open";

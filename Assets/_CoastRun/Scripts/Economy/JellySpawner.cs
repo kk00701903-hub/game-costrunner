@@ -61,7 +61,7 @@ namespace CoastRun
             _nextTrailZ = startZ + 48f;   // Gold Run: first beat is coins/obstacles, not jelly carpet
             _nextPotionZ = startZ + 90f + (float)_rng.NextDouble() * 60f;
             _nextStarZ = startZ + 320f + (float)_rng.NextDouble() * 120f;
-            _nextCardZ = startZ + 380f + (float)_rng.NextDouble() * 180f;
+            _nextCardZ = startZ + (StoryContest.Active && StoryContest.Current.goal == StoryContest.Goal.Photos ? 200f : 380f) + (float)_rng.NextDouble() * 180f;
             _nextGiantZ = startZ + 140f + (float)_rng.NextDouble() * 80f;
             _nextHeartZ = Mathf.Max(startZ + 40f, startZ + _heartSpacing * 0.6f);
             _heartsLeft = RunTuning.HeartsPerStage;
@@ -162,7 +162,9 @@ namespace CoastRun
                 if (_nextCardZ < z + spawnAhead)
                 {
                     Place(PickupKind.Photocard, _nextCardZ, _rng.Next(3) - 1, 0.5f);
-                    _nextCardZ += 420f + (float)_rng.NextDouble() * 220f;
+                    _nextCardZ += StoryContest.Active && StoryContest.Current.goal == StoryContest.Goal.Photos
+                        ? 230f + (float)_rng.NextDouble() * 90f      // 55차: 사진 콘테스트 땐 포토카드가 촘촘히
+                        : 420f + (float)_rng.NextDouble() * 220f;
                 }
                 if (_nextStarZ < z + spawnAhead)
                 {

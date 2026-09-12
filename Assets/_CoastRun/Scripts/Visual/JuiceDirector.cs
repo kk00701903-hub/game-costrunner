@@ -211,35 +211,96 @@ namespace CoastRun
         /// 47차: 2단 점프 — 발밑에 흰 구름 퍼프 + 작은 링(허공을 디딘 자국).
         public void OnDoubleJump(Vector3 worldPos) => OnDoubleJump(worldPos, null);
 
-        /// 48차-11(사용자): 엉덩이에서 뿡 하고 쓩 올라가는 느낌 — 엉덩이 뒤·아래로 큰 퍼프 터짐 + 0.35초 동안 뒤따르는 제트 꼬리(따라오며 아래로 뿜음)
-        ///          + 링 + 스피드라인 + FOV 살짝 넓힘 + 「뿡→쓩」 효과음.
+        /// 51차(사용자): 2단 점프가 충돌 팡(흰 퍼프+링)과 똑같이 보였다 → 「공기를 밟고 쏘아 올라가는」 전용 연출:
+        ///   발밑 하늘색 공기 파문(Fx_AirRing, 납작하게 퍼지며 사라짐) + 발 아래로 뿜는 제트 기둥(Fx_JetBlast, 0.4초 따라오며 늘어났다 사라짐)
+        ///   + 하늘색 바람 입자(아래로) + 스피드라인 + FOV 킥 + 「뿡→쓩」 효과음. 그림이 없으면 옛 퍼프로 폴백.
         public void OnDoubleJump(Vector3 worldPos, Transform follow)
         {
+            var ringTex = ArtAssets.LoadTexture("Fx_AirRing");
+            var jetTex = ArtAssets.LoadTexture("Fx_JetBlast");
+            if (ringTex != null) StartCoroutine(AirRing(worldPos + Vector3.down * 0.05f, ringTex));
+            if (jetTex != null && follow != null) StartCoroutine(JetColumn(follow, worldPos - follow.position, jetTex, 0.42f));
             EnsurePopBursts();
-            SpawnPop(_popPuff, worldPos, new Color(1f, 1f, 1f, 0.95f), 16);
-            SpawnPop(_popPuff, worldPos + Vector3.down * 0.25f, new Color(1f, 0.95f, 0.75f, 0.9f), 8);   // 노르스름한 안쪽
-            StartCoroutine(FlashRing(worldPos, new Color(1f, 1f, 1f, 0.8f), 1.6f));
-            if (follow != null) StartCoroutine(ButtJet(follow, worldPos - follow.position, 0.35f));
-            speedLines?.Burst(30);
-            cameraRig?.FovKick(+4f, 0.25f);
+            if (ringTex == null || jetTex == null)
+            {
+                SpawnPop(_popPuff, worldPos, new Color(1f, 1f, 1f, 0.95f), 16);
+                StartCoroutine(FlashRing(worldPos, new Color(1f, 1f, 1f, 0.8f), 1.6f));
+            }
+            else
+                SpawnPop(_popPuff, worldPos + Vector3.down * 0.35f, new Color(0.70f, 0.95f, 1f, 0.75f), 6);   // 하늘색 바람 부스러기 조금만
+            speedLines?.Burst(40);
+            cameraRig?.FovKick(+5f, 0.25f);
             CoastPrefs.Vibrate();
             audio?.PlaySfx(CoastSfx.Boost);
         }
 
-        private IEnumerator ButtJet(Transform follow, Vector3 offset, float seconds)
+        private static Material _airRingMat, _jetMat;
+
+        private Material FxMat(ref Material cache, Texture2D tex)
         {
-            float t = 0f; int i = 0;
-            while (t < seconds && follow != null)
+            if (cache == null)
             {
-                t += Time.deltaTime;
-                if (i++ % 2 == 0)
-                {
-                    float k = 1f - t / seconds;
-                    var pos = follow.position + offset + Vector3.down * (0.15f + 0.5f * (1f - k));
-                    SpawnPop(_popPuff, pos, new Color(1f, 1f, 1f, 0.55f + 0.4f * k), 3);
-                }
+                cache = CoastMaterials.CreateTexturedTransparentCurved(tex, Color.white, additive: false);
+                if (cache.HasProperty("_ZTest")) cache.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
+                cache.renderQueue = 3400;
+            }
+            return cache;
+        }
+
+        /// 발밑 공기 파문: 바닥에 눕힌 쿼드가 0.6 → 3.2 m 로 퍼지며 투명해진다.
+        private IEnumerator AirRing(Vector3 pos, Texture2D tex)
+        {
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad); q.name = "AirRing"; CoastEditUtil.DestroyCollider(q);
+            var mr = q.GetComponent<Renderer>(); mr.sharedMaterial = FxMat(ref _airRingMat, tex); mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            var mpb = new MaterialPropertyBlock();
+            q.transform.position = pos; q.transform.rotation = Quaternion.Euler(90f, 0f, 0f) * Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+            float t = 0f; const float dur = 0.38f;
+            while (t < dur && q != null)
+            {
+                t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / dur);
+                float s = Mathf.Lerp(0.6f, 3.2f, 1f - (1f - u) * (1f - u));
+                q.transform.localScale = new Vector3(s, s, 1f);
+                q.transform.Rotate(0f, 0f, 240f * Time.unscaledDeltaTime, Space.Self);
+                mpb.SetColor(RingColorId, new Color(1f, 1f, 1f, (1f - u) * 0.95f));
+                mr.SetPropertyBlock(mpb);
                 yield return null;
             }
+            if (q != null) Object.Destroy(q);
+        }
+
+        /// 발 아래로 뿜는 제트 기둥: 주인공을 따라오며 아래로 길어졌다(0.9 → 2.2 m) 흐려진다. 카메라를 향한 빌보드.
+        private IEnumerator JetColumn(Transform follow, Vector3 offset, Texture2D tex, float seconds)
+        {
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad); q.name = "JetBlast"; CoastEditUtil.DestroyCollider(q);
+            var mr = q.GetComponent<Renderer>(); mr.sharedMaterial = FxMat(ref _jetMat, tex); mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            var mpb = new MaterialPropertyBlock();
+            var cam = Camera.main != null ? Camera.main.transform : null;
+            float aspect = tex.width / (float)tex.height;
+            float t = 0f;
+            while (t < seconds && follow != null && q != null)
+            {
+                t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / seconds);
+                float h = Mathf.Lerp(0.9f, 2.2f, 1f - (1f - u) * (1f - u));
+                var feet = follow.position + offset;
+                q.transform.position = feet + Vector3.down * (h * 0.5f - 0.1f);
+                if (cam != null) { var fwd = q.transform.position - cam.position; fwd.y = 0f; q.transform.rotation = Quaternion.LookRotation(fwd.normalized, Vector3.up); }
+                q.transform.localScale = new Vector3(h * aspect * Mathf.Lerp(1.1f, 0.7f, u), h, 1f);
+                mpb.SetColor(RingColorId, new Color(1f, 1f, 1f, Mathf.Clamp01(1.2f - u * 1.4f)));
+                mr.SetPropertyBlock(mpb);
+                yield return null;
+            }
+            if (q != null) Object.Destroy(q);
+        }
+
+        /// 51차: 하늘에서 떨어진 바위 착지 — 쿵(흔들림·진동) + 흙먼지 퍼프.
+        public void PlayRockLand(Vector3 worldPos)
+        {
+            EnsurePopBursts();
+            cameraRig?.Shake(0.28f, 0.22f);
+            SpawnPop(_popPuff, worldPos + Vector3.up * 0.2f, new Color(0.62f, 0.55f, 0.45f, 0.9f), 14);
+            StartCoroutine(FlashRing(worldPos + Vector3.up * 0.1f, new Color(0.9f, 0.8f, 0.6f, 0.8f), 2.4f));
+            CoastPrefs.Vibrate();
+            audio?.PlaySfx(CoastSfx.SoftHit);
         }
 
         public void OnJumpPad(Vector3 worldPos)

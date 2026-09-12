@@ -65,5 +65,20 @@ namespace CoastRun
         }
 
         public void ResetSession() => sessionCoins = 0;
+
+        // 52차: 러닝 씬 밖(육성 펫 상점)에서도 코인을 보고 쓴다 — 인스턴스가 없으면 PlayerPrefs 직접.
+        public static int TotalStatic
+        {
+            get { var w = FindAnyObjectByType<CoinWallet>(); return w != null ? w.TotalCoins : PlayerPrefs.GetInt(PrefsKey, 0); }
+        }
+        public static bool TrySpendStatic(int amount)
+        {
+            var w = FindAnyObjectByType<CoinWallet>();
+            if (w != null) return w.TrySpend(amount);
+            int t = PlayerPrefs.GetInt(PrefsKey, 0);
+            if (amount <= 0 || t < amount) return false;
+            PlayerPrefs.SetInt(PrefsKey, t - amount); PlayerPrefs.Save();
+            return true;
+        }
     }
 }

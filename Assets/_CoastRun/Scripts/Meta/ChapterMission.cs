@@ -18,7 +18,7 @@ namespace CoastRun
         public static readonly Def[] All =
         {
             new Def { kind = Kind.Marbles,   chapter = 3,  nameKo = "구슬치기", nameEn = "Marbles",
-                      ruleKo = "[방향 선택] → [발사!] 힘 선택으로 흰 구슬을 쏴요.\n3발 안에 삼각형 안 구슬 8개 중 5개 이상 밖으로 내보내면 승리", ruleEn = "Pick aim, then power, then shoot. Knock 5 of 8 marbles out of the triangle in 3 shots." },
+                      ruleKo = "[방향 선택] → [발사!] 힘 선택으로 흰 구슬을 쏴요.\n3발 안에 삼각형 안 구슬을 2개 이하로 남기면 승리(8개 중 6개 밖으로)", ruleEn = "Pick aim, then power, then shoot. Leave 2 or fewer marbles inside the triangle after 3 shots (6 of 8 out)." },
             new Def { kind = Kind.Yut,       chapter = 6,  nameKo = "윷놀이", nameEn = "Yut Nori",
                       ruleKo = "윷을 던져 한 바퀴!\n도담이보다 먼저 들어오면 승리", ruleEn = "Throw the yut sticks. Get around the board before Dodam." },
             new Def { kind = Kind.Tuho,      chapter = 9,  nameKo = "투호", nameEn = "Tuho",
@@ -44,6 +44,20 @@ namespace CoastRun
             if (gm == null) return;
             if (gm.Profile != null) { gm.Profile.missionClearMask |= 1 << (int)k; gm.WriteProfileNow(); }
             if (gm.Save != null) { gm.Save.missionDoneMask |= 1 << (int)k; gm.Persist(); }
+        }
+
+        /// 55차-2(사용자): 져도 넘어간다 — 이번 회차 「시도함」만 찍는다(프로필 해금 비트는 안 켬).
+        public static void MarkAttempted(GameManager gm, Kind k)
+        {
+            if (gm == null || gm.Save == null) return;
+            gm.Save.missionDoneMask |= 1 << (int)k; gm.Persist();
+        }
+
+        /// 55차-2(사용자): 미니게임 성공 보상(돈) — 주차가 갈수록 조금씩 오른다.
+        public static int Reward(GameManager gm)
+        {
+            int week = gm != null && gm.Save != null ? gm.Save.week : 1;
+            return 150 + week * 5;
         }
 
         /// 이 챕터를 막 클리어했고 **이번 회차**에서 아직 미션을 안 깼으면 true(SaveData.missionDoneMask — 회차마다 다시 한다).

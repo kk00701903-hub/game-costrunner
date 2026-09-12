@@ -46,12 +46,8 @@ namespace CoastRun
 
         private static void KerbWall(Transform root, int side, System.Random rng, float density = 6.5f)
         {
-            float x = side * (RoadHalfWidth + 1.15f);
-            for (float z = 2f; z < Length - 1f; z += density)
-            {
-                if (JejuKit.Spawn("Prop_StoneWall", root, new Vector3(x, 0f, z + (float)rng.NextDouble() * 0.8f), 0f, 0.55f) == null)
-                    CreateBox(root, "Kerb", new Vector3(x, 0.3f, z + 2.5f), new Vector3(0.4f, 0.6f, 5f), () => Basalt);
-            }
+            // 49차(사용자): 킷 돌담 조각이 L자 회색 덩어리로 보였다 → 이어지는 낮은 현무암 돌담(텍스처) 한 줄.
+            StoneWallRun(root, side * (RoadHalfWidth + 1.15f), 0.55f);
         }
 
         // ── 숲 ────────────────────────────────────────────────────────────
@@ -107,8 +103,10 @@ namespace CoastRun
                 case FieldKind.SilverGrass: ground = new Color(0.66f, 0.60f, 0.40f); flower = new Color(0.90f, 0.85f, 0.70f); break;
                 case FieldKind.Orchard: ground = new Color(0.46f, 0.64f, 0.30f); break;
             }
-            CreateBox(root, "Field", new Vector3(side * (inner + 7f), -0.06f, Length * 0.5f), new Vector3(14f, 0.1f, Length), () => ground);
+            // 49차: 색 박스 → 카툰 풀 텍스처(유채·메밀은 살짝 다른 틴트는 꽃으로 읽히니 그대로 풀)
+            var fieldGo = TexturedSlab(root, "Field", new Vector3(side * (inner + 7f), -0.06f, Length * 0.5f), new Vector3(14f, 0.1f, Length), GrassMaterial(), () => ground, 3.0f);
             KerbWall(root, side, rng, 7f);
+            if (side > 0) WoodFence(root, RoadHalfWidth + 0.9f, 0f, 1.0f);
             bool snow = SeasonLook.Current == SeasonKind.Winter;
             if (kind == FieldKind.Orchard)
             {
@@ -120,6 +118,19 @@ namespace CoastRun
                         ProceduralTree(root, new Vector3(x, 0f, z), 3f, new Color(0.25f, 0.5f, 0.25f), rng);
                 }
                 if (rng.Next(2) == 0) JejuKit.Spawn("Prop_OrangeStall", root, new Vector3(side * (inner + 0.6f), 0f, 12f + (float)rng.NextDouble() * 8f), side < 0 ? 180f : 0f);
+            }
+            else if (flower != Color.clear && !snow && PaintedProp.Available(kind == FieldKind.SilverGrass ? "SilverGrass" : "Canola") && kind != FieldKind.Buckwheat)
+            {
+                // 49차: 그림 포기(억새/유채)로 무성하게 — 앞줄 촘촘, 뒷줄 듬성
+                string key = kind == FieldKind.SilverGrass ? "SilverGrass" : "Canola";
+                float hBase = kind == FieldKind.SilverGrass ? 1.3f : 0.9f;
+                for (int i = 0; i < 22; i++)
+                {
+                    float x = side * (inner + 0.6f + (float)rng.NextDouble() * (i < 12 ? 2.6f : 7f));
+                    PaintedClump(root, key, new Vector3(x, 0f, (float)rng.NextDouble() * Length), hBase * (0.85f + (float)rng.NextDouble() * 0.45f));
+                }
+                for (int i = 0; i < 3; i++)
+                    PaintedClump(root, "BasaltPile", new Vector3(side * (inner + 1f + (float)rng.NextDouble() * 4f), 0f, (float)rng.NextDouble() * Length), 0.6f + (float)rng.NextDouble() * 0.4f);
             }
             else if (flower != Color.clear && !snow)
             {
@@ -145,9 +156,11 @@ namespace CoastRun
             }
             else
             {
-                // 초원: 풀 뭉치 + 돌담 + 가끔 방사탑/돌하르방
-                for (int i = 0; i < 10; i++)
+                // 초원: 풀 뭉치 + 돌담 + 가끔 방사탑/돌하르방 (49차: 억새·유채 그림 포기 섞음)
+                for (int i = 0; i < 6; i++)
                     CreateCapsule(root, "Tuft", new Vector3(side * (inner + 0.6f + (float)rng.NextDouble() * 6f), 0.15f, (float)rng.NextDouble() * Length), 0.3f, 0.5f, () => Color.Lerp(ground, Color.black, 0.15f));
+                float a = side * (inner + 0.6f), b = side * (inner + 5f);
+                VergeDressing(root, rng, Mathf.Min(a, b), Mathf.Max(a, b), 8);
             }
             if (rng.Next(3) == 0) JejuKit.Spawn("Prop_Hareubang", root, new Vector3(side * (inner + 0.8f), 0f, 6f + (float)rng.NextDouble() * 18f), side < 0 ? 180f : 0f, 0.8f);
             if (rng.Next(4) == 0)
@@ -163,7 +176,7 @@ namespace CoastRun
         {
             var rng = new System.Random(index * 6151 + side * 31 + 13);
             float inner = RoadHalfWidth + 1.2f;
-            CreateBox(root, "RockGround", new Vector3(side * (inner + 6f), -0.08f, Length * 0.5f), new Vector3(12f, 0.1f, Length), () => Color.Lerp(Basalt, Moss, 0.25f));
+            TexturedSlab(root, "RockGround", new Vector3(side * (inner + 6f), -0.08f, Length * 0.5f), new Vector3(12f, 0.1f, Length), ShoreMaterial(), () => Color.Lerp(Basalt, Moss, 0.25f), 3.0f);   // 49차: 바위 해안 텍스처
             for (int i = 0; i < 16; i++)
             {
                 float x = side * (inner + 0.3f + (float)rng.NextDouble() * 7f);
@@ -219,10 +232,18 @@ namespace CoastRun
             KerbWall(root, +1, rng, 7f);
             Color g = SeasonGrass();
             // 완만히 올라가는 초록 경사(박스를 기울여) + 뒤에 더 높은 둔덕
-            var slope = CreateBox(root, "HillSlope", new Vector3(railX + 6.5f, 1.4f, Length * 0.5f), new Vector3(15f, 0.8f, Length + 2f), () => g);
+            // 49차(사용자): 초록 색 박스 경사 → 카툰 풀 텍스처 + 나무 울타리 + 억새·유채 포기
+            WoodFence(root, railX, 0f, 1.0f);
+            var slope = TexturedSlab(root, "HillSlope", new Vector3(railX + 6.5f, 1.4f, Length * 0.5f), new Vector3(15f, 0.8f, Length + 2f), GrassMaterial(), () => g, 3.0f);
             slope.transform.localRotation = Quaternion.Euler(0f, 0f, -14f);
-            var back = CreateBox(root, "HillBack", new Vector3(railX + 15f, 3.6f, Length * 0.5f), new Vector3(10f, 4f, Length + 2f), () => Color.Lerp(g, CoastPalette.SkyBlue, 0.25f));
+            var back = TexturedSlab(root, "HillBack", new Vector3(railX + 15f, 3.6f, Length * 0.5f), new Vector3(10f, 4f, Length + 2f), GrassMaterial(), () => Color.Lerp(g, CoastPalette.SkyBlue, 0.25f), 3.0f);
             back.transform.localRotation = Quaternion.Euler(0f, 0f, -25f);
+            for (int i = 0; i < 12; i++)
+            {
+                float cx = railX + 0.9f + (float)rng.NextDouble() * 5.5f; float cy = (cx - railX) * 0.25f - 0.05f;
+                string key = rng.Next(3) == 0 && (SeasonLook.Current == SeasonKind.Spring || SeasonLook.Current == SeasonKind.Summer) ? "Canola" : "SilverGrass";
+                PaintedClump(root, key, new Vector3(cx, cy, (float)rng.NextDouble() * Length), key == "Canola" ? 0.9f + (float)rng.NextDouble() * 0.3f : 1.2f + (float)rng.NextDouble() * 0.6f);
+            }
             for (int i = 0; i < 5; i++)
             {
                 float z = 2f + i * 6f + (float)rng.NextDouble() * 2f; float x = railX + 2f + (float)rng.NextDouble() * 6f;

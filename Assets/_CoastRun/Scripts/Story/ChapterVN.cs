@@ -77,7 +77,7 @@ namespace CoastRun
         private void Begin(string sceneId, Action onDone, string titleCard)
         {
             _lines = ChapterScript.Get(sceneId);
-            _sceneId = sceneId;
+            _sceneId = sceneId; _cutUsed = false;
             _onDone = onDone;
             _titleCard = titleCard;
             IsPlaying = true;
@@ -401,6 +401,7 @@ namespace CoastRun
             Finish();
         }
 
+        private bool _cutUsed;
         private IEnumerator ShowBg(VnLine line)
         {
             // 짧은 암전 후 배경 교체
@@ -413,6 +414,8 @@ namespace CoastRun
             var tex = snow ? ArtAssets.LoadTexture("BG_" + line.A + "_SNOW") : null;
             bool dedicated = tex != null;
             if (tex == null) tex = ArtAssets.LoadTexture("BG_" + line.A);
+            // 54차: 그림 없는 컷(BG | Blank)은 그 씬의 컷 그림(Cut_<sceneId>, Kling 수채)이 있으면 그것으로 — 처음 BG 에만(씬당 한 장).
+            if (tex == null && line.A == "Blank" && !_cutUsed) { tex = ArtAssets.LoadTexture("Cut_" + _sceneId); if (tex != null) { dedicated = true; _cutUsed = true; } }
             if (tex != null)
             {
                 _bg.sprite = CoastUiArt.AsSprite(tex, 100f);

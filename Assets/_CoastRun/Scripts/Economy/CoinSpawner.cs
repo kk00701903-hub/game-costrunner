@@ -102,6 +102,7 @@ namespace CoastRun
                 }
             }
             else _feverFillZ = 0f;
+            if (BossDirector.SpawnHold) _nextSpawnZ = Mathf.Max(_nextSpawnZ, z + spawnAhead);   // 51차: 보스 중엔 코인 패턴 쉼(최소화)
             while (_nextSpawnZ < z + spawnAhead)
             {
                 // Pattern length + breath — Gold Run empty asphalt between guides.

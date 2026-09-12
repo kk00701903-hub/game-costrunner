@@ -56,17 +56,19 @@ namespace CoastRun
     }
 
     /// 48차: K-POP 한 곡 달리기 — 곡별 재생 창(초). start 부터 length 초를 세션으로 쓴다. 후렴 구간엔 꼬마 피버 제안 + 코인 ×2.
-    /// M4(97s)는 통째, M2(233s)·M7(202s)는 90초 창. 후렴 시각은 사운드 확인 전 기본값(HANDOVER 48차 Open question 1).
+    /// 52차(사용자): 창을 **3분(180초)** 으로. 곡이 180초보다 짧으면 스템 소스가 loop 라 처음부터 다시 돈다(M4 97s 는 두 바퀴).
+    ///   후렴은 두 번(chorus/chorus2) — 두 번째는 곡의 2절 후렴 또는 루프 뒤 첫 후렴 자리. 사운드 확인 전 기본값.
     public struct KpopTrackMeta
     {
-        public int num; public float start, length, chorusStart, chorusEnd;
-        public KpopTrackMeta(int num, float start, float length, float chorusStart, float chorusEnd)
-        { this.num = num; this.start = start; this.length = length; this.chorusStart = chorusStart; this.chorusEnd = chorusEnd; }
+        public int num; public float start, length, chorusStart, chorusEnd, chorus2Start, chorus2End;
+        public KpopTrackMeta(int num, float start, float length, float chorusStart, float chorusEnd, float chorus2Start = -1f, float chorus2End = -1f)
+        { this.num = num; this.start = start; this.length = length; this.chorusStart = chorusStart; this.chorusEnd = chorusEnd; this.chorus2Start = chorus2Start; this.chorus2End = chorus2End; }
         public string Clip => "BGM_M" + num;
         public string Title => RecordTable.TitleOf(num);
         /// 48차-5(사용자): 러닝 HUD 우하단 표기 — 「제목 — 우히&히시」(M1. 같은 번호 없이).
         public const string Artist = "우히&히시";
         public string Credit => Title + " — " + Artist;
+        public bool InChorus(float t) => (t >= chorusStart && t < chorusEnd) || (chorus2Start >= 0f && t >= chorus2Start && t < chorus2End);
     }
 
     public static class ArcadeRun
@@ -75,7 +77,7 @@ namespace CoastRun
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
-            Kind = ArcadeKind.None; KpopMode = false; KpopFinished = false; KpopElapsed = 0f; FeverInChorus = 0;
+            Kind = ArcadeKind.None; KpopMode = false; BossRush = false; BossesCleared = 0; KpopFinished = false; KpopElapsed = 0f; FeverInChorus = 0;
             Conditions = new DailyCondition[0]; ConditionDone = new bool[3]; ObstacleSpawner.SeedOverride = null;
         }
         public static ArcadeKind Kind { get; private set; }
@@ -88,6 +90,14 @@ namespace CoastRun
         public static bool ReturnToRaising { get; private set; }
         /// 26차: 타이틀 하단 'K-POP 러닝모드' — 스토리 없는 무한 러닝, 육성 스탯(체력·순발력…) 적용, BGM_KPOP_* 재생.
         public static bool KpopMode { get; private set; }
+        /// 51차(사용자): 더보기 › 보스전 — K-POP 한 곡 창에 보스만 연달아(코인·장애물 최소). KpopMode 위에 얹는 플래그.
+        public static bool BossRush { get; private set; }
+        /// 이번 런에서 퇴치한 보스 수(BossDirector 가 올림). 보스 1마리 = 400점.
+        public static int BossesCleared { get; private set; }
+        public const int BossScore = 400;
+        public static void NoteBossCleared() { if (KpopMode) BossesCleared++; }
+        /// 보스전 난이도(챕터) — 오늘 최고 챕터 기준 랜덤(3~해금 챕터), 최소 3.
+        public static int BossRushChapter(GameManager gm) => Mathf.Max(6, KpopChapter(gm));   // 52차: 보스는 6챕터부터
 
         // 이번 런 집계
         public static float Distance { get; private set; }
@@ -99,17 +109,27 @@ namespace CoastRun
         /// 곡 3개 중 매 런 랜덤(직전 곡 제외). 창(start/length)·후렴 시각은 초기값 — 사운드 확인 뒤 조정.
         public static readonly KpopTrackMeta[] KpopTracks =
         {
-            new KpopTrackMeta(2, 0f, 90f, 55f, 80f),    // 솜사탕 둘이서 (232.9s)
-            new KpopTrackMeta(4, 0f, 97f, 55f, 82f),    // Goodbye My First Love (97.1s, 통째)
-            new KpopTrackMeta(7, 0f, 90f, 55f, 80f),    // 보조개 (201.6s)
+            // 52차: 창 180초. (곡 길이) / 루프 지점 = 곡 길이 - start
+            new KpopTrackMeta(2, 0f, 180f, 55f, 80f, 130f, 155f),     // 솜사탕 둘이서 (232.9s)
+            new KpopTrackMeta(4, 0f, 180f, 55f, 82f, 152f, 179f),     // Goodbye My First Love (97.1s → 97초에 한 바퀴 더)
+            new KpopTrackMeta(7, 0f, 180f, 55f, 80f, 135f, 160f),     // 보조개 (201.6s)
+            new KpopTrackMeta(8, 10f, 180f, 37f, 62f, 100f, 125f),    // Sweet Dream (136.3s, 앞 10초 인트로 건너뜀, 126초에 루프)
+            new KpopTrackMeta(11, 0f, 180f, 50f, 75f, 115f, 140f),    // 오운완 (140.0s)
+            new KpopTrackMeta(12, 0f, 180f, 63f, 88f, 118f, 140f),    // Peek a boo (140.6s)
         };
-        public static KpopTrackMeta KpopTrack { get; private set; } = new KpopTrackMeta(4, 0f, 90f, 55f, 80f);
+        /// 52차: 기부 히든 트랙 — 스토리 러닝 BGM 풀버전 두 곡(M9 147.6s / M10 121.2s)
+        public static readonly KpopTrackMeta[] HiddenTracks =
+        {
+            new KpopTrackMeta(9, 0f, 180f, 45f, 70f, 110f, 135f),
+            new KpopTrackMeta(10, 0f, 180f, 40f, 65f, 100f, 121f),
+        };
+        public static KpopTrackMeta KpopTrack { get; private set; } = new KpopTrackMeta(4, 0f, 180f, 55f, 82f, 152f, 179f);
         /// 스테이지 경과(초). StageManager 가 매 프레임 넣는다.
         public static float KpopElapsed { get; private set; }
         public static float KpopProgress01 => KpopMode && KpopTrack.length > 0f ? Mathf.Clamp01(KpopElapsed / KpopTrack.length) : 0f;
         public static float KpopSecondsLeft => Mathf.Max(0f, KpopTrack.length - KpopElapsed);
         /// 후렴 구간(코인 ×2, 피버 제안).
-        public static bool KpopChorus => KpopMode && KpopElapsed >= KpopTrack.chorusStart && KpopElapsed < KpopTrack.chorusEnd;
+        public static bool KpopChorus => KpopMode && KpopTrack.InChorus(KpopElapsed);
         /// 아웃트로(마지막 8초): 장애물 없음, 리본.
         public const float KpopOutroSeconds = 8f;
         /// 48차-7(사용자): 러닝 시작 뒤 1초 쉬었다가 곡이 나온다. 곡 시계(KpopElapsed)도 그만큼 늦게 출발.
@@ -151,6 +171,8 @@ namespace CoastRun
             int last = PlayerPrefs.GetInt(PrefLastTrack, 0);
             var pool = new List<KpopTrackMeta>();
             foreach (var t in KpopTracks) if (t.num != last || KpopTracks.Length == 1) pool.Add(t);
+            // 52차: 기부 선물 ① 히든 트랙(M9·M10)도 풀에
+            if (RecordTable.HiddenOpen) foreach (var t in HiddenTracks) if (t.num != last) pool.Add(t);
             var pick = pool[UnityEngine.Random.Range(0, pool.Count)];
             PlayerPrefs.SetInt(PrefLastTrack, pick.num);
             return pick;
@@ -279,15 +301,24 @@ namespace CoastRun
 
         public static void StartKpop(GameManager gm) => StartKpop(gm, KpopChapter(gm));
 
+        /// 51차: 보스전 — 해금 챕터 안에서 랜덤 챕터(난이도)로 K-POP 창을 열고 BossRush 플래그를 켠다.
+        public static void StartBossRush(GameManager gm)
+        {
+            int top = BossRushChapter(gm);
+            int ch = Mathf.Max(6, UnityEngine.Random.Range(Mathf.Max(6, top - 4), top + 1));
+            StartKpop(gm, ch);
+            BossRush = true;
+        }
+
         /// 39차-4: 챕터를 지정해 K-POP 러닝 시작. 계절은 챕터의 계절(5챕터 = 1계절), 코스는 매번 새 시드.
         public static void StartKpop(GameManager gm, int chapter)
         {
             var p = gm != null ? gm.Profile : null;
             var save = gm != null ? gm.PeekSave() : null;
-            // 48차: 「한 곡 달리기」 — 날짜 시드(오늘의 코스), 미션 3(완주 고정 + 2), 곡은 M2/M4/M7 랜덤. Kind 는 Endless 로 두되
+            // 48차: 「한 곡 달리기」 — 날짜 시드(오늘의 코스), 미션 3(완주 고정 + 2), 곡은 M2/M4/M7/M8/M11/M12 랜덤. Kind 는 Endless 로 두되
             //        정산은 KpopMode 분기(SettleKpop)로 간다(도장·스트릭은 옛 「오늘의 런」 필드 재사용).
             Kind = ArcadeKind.Endless;
-            KpopMode = true;
+            KpopMode = true; BossRush = false; BossesCleared = 0;
             ReturnToRaising = false;
             Seed = Today;
             chapter = Mathf.Clamp(chapter, 1, Timeline.Chapters);
@@ -306,6 +337,7 @@ namespace CoastRun
             if (save != null) RunTuning.Mode = save.runMode;
             if (RunTuning.Mode == RunMode.Skateboard) { RunTuning.SpeedMul = 1.3f; RunTuning.CoinMul = 1.3f; }
             RunTuning.CoinMul *= KpopCoinDecay(p);
+            RunTuning.CoinMul *= LevelSystem.CoinMul(save);   // 53차: 레벨 코인 보너스
             RunTuning.Pet = save != null ? save.equippedPet : PetCompanion.Selected;
             ObstacleSpawner.SeedOverride = Seed * 7 + chapter;
 
@@ -362,7 +394,8 @@ namespace CoastRun
         public static void OnHit() { if (Distance < 500f) HitsFirst500++; }
 
         public static int Score(StageRunStats s) => Mathf.RoundToInt(Distance) + (s != null ? s.Coins * 5 + s.NearMissValue + s.Hearts * 20 : 0)
-            + (KpopMode && KpopFinished ? KpopFinishBonus + (s != null && s.SoftHits == 0 ? KpopFlawlessBonus : 0) : 0);
+            + (KpopMode && KpopFinished ? KpopFinishBonus + (s != null && s.SoftHits == 0 ? KpopFlawlessBonus : 0) : 0)
+            + (KpopMode ? BossesCleared * BossScore : 0);   // 51차: 보스 퇴치 보너스
 
         /// 사망 시 정산. 결과 문자열은 UI가 그린다.
         public static void Settle(GameManager gm, StageRunStats s)
@@ -461,6 +494,13 @@ namespace CoastRun
                 }
             }
             wallet?.Persist();
+            // 53차(사용자): K-POP 러닝에서 모은 돈이 육성 돈에도 쌓인다 + 완주·보스 경험치
+            if (gm.Save != null)
+            {
+                gm.Save.stats.money += (s != null ? s.CoinValue : 0) + LastStampCoins + LastAllClearCoins + BossesCleared * BossDirector.BossCoins;
+                gm.Persist();
+            }
+            LevelSystem.Add((KpopFinished ? LevelSystem.ExpKpopFinish : 0) + BossesCleared * LevelSystem.ExpBoss);
             gm.WriteProfileNow();
             AchievementTable.CheckAndToast(gm);
         }

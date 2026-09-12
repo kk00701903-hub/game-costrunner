@@ -416,6 +416,7 @@ namespace CoastRun
                 {
                     hud?.AddScore(80, pos, true);
                     hud?.Flash(new Color(1f, 0.8f, 0.95f, 0.3f));
+                    StoryContest.NotePhoto();   // 55차: 대회(사진 콘테스트) 진행
                     int id = Collection.RollCardDrop(new System.Random(Mathf.RoundToInt(transform.position.z * 31f) ^ System.Environment.TickCount));
                     if (id > 0)
                     {

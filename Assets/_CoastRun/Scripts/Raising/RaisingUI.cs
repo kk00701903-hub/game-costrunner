@@ -1219,7 +1219,27 @@ namespace CoastRun
 
         private enum Mood { Happy, Normal, Tired, Great, Fail }
 
-        private void RefreshCharacter(Mood? force = null)
+        /// 52차(사용자): 육성 캐릭터 그림 10장 추가(Raise_Girl_Pose_* — Kling, 얼굴 고정): 자기·밥·카페 알바·배달·해녀·웃음·화남·춤·스케이트·울음.
+        ///   스케줄 실행 중엔 그 활동 포즈, 대성공은 웃음, 실패는 울음, 스트레스가 아주 높으면 화남. 평소엔 기존 기분 그림(계절 옷).
+        private static string PoseFor(string scheduleId, Outcome outcome)
+        {
+            if (outcome == Outcome.GreatSuccess) return "Laugh";
+            if (outcome == Outcome.Fail) return "Cry";
+            switch (scheduleId)
+            {
+                case "job_cafe": case "job_sashimi": case "job_hall": return "Cafe";
+                case "job_delivery": case "job_orange": case "job_market": case "job_night_delivery": case "job_tower_fix": return "Delivery";
+                case "job_haenyeo": case "les_swim": case "rest_sea": return "Haenyeo";
+                case "dev_dance": case "les_dance": return "Dance";
+                case "dev_skate": case "dev_oreum": case "les_skate": case "les_gym": return "Skate";
+                case "rest_home": return "Sleep";
+                case "les_cook": return "Eat";
+                case "dev_radio": case "job_dj_assist": case "les_ham": return "Laugh";
+                default: return null;
+            }
+        }
+
+        private void RefreshCharacter(Mood? force = null, string pose = null)
         {
             var st = Save.stats;
             float ratio = st.stamina > 0 ? st.stress / (float)st.stamina : 2f;
@@ -1228,7 +1248,10 @@ namespace CoastRun
             string key = mood == Mood.Great ? "Happy" : mood == Mood.Fail ? "Tired" : mood.ToString();
             // 6차: 계절 옷 — Raise_Girl_<mood>_<SEASON> 이 있으면 그것(봄은 기본 노란 티)
             string sfx = Save != null ? SeasonLook.Suffix(Timeline.SeasonOf(Save.week)) : "SPRING";
-            var tex = ArtAssets.LoadTexture("Raise_Girl_" + key + "_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_" + key)
+            // 52차: 포즈 그림 우선(활동/대성공/실패), 스트레스 0.95 이상이면 화남
+            if (pose == null && force == null && ratio >= 0.95f) pose = "Angry";
+            var tex = (pose != null ? ArtAssets.LoadTexture("Raise_Girl_Pose_" + pose) : null)
+                      ?? ArtAssets.LoadTexture("Raise_Girl_" + key + "_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_" + key)
                       ?? ArtAssets.LoadTexture("Raise_Girl_Normal_" + sfx) ?? ArtAssets.LoadTexture("Raise_Girl_Normal");
             if (tex == null)
                 tex = ArtAssets.LoadTexture("GirlSkater_Back");
@@ -1247,7 +1270,7 @@ namespace CoastRun
             }
             // 피로 이하: 다크서클 / 부상(번아웃): 살짝 기울어진 자세
             bool tired = mood == Mood.Tired || mood == Mood.Fail;
-            _darkCircles.gameObject.SetActive(tired && tex != null && !tex.name.Contains("Tired"));
+            _darkCircles.gameObject.SetActive(tired && tex != null && !tex.name.Contains("Tired") && !tex.name.Contains("Pose_"));
             _charMoodScale = mood == Mood.Great ? 1.04f : 1f;   // 23차-8: 회전·스케일은 TickPortrait가 매 프레임 적용
 
             if (force == null)
@@ -1316,6 +1339,8 @@ namespace CoastRun
             if (_busy || Save == null) return;
             // 유료 게이트: 봄(1~5챕터) 무료, 그 뒤는 디지털 앨범.
             if (!Collection.CanPlayChapter(Save.chapter)) { CollectionUI.OpenPaywall(); return; }
+            // 52차(사용자): 러닝은 52주에 8번(StoryProgress.RunChapters) — 나머지 챕터는 마지막 주에 컷씬을 읽으면 넘어간다.
+            if (!StoryProgress.IsRunChapter(Save.chapter)) { Toast(Loc.T($"이번 챕터는 달리기가 없어 — {Timeline.WeekEnd(Save.chapter)}주차 주말에 이야기가 열려", $"No run this chapter — the story opens on week {Timeline.WeekEnd(Save.chapter)}")); return; }
             if (!StoryGate.Passes(Save)) { Toast(Loc.T($"체력 {StoryGate.Stamina(Save)}/{StoryGate.Required(Save)} — 아직 스토리로 못 가.", $"Stamina {StoryGate.Stamina(Save)}/{StoryGate.Required(Save)} — not ready.")); return; }   // 26차
             Confirm(Loc.T("지금 스토리로 갈까?", "Go to the story now?"), Loc.T("이번 주 남은 칸은 스토리로 채워져. 챕터가 끝나면 다음 챕터 첫 주로 넘어가.", "The rest of this week becomes the story. After the chapter, you move to the next chapter's first week."), () =>
             {
@@ -1452,11 +1477,28 @@ namespace CoastRun
                 if (!result.HasValue) continue;
                 var r = result.Value;
                 RefreshSlots();
-                RefreshCharacter(r.outcome == Outcome.GreatSuccess ? Mood.Great : r.outcome == Outcome.Fail ? Mood.Fail : (Mood?)null);
+                RefreshCharacter(r.outcome == Outcome.GreatSuccess ? Mood.Great : r.outcome == Outcome.Fail ? Mood.Fail : (Mood?)null, PoseFor(r.def.id, r.outcome));
                 _bubble.text = r.outcome == Outcome.GreatSuccess ? "해냈다!" : r.outcome == Outcome.Fail ? "으으… 망했어." : "그럭저럭.";
                 if (r.outcome == Outcome.GreatSuccess) _weekGreat++; else if (r.outcome == Outcome.Fail) _weekFail++;
                 yield return ShowLogTyped($"{i + 1}페이즈 · {r.def.Name}", r.logLines, r.outcome, r.def.id);
                 RefreshStats();
+            }
+
+            // 52차(사용자): 격주 주말 미니게임 — 이겨야 이 주가 넘어간다(지면 주는 그대로, 다시 도전).
+            if (StoryProgress.WeeklyMinigame(Save.week, out var miniKind) && Save.weekMiniDone < Save.week)
+            {
+                var md = ChapterMission.Get(miniKind);
+                yield return ShowLog(Loc.T("주말 미니게임", "Weekend mini-game"), Loc.T($"{md.nameKo} — 이겨야 다음 주로 넘어가!", $"{md.nameEn} — win to move on!"), 0.5f);
+                bool? miniRes = null;
+                ChapterMissionUI.Play(miniKind, false, ok => miniRes = ok);
+                while (miniRes == null) yield return null;
+                if (miniRes == false)
+                {
+                    yield return ShowLog(Loc.T("아쉽다", "So close"), Loc.T("미니게임을 깨야 한 주가 지나가. 쉬었다가 다시 도전!", "Beat the mini-game to end the week. Try again!"), 0.6f);
+                    _busy = false; _runButton.interactable = true; RefreshSlots();
+                    yield break;
+                }
+                Save.weekMiniDone = Save.week; _gm.Persist();
             }
 
             var endSnap = TakeSnap();
@@ -1495,10 +1537,20 @@ namespace CoastRun
                     yield return ShowLog(Loc.T("챕터 이벤트", "Chapter event"), Loc.T($"{Save.week}주차. 이번 주가 이 챕터의 마지막 주야.", $"Week {Save.week}. Last week of this chapter."), 0.35f);
                 if (firstTime)   // 두 번째부터는 컷씬을 다시 틀지 않고 판정만
                 {
+                    // 52차(사용자): 챕터 컷씬은 웹소설 리더로 한 편(오프닝+엔딩) — 힐링하며 읽는다.
                     bool doneVn = false;
-                    ChapterVN.HoldBlackOnNext = false;   // 불통과면 육성 화면으로 돌아오므로 검은 화면을 잡아두지 않는다
-                    ChapterVN.PlayChapterOpening(Save.chapter, () => doneVn = true);
+                    StoryReaderUI.OpenChapter(Save.chapter, () => doneVn = true);
                     while (!doneVn) yield return null;
+                }
+                // 52차: 러닝은 이벤트(8번) — 러닝 없는 챕터는 이야기를 읽은 것으로 챕터가 넘어간다.
+                if (!StoryProgress.IsRunChapter(Save.chapter))
+                {
+                    int done = Save.chapter;
+                    _gm.CompleteChapterNoRun();
+                    Refresh();
+                    yield return ShowLog(Loc.T("다음 이야기로", "Next chapter"), Loc.T($"{done}장이 지나갔어. 이제 {Save.chapter}장 — {Save.week}주차.", $"Chapter {done} is done. Now chapter {Save.chapter} — week {Save.week}."), 0.6f);
+                    _busy = false; _runButton.interactable = true; RefreshSlots();
+                    yield break;
                 }
                 if (StoryGate.Passes(Save))
                 {

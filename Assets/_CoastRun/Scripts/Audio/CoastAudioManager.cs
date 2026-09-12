@@ -255,7 +255,8 @@ namespace CoastRun
 
             // 앨범 트랙(Suno, Resources/CoastRun/BGM/Track_CHnn)이 있으면 그 챕터는 풀 트랙 하나로 간다 — 스템 대신.
             int metaStage = (chapter - 1) * 4 + stageInChapter;
-            var full = CoastBgmLibrary.Load(AlbumTable.Get(metaStage).Clip);
+            // 49차(사용자): 스토리 러닝은 M9/M10 만(홀·짝 스테이지) — 앨범 Track_*·M1~M7 돌려쓰기 삭제.
+            var full = CoastBgmLibrary.Load(CoastBgmLibrary.Story(metaStage));
             // 48차: K-POP 한 곡 달리기 — ArcadeRun 이 고른 곡(M2/M4/M7)을 창 시작점부터. 재도전도 처음부터 다시.
             bool kpop = ArcadeRun.KpopMode;
             if (kpop) { var k = CoastBgmLibrary.Load(ArcadeRun.KpopTrack.Clip); if (k != null) full = k; }
@@ -340,14 +341,14 @@ namespace CoastRun
         {
             if (_ambient == null)
             {
-                _ambient = CreateSource("Ambient", 0.35f, true);
+                _ambient = CreateSource("Ambient", 0f, true);   // 49차: Update 가 볼륨을 정하기 전엔 무음(첫 프레임 드론 방지)
                 _ambient.clip = ProceduralAudio.CreateLoop(220f, 0.08f, 4f);
                 _ambient.Play();
             }
 
             if (_wind == null)
             {
-                _wind = CreateSource("Wind", 0.2f, true);
+                _wind = CreateSource("Wind", 0f, true);
                 _wind.clip = ProceduralAudio.CreateLoop(90f, 0.04f, 6f);
                 _wind.Play();
             }
@@ -517,10 +518,12 @@ namespace CoastRun
             // Keep loops alive — never Pause/Stop ambient here.
             float speed = player.NormalizedSpeed;
             // Real music present → the procedural ambient bed steps back.
-            float bedScale = _runBgm != null && _runBgm.clip != null ? 0.15f : 1f;
+            // 49차(사용자): K-POP 런은 곡 앞 1초 정적에 합성 드론(220Hz)·바람이 「찌꺼기」로 들렸다 → 아예 0.
+            bool kpop = ArcadeRun.KpopMode;
+            float bedScale = kpop ? 0f : (_runBgm != null && _runBgm.clip != null ? 0.15f : 1f);
             if (_wheel != null && !_bedMuted)
             {
-                _wheel.volume = Mathf.Lerp(0.02f, 0.28f, speed) * (_runBgm != null && _runBgm.clip != null ? 0.5f : 1f);
+                _wheel.volume = Mathf.Lerp(0.02f, 0.28f, speed) * (kpop ? 0.25f : (_runBgm != null && _runBgm.clip != null ? 0.5f : 1f));
                 _wheel.pitch = Mathf.Lerp(0.85f, 1.35f, speed);
             }
 

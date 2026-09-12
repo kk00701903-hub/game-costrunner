@@ -42,10 +42,30 @@ namespace CoastRun
 
         private static MetaProfile P => GameManager.I != null ? GameManager.I.Profile : null;
 
+        /// 52차: 기부 선물 ① 히든 트랙 — M9·M10(스토리 러닝 BGM 풀버전). 레코드 화면 얇은 금색 띠 + K-POP 런 풀.
+        public static readonly Track[] Hidden =
+        {
+            new Track { num = 9, ko = "히든 트랙 1 · Game 1", en = "Hidden Track 1 · Game 1", noteKo = "기부 선물", noteEn = "Donor gift", label = new Color(1f, 0.84f, 0.35f) },
+            new Track { num = 10, ko = "히든 트랙 2 · Game 2", en = "Hidden Track 2 · Game 2", noteKo = "기부 선물", noteEn = "Donor gift", label = new Color(1f, 0.84f, 0.35f) },
+        };
+        public const int HiddenBits = (1 << 8) | (1 << 9);
+        public static bool HiddenOpen => Donation.HiddenTrack;
+
+        /// 49차: 레코드(컬렉션)에는 안 올리고 BGM 으로만 쓰는 곡 — M8·M11·M12 = K-POP 런, M9·M10 = 스토리 러닝.
+        private static readonly (int num, string ko, string en)[] Extra =
+        {
+            (8, "Sweet Dream", "Sweet Dream"),
+            (9, "Game 1", "Game 1"),
+            (10, "Game 2", "Game 2"),
+            (11, "오운완", "Workout Done"),
+            (12, "Peek a boo", "Peek a boo"),
+        };
+
         /// 48차: 곡 번호 → 제목(K-POP 한 곡 달리기 HUD·결과 카드).
         public static string TitleOf(int num)
         {
             foreach (var t in All) if (t.num == num) return Loc.T(t.ko, t.en);
+            foreach (var e in Extra) if (e.num == num) return Loc.T(e.ko, e.en);
             return "M" + num;
         }
 

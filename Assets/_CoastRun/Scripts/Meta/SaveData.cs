@@ -102,6 +102,9 @@ namespace CoastRun
         public PetKind equippedPet = PetKind.None;
         public int ownedPetMask;
         public int missionDoneMask;             // 44차: 이번 회차에서 깬 챕터 미션(ChapterMission.Kind 비트) — 롱컷 직전 게이트
+        public int weekMiniDone;                 // 52차: 주말 미니게임을 깬 마지막 주차(격주 미니게임을 이겨야 그 주가 넘어간다)
+        public int level = 1;                    // 53차: 육성 레벨(LevelSystem) — 젤리·행동·러닝이 경험치
+        public int exp;                          // 53차: 현재 레벨에서 쌓은 경험치
         public string[] queuedSchedule = new string[3];
         public EndingKind reachedEnding = EndingKind.None;
         public int playthrough = 1;
@@ -118,6 +121,19 @@ namespace CoastRun
         public int treadmillStamp = -1;      // 30차: 러닝머신 마지막 사용 (week*4+phase)
         public int miniGameWeek, miniGamePlays;   // 30차: 미니게임 보상 횟수(주 3회)
         public int flowersSold;              // 30차: 판 꽃 수(통계)
+        // ── 55차(사용자): 생존 생태계(다마고치) — 식료품·옷·허기·수면·컨디션·죽음 ──
+        public int rice = 2;                 // 쌀 재고(주 단위) — 주마다 1 소비
+        public int sideDish = 2;             // 반찬 재고(주 단위) — 주마다 1 소비(텃밭 수확으로도)
+        public int hunger = 80;              // 배부름 0~100 (0 = 굶주림)
+        public int clothesWeeks = 12;        // 옷 남은 주(3개월 = 12주, 0 이면 낡아서 못 입음)
+        public int condition = 80;           // 컨디션 0~100 — 0이 이어지면 죽는다
+        public int sleepDebt;                // 잠(밥·휴식 행동)을 안 한 연속 주
+        public int starveWeeks;              // 쌀 없이 지낸 연속 주
+        public int dangerWeeks;              // 컨디션 0 인 연속 주(2주 = 사망)
+        public int deaths;                   // 쓰러진 횟수(통계)
+        public bool restedThisWeek;          // 이번 주 밥/휴식 행동을 했는가
+        public bool boundaryPending;         // 챕터 마지막 주가 끝나 다음 턴에 컷씬·대회가 기다리는 중
+        public int contestFails;             // 대회 미달 횟수(통계)
 
         public ChapterRecord CurrentChapter =>
             chapters != null && chapter >= 1 && chapter <= chapters.Length ? chapters[chapter - 1] : null;
@@ -193,6 +209,9 @@ namespace CoastRun
         public int kpopTodayBest, kpopTodayDate;
         public int[] kpopBestByChapter = new int[20];
         public int kpopSongsFinished;            // 완주 누적
+        // ── 52차: 기부(Donation) ──
+        public int donateCups;                   // 기부 잔 수(커피 한 잔 = 1)
+        public int donateGiftMask;               // Donation.Gift 비트: 1 히든 트랙 / 2 모든 게임 열림
         public int EndingsSeenCount { get { int n = 0; for (int i = 0; i < 7; i++) if ((endingMask & (1 << i)) != 0) n++; return n; } }
 
         public int StarsTotal { get { int n = 0; if (starMask != null) foreach (var m in starMask) n += (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1); return n; } }

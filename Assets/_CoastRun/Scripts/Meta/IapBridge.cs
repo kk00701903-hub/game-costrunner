@@ -15,6 +15,10 @@ namespace CoastRun
     public static class IapBridge
     {
         public const string AlbumProductId = "coastrun_album_full";   // 비소모성, ₩9,900 / $8.99
+        /// 52차: 기부(커피 한 잔) — 소모성, 여러 번 가능. Donation.ProductId 와 같다.
+        public const string DonateProductId = Donation.ProductId;
+        static string _donatePrice;
+        public static string DonatePrice => _donatePrice;
 
         static bool _initStarted;
         static Action<bool> _pendingDone;
@@ -62,7 +66,7 @@ namespace CoastRun
 
                 await _store.Connect();
                 _connected = true;
-                _store.FetchProducts(new List<ProductDefinition> { new ProductDefinition(AlbumProductId, ProductType.NonConsumable) });
+                _store.FetchProducts(new List<ProductDefinition> { new ProductDefinition(AlbumProductId, ProductType.NonConsumable), new ProductDefinition(DonateProductId, ProductType.Consumable) });
             }
             catch (Exception e)
             {
@@ -76,6 +80,9 @@ namespace CoastRun
             var p = products.FirstOrDefault(x => x.definition.id == AlbumProductId);
             if (p != null && p.metadata != null && !string.IsNullOrEmpty(p.metadata.localizedPriceString))
                 _localizedPrice = p.metadata.localizedPriceString;
+            var dp = products.FirstOrDefault(x => x.definition.id == DonateProductId);
+            if (dp != null && dp.metadata != null && !string.IsNullOrEmpty(dp.metadata.localizedPriceString))
+                _donatePrice = dp.metadata.localizedPriceString;
             Debug.Log("[IAP] products fetched: " + products.Count + " price=" + _localizedPrice);
             // 앱 재설치·기기 변경: 이미 산 사용자는 자동 복원
             _store.FetchPurchases();
@@ -91,19 +98,22 @@ namespace CoastRun
         {
             // 영수증 검증 자리(서버 없음 → 로컬 확정). 권한 지급 후 확정.
             if (OrderHas(order, AlbumProductId)) Collection.GrantAlbum();
+            if (OrderHas(order, DonateProductId)) _donatePending = true;   // 선물은 Purchase 콜백(done)에서 Donation.Grant
             _store.ConfirmPurchase(order);
         }
 
         static void OnPurchaseConfirmed(Order order)
         {
-            bool ok = order is ConfirmedOrder && OrderHas(order, AlbumProductId);
+            bool album = OrderHas(order, AlbumProductId), donate = OrderHas(order, DonateProductId);
+            bool ok = order is ConfirmedOrder && (album || donate);
             if (order is FailedOrder f)
             {
                 // 이미 소유(중복 거래)도 성공으로 본다
-                ok = f.FailureReason == PurchaseFailureReason.DuplicateTransaction && OrderHas(order, AlbumProductId);
+                ok = f.FailureReason == PurchaseFailureReason.DuplicateTransaction && album;
                 Debug.LogWarning("[IAP] confirm failed: " + f.FailureReason + " " + f.Details);
             }
-            if (ok) Collection.GrantAlbum();
+            if (ok && album) Collection.GrantAlbum();
+            _donatePending = false;
             var d = _pendingDone; _pendingDone = null; d?.Invoke(ok);
         }
 
@@ -115,6 +125,7 @@ namespace CoastRun
             var d = _pendingDone; _pendingDone = null; d?.Invoke(ok);
         }
 
+        static bool _donatePending;
         static void OnPurchasesFetched(Orders orders)
         {
             bool owned = orders.ConfirmedOrders.Any(o => OrderHas(o, AlbumProductId));

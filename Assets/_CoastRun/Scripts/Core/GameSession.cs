@@ -351,6 +351,9 @@ namespace CoastRun
         private void HandleStageStart(StageDef stage)
         {
             runStats?.BeginStage();
+            // 55차(사용자): 스토리 러닝 = 대회(StoryContest) — 진행 HUD·제한시간. 아케이드·재도전 샌드박스는 해당 없음.
+            if (!ArcadeRun.Active && GameManager.Active && !GameManager.I.IsRetry) StoryContest.Begin(GameManager.I.Save.chapter);
+            else StoryContest.End();
             if (ArcadeRun.Active) ArcadeRun.OnStageBegin();
             _bonus?.ForceEnd();
             _health?.ResetFull();
@@ -376,6 +379,17 @@ namespace CoastRun
                 seasonWeather?.SetChapterTheme(stage.chapterIndex);
             // Chapter stems: four stages per chapter, stems build up (CH5: strip down).
             audio?.SetChapterStage(stage.chapterIndex, ((stage.stageIndex - 1) % 4) + 1);
+            // 51차(사용자): K-POP 런 = 챕터별 난이도(가속 구간·보스), 보스전 = 보스만. 스토리 런 = 가끔 하늘에서 바위(2챕터부터).
+            if (BossDirector.Instance != null) Destroy(BossDirector.Instance.gameObject);
+            if (ArcadeRun.KpopMode && player != null)
+                BossDirector.Create(player, obstacles, ArcadeRun.StageIndex, ArcadeRun.BossRush, ArcadeRun.Seed * 31 + stage.stageIndex);
+            StoryContest.SpawnBoss(player, obstacles, stage);   // 55차: 보스 퇴치전이면 보스 배치(위의 Destroy 뒤에)
+            if (player != null)
+            {
+                var rain = player.GetComponent<SkyHazards.RockRain>() ?? player.gameObject.AddComponent<SkyHazards.RockRain>();
+                rain.enabled = !ArcadeRun.KpopMode;   // K-POP 은 보스(골렘)가 맡는다
+                rain.Bind(player);
+            }
             IsRunning = true;
             if (input != null)
                 input.enabled = true;

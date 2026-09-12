@@ -1,13 +1,14 @@
-# BGM 슬롯 폴더
+# BGM 폴더
 
-여기에 `BGM_제작발주서.md`의 파일명 그대로 `.ogg`(권장) / `.wav` / `.mp3`를 넣으면
-다음 Play부터 자동으로 재생됩니다. 파일이 없는 슬롯은 절차적 사운드가 대신합니다.
+48차-15(사용자 지시): 챕터 스템·시네마·엔딩·메모리·메뉴·타이틀 BGM 은 모두 삭제. 49차: M8~M12 추가.
 
 | 파일 | 어디서 |
 |---|---|
-| `BGM_Menu.ogg` / `BGM_Menu_Cleared.ogg` | 타이틀 (`TitleAudio`) |
-| `BGM_CH1_a.ogg` `_b` `_c` … `BGM_CH4_c.ogg` | 주행 스템 — 스테이지 1→a, 2→a+b, 3+→a+b+c (`CoastAudioManager.SetChapterStage`) |
-| `BGM_CH5_a/b/c/d.ogg` | 주행 — 역방향 소거, S20은 d만 |
+| `BGM_M5.ogg` | 부팅·타이틀·메인 (`TitleAudio` / `CoastBgmLibrary.Menu`) |
+| `BGM_M2 / M4 / M7 / M8 / M11 / M12` | K-POP 한 곡 달리기 (`ArcadeRun.KpopTracks`) |
+| `BGM_M9 / M10` | 스토리 러닝 — 홀수 스테이지 M9, 짝수 스테이지 M10 (`CoastBgmLibrary.Story`) |
+| `BGM_M1~M7` | 레코드(컬렉션) 화면 재생 |
+
+M8~M12 는 원본 wav(48kHz) → -14 LUFS 통일, 50ms 페이드인, Vorbis 128k.
 
 Import 설정 권장: Load Type **Streaming**, Compression **Vorbis** 품질 70, Preload Audio Data 끔.
-스템 a/b/c는 **길이·BPM·시작 지점이 완전히 같아야** 합니다(동시 시작 후 볼륨만 페이드).

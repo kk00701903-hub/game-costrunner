@@ -66,6 +66,12 @@ namespace CoastRun
         {
             if (_busy || Save == null) return;
             if (_shopModal != null) Destroy(_shopModal);
+            // 52차(사용자): 펫 상점은 20주차부터
+            if (!PetShop.Unlocked(Save))
+            {
+                Toast(Loc.T($"펫 상점은 {PetShop.UnlockWeek}주차에 열려요 (지금 {Save.week}주차)", $"Pet shop opens on week {PetShop.UnlockWeek} (now week {Save.week})"));
+                return;
+            }
             var kinds = PetShop.ForSale;
             _shopModal = Modal("ShopPopup", 620f, 150f + kinds.Length * 148f + 70f, out var panel);
             // 38차 시안: 크림 알약 제목 "펫 상점 🐾 · 보유 n" (양옆 주황 점)
@@ -78,7 +84,7 @@ namespace CoastRun
             }
             var t = Label(tp.transform, "Title", Loc.T("펫 상점", "Pet Shop"), 26, Navy); t.fontStyle = FontStyle.Bold;
             Place(t.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -8f), new Vector2(0f, 36f), new Vector2(0.5f, 1f));
-            var money = Label(tp.transform, "Money", Loc.T($"보유 {Save.stats.money:N0}", $"Coins {Save.stats.money:N0}"), 15, Ink);
+            var money = Label(tp.transform, "Money", Loc.T($"코인 {CoinWallet.TotalStatic:N0} · Lv {Mathf.Max(1, Save.level)}", $"Coins {CoinWallet.TotalStatic:N0} · Lv {Mathf.Max(1, Save.level)}"), 15, Ink);
             Place(money.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 8f), new Vector2(0f, 24f), new Vector2(0.5f, 0f));
 
             Color[] rowCols = { Hex("#CFE7FF"), Hex("#FFD5E6"), Hex("#FFF0B8"), Hex("#D6F5D8"), Hex("#E6D9FF"), Hex("#FFE2C9") };
@@ -116,12 +122,12 @@ namespace CoastRun
                 blurb.rectTransform.offsetMin = new Vector2(textLeft, 12f); blurb.rectTransform.offsetMax = new Vector2(-150f, -50f);
                 // 가격 알약(우상단: 금화 + 숫자) / 보유·장착 표시
                 var pp = CoastUiArt.CutePill(card.transform, "PricePill", Hex("#FFF6D6"), 12, 2); pp.raycastTarget = false;
-                Place(pp.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-14f, -12f), new Vector2(132f, 32f), new Vector2(1f, 1f));
+                Place(pp.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-14f, -12f), new Vector2(150f, 32f), new Vector2(1f, 1f));
                 var coinSp = CoastUiArt.Icon("Coin");
                 var ci = CoastHudLayout.MakeImage(pp.transform, "Coin", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(8f, -11f), new Vector2(30f, 11f), Color.white);
                 if (coinSp != null) { ci.sprite = coinSp; ci.preserveAspect = true; } else { ci.sprite = CoastUiArt.RoundedRect(11); ci.type = Image.Type.Sliced; ci.color = Hex("#FFC107"); }
                 ci.raycastTarget = false;
-                var price = Label(pp.transform, "Price", owned ? (equipped ? Loc.T("장착 중", "Equipped") : Loc.T("보유", "Owned")) : $"{PetShop.Price[k]:N0}", 15, Hex("#7A4A00")); price.alignment = TextAnchor.MiddleRight;
+                var price = Label(pp.transform, "Price", owned ? (equipped ? Loc.T("장착 중", "Equipped") : Loc.T("보유", "Owned")) : $"{PetShop.Price[k]:N0}c Lv{PetShop.LevelReq[k]}", owned ? 15 : 13, Hex("#7A4A00")); price.alignment = TextAnchor.MiddleRight;
                 price.fontStyle = FontStyle.Bold; price.rectTransform.offsetMin = new Vector2(34f, 0f); price.rectTransform.offsetMax = new Vector2(-10f, 0f);
                 string label = !owned ? Loc.T("구매", "Buy") : equipped ? Loc.T("해제", "Unequip") : Loc.T("장착", "Equip");
                 Color col = !owned ? (PetShop.CanAfford(Save, k) ? Hex("#4EA8FF") : new Color(0.65f, 0.65f, 0.7f)) : equipped ? new Color(0.6f, 0.62f, 0.7f) : Hex("#4EA8FF");
@@ -146,7 +152,7 @@ namespace CoastRun
             if (!PetShop.Owns(Save, k))
             {
                 if (PetShop.TryBuy(Save, k)) { Toast($"{PetCompanion.Names[(int)k]}를 데려왔어!"); _gm.Persist(); }
-                else Toast("돈이 모자라.");
+                else Toast(Loc.T("코인이나 레벨이 모자라.", "Not enough coins or level."));
             }
             else if (Save.equippedPet == k) { Save.equippedPet = PetKind.None; _gm.Persist(); }
             else { PetShop.Equip(Save, k); _gm.Persist(); }

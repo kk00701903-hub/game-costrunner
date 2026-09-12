@@ -170,6 +170,16 @@ namespace CoastRun
 
             _ready = true;
             ShowAiNoticeOnce();
+            if (_ready && !Donation.PopupSeen) OpenDonate();   // 52차: 첫 로딩 — 기부부탁 팝업 한 번
+        }
+
+        /// 52차(사용자): 기부부탁 팝업(우상단 아이콘 탭 / 첫 로딩 자동).
+        private void OpenDonate()
+        {
+            if (DonateUI.IsOpen) return;
+            if (_moreOpen) ToggleMore();
+            _ready = false;
+            DonateUI.Open(() => { if (this != null) _ready = true; });
         }
 
         /// 첫 실행 1회: AI 제작 혼성 듀오 고지(스토어 정책·팬덤 신뢰). 확인 전엔 메뉴가 안 눌린다.
@@ -185,8 +195,8 @@ namespace CoastRun
             var t = CoastOrnate.Label(panel.transform, "T", Loc.T("『제주』는 AI로 만든 가상 듀오예요", "“JEJU” is an AI-produced virtual duo"), 22, new Color(0.16f, 0.12f, 0.10f));
             t.rectTransform.anchorMin = new Vector2(0f, 1f); t.rectTransform.anchorMax = new Vector2(1f, 1f); t.rectTransform.anchoredPosition = new Vector2(0f, -40f); t.rectTransform.sizeDelta = new Vector2(0f, 40f);
             var b = CoastOrnate.Label(panel.transform, "B", Loc.T(
-                "하늘과 도윤의 목소리·노래·그림은 AI로 제작했고, 이야기와 게임은 사람이 만들었습니다. 실존 인물이나 그룹을 흉내 내지 않습니다.\n\n봄 시즌은 무료, 나머지는 디지털 앨범(1회 결제)으로 열립니다. 광고는 없습니다.",
-                "Haneul and Doyun's voices, songs and art are AI-produced; the story and the game are made by people. They do not imitate any real person or group.\n\nSpring is free; the rest opens with the digital album (one purchase). No ads."), 16, new Color(0.16f, 0.12f, 0.10f), TextAnchor.UpperLeft);
+                "하늘과 도윤의 목소리·노래·그림은 AI로 제작했고, 이야기와 게임은 사람이 만들었습니다. 실존 인물이나 그룹을 흉내 내지 않습니다.\n\n광고도, 강제 결제도 없습니다. 커피 한 잔 값 기부는 자율이에요.",
+                "Haneul and Doyun's voices, songs and art are AI-produced; the story and the game are made by people. They do not imitate any real person or group.\n\nNo ads, no forced purchases. A coffee-sized donation is entirely optional."), 16, new Color(0.16f, 0.12f, 0.10f), TextAnchor.UpperLeft);
             b.rectTransform.anchorMin = new Vector2(0f, 0f); b.rectTransform.anchorMax = new Vector2(1f, 1f); b.rectTransform.offsetMin = new Vector2(30f, 90f); b.rectTransform.offsetMax = new Vector2(-30f, -80f);
             b.horizontalOverflow = HorizontalWrapMode.Wrap;
             _aiNoticeOk = () =>
@@ -194,6 +204,7 @@ namespace CoastRun
                 _aiNoticeOk = null;
                 p.aiNoticeSeen = true; _gm.WriteProfileNow();
                 Destroy(panel.gameObject); Destroy(dim.gameObject); _ready = true;
+                if (!Donation.PopupSeen) OpenDonate();
             };
             CoastOrnate.GlassButton(panel.transform, "Ok", Loc.T("알겠어요", "Got it"), new Vector2(0.5f, 0f), new Vector2(0f, 46f), new Vector2(220f, 46f), () => _aiNoticeOk?.Invoke(), 0.5f, 18, true);
         }
@@ -416,6 +427,10 @@ namespace CoastRun
             BuildSettingsPanel(root);
             BuildRecordPanel(root);
             _root = root;
+            // 52차(사용자): 우상단 「기부부탁」 아이콘 — 메인(타이틀)에서만 보이고 더보기·다른 페이지·팝업 중엔 숨는다.
+            DonateUI.AttachIcon(ui.transform, () => _ready && !_moreOpen && !DonateUI.IsOpen && !KpopChapterSelect.IsOpen && !CollectionUI.IsOpen && !ChapterMissionUI.IsOpen && !PolicyUI.IsOpen
+                                                  && !(_settingsPanel != null && _settingsPanel.activeSelf) && !(_galleryPanel != null && _galleryPanel.activeSelf)
+                                                  && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf), OpenDonate);
             if (hasSave)
                 _tapLabel.text = Loc.T("화면을 터치하면 스토리 모드", "Tap for Story Mode");
         }
@@ -618,12 +633,11 @@ namespace CoastRun
             var more = new System.Collections.Generic.List<(string, System.Action)>();
             more.Add((Loc.T("새로하기", "New Game"), () => { if (_ready) { if (_moreOpen) ToggleMore(); StartNewFlow(); } }));
             // 38차: 「노을 달리기」 항목 제거(K-POP 러닝모드 바로 통합)
-            more.Add((Loc.T("컬렉션", "Collection"), () => { _audio?.PlayClick(); CollectionUI.Open(null, 1); }));   // 42차: 1 = 포토카드(모은 사진)
+            more.Add((Loc.T("컬렉션", "Collection"), () => { if (_moreOpen) ToggleMore(); CollectionUI.Open(null, 1); }));   // 51차: 다른 메뉴로 갈 땐 더보기 닫기   // 49차(사용자): 진입 클릭음 제거   // 42차: 1 = 포토카드(모은 사진)
             // 37차: 레코드 — 컷씬 음악 7곡. 타이틀 곡을 멈추고 들어가서, 닫으면 다시 튼다.
             more.Add((Loc.T("레코드", "Records"), () =>
             {
-                _audio?.PlayClick();
-                _audio?.StopMenu();
+                _audio?.StopMenu();   // 49차: 클릭음 제거
                 if (_moreOpen) ToggleMore();
                 _ready = false;
                 CollectionUI.Open(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; }, 0);   // 38차: 시안대로 컬렉션 › 레코드 탭
@@ -647,7 +661,24 @@ namespace CoastRun
                     onPlayStart: () => { played = true; _audio?.StopMenu(); },
                     onClose: () => { if (this == null) return; if (played) _audio?.PlayMenu(_cleared); _ready = true; });
             }));
-            more.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); ShowPanel(_settingsPanel, true); }));
+            more.Add((Loc.T("설정", "Settings"), () => { _audio?.PlayClick(); if (_moreOpen) ToggleMore(); ShowPanel(_settingsPanel, true); }));
+            // 51차(사용자): 보스전 — K-POP 한 곡 창에 보스(갈매기 해적·돌하르방 골렘·태풍 도깨비)만 연달아. 난이도는 해금 챕터 기준 랜덤.
+            more.Add((Loc.T("보스전", "Boss Rush"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayStart();
+                if (_moreOpen) ToggleMore();
+                _ready = false;
+                ArcadeRun.StartBossRush(_gm);
+            }));
+            // 50차(사용자): 이용약관(AI 기반 K-POP 음악·사이버 가수 우히&히시 조항) · 개인정보 처리지침 · 운영정책 · 청소년 보호 — 한 항목 안에 탭 4개(PolicyUI)
+            more.Add((Loc.T("이용약관·정책", "Terms & Policies"), () =>
+            {
+                _audio?.PlayClick();
+                if (_moreOpen) ToggleMore();
+                _ready = false;
+                PolicyUI.Open(PolicyUI.Doc.Terms, () => { if (this == null) return; _ready = true; });
+            }));
 
             var col = new GameObject("MoreColumn", typeof(RectTransform), typeof(CanvasGroup));
             col.transform.SetParent(ui.transform, false);
@@ -674,16 +705,20 @@ namespace CoastRun
                     new Vector2(mW, mH), () => { if (_ready) act(); }, 0.42f, 24, false);
             }
 
-            var ver = CreateLabel(ui.transform, "Version", "v" + Application.version, 14, FontStyle.Normal,
+            var ver = CreateLabel(ui.transform, "Version", Loc.T("스튜디오 우히히시 v", "Studio Woohee-Heesi v") + Application.version, 13, FontStyle.Normal,   // 51차(사용자): 스튜디오 이름 + 살짝 아래
                 new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0.018f), new Vector2(300f, 20f));
             ver.alignment = TextAnchor.MiddleRight; ver.rectTransform.anchorMin = ver.rectTransform.anchorMax = new Vector2(1f, 0f);
-            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, 8f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석
+            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, 2f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석
 
             BuildGalleryPanel(root);
             BuildCreditsPanel(root);
             BuildSettingsPanel(root);
             BuildRecordPanel(root);
-            _root = root;   // 38차: 캐릭터 선택 페이지 삭제(BuildCharacterSelect 미호출)
+            _root = root;
+            // 52차(사용자): 우상단 「기부부탁」 아이콘 — 메인(타이틀)에서만 보이고 더보기·다른 페이지·팝업 중엔 숨는다.
+            DonateUI.AttachIcon(ui.transform, () => _ready && !_moreOpen && !DonateUI.IsOpen && !KpopChapterSelect.IsOpen && !CollectionUI.IsOpen && !ChapterMissionUI.IsOpen && !PolicyUI.IsOpen
+                                                  && !(_settingsPanel != null && _settingsPanel.activeSelf) && !(_galleryPanel != null && _galleryPanel.activeSelf)
+                                                  && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf), OpenDonate);   // 38차: 캐릭터 선택 페이지 삭제(BuildCharacterSelect 미호출)
         }
 
         /// 세이브가 있을 때: 육성 화면을 챕터 선택(타임라인)이 열린 상태로 연다.
@@ -1117,7 +1152,7 @@ namespace CoastRun
             return (Loc.IsKo ? "소리  " : "Sound  ") + bar + "  " + CoastPrefs.VolumeLabel(s);
         }
 
-        private string SecretText() => (Loc.IsKo ? "비밀코드" : "Secret code") + (_gm != null && _gm.Profile.devUnlockAll ? Loc.T("  ·  전부 열림", "  ·  all open") : "");
+        private string SecretText() => (Loc.IsKo ? "비밀코드" : "Secret code") + (_gm != null && _gm.DevUnlockAll ? Loc.T("  ·  전부 열림", "  ·  all open") : "");
 
         // ── 37차: 비밀코드 키패드 — 4자리. 1111 = 전체 챕터·레코드 해금(테스트) ──
         public const string SecretCode = "1111";
@@ -1159,6 +1194,14 @@ namespace CoastRun
                         hint.text = Loc.T("열렸다 — 전체 챕터 · 레코드", "Unlocked — all chapters & records");
                         hint.color = new Color(0.1f, 0.55f, 0.25f);
                         CoastToast.Show(Loc.T("비밀코드 — 전체 챕터·레코드 해금", "Secret code — all chapters & records unlocked"));
+                        onChanged?.Invoke();
+                        StartCoroutine(CloseCodeLater(0.9f));
+                    }
+                    else if (Donation.TryPasscode(entered))   // 52차: 기부 선물 ② 패스코드 — 모든 게임 열림
+                    {
+                        hint.text = Loc.T("열렸다 — 기부 패스코드 ☕", "Unlocked — donor passcode ☕");
+                        hint.color = new Color(0.1f, 0.55f, 0.25f);
+                        CoastToast.Show(Loc.T("기부 패스코드 — 모든 게임이 열렸어요", "Donor passcode — all games unlocked"));
                         onChanged?.Invoke();
                         StartCoroutine(CloseCodeLater(0.9f));
                     }

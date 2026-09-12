@@ -38,31 +38,122 @@ namespace CoastRun
             ShowIntro();
         }
 
+        /// 49차(사용자): 진입 화면 리디자인 — 게임 마당 그림을 배경으로 깔고, 3D 아이콘 + 큰 제목 + 「3단계 방법」 카드 + 목표 배지 + 큰 시작 버튼.
+        private static readonly string[] IntroYards = { "UI_MG_Yard_Marbles", "UI_MG_Yard_Yut", "UI_MG_Yard_Tuho", "UI_MG_Yard_Ddakji", "UI_MG_Yard_Mugunghwa" };
+        private static readonly string[] IntroIcons = { "UI_MG_Marbles", "UI_MG_Yut", "UI_MG_Tuho", "UI_MG_Ddakji", "UI_MG_Mugunghwa" };
+        private static (string ko, string en)[] IntroSteps(ChapterMission.Kind k)
+        {
+            switch (k)
+            {
+                case ChapterMission.Kind.Yut: return new[] { ("[던지기!]로 윷 4개를 던져요", "Tap [Throw!] to toss 4 sticks"), ("도·개·걸·윷·모 만큼 말이 가요", "Move by Do·Gae·Geol·Yut·Mo"), ("같은 칸에 서면 잡고 한 번 더!", "Land on Dodam to catch & throw again") };
+                case ChapterMission.Kind.Tuho: return new[] { ("바늘이 항아리를 향할 때 [방향 확정]", "Set aim when the needle points at the jar"), ("힘 게이지 흰 띠 안에서 [발사!]", "Throw inside the white band"), ("화살이 포물선을 그리며 쏙!", "The arrow arcs into the jar") };
+                case ChapterMission.Kind.Ddakji: return new[] { ("게이지가 오르내려요", "The timing bar swings"), ("노란 띠 안에서 [내리치기!]", "Slam inside the yellow band"), ("상대 딱지가 뒤집히면 내 것!", "Flip Dodam's ddakji to win") };
+                case ChapterMission.Kind.Mugunghwa: return new[] { ("[달리기]를 꾹 누르면 앞으로", "Hold [Run] to move forward"), ("술래가 돌아보면 손을 떼요", "Let go when the tagger looks"), ("끝까지 가서 [술래 터치!]", "Reach the end and [Tag!]") };
+                default: return new[] { ("바늘이 멈추길 원하는 방향에서 [방향 확정]", "Set aim where the needle points"), ("힘 게이지에서 [발사!]", "Pick power and [Shoot!]"), ("삼각형 밖으로 구슬을 튕겨 내요", "Knock marbles out of the triangle") };
+            }
+        }
+        private static (string ko, string en) IntroGoal(ChapterMission.Kind k)
+        {
+            switch (k)
+            {
+                case ChapterMission.Kind.Yut: return ("도담이보다 먼저 한 바퀴", "Get around before Dodam");
+                case ChapterMission.Kind.Tuho: return ("5발 중 3발 넣기", "3 of 5 in the jar");
+                case ChapterMission.Kind.Ddakji: return ("3번 안에 한 번 넘기기", "Flip once in 3 tries");
+                case ChapterMission.Kind.Mugunghwa: return ("3번 걸리기 전에 술래 터치", "Tag before 3 catches");
+                default: return ("3턴 안에 삼각형 안 구슬 2개 이하로", "≤2 marbles left inside after 3 turns");
+            }
+        }
+
         private static void ShowIntro()
         {
             var d = ChapterMission.Get(_kind);
-            var card = CoastUiArt.GlossyPill(_root, "Intro", new Color(1f, 0.93f, 0.72f), 30, 12);
-            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.pivot = new Vector2(0.5f, 0.5f);
-            crt.anchoredPosition = new Vector2(0f, 60f); crt.sizeDelta = new Vector2(600f, 470f); card.raycastTarget = true;
-            var tag = CoastHudLayout.MakeText(crt, "Tag", _replay ? Loc.T("미니게임 다시하기", "Replay") : Loc.T("미션!", "MISSION!"), 20, TextAnchor.MiddleCenter,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -70f), new Vector2(0f, -24f));
-            tag.color = new Color(0.93f, 0.22f, 0.52f);
-            var title = CoastHudLayout.MakeText(crt, "Title", d.nameKo, 40, TextAnchor.MiddleCenter,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -150f), new Vector2(0f, -70f));
-            title.color = Navy; CoastUiArt.OutlineText(title, new Color(1f, 1f, 1f, 0.6f), 1.5f);
-            var rule = CoastHudLayout.MakeText(crt, "Rule", Loc.T(d.ruleKo, d.ruleEn), 18, TextAnchor.MiddleCenter,
-                new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(30f, 120f), new Vector2(-30f, -160f));
-            rule.color = new Color(0.25f, 0.22f, 0.30f); rule.horizontalOverflow = HorizontalWrapMode.Wrap;
+            int ki = Mathf.Clamp((int)_kind, 0, 4);
+            var pad = CoastUiCanvas.HudPad;
+            var card = new GameObject("Intro", typeof(RectTransform)).GetComponent<RectTransform>();
+            card.SetParent(_root, false); card.anchorMin = Vector2.zero; card.anchorMax = Vector2.one; card.offsetMin = card.offsetMax = Vector2.zero;
+            // 배경: 마당 그림(꽉 채움) + 남색 딤 + 위아래 어둡게
+            var yard = CoastUiArt.Art(IntroYards[ki]);
+            if (yard != null)
+            {
+                var bg = new GameObject("Yard", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter)).GetComponent<Image>();
+                bg.transform.SetParent(card, false); bg.sprite = yard; bg.raycastTarget = true; bg.color = new Color(0.75f, 0.72f, 0.85f);
+                var brt = bg.rectTransform; brt.anchorMin = new Vector2(0.5f, 0.5f); brt.anchorMax = new Vector2(0.5f, 0.5f); brt.sizeDelta = new Vector2(_root.rect.width + pad * 2f, _root.rect.height + pad * 2f);
+                var arf = bg.GetComponent<AspectRatioFitter>(); arf.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; arf.aspectRatio = yard.rect.width / yard.rect.height;
+            }
+            var dim = CoastHudLayout.MakeImage(card, "Dim", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), new Color(0.06f, 0.06f, 0.18f, 0.52f)); dim.raycastTarget = true;
+            var top = CoastHudLayout.MakeImage(card, "TopShade", new Vector2(0f, 0.72f), new Vector2(1f, 1f), new Vector2(-pad, 0f), new Vector2(pad, pad), new Color(0.04f, 0.04f, 0.14f, 0.55f));
+            var bot = CoastHudLayout.MakeImage(card, "BotShade", new Vector2(0f, 0f), new Vector2(1f, 0.30f), new Vector2(-pad, -pad), new Vector2(pad, 0f), new Color(0.04f, 0.04f, 0.14f, 0.65f));
+            // 태그(리본)
+            var tag = CoastUiArt.GlossyPill(card, "Tag", new Color(0.93f, 0.22f, 0.52f), 18, 6);
+            var trt = tag.rectTransform; trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 0.885f); trt.pivot = new Vector2(0.5f, 0.5f); trt.sizeDelta = new Vector2(220f, 44f);
+            var tagT = CoastHudLayout.MakeText(trt, "T", _replay ? Loc.T("미니게임 다시하기", "REPLAY") : Loc.T("★ 미션 ★", "★ MISSION ★"), 19, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), new Vector2(0f, 1f));
+            tagT.color = Color.white; CoastUiArt.OutlineText(tagT, new Color(0f, 0f, 0f, 0.35f), 1.5f);
+            // 아이콘(3D 그림) + 바닥 그림자 + 둥실
+            var shadow = CoastUiArt.Panel(card, "IconShadow", new Color(0f, 0f, 0.05f, 0.45f), 60);
+            var srt = shadow.rectTransform; srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 0.64f); srt.pivot = new Vector2(0.5f, 0.5f); srt.sizeDelta = new Vector2(190f, 44f);
+            var ico = CoastUiArt.Art(IntroIcons[ki]);
+            if (ico != null)
+            {
+                var im = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                im.transform.SetParent(card, false); im.sprite = ico; im.preserveAspect = true; im.raycastTarget = false;
+                var irt = im.rectTransform; irt.anchorMin = irt.anchorMax = new Vector2(0.5f, 0.755f); irt.pivot = new Vector2(0.5f, 0.5f); irt.sizeDelta = new Vector2(250f, 250f);
+                im.gameObject.AddComponent<IntroBob>().shadow = shadow.rectTransform;
+            }
+            // 제목
+            var title = CoastHudLayout.MakeText(card, "Title", Loc.T(d.nameKo, d.nameEn), 46, TextAnchor.MiddleCenter,
+                new Vector2(0f, 0.545f), new Vector2(1f, 0.62f), new Vector2(20f, 0f), new Vector2(-20f, 0f));
+            title.color = new Color(1f, 0.96f, 0.86f); CoastUiArt.OutlineText(title, new Color(0.15f, 0.08f, 0.25f, 0.95f), 3f);
+            // 방법 카드: 3단계 + 목표
+            var how = CoastUiArt.GlossyPill(card, "How", new Color(1f, 0.95f, 0.80f), 28, 10);
+            var hrt = how.rectTransform; hrt.anchorMin = hrt.anchorMax = new Vector2(0.5f, 0.40f); hrt.pivot = new Vector2(0.5f, 0.5f); hrt.sizeDelta = new Vector2(620f, 262f); how.raycastTarget = true;
+            var howT = CoastHudLayout.MakeText(hrt, "T", Loc.T("이렇게 해요", "HOW TO PLAY"), 15, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -36f), new Vector2(0f, -12f));
+            howT.color = new Color(0.60f, 0.45f, 0.35f);
+            var steps = IntroSteps(_kind);
+            for (int i = 0; i < steps.Length; i++)
+            {
+                float y = 0.735f - i * 0.185f;
+                var num = CoastUiArt.Panel(hrt, "N" + i, new Color(0.93f, 0.22f, 0.52f), 16);
+                var nrt = num.rectTransform; nrt.anchorMin = nrt.anchorMax = new Vector2(0.075f, y); nrt.pivot = new Vector2(0.5f, 0.5f); nrt.sizeDelta = new Vector2(34f, 34f);
+                var nt = CoastHudLayout.MakeText(nrt, "T", (i + 1).ToString(), 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero); nt.color = Color.white;
+                var st = CoastHudLayout.MakeText(hrt, "S" + i, Loc.T(steps[i].ko, steps[i].en), 19, TextAnchor.MiddleLeft, new Vector2(0.14f, y - 0.08f), new Vector2(0.98f, y + 0.08f), Vector2.zero, Vector2.zero);
+                st.color = Navy; st.horizontalOverflow = HorizontalWrapMode.Wrap;
+            }
+            var goal = IntroGoal(_kind);
+            var gp = CoastUiArt.Panel(hrt, "Goal", new Color(0.93f, 0.22f, 0.52f, 0.12f), 14);
+            var grt = gp.rectTransform; grt.anchorMin = new Vector2(0.05f, 0.06f); grt.anchorMax = new Vector2(0.95f, 0.21f); grt.offsetMin = grt.offsetMax = Vector2.zero;
+            var gt = CoastHudLayout.MakeText(grt, "T", Loc.T("목표 · ", "GOAL · ") + Loc.T(goal.ko, goal.en), 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero);
+            gt.color = new Color(0.80f, 0.12f, 0.40f); gt.fontStyle = FontStyle.Bold;
+            // 시작 버튼(맥동)
+            var start = Pill(card, "Start", Loc.T("시작!", "START!"), new Color(0.93f, 0.22f, 0.52f), new Vector2(0.5f, 0.175f), Vector2.zero, new Vector2(340f, 84f),
+                () => { UnityEngine.Object.Destroy(card.gameObject); StartGame(); });
+            var stT = start.GetComponentInChildren<Text>(); if (stT != null) stT.fontSize = 30;
+            start.gameObject.AddComponent<IntroPulse>();
             if (!_replay)
             {
-                var note = CoastHudLayout.MakeText(crt, "Note", Loc.T("이겨야 다음 이야기로 넘어가요 · 져도 바로 다시 할 수 있어요", "Win to continue the story · you can retry right away"), 13, TextAnchor.MiddleCenter,
-                    new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(20f, 92f), new Vector2(-20f, 118f));
-                note.color = new Color(0.45f, 0.40f, 0.50f);
+                var note = CoastHudLayout.MakeText(card, "Note", Loc.T($"이기면 {ChapterMission.Reward(GameManager.I)}G 보상 · 져도 다음으로 넘어가요", $"Win for {ChapterMission.Reward(GameManager.I)}G · lose and you still move on"), 13, TextAnchor.MiddleCenter,
+                    new Vector2(0f, 0.10f), new Vector2(1f, 0.13f), new Vector2(20f, 0f), new Vector2(-20f, 0f));
+                note.color = new Color(1f, 1f, 1f, 0.75f);
             }
-            Pill(crt, "Start", Loc.T("시작!", "Start!"), new Color(0.93f, 0.22f, 0.52f), new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(300f, 74f),
-                () => { UnityEngine.Object.Destroy(card.gameObject); StartGame(); });
-            if (_replay)
-                Pill(crt, "Back", Loc.T("돌아가기", "Back"), new Color(0.55f, 0.55f, 0.62f), new Vector2(1f, 1f), new Vector2(-14f, -14f), new Vector2(120f, 44f), () => Done(false));
+            else
+                Pill(card, "Back", Loc.T("↩ 돌아가기", "↩ Back"), new Color(0.35f, 0.35f, 0.45f), new Vector2(0f, 1f), new Vector2(18f, -18f), new Vector2(150f, 46f), () => Done(false));
+        }
+
+        /// 진입 화면 아이콘 둥실 + 그림자 호흡
+        private class IntroBob : MonoBehaviour
+        {
+            public RectTransform shadow; private RectTransform _rt; private Vector2 _base;
+            private void Awake() { _rt = (RectTransform)transform; _base = _rt.anchoredPosition; }
+            private void Update()
+            {
+                float s = Mathf.Sin(Time.unscaledTime * 2.2f);
+                _rt.anchoredPosition = _base + new Vector2(0f, s * 9f);
+                _rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Time.unscaledTime * 1.1f) * 3f);
+                if (shadow != null) shadow.localScale = Vector3.one * (1f - s * 0.08f);
+            }
+        }
+        private class IntroPulse : MonoBehaviour
+        {
+            private void Update() { transform.localScale = Vector3.one * (1f + Mathf.Sin(Time.unscaledTime * 3.4f) * 0.03f); }
         }
 
         private static void StartGame()
@@ -82,16 +173,23 @@ namespace CoastRun
             var d = ChapterMission.Get(_kind);
             CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.8f);
             ChapterMission.MarkCleared(GameManager.I, _kind);
+            int reward = 0;
+            if (!_replay)
+            {
+                LevelSystem.Add(LevelSystem.ExpMinigame);   // 53차
+                reward = ChapterMission.Reward(GameManager.I);   // 55차-2(사용자): 미니게임 성공 = 돈 보상
+                if (GameManager.Active && reward > 0) { GameManager.I.Save.stats.money += reward; GameManager.I.Persist(); }
+            }
             var card = CoastUiArt.GlossyPill(_root, "Win", new Color(1f, 0.85f, 0.30f), 30, 12);
             var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.pivot = new Vector2(0.5f, 0.5f);
             crt.anchoredPosition = new Vector2(0f, 60f); crt.sizeDelta = new Vector2(560f, 300f); card.raycastTarget = true;
             var t = CoastHudLayout.MakeText(crt, "T", _replay ? Loc.T("이겼다!", "You win!") : Loc.T("미션 클리어!", "MISSION CLEAR!"), 44, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0.45f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -30f));
             t.color = Navy; CoastUiArt.OutlineText(t, new Color(1f, 1f, 1f, 0.7f), 2f);
-            var s = CoastHudLayout.MakeText(crt, "S", d.nameKo + (_replay ? "" : Loc.T(" — 더보기 › 미니게임에서 다시 할 수 있어요", " — replay it from More › Mini-games")), 15, TextAnchor.MiddleCenter,
+            var s = CoastHudLayout.MakeText(crt, "S", d.nameKo + (_replay ? "" : Loc.T($" — 보상 +{reward}G · 더보기 › 미니게임에서 다시 할 수 있어요", $" — +{reward}G · replay it from More › Mini-games")), 15, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0.3f), new Vector2(1f, 0.5f), new Vector2(20f, 0f), new Vector2(-20f, 0f));
             s.color = new Color(0.35f, 0.30f, 0.40f); s.horizontalOverflow = HorizontalWrapMode.Wrap;
-            Pill(crt, "Go", _replay ? Loc.T("돌아가기", "Back") : Loc.T("다음 이야기로", "Continue"), new Color(0.93f, 0.22f, 0.52f), new Vector2(0.5f, 0f), new Vector2(0f, 22f), new Vector2(300f, 70f), () => Done(true));
+            Pill(crt, "Go", _replay ? Loc.T("돌아가기", "Back") : Loc.T("다음으로", "Continue"), new Color(0.93f, 0.22f, 0.52f), new Vector2(0.5f, 0f), new Vector2(0f, 22f), new Vector2(300f, 70f), () => Done(true));
         }
 
         private static void ShowLose()
@@ -103,13 +201,14 @@ namespace CoastRun
             var t = CoastHudLayout.MakeText(crt, "T", Loc.T("아쉽다…", "So close…"), 40, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0.45f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -30f));
             t.color = Navy;
-            var s = CoastHudLayout.MakeText(crt, "S", Loc.T("그 자리에서 바로 다시!", "Try again right here!"), 16, TextAnchor.MiddleCenter,
+            var s = CoastHudLayout.MakeText(crt, "S", _replay ? Loc.T("그 자리에서 바로 다시!", "Try again right here!") : Loc.T("보상은 없지만 그냥 넘어갈 수 있어. 다시 해서 돈을 노려도 좋고!", "No reward, but you can move on — or retry for the money!"), 16, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0.3f), new Vector2(1f, 0.5f), new Vector2(20f, 0f), new Vector2(-20f, 0f));
             s.color = new Color(0.35f, 0.30f, 0.40f);
-            Pill(crt, "Retry", Loc.T("다시하기", "Retry"), new Color(0.93f, 0.22f, 0.52f), new Vector2(_replay ? 0.30f : 0.5f, 0f), new Vector2(0f, 22f), new Vector2(_replay ? 230f : 260f, 70f),
+            Pill(crt, "Retry", Loc.T("다시하기", "Retry"), new Color(0.93f, 0.22f, 0.52f), new Vector2(0.30f, 0f), new Vector2(0f, 22f), new Vector2(230f, 70f),
                 () => { UnityEngine.Object.Destroy(card.gameObject); StartGame(); });
-            if (_replay)
-                Pill(crt, "Quit", Loc.T("그만", "Quit"), new Color(0.55f, 0.55f, 0.62f), new Vector2(0.76f, 0f), new Vector2(0f, 22f), new Vector2(170f, 70f), () => Done(false));
+            // 55차-2(사용자): 미니게임은 져도 다음으로 넘어간다(보상만 없음). 「넘어가기」= 시도한 것으로 표시하고 종료.
+            Pill(crt, "Quit", _replay ? Loc.T("그만", "Quit") : Loc.T("넘어가기", "Move on"), new Color(0.55f, 0.55f, 0.62f), new Vector2(0.76f, 0f), new Vector2(0f, 22f), new Vector2(170f, 70f),
+                () => { if (!_replay) ChapterMission.MarkAttempted(GameManager.I, _kind); Done(false); });
         }
 
         private static void Done(bool won)
@@ -204,7 +303,7 @@ namespace CoastRun
     }
 
     /// 미션용 미니게임 5종. HomeMiniGames.MiniBase 상속 — Finish(1)=승리 / Finish(0)=패배.
-    public static class MissionMiniGames
+    public static partial class MissionMiniGames
     {
         private static readonly Color Navy = new Color(0.23f, 0.16f, 0.29f);
         private static readonly Color Cream = new Color(1f, 0.97f, 0.90f);
@@ -222,10 +321,10 @@ namespace CoastRun
             HomeMiniGames.MiniBase g = kind switch
             {
                 ChapterMission.Kind.Marbles => go.AddComponent<MarblesMission>(),
-                ChapterMission.Kind.Yut => go.AddComponent<YutMission>(),
-                ChapterMission.Kind.Tuho => go.AddComponent<TuhoMission>(),
-                ChapterMission.Kind.Ddakji => go.AddComponent<DdakjiMission>(),
-                _ => go.AddComponent<MugunghwaMission>(),
+                ChapterMission.Kind.Yut => go.AddComponent<YutMission3D>(),        // 49차: 3D 무대(MissionMiniGames.Games3D.cs)
+                ChapterMission.Kind.Tuho => go.AddComponent<TuhoMission3D>(),
+                ChapterMission.Kind.Ddakji => go.AddComponent<DdakjiMission3D>(),
+                _ => go.AddComponent<MugunghwaMission3D>(),
             };
             g.Init(rt, true, r => onDone?.Invoke(r > 0));
             // 미션은 「그만」으로 도망 못 간다(다시하기만). 다시하기 모드는 그만 = 패배로 처리돼 메뉴로.
@@ -236,60 +335,241 @@ namespace CoastRun
             }
         }
 
-        // ── 구슬치기(45차): [방향] → [힘] → 발사. 삼각형 안 구슬 8개, 3발에 5개 이상 밖으로 ─
+        // ── 구슬치기(45차 → 48차-13 3D → 48차-14 시안 반영): 네온 삼각형 · 보석 구슬 · 점선 조준 · 하단 3분할 조작 패널 ─
+        // 판정·시뮬레이션은 45차 2D(정규화 0..1) 그대로. 보이는 것만 MiniStage3D(Kling 마당 배경판 + Blender 유리 구슬)로.
         private class MarblesMission : HomeMiniGames.MiniBase
         {
             protected override string Title => Loc.T("미션 · 구슬치기", "Mission · Marbles");
-            private class Marble { public RectTransform rt; public Vector2 pos, vel; public bool player, outOf; }
+            private class Marble
+            {
+                public Transform tr, blob, spark; public Vector2 pos, vel; public bool player, outOf;
+                public Material glass, swirl, core; public Color color;
+            }
             private readonly List<Marble> _ms = new List<Marble>();
             private Marble _me;
             private int _shots = 3, _knocked;
-            private const int Need = 5;
+            private const int Need = 6;   // 51차(사용자): 8개 중 2개 이하 남아야 승리 = 6개 이상 밖으로
             private enum Step { Aim, Power, Rolling, Done }
             private Step _step = Step.Aim;
             private float _t, _angle, _power;
-            private RectTransform _aimLine, _powerFill;
-            private Text _btnLabel;
+            private MiniStage3D _stage;
+            private readonly List<Transform> _aimDots = new List<Transform>();
+            private Transform _aimHead;
+            private RectTransform _needle, _powerMark, _powerFill;
+            private Text _btnLabel, _angleTxt, _powerTxt, _dirHint, _powHint;
+            private Image _fireFill;
+            private float _radius, _aimLen;
+            private static readonly Vector2 MarbleDiamNorm = new Vector2(0.048f, 0f);   // 45차 34px/706px
+            private static readonly Color Neon = new Color(0.35f, 0.95f, 1f);
+            private static readonly Color PanelNavy = new Color(0.16f, 0.22f, 0.42f);
+            private static readonly Color PanelEdge = new Color(0.10f, 0.14f, 0.30f);
             // 삼각형(정규화): 꼭짓점 위, 밑변 아래
             private static readonly Vector2 A = new Vector2(0.5f, 0.86f), B = new Vector2(0.18f, 0.42f), C = new Vector2(0.82f, 0.42f);
 
             protected override void Build(Transform foot)
             {
-                CoastHudLayout.MakeImage(Field, "Ground", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.87f, 0.78f, 0.60f));
-                // 삼각형 — 세 변을 얇은 막대로
-                Edge(A, B); Edge(B, C); Edge(C, A);
-                Color[] cols = { new Color(0.95f, 0.45f, 0.45f), new Color(0.45f, 0.75f, 0.95f), new Color(0.55f, 0.85f, 0.55f), new Color(0.95f, 0.85f, 0.40f), new Color(0.80f, 0.55f, 0.90f), new Color(1f, 0.65f, 0.35f), new Color(0.40f, 0.85f, 0.85f), new Color(0.95f, 0.60f, 0.80f) };
+                // 시안: 아래 조작 패널이 크다 — 마당 0.29~0.92, 발판 0~0.28
+                var frame = Field.parent as RectTransform;
+                if (frame != null) { frame.anchorMin = new Vector2(0f, 0.29f); frame.anchorMax = new Vector2(1f, 0.92f); }
+                var footRt = foot as RectTransform;
+                if (footRt != null) { footRt.anchorMin = new Vector2(0f, 0f); footRt.anchorMax = new Vector2(1f, 0.28f); }
+                var footImg = foot.GetComponent<Image>(); if (footImg != null) footImg.color = new Color(0.12f, 0.16f, 0.34f);
+                Rect(Status.rectTransform, new Vector2(0f, 0.86f), new Vector2(1f, 1f), new Vector2(16f, 0f), new Vector2(-16f, -2f));
+                Status.fontSize = 14; Status.fontStyle = FontStyle.Bold; Status.alignment = TextAnchor.MiddleCenter; Status.color = new Color(1f, 0.96f, 0.75f);
+                CoastUiArt.OutlineText(Status, new Color(0f, 0f, 0f, 0.6f), 1.5f);
+
+                _stage = MiniStage3D.Create(Field, "UI_MG_Yard_Marbles", 56f, 38f, 10f);
+                float wpn = _stage.WorldPerNorm(new Vector2(0.5f, 0.5f));
+                _radius = MarbleDiamNorm.x * wpn * 0.5f * 1.9f;
+                _aimLen = 0.30f * _stage.WorldPerNorm(new Vector2(0.5f, 0.16f));
+                // 네온 삼각형 — 발광 막대 + 그 아래 넓은 글로우
+                var neonMat = MiniStage3D.Lit(new Color(0.05f, 0.50f, 0.70f, 1f), 0.2f);
+                if (neonMat.HasProperty("_EmissionColor")) { neonMat.EnableKeyword("_EMISSION"); neonMat.SetColor("_EmissionColor", new Color(0.10f, 0.75f, 0.95f)); }
+                var glowMat = MiniStage3D.SoftDisc(new Color(Neon.r, Neon.g, Neon.b, 0.6f));
+                Edge(A, B, neonMat, glowMat); Edge(B, C, neonMat, glowMat); Edge(C, A, neonMat, glowMat);
+                // 보석 구슬 8개(채도 높은 8색) + 흰(파랑 유리) 구슬
+                Color[] cols = { new Color(0.95f, 0.25f, 0.30f), new Color(0.20f, 0.55f, 1f), new Color(0.25f, 0.85f, 0.40f), new Color(1f, 0.80f, 0.15f), new Color(0.65f, 0.35f, 0.95f), new Color(1f, 0.50f, 0.15f), new Color(0.20f, 0.85f, 0.90f), new Color(0.95f, 0.40f, 0.75f) };
                 Vector2[] spots = { new Vector2(0.5f, 0.72f), new Vector2(0.44f, 0.62f), new Vector2(0.56f, 0.62f), new Vector2(0.38f, 0.52f), new Vector2(0.50f, 0.52f), new Vector2(0.62f, 0.52f), new Vector2(0.44f, 0.46f), new Vector2(0.56f, 0.46f) };
                 for (int i = 0; i < 8; i++) _ms.Add(Make(spots[i], cols[i], false));
-                _me = Make(new Vector2(0.5f, 0.16f), Color.white, true);
-                // 조준선(흰 구슬에서 뻗는 선) · 힘 게이지(오른쪽 세로)
-                var line = CoastUiArt.Panel(Field, "AimLine", new Color(1f, 1f, 1f, 0.75f), 3);
-                _aimLine = line.rectTransform; _aimLine.anchorMin = _aimLine.anchorMax = _me.pos; _aimLine.pivot = new Vector2(0.5f, 0f);
-                _aimLine.sizeDelta = new Vector2(5f, 150f); line.raycastTarget = false;
-                var bar = CoastUiArt.Panel(Field, "PowerBar", new Color(0.35f, 0.30f, 0.30f), 8);
-                Rect(bar.rectTransform, new Vector2(0.92f, 0.10f), new Vector2(0.97f, 0.40f), Vector2.zero, Vector2.zero);
-                var fill = CoastUiArt.Panel(bar.transform, "Fill", Sun, 6);
-                _powerFill = fill.rectTransform; Rect(_powerFill, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(2f, 2f), new Vector2(-2f, 0f));
-                var pb = Btn(foot, "Go", Loc.T("방향 선택", "Set aim"), Coral, new Vector2(1f, 0.5f), new Vector2(-12f, 0f), new Vector2(180f, 54f), OnButton);
-                _btnLabel = pb.GetComponentInChildren<Text>();
-                Status.text = Loc.T($"조준선이 돌아가요 — 원하는 방향에서 [방향 선택]. 남은 발 3 · 목표 {Need}개", $"The aim line sweeps — tap [Set aim]. Shots 3 · goal {Need}");
+                _me = Make(new Vector2(0.5f, 0.16f), new Color(0.30f, 0.55f, 1f), true);
+                // 점선 조준(노란 구슬 점 7개 + 작은 화살촉)
+                var dotMat = MiniStage3D.Lit(new Color(1f, 0.85f, 0.25f), 0.5f);
+                if (dotMat.HasProperty("_EmissionColor")) { dotMat.EnableKeyword("_EMISSION"); dotMat.SetColor("_EmissionColor", new Color(0.6f, 0.45f, 0.05f)); }
+                for (int i = 0; i < 7; i++)
+                {
+                    var d = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(d.GetComponent<Collider>());
+                    d.transform.SetParent(_stage.Root, false); d.transform.localScale = Vector3.one * _radius * (0.42f - i * 0.03f);
+                    var r = d.GetComponent<Renderer>(); r.sharedMaterial = dotMat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+                    _aimDots.Add(d.transform);
+                }
+                var ar = _stage.Spawn("MG_Arrow"); _aimHead = ar.transform;
+                foreach (var r in ar.GetComponentsInChildren<Renderer>()) r.sharedMaterial = dotMat;
+
+                BuildPanel(foot);
+                Status.text = Loc.T($"남은 발 3 · 삼각형 안에 2개 이하로 남기기(8개 중 {Need}개 밖으로) — [방향 확정]", $"Shots 3 · leave ≤2 inside ({Need} of 8 out) — [Set aim]");
+                Place(_me); foreach (var m in _ms) Place(m);
+                PlaceAim();
             }
 
-            private void Edge(Vector2 p, Vector2 q)
+            // ── 하단 조작 패널(시안): [방향 선택 반원 게이지] [힘 선택 세로 게이지] [발사!] ──
+            private void BuildPanel(Transform foot)
             {
-                var r = Field.rect; Vector2 pp = new Vector2(p.x * r.width, p.y * r.height), qq = new Vector2(q.x * r.width, q.y * r.height);
-                var e = CoastUiArt.Panel(Field, "Edge", new Color(0.55f, 0.35f, 0.25f), 2);
-                var rt = e.rectTransform; rt.anchorMin = rt.anchorMax = (p + q) * 0.5f; rt.pivot = new Vector2(0.5f, 0.5f);
-                rt.sizeDelta = new Vector2((qq - pp).magnitude, 5f); rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(qq.y - pp.y, qq.x - pp.x) * Mathf.Rad2Deg);
-                e.raycastTarget = false;
+                // 왼쪽 카드: 방향 선택
+                var dir = CoastUiArt.CutePill(foot, "DirCard", PanelNavy, 18, 3);
+                Rect(dir.rectTransform, new Vector2(0.02f, 0.05f), new Vector2(0.34f, 0.82f), Vector2.zero, Vector2.zero); dir.raycastTarget = false;
+                var dt = Txt(dir.transform, "T", Loc.T("방향 선택", "Direction"), 17, new Color(1f, 0.93f, 0.55f), TextAnchor.UpperCenter);
+                Rect(dt.rectTransform, new Vector2(0f, 0.76f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -6f)); dt.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(dt, new Color(0f, 0f, 0f, 0.5f), 1.5f);
+                // 반원 게이지: 점 호(파랑) + 눈금 0/90/180 + 빨간 바늘
+                var gaugeC = new GameObject("Gauge", typeof(RectTransform)).GetComponent<RectTransform>();
+                gaugeC.SetParent(dir.transform, false); gaugeC.anchorMin = gaugeC.anchorMax = new Vector2(0.5f, 0.30f); gaugeC.sizeDelta = Vector2.zero;
+                for (int i = 0; i <= 24; i++)
+                {
+                    float a = Mathf.PI * (1f - i / 24f);
+                    var p = CoastUiArt.Panel(gaugeC, "Arc" + i, i % 6 == 0 ? new Color(1f, 1f, 1f, 0.95f) : new Color(0.45f, 0.75f, 1f, 0.9f), 4); p.raycastTarget = false;
+                    p.rectTransform.anchorMin = p.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                    p.rectTransform.anchoredPosition = new Vector2(Mathf.Cos(a) * 62f, Mathf.Sin(a) * 62f);
+                    p.rectTransform.sizeDelta = i % 6 == 0 ? new Vector2(9f, 9f) : new Vector2(6f, 6f);
+                }
+                string[] ticks = { "0", "90", "180" }; Vector2[] tp = { new Vector2(-62f, -14f), new Vector2(0f, 76f), new Vector2(62f, -14f) };
+                for (int i = 0; i < 3; i++)
+                {
+                    var tt = Txt(gaugeC, "Tick" + i, ticks[i], 11, new Color(1f, 1f, 1f, 0.9f), TextAnchor.MiddleCenter);
+                    tt.rectTransform.anchorMin = tt.rectTransform.anchorMax = new Vector2(0.5f, 0.5f); tt.rectTransform.anchoredPosition = tp[i]; tt.rectTransform.sizeDelta = new Vector2(40f, 16f);
+                }
+                var hub = CoastUiArt.Panel(gaugeC, "Hub", new Color(0.95f, 0.3f, 0.3f), 7); hub.raycastTarget = false;
+                hub.rectTransform.anchorMin = hub.rectTransform.anchorMax = new Vector2(0.5f, 0.5f); hub.rectTransform.sizeDelta = new Vector2(14f, 14f);
+                var needle = CoastUiArt.Panel(gaugeC, "Needle", new Color(1f, 0.25f, 0.25f), 3); needle.raycastTarget = false;
+                _needle = needle.rectTransform; _needle.anchorMin = _needle.anchorMax = new Vector2(0.5f, 0.5f); _needle.pivot = new Vector2(0.5f, 0f);
+                _needle.sizeDelta = new Vector2(6f, 58f);
+                _angleTxt = Txt(dir.transform, "Ang", "90°", 14, new Color(1f, 0.9f, 0.4f), TextAnchor.MiddleCenter);
+                Rect(_angleTxt.rectTransform, new Vector2(0f, 0.36f), new Vector2(1f, 0.50f), Vector2.zero, Vector2.zero); _angleTxt.fontStyle = FontStyle.Bold;
+                _dirHint = Txt(dir.transform, "Hint", Loc.T("좌우로 움직이는 중…\n타이밍에 멈추기", "Sweeping left/right…\nstop it on time"), 11, new Color(1f, 1f, 1f, 0.8f), TextAnchor.MiddleCenter);
+                Rect(_dirHint.rectTransform, new Vector2(0f, 0.02f), new Vector2(1f, 0.20f), new Vector2(6f, 0f), new Vector2(-6f, 0f));
+
+                // 가운데 카드: 힘 선택
+                var pow = CoastUiArt.CutePill(foot, "PowCard", PanelNavy, 18, 3);
+                Rect(pow.rectTransform, new Vector2(0.36f, 0.05f), new Vector2(0.60f, 0.82f), Vector2.zero, Vector2.zero); pow.raycastTarget = false;
+                var pt = Txt(pow.transform, "T", Loc.T("힘 선택", "Power"), 17, new Color(1f, 0.93f, 0.55f), TextAnchor.UpperCenter);
+                Rect(pt.rectTransform, new Vector2(0f, 0.76f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -6f)); pt.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(pt, new Color(0f, 0f, 0f, 0.5f), 1.5f);
+                var bar = CoastUiArt.CutePill(pow.transform, "Bar", new Color(0.06f, 0.08f, 0.18f), 12, 3);
+                Rect(bar.rectTransform, new Vector2(0.40f, 0.30f), new Vector2(0.62f, 0.74f), Vector2.zero, Vector2.zero); bar.raycastTarget = false;
+                // 무지개 세로 게이지(초록→노랑→빨강, 8단)
+                var fillC = new GameObject("FillC", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
+                fillC.SetParent(bar.transform, false); Rect(fillC, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(4f, 4f), new Vector2(-4f, 0f));
+                _powerFill = fillC;
+                var segHost = new GameObject("Seg", typeof(RectTransform)).GetComponent<RectTransform>();
+                segHost.SetParent(fillC, false); segHost.anchorMin = new Vector2(0f, 0f); segHost.anchorMax = new Vector2(1f, 0f); segHost.pivot = new Vector2(0.5f, 0f);
+                segHost.anchoredPosition = Vector2.zero; segHost.sizeDelta = new Vector2(0f, 200f);   // 실제 높이는 LateUpdate 에서 바 높이에 맞춤
+                _segHost = segHost;
+                for (int i = 0; i < 8; i++)
+                {
+                    var seg = CoastHudLayout.MakeImage(segHost, "S" + i, new Vector2(0f, i / 8f), new Vector2(1f, (i + 1) / 8f), Vector2.zero, Vector2.zero,
+                        Color.Lerp(Color.Lerp(new Color(0.2f, 0.9f, 0.4f), new Color(1f, 0.9f, 0.2f), Mathf.Clamp01(i / 4f)), new Color(1f, 0.25f, 0.2f), Mathf.Clamp01((i - 4) / 3.5f)));
+                    seg.raycastTarget = false;
+                }
+                string[] pct = { "0%", "50%", "100%" }; float[] py = { 0.30f, 0.52f, 0.74f };
+                for (int i = 0; i < 3; i++)
+                {
+                    var l = Txt(pow.transform, "P" + i, pct[i], 11, new Color(1f, 1f, 1f, 0.9f), TextAnchor.MiddleRight);
+                    Rect(l.rectTransform, new Vector2(0.02f, py[i] - 0.04f), new Vector2(0.37f, py[i] + 0.04f), Vector2.zero, Vector2.zero);
+                }
+                _powerTxt = Txt(pow.transform, "Pct", "0%", 24, new Color(1f, 0.85f, 0.2f), TextAnchor.MiddleCenter);
+                Rect(_powerTxt.rectTransform, new Vector2(0f, 0.12f), new Vector2(1f, 0.28f), Vector2.zero, Vector2.zero); _powerTxt.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(_powerTxt, new Color(0f, 0f, 0f, 0.5f), 1.5f);
+                _powHint = Txt(pow.transform, "Hint", Loc.T("힘을 멈춰서 결정!", "Stop to set power!"), 11, new Color(1f, 1f, 1f, 0.8f), TextAnchor.MiddleCenter);
+                Rect(_powHint.rectTransform, new Vector2(0f, 0.02f), new Vector2(1f, 0.12f), Vector2.zero, Vector2.zero);
+
+                // 오른쪽: 발사! 큰 노란 버튼
+                var fire = CoastUiArt.GlossyPill(foot, "Fire", new Color(1f, 0.80f, 0.20f), 22, 10);
+                Rect(fire.rectTransform, new Vector2(0.62f, 0.05f), new Vector2(0.98f, 0.82f), Vector2.zero, Vector2.zero); fire.raycastTarget = true;
+                _fireFill = fire.transform.Find("Fill")?.GetComponent<Image>();
+                var fb = fire.gameObject.AddComponent<Button>(); fb.transition = Selectable.Transition.None;
+                fb.onClick.AddListener(() => { CoastPrefs.Vibrate(); OnButton(); });
+                _btnLabel = Txt(fire.transform, "T", Loc.T("방향 확정", "Set aim"), 30, new Color(0.45f, 0.18f, 0.02f), TextAnchor.MiddleCenter);
+                Rect(_btnLabel.rectTransform, new Vector2(0f, 0.30f), new Vector2(1f, 0.85f), Vector2.zero, Vector2.zero); _btnLabel.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(_btnLabel, new Color(1f, 1f, 1f, 0.35f), 1.2f);
+                var arrow = Txt(fire.transform, "Arrow", "→", 30, new Color(1f, 0.55f, 0.1f), TextAnchor.MiddleCenter);
+                Rect(arrow.rectTransform, new Vector2(0f, 0.06f), new Vector2(1f, 0.32f), Vector2.zero, Vector2.zero); arrow.fontStyle = FontStyle.Bold;
+                CoastUiArt.OutlineText(arrow, new Color(0.4f, 0.15f, 0f, 0.6f), 1.5f);
+            }
+            private RectTransform _segHost;
+
+            private void Edge(Vector2 p, Vector2 q, Material mat, Material glow)
+            {
+                var a = _stage.GroundPoint(p); var b = _stage.GroundPoint(q);
+                _stage.Bar(a, b, _radius * 0.26f, _radius * 0.10f, mat);
+                // 글로우: 납작한 쿼드(소프트 원판을 길게 늘림)
+                var g = GameObject.CreatePrimitive(PrimitiveType.Quad); g.name = "Glow"; Destroy(g.GetComponent<Collider>());
+                g.transform.SetParent(_stage.Root, false);
+                var d = b - a;
+                g.transform.position = (a + b) * 0.5f + Vector3.up * 0.004f;
+                float yaw = Mathf.Atan2(d.x, d.z) * Mathf.Rad2Deg;
+                g.transform.rotation = Quaternion.Euler(0f, yaw, 0f) * Quaternion.Euler(90f, 0f, 0f);   // 위를 보는 납작 쿼드, 길이축 = 변 방향
+                g.transform.localScale = new Vector3(_radius * 1.8f, d.magnitude + _radius, 1f);
+                var r = g.GetComponent<Renderer>(); r.sharedMaterial = glow; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
             }
 
             private Marble Make(Vector2 anchor, Color c, bool player)
             {
-                var im = Dot(Field, player ? "Me" : "Marble", anchor, new Vector2(34f, 34f), c);
-                var gloss = CoastUiArt.Panel(im.transform, "Gloss", new Color(1f, 1f, 1f, 0.55f), 6);
-                gloss.rectTransform.anchorMin = gloss.rectTransform.anchorMax = new Vector2(0.35f, 0.7f); gloss.rectTransform.sizeDelta = new Vector2(12f, 8f);
-                return new Marble { rt = im.rectTransform, pos = anchor, player = player };
+                var go = _stage.Spawn("MG_Marble");
+                go.name = player ? "Me" : "Marble";
+                go.transform.localScale = Vector3.one * (_radius * 2f);   // FBX 반지름 0.5
+                var m = new Marble { tr = go.transform, pos = anchor, player = player, color = c };
+                // 보석 느낌: 색 유리 진하게 + 안쪽 어두운 소용돌이 + 밝은 코어 + 반짝이
+                var glassC = player ? new Color(0.75f, 0.88f, 1f, 0.55f) : new Color(c.r, c.g, c.b, 0.62f);
+                m.glass = MiniStage3D.Lit(glassC, 0.92f, 0.1f, true);
+                m.swirl = MiniStage3D.Lit(Color.Lerp(c, Color.black, 0.45f), 0.5f);
+                m.core = MiniStage3D.Lit(Color.Lerp(c, Color.white, 0.45f), 0.7f);
+                if (m.core.HasProperty("_EmissionColor")) { m.core.EnableKeyword("_EMISSION"); m.core.SetColor("_EmissionColor", c * 0.35f); }
+                foreach (var r in go.GetComponentsInChildren<Renderer>())
+                {
+                    string n = r.gameObject.name;
+                    r.sharedMaterial = n.StartsWith("Glass") ? m.glass : n.StartsWith("Swirl") ? m.swirl : n.StartsWith("Core") ? m.core : m.swirl;
+                }
+                go.transform.localRotation = Quaternion.Euler(UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f));
+                m.blob = _stage.Blob(_radius * 1.3f, 0.55f).transform;
+                // 반짝이: 카메라를 향한 작은 흰 원판
+                var sp = GameObject.CreatePrimitive(PrimitiveType.Quad); sp.name = "Spark"; Destroy(sp.GetComponent<Collider>());
+                sp.transform.SetParent(_stage.Root, false); sp.transform.localScale = Vector3.one * _radius * 0.55f;
+                var sr = sp.GetComponent<Renderer>(); sr.sharedMaterial = MiniStage3D.SoftDisc(new Color(1f, 1f, 1f, 0.95f));
+                sr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; sr.receiveShadows = false;
+                m.spark = sp.transform;
+                return m;
+            }
+
+            private void Place(Marble m)
+            {
+                var g = _stage.GroundPoint(m.pos);
+                float k = m.outOf ? 0.75f : 1f;
+                m.tr.position = g + Vector3.up * _radius * k;
+                m.blob.position = g + Vector3.up * 0.005f;
+                var cam = _stage.Cam.transform;
+                m.spark.rotation = cam.rotation;
+                m.spark.position = m.tr.position + (cam.up * 0.55f - cam.right * 0.45f) * _radius * k - cam.forward * _radius * 0.9f * k;
+                m.spark.gameObject.SetActive(!m.outOf);
+            }
+
+            private void PlaceAim()
+            {
+                bool on = _step == Step.Aim || _step == Step.Power;
+                foreach (var d in _aimDots) d.gameObject.SetActive(on);
+                if (_aimHead != null) _aimHead.gameObject.SetActive(on);
+                if (!on) return;
+                var g = _stage.GroundPoint(_me.pos);
+                var dir = Quaternion.Euler(0f, _angle, 0f) * Vector3.forward;
+                float len = _aimLen * (_step == Step.Power ? 0.6f + _power * 0.6f : 1f);
+                for (int i = 0; i < _aimDots.Count; i++)
+                {
+                    float t = (i + 1f) / (_aimDots.Count + 1f);
+                    _aimDots[i].position = g + dir * (_radius * 1.3f + len * t) + Vector3.up * _radius * 0.25f;
+                }
+                _aimHead.position = g + dir * (_radius * 1.3f + len) + Vector3.up * 0.01f;
+                _aimHead.rotation = Quaternion.Euler(0f, _angle + 180f, 0f);
+                _aimHead.localScale = new Vector3(_radius * 1.1f, _radius * 1.1f, _radius * 1.6f);
+                if (_needle != null) _needle.localRotation = Quaternion.Euler(0f, 0f, -_angle);
+                if (_angleTxt != null) _angleTxt.text = $"{Mathf.RoundToInt(90f + _angle)}°";
             }
 
             private static bool InsideTri(Vector2 p)
@@ -303,35 +583,52 @@ namespace CoastRun
 
             private void OnButton()
             {
-                if (_step == Step.Aim) { _step = Step.Power; _t = 0f; _btnLabel.text = Loc.T("발사!", "Shoot!"); Status.text = Loc.T("힘 게이지가 오르내려요 — 원하는 세기에서 [발사!]", "Power swings — tap [Shoot!] at the strength you want"); }
+                if (_step == Step.Aim)
+                {
+                    _step = Step.Power; _t = 0f; _btnLabel.text = Loc.T("발사!", "Shoot!");
+                    _dirHint.text = Loc.T("방향 확정!", "Aim set!"); _powHint.text = Loc.T("힘을 멈춰서 결정!", "Stop to set power!");
+                    Status.text = Loc.T("힘 게이지가 오르내려요 — 원하는 세기에서 [발사!]", "Power swings — tap [Shoot!] at the strength you want");
+                    CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.35f);
+                }
                 else if (_step == Step.Power)
                 {
                     _step = Step.Rolling;
                     var dir = new Vector2(Mathf.Sin(_angle * Mathf.Deg2Rad), Mathf.Cos(_angle * Mathf.Deg2Rad));
                     _me.vel = dir * (0.6f + _power * 2.6f);
                     _shots--;
-                    _aimLine.gameObject.SetActive(false);
-                    Status.text = Loc.T($"남은 발 {_shots} · 밖으로 {_knocked}/{Need}", $"Shots {_shots} · out {_knocked}/{Need}");
+                    PlaceAim();
+                    _btnLabel.text = Loc.T("굴러가는 중", "Rolling…"); if (_fireFill != null) _fireFill.color = new Color(0.85f, 0.75f, 0.45f);
+                    _powHint.text = Loc.T($"{Mathf.RoundToInt(_power * 100f)}% 로 발사!", $"Shot at {Mathf.RoundToInt(_power * 100f)}%!");
+                    CoastAudioManager.PlayAnywhere(CoastSfx.Jump, 0.5f);
+                    Status.text = Loc.T($"남은 발 {_shots} · 남은 구슬 {8 - _knocked}개(2개 이하면 승리)", $"Shots {_shots} · {8 - _knocked} left (≤2 wins)");
                 }
             }
 
             private bool Moving() { foreach (var m in _ms) if (m.vel.sqrMagnitude > 1e-5f) return true; return _me.vel.sqrMagnitude > 1e-5f; }
 
+            private void LateUpdate()
+            {
+                // 힘 게이지 색 띠 높이를 바 높이에 맞춘다(레이아웃 뒤)
+                if (_segHost != null && _powerFill != null && _powerFill.parent is RectTransform pr)
+                    _segHost.sizeDelta = new Vector2(0f, Mathf.Max(10f, pr.rect.height - 8f));
+            }
+
             private void Update()
             {
-                if (_step == Step.Done || _aimLine == null || _me == null) return;   // 에디터 핫리로드로 필드가 비면 조용히
+                if (_step == Step.Done || _stage == null || _me == null) return;   // 에디터 핫리로드로 필드가 비면 조용히
                 float dt = Mathf.Min(Time.unscaledDeltaTime, 0.033f);
                 if (_step == Step.Aim)
                 {
                     _t += dt; _angle = Mathf.Sin(_t * 1.6f) * 55f;   // 좌우 55°
-                    _aimLine.anchorMin = _aimLine.anchorMax = _me.pos;
-                    _aimLine.localRotation = Quaternion.Euler(0f, 0f, -_angle);
+                    PlaceAim();
                     return;
                 }
                 if (_step == Step.Power)
                 {
                     _t += dt; _power = 0.5f + 0.5f * Mathf.Sin(_t * 2.4f * Mathf.PI - Mathf.PI * 0.5f);
                     _powerFill.anchorMax = new Vector2(1f, _power);
+                    _powerTxt.text = $"{Mathf.RoundToInt(_power * 100f)}%";
+                    PlaceAim();
                     return;
                 }
                 // Rolling
@@ -344,15 +641,18 @@ namespace CoastRun
                     m.vel *= Mathf.Pow(0.15f, dt);
                     if (m.vel.magnitude < 0.01f) m.vel = Vector2.zero;
                     if (m.pos.x < 0.03f + rad) { m.pos.x = 0.03f + rad; m.vel.x = -m.vel.x * 0.6f; }
-                    if (m.pos.x > 0.90f - rad) { m.pos.x = 0.90f - rad; m.vel.x = -m.vel.x * 0.6f; }
+                    if (m.pos.x > 0.97f - rad) { m.pos.x = 0.97f - rad; m.vel.x = -m.vel.x * 0.6f; }
                     if (m.pos.y < 0.04f + rad) { m.pos.y = 0.04f + rad; m.vel.y = -m.vel.y * 0.6f; }
                     if (m.pos.y > 0.96f - rad) { m.pos.y = 0.96f - rad; m.vel.y = -m.vel.y * 0.6f; }
                     if (!m.player && !InsideTri(m.pos) && m.vel.magnitude < 0.05f)
                     {
                         m.outOf = true; m.vel = Vector2.zero; _knocked++;
-                        m.rt.localScale = Vector3.one * 0.7f; var im = m.rt.GetComponent<Image>(); im.color = new Color(im.color.r, im.color.g, im.color.b, 0.45f);
+                        m.tr.localScale = Vector3.one * (_radius * 2f * 0.75f);
+                        var gc = m.glass.GetColor("_BaseColor"); gc.a = 0.35f; m.glass.SetColor("_BaseColor", gc);
+                        m.swirl.SetColor("_BaseColor", Color.Lerp(m.color, new Color(0.5f, 0.5f, 0.5f), 0.6f));
+                        m.blob.localScale *= 0.75f;
                         CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.6f);
-                        Status.text = Loc.T($"남은 발 {_shots} · 밖으로 {_knocked}/{Need}", $"Shots {_shots} · out {_knocked}/{Need}");
+                        Status.text = Loc.T($"남은 발 {_shots} · 남은 구슬 {8 - _knocked}개(2개 이하면 승리)", $"Shots {_shots} · {8 - _knocked} left (≤2 wins)");
                     }
                 }
                 for (int i = 0; i < all.Count; i++)
@@ -365,402 +665,44 @@ namespace CoastRun
                         {
                             var n = d / dist; n.y *= r.width / r.height;
                             var rel = a.vel - b.vel; float p = Vector2.Dot(rel, n.normalized);
-                            if (p > 0f) { a.vel -= n.normalized * p; b.vel += n.normalized * p; }
+                            if (p > 0f)
+                            {
+                                a.vel -= n.normalized * p; b.vel += n.normalized * p;
+                                if (p > 0.25f) CoastAudioManager.PlayAnywhere(CoastSfx.SoftHit, Mathf.Clamp01(p * 0.4f));
+                            }
                             float push = (min - dist) * 0.5f;
                             a.pos -= n.normalized * push; b.pos += n.normalized * push;
                         }
                     }
-                foreach (var m in all) { m.rt.anchorMin = m.rt.anchorMax = m.pos; }
+                foreach (var m in all)
+                {
+                    if (m.outOf) continue;
+                    var before = m.tr.position;
+                    Place(m);
+                    var mv = m.tr.position - before; mv.y = 0f;
+                    float len = mv.magnitude;
+                    if (len > 1e-5f) m.tr.Rotate(Vector3.Cross(Vector3.up, mv / len), len / _radius * Mathf.Rad2Deg, Space.World);
+                }
                 if (Moving()) return;
                 if (_knocked >= Need) { _step = Step.Done; Status.text = Loc.T($"성공! {_knocked}개를 밖으로", $"Done! {_knocked} out"); StartCoroutine(EndAfter(0.9f, 1)); }
-                else if (_shots <= 0) { _step = Step.Done; Status.text = Loc.T($"{_knocked}개… {Need}개가 필요해", $"{_knocked}… need {Need}"); StartCoroutine(EndAfter(1.0f, 0)); }
+                else if (_shots <= 0) { _step = Step.Done; Status.text = Loc.T($"{8 - _knocked}개 남았다… 2개 이하여야 해", $"{8 - _knocked} left… need ≤2"); StartCoroutine(EndAfter(1.0f, 0)); }
                 else
                 {
                     // 흰 구슬이 삼각형 안에 멈추면 밑으로 되돌린다(다음 발 조준)
                     _me.pos = new Vector2(Mathf.Clamp(_me.pos.x, 0.2f, 0.8f), Mathf.Min(_me.pos.y, 0.30f));
-                    _me.rt.anchorMin = _me.rt.anchorMax = _me.pos;
-                    _step = Step.Aim; _t = 0f; _aimLine.gameObject.SetActive(true); _btnLabel.text = Loc.T("방향 선택", "Set aim");
-                    _powerFill.anchorMax = new Vector2(1f, 0f);
-                    Status.text = Loc.T($"다음 발 — [방향 선택]. 남은 발 {_shots} · 밖으로 {_knocked}/{Need}", $"Next — [Set aim]. Shots {_shots} · out {_knocked}/{Need}");
+                    Place(_me);
+                    _step = Step.Aim; _t = 0f; _btnLabel.text = Loc.T("방향 확정", "Set aim"); if (_fireFill != null) _fireFill.color = new Color(1f, 0.80f, 0.20f);
+                    _powerFill.anchorMax = new Vector2(1f, 0f); _powerTxt.text = "0%";
+                    _dirHint.text = Loc.T("좌우로 움직이는 중…\n타이밍에 멈추기", "Sweeping left/right…\nstop it on time");
+                    PlaceAim();
+                    Status.text = Loc.T($"다음 발 — 남은 발 {_shots} · 남은 구슬 {8 - _knocked}개", $"Next — Shots {_shots} · {8 - _knocked} left");
                 }
             }
+
+            private void OnDestroy() { if (_stage != null) Destroy(_stage.gameObject); }
 
             private IEnumerator EndAfter(float s, int r) { yield return new WaitForSecondsRealtime(s); Finish(r); }
         }
-
-        // ── 윷놀이: 한 바퀴 먼저 ─────────────────────────────────────────
-        private class YutMission : HomeMiniGames.MiniBase
-        {
-            protected override string Title => Loc.T("미션 · 윷놀이", "Mission · Yut Nori");
-            private const int Cells = 20;
-            private int _me, _ai;
-            private bool _myTurn = true, _busy;
-            private Image _meTok, _aiTok;
-            private readonly Image[] _sticks = new Image[4];
-            private Text _result;
-            private readonly List<Vector2> _cellPos = new List<Vector2>();
-
-            protected override void Build(Transform foot)
-            {
-                for (int i = 0; i <= Cells; i++) _cellPos.Add(CellAnchor(i));
-                for (int i = 0; i < Cells; i++)
-                {
-                    bool corner = i % 5 == 0;
-                    var c = Dot(Field, "Cell" + i, _cellPos[i], corner ? new Vector2(34f, 34f) : new Vector2(22f, 22f), corner ? new Color(0.55f, 0.35f, 0.25f) : new Color(0.75f, 0.60f, 0.45f));
-                    if (i == 0) Txt(c.transform, "S", Loc.T("출발", "Start"), 10, Cream, TextAnchor.MiddleCenter);
-                }
-                _meTok = Dot(Field, "Me", _cellPos[0], new Vector2(30f, 30f), Coral);
-                Txt(_meTok.transform, "T", Loc.T("나", "Me"), 10, Color.white, TextAnchor.MiddleCenter);
-                _aiTok = Dot(Field, "Ai", _cellPos[0], new Vector2(30f, 30f), Sky);
-                _aiTok.rectTransform.anchoredPosition = new Vector2(10f, -8f);
-                Txt(_aiTok.transform, "T", Loc.T("도담", "Dodam"), 9, Color.white, TextAnchor.MiddleCenter);
-                for (int i = 0; i < 4; i++)
-                {
-                    var st = CoastUiArt.Panel(Field, "Stick" + i, new Color(0.85f, 0.70f, 0.50f), 8);
-                    st.rectTransform.anchorMin = st.rectTransform.anchorMax = new Vector2(0.5f, 0.55f); st.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-                    st.rectTransform.anchoredPosition = new Vector2(-60f + i * 40f, 0f); st.rectTransform.sizeDelta = new Vector2(22f, 90f);
-                    _sticks[i] = st;
-                }
-                _result = Txt(Field, "Res", Loc.T("[던지기]를 눌러 시작", "Press [Throw] to start"), 20, Navy, TextAnchor.MiddleCenter);
-                Rect(_result.rectTransform, new Vector2(0.2f, 0.28f), new Vector2(0.8f, 0.40f), Vector2.zero, Vector2.zero);
-                Btn(foot, "Throw", Loc.T("던지기", "Throw"), Coral, new Vector2(1f, 0.5f), new Vector2(-12f, 0f), new Vector2(160f, 54f), () => { if (_myTurn && !_busy) StartCoroutine(Turn(true)); });
-                Status.text = Loc.T("내 차례. 도담이보다 먼저 한 바퀴!", "Your turn. Get around before Dodam!");
-            }
-
-            private static Vector2 CellAnchor(int i)
-            {
-                float l = 0.10f, r = 0.90f, b = 0.10f, t = 0.90f;
-                i = Mathf.Clamp(i, 0, Cells);
-                if (i <= 5) return new Vector2(Mathf.Lerp(l, r, i / 5f), b);
-                if (i <= 10) return new Vector2(r, Mathf.Lerp(b, t, (i - 5) / 5f));
-                if (i <= 15) return new Vector2(Mathf.Lerp(r, l, (i - 10) / 5f), t);
-                return new Vector2(l, Mathf.Lerp(t, b, (i - 15) / 5f));
-            }
-
-            private IEnumerator Turn(bool me)
-            {
-                _busy = true;
-                float t = 0f;
-                bool[] flat = new bool[4];
-                while (t < 0.6f)
-                {
-                    t += Time.unscaledDeltaTime;
-                    for (int i = 0; i < 4; i++)
-                    {
-                        _sticks[i].rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 30f + i) * 25f);
-                        _sticks[i].color = UnityEngine.Random.value > 0.5f ? new Color(0.85f, 0.70f, 0.50f) : new Color(0.45f, 0.30f, 0.20f);
-                    }
-                    yield return null;
-                }
-                int flats = 0;
-                for (int i = 0; i < 4; i++) { flat[i] = UnityEngine.Random.value < 0.55f; if (flat[i]) flats++; _sticks[i].rectTransform.localRotation = Quaternion.identity; _sticks[i].color = flat[i] ? new Color(0.92f, 0.82f, 0.62f) : new Color(0.45f, 0.30f, 0.20f); }
-                int move; string name; bool again = false;
-                switch (flats) { case 1: move = 1; name = "도"; break; case 2: move = 2; name = "개"; break; case 3: move = 3; name = "걸"; break; case 4: move = 4; name = "윷"; again = true; break; default: move = 5; name = "모"; again = true; break; }
-                _result.text = (me ? Loc.T("나: ", "Me: ") : Loc.T("도담: ", "Dodam: ")) + name + $" (+{move})" + (again ? Loc.T("  한 번 더!", "  again!") : "");
-                yield return new WaitForSecondsRealtime(0.5f);
-                for (int k = 0; k < move; k++)
-                {
-                    if (me) _me = Mathf.Min(Cells, _me + 1); else _ai = Mathf.Min(Cells, _ai + 1);
-                    var tok = me ? _meTok : _aiTok; int pos = me ? _me : _ai;
-                    tok.rectTransform.anchorMin = tok.rectTransform.anchorMax = _cellPos[pos];
-                    tok.rectTransform.anchoredPosition = me ? Vector2.zero : new Vector2(10f, -8f);
-                    tok.rectTransform.localScale = Vector3.one * 1.25f;
-                    yield return new WaitForSecondsRealtime(0.12f);
-                    tok.rectTransform.localScale = Vector3.one;
-                }
-                if (me && _me == _ai && _ai > 0 && _ai < Cells) { _ai = 0; _aiTok.rectTransform.anchorMin = _aiTok.rectTransform.anchorMax = _cellPos[0]; _result.text += Loc.T("  도담이를 잡았다!", "  Caught Dodam!"); again = true; }
-                if (!me && _ai == _me && _me > 0 && _me < Cells) { _me = 0; _meTok.rectTransform.anchorMin = _meTok.rectTransform.anchorMax = _cellPos[0]; _result.text += Loc.T("  잡혔다…", "  Caught…"); again = true; }
-                yield return new WaitForSecondsRealtime(0.4f);
-                if (_me >= Cells) { Status.text = Loc.T("먼저 들어왔다!", "Home first!"); _result.text = Loc.T("승리!", "Victory!"); yield return new WaitForSecondsRealtime(1.0f); Finish(1); yield break; }
-                if (_ai >= Cells) { Status.text = Loc.T("도담이가 먼저…", "Dodam got home first…"); _result.text = Loc.T("패배…", "Lost…"); yield return new WaitForSecondsRealtime(1.0f); Finish(0); yield break; }
-                _busy = false;
-                if (again) { if (!me) StartCoroutine(Turn(false)); else Status.text = Loc.T("한 번 더 던져!", "Throw again!"); yield break; }
-                _myTurn = !me;
-                if (_myTurn) Status.text = Loc.T("내 차례.", "Your turn.");
-                else { Status.text = Loc.T("도담이 차례…", "Dodam's turn…"); yield return new WaitForSecondsRealtime(0.5f); StartCoroutine(Turn(false)); }
-            }
-        }
-
-        // ── 투호(45차): [방향] → [힘] → 발사. 방향 ±6°·힘 ±9% 안이면 항아리에 쏙. 5발 중 3발 ─
-        private class TuhoMission : HomeMiniGames.MiniBase
-        {
-            protected override string Title => Loc.T("미션 · 투호", "Mission · Tuho");
-            private RectTransform _arrow, _jar, _powerFill;
-            private Text _btnLabel;
-            private enum Step { Aim, Power, Flying, Done }
-            private Step _step = Step.Aim;
-            private float _t, _angle, _power;
-            private int _left = 5, _in;
-            private const int Need = 3;
-            private static readonly Vector2 Start = new Vector2(0.5f, 0.14f);
-            private static readonly Vector2 Jar = new Vector2(0.5f, 0.76f);
-            private const float AimTol = 6f, PowerTol = 0.09f, NeedPower = 0.62f;
-
-            protected override void Build(Transform foot)
-            {
-                CoastHudLayout.MakeImage(Field, "Ground", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.93f, 0.90f, 0.80f));
-                var mat = CoastUiArt.Panel(Field, "Mat", new Color(0.72f, 0.55f, 0.40f), 14);
-                Rect(mat.rectTransform, new Vector2(0.2f, 0.66f), new Vector2(0.8f, 0.74f), Vector2.zero, Vector2.zero);
-                var jar = CoastUiArt.GlossyPill(Field, "Jar", new Color(0.45f, 0.30f, 0.22f), 26, 8);
-                _jar = jar.rectTransform; _jar.anchorMin = _jar.anchorMax = Jar; _jar.pivot = new Vector2(0.5f, 0.5f);
-                _jar.anchoredPosition = Vector2.zero; _jar.sizeDelta = new Vector2(120f, 150f);
-                var mouth = CoastUiArt.Panel(_jar, "Mouth", new Color(0.15f, 0.10f, 0.08f), 30);
-                mouth.rectTransform.anchorMin = mouth.rectTransform.anchorMax = new Vector2(0.5f, 1f); mouth.rectTransform.anchoredPosition = new Vector2(0f, -10f); mouth.rectTransform.sizeDelta = new Vector2(96f, 26f);
-                var arrow = CoastUiArt.Panel(Field, "Arrow", new Color(0.85f, 0.25f, 0.20f), 4);
-                _arrow = arrow.rectTransform; _arrow.anchorMin = _arrow.anchorMax = Start; _arrow.pivot = new Vector2(0.5f, 0.15f);
-                _arrow.sizeDelta = new Vector2(8f, 120f);
-                var fl = CoastUiArt.Panel(_arrow, "Feather", new Color(1f, 0.85f, 0.30f), 4);
-                fl.rectTransform.anchorMin = fl.rectTransform.anchorMax = new Vector2(0.5f, 0f); fl.rectTransform.anchoredPosition = new Vector2(0f, 12f); fl.rectTransform.sizeDelta = new Vector2(26f, 24f);
-                // 힘 게이지(오른쪽 세로) + 목표 표시선
-                var bar = CoastUiArt.Panel(Field, "PowerBar", new Color(0.35f, 0.30f, 0.30f), 8);
-                Rect(bar.rectTransform, new Vector2(0.92f, 0.10f), new Vector2(0.97f, 0.60f), Vector2.zero, Vector2.zero);
-                var fill = CoastUiArt.Panel(bar.transform, "Fill", Sun, 6);
-                _powerFill = fill.rectTransform; Rect(_powerFill, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(2f, 2f), new Vector2(-2f, 0f));
-                var mark = CoastUiArt.Panel(bar.transform, "Mark", new Color(1f, 1f, 1f, 0.8f), 2);
-                Rect(mark.rectTransform, new Vector2(-0.4f, NeedPower - PowerTol), new Vector2(1.4f, NeedPower + PowerTol), Vector2.zero, Vector2.zero);
-                mark.color = new Color(1f, 1f, 1f, 0.35f);
-                var pb = Btn(foot, "Go", Loc.T("방향 선택", "Set aim"), Coral, new Vector2(1f, 0.5f), new Vector2(-12f, 0f), new Vector2(180f, 54f), OnButton);
-                _btnLabel = pb.GetComponentInChildren<Text>();
-                Status.text = Loc.T($"화살이 좌우로 돌아요 — 항아리를 향할 때 [방향 선택]. 남은 화살 {_left} · 넣은 것 {_in}/{Need}", $"The arrow sweeps — tap [Set aim] when it points at the jar. Arrows {_left} · in {_in}/{Need}");
-            }
-
-            private void OnButton()
-            {
-                if (_step == Step.Aim) { _step = Step.Power; _t = 0f; _btnLabel.text = Loc.T("발사!", "Throw!"); Status.text = Loc.T("힘 게이지 — 흰 띠 안에서 [발사!]", "Power — tap [Throw!] inside the white band"); }
-                else if (_step == Step.Power) StartCoroutine(Throw());
-            }
-
-            private void Update()
-            {
-                if (_arrow == null) return;
-                if (_step == Step.Aim)
-                {
-                    _t += Time.unscaledDeltaTime; _angle = Mathf.Sin(_t * 1.5f) * 35f;
-                    _arrow.localRotation = Quaternion.Euler(0f, 0f, -_angle);
-                }
-                else if (_step == Step.Power)
-                {
-                    _t += Time.unscaledDeltaTime; _power = 0.5f + 0.5f * Mathf.Sin(_t * 2.2f * Mathf.PI - Mathf.PI * 0.5f);
-                    _powerFill.anchorMax = new Vector2(1f, _power);
-                }
-            }
-
-            private IEnumerator Throw()
-            {
-                _step = Step.Flying; _left--;
-                bool hit = Mathf.Abs(_angle) <= AimTol && Mathf.Abs(_power - NeedPower) <= PowerTol;
-                var dir = new Vector2(Mathf.Sin(_angle * Mathf.Deg2Rad), Mathf.Cos(_angle * Mathf.Deg2Rad));
-                float dist = hit ? (Jar - Start).magnitude : (Jar - Start).magnitude * (_power / NeedPower);
-                Vector2 end = hit ? Jar : Start + dir * dist;
-                end.x = Mathf.Clamp(end.x, 0.05f, 0.88f); end.y = Mathf.Clamp(end.y, 0.05f, 0.95f);
-                float t = 0f;
-                while (t < 0.5f)
-                {
-                    t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / 0.5f);
-                    var pos = Vector2.Lerp(Start, end, u); pos.y += Mathf.Sin(u * Mathf.PI) * 0.10f;
-                    _arrow.anchorMin = _arrow.anchorMax = pos;
-                    _arrow.localScale = Vector3.one * Mathf.Lerp(1f, 0.6f, u);
-                    if (!hit && u > 0.7f) _arrow.localRotation = Quaternion.Euler(0f, 0f, -_angle + (_angle >= 0 ? 1f : -1f) * (u - 0.7f) / 0.3f * 80f);
-                    yield return null;
-                }
-                if (hit) { _in++; CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.7f); var stuck = UnityEngine.Object.Instantiate(_arrow.gameObject, Field); stuck.name = "Stuck"; stuck.transform.SetSiblingIndex(_jar.GetSiblingIndex()); }
-                else CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.5f);
-                string why = hit ? "" : Mathf.Abs(_angle) > AimTol ? Loc.T("(방향이 빗나감)", "(off aim)") : _power < NeedPower ? Loc.T("(힘이 약함)", "(too weak)") : Loc.T("(힘이 셈)", "(too strong)");
-                Status.text = hit ? Loc.T($"쏙! 넣은 것 {_in}/{Need} · 남은 화살 {_left}", $"In! {_in}/{Need} · arrows {_left}")
-                                  : Loc.T($"빗나감 {why} · 넣은 것 {_in}/{Need} · 남은 화살 {_left}", $"Miss {why} · {_in}/{Need} · arrows {_left}");
-                yield return new WaitForSecondsRealtime(0.4f);
-                _arrow.localScale = Vector3.one; _arrow.localRotation = Quaternion.identity;
-                _arrow.anchorMin = _arrow.anchorMax = Start;
-                _powerFill.anchorMax = new Vector2(1f, 0f);
-                if (_in >= Need) { _step = Step.Done; Status.text = Loc.T("3발 성공! 투호 명인", "3 in! Tuho master"); yield return new WaitForSecondsRealtime(0.8f); Finish(1); yield break; }
-                if (_left <= 0) { _step = Step.Done; Status.text = Loc.T($"{_in}발… {Need}발이 필요해", $"{_in}… need {Need}"); yield return new WaitForSecondsRealtime(0.9f); Finish(0); yield break; }
-                _step = Step.Aim; _t = 0f; _btnLabel.text = Loc.T("방향 선택", "Set aim");
-            }
-        }
-
-        // ── 딱지치기: 힘 게이지 노란 구간에서 내리치기. 3번 안에 1번 넘기기 ─
-        private class DdakjiMission : HomeMiniGames.MiniBase
-        {
-            protected override string Title => Loc.T("미션 · 딱지치기", "Mission · Ddakji");
-            private RectTransform _needle, _mine, _theirs;
-            private float _t; private const float Speed = 2.1f;
-            private int _left = 3; private bool _busy, _ended;
-            private const float ZoneL = 0.66f, ZoneR = 0.86f;
-
-            protected override void Build(Transform foot)
-            {
-                CoastHudLayout.MakeImage(Field, "Ground", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.80f, 0.78f, 0.74f));
-                // 바닥의 상대 딱지(파랑) — 넘기면 뒤집혀 빨강
-                var th = CoastUiArt.GlossyPill(Field, "Theirs", new Color(0.30f, 0.50f, 0.90f), 10, 4);
-                _theirs = th.rectTransform; _theirs.anchorMin = _theirs.anchorMax = new Vector2(0.5f, 0.42f); _theirs.pivot = new Vector2(0.5f, 0.5f); _theirs.sizeDelta = new Vector2(130f, 130f);
-                Txt(_theirs, "T", Loc.T("도담", "Dodam"), 16, Color.white, TextAnchor.MiddleCenter);
-                var mine = CoastUiArt.GlossyPill(Field, "Mine", new Color(0.95f, 0.35f, 0.35f), 10, 4);
-                _mine = mine.rectTransform; _mine.anchorMin = _mine.anchorMax = new Vector2(0.5f, 0.86f); _mine.pivot = new Vector2(0.5f, 0.5f); _mine.sizeDelta = new Vector2(120f, 120f);
-                Txt(_mine, "T", Loc.T("나", "Me"), 16, Color.white, TextAnchor.MiddleCenter);
-                // 힘 게이지(왼쪽 세로)
-                var bar = CoastUiArt.Panel(Field, "Bar", new Color(0.35f, 0.33f, 0.36f), 10);
-                Rect(bar.rectTransform, new Vector2(0.08f, 0.14f), new Vector2(0.15f, 0.92f), Vector2.zero, Vector2.zero);
-                var zone = CoastUiArt.Panel(bar.transform, "Zone", Sun, 8);
-                Rect(zone.rectTransform, new Vector2(0f, ZoneL), new Vector2(1f, ZoneR), new Vector2(3f, 0f), new Vector2(-3f, 0f));
-                var nd = CoastUiArt.Panel(bar.transform, "Needle", Color.white, 3);
-                _needle = nd.rectTransform; _needle.anchorMin = new Vector2(-0.3f, 0f); _needle.anchorMax = new Vector2(1.3f, 0f); _needle.pivot = new Vector2(0.5f, 0.5f);
-                _needle.offsetMin = new Vector2(0f, -3f); _needle.offsetMax = new Vector2(0f, 3f);
-                Btn(foot, "Slam", Loc.T("내리치기!", "Slam!"), Coral, new Vector2(1f, 0.5f), new Vector2(-12f, 0f), new Vector2(170f, 54f), () => { if (!_busy && !_ended) StartCoroutine(Slam()); });
-                Status.text = Loc.T($"노란 구간에서 내리쳐! 남은 기회 {_left}", $"Slam in the yellow zone! Tries {_left}");
-            }
-
-            private float Needle01 => 0.5f + 0.5f * Mathf.Sin(_t * Speed * Mathf.PI);
-
-            private void Update()
-            {
-                if (_busy || _ended) return;
-                _t += Time.unscaledDeltaTime;
-                float v = Needle01;
-                _needle.anchorMin = new Vector2(-0.3f, v); _needle.anchorMax = new Vector2(1.3f, v);
-            }
-
-            private IEnumerator Slam()
-            {
-                _busy = true; _left--;
-                float v = Needle01;
-                bool flip = v >= ZoneL && v <= ZoneR;
-                float t = 0f;
-                while (t < 0.25f)
-                {
-                    t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / 0.25f);
-                    _mine.anchorMin = _mine.anchorMax = new Vector2(0.5f, Mathf.Lerp(0.86f, 0.46f, u * u));
-                    yield return null;
-                }
-                CoastAudioManager.PlayAnywhere(flip ? CoastSfx.ChapterClear : CoastSfx.NearMiss, 0.7f);
-                if (flip)
-                {
-                    t = 0f;
-                    while (t < 0.5f)
-                    {
-                        t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / 0.5f);
-                        _theirs.localRotation = Quaternion.Euler(u * 180f, 0f, 0f);
-                        _theirs.anchoredPosition = new Vector2(0f, Mathf.Sin(u * Mathf.PI) * 60f);
-                        yield return null;
-                    }
-                    _theirs.GetComponent<Image>().color = new Color(0.95f, 0.35f, 0.35f);
-                    _ended = true;
-                    Status.text = Loc.T("넘어갔다! 내 딱지!", "Flipped! It's mine!");
-                    yield return new WaitForSecondsRealtime(0.8f);
-                    Finish(1); yield break;
-                }
-                // 실패: 상대 딱지가 들썩만
-                t = 0f;
-                while (t < 0.3f)
-                {
-                    t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / 0.3f);
-                    _theirs.anchoredPosition = new Vector2(0f, Mathf.Sin(u * Mathf.PI) * 14f);
-                    _theirs.localRotation = Quaternion.Euler(Mathf.Sin(u * Mathf.PI) * 25f, 0f, 0f);
-                    yield return null;
-                }
-                _theirs.anchoredPosition = Vector2.zero; _theirs.localRotation = Quaternion.identity;
-                _mine.anchorMin = _mine.anchorMax = new Vector2(0.5f, 0.86f);
-                Status.text = v < ZoneL ? Loc.T($"약해! 남은 기회 {_left}", $"Too weak! Tries {_left}") : Loc.T($"너무 세서 튕겼어! 남은 기회 {_left}", $"Too hard, it bounced! Tries {_left}");
-                if (_left <= 0) { _ended = true; yield return new WaitForSecondsRealtime(0.6f); Finish(0); yield break; }
-                _busy = false;
-            }
-        }
-
-        // ── 무궁화 꽃이 피었습니다: [달리기] 누르는 동안 전진, 술래가 돌아보면 멈춰야 ─
-        private class MugunghwaMission : HomeMiniGames.MiniBase, IPointerDownHandler, IPointerUpHandler
-        {
-            protected override string Title => Loc.T("미션 · 무궁화 꽃이 피었습니다", "Mission · Red Light, Green Light");
-            private RectTransform _me, _tagger, _bar;
-            private Image _taggerFace, _barFill;
-            private Text _chant;
-            private float _progress;      // 0 → 1(술래 앞)
-            private bool _holding, _turned, _ended, _touchable;
-            private float _phaseT, _phaseLen;
-            private int _caught;
-
-            protected override void Build(Transform foot)
-            {
-                var ground = CoastHudLayout.MakeImage(Field, "Ground", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0.78f, 0.88f, 0.70f));
-                ground.raycastTarget = true;
-                var lane = CoastUiArt.Panel(Field, "Lane", new Color(0.90f, 0.86f, 0.70f), 14);
-                Rect(lane.rectTransform, new Vector2(0.42f, 0.08f), new Vector2(0.58f, 0.86f), Vector2.zero, Vector2.zero);
-                var tg = CoastUiArt.GlossyPill(Field, "Tagger", new Color(0.35f, 0.45f, 0.65f), 30, 8);
-                _tagger = tg.rectTransform; _tagger.anchorMin = _tagger.anchorMax = new Vector2(0.5f, 0.88f); _tagger.pivot = new Vector2(0.5f, 0.5f); _tagger.sizeDelta = new Vector2(96f, 96f);
-                _taggerFace = tg;
-                Txt(_tagger, "T", Loc.T("술래", "It"), 16, Color.white, TextAnchor.MiddleCenter);
-                var tb = _tagger.gameObject.AddComponent<Button>(); tb.transition = Selectable.Transition.None; tg.raycastTarget = true;
-                tb.onClick.AddListener(() => { if (_touchable && !_ended) StartCoroutine(Win()); });
-                var me = CoastUiArt.GlossyPill(Field, "Me", Coral, 24, 6);
-                _me = me.rectTransform; _me.anchorMin = _me.anchorMax = new Vector2(0.5f, 0.12f); _me.pivot = new Vector2(0.5f, 0.5f); _me.sizeDelta = new Vector2(64f, 64f);
-                Txt(_me, "T", Loc.T("나", "Me"), 14, Color.white, TextAnchor.MiddleCenter);
-                _chant = Txt(Field, "Chant", "", 22, Navy, TextAnchor.MiddleCenter);
-                Rect(_chant.rectTransform, new Vector2(0.05f, 0.90f), new Vector2(0.95f, 0.99f), Vector2.zero, Vector2.zero);
-                CoastUiArt.OutlineText(_chant, new Color(1f, 1f, 1f, 0.7f), 1.5f);
-                // 달리기 버튼(누르고 있는 동안)
-                var run = CoastUiArt.CutePill(foot, "Run", Coral, 16, 3);
-                run.rectTransform.anchorMin = run.rectTransform.anchorMax = new Vector2(1f, 0.5f); run.rectTransform.pivot = new Vector2(1f, 0.5f);
-                run.rectTransform.anchoredPosition = new Vector2(-12f, 0f); run.rectTransform.sizeDelta = new Vector2(180f, 58f); run.raycastTarget = true;
-                var rl = Txt(run.transform, "T", Loc.T("달리기 (꾹)", "Run (hold)"), 17, Color.white, TextAnchor.MiddleCenter);
-                CoastUiArt.OutlineText(rl, new Color(0f, 0f, 0f, 0.35f), 1.5f);
-                var hold = run.gameObject.AddComponent<HoldRelay>(); hold.target = this;
-                NextPhase(false);
-                Status.text = Loc.T("술래가 돌아보면 손을 떼! 술래 앞에 가서 술래를 터치", "Let go when It turns! Reach It and tap");
-            }
-
-            public void OnPointerDown(PointerEventData e) { _holding = true; }
-            public void OnPointerUp(PointerEventData e) { _holding = false; }
-
-            private void NextPhase(bool turned)
-            {
-                _turned = turned; _phaseT = 0f;
-                _phaseLen = turned ? UnityEngine.Random.Range(0.9f, 1.6f) : UnityEngine.Random.Range(1.4f, 3.2f);
-                _taggerFace.color = turned ? new Color(0.95f, 0.30f, 0.30f) : new Color(0.35f, 0.45f, 0.65f);
-                _tagger.localRotation = Quaternion.Euler(0f, 0f, turned ? 0f : 180f);
-                _chant.text = turned ? Loc.T("돌아봤다!", "Looking!") : Loc.T("무궁화 꽃이 피었습니다…", "Red light, green light…");
-                _chant.color = turned ? new Color(0.85f, 0.15f, 0.15f) : Navy;
-            }
-
-            private void Update()
-            {
-                if (_ended) return;
-                float dt = Time.unscaledDeltaTime;
-                _phaseT += dt;
-                if (_phaseT >= _phaseLen) NextPhase(!_turned);
-                if (_holding)
-                {
-                    if (_turned && _phaseT > 0.18f)   // 0.18초 반응 여유
-                    {
-                        _caught++;
-                        _progress = 0f;
-                        _holding = false;
-                        CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.8f);
-                        Status.text = Loc.T($"걸렸다! 처음부터 (걸린 횟수 {_caught})", $"Caught! Back to start ({_caught})");
-                        if (_caught >= 3) { _ended = true; StartCoroutine(EndAfter(0.8f, 0)); return; }
-                    }
-                    else _progress = Mathf.Min(1f, _progress + dt * 0.22f);
-                }
-                _me.anchorMin = _me.anchorMax = new Vector2(0.5f, Mathf.Lerp(0.12f, 0.78f, _progress));
-                _touchable = _progress >= 0.999f;
-                if (_touchable && !_turned) _chant.text = Loc.T("지금! 술래를 터치!", "Now! Tap It!");
-            }
-
-            private IEnumerator Win()
-            {
-                _ended = true;
-                CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.8f);
-                Status.text = Loc.T("술래 터치! 이겼다!", "Tagged It! You win!");
-                _chant.text = Loc.T("만세!", "Hooray!");
-                yield return new WaitForSecondsRealtime(0.9f);
-                Finish(1);
-            }
-
-            private IEnumerator EndAfter(float s, int r) { yield return new WaitForSecondsRealtime(s); Finish(r); }
-
-            private class HoldRelay : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
-            {
-                public MugunghwaMission target;
-                public void OnPointerDown(PointerEventData e) => target?.OnPointerDown(e);
-                public void OnPointerUp(PointerEventData e) => target?.OnPointerUp(e);
-            }
-        }
+        // 49차: 윷놀이·투호·딱지치기·무궁화는 MissionMiniGames.Games3D.cs 의 3D 무대 버전으로 이동(2D 버전 삭제).
     }
 }

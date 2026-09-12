@@ -110,6 +110,28 @@ namespace CoastRun
             return _roadMat;
         }
 
+        private static Material _walkMat;
+
+        /// 48차-14: 인도용 돌포장 — 도로와 같은 텍스처, 타일 크기 동일(폭 2.2 m ↔ 도로 8 m = 3타일), 조금 밝은 톤
+        private static Material SidewalkMaterial()
+        {
+            if (_walkMat == null)
+            {
+                _walkMat = CoastMaterials.CreateLit(() => CoastPalette.Road);
+                Texture2D tex = ArtAssets.LoadTexture("Tex_Pavement_Cream") ?? RoadTextureGenerator.Flagstone();
+                if (_walkMat.HasProperty("_BaseMap"))
+                {
+                    _walkMat.SetTexture("_BaseMap", tex);
+                    _walkMat.SetTextureScale("_BaseMap", new Vector2(3f * 2.2f / (RoadHalfWidth * 2f), 12f));
+                }
+                else { _walkMat.mainTexture = tex; _walkMat.mainTextureScale = new Vector2(0.6f, 8f); }
+            }
+            var tint = Color.Lerp(SeasonLook.RoadTint(SeasonLook.Current), Color.white, 0.18f);
+            if (_walkMat.HasProperty("_BaseColor")) _walkMat.SetColor("_BaseColor", tint);
+            else if (_walkMat.HasProperty("_Color")) _walkMat.SetColor("_Color", tint);
+            return _walkMat;
+        }
+
         private static void BuildRoad(Transform root, int index)
         {
             // Cream flagstone promenade with inlaid lane guides — the "cosy seaside
@@ -135,14 +157,18 @@ namespace CoastRun
                 }
             }
 
-            // Terracotta curbs and a warm sidewalk on the town side.
-            CreateBox(root, "CurbL", new Vector3(-RoadHalfWidth - 0.12f, 0.08f, Length * 0.5f),
-                new Vector3(0.28f, 0.18f, Length), () => CoastPalette.Curb);
+            // 48차-14(사용자 시안): 건물 옆 인도는 차도와 같은 돌포장이 건물 앞까지 이어진다 — 크림색 평판 대신
+            // 도로 텍스처(조금 밝게)를 깔고, 연석은 낮고 옅은 돌색 한 줄로만. 바다쪽 연석은 그대로.
+            CreateBox(root, "CurbL", new Vector3(-RoadHalfWidth - 0.10f, 0.05f, Length * 0.5f),
+                new Vector3(0.22f, 0.12f, Length), () => Color.Lerp(CoastPalette.Sidewalk, CoastPalette.RoadGrey, 0.45f));
             CreateBox(root, "CurbR", new Vector3(RoadHalfWidth + 0.12f, 0.08f, Length * 0.5f),
                 new Vector3(0.28f, 0.18f, Length), () => CoastPalette.Curb);
 
             CreateBox(root, "SidewalkL", new Vector3(-RoadHalfWidth - 1.35f, 0.04f, Length * 0.5f),
-                new Vector3(2.2f, 0.08f, Length), () => CoastPalette.Sidewalk);
+                new Vector3(2.2f, 0.10f, Length), () => CoastPalette.Sidewalk, SidewalkMaterial());
+            // 건물 기단 앞 좁은 크림 띠(시안의 상가 앞 콘크리트 턱)
+            CreateBox(root, "SidewalkBase", new Vector3(-RoadHalfWidth - 2.35f, 0.05f, Length * 0.5f),
+                new Vector3(0.5f, 0.12f, Length), () => CoastPalette.Sidewalk);
 
             CreateBox(root, "Deck", new Vector3(0f, -0.55f, Length * 0.5f),
                 new Vector3(RoadHalfWidth * 2f + 3.6f, 0.9f, Length),
@@ -615,28 +641,28 @@ namespace CoastRun
             }
             else
             {
-            var wall = CreateBox(root, "SeaWall", new Vector3(railX, 0.45f, Length * 0.5f),
-                new Vector3(0.55f, 0.9f, Length), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.35f), stone);
-            if (stone != null) SetTiling(wall, Length / 2.4f, 0.9f / 2.4f);
-            CreateBox(root, "SeaWallCap", new Vector3(railX, 0.93f, Length * 0.5f),
-                new Vector3(0.7f, 0.08f, Length), () => Color.Lerp(CoastPalette.TownCream, Color.white, 0.4f));
-            var railCol = new System.Func<Color>(() => Color.Lerp(CoastPalette.SkyBlue, Color.white, 0.55f));
-            CreateBox(root, "RailTop", new Vector3(railX, 1.75f, Length * 0.5f), new Vector3(0.07f, 0.07f, Length), railCol);
-            CreateBox(root, "RailMid", new Vector3(railX, 1.35f, Length * 0.5f), new Vector3(0.05f, 0.05f, Length), railCol);
-            for (float z = 1.2f; z < Length; z += 2.4f)
-                CreateBox(root, "RailPost", new Vector3(railX, 1.36f, z), new Vector3(0.07f, 0.78f, 0.07f), railCol);
+                // 49차(사용자): 하늘색 철난간 + 돌 방파제 → 레퍼런스의 짙은 나무 울타리 + 그 뒤 낮은 현무암 돌담.
+                WoodFence(root, railX, 0f, 1.05f);
+                StoneWallRun(root, railX + 0.95f, 0.5f);
             }
 
-            var cliff = CreateBox(root, "Cliff", new Vector3(railX + 3.5f, -4f, Length * 0.5f),
-                new Vector3(6f, 8f, Length), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.3f), stone);
+            // 49차: 절벽 상판(돌 텍스처 6 m) → 풀 둔덕(카툰 풀 텍스처) + 억새·유채·현무암 더미 → 바위 해안 경사 + 포말.
+            var cliff = CreateBox(root, "Cliff", new Vector3(railX + 2.3f, -4f, Length * 0.5f),
+                new Vector3(3.6f, 8f, Length), () => Color.Lerp(CoastPalette.RoadGrey, Color.black, 0.3f), stone);
             if (stone != null) SetTiling(cliff, Length / 2.4f, 8f / 2.4f);
+            TexturedSlab(root, "Verge", new Vector3(railX + 2.35f, 0.03f, Length * 0.5f), new Vector3(3.7f, 0.12f, Length + 0.2f),
+                GrassMaterial(), SeasonGrass, 3.0f);
+            VergeDressing(root, drng, railX + 1.15f, railX + 3.9f, 10);
+            ShoreBand(root, drng, railX + 4.2f, 4.5f);
 
             for (int i = 0; i < 2; i++)
             {
+                // 49차: 회색 상자 → 납작한 검은 현무암 바위섬(위에 이끼 살짝)
                 float z = 8f + i * 12f;
-                CreateBox(root, "Islet", new Vector3(22f + i * 4f, -2.2f, z),
-                    new Vector3(3.5f, 2.2f, 4f),
-                    () => Color.Lerp(CoastPalette.RoadGrey, CoastPalette.SeaTeal, 0.2f));
+                var islet = CreateSphere(root, "Islet", new Vector3(22f + i * 4f, -0.9f, z), 1.6f, () => Color.Lerp(Basalt, Color.black, 0.25f));
+                islet.transform.localScale = new Vector3(4.2f + i, 1.4f, 3.4f);
+                var moss = CreateSphere(root, "IsletMoss", new Vector3(22f + i * 4f, -0.35f, z), 1.0f, () => Moss);
+                moss.transform.localScale = new Vector3(2.6f, 0.5f, 2.0f);
             }
 
             if (index % 2 == 0)

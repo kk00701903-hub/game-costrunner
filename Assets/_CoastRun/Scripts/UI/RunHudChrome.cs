@@ -567,12 +567,31 @@ namespace CoastRun
             bool kpopDone = ArcadeRun.KpopMode && ArcadeRun.KpopFinished;   // 48차: 한 곡 완주 결과
             var title = CoastHudLayout.MakeText(band.transform, "Title", kpopDone ? Loc.T("한 곡 완주! ♪", "Song complete! ♪") : Loc.T("아쉽지만 다음에!", "Next time!"), 30, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), new Vector2(0f, 0f));
             title.color = new Color(0.30f, 0.20f, 0.14f); title.fontStyle = FontStyle.Bold;
-            var sub = CoastHudLayout.MakeText(root, "Sub", ArcadeRun.KpopMode ? Loc.T("K-POP 한 곡 달리기 · ", "One-Song Run · ") + ArcadeRun.KpopTrack.Credit : Loc.T("달리기 결과", "Run result"), 22, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -196f), new Vector2(0f, -156f));
+            // 51차: 보스전은 곡 크레딧까지 넣으면 한 줄을 넘쳐서 — 퇴치 수만(곡 제목은 HUD 에서 이미 봤다).
+            var sub = CoastHudLayout.MakeText(root, "Sub", ArcadeRun.BossRush ? Loc.T($"보스전 · 보스 {ArcadeRun.BossesCleared}마리 퇴치!", $"Boss Rush · {ArcadeRun.BossesCleared} bosses cleared!")
+                                                              : ArcadeRun.KpopMode ? Loc.T("K-POP 한 곡 달리기 · ", "One-Song Run · ") + ArcadeRun.KpopTrack.Credit : Loc.T("달리기 결과", "Run result"), 22, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -196f), new Vector2(0f, -156f));
             sub.color = new Color(1f, 0.82f, 0.35f); sub.fontStyle = FontStyle.Bold;
+            sub.horizontalOverflow = HorizontalWrapMode.Wrap; sub.resizeTextForBestFit = true; sub.resizeTextMinSize = 14; sub.resizeTextMaxSize = 22;
             CoastUiArt.OutlineText(sub, new Color(0.25f, 0.12f, 0.05f, 0.9f), 2f);
 
             // ── 주저앉은 하늘(UI_RunOver_Sad) + 별 3개 ──
             var sad = kpopDone ? null : ArtAssets.LoadTexture("UI_RunOver_Sad");
+            if (kpopDone)
+            {
+                // 51차(사용자): 완주 결과에 그림이 빠져 갈색 빈 판만 보였다 → 스테이지 클리어와 같은 얼굴 컷인 + 「오늘도 찢었다! 오운완」 말풍선
+                var faceTex = ArtAssets.LoadTexture("UI_Face_Ring") ?? ArtAssets.LoadTexture("UI_Face_Girl");
+                if (faceTex != null)
+                {
+                    var face = CoastHudLayout.MakeImage(root, "Face", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(40f, -540f), new Vector2(300f, -280f), Color.white);
+                    face.sprite = CoastUiArt.AsSprite(faceTex); face.preserveAspect = true; face.raycastTarget = false;
+                    var bub = CoastUiArt.CutePill(root, "FaceBubble", Color.white, 14, 3);
+                    var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(0f, 1f); brt2.pivot = new Vector2(0.5f, 0.5f);
+                    brt2.anchoredPosition = new Vector2(170f, -572f); brt2.sizeDelta = new Vector2(270f, 48f); bub.raycastTarget = false;
+                    foreach (var im in bub.GetComponentsInChildren<Image>()) if (im.name == "Lip") im.color = new Color(0.82f, 0.82f, 0.86f, 1f);
+                    var bt = CoastHudLayout.MakeText(brt2, "T", Loc.T("오늘도 찢었다! 오운완", "Nailed it! Song done"), 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-8f, 0f));
+                    bt.color = new Color(0.16f, 0.16f, 0.22f); bt.fontStyle = FontStyle.Bold;
+                }
+            }
             if (sad != null)
             {
                 var pic = CoastHudLayout.MakeImage(root, "Sad", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -560f), new Vector2(316f, -206f), Color.white);

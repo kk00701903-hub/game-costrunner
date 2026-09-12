@@ -26,10 +26,33 @@
         "PHOTOSHOP_PATH": "C:\\Program Files\\Adobe\\Adobe Photoshop 2026\\Photoshop.exe"
       }
     },
+    "illustrator": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "illustrator-mcp-server"
+      ],
+      "env": {
+        "LOG_LEVEL": "1",
+        "ILLUSTRATOR_PATH": "C:\\Program Files\\Adobe\\Adobe Illustrator 2026\\Support Files\\Contents\\Windows\\Illustrator.exe"
+      }
+    },
     "kling": {
       "command": "C:\\Users\\ares2\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
       "args": [
         "C:\\dev\\game\\Tools\\Mcp\\kling_mcp_server.py"
+      ]
+    },
+    "mixamo": {
+      "command": "C:\\Users\\ares2\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "C:\\dev\\game\\Tools\\Mcp\\mixamo_mcp_server.py"
+      ]
+    },
+    "pexels": {
+      "command": "C:\\Users\\ares2\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "C:\\dev\\game\\Tools\\Mcp\\pexels_mcp_server.py"
       ]
     }
   }

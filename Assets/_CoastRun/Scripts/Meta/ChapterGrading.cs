@@ -73,6 +73,19 @@ namespace CoastRun
             return attempt;
         }
 
+        /// 52차: 러닝이 없는 챕터(StoryProgress.RunChapters 밖) — 육성 하트만으로 판정. 목표에서 러닝 몫(HeartsPerStage)을 뺀다.
+        public static ChapterGrade SettleNoRun(SaveData save)
+        {
+            var rec = save.CurrentChapter;
+            if (rec == null) return ChapterGrade.None;
+            int earned = save.chapterHearts;
+            int target = Mathf.Max(1, (rec.heartsTarget > 0 ? rec.heartsTarget : HeartTarget(rec.chapter)) - RunTuning.HeartsPerStage);
+            var attempt = GradeOf(Mathf.Clamp01((float)earned / target));
+            if (!rec.cleared || earned > rec.heartsEarned) { rec.heartsEarned = earned; rec.grade = attempt; }
+            rec.cleared = true;
+            return attempt;
+        }
+
         public static bool AllS(SaveData save)
         {
             if (save?.chapters == null) return false;

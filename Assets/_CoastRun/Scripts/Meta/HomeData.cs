@@ -22,6 +22,8 @@ namespace CoastRun
     {
         public string id, ko, en;
         public int price, sell, waters;   // waters: 다 자라는 데 필요한 물주기 횟수
+        public int food;                  // 55차: 먹을 수 있는 작물이면 수확 시 반찬 몇 주분
+        public bool Edible => food > 0;
         public Color petal, center;
         public string Name => Loc.T(ko, en);
     }
@@ -200,6 +202,11 @@ namespace CoastRun
             new SeedDef { id = "cosmos",    ko = "코스모스 씨앗", en = "Cosmos",     price = 40, sell = 120, waters = 5, petal = new Color(1f, 0.55f, 0.75f), center = new Color(1f, 0.85f, 0.30f) },
             new SeedDef { id = "hydrangea", ko = "수국 씨앗",    en = "Hydrangea",  price = 70, sell = 220, waters = 7, petal = new Color(0.55f, 0.65f, 0.95f), center = new Color(0.85f, 0.90f, 1f) },
             new SeedDef { id = "sunflower", ko = "해바라기 씨앗", en = "Sunflower",  price = 90, sell = 320, waters = 9, petal = new Color(1f, 0.78f, 0.15f), center = new Color(0.35f, 0.22f, 0.10f) },
+            // 55차(사용자): 먹는 작물 — 수확하면 반찬 재고로(Survival). 주가 바뀌면 비가 와서 한 단계 자란다(WeeklyGrow).
+            new SeedDef { id = "lettuce",   ko = "상추 씨앗",    en = "Lettuce",    price = 15, sell = 0,   waters = 2, food = 1, petal = new Color(0.55f, 0.85f, 0.40f), center = new Color(0.35f, 0.65f, 0.25f) },
+            new SeedDef { id = "carrot",    ko = "당근 씨앗",    en = "Carrot",     price = 25, sell = 0,   waters = 3, food = 2, petal = new Color(0.45f, 0.75f, 0.30f), center = new Color(1f, 0.55f, 0.15f) },
+            new SeedDef { id = "potato",    ko = "감자 씨앗",    en = "Potato",     price = 35, sell = 0,   waters = 4, food = 3, petal = new Color(0.50f, 0.72f, 0.35f), center = new Color(0.80f, 0.65f, 0.35f) },
+            new SeedDef { id = "sweetpot",  ko = "고구마 씨앗",  en = "Sweet potato", price = 45, sell = 0, waters = 5, food = 4, petal = new Color(0.45f, 0.70f, 0.40f), center = new Color(0.65f, 0.30f, 0.50f) },
         };
         public static SeedDef Seed(string id) { foreach (var s in Seeds) if (s.id == id) return s; return null; }
         public static void EnsurePots(SaveData s)
@@ -236,9 +243,23 @@ namespace CoastRun
         {
             if (!IsBloomed(s, pot)) return 0;
             var p = s.pots[pot]; var sd = Seed(p.seed);
+            if (sd.Edible) { s.sideDish += sd.food; p.seed = null; p.growth = 0; p.waterStamp = -1; return sd.food; }   // 55차: 수확 → 반찬
             s.stats.money += sd.sell; p.seed = null; p.growth = 0; p.waterStamp = -1;
             s.flowersSold++;
             return sd.sell;
+        }
+        /// 55차: 주가 바뀔 때 — 심어 둔 화분은 한 단계 자라고, 다 자란 먹는 작물은 저절로 수확되어 반찬으로(돌아온 반찬 주분 합계).
+        public static int WeeklyGrow(SaveData s)
+        {
+            EnsurePots(s); int got = 0;
+            for (int i = 0; i < s.pots.Length; i++)
+            {
+                var p = s.pots[i]; var sd = Seed(p.seed);
+                if (sd == null) continue;
+                if (p.growth < sd.waters) p.growth++;
+                if (sd.Edible && p.growth >= sd.waters) got += Sell(s, i);
+            }
+            return got;
         }
         /// 0 빈 화분 / 1 씨앗 / 2 새싹 / 3 줄기 / 4 봉오리 / 5 꽃
         public static int Stage(SaveData s, int pot)

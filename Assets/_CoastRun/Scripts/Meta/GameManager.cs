@@ -166,6 +166,7 @@ namespace CoastRun
             bool forced = rec != null && !rec.cleared && Save.week > rec.weekEnd;
             if (forced)
                 Save.week = rec.weekEnd;   // 마지막 주에 머문 채로 돌입
+            Save.boundaryPending = forced;   // 55차: 다음 턴 시작에 컷씬·대회가 기다린다(앱을 껐다 켜도 이어짐)
             WriteMain();
             OnSaveChanged?.Invoke(Save);
             return forced;
@@ -184,6 +185,7 @@ namespace CoastRun
                 Save.phaseIndex = 0;
                 Save.queuedSchedule = new string[Timeline.PhasesPerWeek];
             }
+            Save.boundaryPending = false;
             WriteMain();
             OnSaveChanged?.Invoke(Save);
         }
@@ -203,8 +205,8 @@ namespace CoastRun
             if (Save == null) return;
             SetPhase(GamePhase.Run);
             RunTuning.Configure(Save);
+            RunTuning.CoinMul *= LevelSystem.CoinMul(Save);   // 53차: 레벨 코인 보너스
             // v5 컷씬: 회차 첫 돌입이면 프롤로그(VN) → 챕터 오프닝(VN) → 런. 재도전은 컷씬 생략.
-            bool prologue = Save.chapter == 1 && !Save.prologueSeen && !IsRetry;
             Save.prologueSeen = true;   // 9차: 저장 전에 찍어야 런 실패 후 돌아와도 프롤로그가 다시 안 나온다
             WriteMain();
             int chapter = Save.chapter;
@@ -220,10 +222,29 @@ namespace CoastRun
                 Flow?.StartStoryRun(chapter, false);
                 StartCoroutine(RunLaunchWatchdog(chapter));
             };
-            // 26차: 챕터 오프닝은 육성 화면의 챕터 경계 이벤트(RaisingUI.ExecuteWeek)에서 이미 재생됐다. 여기선 프롤로그만.
-            ChapterVN.HoldBlackOnNext = true;
-            if (prologue) ChapterVN.Play("PRO", launch);
-            else launch();
+            // 26차: 챕터 오프닝은 육성 화면의 챕터 경계 이벤트에서 이미 재생됐다.
+            // 55차(사용자): 러닝 앞뒤로 컷씬 없음 — 프롤로그도 육성의 턴 사이(TamaRaisingUI.BoundaryRoutine)에서 튼다.
+            launch();
+        }
+
+        /// 55차(사용자): 대회 미달 — 정산 없이 육성으로. **주차는 그대로**(그 주의 행동 3번을 다시 하고 다시 도전).
+        public void ContestFail()
+        {
+            if (Save == null) return;
+            Save.contestFails++;
+            Save.phaseIndex = 0;
+            Save.queuedSchedule = new string[Timeline.PhasesPerWeek];
+            Save.boundaryPending = false;
+            WriteMain();
+            OnSaveChanged?.Invoke(Save);
+            EnterRaising();
+        }
+
+        /// 55차: 쓰러진 뒤 「처음부터」 — 같은 이동 모드로 새 회차(프로필·컬렉션은 유지).
+        public void RestartAfterDeath()
+        {
+            var mode = Save != null ? Save.runMode : RunMode.Running;
+            NewGame(mode);
         }
 
         /// 11차: 실기기에서 오프닝 뒤 런으로 못 넘어가는 보고 → 자가 복구. 8초 안에 02_Run 이 활성 씬이 안 되면
@@ -277,6 +298,7 @@ namespace CoastRun
             Save.lastRunLate = LastRunLate;
             Save.chapterHearts += LastRunHearts;
             Save.stats.money += stats != null ? stats.CoinValue + stats.NearMissValue : 0;
+            LevelSystem.Add(LevelSystem.ExpStoryRun);   // 53차: 스토리 러닝 완주 경험치
             Save.stats.Clamp();
             LastGrade = ChapterGrading.Settle(Save, out bool improved);
             LastImproved = improved;
@@ -343,6 +365,7 @@ namespace CoastRun
 
             Save.chapter++;
             Save.chapterHearts = 0;
+            Save.boundaryPending = false;
             // 26차: 게이트로 이전 챕터가 늘어났으면 시간을 되돌리지 않고 이어서 간다(다음 챕터도 정해진 주 수만큼).
             Save.week = Mathf.Max(Timeline.WeekStart(Save.chapter), Save.week + 1);
             Save.phaseIndex = 0;
@@ -357,6 +380,30 @@ namespace CoastRun
             WriteMain();
             OnSaveChanged?.Invoke(Save);
             EnterRaising();
+        }
+
+        /// 52차: 러닝 없는 챕터 — 컷씬(리더)을 읽고 나면 그대로 다음 챕터로. 육성 하트로 등급을 매기고, 육성 화면은 그대로(씬 전환 없음).
+        public void CompleteChapterNoRun()
+        {
+            if (Save == null || IsRetry) return;
+            if (Save.chapter >= Timeline.Chapters) { ResolveEnding(); return; }
+            var grade = ChapterGrading.SettleNoRun(Save);
+            Collection.OnChapterSettled(Save.chapter, grade, false);
+            Save.chapter++;
+            Save.chapterHearts = 0;
+            Save.boundaryPending = false;
+            Save.week = Mathf.Max(Timeline.WeekStart(Save.chapter), Save.week + 1);
+            Save.phaseIndex = 0;
+            Save.queuedSchedule = new string[Timeline.PhasesPerWeek];
+            var rec = Save.CurrentChapter;
+            if (rec != null)
+            {
+                rec.snapshotAtStart = Save.stats.Clone();
+                rec.weekStart = Save.week;
+                rec.weekEnd = Save.week + Timeline.WeeksIn(Save.chapter) - 1;
+            }
+            WriteMain();
+            OnSaveChanged?.Invoke(Save);
         }
 
         /// 런 실패 후 '육성으로'. 페이즈는 이미 소비됐고 챕터 하트는 보존.
@@ -456,7 +503,8 @@ namespace CoastRun
         }
 
         /// 37차: 비밀코드 테스트 — 아직 안 온 챕터로 바로 점프. 본 진행의 주차·챕터를 그 챕터 시작으로 옮긴다(스탯은 지금 것 그대로).
-        public bool DevUnlockAll => Profile != null && Profile.devUnlockAll;
+        /// 37차 비밀코드(1111) 또는 52차 기부 선물 ②(모든 게임 열림) — 챕터·미션·시네마·펫 상점 전부 열림.
+        public bool DevUnlockAll => Profile != null && (Profile.devUnlockAll || (Profile.donateGiftMask & (int)Donation.Gift.UnlockAll) != 0);
         public void DevJumpTo(int chapter)
         {
             if (Save == null || !DevUnlockAll || chapter < 1 || chapter > Timeline.Chapters) return;

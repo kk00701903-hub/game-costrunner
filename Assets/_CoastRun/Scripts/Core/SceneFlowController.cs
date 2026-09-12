@@ -267,9 +267,16 @@ namespace CoastRun
             // v5: 정산 전에 챕터 클로징 컷씬(VN, 한 컷)을 먼저. 재도전 중엔 생략.
             if (GameManager.Active)
             {
+                // 55차(사용자): 러닝 = 대회. 결승선을 넘어도 조건(코인·사진·보스)을 못 채웠으면 정산 없이 미달 화면 → 주차 유지.
+                if (StoryContest.Active && !GameManager.I.IsRetry && !StoryContest.Succeeded)
+                {
+                    ContestResultUI.ShowFail(false);
+                    return;
+                }
                 GameManager.I.OnRunCleared(StageRunStats.Instance);
                 int ch = stage.stageIndex;
-                if (!GameManager.I.IsRetry && ChapterVN.HasClosing(ch))
+                // 52차: 챕터 엔딩 대본은 리더(StoryReaderUI)에서 오프닝과 한 편으로 이미 읽었다 → 런 뒤 VN 재생 생략
+                if (!GameManager.I.IsRetry && ChapterVN.HasClosing(ch) && !StoryProgress.ChapterRead(ch))
                 {
                     Time.timeScale = 0f;
                     ChapterVN.PlayChapterClosing(ch, () =>
@@ -309,8 +316,9 @@ namespace CoastRun
                     yield return null;
             }
 
+            // 55차(사용자): 컷씬은 러닝과 무관 — 스토리 모드에선 정산 뒤 회상(기억 조각) 팝업을 띄우지 않는다(갤러리에서 본다).
             var mem = MemoryDirector.Instance ?? UnityEngine.Object.FindAnyObjectByType<MemoryDirector>();
-            if (mem != null)
+            if (mem != null && !GameManager.Active)
                 yield return mem.PlayQueuedIfAny();
             else if (clear == null)
                 OnStageClearContinue(stage, chapterComplete);

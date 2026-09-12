@@ -74,6 +74,8 @@ namespace CoastRun
 
         /// Bonus Time and similar power-ups: multiplies the speed target (1 = normal).
         public float SpeedBoost { get; set; } = 1f;
+        /// 52차: true 면 피격 감속(소프트히트 0.55·바디체크 0.8)을 건너뛴다 — 보스전(BossDirector.Active) 동안.
+        public static bool NoHitSlow => BossDirector.Active;
 
         /// While true obstacle hits are ignored (Bonus Time / Giant). Hazards still fire
         /// OnSoftHit-free feedback through JuiceDirector if they want to.
@@ -292,7 +294,8 @@ namespace CoastRun
             int tier = Mathf.FloorToInt(_runClock / 30f);
             float stepped = config.baseSpeed * mode * Mathf.Min(1.7f, 1f + 0.06f * tier);
             float target = Mathf.Min(maxSpeed, stepped);
-            if (_state == SkateState.SoftHit)
+            // 52차(사용자): 보스전 중엔 「느려지는」 느낌을 없앤다 — 피격해도 감속 없이 계속 달린다(보스 공격에 맞으면 HP 만 깎임).
+            if (_state == SkateState.SoftHit && !NoHitSlow)
                 target = config.baseSpeed * mode * config.softHitSlowFactor;
 
             _tucking = _input != null && _input.TuckHeld && IsGrounded && _state != SkateState.Crouch;
@@ -657,7 +660,7 @@ namespace CoastRun
             _state = SkateState.SoftHit;
             _softHitTimer = config.softHitRecoverSeconds * RunTuning.HitFreezeMul;
             _iFrameTimer = RunTuning.DashInvincible;
-            _speed *= config.softHitSlowFactor;
+            if (!NoHitSlow) _speed *= config.softHitSlowFactor;
             _tucking = false;
 
             LastHitKind = kind;
@@ -670,7 +673,7 @@ namespace CoastRun
                 if (_lane + dir < -1 || _lane + dir > 1)
                     dir = -dir;
                 LastBounceDir = dir;
-                _speed *= 0.8f;                 // a body check bleeds more speed than a trip
+                if (!NoHitSlow) _speed *= 0.8f;                 // a body check bleeds more speed than a trip
                 ChangeLane(dir);
                 FreezeInput(0.25f * RunTuning.HitFreezeMul);
             }
