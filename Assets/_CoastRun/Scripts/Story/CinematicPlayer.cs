@@ -129,7 +129,7 @@ namespace CoastRun
 
             var music = new GameObject("CineMusic"); music.transform.SetParent(transform, false);
             _music = music.AddComponent<AudioSource>();
-            _music.playOnAwake = false; _music.spatialBlend = 0f; _music.volume = 0.85f;
+            _music.playOnAwake = false; _music.spatialBlend = 0f; _music.volume = 0.85f; _music.loop = true;   // 77차: 컷씬이 곡보다 길어져(1:42~1:57) 루프
             _music.clip = CoastBgmLibrary.Load(_def.bgm);
         }
 

@@ -118,6 +118,9 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Chapter select - preview off")] public static void ChapterPreviewOff() { KpopChapterSelect.DebugLastClear = -1; }
         [MenuItem("Coast Run/Dev/God mode - ON")] public static void GodOn() { PlayerController.DebugGod = true; Debug.LogWarning("[Dev] God mode ON — 장애물 피해 무시(HUD 에 GOD 배지)"); }
         [MenuItem("Coast Run/Dev/God mode - OFF")] public static void GodOff() { PlayerController.DebugGod = false; var p = UnityEngine.Object.FindAnyObjectByType<PlayerController>(); if (p != null) p.Invincible = false; Debug.LogWarning("[Dev] God mode OFF"); }
+        // 77차: 시네마 선택 화면(엔딩 카드 잠금 확인용)
+        [MenuItem("Coast Run/Dev/Cine - Select")] public static void CineSelect() { if (Application.isPlaying) CinemaSelect.Open(GameManager.I, null, () => Debug.LogWarning("[Dev] cinema select closed")); }
+        [MenuItem("Coast Run/Dev/Cine - END_A")] public static void CineEndA() { if (Application.isPlaying) CinematicPlayer.Play("END_A", () => Debug.LogWarning("[Dev] cine done")); }
         [MenuItem("Coast Run/Dev/Cine - OPEN")] public static void CineOpen() { if (Application.isPlaying) CinematicPlayer.Play("OPEN", () => Debug.LogWarning("[Dev] cine done")); }
         [MenuItem("Coast Run/Dev/Cine - CS1")] public static void CineCs1() { if (Application.isPlaying) CinematicPlayer.Play("CS1", () => Debug.LogWarning("[Dev] cine done")); }
         [MenuItem("Coast Run/Dev/Cine - CS2")] public static void CineCs2() { if (Application.isPlaying) CinematicPlayer.Play("CS2", () => Debug.LogWarning("[Dev] cine done")); }

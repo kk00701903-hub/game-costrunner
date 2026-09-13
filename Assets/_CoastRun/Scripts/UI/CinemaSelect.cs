@@ -18,6 +18,7 @@ namespace CoastRun
         {
             public string Label, Sub, Title;
             public bool Opening, Unlocked;
+            public string EndingId;   // 77차: "END_A" | "END_B" | "END_TRUE" — 엔딩 다시보기(본 엔딩만 열림)
             public int Index, Chapter;   // Index = 컷씬 번호(1..8), Chapter = 그 컷씬이 열리는 챕터
             public Texture2D Cover;
         }
@@ -48,7 +49,7 @@ namespace CoastRun
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -110f), new Vector2(0f, -30f));
             title.color = new Color(1f, 0.85f, 0.30f);
             CoastUiArt.OutlineText(title, new Color(0.30f, 0.12f, 0.02f, 0.9f), 2.5f);
-            int read = 0; foreach (var e in entries) if (!e.Opening && e.Unlocked && StoryProgress.CutsceneRead(e.Index)) read++;
+            int read = 0; foreach (var e in entries) if (!e.Opening && string.IsNullOrEmpty(e.EndingId) && e.Unlocked && StoryProgress.CutsceneRead(e.Index)) read++;
             var sub = CoastHudLayout.MakeText(root, "Sub", Loc.T($"컷씬 {StoryProgress.CutsceneCount}개 · 본 것 {read}개 — 카드를 누르면 보기, 「읽기」는 소설로", $"{StoryProgress.CutsceneCount} cutscenes · {read} seen — tap to watch, Read for the novel"), 13, TextAnchor.MiddleCenter,
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -148f), new Vector2(0f, -120f));
             sub.color = Color.white; CoastUiArt.OutlineText(sub, new Color(0f, 0f, 0f, 0.6f), 1.2f);
@@ -92,8 +93,9 @@ namespace CoastRun
 
         private static void MakeCard(RectTransform parent, Entry e, Vector2 pos, Vector2 size, GameManager gm, Action onPlayStart)
         {
-            var fill = e.Unlocked ? (e.Opening ? new Color(1f, 0.55f, 0.65f) : SeasonFill[(Mathf.Clamp(e.Chapter, 1, 20) - 1) / 5]) : Locked;
-            var card = CoastUiArt.GlossyPill(parent, "Card_" + (e.Opening ? "Prologue" : "Cut" + e.Index), fill, 16, 9);
+            bool ending = !string.IsNullOrEmpty(e.EndingId);
+            var fill = e.Unlocked ? (e.Opening ? new Color(1f, 0.55f, 0.65f) : ending ? new Color(0.95f, 0.78f, 0.35f) : SeasonFill[(Mathf.Clamp(e.Chapter, 1, 20) - 1) / 5]) : Locked;
+            var card = CoastUiArt.GlossyPill(parent, "Card_" + (e.Opening ? "Prologue" : ending ? e.EndingId : "Cut" + e.Index), fill, 16, 9);
             var crt = card.rectTransform;
             crt.anchorMin = crt.anchorMax = new Vector2(0f, 1f); crt.pivot = new Vector2(0f, 1f);
             crt.anchoredPosition = pos; crt.sizeDelta = size;
@@ -120,7 +122,8 @@ namespace CoastRun
                 new Vector2(0f, 0.62f), new Vector2(1f, 1f), new Vector2(textLeft, -8f), new Vector2(-16f, -6f));
             t.color = e.Unlocked ? Navy : new Color(0.33f, 0.33f, 0.38f); t.fontStyle = FontStyle.Bold;
             t.resizeTextForBestFit = true; t.resizeTextMinSize = 11; t.resizeTextMaxSize = CoastHudLayout.Scaled(22);
-            var tt = CoastHudLayout.MakeText(crt, "Title", e.Unlocked ? e.Title : Loc.T("잠김", "Locked"), 18, TextAnchor.MiddleLeft,
+            // 77차(사용자): 잠긴 엔딩은 제목도 알 수 없게 「???」
+            var tt = CoastHudLayout.MakeText(crt, "Title", e.Unlocked ? e.Title : ending ? "???" : Loc.T("잠김", "Locked"), 18, TextAnchor.MiddleLeft,
                 new Vector2(0f, 0.32f), new Vector2(1f, 0.62f), new Vector2(textLeft, 0f), new Vector2(-16f, 0f));
             tt.color = e.Unlocked ? Color.Lerp(fill, Color.black, 0.55f) : new Color(0.30f, 0.30f, 0.36f); tt.fontStyle = FontStyle.Bold;
             tt.resizeTextForBestFit = true; tt.resizeTextMinSize = 10; tt.resizeTextMaxSize = CoastHudLayout.Scaled(18);
@@ -128,7 +131,7 @@ namespace CoastRun
                 new Vector2(0f, 0f), new Vector2(1f, 0.32f), new Vector2(textLeft, 8f), new Vector2(-16f, 0f));
             s.color = e.Unlocked ? Color.Lerp(fill, Color.black, 0.45f) : new Color(0.30f, 0.30f, 0.36f);
             s.resizeTextForBestFit = true; s.resizeTextMinSize = 9; s.resizeTextMaxSize = CoastHudLayout.Scaled(12);
-            if (!e.Opening && e.Unlocked && StoryProgress.CutsceneRead(e.Index))
+            if (!e.Opening && !ending && e.Unlocked && StoryProgress.CutsceneRead(e.Index))
             {
                 var chk = CoastHudLayout.MakeText(crt, "Read", "✓", 26, TextAnchor.MiddleCenter, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-44f, -16f), new Vector2(-12f, 16f));
                 chk.color = new Color(0.20f, 0.60f, 0.35f); chk.fontStyle = FontStyle.Bold;
@@ -139,7 +142,7 @@ namespace CoastRun
             var entry = e;
             btn.onClick.AddListener(() => Play(entry, onPlayStart));
             // 68차: 컷씬 카드 오른쪽 아래 작은 「읽기」(소설식 리더)
-            if (!e.Opening && e.Unlocked)
+            if (!e.Opening && !ending && e.Unlocked)
             {
                 var rb = CoastUiArt.GlossyPill(crt, "ReadBtn", new Color(0.30f, 0.55f, 0.95f), 14, 4); rb.raycastTarget = true;
                 var rrt = rb.rectTransform; rrt.anchorMin = rrt.anchorMax = new Vector2(1f, 0f); rrt.pivot = new Vector2(1f, 0f);
@@ -156,7 +159,8 @@ namespace CoastRun
             if (!e.Unlocked)
             {
                 CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss);
-                CoastToast.Show(Loc.T($"챕터 {e.Chapter}에 닿으면 열려요", $"Reach chapter {e.Chapter} to unlock"));
+                if (!string.IsNullOrEmpty(e.EndingId)) CoastToast.Show(Loc.T("아직 보지 못한 엔딩이에요 — 스토리를 끝까지 깨면 열려요", "An ending you haven't reached yet"));
+                else CoastToast.Show(Loc.T($"챕터 {e.Chapter}에 닿으면 열려요", $"Reach chapter {e.Chapter} to unlock"));
                 return;
             }
             CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
@@ -168,6 +172,10 @@ namespace CoastRun
             {
                 PlayerPrefs.SetInt("CoastRun_OpeningSeen", 1);
                 OpeningCinematic.Play(back);
+            }
+            else if (!string.IsNullOrEmpty(e.EndingId))
+            {
+                CinematicPlayer.Play(e.EndingId, back);   // 77차: 엔딩 다시보기(시네마틱)
             }
             else if (CinematicTable.Cutscene(e.Index) != null)
             {
@@ -200,7 +208,7 @@ namespace CoastRun
         private static List<Entry> BuildEntries(GameManager gm)
         {
             var list = new List<Entry>();
-            list.Add(new Entry { Label = Loc.T("프롤로그 영상", "Prologue film"), Title = Loc.T("너와 나의 주파수 — 1:37", "Our Frequency — 1:37"), Sub = Loc.T("시네마틱 · 언제나 볼 수 있어요", "Cinematic · always available"), Opening = true, Unlocked = true, Chapter = 0, Cover = ArtAssets.LoadTexture("Cut_V_OP_1") ?? ArtAssets.LoadTexture("Cut_CH01_Open") });   // 73차: 새 오프닝 스틸
+            list.Add(new Entry { Label = Loc.T("프롤로그 영상", "Prologue film"), Title = Loc.T("너와 나의 주파수 — 1:57", "Our Frequency — 1:57"), Sub = Loc.T("시네마틱 · 언제나 볼 수 있어요", "Cinematic · always available"), Opening = true, Unlocked = true, Chapter = 0, Cover = ArtAssets.LoadTexture("Cut_S_OP_1") ?? ArtAssets.LoadTexture("Cut_V_OP_1") ?? ArtAssets.LoadTexture("Cut_CH01_Open") });   // 73차: 새 오프닝 스틸
             var save = gm != null && gm.HasSave ? (gm.Save ?? gm.SaveSys.Load()) : null;
             bool all = gm != null && gm.DevUnlockAll;
             int reached = save != null ? Mathf.Clamp(save.chapter, 1, Timeline.Chapters) : 0;
@@ -213,10 +221,31 @@ namespace CoastRun
                     Label = Loc.T($"컷씬 {i}", $"Cutscene {i}"), Title = StoryProgress.CutsceneTitle(i),
                     Sub = range + " · " + ChapterLocation.Get(ch).Name,
                     Index = i, Chapter = ch, Unlocked = all || reached >= ch || StoryProgress.CutsceneRead(i),
-                    Cover = ArtAssets.LoadTexture($"Cut_V_CH{ch:00}_Open") ?? ArtAssets.LoadTexture($"Cut_CH{ch:00}_Open") ?? ArtAssets.LoadTexture($"Cut_V_CH{first:00}_Open") ?? ArtAssets.LoadTexture($"Cut_CH{first:00}_Open"),   // 73차: 새 수채 스틸 우선
+                    Cover = ArtAssets.LoadTexture($"Cut_S_N{i}_01") ?? ArtAssets.LoadTexture($"Cut_V_CH{ch:00}_Open") ?? ArtAssets.LoadTexture($"Cut_CH{ch:00}_Open") ?? ArtAssets.LoadTexture($"Cut_V_CH{first:00}_Open") ?? ArtAssets.LoadTexture($"Cut_CH{first:00}_Open"),   // 73차: 새 수채 스틸 우선
                 });
             }
+            // 77차(사용자): 엔딩 3편 — 이미 깬 엔딩만 열리고(endingMask), 나머지는 제목도 안 보이는 회색 잠금
+            var prof = gm != null ? gm.Profile : null;
+            int mask = prof != null ? prof.endingMask : 0;
+            bool sawA = (mask & 0b111) != 0, sawB = (mask & 0b111000) != 0, sawT = (mask & (1 << 6)) != 0;   // 비밀코드(devUnlockAll)로도 안 열림 — 실제로 본 엔딩만
+            list.Add(EndingEntry("END_A", 1, sawA));
+            list.Add(EndingEntry("END_B", 2, sawB));
+            list.Add(EndingEntry("END_TRUE", 3, sawT));
             return list;
+        }
+
+        private static Entry EndingEntry(string id, int n, bool unlocked)
+        {
+            var def = CinematicTable.Get(id);
+            string title = def != null ? def.title : id;
+            float len = def != null ? def.Length : 0f;
+            return new Entry
+            {
+                Label = Loc.T($"엔딩 {n}", $"Ending {n}"), Title = title,
+                Sub = unlocked ? Loc.T($"시네마틱 · {Mathf.FloorToInt(len / 60f)}:{Mathf.RoundToInt(len % 60f):00}", $"Cinematic · {Mathf.FloorToInt(len / 60f)}:{Mathf.RoundToInt(len % 60f):00}") : Loc.T("잠김 · 이 엔딩을 보면 열려요", "Locked · reach this ending"),
+                EndingId = id, Unlocked = unlocked, Chapter = 20,
+                Cover = unlocked && def != null && def.cuts.Length > 0 ? (ArtAssets.LoadTexture(def.cuts[0].still) ?? ArtAssets.LoadTexture(def.cuts[0].fallback)) : null,
+            };
         }
 
         public static void Close()

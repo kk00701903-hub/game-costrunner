@@ -124,6 +124,34 @@ namespace CoastRun.Editor
                 {
                     string line = r.ReadLine();
                     if (string.IsNullOrEmpty(line)) return;
+                    // 77차: HTTP POST /drop/<name> — 클로드 브라우저 패널(같은 PC)이 텍스트를 Tools/_clip/<name> 로 떨어뜨리는 통로
+                    //   (브릿지에 「페이지 → 파일」 경로가 없어서). 본문 그대로 저장, 최대 4 MB. CORS 헤더를 붙여 fetch 가 막히지 않게.
+                    if (line.StartsWith("POST ") || line.StartsWith("OPTIONS ") || line.StartsWith("GET "))
+                    {
+                        string url = line.Split(' ')[1];
+                        int len = 0; string h;
+                        while (!string.IsNullOrEmpty(h = r.ReadLine()))
+                            if (h.StartsWith("Content-Length:", StringComparison.OrdinalIgnoreCase)) int.TryParse(h.Substring(15).Trim(), out len);
+                        string body = "";
+                        if (len > 0 && len < 4 * 1024 * 1024)
+                        {
+                            var buf = new char[len]; int got = 0;
+                            while (got < len) { int n = r.Read(buf, got, len - got); if (n <= 0) break; got += n; }
+                            body = new string(buf, 0, got);
+                        }
+                        string reply = "ok";
+                        lock (_lock) { _log.Add("[Http] " + line + " len=" + len); }
+                        if (line.StartsWith("POST ") && url.StartsWith("/drop/"))
+                        {
+                            string name = Path.GetFileName(url.Substring(6));
+                            string dir = Path.Combine(Directory.GetCurrentDirectory(), "Tools", "_clip");
+                            Directory.CreateDirectory(dir);
+                            File.WriteAllText(Path.Combine(dir, name), body, new UTF8Encoding(false));
+                            reply = "saved " + name + " " + body.Length;
+                        }
+                        w.Write("HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Headers: *\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS\r\nAccess-Control-Allow-Private-Network: true\r\nContent-Type: text/plain\r\nContent-Length: " + Encoding.UTF8.GetByteCount(reply) + "\r\nConnection: close\r\n\r\n" + reply);
+                        return;
+                    }
                     var req = new Req { line = line };
                     lock (_lock) _queue.Enqueue(req);
                     if (!req.done.WaitOne(20000)) req.reply = J("error", "timeout (editor busy/compiling?)");
