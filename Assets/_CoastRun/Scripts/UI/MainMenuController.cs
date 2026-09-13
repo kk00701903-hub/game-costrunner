@@ -392,10 +392,6 @@ namespace CoastRun
             CreateLabel(plate.transform, "Subtitle", "COAST RUN", 20, FontStyle.Bold,
                 new Color(0.10f, 0.14f, 0.30f, 0.8f), new Vector2(0.5f, 0.18f), new Vector2(400f, 32f));
 
-            // Pulsing prompt.
-            _tapLabel = CreateLabel(ui.transform, "TapPrompt", "화면을 터치하면 출발", 30, FontStyle.Bold,
-                Color.white, new Vector2(0.5f, 0.36f), new Vector2(600f, 48f));
-            _tapLabel.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.6f);
 
             // Bottom row: three big rounded buttons.
             bool hasSave = _gm != null && _gm.HasSave;
@@ -431,8 +427,6 @@ namespace CoastRun
             DonateUI.AttachIcon(ui.transform, () => _ready && !_moreOpen && !DonateUI.IsOpen && !KpopChapterSelect.IsOpen && !CollectionUI.IsOpen && !ChapterMissionUI.IsOpen && !PolicyUI.IsOpen
                                                   && !(_settingsPanel != null && _settingsPanel.activeSelf) && !(_galleryPanel != null && _galleryPanel.activeSelf)
                                                   && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf), OpenDonate);
-            if (hasSave)
-                _tapLabel.text = Loc.T("화면을 터치하면 스토리 모드", "Tap for Story Mode");
         }
 
 
@@ -457,20 +451,7 @@ namespace CoastRun
             _uiCg.alpha = 0f;
             ui.SetActive(false);
 
-            // 18차-5: 빈 공간(버튼 밖) 어디를 눌러도 스토리 모드 — 골드런처럼 '탭하면 바로 시작'.
-            // 투명 버튼을 TitleUI의 맨 뒤에 깔아 두고, 위에 있는 버튼·더보기 컬럼이 먼저 레이캐스트를 가져간다.
-            var tapAny = new GameObject("TapAnywhere", typeof(RectTransform), typeof(Image), typeof(Button));
-            tapAny.transform.SetParent(ui.transform, false);
-            CoastOrnate.Stretch(tapAny.GetComponent<RectTransform>(), -CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad, CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
-            var tapImg = tapAny.GetComponent<Image>(); tapImg.color = new Color(0f, 0f, 0f, 0f); tapImg.raycastTarget = true;
-            var tapBtn = tapAny.GetComponent<Button>(); tapBtn.transition = Selectable.Transition.None;
-            tapBtn.onClick.AddListener(() =>
-            {
-                if (!_ready) return;
-                if (_moreOpen) { ToggleMore(); return; }          // 더보기 열린 채면 먼저 닫기
-                OnStoryMode();
-            });
-            tapAny.transform.SetAsFirstSibling();
+            // 67차-5(사용자): 빈 공간 탭으로 시작하던 투명 「TapAnywhere」 버튼 삭제 — 스토리 모드/K-POP/CHAPTER 버튼으로만 진입.
 
             bool hasSave = _gm != null && _gm.HasSave;
             float btnW = 220f, btnH = 62f, gapX = 12f;
@@ -497,11 +478,16 @@ namespace CoastRun
             else
             {
                 // 시안 좌표(1184×2096 → 720×1280 ×0.608) — 인셋(28 패딩) 기준 좌하단 앵커. 히트 영역은 RunHudChrome.HitButton(투명).
+                // 67차-4/5(사용자): 배경 그림은 화면 비율대로 늘어나므로 히트 영역도 **그림 좌표 비율**로 앵커(그림의 자식) — 19.5:9·20:9 폰에서
+                //   버튼 그림과 터치 영역이 어긋나 「빈 곳을 눌렀는데 러닝이 시작」되던 문제의 진짜 원인. c = 720×1280 좌하단 기준 중심, sz = 크기.
                 System.Func<string, Vector2, Vector2, System.Action, Button> hit = (n, c, sz, a) =>
                 {
-                    var b = RunHudChrome.HitButton(ui.transform, n, Vector2.zero, sz, a);
+                    var b = RunHudChrome.HitButton(bg.transform, n, Vector2.zero, Vector2.zero, a);
                     var r = b.GetComponent<RectTransform>();
-                    r.anchorMin = r.anchorMax = Vector2.zero; r.anchoredPosition = c - new Vector2(pad, pad);
+                    r.anchorMin = new Vector2((c.x - sz.x * 0.5f) / 720f, (c.y - sz.y * 0.5f) / 1280f);
+                    r.anchorMax = new Vector2((c.x + sz.x * 0.5f) / 720f, (c.y + sz.y * 0.5f) / 1280f);
+                    r.pivot = new Vector2(0.5f, 0.5f); r.anchoredPosition = Vector2.zero; r.sizeDelta = Vector2.zero;
+                    _gateHits.Add(b);
                     return b;
                 };
                 hit("StoryBtn", new Vector2(88f, 992f), new Vector2(130f, 146f), () => { if (_ready) OnStoryMode(); });
@@ -544,11 +530,16 @@ namespace CoastRun
             {
                 // 39차-4: 시안의 "CH 1. 이름" 칩 자리(중심 501/319) → 「CHAPTER ▾」 칩 + 오른쪽 위 번호 배지.
                 // 누르면 K-POP 러닝 챕터 선택 페이지(1~20). 안 고르면 마지막 클리어 다음 챕터가 자동(ArcadeRun.KpopChapter).
-                var chip = CoastUiArt.GlossyPill(ui.transform, "ChapterChip", new Color(0.22f, 0.58f, 0.97f), 21, 5);
+                // 67차-4(사용자: 폰에서 「CH1 이름」과 CHAPTER 가 겹쳐 보임): 배경 그림은 화면 비율대로 늘어나는데 칩은 인셋 캔버스 좌표라
+                //   16:9 가 아닌 폰에선 그림에 박힌 옛 「CH 1. 이름」 칩과 어긋났다. → 그림에서 옛 칩을 지우고(UI_Title_Mock.png 수정),
+                //   CHAPTER 칩은 배경 그림의 자식으로 그림 좌표 비율(664~872 / 1405~1482 of 1080×1920)에 앵커 → 어떤 비율에서도 같은 자리.
+                var chip = CoastUiArt.GlossyPill(bg.transform, "ChapterChip", new Color(0.22f, 0.58f, 0.97f), 21, 5);
                 var crt = chip.rectTransform;
-                crt.anchorMin = crt.anchorMax = Vector2.zero; crt.pivot = new Vector2(0.5f, 0.5f);
-                crt.anchoredPosition = new Vector2(501f - pad, 319f - pad); crt.sizeDelta = new Vector2(132f, 42f);
+                crt.anchorMin = new Vector2(656f / 1080f, 1f - 1486f / 1920f); crt.anchorMax = new Vector2(880f / 1080f, 1f - 1396f / 1920f);
+                crt.pivot = new Vector2(0.5f, 0.5f); crt.anchoredPosition = Vector2.zero; crt.sizeDelta = Vector2.zero;
                 chip.raycastTarget = true;
+                _chapterChipCg = chip.gameObject.AddComponent<CanvasGroup>();   // 타이틀 UI(스플래시·챕터 화면·페이드)와 같이 보였다 숨는다
+                _chapterChipCg.alpha = 0f; _chapterChipCg.blocksRaycasts = false;
                 var ct = CreateLabel(chip.transform, "T", "CHAPTER ▾", 14, FontStyle.Bold,
                     Color.white, new Vector2(0.5f, 0.5f), new Vector2(132f, 30f));
                 ct.rectTransform.anchoredPosition = new Vector2(-4f, 3f);
@@ -864,18 +855,21 @@ namespace CoastRun
         }
 
         private Button _startButton;
-        private Text _tapLabel;
         private GameObject _recordPanel;
+
+        private CanvasGroup _chapterChipCg;
+        private readonly System.Collections.Generic.List<Button> _gateHits = new System.Collections.Generic.List<Button>();
 
         private void Update()
         {
             AnimateMore();
-            if (_tapLabel != null && _ready)
+            if (_chapterChipCg != null && _uiCg != null)
             {
-                float a = 0.55f + 0.45f * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 2.2f));
-                var c = _tapLabel.color;
-                c.a = a;
-                _tapLabel.color = c;
+                bool vis = _uiCg.gameObject.activeInHierarchy;
+                _chapterChipCg.alpha = vis ? _uiCg.alpha : 0f;
+                _chapterChipCg.blocksRaycasts = _chapterChipCg.interactable = vis && _uiCg.alpha > 0.5f && _uiCg.blocksRaycasts;
+                bool hitOn = vis && _uiCg.alpha > 0.5f && _uiCg.blocksRaycasts;
+                foreach (var hb in _gateHits) if (hb != null && hb.interactable != hitOn) hb.interactable = hitOn;
             }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             // 에디터 검증용: N = 캐릭터 선택, 1 = 러닝, 2 = 스케이트보드, C = 스토리 모드, Escape = 닫기.

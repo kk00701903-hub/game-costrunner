@@ -1,0 +1,13 @@
+<linker>
+  <!-- 67차: 엔진/관리 코드 스트리핑에서 지켜야 하는 형식 — CreatePrimitive 가 쓰는 콜라이더·메시 (APK 에서 'MeshCollider doesn't exist' 로 월드 생성이 깨졌다) -->
+  <assembly fullname="UnityEngine.PhysicsModule" preserve="all"/>
+  <assembly fullname="UnityEngine.CoreModule">
+    <type fullname="UnityEngine.MeshFilter" preserve="all"/>
+    <type fullname="UnityEngine.MeshRenderer" preserve="all"/>
+  </assembly>
+  <assembly fullname="UnityEngine.ParticleSystemModule" preserve="all"/>
+  <assembly fullname="UnityEngine.AudioModule" preserve="all"/>
+  <assembly fullname="UnityEngine.VideoModule" preserve="all"/>
+  <assembly fullname="UnityEngine.UIModule" preserve="all"/>
+  <assembly fullname="Assembly-CSharp" preserve="all"/>
+</linker>

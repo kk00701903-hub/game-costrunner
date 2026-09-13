@@ -75,8 +75,11 @@ namespace CoastRun
             xb.onClick.AddListener(() => { int c = _picked; var cb = _onPick; Close(); cb?.Invoke(c); });
 
             // 카드 5×4 — 112×131, 가로 간격 15, 세로: 1·2줄 붙고(35) 3·4줄은 아래 묶음(사이 112)
-            const float cw = 116f, ch = 138f, gap = 14f;
-            float x0 = (664f - (5 * cw + 4 * gap)) * 0.5f;
+            // 67차: 세로로 긴 폰(19.5:9·20:9·22:9)은 인셋 폭이 664 보다 좁아 5열이 오른쪽으로 잘렸다 → 실제 폭에 맞춰 카드 폭을 줄인다
+            const float gap = 14f;
+            float rootW = root.rect.width > 100f ? root.rect.width : 664f;
+            float cw = Mathf.Min(116f, (rootW - 4f * gap - 6f) / 5f), ch = cw * 138f / 116f;
+            float x0 = (rootW - (5 * cw + 4 * gap)) * 0.5f;
             float[] rowY = { 170f, 342f, 566f, 738f };
             var prof = gm != null ? gm.Profile : null;
             int lastClear = ArcadeRun.KpopLastClear;

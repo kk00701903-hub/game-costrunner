@@ -28,6 +28,67 @@ namespace CoastRun.Editor
             Debug.Log("[Screenshot] " + path);
         }
 
+        /// 67차: 브랜딩 — 스플래시는 Unity 로고 없이 「스튜디오 우히히시」 로고만(Unity 6 부터 Personal 도 끌 수 있다), 앱 아이콘은 Art/Brand/AppIcon*.png.
+        [MenuItem("Coast Run/Build/Apply branding (splash + icon)")]
+        public static void ApplyBranding()
+        {
+            const string dir = "Assets/_CoastRun/Art/Brand/";
+            var logoTex = AssetDatabase.LoadAssetAtPath<Texture2D>(dir + "Splash_Studio.png");
+            if (logoTex != null)
+            {
+                var imp = AssetImporter.GetAtPath(dir + "Splash_Studio.png") as TextureImporter;
+                if (imp != null && (imp.textureType != TextureImporterType.Sprite || imp.mipmapEnabled))
+                {
+                    imp.textureType = TextureImporterType.Sprite; imp.spriteImportMode = SpriteImportMode.Single; imp.mipmapEnabled = false; imp.alphaIsTransparency = true;
+                    imp.SaveAndReimport();
+                }
+                var logo = AssetDatabase.LoadAssetAtPath<Sprite>(dir + "Splash_Studio.png");
+                if (logo != null)
+                {
+                    PlayerSettings.SplashScreen.show = true;
+                    PlayerSettings.SplashScreen.showUnityLogo = false;
+                    PlayerSettings.SplashScreen.drawMode = PlayerSettings.SplashScreen.DrawMode.AllSequential;
+                    PlayerSettings.SplashScreen.animationMode = PlayerSettings.SplashScreen.AnimationMode.Static;
+                    PlayerSettings.SplashScreen.backgroundColor = new Color(1f, 0.98f, 0.94f);
+                    PlayerSettings.SplashScreen.overlayOpacity = 0f;
+                    PlayerSettings.SplashScreen.blurBackgroundImage = false;
+                    PlayerSettings.SplashScreen.background = null;
+                    PlayerSettings.SplashScreen.logos = new[] { PlayerSettings.SplashScreenLogo.Create(2.4f, logo) };
+                }
+            }
+            else Debug.LogWarning("[Branding] Splash_Studio.png 없음 — 스플래시 그대로");
+
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(dir + "AppIcon.png");
+            var iconFg = AssetDatabase.LoadAssetAtPath<Texture2D>(dir + "AppIcon_Fg.png") ?? icon;
+            var iconBg = AssetDatabase.LoadAssetAtPath<Texture2D>(dir + "AppIcon_Bg.png");
+            if (icon != null)
+            {
+                foreach (string f in new[] { "AppIcon.png", "AppIcon_Fg.png", "AppIcon_Bg.png" })
+                {
+                    var ti = AssetImporter.GetAtPath(dir + f) as TextureImporter;
+                    if (ti != null && (ti.mipmapEnabled || ti.textureCompression != TextureImporterCompression.Uncompressed))
+                    { ti.mipmapEnabled = false; ti.textureCompression = TextureImporterCompression.Uncompressed; ti.alphaIsTransparency = true; ti.SaveAndReimport(); }
+                }
+                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new[] { icon });
+                var nbt = UnityEditor.Build.NamedBuildTarget.Android;
+                foreach (var kind in PlayerSettings.GetSupportedIconKinds(nbt))
+                {
+                    var icons = PlayerSettings.GetPlatformIcons(nbt, kind);
+                    foreach (var ic in icons)
+                    {
+                        var texs = new Texture2D[ic.maxLayerCount];
+                        for (int i = 0; i < texs.Length; i++)
+                            texs[i] = texs.Length >= 2 ? (i == 0 ? (iconBg ?? icon) : iconFg) : icon;   // adaptive: 0 = 배경, 1 = 전경
+                        ic.SetTextures(texs);
+                    }
+                    PlayerSettings.SetPlatformIcons(nbt, kind, icons);
+                }
+                Debug.Log("[Branding] 아이콘 적용: " + icon.width + "px");
+            }
+            else Debug.LogWarning("[Branding] AppIcon.png 없음 — 아이콘 그대로");
+            AssetDatabase.SaveAssets();
+        }
+
         private static void Build(bool quick)
         {
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
@@ -49,6 +110,11 @@ namespace CoastRun.Editor
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.bundleVersionCode = Mathf.Max(1, PlayerSettings.Android.bundleVersionCode + 1);
             PlayerSettings.Android.useCustomKeystore = false;
+            // 67차-1(사용자: 폰에서 러닝 화면이 안 보임): 엔진 코드 스트리핑이 MeshCollider 등을 빼 버려 CreatePrimitive 가 실패 → 월드/캐릭터 생성이 깨졌다.
+            //   스트리핑을 끄고(APK 몇 MB 증가), Assets/link.xml + DeviceBoot.KeepTypes 로 이중 보호.
+            PlayerSettings.stripEngineCode = false;
+            PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
+            ApplyBranding();   // 67차-2/3: 스플래시(Unity 로고 → 스튜디오 우히히시) + 앱 아이콘
             EditorUserBuildSettings.buildAppBundle = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
 

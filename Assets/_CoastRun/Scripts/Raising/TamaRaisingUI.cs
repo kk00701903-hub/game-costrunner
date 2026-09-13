@@ -46,8 +46,16 @@ namespace CoastRun
             Refresh();
             ShowBubble(Loc.T("오늘도 힘내자!", "Let's do our best today!"), 2.5f);
             _gm.OnSaveChanged -= OnSaveChanged; _gm.OnSaveChanged += OnSaveChanged;
-            // 55차: 지난 턴이 챕터 마지막 주로 끝났으면(앱을 껐다 켰어도) 이번 턴 시작에 컷씬·대회부터.
-            if (Save != null && Save.boundaryPending) StartCoroutine(ResumeBoundary());
+            // 55차: 지난 턴이 챕터 마지막 주로 끝났으면(앱을 껐다 켰어도) 이번 턴 시작에 컷씬·대회.
+            // 67차-8(사용자): 들어오자마자 팝업을 띄우지 않는다 — 동그라미 3개가 찬 상태로 보여 주고 「다음 턴」을 눌러야 이야기·대회가 시작.
+            if (Save != null && Save.boundaryPending) ShowBubble(BoundaryHint(), 4f);
+        }
+
+        private string BoundaryHint()
+        {
+            var c = Save != null ? StoryContest.Get(Save.chapter) : null;
+            return c != null ? Loc.T($"이번 주는 끝! 「다음 턴」을 누르면 이야기 → 대회 「{c.Name}」", $"Week done! Press Next turn for the story → contest \"{c.Name}\"")
+                             : Loc.T("이번 주는 끝! 「다음 턴」을 누르면 이야기가 이어져.", "Week done! Press Next turn to continue the story.");
         }
 
         private IEnumerator ResumeBoundary()
@@ -99,6 +107,21 @@ namespace CoastRun
             // 바닥 쪽 살짝 어둡게(카드 가독)
             var shade = CoastHudLayout.MakeImage(_root, "Shade", new Vector2(0f, 0f), new Vector2(1f, 0.42f), new Vector2(-pad, -pad), new Vector2(pad, 0f), new Color(0.05f, 0.08f, 0.16f, 0.30f));
             shade.raycastTarget = false;
+            // 67차-7(사용자: 갤럭시 S25 울트라 등 19.5:9~22:9 폰): 이 화면 배치는 인셋 폭 664(16:9) 기준 절대 좌표라 좁은 인셋(≈596)에선
+            //   동그라미 3개가 장보기 버튼을 덮고 아래 버튼 줄이 잘렸다 → 폭 664 짜리 「Fit」 상자를 두고 화면 폭에 맞춰 통째로 축소(비율 유지).
+            {
+                float rw = _root.rect.width, rh = _root.rect.height;
+                float fit = rw > 100f ? Mathf.Min(1f, rw / 664f) : 1f;
+                if (fit < 0.999f)
+                {
+                    var fitGo = new GameObject("Fit", typeof(RectTransform));
+                    fitGo.transform.SetParent(_root, false);
+                    var frt = fitGo.GetComponent<RectTransform>();
+                    frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0.5f); frt.pivot = new Vector2(0.5f, 0.5f);
+                    frt.anchoredPosition = Vector2.zero; frt.sizeDelta = new Vector2(664f, rh / fit); frt.localScale = new Vector3(fit, fit, 1f);
+                    _root = frt;
+                }
+            }
 
             // ── 상단 HUD: 주차·계절 / 챕터 / 돈·하트 / 홈 ──
             var wk = CoastUiArt.CutePill(_root, "Week", new Color(0.10f, 0.13f, 0.30f, 0.92f), 18, 3);
@@ -158,9 +181,10 @@ namespace CoastRun
             // 60차: 오른쪽 위 큰 동그라미 3개 = 이번 주 행동(한 번 하면 초록 ✓)
             for (int i = 0; i < 3; i++)
             {
-                var ring = CoastUiArt.Panel(_root, "ActRing" + i, new Color(0.62f, 0.64f, 0.70f, 0.95f), 44);
+                // 67차-7(사용자: 폰에서 채움이 동그라미 밖으로 삐져나옴): 9-slice 반지름(44)이 지름의 절반(31)보다 커서 모서리 조각이 겹쳐 그려졌다 → 반지름 = 지름/2
+                var ring = CoastUiArt.Panel(_root, "ActRing" + i, new Color(0.62f, 0.64f, 0.70f, 0.95f), 31);
                 Anchor(ring.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-176f + i * 72f, -115f), new Vector2(62f, 62f)); ring.rectTransform.pivot = new Vector2(0.5f, 0.5f); ring.raycastTarget = false;
-                var inner = CoastUiArt.Panel(ring.transform, "In", new Color(0.30f, 0.32f, 0.40f, 0.55f), 26); inner.raycastTarget = false;
+                var inner = CoastUiArt.Panel(ring.transform, "In", new Color(0.30f, 0.32f, 0.40f, 0.55f), 25); inner.raycastTarget = false;
                 Anchor(inner.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(50f, 50f)); inner.rectTransform.pivot = new Vector2(0.5f, 0.5f);
                 var ck = CoastHudLayout.MakeText(ring.rectTransform, "Ck", "✓", 32, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero);
                 ck.color = Color.white; ck.fontStyle = FontStyle.Bold; ck.raycastTarget = false; CoastUiArt.OutlineText(ck, new Color(0f, 0f, 0f, 0.3f), 1.5f);
@@ -364,7 +388,7 @@ namespace CoastRun
             _gateLabel.text = s.stamina >= need
                 ? Loc.T($"챕터 {Save.chapter} 송전탑까지 {weeksLeft}주 · 체력 {s.stamina} ▼{need} 게이트 통과! · 기운 {energy}", $"{weeksLeft} weeks to the tower · stamina {s.stamina} gate ▼{need} OK! · energy {energy}")
                 : Loc.T($"챕터 {Save.chapter} 송전탑까지 {weeksLeft}주 · 체력 {s.stamina} ▼{need} 까지 {need - s.stamina} 더 · 기운 {energy}", $"{weeksLeft} weeks to the tower · {need - s.stamina} more to gate ▼{need} · energy {energy}");
-            int done = Save.phaseIndex;
+            int done = Save.boundaryPending ? Timeline.PhasesPerWeek : Save.phaseIndex;   // 67차-8: 경계 대기 중엔 동그라미 3개 다 찬 상태
             var contest = StoryContest.Get(Save.chapter);
             string turnTail = weeksLeft == 0 ? (contest != null ? Loc.T("이야기·대회", "story·contest") : Loc.T("이야기", "story")) : "";
             // 60차(시안): 진행은 위 동그라미 3개가 보여 주니 버튼은 「다음 턴」만(마감 주엔 작게 꼬리)
@@ -511,7 +535,7 @@ namespace CoastRun
             if (_auto && !_busy && Save != null)
             {
                 _autoTimer += Time.unscaledDeltaTime;
-                if (_autoTimer >= 1.2f) { _autoTimer = 0f; if (Save.phaseIndex >= Timeline.PhasesPerWeek) StartCoroutine(WeekendOnly()); else DoAction(AutoPick()); }
+                if (_autoTimer >= 1.2f) { _autoTimer = 0f; if (Save.boundaryPending) StartCoroutine(ResumeBoundary()); else if (Save.phaseIndex >= Timeline.PhasesPerWeek) StartCoroutine(WeekendOnly()); else DoAction(AutoPick()); }
             }
         }
 
@@ -529,6 +553,7 @@ namespace CoastRun
         private void DoAction(int idx)
         {
             if (_busy || Save == null) return;
+            if (Save.boundaryPending) { ShowBubble(BoundaryHint(), 2.5f); return; }   // 67차-8: 경계 대기 중엔 행동 대신 「다음 턴」
             // 55차-2: 행동 3번을 다 했으면 「다음 턴」 버튼으로 넘어간다
             if (Save.phaseIndex >= Timeline.PhasesPerWeek) { ShowBubble(Loc.T("이번 주 행동은 다 했어 — 「다음 턴」을 눌러!", "All actions done — press Next turn!"), 2f); return; }
             var season = Timeline.SeasonOf(Save.week);
@@ -625,6 +650,7 @@ namespace CoastRun
         {
             if (_busy || Save == null) return;
             CoastPrefs.Vibrate();
+            if (Save.boundaryPending) { StartCoroutine(ResumeBoundary()); return; }   // 67차-8: 여기서 비로소 이야기·대회 팝업
             int left = Timeline.PhasesPerWeek - Save.phaseIndex;
             if (left > 0 && Time.unscaledTime > _nextTurnConfirmUntil)
             {
@@ -716,7 +742,7 @@ namespace CoastRun
                 if (Save.forfeitPending) { _auto = false; RefreshAuto(); _gm.ForfeitChapter(); yield break; }
                 yield return new WaitForSecondsRealtime(_auto ? 0.5f : 1.5f);
             }
-            if (forced) { yield return BoundaryRoutine(); yield break; }
+            if (forced) { ShowBubble(BoundaryHint(), 4f); yield break; }   // 67차-8: 바로 띄우지 않고 「다음 턴」을 기다린다(동그라미 3개 찬 상태)
             var ev = _gm.RollRandomEvent();
             if (ev.HasValue) ShowEvent(ev.Value);
         }

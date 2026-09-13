@@ -237,6 +237,13 @@ namespace CoastRun.Editor
                 case "timescale": Time.timeScale = float.Parse(arg, System.Globalization.CultureInfo.InvariantCulture); return J("ok", "timescale " + arg);
                 case "gameview":
                     { var gv = GetGameView(); gv?.Focus(); return J("ok", gv != null ? "focused" : "no gameview"); }
+                case "res":   // 67차: 게임 뷰 해상도 바꾸기 — res <w> <h> (예: res 1440 3120 = 갤럭시 S25 울트라)
+                    {
+                        var p = arg.Split(' ');
+                        if (p.Length < 2) return J("error", "res <w> <h>");
+                        string r = SetGameViewSize(int.Parse(p[0]), int.Parse(p[1]));
+                        return J("ok", r);
+                    }
                 default: return J("error", "unknown command: " + cmd);
             }
         }
@@ -269,6 +276,43 @@ namespace CoastRun.Editor
                 return "clicked " + target.name;
             }
             return "no handler at " + pos + " (screen " + Screen.width + "x" + Screen.height + ")";
+        }
+
+        /// 게임 뷰 크기를 고정 해상도로(없으면 커스텀 항목 추가). 현재 플랫폼 그룹(Android/Standalone)에 넣는다.
+        static string SetGameViewSize(int w, int h)
+        {
+            var asm = typeof(EditorWindow).Assembly;
+            var sizesType = asm.GetType("UnityEditor.GameViewSizes");
+            var singleType = typeof(ScriptableSingleton<>).MakeGenericType(sizesType);
+            var instance = singleType.GetProperty("instance").GetValue(null, null);
+            var groupTypeEnum = sizesType.GetProperty("currentGroupType").GetValue(instance, null);
+            var group = sizesType.GetMethod("GetGroup").Invoke(instance, new object[] { (int)groupTypeEnum });
+            var gt = group.GetType();
+            int total = (int)gt.GetMethod("GetTotalCount").Invoke(group, null);
+            string label = "Remote " + w + "x" + h;
+            int idx = -1;
+            for (int i = 0; i < total; i++)
+            {
+                var gs = gt.GetMethod("GetGameViewSize").Invoke(group, new object[] { i });
+                var gsT = gs.GetType();
+                int gw = (int)gsT.GetProperty("width").GetValue(gs, null), gh = (int)gsT.GetProperty("height").GetValue(gs, null);
+                string tn = gsT.GetProperty("sizeType").GetValue(gs, null).ToString();
+                if (gw == w && gh == h && tn == "FixedResolution") { idx = i; break; }
+            }
+            if (idx < 0)
+            {
+                var gvsType = asm.GetType("UnityEditor.GameViewSize");
+                var gvsTypeEnum = asm.GetType("UnityEditor.GameViewSizeType");
+                var ctor = gvsType.GetConstructor(new[] { gvsTypeEnum, typeof(int), typeof(int), typeof(string) });
+                var ns = ctor.Invoke(new object[] { Enum.Parse(gvsTypeEnum, "FixedResolution"), w, h, label });
+                gt.GetMethod("AddCustomSize").Invoke(group, new[] { ns });
+                idx = total;
+            }
+            var gv = GetGameView(); if (gv == null) return "no gameview";
+            var m = gv.GetType().GetMethod("SizeSelectionCallback", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+            m.Invoke(gv, new object[] { idx, null });
+            gv.Repaint();
+            return "gameview " + w + "x" + h + " (idx " + idx + ")";
         }
 
         static EditorWindow GetGameView()
