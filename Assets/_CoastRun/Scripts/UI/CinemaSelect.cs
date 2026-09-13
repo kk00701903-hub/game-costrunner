@@ -10,6 +10,9 @@ namespace CoastRun
     /// 해금: 프롤로그는 항상, 컷씬 N 은 그 챕터에 닿았으면(또는 읽었으면). 비밀코드(devUnlockAll)면 전부.
     public static class CinemaSelect
     {
+        /// 79차(사용자): 엔딩 다시보기를 일단 전부 열어 둔다. 실제 해금(깬 엔딩만)으로 되돌리려면 false.
+        public const bool OpenAllEndings = true;
+
         private static Canvas _canvas;
         private static Action _onClose;
         private static Action _onPlayStart; private static GameManager _gm;   // 73차: 감상 뒤 이 페이지로 돌아오기 위해
@@ -225,9 +228,11 @@ namespace CoastRun
                 });
             }
             // 77차(사용자): 엔딩 3편 — 이미 깬 엔딩만 열리고(endingMask), 나머지는 제목도 안 보이는 회색 잠금
+            // 79차(사용자): 「엔딩도 일단은 열어줘」 → OpenAllEndings = true 인 동안은 셋 다 열어 둔다.
+            //               잠금 규칙을 되살리려면 이 상수만 false 로. (비밀코드 devUnlockAll 로는 여전히 안 열린다)
             var prof = gm != null ? gm.Profile : null;
             int mask = prof != null ? prof.endingMask : 0;
-            bool sawA = (mask & 0b111) != 0, sawB = (mask & 0b111000) != 0, sawT = (mask & (1 << 6)) != 0;   // 비밀코드(devUnlockAll)로도 안 열림 — 실제로 본 엔딩만
+            bool sawA = OpenAllEndings || (mask & 0b111) != 0, sawB = OpenAllEndings || (mask & 0b111000) != 0, sawT = OpenAllEndings || (mask & (1 << 6)) != 0;
             list.Add(EndingEntry("END_A", 1, sawA));
             list.Add(EndingEntry("END_B", 2, sawB));
             list.Add(EndingEntry("END_TRUE", 3, sawT));

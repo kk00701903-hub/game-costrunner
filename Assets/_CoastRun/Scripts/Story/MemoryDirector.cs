@@ -56,18 +56,12 @@ namespace CoastRun
             _queued = unlocked;
         }
 
-        /// Called after StageClear UI is shown — plays queued fragment on top.
+        /// 81차(사용자): 스테이지 클리어 뒤 옛 수채화 회상 팝업은 더 이상 뜨지 않는다.
+        /// 해금 기록(_log)은 그대로 쌓이고, 갤러리에서 직접 고르면 ReplayFromGallery 로 볼 수 있다.
         public IEnumerator PlayQueuedIfAny()
         {
-            if (_queued == null)
-                yield break;
-
-            var def = _queued;
             _queued = null;
-            bool done = false;
-            UI_MemoryPopup.Ensure().Play(def, () => done = true);
-            while (!done)
-                yield return null;
+            yield break;
         }
 
         public void ReplayFromGallery(string fragmentId)

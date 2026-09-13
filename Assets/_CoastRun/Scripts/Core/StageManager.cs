@@ -526,13 +526,9 @@ namespace CoastRun
             else
                 clearUi?.Show(cleared, chapterEnd, ContinueToNext, RetryCurrent);
 
-            // 정산이 끝난 다음에 회상 — 클리어 UI를 스틸컷이 덮어버리지 않게
+            // 81차(사용자): 정산이 끝나도 옛 수채화 회상 팝업은 띄우지 않는다(시네마로 대체).
             while (clearUi != null && clearUi.IsSettling)
                 yield return null;
-
-            var mem = MemoryDirector.Instance ?? UnityEngine.Object.FindAnyObjectByType<MemoryDirector>();
-            if (mem != null)
-                yield return mem.PlayQueuedIfAny();
         }
 
         private bool IsLastStageOfChapter(StageDef def)

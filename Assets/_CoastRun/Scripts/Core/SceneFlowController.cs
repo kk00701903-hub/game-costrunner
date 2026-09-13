@@ -316,11 +316,8 @@ namespace CoastRun
                     yield return null;
             }
 
-            // 55차(사용자): 컷씬은 러닝과 무관 — 스토리 모드에선 정산 뒤 회상(기억 조각) 팝업을 띄우지 않는다(갤러리에서 본다).
-            var mem = MemoryDirector.Instance ?? UnityEngine.Object.FindAnyObjectByType<MemoryDirector>();
-            if (mem != null && !GameManager.Active)
-                yield return mem.PlayQueuedIfAny();
-            else if (clear == null)
+            // 81차(사용자): 스테이지 클리어 뒤에 뜨던 옛 수채화 회상(기억 조각) 팝업 제거 — 이야기는 시네마(CinematicPlayer)로만 본다.
+            if (clear == null)
                 OnStageClearContinue(stage, chapterComplete);
         }
 
