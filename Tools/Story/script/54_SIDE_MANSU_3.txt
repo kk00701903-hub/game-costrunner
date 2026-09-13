@@ -1,0 +1,14 @@
+﻿# 52  SIDE_MANSU_3  —  SIDE_MANSU_3
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | Store
+[2] SAY | 만수 | 내가 6년 전에도 이 가게 했거든. 그 애 서울 가던 날, 여기서 깡통 하나 사 갔어.
+    EN: I ran this store six years ago too. The day that kid left for Seoul, he bought a tin can here.
+[3] SAY | 하늘 | …깡통이요.
+    EN: …A tin can.
+[4] SAY | 만수 | 뭐 넣을 거냐니까 쪽지래. 열두 살이 무슨 쪽지. 그런데 그게 아직 거기 있다며. 봉지 하나 더 줄게. 봉지.
+    EN: Asked what he'd put in it — a note, he said. What note does a twelve-year-old write. But it's still there, I hear. Here, one more bag. A bag.
+[5] NARR | 만수 아저씨는 계산대 밑에서 뭔가를 꺼내다 만다. 오늘은 아니라는 듯.
+    EN: Mansu starts to take something from under the counter, then stops. Not today, it seems.

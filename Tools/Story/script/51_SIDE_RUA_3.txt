@@ -1,0 +1,16 @@
+﻿# 49  SIDE_RUA_3  —  SIDE_RUA_3
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | TowerDay
+[2] SAY | 루아 | 오빠가 먼저 가는 날마다 나한테 와. 언니가 늦어서 그런 거 아니라고 꼭 말해.
+    EN: Every day he leaves first, he comes to me. He always says it's not because you were late.
+[3] SAY | 하늘 | …왜 나한테 말해 주는 거야.
+    EN: …Why are you telling me.
+[4] SAY | 루아 | 겨울 끝나면 오빠 가. 그때 언니가 자기 탓하면, 오빠가 제일 싫어할 거니까.
+    EN: When winter ends he goes. If you blame yourself then, that's what he'd hate most.
+[5] SAY | 루아 | 마지막 날에는 뛰어. 그날은 오빠가 안 갈 거야.
+    EN: Run on the last day. That day he won't leave.
+[6] NARR | 루아가 깡통 자리를 발로 톡톡 친다. 열한 걸음. 맞다.
+    EN: Rua taps the tin-can spot with her foot. Eleven steps. Right.

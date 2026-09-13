@@ -1,0 +1,22 @@
+﻿# 46  END_TRUE  —  END_TRUE
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | HanulRoom
+[2] NARR | 이듬해 봄. 새벽 두 시. 91.9.
+    EN: The following spring. Two in the morning. 91.9.
+[3] SAY | DJ | 오늘은 사연이 아니라 목소리로 왔습니다. 제주에서, 열아홉 살…
+    EN: Tonight it came not as a letter but as a voice. From Jeju, nineteen years old…
+[4] NARR | 잡음. 그리고 아는 목소리. 말이 긴 사람의 목소리.
+    EN: Static. Then a voice she knows. The voice of someone who talks in long sentences.
+[5] SAY | 도윤 | 하늘아. 규칙이 하나 더 있었어. 아니, 규칙이 아니라 — 네가 두 번 다 끝까지 오면, 한 번 더 말할 수 있대.
+    EN: Haneul. There was one more rule. No, not a rule — if you come all the way to the end twice, I get to say one more thing.
+[6] SAY | 도윤 | 늦게 와도 된다고 했잖아. 취소. 늦게 오지 마. 내년 봄에도 그 자리에 있을 거야. 노을 질 때.
+    EN: I said you could come late. Take that back. Don't be late. I'll be at that spot next spring too. When the sun sets.
+[7] NARR | 하늘은 라디오를 끄지 않는다. 창밖 송전탑에 불이 하나 켜져 있다.
+    EN: Haneul doesn't turn the radio off. One light is on at the tower outside the window.
+[8] SAY | 하늘 | …응. 안 늦어.
+    EN: …Yeah. I won't be late.
+[9] NARR | 그리고 유채가 하루 일찍 핀다.
+    EN: And the canola blooms a day early.

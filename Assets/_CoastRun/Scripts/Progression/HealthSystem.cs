@@ -21,9 +21,11 @@ namespace CoastRun
         // and finishes a long stage in the red; a sloppy one dies near the minute mark.
         [SerializeField] private float drainPerSecond = 1.6f;
         [SerializeField] private float hitDamage = 30f;
-        public const float DamageScale = 5f;   // 66차-2(사용자): 장애물 피해 5배(65차 4배)
+        /// 71차(사용자): 피해는 「최대 체력의 비율」로 — ObstacleHazard.DamageMul 이 곧 비율(버스 0.60 · 허들/바리케이드 0.30 · 콘 0.18 …, 표는 ObstacleCatalog.DamageFrac).
+        /// 1 이상이면 즉사. 65~66차의 hitDamage×배율×DamageScale 방식은 폐기(육성 스탯의 피격 감소는 DamageReduce 로 남긴다).
+        public const float DamageScale = 1f;
         [SerializeField] private float jellyHeal = 0.4f;
-        [SerializeField] private float potionHeal = 40f;   // 17차: 물약 회복 25→40
+        [SerializeField] private float potionHeal = 30f;   // 17차: 물약 회복 25→40 · 71차(사용자 「너무 쉽다」): 30
 
         private PlayerController _player;
         private float _current;
@@ -99,10 +101,11 @@ namespace CoastRun
         {
             if (!_active || Frozen)
                 return;
-            float mul = _player != null ? Mathf.Max(0.1f, _player.PendingHitDamageMul) : 1f;
-            if (_player != null) _player.PendingHitDamageMul = 1f;
-            // 66차-2(사용자): 장애물 피해 5배 — 상한은 최대 체력의 98 %(한 방에 체력 2 %만 남는다 → 물약이 아니면 다음 한 방에 끝). 버스 즉사는 그대로. 배율은 DamageScale.
-            float dmg = mul >= 50f ? max + 1f : Mathf.Min(max * 0.98f, hitDamage * mul * DamageScale);
+            float frac = _player != null ? Mathf.Max(0.05f, _player.PendingHitDamageMul) : 0.25f;
+            if (_player != null) _player.PendingHitDamageMul = ObstacleHazard.DefaultFrac;
+            // 71차(사용자): 피해 = 최대 체력 × 장애물 비율(버스 60 %·허들 30 %·크기별). 육성 스탯 감소분(hitDamage/30 기준)만큼 조금 덜 받는다. 1 이상 = 즉사.
+            float reduce = max > 0f ? Mathf.Clamp(hitDamage / (max * 0.45f), 0.7f, 1f) : 1f;   // RunTuning.HitDamage = MaxHp×0.45×(1−0.15×체력) → 기본 1.0, 체력 만렙 0.85
+            float dmg = frac >= 1f ? max + 1f : Mathf.Min(max * 0.98f, max * frac * reduce);
             Apply(-dmg, silent: false);
             OnDamaged?.Invoke(dmg);
         }

@@ -56,7 +56,7 @@ namespace CoastRun
                 // SoftHit가 무적·무적프레임으로 막혀도 꽈당은 동일하게 — Pop만 되고 피드백이 빠지던 것.
                 if (!player.SoftHitApplied(ClassifyHit(player), BounceSide(player)))
                 {
-                    player.PendingHitDamageMul = 1f;
+                    player.PendingHitDamageMul = DefaultFrac;
                     // 거인·피버 무적 중엔 꽈당 대신 그냥 팡 — HP·경직 없음
                     if (!GiantMode.Active && !FeverMode.Active)
                         JuiceDirector.Instance?.PlayHitImpact();
@@ -66,8 +66,9 @@ namespace CoastRun
             }
         }
 
-        /// 22차-7: 피해 배율. 1 = 일반 장애물(3방이면 끝), 2 = 차, 99 = 버스(한 방).
-        public float DamageMul = 1f;
+        /// 71차(사용자): 피해 = 최대 체력의 비율(0.60 = 버스, 0.30 = 허들, 0.18 = 콘 …, ≥1 = 즉사). 22차의 배율(1/2/99)은 폐기.
+        public const float DefaultFrac = 0.25f;
+        public float DamageMul = DefaultFrac;
 
         private bool _popped;
         public void Pop()

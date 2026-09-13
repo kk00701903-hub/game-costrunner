@@ -73,8 +73,8 @@ namespace CoastRun
             if (kind == Kind.Bus) hard.transform.localPosition = new Vector3(0f, 1.2f, 0f);
             if (kind == Kind.Orange) hard.transform.localPosition = new Vector3(0f, 0.3f, 0f);   // 낮아서 점프로 넘는다
             var hazard = hard.AddComponent<ObstacleHazard>();
-            // 22차-7: 피해 밸런스 — 버스 한 방, 차 두 방(일반 장애물 세 방), 킥보드·귤은 일반보다 가볍게
-            hazard.DamageMul = kind == Kind.Bus ? 99f : kind == Kind.Van ? 1.6f : kind == Kind.Scooter ? 0.8f : 0.7f;
+            // 71차(사용자): 피해 = 최대 체력 비율 — 버스 60 %(즉사 아님), 승합차 45 %, 킥보드 30 %, 귤 12 %
+            hazard.DamageMul = kind == Kind.Bus ? 0.60f : kind == Kind.Van ? 0.45f : kind == Kind.Scooter ? 0.30f : 0.12f;
 
             var near = new GameObject("NearMiss");
             near.transform.SetParent(go.transform, false);

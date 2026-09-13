@@ -112,6 +112,19 @@ namespace CoastRun.EditorTools
         private static void PetRun(PetKind k) { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; s.equippedPet = k; s.chapter = 1; GameManager.I.Persist(); GameManager.I.StartStoryRun(); }
         // 66차-8: 한 곡 완주 화면 확인용(K-POP 런 중에)
         [MenuItem("Coast Run/Dev/Fx - Song complete screen")] public static void SongComplete() { if (!Application.isPlaying || !ArcadeRun.KpopMode || RunHudChrome.Instance == null) return; ArcadeRun.MarkKpopFinished(); RunHudChrome.Instance.ShowRunOver(() => Debug.LogWarning("[Dev] retry"), () => Debug.LogWarning("[Dev] exit"), "메인으로"); }
+        // 68차: 시네마틱 확인용
+        // 71차: 챕터 선택 화면 READY/LOCKED 모양 확인 — 마지막 클리어를 5로 꾸며서 연다(타이틀에서). 끄기 = 실제 진행으로.
+        [MenuItem("Coast Run/Dev/Chapter select - preview (last clear 5)")] public static void ChapterPreview() { if (!Application.isPlaying) return; KpopChapterSelect.DebugLastClear = 5; KpopChapterSelect.Open(GameManager.I, null, null); }
+        [MenuItem("Coast Run/Dev/Chapter select - preview off")] public static void ChapterPreviewOff() { KpopChapterSelect.DebugLastClear = -1; }
+        [MenuItem("Coast Run/Dev/Cine - OPEN")] public static void CineOpen() { if (Application.isPlaying) CinematicPlayer.Play("OPEN", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS1")] public static void CineCs1() { if (Application.isPlaying) CinematicPlayer.Play("CS1", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS2")] public static void CineCs2() { if (Application.isPlaying) CinematicPlayer.Play("CS2", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS3")] public static void CineCs3() { if (Application.isPlaying) CinematicPlayer.Play("CS3", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS4")] public static void CineCs4() { if (Application.isPlaying) CinematicPlayer.Play("CS4", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS5")] public static void CineCs5() { if (Application.isPlaying) CinematicPlayer.Play("CS5", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS6")] public static void CineCs6() { if (Application.isPlaying) CinematicPlayer.Play("CS6", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS7")] public static void CineCs7() { if (Application.isPlaying) CinematicPlayer.Play("CS7", () => Debug.LogWarning("[Dev] cine done")); }
+        [MenuItem("Coast Run/Dev/Cine - CS8")] public static void CineCs8() { if (Application.isPlaying) CinematicPlayer.Play("CS8", () => Debug.LogWarning("[Dev] cine done")); }
         [MenuItem("Coast Run/Dev/Contest - Close all")] public static void ContestClose() { ContestIntroUI.Close(); ContestResultUI.Close(); WeekPassUI.Close(); GroceryUI.Close(); GameOverUI.Close(); Time.timeScale = 1f; }
         // 56차-2(사용자): 글자가 상자를 넘는지 검사 — 화면의 모든 Text 를 훑어 preferred 크기가 rect 보다 크면 경로·글자·크기를 로그로.
         [MenuItem("Coast Run/Dev/UI - Overflow audit")]

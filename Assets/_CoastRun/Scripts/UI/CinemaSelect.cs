@@ -48,7 +48,7 @@ namespace CoastRun
             title.color = new Color(1f, 0.85f, 0.30f);
             CoastUiArt.OutlineText(title, new Color(0.30f, 0.12f, 0.02f, 0.9f), 2.5f);
             int read = 0; foreach (var e in entries) if (!e.Opening && e.Unlocked && StoryProgress.CutsceneRead(e.Index)) read++;
-            var sub = CoastHudLayout.MakeText(root, "Sub", Loc.T($"컷씬 {StoryProgress.CutsceneCount}개 · 읽은 것 {read}개 — 다시 읽고 싶은 컷씬을 고르세요", $"{StoryProgress.CutsceneCount} cutscenes · {read} read — pick one to read again"), 13, TextAnchor.MiddleCenter,
+            var sub = CoastHudLayout.MakeText(root, "Sub", Loc.T($"컷씬 {StoryProgress.CutsceneCount}개 · 본 것 {read}개 — 카드를 누르면 보기, 「읽기」는 소설로", $"{StoryProgress.CutsceneCount} cutscenes · {read} seen — tap to watch, Read for the novel"), 13, TextAnchor.MiddleCenter,
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -148f), new Vector2(0f, -120f));
             sub.color = Color.white; CoastUiArt.OutlineText(sub, new Color(0f, 0f, 0f, 0.6f), 1.2f);
 
@@ -137,6 +137,17 @@ namespace CoastRun
             btn.transition = Selectable.Transition.None;
             var entry = e;
             btn.onClick.AddListener(() => Play(entry, onPlayStart));
+            // 68차: 컷씬 카드 오른쪽 아래 작은 「읽기」(소설식 리더)
+            if (!e.Opening && e.Unlocked)
+            {
+                var rb = CoastUiArt.GlossyPill(crt, "ReadBtn", new Color(0.30f, 0.55f, 0.95f), 14, 4); rb.raycastTarget = true;
+                var rrt = rb.rectTransform; rrt.anchorMin = rrt.anchorMax = new Vector2(1f, 0f); rrt.pivot = new Vector2(1f, 0f);
+                rrt.anchoredPosition = new Vector2(-10f, 8f); rrt.sizeDelta = new Vector2(64f, 30f);
+                var rt = CoastHudLayout.MakeText(rrt, "T", Loc.T("읽기", "Read"), 14, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero);
+                rt.color = Color.white; rt.fontStyle = FontStyle.Bold;
+                var rbb = rb.gameObject.AddComponent<Button>(); rbb.transition = Selectable.Transition.None;
+                rbb.onClick.AddListener(() => Read(entry, onPlayStart));
+            }
         }
 
         private static void Play(Entry e, Action onPlayStart)
@@ -156,16 +167,31 @@ namespace CoastRun
                 PlayerPrefs.SetInt("CoastRun_OpeningSeen", 1);
                 OpeningCinematic.Play(() => cb?.Invoke());
             }
+            else if (CinematicTable.Cutscene(e.Index) != null)
+            {
+                CinematicPlayer.Play("CS" + e.Index, () => { StoryProgress.MarkCutsceneSeen(e.Index); cb?.Invoke(); });   // 68차: 시네마틱
+            }
             else
             {
                 StoryReaderUI.OpenCutscene(e.Index, () => cb?.Invoke());
             }
         }
 
+        /// 68차: 카드의 작은 「읽기」 — 소설식 리더(StoryReaderUI)로.
+        private static void Read(Entry e, Action onPlayStart)
+        {
+            if (!e.Unlocked || e.Opening) return;
+            CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
+            var cb = _onClose;
+            Close();
+            onPlayStart?.Invoke();
+            StoryReaderUI.OpenCutscene(e.Index, () => cb?.Invoke());
+        }
+
         private static List<Entry> BuildEntries(GameManager gm)
         {
             var list = new List<Entry>();
-            list.Add(new Entry { Label = Loc.T("프롤로그 영상", "Prologue film"), Title = Loc.T("너와 나의 주파수 — 1:37", "Our Frequency — 1:37"), Sub = Loc.T("영상 · 언제나 볼 수 있어요", "Film · always available"), Opening = true, Unlocked = true, Chapter = 0, Cover = ArtAssets.LoadTexture("Cut_CH01_Open") });
+            list.Add(new Entry { Label = Loc.T("프롤로그 영상", "Prologue film"), Title = Loc.T("너와 나의 주파수 — 1:37", "Our Frequency — 1:37"), Sub = Loc.T("시네마틱 · 언제나 볼 수 있어요", "Cinematic · always available"), Opening = true, Unlocked = true, Chapter = 0, Cover = ArtAssets.LoadTexture("Cut_CH01_Open") });
             var save = gm != null && gm.HasSave ? (gm.Save ?? gm.SaveSys.Load()) : null;
             bool all = gm != null && gm.DevUnlockAll;
             int reached = save != null ? Mathf.Clamp(save.chapter, 1, Timeline.Chapters) : 0;

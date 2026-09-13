@@ -44,6 +44,8 @@ namespace CoastRun
         {
             var go = SpawnInner(id, parent, worldPos, lane);
             EnsureHazardRing(go, id);
+            // 71차(사용자): 장애물별 피해 = 최대 체력 비율(크기·무게순). 버스 60 % · 석상 45 % · 관광객 35 % · 허들/바리케이드/스쿠터 30 % · 상자/슬라임 25 % …
+            if (go != null) { float f = DamageFrac(id); foreach (var hz in go.GetComponentsInChildren<ObstacleHazard>(true)) hz.DamageMul = f; }
             // 38차: 도로 점유표에 등록 + 근처 코인·말랑이 걷어내기(오리 장애물은 전 레인)
             bool wide = id == ObstacleId.OverheadBar || id == ObstacleId.Clothesline || id == ObstacleId.LanternString;
             RoadOccupancy.OnObstacle(DownhillPath.DistanceAlong(worldPos), wide ? RoadOccupancy.AllLanes : lane);
@@ -51,6 +53,32 @@ namespace CoastRun
             if (id != ObstacleId.PuddleSlow)
                 ObstacleWarning.Attach(go);
             return go;
+        }
+
+        /// 71차: 장애물별 피해 비율(최대 체력 기준). 게임이 너무 쉽다는 피드백 → 세 방이면 끝나던 일반 장애물을 3~4방, 버스는 두 방이면 끝.
+        public static float DamageFrac(ObstacleId id)
+        {
+            switch (id)
+            {
+                case ObstacleId.ParkedBus: return 0.60f;
+                case ObstacleId.StoneStatue: return 0.45f;
+                case ObstacleId.TouristCluster: return 0.35f;
+                case ObstacleId.OverheadBar:
+                case ObstacleId.Clothesline:
+                case ObstacleId.LanternString: return 0.30f;   // 허들류(숙이기)
+                case ObstacleId.Barrier:
+                case ObstacleId.ScooterParked: return 0.30f;
+                case ObstacleId.CrateStack:
+                case ObstacleId.DeliveryBox:
+                case ObstacleId.Slime: return 0.25f;
+                case ObstacleId.BikeFallen: return 0.22f;
+                case ObstacleId.SnowDrift: return 0.20f;
+                case ObstacleId.TrafficCone: return 0.18f;
+                case ObstacleId.WetFloorSign: return 0.15f;
+                case ObstacleId.LeafDrift: return 0.12f;
+                case ObstacleId.PuddleSlow: return 0.10f;
+                default: return ObstacleHazard.DefaultFrac;
+            }
         }
 
         /// 모든 장애물에 붉은 깜빡이 링. 종류별 크기를 맞추고, 이미 있으면 크기만 보정.

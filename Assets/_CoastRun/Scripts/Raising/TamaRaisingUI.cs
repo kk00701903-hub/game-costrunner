@@ -49,6 +49,22 @@ namespace CoastRun
             // 55차: 지난 턴이 챕터 마지막 주로 끝났으면(앱을 껐다 켰어도) 이번 턴 시작에 컷씬·대회.
             // 67차-8(사용자): 들어오자마자 팝업을 띄우지 않는다 — 동그라미 3개가 찬 상태로 보여 주고 「다음 턴」을 눌러야 이야기·대회가 시작.
             if (Save != null && Save.boundaryPending) ShowBubble(BoundaryHint(), 4f);
+            // 72차(사용자): 육성 모드를 **처음 시작할 때** 바로 오프닝(1장 첫 「다음 턴」이 아니라 들어오자마자).
+            if (Save != null && Save.chapter == 1 && !Save.prologueSeen && !Save.boundaryPending) StartCoroutine(OpeningFirst());
+        }
+
+        private IEnumerator OpeningFirst()
+        {
+            _busy = true;
+            foreach (var b in _actBtn) if (b != null) b.interactable = false;
+            yield return null;
+            bool done = false;
+            OpeningCinematic.Play(() => done = true);
+            while (!done) yield return null;
+            if (Save != null) { Save.prologueSeen = true; _gm.Persist(); }
+            foreach (var b in _actBtn) if (b != null) b.interactable = true;
+            _busy = false;
+            ShowBubble(Loc.T("스무 살 생일까지 1년. 오늘부터 시작이야.", "One year to my 20th birthday. It starts today."), 3.5f);
         }
 
         private string BoundaryHint()
@@ -321,26 +337,27 @@ namespace CoastRun
             Vector2 A = new Vector2(ax, 0f);
             System.Func<float, float, float, Vector2> P = (half, y, w) => new Vector2(right ? cx + half : cx - half, y);
             var track = CoastUiArt.CutePill(_root, (right ? "Stress" : "Hp") + "Track", Color.Lerp(col, Color.black, 0.55f), 12, 3); track.raycastTarget = false;
-            Anchor(track.rectTransform, A, A, P(13f, 372f, 26f), new Vector2(26f, 560f));
+            // 71차(사용자): 게이지 50% 축소 — 높이 560 → 280, 폭 26 → 20, 라벨·아이콘도 3/4. 세로 중심은 그대로(460~740).
+            Anchor(track.rectTransform, A, A, P(10f, 460f, 20f), new Vector2(20f, 280f));
             var fill = CoastUiArt.Panel(track.transform, "Fill", col, 8); fill.raycastTarget = false;
-            fill.rectTransform.anchorMin = new Vector2(0f, 0f); fill.rectTransform.anchorMax = new Vector2(1f, 0.5f); fill.rectTransform.offsetMin = new Vector2(5f, 5f); fill.rectTransform.offsetMax = new Vector2(-5f, 0f);
+            fill.rectTransform.anchorMin = new Vector2(0f, 0f); fill.rectTransform.anchorMax = new Vector2(1f, 0.5f); fill.rectTransform.offsetMin = new Vector2(4f, 4f); fill.rectTransform.offsetMax = new Vector2(-4f, 0f);
             var hi = CoastUiArt.Panel(fill.transform, "Hi", new Color(1f, 1f, 1f, 0.35f), 3); hi.raycastTarget = false;
             hi.rectTransform.anchorMin = new Vector2(0.2f, 0f); hi.rectTransform.anchorMax = new Vector2(0.42f, 1f); hi.rectTransform.offsetMin = new Vector2(0f, 6f); hi.rectTransform.offsetMax = new Vector2(0f, -6f);
-            var lab = CoastHudLayout.MakeText(_root, label, label, 20, TextAnchor.MiddleCenter, A, A, Vector2.zero, Vector2.zero);
-            Anchor(lab.rectTransform, A, A, P(60f, 936f, 120f), new Vector2(120f, 30f));
+            var lab = CoastHudLayout.MakeText(_root, label, label, 15, TextAnchor.MiddleCenter, A, A, Vector2.zero, Vector2.zero);
+            Anchor(lab.rectTransform, A, A, P(60f, 744f, 120f), new Vector2(120f, 24f));
             lab.color = col; lab.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(lab, Color.white, 2f);
             var tex = iconRes != null ? ArtAssets.LoadTexture(iconRes) : null;
             if (tex != null)
             {
                 var im = new GameObject("Ic", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
                 im.transform.SetParent(_root, false); im.sprite = CoastUiArt.AsSprite(tex); im.preserveAspect = true; im.raycastTarget = false;
-                Anchor(im.rectTransform, A, A, P(34f, 968f, 68f), new Vector2(68f, 68f));
+                Anchor(im.rectTransform, A, A, P(26f, 770f, 52f), new Vector2(52f, 52f));
             }
             else
             {
-                var circ = CoastUiArt.GlossyPill(_root, "Ic", col, 30, 8); circ.raycastTarget = false;
-                Anchor(circ.rectTransform, A, A, P(32f, 970f, 64f), new Vector2(64f, 64f));
-                var g = CoastHudLayout.MakeText(circ.rectTransform, "G", iconGlyph ?? "!", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 4f), Vector2.zero);
+                var circ = CoastUiArt.GlossyPill(_root, "Ic", col, 24, 6); circ.raycastTarget = false;
+                Anchor(circ.rectTransform, A, A, P(24f, 772f, 48f), new Vector2(48f, 48f));
+                var g = CoastHudLayout.MakeText(circ.rectTransform, "G", iconGlyph ?? "!", 17, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 4f), Vector2.zero);
                 g.color = Color.white; g.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(g, new Color(0f, 0f, 0f, 0.4f), 1.2f);
             }
             return fill;
@@ -765,9 +782,9 @@ namespace CoastRun
             }
             if (Save.chapter == 1 && !Save.prologueSeen)
             {
-                // 55차: 프롤로그 VN 은 러닝 앞이 아니라 여기(첫 이야기 앞)에서
+                // 55차: 프롤로그는 러닝 앞이 아니라 여기(첫 이야기 앞)에서. 68차: 오프닝 시네마틱(9컷·1:37)으로 — 「PRO」 VN 대신.
                 bool donePro = false;
-                ChapterVN.Play("PRO", () => donePro = true);
+                OpeningCinematic.Play(() => donePro = true);
                 while (!donePro) yield return null;
                 Save.prologueSeen = true; _gm.Persist();
             }
@@ -775,10 +792,12 @@ namespace CoastRun
             int cut = StoryProgress.CutsceneIndex(Save.chapter);
             if (cut > 0 && !StoryProgress.CutsceneRead(cut))
             {
-                ShowBubble(Loc.T($"컷씬 {cut} — 이야기를 읽자.", $"Cutscene {cut} — story time."), 1.5f);
+                ShowBubble(Loc.T($"컷씬 {cut} — 이야기.", $"Cutscene {cut} — story time."), 1.5f);
                 yield return new WaitForSecondsRealtime(0.8f);
                 bool doneVn = false;
-                StoryReaderUI.OpenCutscene(cut, () => doneVn = true);
+                // 68차: 컷씬은 시네마틱(스틸+자막+음악, 오프닝 형식)으로 본다. 소설식 리더는 시네마 메뉴 「읽기」에 남는다.
+                if (CinematicTable.Cutscene(cut) != null) { CinematicPlayer.Play("CS" + cut, () => { StoryProgress.MarkCutsceneSeen(cut); doneVn = true; }); }
+                else StoryReaderUI.OpenCutscene(cut, () => doneVn = true);
                 while (!doneVn) yield return null;
                 LevelSystem.Add(LevelSystem.ExpChapterRead);   // 53차: 이야기 한 편 = 경험치
             }

@@ -1,0 +1,18 @@
+﻿# 45  END_B_WEAK  —  END_B_WEAK
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | CoastRoad
+[2] NARR | 4.2킬로 중 3킬로. 다리가 먼저 멈춘다. 마지막 날, 마지막 노을.
+    EN: Three of the 4.2 kilometers. Her legs stop first. The last day, the last sunset.
+[3] SAY | 하늘 | …아직. 아직 반 남았어.
+    EN: …Not yet. Half the sunset is still left.
+[4] NARR | 길가에 주저앉는다. 도윤이 앉았던 자리. 약봉지가 떨어졌던 자리.
+    EN: She sits down on the roadside. Where Doyun sat. Where the medicine bag fell.
+[5] NARR | 해가 다 진다. 송전탑은 여기서도 보인다. 아무도 서 있지 않다.
+    EN: The sun goes all the way down. The tower is visible from here too. No one is standing under it.
+[6] SAY | 하늘 | 1년 동안 체력을 안 만들었다. 그게 다야. 그게 전부야.
+    EN: I never built my body up, all year. That's it. That's all it was.
+[7] NARR | 다음 봄에는 뛸 수 있을 것이다. 그때는 늦지 않을 것이다. 그렇게 생각하기로 한다.
+    EN: Next spring she'll be able to run. She won't be late then. She decides to think that.

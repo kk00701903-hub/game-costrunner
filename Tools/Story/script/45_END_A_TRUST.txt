@@ -1,0 +1,20 @@
+﻿# 43  END_A_TRUST  —  END_A_TRUST
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | TowerSunset
+[2] NARR | 언덕 아래에서 소리가 난다. 만수 아저씨의 트럭. 할머니. 루아. 오일장 사람들.
+    EN: Sound from the bottom of the hill. Mansu's truck. Grandma. Rua. The market people.
+[3] SAY | 만수 | 봉지 갖고 왔어. 봉지. 뭐라도 넣어 가라고.
+    EN: I brought bags. Bags. Put something in them to take along.
+[4] SAY | 할머니 | 서씨네 아들. 이건 보약 아니고 그냥 귤이다. 먹어.
+    EN: The Seo boy. This isn't tonic, it's just tangerines. Eat.
+[5] SAY | 도윤 | …이 동네는 진짜.
+    EN: …This village, honestly.
+[6] SAY | 루아 | 오빠. 늦게 가.
+    EN: Oppa. Leave late.
+[7] NARR | 해가 다 지고도 한참, 아무도 먼저 가지 않는다. 오늘은 그가 먼저 가지 않아도 됐다.
+    EN: Long after the sun is gone, nobody leaves first. Today he didn't have to leave first.
+[8] SAY | 하늘 | 1년 동안 매일 뛰었는데, 오늘은 다 같이 걸어 내려간다.
+    EN: I ran every day for a year, and today we all walk down together.

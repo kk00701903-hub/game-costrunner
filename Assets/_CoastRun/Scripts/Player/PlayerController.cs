@@ -634,7 +634,7 @@ namespace CoastRun
         private float _iFrameTimer;
         public bool InIFrames => _iFrameTimer > 0f;
         /// 22차-7: 다음 피격의 피해 배율(장애물이 SoftHit 직전에 넣고, HealthSystem이 쓰고 1로 되돌린다).
-        public float PendingHitDamageMul = 1f;
+        public float PendingHitDamageMul = ObstacleHazard.DefaultFrac;   // 71차: 최대 체력 비율
 
         public void SoftHit(HitKind kind, int bounceDir)
         {

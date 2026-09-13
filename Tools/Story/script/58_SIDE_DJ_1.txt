@@ -1,0 +1,12 @@
+﻿# 56  SIDE_DJ_1  —  SIDE_DJ_1
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | HanulRoom
+[2] SAY | DJ | 오늘 사연은 제주에서. 매일 늦는 친구 얘기를 또 보내 주셨네요.
+    EN: Tonight's letter is from Jeju. You wrote again about the friend who's always late.
+[3] SAY | 하늘 | (내 거다.)
+    EN: (That's mine.)
+[4] SAY | DJ | 이 시간에 듣는 분들은 다 늦은 사람들이에요. 괜찮아요. 방송은 안 끝나요.
+    EN: Everyone listening at this hour is someone who was late. It's fine. The show doesn't end.

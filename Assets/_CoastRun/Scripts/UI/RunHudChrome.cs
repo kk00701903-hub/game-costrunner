@@ -489,21 +489,10 @@ namespace CoastRun
             ArcadeRun.OnKpopMissionDone -= HandleKpopMission;
             ArcadeRun.OnKpopMissionDone += HandleKpopMission;
         }
-        /// 48차-5: 우하단 곡 정보 「♪ 제목 — 우히&히시」.
+        /// 48차-5: 곡 정보 알약. 72차(사용자 시안): 우하단 「NOW PLAYING ♫ / 곡명 — 우히&히시」 그라데이션 알약 + 멜로디를 따라 움직이는 이퀄라이저(KpopNowPlaying).
         private void BuildKpopSongLabel(RectTransform root)
         {
-            var pill = CoastUiArt.CutePill(root, "KpopSong", new Color(0.07f, 0.16f, 0.30f, 0.72f), 12, 2);
-            // 48차-6(사용자): 우상단 동전 알약(y -74, 높이 52) 바로 아래
-            var rt = pill.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(-6f, -132f); rt.sizeDelta = new Vector2(400f, 32f);
-            pill.raycastTarget = false;
-            var t = CoastHudLayout.MakeText(pill.transform, "T", "♪ " + ArcadeRun.KpopTrack.Credit, 15, TextAnchor.MiddleRight, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-12f, 0f));
-            t.color = new Color(1f, 0.96f, 0.85f); t.fontStyle = FontStyle.Bold; t.raycastTarget = false;
-            t.horizontalOverflow = HorizontalWrapMode.Overflow; t.verticalOverflow = VerticalWrapMode.Truncate;
-            CoastUiArt.OutlineText(t, new Color(0.05f, 0.07f, 0.18f, 0.9f), 1.2f);
-            // 글자 폭에 맞춰 알약 줄이기
-            float w = t.preferredWidth + 26f;
-            rt.sizeDelta = new Vector2(Mathf.Clamp(w, 120f, 420f), 32f);
+            KpopNowPlaying.Build(root, ArcadeRun.KpopTrack.Credit);
         }
 
         private static string ChipLabel(int i) => (ArcadeRun.IsKpopMissionDone(i) ? "☑ " : "☐ ") + ArcadeRun.Conditions[i].Text;
@@ -587,6 +576,8 @@ namespace CoastRun
             }
             foreach (var (sx, sy, sz) in new[] { (-150f, 120f, 30), (150f, 130f, 26), (-160f, -120f, 22), (150f, -125f, 28) })
                 EventCardKit.Sparkle(root, new Vector2(0f, 1f), faceC + new Vector2(sx, sy), sz, new Color(1f, 0.95f, 0.7f, 0.9f));
+            // 72차(사용자): 얼굴이 금테·반짝이보다 앞에 오게 — 얼굴 마스크를 맨 위로
+            var faceMask = root.Find("FaceMask"); if (faceMask != null) faceMask.SetAsLastSibling();
 
             // 별 3개 + 「⭐ 오늘 미션 N/3」
             int kpopDoneCount = 0; for (int i = 0; i < 3 && i < ArcadeRun.Conditions.Length; i++) if (ArcadeRun.ConditionDone[i]) kpopDoneCount++;

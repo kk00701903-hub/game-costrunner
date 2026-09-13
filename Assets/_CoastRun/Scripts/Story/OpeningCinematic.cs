@@ -37,7 +37,14 @@ namespace CoastRun
 
         public static void Play(Action onDone)
         {
-            // 37차: 새 오프닝 「손」은 ChapterVN 대본(PRO)으로 — 빈 화면 + 음악(M6→M5) + 자막. 대본이 있으면 옛 3컷 플레이스홀더는 안 쓴다.
+            // 68차: 오프닝은 공용 시네마틱(CinematicTable "OPEN" — 9컷 영상/스틸 + 자막 + M5 1:37). 옛 VN 「PRO」·3컷 플레이스홀더는 폴백.
+            if (CinematicTable.Get("OPEN") != null)
+            {
+                PlayerPrefs.SetInt(SeenKey, 1); PlayerPrefs.Save();
+                PlayerPrefs.SetInt("CoastRun_VN_PRO", 1);   // 프롤로그 본 것으로(롱컷 카운트·레코드 해금 공유)
+                CinematicPlayer.Play("OPEN", onDone);
+                return;
+            }
             if (ChapterScript.Has("PRO"))
             {
                 ChapterVN.Play("PRO", onDone);

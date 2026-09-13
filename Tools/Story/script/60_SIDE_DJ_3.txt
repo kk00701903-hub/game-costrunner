@@ -1,0 +1,14 @@
+﻿# 58  SIDE_DJ_3  —  SIDE_DJ_3
+# 형식: [번호] 종류 | 화자/그림 | 한국어   ← 바로 아래 'EN:' 줄이 영어. 줄 삭제·추가 가능, 번호는 저장 때 자동 정리.
+# BG = 배경ID | 왼쪽 스탠딩 | 오른쪽 스탠딩 | 텍스트위치 / CG = 일러스트ID | 설명 | 텍스트위치 / SAY = 화자 | 대사 / NARR = 지문 / LETTER = 편지
+# 텍스트위치: 비우면 대사창이 화면 위(그림의 인물이 아래쪽에 있어서), '아래' 라고 쓰면 화면 아래
+
+[1] BG | HanulRoom
+[2] SAY | DJ | 제주 청취자님. 이번엔 사연 대신 부탁을 보내셨네요. 마지막 날 새벽 두 시에 이 노래를 틀어 달라고.
+    EN: Jeju listener. This time you sent a request instead of a story. Play this song at two in the morning on the last day.
+[3] SAY | DJ | 틀어 드릴게요. 그 시간에 다른 분도 듣고 계실 테니까.
+    EN: We'll play it. Someone else will be listening at that hour too.
+[4] SAY | 하늘 | …부탁한 적 없는데.
+    EN: …I never sent a request.
+[5] NARR | 보낸 사람이 누구인지, 하늘은 안다. 91.9. 잡음 사이로 첫눈 노래가 나온다.
+    EN: Haneul knows who sent it. 91.9. Through the static, the first-snow song begins.

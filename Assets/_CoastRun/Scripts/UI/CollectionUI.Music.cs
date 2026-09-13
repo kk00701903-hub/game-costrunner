@@ -45,12 +45,19 @@ namespace CoastRun
             var aiL = CoastOrnate.Label(aiPill.transform, "T", Loc.T("✦ AI 생성 음원 · 가상 듀오 우히&히시", "✦ AI-generated music · virtual duo"), 12, new Color(0.45f, 0.28f, 0.12f)); aiL.fontStyle = FontStyle.Bold;
             Stretch(aiL.rectTransform);
 
-            // 52차(사용자): 홈으로 가기 버튼(우상단) — 뒤로(<)만으로는 안 보여서.
-            var homeRt = MMRect(root, "Home", 868f, 46f, 1040f, 150f);
-            var homePill = CoastUiArt.GlossyPill(homeRt, "Pill", new Color(1f, 0.62f, 0.30f), 22, 6);
+            // 52차(사용자): 홈으로 가기 버튼. 72차(사용자): 「돌아가기」는 없애고 홈 하나로 — 시안에 박힌 좌상단 「<」 동그라미 자리를
+            //   파란 둥근 홈 버튼(새 집 아이콘)으로 덮는다(제목 글자와 안 겹치는 유일한 빈 자리).
+            var homeRt = MMRect(root, "Home", 26f, 36f, 156f, 166f);
+            var homePill = CoastUiArt.GlossyPill(homeRt, "Pill", new Color(0.30f, 0.55f, 0.95f), 38, 7);
             Stretch(homePill.rectTransform);
-            var homeL = CoastOrnate.Label(homePill.transform, "T", Loc.T("⌂ 홈", "⌂ Home"), 18, new Color(0.40f, 0.16f, 0.04f)); homeL.fontStyle = FontStyle.Bold;
-            Stretch(homeL.rectTransform);
+            var homeIc = CoastUiArt.Art("Icon_Home");
+            if (homeIc != null)
+            {
+                var hi = new GameObject("Ic", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                hi.transform.SetParent(homePill.transform, false); hi.sprite = homeIc; hi.preserveAspect = true; hi.raycastTarget = false;
+                var hrt = hi.rectTransform; hrt.anchorMin = hrt.anchorMax = new Vector2(0.5f, 0.5f); hrt.anchoredPosition = new Vector2(0f, 3f); hrt.sizeDelta = new Vector2(40f, 40f);
+            }
+            else { var homeL = CoastOrnate.Label(homePill.transform, "T", "⌂", 26, Color.white); homeL.fontStyle = FontStyle.Bold; Stretch(homeL.rectTransform); }
             var homeBtn = homePill.gameObject.AddComponent<Button>(); homeBtn.transition = Selectable.Transition.None;
             homeBtn.onClick.AddListener(() => { CoastPrefs.Vibrate(); StopPlayAll(); Close(); });
 
@@ -144,11 +151,7 @@ namespace CoastRun
                 if (owned == 0) { Toast(Loc.T("아직 열린 곡이 없어요", "No tracks unlocked yet")); return; }
                 _playAllOn = true; _playAll = StartCoroutine(PlayAllCo());
             });
-            // 뒤로(시안 좌상단 40~140 × 50~150)
-            var back = MMRect(root, "Back", 30f, 40f, 150f, 160f);
-            var bh = back.gameObject.AddComponent<Image>(); bh.color = new Color(1f, 1f, 1f, 0f); bh.raycastTarget = true;
-            var bb = back.gameObject.AddComponent<Button>(); bb.transition = Selectable.Transition.None;
-            bb.onClick.AddListener(() => { StopPlayAll(); Close(); });
+            // 72차: 옛 「뒤로」 투명 히트 영역 삭제 — 같은 자리에 홈 버튼이 있다.
         }
 
         private int _playAllIdx; private string _playAllTitle = ""; private bool _playAllOn;

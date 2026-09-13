@@ -315,9 +315,10 @@ namespace CoastRun
                 _splashPlayer.clip = busClip;
                 _splashPlayer.Prepare();
 
-                var hint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 16, FontStyle.Bold,
-                    new Color(1f, 1f, 1f, 0.75f), new Vector2(0.5f, 0.05f), new Vector2(400f, 26f));
-                CoastUiArt.OutlineText(hint, new Color(0f, 0f, 0f, 0.6f), 2f);
+                // 71차(사용자): 「터치하면 건너뛰기」 3배 크기(16 → 48, 상자 400×26 → 660×78)
+                var hint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 48, FontStyle.Bold,
+                    new Color(1f, 1f, 1f, 0.85f), new Vector2(0.5f, 0.07f), new Vector2(660f, 78f));
+                CoastUiArt.OutlineText(hint, new Color(0f, 0f, 0f, 0.7f), 3f);
                 return;
             }
 
@@ -325,9 +326,9 @@ namespace CoastRun
             Debug.LogWarning("[Title] Title_Bus 영상이 없어 단색 스플래시로 폴백");
             _splashIsVideo = false;
             splashImg.color = new Color(0.98f, 0.80f, 0.55f, 1f);
-            var fbHint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 16, FontStyle.Bold,
-                new Color(1f, 1f, 1f, 0.75f), new Vector2(0.5f, 0.05f), new Vector2(400f, 26f));
-            CoastUiArt.OutlineText(fbHint, new Color(0f, 0f, 0f, 0.6f), 2f);
+            var fbHint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 48, FontStyle.Bold,
+                new Color(1f, 1f, 1f, 0.85f), new Vector2(0.5f, 0.07f), new Vector2(660f, 78f));
+            CoastUiArt.OutlineText(fbHint, new Color(0f, 0f, 0f, 0.7f), 3f);
         }
 
         private void BuildMainUi(Transform root)
@@ -618,7 +619,7 @@ namespace CoastRun
                 CoastUiArt.OutlineText(_openingHint, new Color(0.2f, 0.1f, 0.06f, 0.85f), 1.5f);
             }
 
-            // 더보기 열: 오른쪽에서 슬라이드. 새로하기 / 컬렉션 / 레코드 / 시네마 / 설정.
+            // 더보기 열: 오른쪽에서 슬라이드. 새로하기 / 컬렉션 / 레코드 / 시네마 / 미니게임 / 보스전 / 설정 / 이용약관·정책(70차 순서).
             // 42차(사용자): 「챕터 선택」 항목 삭제(챕터는 타이틀 CHAPTER 칩), 컬렉션은 모은 사진(포토카드 탭)으로 바로,
             //             레코드 옆 새 항목 점(•) 제거, 「오프닝」 → 「시네마」(컷씬 골라 보기, CinemaSelect).
             var more = new System.Collections.Generic.List<(string, System.Action)>();
@@ -633,14 +634,7 @@ namespace CoastRun
                 _ready = false;
                 CollectionUI.Open(() => { if (this == null) return; _audio?.PlayMenu(_cleared); _ready = true; }, 0);   // 38차: 시안대로 컬렉션 › 레코드 탭
             }));
-            // 44차: 미니게임 — 챕터 미션에서 이긴 놀이만 다시하기(ChapterMissionUI.OpenMenu)
-            more.Add((Loc.T("미니게임", "Mini-games"), () =>
-            {
-                _audio?.PlayClick();
-                if (_moreOpen) ToggleMore();
-                _ready = false;
-                ChapterMissionUI.OpenMenu(_gm, () => { if (this == null) return; _ready = true; });
-            }));
+            // 70차(사용자): 더보기 순서 = 새로하기 / 컬렉션 / 레코드 / 시네마 / 미니게임 / 보스전 / 설정 / 이용약관
             more.Add((Loc.T("시네마", "Cinema"), () =>
             {
                 _audio?.PlayClick();
@@ -652,14 +646,13 @@ namespace CoastRun
                     onPlayStart: () => { played = true; _audio?.StopMenu(); },
                     onClose: () => { if (this == null) return; if (played) _audio?.PlayMenu(_cleared); _ready = true; });
             }));
-            // 61차(사용자): 「설정」은 더보기에서 빼고 우상단 톱니 아이콘으로(BuildSettingsIcon)
-            // 65차(사용자): 설정은 다시 더보기 안으로(우상단 톱니 아이콘 제거)
-            more.Add((Loc.T("설정", "Settings"), () =>
+            // 44차: 미니게임 — 챕터 미션에서 이긴 놀이만 다시하기(ChapterMissionUI.OpenMenu)
+            more.Add((Loc.T("미니게임", "Mini-games"), () =>
             {
-                if (!_ready) return;
                 _audio?.PlayClick();
                 if (_moreOpen) ToggleMore();
-                ShowPanel(_settingsPanel, true);
+                _ready = false;
+                ChapterMissionUI.OpenMenu(_gm, () => { if (this == null) return; _ready = true; });
             }));
             // 51차(사용자): 보스전 — K-POP 한 곡 창에 보스(갈매기 해적·돌하르방 골렘·태풍 도깨비)만 연달아. 난이도는 해금 챕터 기준 랜덤.
             more.Add((Loc.T("보스전", "Boss Rush"), () =>
@@ -669,6 +662,15 @@ namespace CoastRun
                 if (_moreOpen) ToggleMore();
                 _ready = false;
                 ArcadeRun.StartBossRush(_gm);
+            }));
+            // 61차(사용자): 「설정」은 더보기에서 빼고 우상단 톱니 아이콘으로(BuildSettingsIcon)
+            // 65차(사용자): 설정은 다시 더보기 안으로(우상단 톱니 아이콘 제거)
+            more.Add((Loc.T("설정", "Settings"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayClick();
+                if (_moreOpen) ToggleMore();
+                ShowPanel(_settingsPanel, true);
             }));
             // 50차(사용자): 이용약관(AI 기반 K-POP 음악·사이버 가수 우히&히시 조항) · 개인정보 처리지침 · 운영정책 · 청소년 보호 — 한 항목 안에 탭 4개(PolicyUI)
             more.Add((Loc.T("이용약관·정책", "Terms & Policies"), () =>
@@ -707,7 +709,7 @@ namespace CoastRun
             var ver = CreateLabel(ui.transform, "Version", Loc.T("스튜디오 우히히시 v", "Studio Woohee-Heesi v") + Application.version, 13, FontStyle.Normal,   // 51차(사용자): 스튜디오 이름 + 살짝 아래
                 new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0.018f), new Vector2(300f, 20f));
             ver.alignment = TextAnchor.MiddleRight; ver.rectTransform.anchorMin = ver.rectTransform.anchorMax = new Vector2(1f, 0f);
-            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, -12f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석 · 61차(사용자): 살짝 더 아래
+            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, -18f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석 · 61차: 살짝 더 아래 · 71차(사용자): 한 번 더 살짝(−12 → −18)
 
             BuildGalleryPanel(root);
             BuildCreditsPanel(root);
@@ -860,9 +862,21 @@ namespace CoastRun
         private CanvasGroup _chapterChipCg;
         private readonly System.Collections.Generic.List<Button> _gateHits = new System.Collections.Generic.List<Button>();
 
+        // 71차(사용자 「가끔 화면이 안 눌러진다」): 타이틀 게이트 안전장치 — 어떤 팝업도 안 열려 있는데 _ready 가 8초 넘게 꺼져 있으면(콜백 누락) 다시 켠다.
+        private float _readyOffSince = -1f;
+        private static bool AnyOverlayOpen() => DonateUI.IsOpen || KpopChapterSelect.IsOpen || CollectionUI.IsOpen || CinemaSelect.IsOpen || PolicyUI.IsOpen || ChapterMissionUI.IsOpen || ArcadeRun.Active;
+        private void ReadyWatch()
+        {
+            if (_ready || _uiCg == null || !_uiCg.gameObject.activeInHierarchy || _uiCg.alpha < 0.99f || _aiNoticeOk != null) { _readyOffSince = -1f; return; }
+            if (AnyOverlayOpen()) { _readyOffSince = -1f; return; }
+            if (_readyOffSince < 0f) _readyOffSince = Time.unscaledTime;
+            else if (Time.unscaledTime - _readyOffSince > 8f) { _ready = true; _readyOffSince = -1f; Debug.LogWarning("[Title] _ready 가 팝업 없이 8초 꺼져 있어 다시 켰다(입력 막힘 방지)"); }
+        }
+
         private void Update()
         {
             AnimateMore();
+            ReadyWatch();
             if (_chapterChipCg != null && _uiCg != null)
             {
                 bool vis = _uiCg.gameObject.activeInHierarchy;
@@ -900,7 +914,7 @@ namespace CoastRun
             if (Input.GetKeyDown(KeyCode.L)) { Loc.Toggle(); UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
             if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
             if (Input.GetKeyDown(KeyCode.A)) ArcadeUI.Open(false);
-            if (Input.GetKeyDown(KeyCode.K)) CollectionUI.Open(null, 3);
+            if (Input.GetKeyDown(KeyCode.F7)) CollectionUI.Open(null, 3);   // 71차: K 는 원격 클릭(CoastDebugClicker)과 겹쳐 탭마다 컬렉션이 열렸다 → F7
             // V/B/T + Shift: 사이드·엔딩 변주·진엔딩 미리보기 (스크립트 Has 검증용)
             if (Input.GetKeyDown(KeyCode.V)) ChapterVN.Play(Input.GetKey(KeyCode.LeftShift) ? "SIDE_MANSU_3" : "SIDE_RUA_3", null);
             if (Input.GetKeyDown(KeyCode.B))

@@ -63,6 +63,12 @@ namespace CoastRun
             return list.ToArray();
         }
         public static bool CutsceneRead(int index) => ChapterRead(CutsceneChapter(index));
+        /// 68차: 시네마틱으로 본 컷씬도 리더와 같은 흔적(CoastRun_VN_<id>)을 남긴다.
+        public static void MarkCutsceneSeen(int index)
+        {
+            foreach (var id in CutsceneSceneIds(index)) { PlayerPrefs.SetInt("CoastRun_VN_" + id, 1); RecordTable.OnSceneWatched(id); }
+            PlayerPrefs.Save();
+        }
         public static string CutsceneTitle(int index) => ChapterScript.Title(CutsceneChapter(index));
     }
 }
