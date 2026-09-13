@@ -39,17 +39,18 @@ namespace CoastRun
 
             // 52차(사용자): 「7/7」 수집 수 삭제 → 그 자리(COLLECTED 배지)를 「AI 생성 음원」 표시 필로 덮는다.
             int owned = RecordTable.UnlockedCount(p);
-            var aiRt = MMRect(root, "AiTag", 596f, 410f, 910f, 494f);
+            // 74차(사용자): 스트리밍 안내 — 유튜브뮤직·아이튠즈·타이달·스포티파이에서 「Our frequency」 검색. AI 표시와 한 알약에 두 줄.
+            var aiRt = MMRect(root, "AiTag", 150f, 404f, 920f, 496f);
             var aiPill = CoastUiArt.CutePill(aiRt, "Pill", new Color(0.99f, 0.95f, 0.84f), 16, 3); aiPill.raycastTarget = false;
             Stretch(aiPill.rectTransform);
-            var aiL = CoastOrnate.Label(aiPill.transform, "T", Loc.T("✦ AI 생성 음원 · 가상 듀오 우히&히시", "✦ AI-generated music · virtual duo"), 12, new Color(0.45f, 0.28f, 0.12f)); aiL.fontStyle = FontStyle.Bold;
-            Stretch(aiL.rectTransform);
+            var aiL = CoastOrnate.Label(aiPill.transform, "T", Loc.T("✦ AI 생성 음원 · 가상 듀오 우히&히시\n유튜브뮤직 · 아이튠즈 · 타이달 · 스포티파이에서 「Our frequency」 검색해 들어요", "✦ AI-generated music · virtual duo\nSearch \"Our frequency\" on YouTube Music · iTunes · TIDAL · Spotify"), 11, new Color(0.45f, 0.28f, 0.12f)); aiL.fontStyle = FontStyle.Bold;
+            Stretch(aiL.rectTransform); aiL.horizontalOverflow = HorizontalWrapMode.Wrap; aiL.resizeTextForBestFit = true; aiL.resizeTextMinSize = 8; aiL.resizeTextMaxSize = CoastHudLayout.Scaled(11); aiL.lineSpacing = 1.1f;
 
             // 52차(사용자): 홈으로 가기 버튼. 72차(사용자): 「돌아가기」는 없애고 홈 하나로 — 시안에 박힌 좌상단 「<」 동그라미 자리를
             //   파란 둥근 홈 버튼(새 집 아이콘)으로 덮는다(제목 글자와 안 겹치는 유일한 빈 자리).
             var homeRt = MMRect(root, "Home", 26f, 36f, 156f, 166f);
             var homePill = CoastUiArt.GlossyPill(homeRt, "Pill", new Color(0.30f, 0.55f, 0.95f), 38, 7);
-            Stretch(homePill.rectTransform);
+            Stretch(homePill.rectTransform); homePill.raycastTarget = true;   // 75차(사용자 「홈 버튼 동작 안 함」): GlossyPill 은 raycastTarget 이 꺼져 있어 Button 이 눌리지 않았다
             var homeIc = CoastUiArt.Art("Icon_Home");
             if (homeIc != null)
             {
@@ -72,12 +73,12 @@ namespace CoastRun
                 var hit = row.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f); hit.raycastTarget = true;
                 // 제목·부제 (시안 292~684 × y0+22 ~ y0+150)
                 var textRt = MMRect(root, "Txt" + t.num, 296f, y0 + 24f, 684f, y0 + 150f);
-                string title = has ? (Loc.IsKo ? t.ko : t.en) : "???";
+                string title = Loc.IsKo ? t.ko : t.en;   // 74차(사용자): 잠긴 곡도 제목은 보이고 회색으로
                 var name = CoastOrnate.Label(textRt, "T", title, title.Length > 12 ? 15 : 21, has ? new Color(0.22f, 0.14f, 0.30f) : new Color(0.45f, 0.40f, 0.52f), TextAnchor.MiddleLeft);
                 name.fontStyle = FontStyle.Bold; name.horizontalOverflow = HorizontalWrapMode.Overflow; name.verticalOverflow = VerticalWrapMode.Overflow;
                 Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -22f), new Vector2(0f, 44f));
                 name.rectTransform.offsetMax = new Vector2(-6f, name.rectTransform.offsetMax.y);
-                string sub = has ? "♪ " + (Loc.IsKo ? t.noteKo : t.noteEn) : Loc.T("잠김 · ", "Locked · ") + (Loc.IsKo ? t.unlockKo : t.unlockEn);
+                string sub = has ? "♪ " + (Loc.IsKo ? t.noteKo : t.noteEn) : Loc.T("🔒 잠김 · 기부 선물 「OST 잠금해제」로 열려요", "🔒 Locked · unlock with the donor gift \"OST\"");   // 74차: 기부로만
                 var subL = CoastOrnate.Label(textRt, "S", sub, 13, has ? new Color(0.42f, 0.34f, 0.50f) : new Color(0.55f, 0.48f, 0.60f), TextAnchor.LowerLeft);
                 Place(subL.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 12f), new Vector2(0f, 22f));
                 subL.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -105,15 +106,29 @@ namespace CoastRun
                 b.onClick.AddListener(() =>
                 {
                     CoastPrefs.Vibrate();
-                    if (!h) { Toast(Loc.T("잠김 — ", "Locked — ") + (Loc.IsKo ? tr.unlockKo : tr.unlockEn)); return; }
+                    if (!h) { Toast(Loc.T("잠김 — 기부부탁(☕)에서 선물 「OST 잠금해제」를 고르면 전곡이 열려요", "Locked — pick the \"Unlock the OST\" gift when donating")); return; }
                     StopPlayAll(); ToggleRecord(tr); ShowMockRecords();
                 });
             }
 
-            // 52차: 기부 선물 ① 히든 트랙 — 7행 아래 얇은 금색 띠(시안 y 1893~1943). 탭하면 M9/M10 번갈아 재생.
+            // 75차(사용자): 레코드 맨 끝 「▶ 뮤직비디오 Our frequency」(M1 OST 30초, CinematicPlayer "MV"). 히든 트랙 띠가 열려 있으면 그 위로.
+            {
+                var mvRt = MMRect(root, "MV", 147f, 1893f, 920f, 1943f);
+                var mvPill = CoastUiArt.GlossyPill(mvRt, "Pill", new Color(0.93f, 0.40f, 0.70f), 14, 4); mvPill.raycastTarget = true;
+                Stretch(mvPill.rectTransform);
+                var ml = CoastOrnate.Label(mvPill.transform, "T", Loc.T("▶  뮤직비디오 「Our frequency」 · 스튜디오 우히&히시", "▶  Music video \"Our frequency\" · Studio Woohee&Heesi"), 14, Color.white); ml.fontStyle = FontStyle.Bold;
+                Stretch(ml.rectTransform);
+                var mb = mvPill.gameObject.AddComponent<Button>(); mb.transition = Selectable.Transition.None;
+                mb.onClick.AddListener(() =>
+                {
+                    CoastPrefs.Vibrate(); StopPlayAll(); if (_preview != null) _preview.Stop(); _playingNum = 0;
+                    CinematicPlayer.Play("MV", () => { if (this != null) ShowMockRecords(); });
+                });
+            }
+            // 52차: 기부 선물 ① 히든 트랙 — 얇은 금색 띠(75차: MV 띠 위 1840~1888). 탭하면 M9/M10 번갈아 재생.
             if (RecordTable.HiddenOpen)
             {
-                var hRt = MMRect(root, "Hidden", 147f, 1893f, 920f, 1943f);
+                var hRt = MMRect(root, "Hidden", 147f, 1840f, 920f, 1888f);
                 var hPill = CoastUiArt.GlossyPill(hRt, "Pill", new Color(1f, 0.84f, 0.35f), 14, 4); hPill.raycastTarget = true;
                 Stretch(hPill.rectTransform);
                 bool hp = _playingNum == 9 || _playingNum == 10;

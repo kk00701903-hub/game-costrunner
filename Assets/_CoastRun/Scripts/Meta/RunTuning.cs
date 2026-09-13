@@ -14,7 +14,7 @@ namespace CoastRun
         public static float CoinMul = 1f;           // 스케이트보드 ×1.3 (펫 배율과 곱연산)
         public static float MaxHp = 100f;           // 100 + 체력
         public static float HitDamage = 45f;        // 25차-4: 34→45 — 일반 장애물 2방 반(사용자: 피격 피해 더 크게). 차 ×1.6(2방), 버스 즉사. 체력 ↑ → 완화
-        public static float DashInvincible = 0.8f;  // 순발력 ↑ → 무적 대시 길어짐
+        public static float DashInvincible = 0.8f;  // 순발력 ↑ → 피격 후 경직 중복 방지 창(76차: 피해는 안 막음 — 매 충돌 HP 30~60)
         public static float HitFreezeMul = 1f;      // 순발력 ↑ → 피격 경직 단축
         public static float NearMissBonus = 1f;     // 매력 → 니어미스 보너스
         public static bool BurnoutStart;            // 번아웃이면 시작 HP 70%

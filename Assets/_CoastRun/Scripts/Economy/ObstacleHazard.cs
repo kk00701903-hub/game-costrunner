@@ -67,7 +67,7 @@ namespace CoastRun
         }
 
         /// 71차(사용자): 피해 = 최대 체력의 비율(0.60 = 버스, 0.30 = 허들, 0.18 = 콘 …, ≥1 = 즉사). 22차의 배율(1/2/99)은 폐기.
-        public const float DefaultFrac = 0.25f;
+        public const float DefaultFrac = 0.30f;   // 74차: 최소 30
         public float DamageMul = DefaultFrac;
 
         private bool _popped;

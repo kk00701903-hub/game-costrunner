@@ -24,6 +24,7 @@ namespace CoastRun
                 return;
 
             nearMiss?.NotifyHardHit();
+            player.PendingHitDamageMul = 0.40f;   // 74차: 허들류(봉·빨랫줄·등불 줄) 30 % — 배율을 안 넣어 직전 값이 남던 것
             if (!player.SoftHitApplied(HitKind.Trip, 0) && !GiantMode.Active && !FeverMode.Active)
                 JuiceDirector.Instance?.PlayHitImpact();
             ObstacleHazard.PopFrom(transform);   // 18차: 허들·빨랫줄·등불 줄도 닿으면 팡

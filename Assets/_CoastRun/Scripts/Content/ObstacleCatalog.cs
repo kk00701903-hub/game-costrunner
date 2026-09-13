@@ -55,28 +55,28 @@ namespace CoastRun
             return go;
         }
 
-        /// 71차: 장애물별 피해 비율(최대 체력 기준). 게임이 너무 쉽다는 피드백 → 세 방이면 끝나던 일반 장애물을 3~4방, 버스는 두 방이면 끝.
+        /// 71차: 장애물별 피해 비율. 74차(사용자): **HP 30~60** 범위로 — 버스 60 · 석상 50 · 관광객 45 · 허들/바리케이드/스쿠터 40 · 상자/슬라임 35 · 나머지 30(HealthSystem 이 30~60 으로 한 번 더 클램프).
         public static float DamageFrac(ObstacleId id)
         {
             switch (id)
             {
                 case ObstacleId.ParkedBus: return 0.60f;
-                case ObstacleId.StoneStatue: return 0.45f;
-                case ObstacleId.TouristCluster: return 0.35f;
+                case ObstacleId.StoneStatue: return 0.50f;
+                case ObstacleId.TouristCluster: return 0.45f;
                 case ObstacleId.OverheadBar:
                 case ObstacleId.Clothesline:
-                case ObstacleId.LanternString: return 0.30f;   // 허들류(숙이기)
+                case ObstacleId.LanternString: return 0.40f;   // 허들류(숙이기)
                 case ObstacleId.Barrier:
-                case ObstacleId.ScooterParked: return 0.30f;
+                case ObstacleId.ScooterParked: return 0.40f;
                 case ObstacleId.CrateStack:
                 case ObstacleId.DeliveryBox:
-                case ObstacleId.Slime: return 0.25f;
-                case ObstacleId.BikeFallen: return 0.22f;
-                case ObstacleId.SnowDrift: return 0.20f;
-                case ObstacleId.TrafficCone: return 0.18f;
-                case ObstacleId.WetFloorSign: return 0.15f;
-                case ObstacleId.LeafDrift: return 0.12f;
-                case ObstacleId.PuddleSlow: return 0.10f;
+                case ObstacleId.Slime: return 0.35f;
+                case ObstacleId.BikeFallen: return 0.30f;
+                case ObstacleId.SnowDrift: return 0.30f;
+                case ObstacleId.TrafficCone: return 0.30f;
+                case ObstacleId.WetFloorSign: return 0.30f;
+                case ObstacleId.LeafDrift: return 0.30f;
+                case ObstacleId.PuddleSlow: return 0.30f;
                 default: return ObstacleHazard.DefaultFrac;
             }
         }

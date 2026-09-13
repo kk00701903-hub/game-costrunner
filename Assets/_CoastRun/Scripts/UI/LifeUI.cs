@@ -173,7 +173,10 @@ namespace CoastRun
         private static Canvas _canvas; private static RectTransform _root; private static GameManager _gm; private static Action _onClose;
         public static bool IsOpen => _canvas != null;
 
-        public static void Open(GameManager gm, Action onClose = null)
+        /// 73차(사용자): 펫상점과 통합 — ShopUI(일반 탭)로 연다. 옛 화면은 OpenLegacy.
+        public static void Open(GameManager gm, Action onClose = null) { ShopUI.Open(gm, 0, onClose); }
+
+        public static void OpenLegacy(GameManager gm, Action onClose = null)
         {
             Close(); _gm = gm; _onClose = onClose;
             if (gm == null || gm.Save == null) return;

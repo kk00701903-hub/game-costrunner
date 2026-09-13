@@ -137,7 +137,7 @@ namespace CoastRun
                 Visual(_rock, "BoulderBig", _radius * 2f, new Color(0.18f, 0.18f, 0.2f));
                 _rock.localPosition = new Vector3(0f, 8f, 0f);
                 // 피해 콜라이더는 바위와 함께 내려온다(밑에 있으면 맞는다)
-                Hazard(_rock, new Vector3(0f, _radius, 0f), _radius * 0.9f, 0.35f, lane, 14);   // 71차: 큰 바위 35 %
+                Hazard(_rock, new Vector3(0f, _radius, 0f), _radius * 0.9f, 0.50f, lane, 14);   // 74차: 큰 바위 50
             }
 
             private void Update()
@@ -187,7 +187,7 @@ namespace CoastRun
                 // 로켓 그림은 세로(코가 위) — 주인공 쪽으로 코가 향하게 앞으로 눕힌다(빌보드는 요만 돌므로 X 기울기 유지)
                 holder.transform.localRotation = Quaternion.Euler(62f, 0f, 0f);
                 holder.transform.localPosition = new Vector3(0f, -0.2f, 0f);
-                Hazard(transform, new Vector3(0f, 0.15f, 0f), 0.42f, 0.25f, lane, 18);   // 71차: 미사일 25 %
+                Hazard(transform, new Vector3(0f, 0.15f, 0f), 0.42f, 0.35f, lane, 18);   // 74차: 미사일 35
                 BlobShadow.Attach(transform, 0.7f);
                 // 꼬리 연기 파티클(간단): 작은 흰 구 두 개가 뒤에서 흔들림
                 for (int i = 0; i < 2; i++)
@@ -219,7 +219,7 @@ namespace CoastRun
                 AliveCount++;
                 var holder = new GameObject("Body"); holder.transform.SetParent(transform, false);
                 _vis = Visual(holder.transform, "Tornado", 3.0f, new Color(0.55f, 0.6f, 0.7f), outline: false);
-                Hazard(transform, new Vector3(0f, 0.9f, 0f), 0.75f, 0.30f, RoadOccupancy.AllLanes, 20);   // 71차: 태풍 30 %
+                Hazard(transform, new Vector3(0f, 0.9f, 0f), 0.75f, 0.45f, RoadOccupancy.AllLanes, 20);   // 74차: 태풍 45
                 BlobShadow.Attach(transform, 1.3f);
             }
             private void Update()

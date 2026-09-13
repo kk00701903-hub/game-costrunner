@@ -17,7 +17,10 @@ namespace CoastRun
         private static readonly Color Navy = new Color(0.16f, 0.14f, 0.30f);
         private static readonly Color Cream = new Color(0.99f, 0.96f, 0.88f);
 
-        public static void Open(GameManager gm, Action onClose = null)
+        /// 73차(사용자): 일반상점과 통합 — 이제 ShopUI(펫 탭)로 연다. 아래 옛 화면은 폴백으로만 남긴다.
+        public static void Open(GameManager gm, Action onClose = null) { ShopUI.Open(gm, 1, onClose); }
+
+        public static void OpenLegacy(GameManager gm, Action onClose = null)
         {
             Close();
             _gm = gm; _onClose = onClose;

@@ -101,14 +101,12 @@ namespace CoastRun
             MagnetBonus = kind == PetKind.WildGoose ? GooseMagnet : 0f;
             CoinBonus = kind == PetKind.Sparrow ? SparrowCoinMul : 1f;
 
-            // 새들은 바다 쪽 공중, 깡패는 스쿠터로 뒤쪽 레인 옆을 달린다.
+            // 73차(사용자): 오토바이(팡찌)만 주인공 **오른쪽 바닥**을 같이 달리고, 나머지(참새·흑돼지·기러기)는 **오른쪽 위**에 둥둥 떠다닌다.
+            //   크기는 주인공의 35 %(Build 의 높이). 14차-8: 뒤(-z)에 두면 카메라에 가까워 거대하게 잘려 보이니 살짝 앞(+z).
             switch (kind)
             {
-                // 14차-8: 펫은 주인공 '옆·살짝 앞'(화면 안). 뒤(-z)에 두면 카메라에 가까워 거대하게 잘려 보였다.
-                case PetKind.Sparrow: _offset = new Vector3(0.9f, 1.6f, 0.5f); break;
-                case PetKind.WildGoose: _offset = new Vector3(1.15f, 1.9f, 0.4f); break;
-                case PetKind.BlackPig: _offset = new Vector3(0.95f, 0f, 0.7f); break;   // 옆에서 종종걸음
-                default: _offset = new Vector3(-1.2f, 0.3f, 0.4f); break;
+                case PetKind.BikerThug: _offset = new Vector3(1.0f, 0f, 0.6f); break;   // 살짝 앞에서 나란히
+                default: _offset = new Vector3(0.82f, 1.55f, 0.35f); break;
             }
             Build();
             if (_player != null)
@@ -144,7 +142,8 @@ namespace CoastRun
             _body.SetParent(transform, false);
             if (PaintedProp.Available("Pet_" + _kind))
             {
-                float h = _kind == PetKind.BikerThug ? 1.15f : _kind == PetKind.WildGoose ? 0.85f : _kind == PetKind.BlackPig ? 0.62f : 0.55f;
+                // 73차(사용자): 주인공(≈1.6 m)의 35 % ≈ 0.56 m. 오토바이는 바퀴까지라 살짝 크게.
+                float h = _kind == PetKind.BikerThug ? 0.64f : 0.56f;
                 PaintedProp.Attach(_body, "Pet_" + _kind, h, replace: false, outline: true);
                 return;
             }
@@ -157,7 +156,26 @@ namespace CoastRun
         private void Update()
         {
             if (_kind == PetKind.BikerThug)
+            {
                 UpdateThug();
+                SmashNearby();
+            }
+        }
+
+        /// 73차(사용자): 오토바이 펫은 주인공처럼 **몸으로 부딪힌 장애물이 팡 터진다** — 자기 자리(오른쪽 레인)의 부술 수 있는 장애물이 0.8 m 안에 오면 부순다(횟수 제한 없음, 피해 없음).
+        private void SmashNearby()
+        {
+            if (_dashT >= 0f || _body == null) return;
+            Vector3 p = transform.position;
+            for (int i = ObstacleHazard.Active.Count - 1; i >= 0; i--)
+            {
+                var hz = ObstacleHazard.Active[i];
+                if (hz == null || !hz.Breakable) continue;
+                Vector3 d = hz.transform.position - p; d.y = 0f;
+                if (d.sqrMagnitude > 0.8f * 0.8f) continue;
+                hz.Smash();
+                CoastPrefs.Vibrate();
+            }
         }
 
         /// 같은 레인, 1.5~8 m 앞의 부술 수 있는 장애물을 찾아 돌진해 부순다.
@@ -230,13 +248,26 @@ namespace CoastRun
             transform.position = target + delta;
             transform.rotation = frame;
 
-            bool bird = _kind != PetKind.BikerThug && _kind != PetKind.BlackPig;
-            _phase += dt * (bird ? 9f : 14f);
+            // 73차: 떠다니는 펫(오토바이 제외) — 위아래 둥둥(0.12) + 좌우 살랑(0.05) + 날갯짓 스쿼시(4 %, 새) + 기울기 ±5°. 오토바이는 엔진 진동 + 살짝 앞뒤 흔들림.
+            bool floating = _kind != PetKind.BikerThug;
+            bool bird = _kind == PetKind.Sparrow || _kind == PetKind.WildGoose;
+            _phase += dt * (floating ? 8f : 16f);
             if (_body != null)
             {
-                float bob = bird ? Mathf.Sin(_phase * 0.5f) * 0.12f : Mathf.Abs(Mathf.Sin(_phase)) * 0.03f;
-                _body.localPosition = new Vector3(0f, bob, 0f);
-                _body.localRotation = Quaternion.Euler(bird ? 0f : Mathf.Sin(_phase) * 2f, 0f, 0f);
+                if (floating)
+                {
+                    float bob = Mathf.Sin(_phase * 0.45f) * 0.12f + Mathf.Sin(_phase * 1.1f) * 0.02f;
+                    float sway = Mathf.Sin(_phase * 0.3f) * 0.05f;
+                    _body.localPosition = new Vector3(sway, bob, 0f);
+                    float flap = bird ? 1f + Mathf.Sin(_phase * 1.6f) * 0.04f : 1f + Mathf.Sin(_phase * 0.9f) * 0.02f;
+                    _body.localScale = new Vector3(1f / flap, flap, 1f);
+                    _body.localRotation = Quaternion.Euler(Mathf.Sin(_phase * 0.45f) * 3f, 0f, Mathf.Sin(_phase * 0.3f) * -5f);
+                }
+                else
+                {
+                    _body.localPosition = new Vector3(0f, Mathf.Abs(Mathf.Sin(_phase)) * 0.015f, 0f);
+                    _body.localRotation = Quaternion.Euler(Mathf.Sin(_phase * 0.5f) * 1.5f, 0f, 0f);
+                }
             }
         }
     }

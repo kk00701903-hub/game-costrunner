@@ -41,6 +41,7 @@ namespace CoastRun
         private float _hold;
         private const float FinalFade = 0.9f;
         // 72차(사용자 「이미지 움직이는 효과」): 빛 입자 · 광선 스윕 · 숨 쉬는 비네트 · 살짝 도는 켄번즈
+        private Image _barTop, _barBot, _flash, _grain; private bool _wasSepia;   // 75차: 회상 연출(레터박스·화이트 플래시·그레인)
         private RectTransform _fx; private Image _vignette, _sweep; private readonly RectTransform[] _motes = new RectTransform[26]; private readonly float[] _moteSeed = new float[26];
 
         private void Begin(CinematicTable.Def def, Action onDone)
@@ -84,6 +85,11 @@ namespace CoastRun
             _player.audioOutputMode = VideoAudioOutputMode.None; _player.isLooping = false; _player.skipOnDrop = true;
 
             BuildFx(root, pad);
+            // 75차: 회상 연출 — 위아래 검은 레터박스(회상 컷에서 100 까지 내려옴), 진입 화이트 플래시, 필름 그레인
+            _barTop = CoastHudLayout.MakeImage(root, "BarTop", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(-pad, 0f), new Vector2(pad, pad), Color.black); _barTop.raycastTarget = false;
+            _barBot = CoastHudLayout.MakeImage(root, "BarBot", new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(-pad, -pad), new Vector2(pad, 0f), Color.black); _barBot.raycastTarget = false;
+            _grain = CoastHudLayout.MakeImage(root, "Grain", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), new Color(1f, 1f, 1f, 0f)); _grain.raycastTarget = false; _grain.sprite = GrainSprite(); _grain.type = Image.Type.Tiled;
+            _flash = CoastHudLayout.MakeImage(root, "Flash", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), new Color(1f, 0.97f, 0.9f, 0f)); _flash.raycastTarget = false;
 
             // 자막 띠(아래) + 회상 태그(위)
             var band = CoastHudLayout.MakeImage(root, "CaptionBand", new Vector2(0f, 0.06f), new Vector2(1f, 0.21f),
@@ -91,12 +97,14 @@ namespace CoastRun
             band.raycastTarget = false;
             _caption = CoastOrnate.Label(band.transform, "Caption", "", 27, new Color(1f, 0.97f, 0.9f));
             _caption.lineSpacing = 1.3f; _caption.horizontalOverflow = HorizontalWrapMode.Wrap;
-            var crt = _caption.rectTransform; crt.anchorMin = Vector2.zero; crt.anchorMax = Vector2.one; crt.offsetMin = new Vector2(40f, 8f); crt.offsetMax = new Vector2(-40f, -8f);
-            _caption.resizeTextForBestFit = true; _caption.resizeTextMinSize = 16; _caption.resizeTextMaxSize = CoastHudLayout.Scaled(27);
+            // 75차: 두 문장 자막(≤64자)이 세 줄로 갈려 마지막 줄에 한두 단어만 남던 것 — 여백 40→26, 최대 27→25 로 두 줄에 맞춘다
+            var crt = _caption.rectTransform; crt.anchorMin = Vector2.zero; crt.anchorMax = Vector2.one; crt.offsetMin = new Vector2(26f, 8f); crt.offsetMax = new Vector2(-26f, -8f);
+            _caption.resizeTextForBestFit = true; _caption.resizeTextMinSize = 16; _caption.resizeTextMaxSize = CoastHudLayout.Scaled(25);
             CoastUiArt.OutlineText(_caption, new Color(0f, 0f, 0f, 0.7f), 1.6f);
-            _tag = CoastOrnate.Label(root, "Tag", "", 18, new Color(1f, 0.93f, 0.78f, 0.95f));
-            var trt = _tag.rectTransform; trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 1f); trt.anchoredPosition = new Vector2(0f, -110f); trt.sizeDelta = new Vector2(500f, 34f);
-            CoastUiArt.OutlineText(_tag, new Color(0f, 0f, 0f, 0.7f), 1.4f);
+            // 75차(사용자): 회상 태그를 크게(18 → 30) — 레터박스 위 띠 안에 「회상 · 여덟 해 전」
+            _tag = CoastOrnate.Label(root, "Tag", "", 30, new Color(1f, 0.90f, 0.68f, 1f));
+            var trt = _tag.rectTransform; trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 1f); trt.anchoredPosition = new Vector2(0f, -150f); trt.sizeDelta = new Vector2(640f, 56f);
+            _tag.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_tag, new Color(0.15f, 0.05f, 0f, 0.85f), 2f);
 
             // 마무리 카드
             var tgo = new GameObject("Card", typeof(RectTransform), typeof(CanvasGroup));
@@ -109,7 +117,9 @@ namespace CoastRun
             if (!string.IsNullOrEmpty(_def.cardSub))
             {
                 var t2 = CoastOrnate.Label(tgo.transform, "Sub", _def.cardSub, 24, new Color(1f, 0.93f, 0.78f, 0.95f));
-                var r2 = t2.rectTransform; r2.anchorMin = r2.anchorMax = new Vector2(0.5f, 0.635f); r2.sizeDelta = new Vector2(600f, 40f);
+                bool multi = _def.cardSub.Contains("\n");   // 75차: MV 카드의 세 줄 안내는 제목과 안 겹치게 조금 더 아래(0.625 → 0.585)
+                var r2 = t2.rectTransform; r2.anchorMin = r2.anchorMax = new Vector2(0.5f, multi ? 0.585f : 0.625f); r2.sizeDelta = new Vector2(660f, multi ? 120f : 90f);
+                t2.horizontalOverflow = HorizontalWrapMode.Wrap; t2.verticalOverflow = VerticalWrapMode.Overflow; t2.lineSpacing = 1.25f;   // 75차: MV 카드의 긴 스트리밍 안내도 두 줄로
                 CoastUiArt.OutlineText(t2, new Color(0f, 0f, 0f, 0.6f), 1.5f);
             }
 
@@ -170,6 +180,9 @@ namespace CoastRun
                 }
                 else _video.color = new Color(1f, 1f, 1f, 0f);
                 if (_fx != null) { _fx.SetAsLastSibling(); _fx.gameObject.SetActive(!useVideo); }
+                _grain.transform.SetAsLastSibling(); _barTop.transform.SetAsLastSibling(); _barBot.transform.SetAsLastSibling(); _flash.transform.SetAsLastSibling();
+                if (s.sepia && !_wasSepia) StartCoroutine(FlashCo());   // 회상으로 들어갈 때 하얗게 번쩍
+                _wasSepia = s.sepia;
                 _fader.transform.SetAsLastSibling();
                 _caption.transform.parent.SetAsLastSibling();
                 _tag.transform.SetAsLastSibling();
@@ -196,6 +209,7 @@ namespace CoastRun
                         else if (i > 0 && cur.color.a < 1f && tex != null) cur.color = Color.white;
                         UpdateFx(t, s.sepia);
                     }
+                    UpdateFlashback(s.sepia, dt: Time.unscaledDeltaTime);
                     if (i == 0) { var c = _fader.color; c.a = 1f - Mathf.Clamp01(t / 0.9f); _fader.color = c; }
                     else if (t >= 0.8f && nxt.color.a > 0f) nxt.color = new Color(1f, 1f, 1f, 0f);
                     if (t > 0.5f && _caption.text.Length == 0) _caption.text = s.caption;
@@ -220,6 +234,47 @@ namespace CoastRun
                 yield return null;
             }
             Finish();
+        }
+
+        // 75차: 회상 연출 값 — 레터박스 높이(0 ↔ 100), 그레인 깜빡임
+        private float _bar;
+        private void UpdateFlashback(bool sepia, float dt)
+        {
+            float target = sepia ? 100f : 0f;
+            _bar = Mathf.MoveTowards(_bar, target, dt * 260f);
+            if (_barTop != null) _barTop.rectTransform.offsetMin = new Vector2(_barTop.rectTransform.offsetMin.x, -_bar);
+            if (_barBot != null) _barBot.rectTransform.offsetMax = new Vector2(_barBot.rectTransform.offsetMax.x, _bar);
+            if (_grain != null)
+            {
+                float a = sepia ? 0.10f + 0.06f * Mathf.PerlinNoise(Time.unscaledTime * 23f, 0.5f) : 0f;
+                _grain.color = new Color(1f, 1f, 1f, a);
+                _grain.rectTransform.anchoredPosition = sepia ? new Vector2(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(-6f, 6f)) : Vector2.zero;
+            }
+            if (_tag != null && sepia) { float p = 1f + 0.02f * Mathf.Sin(Time.unscaledTime * 2f); _tag.transform.localScale = Vector3.one * p; }
+        }
+
+        private IEnumerator FlashCo()
+        {
+            float t = 0f;
+            while (t < 0.55f && _flash != null)
+            {
+                t += Time.unscaledDeltaTime;
+                float a = t < 0.08f ? t / 0.08f : Mathf.Clamp01(1f - (t - 0.08f) / 0.47f);
+                _flash.color = new Color(1f, 0.97f, 0.9f, a * 0.85f);
+                yield return null;
+            }
+            if (_flash != null) _flash.color = new Color(1f, 0.97f, 0.9f, 0f);
+        }
+
+        private static Sprite _grainSpr;
+        private static Sprite GrainSprite()
+        {
+            if (_grainSpr != null) return _grainSpr;
+            int n = 256; var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Repeat, filterMode = FilterMode.Point };
+            var rng = new System.Random(75);
+            for (int y = 0; y < n; y++) for (int x = 0; x < n; x++) { float v = (float)rng.NextDouble(); tex.SetPixel(x, y, new Color(v, v, v, v > 0.5f ? (v - 0.5f) * 2f : 0f)); }
+            tex.Apply();
+            return _grainSpr = Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
         }
 
         /// 72차: 스틸 위 움직임 — 떠오르는 빛 입자 26개, 6초마다 지나가는 비스듬한 광선, 숨 쉬는 비네트.

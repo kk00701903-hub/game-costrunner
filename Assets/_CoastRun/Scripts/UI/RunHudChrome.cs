@@ -98,6 +98,14 @@ namespace CoastRun
             BuildCoinPill(root);
             BuildWeatherChip(root);
             BuildHealthBar(root);
+            if (PlayerController.DebugGod)
+            {
+                // 76차: God mode 가 켜져 있으면 눈에 띄게 — 조용히 켜진 채로 「피해가 안 닳는다」로 오해하지 않게
+                var god = CoastHudLayout.MakeText(root, "GodBadge", "GOD · 피해 무시(Dev)", 18, TextAnchor.MiddleLeft,
+                    new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(8f, -160f), new Vector2(260f, -130f));
+                god.fontStyle = FontStyle.Bold; god.color = new Color(1f, 0.3f, 0.3f); god.raycastTarget = false;
+                CoastUiArt.OutlineText(god, new Color(0.2f, 0f, 0f, 0.9f), 2f);
+            }
             // (노을 시계는 UI_FinalDestinationController 의 여정 바/타이머가 맡는다 — BuildSunMeter 는 예비)
             BuildHeartsGoal(root);
             BuildBonusBanner(root);
@@ -423,12 +431,39 @@ namespace CoastRun
         {
             _hpShake = 0.35f;
             Flash(new Color(1f, 0.2f, 0.2f, 0.3f));
+            // 76차(사용자 「최소 데미지 HP 30」 검증용): 게이지 옆에 빨간 「−30」이 떠오른다(게이지 숫자 기준 = 최대 체력 비율).
+            var health = HealthSystem.Instance;
+            if (health != null && _hpBar != null && amount > 0f)
+                StartCoroutine(DamagePopCo(Mathf.RoundToInt(amount / Mathf.Max(1f, health.Max) * 100f)));
+        }
+
+        private IEnumerator DamagePopCo(int shown)
+        {
+            // 게이지 오른쪽 위 — HUD 루트 맨 위에 올려 곡 칩 등에 가려지지 않게
+            var t = CoastHudLayout.MakeText(_hpBar.parent, "DmgPop", "−" + shown, 30, TextAnchor.MiddleLeft,
+                new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(150f, -118f), new Vector2(300f, -66f));
+            t.transform.SetAsLastSibling();
+            t.fontStyle = FontStyle.Bold; t.raycastTarget = false;
+            t.color = new Color(1f, 0.28f, 0.32f, 1f);
+            CoastUiArt.OutlineText(t, new Color(0.2f, 0f, 0.05f, 0.9f), 2f);
+            var rt = t.rectTransform; var start = rt.anchoredPosition;
+            float e = 0f;
+            while (e < 0.9f && t != null)
+            {
+                e += Time.unscaledDeltaTime;
+                float k = e / 0.9f;
+                rt.anchoredPosition = start + new Vector2(6f * k, 34f * k);
+                rt.localScale = Vector3.one * (k < 0.15f ? Mathf.Lerp(0.6f, 1.25f, k / 0.15f) : Mathf.Lerp(1.25f, 1f, (k - 0.15f) / 0.3f));
+                var c = t.color; c.a = k < 0.6f ? 1f : 1f - (k - 0.6f) / 0.4f; t.color = c;
+                yield return null;
+            }
+            if (t != null) Destroy(t.gameObject);
         }
 
         /// 짧은 안내 토스트 (펫 발동 등). UI_FeedbackController의 워치 메시지를 재사용.
         public void ShowToast(string text)
         {
-            GetComponent<UI_FeedbackController>()?.ShowWatchMessage("PET", text);
+            CoastToast.Pop(text);   // 74차(사용자): 러닝 중 안내는 분홍 팝 텍스트로
         }
 
         public void Flash(Color c)

@@ -116,6 +116,8 @@ namespace CoastRun.EditorTools
         // 71차: 챕터 선택 화면 READY/LOCKED 모양 확인 — 마지막 클리어를 5로 꾸며서 연다(타이틀에서). 끄기 = 실제 진행으로.
         [MenuItem("Coast Run/Dev/Chapter select - preview (last clear 5)")] public static void ChapterPreview() { if (!Application.isPlaying) return; KpopChapterSelect.DebugLastClear = 5; KpopChapterSelect.Open(GameManager.I, null, null); }
         [MenuItem("Coast Run/Dev/Chapter select - preview off")] public static void ChapterPreviewOff() { KpopChapterSelect.DebugLastClear = -1; }
+        [MenuItem("Coast Run/Dev/God mode - ON")] public static void GodOn() { PlayerController.DebugGod = true; Debug.LogWarning("[Dev] God mode ON — 장애물 피해 무시(HUD 에 GOD 배지)"); }
+        [MenuItem("Coast Run/Dev/God mode - OFF")] public static void GodOff() { PlayerController.DebugGod = false; var p = UnityEngine.Object.FindAnyObjectByType<PlayerController>(); if (p != null) p.Invincible = false; Debug.LogWarning("[Dev] God mode OFF"); }
         [MenuItem("Coast Run/Dev/Cine - OPEN")] public static void CineOpen() { if (Application.isPlaying) CinematicPlayer.Play("OPEN", () => Debug.LogWarning("[Dev] cine done")); }
         [MenuItem("Coast Run/Dev/Cine - CS1")] public static void CineCs1() { if (Application.isPlaying) CinematicPlayer.Play("CS1", () => Debug.LogWarning("[Dev] cine done")); }
         [MenuItem("Coast Run/Dev/Cine - CS2")] public static void CineCs2() { if (Application.isPlaying) CinematicPlayer.Play("CS2", () => Debug.LogWarning("[Dev] cine done")); }

@@ -12,6 +12,7 @@ namespace CoastRun
     {
         private static Canvas _canvas;
         private static Action _onClose;
+        private static Action _onPlayStart; private static GameManager _gm;   // 73차: 감상 뒤 이 페이지로 돌아오기 위해
 
         private struct Entry
         {
@@ -33,7 +34,7 @@ namespace CoastRun
         public static void Open(GameManager gm, Action onPlayStart, Action onClose)
         {
             Close();
-            _onClose = onClose;
+            _onClose = onClose; _onPlayStart = onPlayStart; _gm = gm;
             var entries = BuildEntries(gm);
 
             _canvas = CoastUiCanvas.Create("CinemaSelect", 320);
@@ -159,21 +160,22 @@ namespace CoastRun
                 return;
             }
             CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
-            var cb = _onClose;
+            // 73차(사용자): 다 보고 나면 메인이 아니라 **이 시네마 선택 페이지로** 돌아온다(닫기 X 를 눌러야 메인).
+            var back = Reopener();
             Close();
             onPlayStart?.Invoke();
             if (e.Opening)
             {
                 PlayerPrefs.SetInt("CoastRun_OpeningSeen", 1);
-                OpeningCinematic.Play(() => cb?.Invoke());
+                OpeningCinematic.Play(back);
             }
             else if (CinematicTable.Cutscene(e.Index) != null)
             {
-                CinematicPlayer.Play("CS" + e.Index, () => { StoryProgress.MarkCutsceneSeen(e.Index); cb?.Invoke(); });   // 68차: 시네마틱
+                CinematicPlayer.Play("CS" + e.Index, () => { StoryProgress.MarkCutsceneSeen(e.Index); back(); });   // 68차: 시네마틱
             }
             else
             {
-                StoryReaderUI.OpenCutscene(e.Index, () => cb?.Invoke());
+                StoryReaderUI.OpenCutscene(e.Index, back);
             }
         }
 
@@ -182,16 +184,23 @@ namespace CoastRun
         {
             if (!e.Unlocked || e.Opening) return;
             CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
-            var cb = _onClose;
+            var back = Reopener();
             Close();
             onPlayStart?.Invoke();
-            StoryReaderUI.OpenCutscene(e.Index, () => cb?.Invoke());
+            StoryReaderUI.OpenCutscene(e.Index, back);
+        }
+
+        /// 73차: 지금 열린 페이지의 인자를 붙들어 두었다가, 감상이 끝나면 같은 인자로 다시 연다.
+        private static Action Reopener()
+        {
+            var gm = _gm; var ps = _onPlayStart; var oc = _onClose;
+            return () => Open(gm, ps, oc);
         }
 
         private static List<Entry> BuildEntries(GameManager gm)
         {
             var list = new List<Entry>();
-            list.Add(new Entry { Label = Loc.T("프롤로그 영상", "Prologue film"), Title = Loc.T("너와 나의 주파수 — 1:37", "Our Frequency — 1:37"), Sub = Loc.T("시네마틱 · 언제나 볼 수 있어요", "Cinematic · always available"), Opening = true, Unlocked = true, Chapter = 0, Cover = ArtAssets.LoadTexture("Cut_CH01_Open") });
+            list.Add(new Entry { Label = Loc.T("프롤로그 영상", "Prologue film"), Title = Loc.T("너와 나의 주파수 — 1:37", "Our Frequency — 1:37"), Sub = Loc.T("시네마틱 · 언제나 볼 수 있어요", "Cinematic · always available"), Opening = true, Unlocked = true, Chapter = 0, Cover = ArtAssets.LoadTexture("Cut_V_OP_1") ?? ArtAssets.LoadTexture("Cut_CH01_Open") });   // 73차: 새 오프닝 스틸
             var save = gm != null && gm.HasSave ? (gm.Save ?? gm.SaveSys.Load()) : null;
             bool all = gm != null && gm.DevUnlockAll;
             int reached = save != null ? Mathf.Clamp(save.chapter, 1, Timeline.Chapters) : 0;
@@ -204,7 +213,7 @@ namespace CoastRun
                     Label = Loc.T($"컷씬 {i}", $"Cutscene {i}"), Title = StoryProgress.CutsceneTitle(i),
                     Sub = range + " · " + ChapterLocation.Get(ch).Name,
                     Index = i, Chapter = ch, Unlocked = all || reached >= ch || StoryProgress.CutsceneRead(i),
-                    Cover = ArtAssets.LoadTexture($"Cut_CH{ch:00}_Open") ?? ArtAssets.LoadTexture($"Cut_CH{first:00}_Open"),
+                    Cover = ArtAssets.LoadTexture($"Cut_V_CH{ch:00}_Open") ?? ArtAssets.LoadTexture($"Cut_CH{ch:00}_Open") ?? ArtAssets.LoadTexture($"Cut_V_CH{first:00}_Open") ?? ArtAssets.LoadTexture($"Cut_CH{first:00}_Open"),   // 73차: 새 수채 스틸 우선
                 });
             }
             return list;

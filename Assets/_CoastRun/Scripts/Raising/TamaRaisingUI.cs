@@ -166,7 +166,7 @@ namespace CoastRun
             Anchor(shopBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(376f, -84f), new Vector2(62f, 62f)); shopBtn.raycastTarget = true;
             SideIcon(shopBtn.rectTransform, "Icon_Cart", 34f, 14f);
             var shb = shopBtn.gameObject.AddComponent<Button>(); shb.transition = Selectable.Transition.None;
-            shb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); GroceryUI.Open(_gm, Refresh); });
+            shb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); ShopUI.Open(_gm, 0, Refresh); });   // 73차: 통합 상점(일반/펫 탭)
             // 63차(시안): 생활 경고는 카드 위 **가로 띠**(노란 테두리 + 빨간 바탕 + ⚠) — 경고가 없으면 남색 띠에 생활 요약
             _lifeEdge = CoastUiArt.CutePill(_root, "LifeEdge", new Color(1f, 0.85f, 0.20f), 20, 3);
             Anchor(_lifeEdge.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(34f, 266f), new Vector2(596f, 86f)); _lifeEdge.raycastTarget = false;   // 65차: 띠 키움(글자 크게)
@@ -184,13 +184,7 @@ namespace CoastRun
             var money = CoastUiArt.CutePill(_root, "Money", new Color(0.98f, 0.84f, 0.42f), 18, 3);   // 60차: 금색 알약
             Anchor(money.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-146f, -6f), new Vector2(200f, 60f));
             Sparkle(money.rectTransform, new Vector2(0f, 1f), new Vector2(12f, -10f), 10); Sparkle(money.rectTransform, new Vector2(1f, 0f), new Vector2(-12f, 10f), 10);
-            // 52차(사용자): 펫 상점 버튼(20주차부터 열림 · 코인+젤리)
-            var pet = CoastUiArt.GlossyPill(_root, "PetBtn", new Color(0.95f, 0.55f, 0.30f), 18, 6);
-            Anchor(pet.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-76f, -6f), new Vector2(64f, 60f)); pet.raycastTarget = true;
-            var petT = CoastHudLayout.MakeText(pet.rectTransform, "T", Loc.T("펫", "Pet"), 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
-            petT.color = Color.white; petT.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(petT, new Color(0f, 0f, 0f, 0.35f), 1.2f);
-            var pb = pet.gameObject.AddComponent<Button>(); pb.transition = Selectable.Transition.None;
-            pb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); PetShopUI.Open(_gm, Refresh); });
+            // 52차 펫 상점 버튼 → 73차(사용자): 삭제(장바구니 = 일반+펫 통합 상점). 홈 버튼을 그 자리까지 길게.
             _moneyLabel = CoastHudLayout.MakeText(money.rectTransform, "T", "", 20, TextAnchor.MiddleRight, Vector2.zero, Vector2.one, new Vector2(10f, 0f), new Vector2(-18f, 0f));
             _moneyLabel.color = Navy; _moneyLabel.fontStyle = FontStyle.Bold; _moneyLabel.alignment = TextAnchor.MiddleCenter;
             _moneyLabel.resizeTextForBestFit = true; _moneyLabel.resizeTextMinSize = 11; _moneyLabel.resizeTextMaxSize = CoastHudLayout.Scaled(20);
@@ -207,14 +201,16 @@ namespace CoastRun
                 _actRing[i] = ring; _actCheck[i] = ck;
             }
             var home = CoastUiArt.GlossyPill(_root, "Home", new Color(0.25f, 0.55f, 0.95f), 18, 6);
-            Anchor(home.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-6f, -6f), new Vector2(64f, 60f)); home.raycastTarget = true;
+            Anchor(home.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-6f, -6f), new Vector2(134f, 60f)); home.raycastTarget = true;   // 73차: 펫 버튼 자리까지 길게(64 → 134)
             var homeIcon = CoastUiArt.Art("Icon_Home");
             if (homeIcon != null)
             {
                 var hi = new GameObject("I", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
                 hi.transform.SetParent(home.transform, false); hi.sprite = homeIcon; hi.preserveAspect = true; hi.raycastTarget = false;
-                Anchor(hi.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(34f, 34f));
+                Anchor(hi.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(18f, 2f), new Vector2(34f, 34f)); hi.rectTransform.pivot = new Vector2(0f, 0.5f);
             }
+            var homeT = CoastHudLayout.MakeText(home.rectTransform, "T", Loc.T("홈", "Home"), 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(52f, 3f), new Vector2(-8f, 0f));
+            homeT.color = Color.white; homeT.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(homeT, new Color(0f, 0f, 0f, 0.35f), 1.2f);
             var hb = home.gameObject.AddComponent<Button>(); hb.transition = Selectable.Transition.None;
             hb.onClick.AddListener(() => { if (_busy) return; _auto = false; RefreshAuto(); _gm.Persist(); _gm.ToTitle(); });
 

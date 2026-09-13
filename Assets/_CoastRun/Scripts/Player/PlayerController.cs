@@ -84,12 +84,18 @@ namespace CoastRun
         /// 거인 모드 등 — 비주얼·콜라이더 배율(1 = 기본, 2 = 200%).
         public float VisualScaleMul { get; set; } = 1f;
 
-        /// 에디터 디버그(Coast Run/Debug/God mode): 피격 무시. PlayerPrefs에 남는다.
-        public const string DebugGodKey = "CoastRun.Debug.God";
+        /// 에디터 디버그(Coast Run/Dev/God mode - ON|OFF): 피격 무시. PlayerPrefs에 남는다.
+        /// 76차: 옛 키가 에디터 PlayerPrefs 에 켜진 채 남아 장애물 피해가 전부 무시되고 있었다(「1 정도만 닳는다」의 진짜 원인) — 키를 바꾸고,
+        /// 에디터·개발 빌드에서만 읽으며(출시 빌드는 항상 false), 켜져 있으면 HUD 에 빨간 GOD 배지를 띄운다.
+        public const string DebugGodKey = "CoastRun.Debug.God2";
         public static bool DebugGod
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             get => PlayerPrefs.GetInt(DebugGodKey, 0) != 0;
-            set { PlayerPrefs.SetInt(DebugGodKey, value ? 1 : 0); PlayerPrefs.Save(); }
+#else
+            get => false;
+#endif
+            set { PlayerPrefs.SetInt(DebugGodKey, value ? 1 : 0); PlayerPrefs.DeleteKey("CoastRun.Debug.God"); PlayerPrefs.Save(); }
         }
         public float NormalizedSpeed
         {
@@ -630,18 +636,24 @@ namespace CoastRun
         /// lane. Bounce: a solid body (car, crate, bench) — she is knocked sideways into
         /// the neighbouring lane, which is what a chest-high hit looks like. `bounceDir`
         /// is the side she deflects to (+1 right); 0 lets the controller choose.
-        /// 피격 직후 무적(순발력 ↑ → 길어짐). 연속 충돌로 HP가 녹는 것을 막는 '무적 대시'.
+        /// 피격 직후 경직 중복 방지 창(순발력 ↑ → 길어짐). 76차(사용자 「최소 데미지 HP 30」): 이 창은 **경직·넉백이 겹치는 것만** 막고
+        /// 피해는 막지 않는다 — 전엔 무적프레임(0.8~2 s) 안에 두 번째 장애물을 치면 꽈당만 나고 HP 가 안 닳아 「1 정도만 닳는다」로 보였다.
         private float _iFrameTimer;
         public bool InIFrames => _iFrameTimer > 0f;
         /// 22차-7: 다음 피격의 피해 배율(장애물이 SoftHit 직전에 넣고, HealthSystem이 쓰고 1로 되돌린다).
         public float PendingHitDamageMul = ObstacleHazard.DefaultFrac;   // 71차: 최대 체력 비율
+        /// 76차: 피해 이벤트(HealthSystem 이 듣는다). OnSoftHit(경직·꽈당 연출)와 분리 — 경직 창 안의 충돌도 피해는 낸다.
+        public event Action OnHitDamage;
+        /// 같은 장애물의 겹친 콜라이더(버스 몸통+앞범퍼 등)가 두 번 피해를 내지 않게 하는 아주 짧은 디바운스. 레인 이동(0.2 s)보다 짧아야 옆 레인 장애물은 따로 맞는다.
+        public const float SameHitDebounce = 0.15f;
+        private float _lastDamageTime = -10f;
 
         public void SoftHit(HitKind kind, int bounceDir)
         {
             SoftHitApplied(kind, bounceDir);
         }
 
-        /// true = 상태·피해 적용됨. false = 무적/무적프레임 등으로 막힘(그래도 호출측에서 꽈당을 낼 수 있다).
+        /// true = 경직·상태까지 적용됨. false = 무적(피버·거인·보너스)이거나 경직 창 안(피해는 이미 냈을 수 있음 — 호출측이 꽈당을 낸다).
         public bool SoftHitApplied(HitKind kind, int bounceDir)
         {
             if (_state == SkateState.Finish)
@@ -651,11 +663,23 @@ namespace CoastRun
             if (_gliding)
                 EndGlide();
 
-            if (Invincible || _iFrameTimer > 0f || FeverMode.Active)
+            if (Invincible || FeverMode.Active)
+            {
+                if (DebugGod) Debug.LogWarning("[Hit] 무시 — God mode(Coast Run/Dev/God mode - OFF 로 끌 것)");
                 return false;
+            }
 
-            StageRunStats.Instance?.NotifySoftHit();
-            if (ArcadeRun.Active) ArcadeRun.OnHit();
+            // 76차: 피해는 무적프레임과 무관하게 매 충돌마다(최소 HP 30 은 HealthSystem 이 보장). 겹친 콜라이더만 0.15 s 디바운스.
+            if (Time.time - _lastDamageTime > SameHitDebounce)
+            {
+                _lastDamageTime = Time.time;
+                StageRunStats.Instance?.NotifySoftHit();
+                if (ArcadeRun.Active) ArcadeRun.OnHit();
+                OnHitDamage?.Invoke();
+            }
+
+            if (_iFrameTimer > 0f)
+                return false;   // 경직·넉백은 겹치지 않게(피해는 위에서 이미 적용)
 
             _state = SkateState.SoftHit;
             _softHitTimer = config.softHitRecoverSeconds * RunTuning.HitFreezeMul;

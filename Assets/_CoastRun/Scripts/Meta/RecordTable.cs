@@ -83,8 +83,9 @@ namespace CoastRun
         {
             if (p == null || t == null) return false;
             if (p.devUnlockAll) return true;
-            if (t.bonus) return BonusOpen(p);
-            return (p.recordMask & (1 << (t.num - 1))) != 0;
+            // 74차(사용자): M1 만 기본 공개, 나머지는 **기부 선물 ④ OST 잠금해제**로만 열린다(컷씬·S급으로는 안 열림).
+            if (t.num == 1) return true;
+            return Donation.OstOpen;
         }
 
         public static bool IsNew(MetaProfile p, Track t) => p != null && (p.recordNewMask & (1 << (t.num - 1))) != 0;
@@ -113,6 +114,7 @@ namespace CoastRun
         public static void OnSceneWatched(string sceneId)
         {
             var p = P; if (p == null || string.IsNullOrEmpty(sceneId)) return;
+            if (!Donation.OstOpen) return;   // 74차: 레코드는 기부로만 열린다 — 컷씬 해금 토스트는 끈다
             bool changed = false;
             foreach (var t in All)
             {

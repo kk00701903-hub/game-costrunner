@@ -12,7 +12,7 @@ namespace CoastRun
         private static RectTransform _root;
         private static Action _onClose;
         private static Donation.Gift _gift = Donation.Gift.HiddenTrack;
-        private static readonly Image[] _giftPills = new Image[3];
+        private static readonly Image[] _giftPills = new Image[4];
         private static Text _cups, _status;
         private static Button _payBtn;
         public static bool IsOpen => _canvas != null;
@@ -106,7 +106,7 @@ namespace CoastRun
 
             var card = CoastUiArt.CutePill(_root, "Card", Cream, 30, 6);
             var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.pivot = new Vector2(0.5f, 0.5f);
-            crt.anchoredPosition = new Vector2(0f, 10f); crt.sizeDelta = new Vector2(640f, 1010f); card.raycastTarget = true;
+            crt.anchoredPosition = new Vector2(0f, 10f); crt.sizeDelta = new Vector2(640f, 1070f); card.raycastTarget = true;   // 74차: 선물 4개
 
             // 머리: 커피잔 + 제목
             var cup = ArtAssets.LoadTexture("UI_Donate_Cup");
@@ -130,15 +130,15 @@ namespace CoastRun
             // 선물 고르기
             var gl = CoastHudLayout.MakeText(crt, "GiftLabel", Loc.T("선물 고르기", "Pick your gift"), 15, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(34f, -556f), new Vector2(-34f, -530f));
             gl.color = Coffee; gl.fontStyle = FontStyle.Bold;
-            string[] giftKo = { "♪  히든 트랙 2곡 (레코드 + K-POP 런)", "★  모든 게임 열림 (히든 패스코드)", "♥  아무것도 안 받을래요" };
-            string[] giftEn = { "♪  2 hidden tracks (records + K-POP run)", "★  Everything unlocked (hidden passcode)", "♥  Nothing, thanks" };
-            Donation.Gift[] kinds = { Donation.Gift.HiddenTrack, Donation.Gift.UnlockAll, Donation.Gift.None };
-            for (int i = 0; i < 3; i++)
+            string[] giftKo = { "♪  히든 트랙 2곡 (레코드 + K-POP 런)", "★  모든 게임 열림 (히든 패스코드)", "♥  아무것도 안 받을래요", "♫  OST 잠금해제 (레코드 전곡)" };
+            string[] giftEn = { "♪  2 hidden tracks (records + K-POP run)", "★  Everything unlocked (hidden passcode)", "♥  Nothing, thanks", "♫  Unlock the OST (all records)" };
+            Donation.Gift[] kinds = { Donation.Gift.HiddenTrack, Donation.Gift.UnlockAll, Donation.Gift.None, Donation.Gift.Ost };   // 74차: ④ OST
+            for (int i = 0; i < 4; i++)
             {
                 int idx = i;
                 var pill = CoastUiArt.CutePill(crt, "Gift" + i, PillOff, 16, 3);
                 var prt = pill.rectTransform; prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 1f); prt.pivot = new Vector2(0.5f, 1f);
-                prt.anchoredPosition = new Vector2(0f, -562f - i * 60f); prt.sizeDelta = new Vector2(572f, 52f); pill.raycastTarget = true;
+                prt.anchoredPosition = new Vector2(0f, -562f - i * 56f); prt.sizeDelta = new Vector2(572f, 50f); pill.raycastTarget = true;
                 var b = pill.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
                 b.onClick.AddListener(() => { CoastPrefs.Vibrate(); _gift = kinds[idx]; RefreshGifts(); });
                 var t = CoastHudLayout.MakeText(prt, "T", Loc.T(giftKo[i], giftEn[i]), 16, TextAnchor.MiddleLeft, Vector2.zero, Vector2.one, new Vector2(22f, 2f), new Vector2(-16f, 0f));
@@ -172,8 +172,8 @@ namespace CoastRun
 
         private static void RefreshGifts()
         {
-            Donation.Gift[] kinds = { Donation.Gift.HiddenTrack, Donation.Gift.UnlockAll, Donation.Gift.None };
-            for (int i = 0; i < 3; i++) if (_giftPills[i] != null) _giftPills[i].color = kinds[i] == _gift ? PillOn : PillOff;
+            Donation.Gift[] kinds = { Donation.Gift.HiddenTrack, Donation.Gift.UnlockAll, Donation.Gift.None, Donation.Gift.Ost };
+            for (int i = 0; i < 4; i++) if (_giftPills[i] != null) _giftPills[i].color = kinds[i] == _gift ? PillOn : PillOff;
         }
 
         private static void RefreshCups()
@@ -203,6 +203,7 @@ namespace CoastRun
                 {
                     case Donation.Gift.HiddenTrack: _status.text = Loc.T("고마워요! ♪ 히든 트랙 2곡이 레코드와 K-POP 런에 열렸어요", "Thank you! ♪ 2 hidden tracks unlocked in Records and the K-POP run"); break;
                     case Donation.Gift.UnlockAll: _status.text = Loc.T($"고마워요! ★ 모든 게임이 열렸어요\n히든 패스코드 {Donation.DonorPasscode} — 다른 기기에선 설정 › 비밀코드에 입력", $"Thank you! ★ Everything unlocked\nHidden passcode {Donation.DonorPasscode} — enter it in Settings › Secret code on another device"); break;
+                    case Donation.Gift.Ost: _status.text = Loc.T("고마워요! ♫ 레코드의 OST 전곡이 열렸어요", "Thank you! ♫ The whole OST is unlocked in Records"); break;
                     default: _status.text = Loc.T("고마워요! ♥ 그 마음만으로 충분해요", "Thank you! ♥ That means a lot"); break;
                 }
                 CoastAudioManager.PlayAnywhere(CoastSfx.RankS, 0.7f);

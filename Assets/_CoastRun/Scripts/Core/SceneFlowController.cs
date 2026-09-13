@@ -502,6 +502,13 @@ namespace CoastRun
         /// Called when EndingController finishes stinger (tap → title).
         public void CompleteEndingReturnToTitle()
         {
+            // 75차(사용자): 엔딩 뒤 M1 OST 30초 뮤직비디오(「Our frequency」) → 그 다음 타이틀/육성. 한 번 보면 레코드 맨 끝에서 다시 볼 수 있다.
+            if (!CinematicPlayer.IsPlaying && CinematicTable.Get("MV") != null && !_mvShown)
+            {
+                _mvShown = true;
+                CinematicPlayer.Play("MV", CompleteEndingReturnToTitle);
+                return;
+            }
             if (GameManager.Active)
             {
                 if (_director != null)
@@ -515,6 +522,7 @@ namespace CoastRun
             CampaignFlagAndTitle();
         }
 
+        private bool _mvShown;
         private void CampaignFlagAndTitle()
         {
             if (_director != null)
