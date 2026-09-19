@@ -58,8 +58,10 @@ namespace CoastRun
                 Save.inheritedShown = true; _gm.Persist();
                 CoastToast.Show(Loc.T($"{Save.playthrough}회차 — 지난 회차 스탯 10%·숙련 절반을 물려받았어", $"Playthrough {Save.playthrough} — inherited 10% stats & half mastery"));
             }
-            ShowBubble(Loc.T("오늘도 힘내자!", "Let's do our best today!"), 2.5f);
             _gm.OnSaveChanged -= OnSaveChanged; _gm.OnSaveChanged += OnSaveChanged;
+            // 156차: 마을 침대에서 잤다 — 이 화면은 어두운 막(SleepFade) 뒤에 두고 주말 결산·이야기만 돌린 뒤 마을 아침으로 돌아간다.
+            if (_gm.SleepFromVillage) { _gm.SleepFromVillage = false; StartCoroutine(SleepFromVillageRoutine()); return; }
+            ShowBubble(Loc.T("오늘도 힘내자!", "Let's do our best today!"), 2.5f);
             // 55차: 지난 턴이 챕터 마지막 주로 끝났으면(앱을 껐다 켰어도) 이번 턴 시작에 컷씬·대회.
             // 67차-8(사용자): 들어오자마자 팝업을 띄우지 않는다 — 동그라미 3개가 찬 상태로 보여 주고 「다음 턴」을 눌러야 이야기·대회가 시작.
             if (Save != null && Save.boundaryPending) ShowBubble(BoundaryHint(), 4f);
@@ -102,6 +104,23 @@ namespace CoastRun
         private string BoundaryHint()
         {
             return Loc.T("이번주는 끝", "Week's over");
+        }
+
+        /// 156차: 마을 잠 → (경계 대기가 아니면) 주말 결산 → 챕터 경계(이야기·대회) → 아직 이 씬이면 마을로.
+        private IEnumerator SleepFromVillageRoutine()
+        {
+            _busy = true; _auto = false;
+            yield return null;
+            _gm.SuppressRandomEventOnce = true;   // 돌발은 이 화면(막 뒤)이 아니라 마을 아침에 띄운다
+            if (Save != null && !Save.boundaryPending) yield return EndWeek();
+            if (this == null || Save == null) yield break;
+            if (Save.boundaryPending) { yield return new WaitForSecondsRealtime(0.4f); yield return BoundaryRoutine(); }
+            if (this == null || Save == null || _gm.Phase != GamePhase.Raising) yield break;
+            if (GameOverUI.IsOpen) yield break;
+            _busy = false;
+            if (Save.phaseIndex == 0 && !Save.boundaryPending) _gm.PendingVillageEvent = _gm.PeekRandomEvent();
+            yield return new WaitForSecondsRealtime(0.3f);
+            _gm.ToVillage();
         }
 
         private IEnumerator ResumeBoundary()

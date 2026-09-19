@@ -78,10 +78,13 @@ namespace CoastRun.Village
 
             // ── 오른쪽 둥근 버튼 4개 ── 149차(사용자): 전체를 188 만큼 위로(엄지 닿는 높이)
             // 137차: 잡기 버튼 위 「도구」(잠자리채/방망이 고르기) — 행동 버튼 라벨은 고른 도구를 따른다
-            Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), new Vector2(-64f, 640f), 96f, () => _onTool?.Invoke(), out _toolT);
-            _actBtn = Round(_root, "Act", "◎", Loc.T("잡기", "Act"), new Color(0.45f, 0.78f, 0.55f), new Vector2(-64f, 518f), 108f, () => _onAct?.Invoke(), out _actT);
-            Round(_root, "Talk", "…", Loc.T("대화", "Talk"), new Color(0.98f, 0.62f, 0.72f), new Vector2(-64f, 396f), 96f, () => _onTalk?.Invoke(), out _);
-            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), new Vector2(-64f, 284f), 96f, () => _onBag?.Invoke(), out _);
+            // 153차(사용자): 둥근 버튼 4개를 왼쪽 위(체력 알약 아래)에 세로로
+            var tl = new Vector2(0f, 1f);
+            Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), new Vector2(64f, -150f), 96f, () => _onTool?.Invoke(), out _toolT, tl);
+            _toolGlyph = _toolT != null ? _toolT.transform.parent.Find("G")?.GetComponent<Text>() : null;
+            _actBtn = Round(_root, "Act", "◎", Loc.T("잡기", "Act"), new Color(0.45f, 0.78f, 0.55f), new Vector2(64f, -272f), 108f, () => _onAct?.Invoke(), out _actT, tl);
+            Round(_root, "Talk", "…", Loc.T("대화", "Talk"), new Color(0.98f, 0.62f, 0.72f), new Vector2(64f, -394f), 96f, () => _onTalk?.Invoke(), out _, tl);
+            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), new Vector2(64f, -516f), 96f, () => _onBag?.Invoke(), out _, tl);
 
             // ── 아래 마을 알약 ──
             var vp = CoastUiArt.CutePill(_root, "Village", new Color(0.36f, 0.30f, 0.52f, 0.92f), 20, 3); vp.raycastTarget = false;
@@ -130,13 +133,14 @@ namespace CoastRun.Village
             }
         }
 
-        static Button Round(RectTransform parent, string name, string glyph, string label, Color col, Vector2 pos, float size, Action on, out Text labelT)
+        static Button Round(RectTransform parent, string name, string glyph, string label, Color col, Vector2 pos, float size, Action on, out Text labelT, Vector2? anchor = null)
         {
+            var an = anchor ?? new Vector2(1f, 0f);
             var edge = CoastUiArt.CutePill(parent, name + "E", Color.Lerp(col, Color.black, 0.25f), (int)(size * 0.5f), 0); edge.raycastTarget = false;
-            var ert = edge.rectTransform; ert.anchorMin = ert.anchorMax = new Vector2(1f, 0f); ert.pivot = new Vector2(0.5f, 0.5f);
+            var ert = edge.rectTransform; ert.anchorMin = ert.anchorMax = an; ert.pivot = new Vector2(0.5f, 0.5f);
             ert.anchoredPosition = pos + new Vector2(0f, -4f); ert.sizeDelta = new Vector2(size, size);
             var b = CoastUiArt.GlossyPill(parent, name, col, (int)(size * 0.5f), 10); b.raycastTarget = true;
-            var rt = b.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(1f, 0f); rt.pivot = new Vector2(0.5f, 0.5f);
+            var rt = b.rectTransform; rt.anchorMin = rt.anchorMax = an; rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = pos; rt.sizeDelta = new Vector2(size, size);
             var g = CoastHudLayout.MakeText(rt, "G", glyph, (int)(size * 0.34f), TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 14f), new Vector2(0f, -2f));
             g.color = Color.white; g.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(g, new Color(0f, 0f, 0f, 0.35f), 1.5f);
@@ -158,7 +162,34 @@ namespace CoastRun.Village
         }
 
         public void SetAction(string label) { if (_actT != null && _actT.text != label) _actT.text = label; }
-        public void SetTool(string label) { if (_toolT != null) _toolT.text = label; }
+        public void SetTool(string label, int toolIdx = 0)
+        {
+            if (_toolT != null) _toolT.text = label;
+            // 154차: 클링 생성 도구 아이콘(UI_Tool_Net/Bat/Axe/Pick) 이 있으면 글리프 대신 그림
+            if (_toolGlyph != null)
+            {
+                string[] keys = { "UI_Tool_Net", "UI_Tool_Bat", "UI_Tool_Axe", "UI_Tool_Pick" };
+                string key = keys[Mathf.Clamp(toolIdx, 0, 3)];
+                var sp = Resources.Load<Sprite>("CoastRun/Textures/Village/" + key);
+                if (sp == null)
+                {
+                    // 임포터가 Sprite 가 아니어도(메타가 되돌아가는 경우) 텍스처에서 직접 만든다
+                    if (!_toolSprites.TryGetValue(key, out sp))
+                    {
+                        var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/" + key);
+                        sp = tex != null ? Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f) : null;
+                        _toolSprites[key] = sp;
+                    }
+                }
+                if (sp != null)
+                {
+                    if (_toolImg == null) { var go = new GameObject("I", typeof(RectTransform), typeof(Image)); go.transform.SetParent(_toolGlyph.transform.parent, false); _toolImg = go.GetComponent<Image>(); _toolImg.raycastTarget = false; _toolImg.preserveAspect = true; var r = _toolImg.rectTransform; r.anchorMin = new Vector2(0.5f, 0.5f); r.anchorMax = new Vector2(0.5f, 0.5f); r.anchoredPosition = new Vector2(0f, 10f); r.sizeDelta = new Vector2(56f, 56f); }
+                    _toolImg.sprite = sp; _toolImg.gameObject.SetActive(true); _toolGlyph.gameObject.SetActive(false);
+                }
+                else { if (_toolImg != null) _toolImg.gameObject.SetActive(false); _toolGlyph.gameObject.SetActive(true); }
+            }
+        }
+        Text _toolGlyph; Image _toolImg; readonly System.Collections.Generic.Dictionary<string, Sprite> _toolSprites = new System.Collections.Generic.Dictionary<string, Sprite>();
 
         public void SetPrompt(string text, Action on)
         {
@@ -248,10 +279,10 @@ namespace CoastRun.Village
 
         public static VirtualJoystick Create(RectTransform parent, Vector2 center, float size)
         {
-            var ring = CoastUiArt.CutePill(parent, "Joystick", new Color(1f, 1f, 1f, 0.28f), (int)(size * 0.5f), 4);
+            var ring = CoastUiArt.CutePill(parent, "Joystick", new Color(1f, 1f, 1f, 0.16f), (int)(size * 0.5f), 4);   // 153차: 반투명
             var rt = ring.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(0f, 0f); rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = center; rt.sizeDelta = new Vector2(size, size); ring.raycastTarget = true;
-            var knob = CoastUiArt.GlossyPill(rt, "Knob", new Color(1f, 1f, 1f, 0.85f), (int)(size * 0.2f), 6); knob.raycastTarget = false;
+            var knob = CoastUiArt.GlossyPill(rt, "Knob", new Color(1f, 1f, 1f, 0.45f), (int)(size * 0.2f), 6); knob.raycastTarget = false;
             var krt = knob.rectTransform; krt.anchorMin = krt.anchorMax = new Vector2(0.5f, 0.5f); krt.sizeDelta = new Vector2(size * 0.42f, size * 0.42f);
             var j = ring.gameObject.AddComponent<VirtualJoystick>();
             j._ring = rt; j._knob = krt; j._radius = size * 0.34f;
@@ -260,7 +291,7 @@ namespace CoastRun.Village
             for (int i = 0; i < 4; i++)
             {
                 var t = CoastHudLayout.MakeText(rt, "A" + i, ar[i], 16, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-                t.rectTransform.sizeDelta = new Vector2(30f, 30f); t.rectTransform.anchoredPosition = ap[i] * (size * 0.40f); t.color = new Color(1f, 1f, 1f, 0.55f);
+                t.rectTransform.sizeDelta = new Vector2(30f, 30f); t.rectTransform.anchoredPosition = ap[i] * (size * 0.40f); t.color = new Color(1f, 1f, 1f, 0.35f);
             }
             return j;
         }
@@ -281,26 +312,22 @@ namespace CoastRun.Village
         void Release() { _pointerId = int.MinValue; Value = Vector2.zero; _knob.anchoredPosition = Vector2.zero; }
         void Update()
         {
+            // 152차(사용자: 「커서가 안 움직인다」): 폴링은 보조만 — 이벤트로 눌린 손가락을 찾으면 위치를 따라가고,
+            // 못 찾아도 놓지 않는다(Device Simulator·Unity Remote 처럼 Input.touches 에 안 잡히는 경우 즉시 놓아 버려 손잡이가 안 움직이던 문제).
+            // 놓기는 OnPointerUp(이벤트) 또는 터치 Ended 에서만.
             if (_pointerId == int.MinValue) return;
             if (_pointerId >= 0)
             {
-                // 터치: fingerId 로 찾기(없으면 놓은 것)
-                bool found = false;
                 for (int i = 0; i < Input.touchCount; i++)
                 {
                     var tc = Input.GetTouch(i);
                     if (tc.fingerId != _pointerId) continue;
-                    found = true;
                     if (tc.phase == TouchPhase.Ended || tc.phase == TouchPhase.Canceled) Release(); else MoveTo(tc.position);
-                    break;
+                    return;
                 }
-                if (!found && Input.touchCount == 0 && !Input.GetMouseButton(0)) Release();
-                else if (!found && Input.GetMouseButton(0)) MoveTo(Input.mousePosition);   // 에디터 시뮬레이션(터치 id 0 = 마우스)
+                if (Input.touchCount == 0 && Input.GetMouseButton(0)) MoveTo(Input.mousePosition);   // 시뮬레이터(터치 id 인데 마우스)
             }
-            else
-            {
-                if (!Input.GetMouseButton(0)) Release(); else MoveTo(Input.mousePosition);
-            }
+            else if (Input.GetMouseButton(0)) MoveTo(Input.mousePosition);
         }
         void OnDisable() { Release(); }
     }

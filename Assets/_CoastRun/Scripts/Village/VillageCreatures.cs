@@ -10,6 +10,7 @@ namespace CoastRun.Village
     {
         public Transform Player; public System.Func<bool> Locked;
         public System.Action<int> OnSpiritHit;           // HP 깎기
+        public System.Action<int> OnGhostHit;            // 155차: 밤 귀신(엄청 강함) 접촉
         public System.Action<string, int, int> OnCaught; // (종류, 별조각, 코인)
 
         // ── NPC ──
@@ -23,7 +24,7 @@ namespace CoastRun.Village
         Transform _kid; Vector3 _kidVel; int _kidLine;
 
         // ── 정령·나비 ──
-        class Critter { public Transform t; public bool spirit; public int kind; public float life, phase; public Vector3 anchor; }   // kind: 0 나비 1 잠자리 2 무당벌레
+        class Critter { public Transform t; public bool spirit; public bool ghost; public float stun; public int kind; public float life, phase; public Vector3 anchor; }   // kind: 0 나비 1 잠자리 2 무당벌레
         readonly List<Critter> _crit = new List<Critter>();
         float _spawnT = 4f;
 
@@ -238,16 +239,37 @@ namespace CoastRun.Village
             _spawnT -= dt;
             if (_spawnT <= 0f && Player != null)
             {
-                _spawnT = Random.Range(6f, 10f);
+                // 154차(사용자: 「언덕에 벌레 자주」): 언덕(z>12)에서는 더 자주·더 많이(벌레 위주)
+                bool hill = Player != null && Player.position.z > 12f;
+                _spawnT = hill ? Random.Range(2.5f, 4.5f) : Random.Range(6f, 10f);
                 int spirits = 0, bugs = 0; foreach (var c in _crit) if (c.spirit) spirits++; else bugs++;
-                bool spirit = Random.value < 0.6f ? spirits < 2 : bugs >= 3;
-                if (spirit && spirits < 2) Spawn(true); else if (bugs < 4) Spawn(false);
+                int bugCap = hill ? 8 : 4;
+                bool spirit = Random.value < (hill ? 0.25f : 0.6f) ? spirits < 2 : bugs >= bugCap;
+                if (spirit && spirits < 2) Spawn(true); else if (bugs < bugCap) Spawn(false);
             }
             for (int i = _crit.Count - 1; i >= 0; i--)
             {
                 var c = _crit[i]; if (c.t == null) { _crit.RemoveAt(i); continue; }
                 c.life -= dt; c.phase += dt;
                 var p = c.t.position;
+                if (c.ghost)
+                {
+                    // 155차: 귀신 — 빠르게 쫓아옴(2.4 m/s, 달리면 도망칠 수 있음). 방망이로 맞으면 3 s 기절, 닿으면 HP −25.
+                    c.stun -= dt;
+                    var d = Player.position - p; d.y = 0f; float dist = d.magnitude;
+                    float sp = c.stun > 0f ? 0f : 2.4f;
+                    var step = dist > 0.05f ? d.normalized * sp * dt : Vector3.zero;
+                    float g = VillageWorld.Height(p.x + step.x, p.z + step.z) + 1.0f + Mathf.Sin(c.phase * 2.2f) * 0.3f;
+                    c.t.position = new Vector3(p.x + step.x, g, p.z + step.z);
+                    if (d.sqrMagnitude > 0.01f) c.t.rotation = Quaternion.LookRotation(d.normalized, Vector3.up);
+                    c.t.localScale = Vector3.one * (0.62f + Mathf.Sin(c.phase * 4f) * 0.05f) * (c.stun > 0f && Mathf.Repeat(c.phase * 8f, 1f) < 0.5f ? 0.7f : 1f);
+                    if (c.stun <= 0f && dist < 0.95f)
+                    {
+                        OnGhostHit?.Invoke(25); c.stun = 1.6f; c.anchor = p - d.normalized * 3.5f;
+                        c.t.position = new Vector3(c.anchor.x, VillageWorld.Height(c.anchor.x, c.anchor.z) + 1.0f, c.anchor.z);
+                    }
+                    continue;
+                }
                 if (c.spirit)
                 {
                     // 주인공 쪽으로 천천히 다가오며 위아래로 흔들림
@@ -382,6 +404,13 @@ namespace CoastRun.Village
                 if (d < bd) { if (c.spirit == bat) { bd = d; best = c; } else wrong = true; }
             }
             if (best == null) return wrong ? (bat ? Loc.T("나비는 잠자리채로!", "Use the net for butterflies!") : Loc.T("정령은 방망이로!", "Use the bat for spirits!")) : null;
+            if (bat && best.ghost)
+            {
+                // 155차: 귀신은 못 잡는다 — 밀어내고 3 s 기절
+                best.stun = 3f; var away = (best.t.position - Player.position); away.y = 0f; away = away.normalized * 5f;
+                var np = best.t.position + away; best.t.position = new Vector3(np.x, VillageWorld.Height(np.x, np.z) + 1f, np.z);
+                return Loc.T("👻 귀신을 밀어냈다! 잡을 순 없다 — 집으로 도망치자!", "👻 Pushed the ghost back! Can't catch it — run home!");
+            }
             if (bat) { _crit.Remove(best); Pop(best, Color.white); OnCaught?.Invoke("spirit", 2, 30); return Loc.T("✨ 정령을 잡았다! 별조각 +2 · 30G", "✨ Caught a spirit! Shards +2 · 30G"); }
             // 150차: 잠자리는 빨라서 60% 만 잡힌다(놓치면 멀리 달아남)
             if (best.kind == 1 && Random.value > 0.6f) { best.anchor += new Vector3(Random.Range(-4f, 4f), 0f, Random.Range(-3f, 3f)); return Loc.T("휙— 잠자리가 도망갔다! 다시 노려 보자.", "Swish — the dragonfly got away!"); }
@@ -391,6 +420,30 @@ namespace CoastRun.Village
             OnCaught?.Invoke("butterfly", 1, 0); return Loc.T("🦋 나비를 잡았다! 별조각 +1 · 가방에 넣었다", "🦋 Caught a butterfly! Shard +1");
         }
 
+        public int GhostCount { get { int n = 0; foreach (var c in _crit) if (c.ghost && c.t != null) n++; return n; } }
+        public void ClearGhosts() { for (int i = _crit.Count - 1; i >= 0; i--) if (_crit[i].ghost) { if (_crit[i].t != null) Destroy(_crit[i].t.gameObject); _crit.RemoveAt(i); } }
+        /// 155차: 밤 귀신 — 주인공 10~14 m 밖에서 나타나 쫓아온다
+        public void SpawnGhost()
+        {
+            if (Player == null) return;
+            var pp = Player.position; float ang = Random.Range(0f, Mathf.PI * 2f), r = Random.Range(10f, 14f);
+            var pos = new Vector3(Mathf.Clamp(pp.x + Mathf.Cos(ang) * r, -44f, 44f), 0f, Mathf.Clamp(pp.z + Mathf.Sin(ang) * r, -30f, 44f)); pos.y = VillageWorld.Height(pos.x, pos.z) + 1f;
+            var g = new GameObject("Ghost"); g.transform.SetParent(transform, false); g.transform.position = pos;
+            var body = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(body.GetComponent<Collider>()); body.transform.SetParent(g.transform, false); body.transform.localScale = new Vector3(1f, 1.25f, 1f);
+            body.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateTransparent(new Color(0.16f, 0.12f, 0.30f, 0.82f));
+            var tail = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(tail.GetComponent<Collider>()); tail.transform.SetParent(g.transform, false); tail.transform.localPosition = new Vector3(0f, -0.75f, -0.25f); tail.transform.localScale = new Vector3(0.7f, 0.9f, 0.7f);
+            tail.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateTransparent(new Color(0.16f, 0.12f, 0.30f, 0.55f));
+            for (int k = 0; k < 2; k++)
+            {
+                var e = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(e.GetComponent<Collider>()); e.transform.SetParent(g.transform, false);
+                e.transform.localPosition = new Vector3(k == 0 ? -0.2f : 0.2f, 0.15f, 0.42f); e.transform.localScale = new Vector3(0.22f, 0.30f, 0.12f);
+                e.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(1f, 0.95f, 0.75f));
+            }
+            var mouth = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(mouth.GetComponent<Collider>()); mouth.transform.SetParent(g.transform, false); mouth.transform.localPosition = new Vector3(0f, -0.18f, 0.46f); mouth.transform.localScale = new Vector3(0.28f, 0.16f, 0.1f);
+            mouth.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(0.9f, 0.2f, 0.3f));
+            var glow = new GameObject("GhostLight").AddComponent<Light>(); glow.transform.SetParent(g.transform, false); glow.type = LightType.Point; glow.range = 5f; glow.intensity = 1.6f; glow.color = new Color(0.6f, 0.5f, 1f);
+            _crit.Add(new Critter { spirit = true, ghost = true, life = 600f, phase = Random.value * 6f, anchor = pos, t = g.transform });
+        }
         public bool AnyCritterNear(bool spirit, float r = 2.6f)
         {
             if (Player == null) return false;

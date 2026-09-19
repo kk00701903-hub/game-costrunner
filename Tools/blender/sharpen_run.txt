@@ -1,0 +1,82 @@
+00:00.094  color_management | Using OCIO=C:\Program Files\Blender Foundation\Blender 5.2\5.2\datafiles\colormanagement\config.ocio
+C:\dev\game\Tools\blender\sharpen_assets.py:24: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  sc.world = bpy.data.worlds.new("W"); sc.world.use_nodes = True
+BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
+BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
+BlenderMCP addon registered
+BlenderMCP server stopped
+BlenderMCP addon unregistered
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_OrangeTree.fbx'
+export finished in 0.0207 sec.
+[ok] Prop_OrangeTree → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_OrangeTree.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_Bench.fbx'
+export finished in 0.0115 sec.
+[ok] Prop_Bench → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_Bench.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_Hareubang.fbx'
+export finished in 0.0151 sec.
+[ok] Prop_Hareubang → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_Hareubang.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_OrangeStall.fbx'
+export finished in 0.0160 sec.
+[ok] Prop_OrangeStall → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_OrangeStall.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_Pavilion.fbx'
+export finished in 0.0146 sec.
+[ok] Prop_Pavilion → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_Pavilion.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_UtilityPole.fbx'
+export finished in 0.0148 sec.
+[ok] Prop_UtilityPole → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_UtilityPole.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Kerb_Onggi.fbx'
+export finished in 0.0181 sec.
+[ok] Kerb_Onggi → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Kerb_Onggi.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Kerb_PlanterWood.fbx'
+export finished in 0.0221 sec.
+[ok] Kerb_PlanterWood → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Kerb_PlanterWood.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Kerb_Buoys.fbx'
+export finished in 0.0171 sec.
+[ok] Kerb_Buoys → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Kerb_Buoys.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Kerb_CrateStack.fbx'
+export finished in 0.0143 sec.
+[ok] Kerb_CrateStack → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Kerb_CrateStack.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_StoneWall.fbx'
+export finished in 0.0117 sec.
+[ok] Prop_StoneWall → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_StoneWall.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Kerb_PlanterBasalt.fbx'
+export finished in 0.0228 sec.
+[ok] Kerb_PlanterBasalt → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Kerb_PlanterBasalt.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Kerb_StoneBed.fbx'
+export finished in 0.0205 sec.
+[ok] Kerb_StoneBed → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Kerb_StoneBed.fbx (1 mesh)
+FBX version: 7400
+
+FBX export starting... 'C:\\dev\\game\\Assets\\Resources\\CoastRun\\Models\\Sharp\\Prop_CafeSet.fbx'
+export finished in 0.0134 sec.
+[ok] Prop_CafeSet → C:\dev\game\Assets\Resources\CoastRun\Models\Sharp\Prop_CafeSet.fbx (1 mesh)
+done
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

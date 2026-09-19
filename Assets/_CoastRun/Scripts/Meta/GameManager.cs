@@ -27,6 +27,10 @@ namespace CoastRun
         /// 엔딩 씬이 읽는 분기. Resolve 시점에 채워진다.
         public EndingKind PendingEnding { get; private set; } = EndingKind.None;
         public bool OpenTimelineOnRaising { get; set; }
+        /// 156차: 마을 침대에서 잤다 — 다음 TamaRaisingUI 는 화면을 보이지 않고 주말 결산(EndWeek)·챕터 경계만 돌린 뒤 마을로 돌아온다.
+        public bool SleepFromVillage { get; set; }
+        /// 156차: 잠에서 깬 마을 아침에 띄울 돌발 이벤트(주말 결산 뒤 굴린 것) — VillageHub 가 가져가서 비운다.
+        public RandomEventDef PendingVillageEvent { get; set; }
         /// 136차: 다음 05_Raising 진입 때 스케줄 화면 대신 바닷가 마을(VillageHub)을 연다(타이틀에서 들어올 때·「마을」 버튼).
         /// 111차: 마을러닝(대회)·놀이 직후 육성으로 돌아올 때 돌발 이벤트를 한 번 건너뛴다.
         public bool SuppressRandomEventOnce { get; set; }

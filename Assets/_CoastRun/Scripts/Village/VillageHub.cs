@@ -19,7 +19,7 @@ namespace CoastRun.Village
         Transform _world, _player, _rigT, _yardHost; CharacterController _cc; SkaterRig _rig; Animator _anim; Camera _cam; CharacterMotion _motion; Vector3 _vel, _acc;
         VillageHud _hud; readonly List<Spot> _spots = new List<Spot>(); Spot _near; Transform _nearTree; int _nearTreeIdx = -1;
         bool _moving; float _idleT; Vector3 _camVel; bool _busy; bool _yard; string _yardPick; float _yardRot; Transform _ghost; Canvas _yardCanvas; RectTransform _yardTray; Text _yardHint;
-        VillageCreatures _creatures; VillageMap _map; bool _bat, _axe; /* 150차: 도끼(장작) */ Transform _toolVis;
+        VillageCreatures _creatures; VillageMap _map; bool _bat, _axe, _pick; /* 150차: 도끼(장작) · 154차: 곡괭이(돌) */ Transform _nearRock; int _nearRockIdx = -1; float _doorCooldown; Transform _toolVis;
 
         SaveData Save => _gm != null ? _gm.Save : null;
 
@@ -47,37 +47,48 @@ namespace CoastRun.Village
             BuildPlayer();
             BuildCamera();
             _hud = VillageHud.Create(OnAct, OnTalk, OnBag, OnMenu, OnTool);
+            _drops = VillageDrops.Create(transform, _player, () => _busy || _hud.Locked || _interior != null, OnAbsorb);   // 159차
             _creatures = VillageCreatures.Create(transform, _player);
             _creatures.Locked = () => _busy || _hud.Locked;
             _creatures.OnSpiritHit = SpiritHit;
-            _creatures.OnCaught = (kind, shards, coins) => { if (Save == null) return; Save.starShards += shards; Save.starShardsTotal += shards; Save.stats.money += coins; if (kind != "spirit") { LifeItems.Add(Save, "bug_" + kind, 1); Save.bugsCaught++; } _gm.Persist(); RefreshStatus(); CoastAudioManager.PlayAnywhere(CoastSfx.Coin); };   // 150차: 벌레는 가방(채집)에도
+            _creatures.OnGhostHit = GhostHit;   // 155차
+            _dayNight = VillageDayNight.Create(_world, Save); _dayNight.OnMinute = () => RefreshStatus();
+            _creatures.OnCaught = (kind, shards, coins) => { if (Save == null) return; Save.starShards += shards; Save.starShardsTotal += shards; Save.stats.money += coins; if (kind != "spirit") { LifeItems.Add(Save, "bug_" + kind, 1); Save.bugsCaught++; MarkChore(); } _gm.Persist(); RefreshStatus(); CoastAudioManager.PlayAnywhere(CoastSfx.Coin); };   // 150차: 벌레는 가방(채집)에도
             _map = VillageMap.Create(_hud.Root, _player);
             ApplyTool();
             BuildSpots();
+            _doorCooldown = Time.time + 2f;   // 156차: 문 앞에서 시작해도 바로 들어가지 않게
             RefreshStatus();
             TitleAudio.PlayRaising();
+            if (_gm != null && _gm.PendingVillageEvent != null) StartCoroutine(MorningEvent());   // 156차
             CoastToast.Show(Loc.T("조이스틱으로 걸어다니고, 가까이 가면 뜨는 분홍 버튼으로 들어가자!", "Walk with the joystick — tap the pink prompt to enter a place!"));
         }
 
-        void OnDestroy() { if (I == this) I = null; RenderSettings.fog = false; VillagePalette.ApplySoftLook(false); Shader.SetGlobalVector("_CoastCurveRadial", Vector4.zero); if (_hud != null) Destroy(_hud.gameObject); if (_yardCanvas != null) Destroy(_yardCanvas.gameObject); }
+        bool _quitting;
+        void OnDestroy() { _quitting = true; if (_drops != null && Save != null) _drops.AbsorbAll(); if (I == this) I = null; RenderSettings.fog = false; VillagePalette.ApplySoftLook(false); Shader.SetGlobalVector("_CoastCurveRadial", Vector4.zero); if (_hud != null) Destroy(_hud.gameObject); if (_yardCanvas != null) Destroy(_yardCanvas.gameObject); }
 
         // ── 플레이어 ─────────────────────────────────────────────────────
         void BuildPlayer()
         {
             var go = new GameObject("VillagePlayer"); _player = go.transform; _player.SetParent(transform, false);
             var start = Save != null && Save.villageX != 0f ? new Vector3(Save.villageX, 0f, Save.villageZ) : new Vector3(0f, 0f, 22f);
+            if (Mathf.Abs(start.x - VillageInterior.OX) < 30f && Mathf.Abs(start.z - VillageInterior.OZ) < 30f) start = new Vector3(0f, 0f, 30f);   // 157차: 옛 세이브가 집 안 좌표면 마당에서
+            // 157차: 저장 위치가 문 앞(자동 입장 반경)이면 문에서 1.6 m 물러난 자리에서 시작 — 켜자마자 들어가지 않게
+            foreach (var hs in VillageWorld.Houses) { if (hs.house == null) continue; if (Vector3.Distance(new Vector3(start.x, 0f, start.z), new Vector3(hs.door.x, 0f, hs.door.z)) < 1.3f) { var f = hs.house.forward; start = new Vector3(hs.door.x + f.x * 1.6f, 0f, hs.door.z + f.z * 1.6f); break; } }
+            if (VillageWorld.Shop != null) { var sd = VillageWorld.Shop.TransformPoint(new Vector3(0f, 0f, 2.6f)); if (Vector3.Distance(new Vector3(start.x, 0f, start.z), new Vector3(sd.x, 0f, sd.z)) < 1.3f) { var f = VillageWorld.Shop.forward; start = new Vector3(sd.x + f.x * 1.6f, 0f, sd.z + f.z * 1.6f); } }
             start.y = VillageWorld.Height(start.x, start.z);
             _player.position = start; _player.rotation = Quaternion.Euler(0f, 180f, 0f);
-            _cc = go.AddComponent<CharacterController>(); _cc.height = 1.2f; _cc.radius = 0.32f; _cc.center = new Vector3(0f, 0.62f, 0f); _cc.slopeLimit = 60f; _cc.stepOffset = 0.35f;
+            _cc = go.AddComponent<CharacterController>(); _cc.height = 1.2f; _cc.radius = 0.36f;   // 159차: 몸이 소품에 덜 파고들게 _cc.center = new Vector3(0f, 0.62f, 0f); _cc.slopeLimit = 60f; _cc.stepOffset = 0.35f;
             go.AddComponent<CcHitLog>();   // 149차 진단: 마지막으로 부딪힌 콜라이더
             var rigHost = new GameObject("Rig").transform; rigHost.SetParent(_player, false); _rigT = rigHost;
             _rig = SkaterRig.Spawn(rigHost, 1.25f, true);
             // 141차: 절차 모션(바운스·기울기·스쿼시·발먼지·고개)
-            _motion = rigHost.gameObject.AddComponent<CharacterMotion>(); _motion.WalkSpeed = 2.05f; _motion.RunSpeed = 4.55f;
+            _motion = rigHost.gameObject.AddComponent<CharacterMotion>(); _motion.WalkSpeed = 2.46f; _motion.RunSpeed = 5.46f;   // 159차: +20%
             if (_rig != null)
             {
                 _anim = _rig.GetComponent<Animator>(); if (_anim != null) { _anim.SetBool("Grounded", true); _anim.SetFloat("Speed", 0f); _anim.Play("Run", 0, 0.12f); _anim.speed = 0f; }
                 foreach (var smr in _rig.GetComponentsInChildren<SkinnedMeshRenderer>()) if (smr.GetComponent<CelOutlineHint>() == null) smr.gameObject.AddComponent<CelOutlineHint>();   // 138차: 잉크 윤곽
+                StartCoroutine(AttachFace());   // 155차: 클링 생성 얼굴 데칼(큰 눈·홍조·미소)
             }
             else CoastFigureMesh.BuildHaneul(rigHost, 1.25f);
             // 발밑 그림자
@@ -121,13 +132,15 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             _spots.Add(new Spot { id = "tower", title = Loc.T("송전탑 언덕 · 마을이 다 보인다", "Tower hill · View of the village"), pos = VillageWorld.Ground(11f, 38f), radius = 5.5f, on = () => _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("여기서 보면 마을이 다 보여. 이번 주 할 일은 집에 가서 정하자.", "You can see the whole village from here. Let's plan the week at home.")) });
             _spots.Add(new Spot { id = "hero", title = Loc.T("우리집 · 들어가기", "Our home · Enter"), pos = VillageWorld.Ground(0f, 32f), radius = 4.6f, on = HeroHouseMenu });
             _spots.Add(new Spot { id = "mom", title = Loc.T("엄마 집 · 펫 돌보기 / 잠자기", "Mom's house · Pets / Sleep"), pos = VillageWorld.Ground(1.2f, -20f), radius = 4.2f, on = MomHouseMenu });
-            _spots.Add(new Spot { id = "shop", title = Loc.T("해변 상점 · 장보기", "Beach shop · Buy"), pos = VillageWorld.Ground(-5.5f, -29.5f), radius = 4f, on = OpenShop });
+            _spots.Add(new Spot { id = "shop", title = Loc.T("마을상점 · 장보기", "Village shop · Buy"), pos = VillageWorld.Ground(-5.5f, -29.5f), radius = 4f, on = OpenShop });
             _spots.Add(new Spot { id = "garden", title = Loc.T("텃밭 · 밭 칸으로 들어가자", "Garden · Step onto a plot"), pos = VillageWorld.Ground(0f, -6f), radius = 6.6f, on = FarmAct });   // 150차: 스타듀식 9칸
             _spots.Add(new Spot { id = "beach", title = Loc.T("바닷가 · 낚시하기", "Beach · Go fishing"), pos = VillageWorld.Ground(-1f, -31f), radius = 4.5f, on = OpenFishing });
+            _spots.Add(new Spot { id = "play", title = Loc.T("정자 · 놀기 / 연습", "Pavilion · Play / Practice"), pos = VillageWorld.Ground(28f, -6f), radius = 4.2f, on = PlayMenu });   // 156차
             // 147차: 집마다 들어가기(문 앞 스팟) — 우리집/엄마 집은 기존 메뉴에 항목 추가
             foreach (var hs in VillageWorld.Houses)
             {
                 if (hs.house == VillageWorld.HeroHouse || hs.house == VillageWorld.MomHouse) continue;
+                if (hs.house == VillageWorld.JobHouse) { _spots.Add(new Spot { id = "job", title = Loc.T("💼 알바나라 · 알바 고르기", "💼 Job Center · Pick a job"), pos = hs.door, radius = 2.6f, on = JobMenu }); continue; }   // 156차
                 var cap = hs; 
                 _spots.Add(new Spot { id = "house_" + cap.name, title = Loc.T(cap.name + " · 들어가기", cap.name + " · Enter"), pos = cap.door, radius = 2.4f, on = () => EnterHouse(cap.house, cap.name, cap.door) });
             }
@@ -157,7 +170,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             var camRot = Quaternion.Euler(0f, _stickHeld ? _stickYaw : _camYaw, 0f);
             var dir = camRot * new Vector3(j.x, 0f, j.y);
             // 141차(동물의 숲 느낌): 스틱을 조금 밀면 걷고 끝까지 밀면 달림, 가속·감속은 부드럽게, 몸은 진행 방향으로 스르륵
-            float wantSpeed = mag < 0.05f ? 0f : Mathf.Lerp(2.05f, 4.55f, Mathf.InverseLerp(0.35f, 0.95f, mag));   // 144차: +20%
+            float wantSpeed = mag < 0.05f ? 0f : Mathf.Lerp(2.46f, 5.46f, Mathf.InverseLerp(0.35f, 0.95f, mag));   // 144차: +20% · 159차(사용자): +20% 더
             var wantVel = mag < 0.05f ? Vector3.zero : dir.normalized * wantSpeed;
             _vel = Vector3.SmoothDamp(_vel, wantVel, ref _acc, mag < 0.05f ? 0.08f : 0.13f, 100f, dt);
             var move = _vel * dt;
@@ -170,19 +183,43 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (VillageFarm.TileAt(_player.position) >= 0) gy += VillageFarm.Top;   // 150차: 밭 흙 상자 위에 선다
             move.y = gy - _player.position.y;
             _cc.Move(move);
+            if (!locked) Unstick(dt, mag);   // 159차
+            // 159차: 줍기(나뭇가지·조개·버섯)는 1.2 m 안에 오면 자동으로
+            if (!locked && _picks != null && Time.frameCount % 5 == 0) { foreach (var pk in _picks) { if (pk.go == null) continue; if (Vector3.Distance(new Vector3(_player.position.x, 0f, _player.position.z), new Vector3(pk.pos.x, 0f, pk.pos.z)) < 1.2f) { TakePick(pk); break; } } }
             bool moving = _vel.magnitude > 0.15f;
             _moving = moving;
+            // 155차: 밤낮 — 팝업·이벤트 중엔 시계 멈춤, 밤이면 귀신(시간 지날수록 1→3), 20:00 에 한 번 경고
+            if (_dayNight != null)
+            {
+                _dayNight.Paused = locked || _interior != null;
+                if (_dayNight.IsNight && _interior == null && _creatures != null)
+                {
+                    float h = _dayNight.Hour < 6f ? _dayNight.Hour + 24f : _dayNight.Hour;
+                    int want = h < 20.5f ? 0 : h < 22f ? 1 : h < 23.5f ? 2 : 3;
+                    if (_creatures.GhostCount < want && Time.time > _ghostSpawnAt) { _creatures.SpawnGhost(); _ghostSpawnAt = Time.time + 6f; }
+                    if (!_nightWarned) { _nightWarned = true; _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("밤이다… 귀신이 나올 시간이야. 빨리 우리집으로 돌아가자! (상점도 닫혔어)", "It's night… ghosts come out now. Run home! (Shop's closed too)")); }
+                }
+                else if (!_dayNight.IsNight) _nightWarned = false;
+            }
             // 지나치는 풀·덤불 흔들기
             if (moving && Time.frameCount % 6 == 0) WindSway.NudgeNear(_player.position, 1.1f);
             // 가까운 장소·나무
             UpdateNear();
             if (_yard) UpdateYard();
-            if (Time.frameCount % 30 == 0 && Save != null) { Save.villageX = _player.position.x; Save.villageZ = _player.position.z; }
+            if (Time.frameCount % 30 == 0 && Save != null) { var sp = _interior != null ? _interior.ReturnPos : _player.position; Save.villageX = sp.x; Save.villageZ = sp.z; }   // 156차: 집 안(300,300)은 저장하지 않는다
         }
 
         void LateUpdate()
         {
             if (_cam == null || _player == null) return;
+            // 154차: 휘두르는 동안 오른팔을 캐릭터 기준 앞/위로 들어 올림(애니메이터 위에 덧씌움)
+            if (_swingArm != 0f && _anim != null && _anim.avatar != null && _anim.avatar.isHuman)
+            {
+                var ua = _anim.GetBoneTransform(HumanBodyBones.RightUpperArm); var la = _anim.GetBoneTransform(HumanBodyBones.RightLowerArm);
+                float lift = Mathf.Clamp(-_swingArm, -0.6f, 1f);   // 위로 들 때 양수
+                if (ua != null) ua.rotation = Quaternion.AngleAxis(-lift * 120f - 20f, _player.right) * ua.rotation;
+                if (la != null) la.rotation = Quaternion.AngleAxis(-Mathf.Max(0f, lift) * 30f, _player.right) * la.rotation;
+            }
             // 144차(사용자: 「좌우로 움직이면 획획 넘어감」): 카메라 방향은 좌우 이동에 따라 돌지 않는다(동물의 숲처럼 고정).
             // 카메라 쪽(뒤)으로 1.2 초 이상 계속 걸을 때만 목표 방향을 바꿔 천천히 돌아붙고, 그 외엔 진행 방향으로 살짝 기울기만.
             float dtc = Time.deltaTime; float pyaw = _player.eulerAngles.y;
@@ -192,12 +229,16 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             // 149차(사용자: 「주인공이 움직이는 방향으로 카메라 이동」): 0.35 초 이상 실제로 걸으면 카메라 목표 방향이 진행 방향을
             // 초당 110° 로 따라가고, 실제 회전은 0.6 초 감쇠 — 좌우 스틱에 휙 돌지 않고 스르륵 돌아붙는다. 멈추면 그 방향 유지.
             if (_moving && reallyMoving) _backT += dtc; else _backT = 0f;
-            if (_backT > 0.35f) _camYawTarget = Mathf.MoveTowardsAngle(_camYawTarget, pyaw, dtc * 110f);
-            float lean = Mathf.Clamp(headErr, -90f, 90f) * (_moving ? 0.06f : 0f);
+            // 153차(사용자: 「좌측으로 내려가도 오른쪽으로 흐르는 느낌·카메라가 어지럽게 돎」): 옆으로(45~135°) 걸을 때는 카메라가 돌지 않는다.
+            // 카메라가 돌면서 같은 스틱 방향이 화면에서 대각선으로 흐르던 것. 뒤로 돌아설 때(>135°)만 1.0 s 뒤 초당 55°, 앞쪽(<45°)은 미세 보정(25°/s).
+            float absErr = Mathf.Abs(headErr);
+            if (_backT > 1.0f && absErr > 135f) _camYawTarget = Mathf.MoveTowardsAngle(_camYawTarget, pyaw, dtc * 55f);
+            else if (_backT > 0.6f && absErr < 45f) _camYawTarget = Mathf.MoveTowardsAngle(_camYawTarget, pyaw, dtc * 25f);
+            float lean = 0f;   // 기울기(lean)도 옆걸음에서 화면을 흔들어 뺐다
             float yawErr = Mathf.Abs(Mathf.DeltaAngle(_camYaw, _camYawTarget));
             float kWant = Mathf.Clamp01((yawErr - 40f) / 90f);
             _swingK = Mathf.Lerp(_swingK, kWant, 1f - Mathf.Exp(-dtc * (kWant > _swingK ? 9f : 3f)));
-            _camYaw = Mathf.SmoothDampAngle(_camYaw, _camYawTarget + lean, ref _camYawVel, 0.6f);
+            _camYaw = Mathf.SmoothDampAngle(_camYaw, _camYawTarget + lean, ref _camYawVel, 0.8f);
             // 146차: 방사형 곡면 원점 = 주인공(가까운 곳은 평평, 60 m 에서 2.9 m, 바다 끝 70 m 아래로)
             Shader.SetGlobalVector("_CoastCurveRadial", new Vector4(CurveK, _player.position.x, _player.position.z, 320f));
             var look = CamLook; var ct = CamTarget;
@@ -251,13 +292,14 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 for (int i = 0; i < res.Count && i < 4; i++) top += " / " + res[i].gameObject.name;
             }
             var hl = _player.GetComponent<CcHitLog>(); string hit = hl != null ? hl.Last : "-";
-            Debug.LogWarning($"[Diag] hit={hit} busy={_busy} locked={_hud?.Locked} popup={_hud?.PopupOpen} joy={_hud?.Joy} cc={(_cc != null && _cc.enabled)} ts={Time.timeScale} es={(es != null)} topAtJoy={top} vel={_vel.magnitude:F2} pos={_player.position}");
+            var spT = Resources.Load<Sprite>("CoastRun/Textures/Village/UI_Tool_Pick"); float rd = -1f; foreach (var rk in VillageWorld.Rocks) if (rk.t != null) { float dd = Vector3.Distance(rk.t.position, _player.position); if (rd < 0 || dd < rd) rd = dd; }
+            Debug.LogWarning($"[Diag] rocks={VillageWorld.Rocks.Count} nearRock={(_nearRock != null ? _nearRock.name : "-")} rockDist={rd:F1} pick={_pick} sprite={(spT != null)} stone={LifeItems.Count(Save, "mat_stone")} hit={hit} busy={_busy} locked={_hud?.Locked} popup={_hud?.PopupOpen} joy={_hud?.Joy} cc={(_cc != null && _cc.enabled)} ts={Time.timeScale} es={(es != null)} topAtJoy={top} vel={_vel.magnitude:F2} pos={_player.position}");
         }
         Vector3? _walkTo; float _ghostLift;
         /// 개발용: 자리로 걸어가기.
         public void WalkTo(Vector3 p) { _walkTo = p; }
         // ── 147차: 집 안 들어가기/나오기 ────────────────────────────────
-        VillageInterior _interior;
+        VillageInterior _interior; VillageDrops _drops;
         public void EnterHouse(Transform house, string name, Vector3 door)
         {
             if (_interior != null) return;
@@ -265,15 +307,25 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             var wr = house != null ? house.Find("Wall") : null;
             if (wr != null) { var m = wr.GetComponent<Renderer>().sharedMaterial; if (m != null && m.HasProperty("_BaseColor")) wall = Color.Lerp(m.GetColor("_BaseColor"), Color.white, 0.35f); }
             string[] acc = { "#FEC4DD", "#A9DCC8", "#BFD8F5", "#F7D5A6", "#CDBDDA" }; accent = VillagePalette.Hex(acc[Mathf.Abs(name.GetHashCode()) % acc.Length]);
-            var back = door + (house != null ? house.forward * 0.6f : Vector3.zero);
+            var back = door + (house != null ? house.forward * 1.7f : Vector3.zero);   // 154차: 나오면 문에서 1.7 m 앞(자동 입장 문 밖)
+            _heroInside = house != null && house == VillageWorld.HeroHouse;
             StartCoroutine(EnterHouseRoutine(name, wall, accent, back, house != null ? house.eulerAngles.y : 180f));
         }
+        bool _heroInside;
         IEnumerator EnterHouseRoutine(string name, Color wall, Color accent, Vector3 back, float houseYaw)
         {
             _busy = true; yield return FadeScreen(true, 0.25f);
             _interior = VillageInterior.Create(transform, name, wall, accent, back, houseYaw);
             Teleport(_interior.Entry, 0f);
             _spots.Add(new Spot { id = "exit", title = Loc.T("문 · 밖으로 나가기", "Door · Go outside"), pos = _interior.ExitSpot, radius = 1.6f, on = ExitHouse });
+            if (_heroInside)
+            {
+                // 156차: 우리집 안 — 식탁(밥) · 침대(잠 → 한 주) · 책상(옛 홈 화면: 방 꾸미기·조리)
+                float ox = VillageInterior.OX, oz = VillageInterior.OZ, fy = _interior.FloorY;
+                _spots.Add(new Spot { id = "home_table", title = Loc.T("🍚 식탁 · 밥 먹기", "🍚 Table · Eat"), pos = new Vector3(ox + 1.6f, fy, oz - 0.9f), radius = 1.25f, on = EatHome });
+                _spots.Add(new Spot { id = "home_bed", title = Loc.T("🛏 침대 · 자기 (한 주가 지난다)", "🛏 Bed · Sleep (week passes)"), pos = new Vector3(ox - 1.15f, fy, oz + 1.0f), radius = 1.3f, on = SleepBed });
+                _spots.Add(new Spot { id = "home_desk", title = Loc.T("📻 책상 · 내 방 꾸미기 / 조리", "📻 Desk · My room / Cook"), pos = new Vector3(ox + 2.1f, fy, oz + 1.6f), radius = 1.2f, on = () => OpenHome(0) });
+            }
             yield return null; yield return FadeScreen(false, 0.3f);
             _busy = false; _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T(name + " 안이다. 아늑하네.", "Inside " + name + ". Cozy."));
         }
@@ -299,8 +351,9 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             _busy = true; yield return FadeScreen(true, 0.25f);
             var it = _interior; _interior = null;
-            _spots.RemoveAll(s => s.id == "exit");
+            _spots.RemoveAll(s => s.id == "exit" || s.id.StartsWith("home_"));
             Teleport(it.ReturnPos, it.ReturnYaw); Destroy(it.gameObject);
+            _doorCooldown = Time.time + 3f;   // 154차: 문 앞에 나와서 바로 다시 들어가지 않게
             yield return null; yield return FadeScreen(false, 0.3f); _busy = false;
         }
 
@@ -311,6 +364,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
 
         void UpdateNear()
         {
+            UpdateDoorGlow();   // 157차
             _near = null; float best = 999f; var p = _player.position;
             foreach (var s in _spots) { float d = Vector3.Distance(new Vector3(p.x, 0f, p.z), new Vector3(s.pos.x, 0f, s.pos.z)); if (d < s.radius && d < best) { best = d; _near = s; } }
             _nearTree = null; _nearTreeIdx = -1; best = 2.8f;
@@ -319,6 +373,34 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 var t = VillageWorld.Trees[i]; if (t == null) continue;
                 float d = Vector3.Distance(new Vector3(p.x, 0f, p.z), new Vector3(t.position.x, 0f, t.position.z));
                 if (d < best) { best = d; _nearTree = t; _nearTreeIdx = i; }
+            }
+            // 154차: 가까운 바위(곡괭이)
+            _nearRock = null; _nearRockIdx = -1; float bestR = 2.6f;
+            foreach (var rk in VillageWorld.Rocks)
+            {
+                if (rk.t == null) continue;
+                float d = Vector3.Distance(new Vector3(p.x, 0f, p.z), new Vector3(rk.t.position.x, 0f, rk.t.position.z));
+                if (d < bestR) { bestR = d; _nearRock = rk.t; _nearRockIdx = rk.idx; }
+            }
+            // 154차(사용자: 「각 건물 문에서 안으로」): 문 앞 0.9 m 에 닿으면 자동으로 들어간다(나온 뒤 2.5 s 는 쉼)
+            if (!_busy && !_hud.Locked && _interior == null && Time.time > _doorCooldown)
+            {
+                foreach (var hs in VillageWorld.Houses)
+                {
+                    if (hs.house == null) continue;
+                    float dd = Vector3.Distance(new Vector3(p.x, 0f, p.z), new Vector3(hs.door.x, 0f, hs.door.z));
+                    if (dd > 0.9f) continue;
+                    _doorCooldown = Time.time + 3f;
+                    // 156차: 우리집은 늘 집 안(식탁·침대·책상)으로, 알바나라는 알바 고르기
+                    if (hs.house == VillageWorld.JobHouse) JobMenu();
+                    else EnterHouse(hs.house, hs.name, hs.door);
+                    break;
+                }
+                if (VillageWorld.Shop != null && Time.time > _doorCooldown)
+                {
+                    var sd = VillageWorld.Shop.TransformPoint(new Vector3(0f, 0f, 2.6f));
+                    if (Vector3.Distance(new Vector3(p.x, 0f, p.z), new Vector3(sd.x, 0f, sd.z)) < 0.9f) { _doorCooldown = Time.time + 3f; OpenShop(); }
+                }
             }
             if (_yard) { _hud.SetPrompt(null, null); _hud.SetAction(Loc.T("놓기", "Place")); return; }
             // 150차: 텃밭 안에서는 서 있는 칸의 상태로 안내가 바뀐다(씨/물/수확/잡초) + 노란 링
@@ -331,8 +413,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             }
             _hud.SetPrompt(_near != null ? "▶ " + _near.title : null, _near != null ? _near.on : null);
             bool critter = _creatures != null && !_axe && _creatures.AnyCritterNear(_bat);
-            string toolAct = _axe ? Loc.T("나무 패기", "Chop") : _bat ? Loc.T("휘두르기", "Swing") : Loc.T("잡기", "Catch");
-            _hud.SetAction(critter ? toolAct : _nearTree != null ? (_axe ? Loc.T("나무 패기", "Chop") : Loc.T("흔들기", "Shake")) : _near != null && _near.id == "beach" ? Loc.T("낚시", "Fish") : toolAct);
+            string toolAct = _pick ? Loc.T("돌 캐기", "Mine") : _axe ? Loc.T("나무 패기", "Chop") : _bat ? Loc.T("휘두르기", "Swing") : Loc.T("잡기", "Catch");
+            _hud.SetAction(_nearDoorOn != null && !critter ? Loc.T("들어가기", "Enter") : critter ? toolAct : _pick && _nearRock != null ? Loc.T("돌 캐기", "Mine") : _nearTree != null ? (_axe ? Loc.T("나무 패기", "Chop") : Loc.T("흔들기", "Shake")) : _near != null && _near.id == "beach" ? Loc.T("낚시", "Fish") : toolAct);
         }
 
         // ── 버튼 ─────────────────────────────────────────────────────────
@@ -340,6 +422,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (_busy || _hud.Locked) return;
             if (_yard) { PlaceGhost(); return; }
+            // 157차: 반짝이는 문 앞에서 행동 버튼 = 들어가기(벌레가 코앞이면 잡기가 먼저)
+            if (_nearDoorOn != null && !(_creatures != null && _creatures.AnyCritterNear(_bat))) { _doorCooldown = Time.time + 3f; var on = _nearDoorOn; on(); return; }
+            // 154차: 곡괭이 — 바위 곁이면 캔다(돌), 아니면 헛스윙
+            if (_pick) { if (_nearRock != null) { StartCoroutine(MineRock(_nearRock, _nearRockIdx)); return; } Swing(); CoastToast.Show(Loc.T("탕— 언덕의 바위 곁에서 휘둘러야 돌이 나온다.", "Clang — swing next to a hill rock.")); return; }
             // 150차: 도끼 — 나무 곁이면 팬다(장작), 아니면 헛스윙
             if (_axe) { if (_nearTree != null) { StartCoroutine(ChopTree(_nearTree, _nearTreeIdx)); return; } Swing(); CoastToast.Show(Loc.T("붕— 나무 곁에서 휘둘러야 장작이 나온다.", "Whoosh — swing next to a tree.")); return; }
             // 도구 먼저: 정령(방망이)·나비(잠자리채)가 가까우면 휘두른다
@@ -368,18 +454,20 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_busy || _hud.Locked) return;
             _hud.Choice(Loc.T("도구 고르기", "Choose a tool"), Loc.T("잠자리채: 나비 잡기(별조각) · 방망이: 다가오는 정령을 톡(별조각·코인). 정령과 부딪히면 HP가 깎여!", "Net: catch butterflies (shards) · Bat: bop spirits (shards, coins). Bumping a spirit costs HP!"),
                 new (string, Color, Action)[] {
-                    (Loc.T("🦋 잠자리채", "🦋 Net") + (!_bat ? Loc.T(" (지금)", " (now)") : ""), new Color(0.45f, 0.78f, 0.55f), () => { _bat = false; _axe = false; ApplyTool(); }),
-                    (Loc.T("🏏 방망이", "🏏 Bat") + (_bat && !_axe ? Loc.T(" (지금)", " (now)") : ""), new Color(0.98f, 0.62f, 0.45f), () => { _bat = true; _axe = false; ApplyTool(); }),
-                    (Loc.T("🪓 도끼 — 나무 패서 장작(난로 연료)", "🪓 Axe — chop trees for firewood") + (_axe ? Loc.T(" (지금)", " (now)") : ""), new Color(0.62f, 0.52f, 0.40f), () => { _axe = true; ApplyTool(); }),
+                    (Loc.T("🦋 잠자리채", "🦋 Net") + (!_bat ? Loc.T(" (지금)", " (now)") : ""), new Color(0.45f, 0.78f, 0.55f), () => { _bat = false; _axe = false; _pick = false; ApplyTool(); }),
+                    (Loc.T("🏏 방망이", "🏏 Bat") + (_bat && !_axe ? Loc.T(" (지금)", " (now)") : ""), new Color(0.98f, 0.62f, 0.45f), () => { _bat = true; _axe = false; _pick = false; ApplyTool(); }),
+                    (Loc.T("🪓 도끼 — 나무 패서 장작(3번이면 쓰러짐, 8주 뒤 다시)", "🪓 Axe — chop trees (falls after 3, regrows in 8w)") + (_axe && !_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.62f, 0.52f, 0.40f), () => { _axe = true; _pick = false; ApplyTool(); }),
+                    (Loc.T("⛏ 곡괭이 — 언덕 바위 캐서 돌(3번이면 사라짐, 8주 뒤 다시)", "⛏ Pickaxe — mine hill rocks (gone after 3, regrows in 8w)") + (_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.55f, 0.58f, 0.66f), () => { _pick = true; _axe = false; _bat = false; ApplyTool(); }),
                 });
         }
 
         /// 도구 표시: 오른손 뼈에 잠자리채(막대+고리) 또는 방망이(막대) 붙이기 + 버튼 라벨
         /// 개발용: 도구 바로 바꾸기(0 잠자리채 1 방망이 2 도끼)
-        public void DevTool(int t) { _bat = t == 1; _axe = t == 2; ApplyTool(); }
+        public void DevHour(float h) { if (_dayNight != null) _dayNight.Hour = h; RefreshStatus(); }
+        public void DevTool(int t) { _bat = t == 1; _axe = t == 2; _pick = t == 3; ApplyTool(); }
         void ApplyTool()
         {
-            if (_hud != null) _hud.SetTool(_axe ? Loc.T("도끼", "Axe") : _bat ? Loc.T("방망이", "Bat") : Loc.T("잠자리채", "Net"));
+            if (_hud != null) _hud.SetTool(_pick ? Loc.T("곡괭이", "Pickaxe") : _axe ? Loc.T("도끼", "Axe") : _bat ? Loc.T("방망이", "Bat") : Loc.T("잠자리채", "Net"), _pick ? 3 : _axe ? 2 : _bat ? 1 : 0);
             StartCoroutine(OutlineToolLater());
             if (_toolVis != null) Destroy(_toolVis.gameObject);
             Transform hand = _anim != null && _anim.avatar != null && _anim.avatar.isHuman ? _anim.GetBoneTransform(HumanBodyBones.RightHand) : null;
@@ -388,7 +476,17 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             root.localPosition = hand != null ? new Vector3(0f, -0.02f, 0.02f) : new Vector3(0.28f, 0.7f, 0.1f);
             root.localRotation = Quaternion.Euler(-70f, 0f, 0f);
             float k = hand != null ? 1f / Mathf.Max(0.01f, hand.lossyScale.x) : 1f;
-            if (_axe)
+            if (_pick)
+            {
+                // 154차: 곡괭이 — 자루 + 가로 쇠머리(양끝 뾰족)
+                var h = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Destroy(h.GetComponent<Collider>()); h.transform.SetParent(root, false);
+                h.transform.localPosition = new Vector3(0f, 0.30f * k, 0f); h.transform.localScale = new Vector3(0.05f, 0.34f, 0.05f) * k;
+                h.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateLit(new Color(0.62f, 0.44f, 0.28f));
+                var hd = GameObject.CreatePrimitive(PrimitiveType.Capsule); Destroy(hd.GetComponent<Collider>()); hd.transform.SetParent(root, false);
+                hd.transform.localPosition = new Vector3(0f, 0.62f * k, 0f); hd.transform.localRotation = Quaternion.Euler(0f, 0f, 90f); hd.transform.localScale = new Vector3(0.07f, 0.20f, 0.07f) * k;
+                hd.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateLit(new Color(0.55f, 0.58f, 0.64f));
+            }
+            else if (_axe)
             {
                 // 150차: 도끼 — 자루 + 날
                 var h = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Destroy(h.GetComponent<Collider>()); h.transform.SetParent(root, false);
@@ -430,13 +528,82 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 if (smr.name == "Outline") foreach (var m in smr.sharedMaterials) if (m != null && m.HasProperty("_Width")) m.SetFloat("_Width", 0.016f);
         }
 
+        bool _swinging; float _swingArm;
+        VillageDayNight _dayNight; bool _nightWarned; float _ghostSpawnAt;   // 155차   // 154차: 팔을 머리 위로 드는 정도(-1 위 … 0.55 내리침)
+        /// 153차(사용자: 「잠자리 잡는 모션 부드럽게」): 도구를 살짝 뒤로 당겼다가(0.12 s) 앞으로 호를 그리며 휘두르고(0.2 s) 천천히 제자리(0.3 s),
+        /// 몸은 CharacterMotion 으로 앞으로 기울었다 돌아옴. 애니는 Collect 트리거 뒤 Play 로 뚝 끊지 않고 CrossFade 로 되돌린다.
         void Swing()
         {
-            if (_anim != null) { _anim.speed = 1f; _anim.SetTrigger("Collect"); StartCoroutine(SwingSettle()); }
+            if (_swinging) return;
+            StartCoroutine(SwingCo());
             CoastPrefs.Vibrate();
         }
-        IEnumerator SwingSettle() { yield return new WaitForSeconds(0.9f); if (_anim != null && !_moving) { _anim.Play("Run", 0, 0.12f); _anim.speed = 0f; } }
+        static float EaseInOut(float x) { x = Mathf.Clamp01(x); return x * x * (3f - 2f * x); }
+        IEnumerator SwingCo()
+        {
+            _swinging = true;
+            if (_anim != null) { _anim.speed = 1f; _anim.SetTrigger("Collect"); }
+            var tv = _toolVis; var rest = tv != null ? tv.localRotation : Quaternion.identity;
+            float t = 0f;
+            while (t < 0.62f)
+            {
+                t += Time.deltaTime; float k;
+                // 154차(사용자: 「위에서 아래로 잡는 모션」): 머리 위로 크게 들었다가(0.18 s) 앞으로 내리찍고(0.12 s) 잠깐 멈춘 뒤 복귀
+                if (t < 0.18f) k = -1f * EaseInOut(t / 0.18f);
+                else if (t < 0.30f) k = Mathf.Lerp(-1f, 0.55f, EaseInOut((t - 0.18f) / 0.12f));
+                else if (t < 0.40f) k = 0.55f;
+                else k = Mathf.Lerp(0.55f, 0f, EaseInOut((t - 0.40f) / 0.22f));
+                _swingArm = k;
+                if (tv != null) tv.localRotation = rest * Quaternion.Euler(k * -110f, k * 10f, 0f);
+                yield return null;
+            }
+            if (tv != null) tv.localRotation = rest; _swingArm = 0f;
+            if (_anim != null && !_moving) { _anim.CrossFade("Run", 0.3f, 0, 0.12f); yield return new WaitForSeconds(0.3f); if (!_moving && _anim != null) _anim.speed = 0f; }
+            _swinging = false;
+        }
 
+        /// 155차: 귀신에게 맞음 — HP 0 이면 병원(돈 20%, 다음 날 아침 집 앞)
+        void GhostHit(int dmg)
+        {
+            if (Save == null || _busy) return;
+            Save.stats.stamina = Mathf.Max(0, Save.stats.stamina - dmg);
+            _gm.Persist(); RefreshStatus(); CoastPrefs.VibrateEvent(); StartCoroutine(HitFlash());
+            if (_motion != null) _motion.Hop();
+            if (Save.stats.stamina <= 0) { StartCoroutine(Hospital()); return; }
+            CoastToast.Show(Loc.T($"👻 귀신에게 잡혔다! HP −{dmg} — 집으로 도망쳐!", $"👻 The ghost got you! HP −{dmg} — run home!"));
+        }
+        IEnumerator Hospital()
+        {
+            _busy = true;
+            yield return FadeScreen(true, 0.6f);
+            int lost = Mathf.RoundToInt(Save.stats.money * 0.2f); Save.stats.money -= lost;
+            Save.stats.stamina = Mathf.Max(40, PlayerStats.StatMax / 3); Save.condition = Mathf.Max(Save.condition, 40);
+            if (_creatures != null) _creatures.ClearGhosts();
+            if (_dayNight != null) _dayNight.SetMorning();
+            var home = VillageWorld.HeroHouse != null ? VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 4.5f)) : new Vector3(0f, 0f, 30f);
+            Teleport(new Vector3(home.x, 0f, home.z), 180f);
+            _gm.Persist(); RefreshStatus();
+            yield return new WaitForSeconds(0.6f);
+            yield return FadeScreen(false, 0.6f);
+            _busy = false;
+            _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T($"…병원에서 눈을 떴다. 치료비로 {lost:N0}G 를 냈다(20%). 밤엔 꼭 집으로!", $"…Woke up in the hospital. Paid {lost:N0}G (20%). Go home at night!"));
+        }
+        /// 155차: 밤에 집에 들어가면 잔다 → 다음 날 08:00, HP +40
+        IEnumerator SleepHome()
+        {
+            _busy = true; _doorCooldown = Time.time + 4f;
+            yield return FadeScreen(true, 0.5f);
+            Save.stats.stamina = Mathf.Min(PlayerStats.StatMax, Save.stats.stamina + 40); Save.condition = Mathf.Min(100, Save.condition + 5);
+            if (_creatures != null) _creatures.ClearGhosts();
+            if (_dayNight != null) _dayNight.SetMorning();
+            var home = VillageWorld.HeroHouse != null ? VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 4.5f)) : _player.position;
+            Teleport(new Vector3(home.x, 0f, home.z), 180f);
+            _gm.Persist(); RefreshStatus();
+            yield return new WaitForSeconds(0.5f);
+            yield return FadeScreen(false, 0.5f);
+            _busy = false;
+            CoastToast.Show(Loc.T("푹 잤다. 다음 날 아침 8시 — HP +40 · 컨디션 +5", "Slept well. 8 AM next day — HP +40 · condition +5"));
+        }
         void SpiritHit(int dmg)
         {
             if (Save == null) return;
@@ -462,8 +629,9 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_busy) return;
             _hud.Choice(Loc.T("마을 메뉴", "Village menu"), Loc.T($"{Save.week}주차 · {Timeline.SeasonName(Timeline.SeasonOf(Save.week))} · Lv.{Save.level}", $"Week {Save.week} · {Timeline.SeasonName(Timeline.SeasonOf(Save.week))} · Lv.{Save.level}"),
                 new (string, Color, Action)[] {
-                    (Loc.T("📅 이번 주 스케줄(송전탑)", "📅 Weekly schedule (tower)"), new Color(0.35f, 0.62f, 0.95f), EnterSchedule),
-                    (Loc.T("🛍 구멍가게", "🛍 Corner shop"), new Color(0.98f, 0.62f, 0.72f), OpenShop),
+                    (Loc.T($"🎮 놀기 · 연습 (오늘 활동 {ActCount}/{ActsPerDay})", $"🎮 Play · Practice ({ActCount}/{ActsPerDay})"), new Color(0.45f, 0.78f, 0.55f), PlayMenu),
+                    (Loc.T("🏠 우리집으로 순간이동", "🏠 Warp home"), new Color(0.35f, 0.62f, 0.95f), () => StartCoroutine(WarpHome())),
+                    (Loc.T("🛍 마을상점", "🛍 Village shop"), new Color(0.98f, 0.62f, 0.72f), OpenShop),
                     (Loc.T("🎒 가방", "🎒 Bag"), new Color(0.98f, 0.78f, 0.35f), OnBag),
                     (Loc.T("🏠 타이틀로", "🏠 To title"), new Color(0.55f, 0.55f, 0.62f), () => { _gm.Persist(); _gm.ToTitle(); }),
                 });
@@ -473,7 +641,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         void EnterSchedule()
         {
             if (_busy) return; _busy = true;
-            if (Save != null) { Save.villageX = _player.position.x; Save.villageZ = _player.position.z; }
+            if (Save != null) { var p = _interior != null ? _interior.ReturnPos : _player.position; Save.villageX = p.x; Save.villageZ = p.z; }
             _gm.Persist();
             _driver.OpenScheduleFromVillage();
         }
@@ -483,11 +651,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             // 137차(사용자): 우리집에 들어가면 = 기존 스토리 홈 화면(주차 스케줄). 마당 꾸미기는 두 번째.
             _hud.Choice(Loc.T("우리집", "Our home"), Loc.T("언덕 꼭대기 우리집. 들어가서 이번 주 할 일을 정하자.", "Our house on the hilltop. Go in and plan the week."),
                 new (string, Color, Action)[] {
-                    (Loc.T("🏠 집에 들어가기 (홈 화면)", "🏠 Go inside (home screen)"), new Color(0.35f, 0.62f, 0.95f), EnterSchedule),
+                    (Loc.T($"🏠 집에 들어가기 (밥 · 잠 · 책상) — 활동 {ActCount}/{ActsPerDay}", $"🏠 Go inside (eat · sleep · desk) — {ActCount}/{ActsPerDay}"), new Color(0.35f, 0.62f, 0.95f), () => EnterHouse(VillageWorld.HeroHouse, Loc.T("우리집", "Our home"), VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 3.3f)))),
                     (Loc.T($"🔥 난로에 장작 넣기 (장작 {LifeItems.Count(Save, "mat_wood")} · 연료 {Save.villageFuel}주)", $"🔥 Stove firewood (wood {LifeItems.Count(Save, "mat_wood")} · fuel {Save.villageFuel}w)"), new Color(0.95f, 0.55f, 0.35f), AddFuel),
                     (Loc.T("🪑 마당 가구 배치", "🪑 Yard furniture"), new Color(0.45f, 0.78f, 0.55f), () => SetYard(true)),
                     (Loc.T("🛋 내 방 꾸미기", "🛋 My room"), new Color(0.98f, 0.62f, 0.72f), () => OpenHome(0)),
-                    (Loc.T("🚪 집 안 둘러보기", "🚪 Look inside"), new Color(0.95f, 0.78f, 0.45f), () => EnterHouse(VillageWorld.HeroHouse, Loc.T("우리집", "Our home"), VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 3.3f)))),
                 });
         }
 
@@ -540,9 +707,14 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (ui != null && tab == 1) ui.OpenBalcony();
         }
 
-        void OpenShop() { if (_busy) return; _busy = true; ShopUI.Open(_gm, 0, () => { _busy = false; RefreshStatus(); }); }
+        void OpenShop()
+        {
+            if (_busy) return;
+            if (_dayNight != null && !_dayNight.ShopOpen) { _hud.Bubble(Loc.T("상점", "Shop"), Loc.T("문이 닫혔다. 영업은 오전 8시 ~ 오후 7시.", "Closed. Open 8 AM – 7 PM.")); return; }
+            _busy = true; ShopUI.Open(_gm, 0, () => { _busy = false; RefreshStatus(); });
+        }
         void OpenGarden() { OpenHome(1); }
-        void OpenFishing() { if (_busy) return; _busy = true; FishingMini.Open(_gm, () => { _busy = false; RefreshStatus(); }); }
+        void OpenFishing() { if (_busy) return; _busy = true; FishingMini.Open(_gm, () => { _busy = false; MarkChore(); RefreshStatus(); }); }
 
         // ── 150차: 텃밭(스타듀식 9칸) ─────────────────────────────────────
         string FarmTitle(int tile)
@@ -604,7 +776,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             _hud.Choice(Loc.T("씨 뿌리기", "Plant seeds"), Loc.T($"보유 {Save.stats.money:N0}G · 페이즈마다 물 한 번, 주가 바뀌면 한 단계 더 자란다.", $"{Save.stats.money:N0}G · water once per phase; grows more each week."), opts.ToArray());
         }
 
-        void AfterFarm() { _gm.Persist(); RefreshStatus(); VillageWorld.BuildCrops(_world, Save); }
+        void AfterFarm() { MarkChore(); _gm.Persist(); RefreshStatus(); VillageWorld.BuildCrops(_world, Save); }
 
         IEnumerator WaterPour(int tile)
         {
@@ -631,10 +803,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         // ── 150차: 도끼질(장작) · 난로 연료 · 줍기 ───────────────────────
         IEnumerator ChopTree(Transform tree, int idx)
         {
-            _busy = true;
-            if (Save != null && Save.villageChopWeek != Save.week) { Save.villageChopWeek = Save.week; Save.villageChopMask = 0; }
-            int bit = 1 << Mathf.Clamp(idx, 0, 30);
-            if (Save != null && (Save.villageChopMask & bit) != 0) { CoastToast.Show(Loc.T("이 나무는 이번 주에 이미 팼어. 다음 주에!", "Already chopped this tree this week.")); _busy = false; yield break; }
+            _busy = true; MarkChore();
+            VillageWorld.EnsureGather(Save);
             var rest = tree.localRotation;
             for (int hit = 0; hit < 3; hit++)
             {
@@ -647,11 +817,62 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             }
             if (Save != null)
             {
-                Save.villageChopMask |= bit;
-                int n = UnityEngine.Random.Range(2, 4); LifeItems.Add(Save, "mat_wood", n);
-                for (int k = 0; k < n; k++) StartCoroutine(DropOrange(tree.position + new Vector3(UnityEngine.Random.Range(-1f, 1f), 1.6f, UnityEngine.Random.Range(-1f, 1f)), new Color(0.60f, 0.42f, 0.26f), 0.3f));
+                int n = UnityEngine.Random.Range(2, 4);
+                _drops.Spawn(tree.position + Vector3.up * 1.5f, "mat_wood", n, new Color(0.60f, 0.42f, 0.26f));   // 159차: 조각이 떨어지고 가까이 가면 흡수
                 Save.stats.stamina = Mathf.Min(PlayerStats.StatMax, Save.stats.stamina + 1);
-                CoastToast.Show(Loc.T($"🪓 장작 +{n} (보유 {LifeItems.Count(Save, "mat_wood")}) · 체력 +1 — 우리집 난로에 넣자", $"🪓 Firewood +{n} ({LifeItems.Count(Save, "mat_wood")} total) · stamina +1"));
+                // 154차: 3번 패면 쓰러진다(장작 +4 더) → 그루터기, 8주 뒤 다시 자람
+                int hits = idx >= 0 && idx < Save.villageTreeHits.Length ? ++Save.villageTreeHits[idx] : 0;
+                if (idx >= 0 && idx < Save.villageTreeGone.Length && hits >= 3)
+                {
+                    Save.villageTreeGone[idx] = Save.week; Save.villageTreeHits[idx] = 0; _drops.Spawn(tree.position + Vector3.up * 1.2f, "mat_wood", 4, new Color(0.60f, 0.42f, 0.26f));
+                    CoastToast.Show(Loc.T($"🌳 나무가 쓰러졌다! 장작 조각 {n + 4}개 — 가까이 가면 주워진다 · {VillageWorld.RegrowWeeks}주 뒤 다시 자란다", $"🌳 Timber! {n + 4} logs dropped — walk over to collect · regrows in {VillageWorld.RegrowWeeks}w"));
+                    yield return StartCoroutine(FallTree(tree));
+                    VillageWorld.ApplyFelledTrees(_world, Save); _nearTree = null; _nearTreeIdx = -1;
+                }
+                else CoastToast.Show(Loc.T($"🪓 장작 조각 {n}개 떨어짐 · 체력 +1 · {hits}/3 — 세 번 패면 쓰러진다", $"🪓 {n} logs dropped · stamina +1 · {hits}/3"));
+                CoastAudioManager.PlayAnywhere(CoastSfx.Coin); _gm.Persist(); RefreshStatus();
+            }
+            _busy = false;
+        }
+        IEnumerator FallTree(Transform tree)
+        {
+            var rest = tree.rotation; var axis = Vector3.Cross(Vector3.up, (tree.position - _player.position).normalized);
+            float t = 0f;
+            while (t < 0.9f) { t += Time.deltaTime; float k = EaseInOut(t / 0.9f); tree.rotation = Quaternion.AngleAxis(k * 85f, axis) * rest; yield return null; }
+            for (int i = 0; i < 6; i++) StartCoroutine(DropOrange(tree.position + new Vector3(UnityEngine.Random.Range(-1.5f, 1.5f), 1.0f, UnityEngine.Random.Range(-1.5f, 1.5f)), new Color(0.45f, 0.70f, 0.35f), 0.18f));
+            yield return new WaitForSeconds(0.4f);
+        }
+        /// 154차: 곡괭이질 — 3타마다 돌 +1~2, 세 번(9타) 캐면 바위가 사라지고 8주 뒤 다시 생긴다
+        IEnumerator MineRock(Transform rock, int idx)
+        {
+            _busy = true; VillageWorld.EnsureGather(Save); MarkChore();
+            var rest = rock.localScale;
+            for (int hit = 0; hit < 3; hit++)
+            {
+                Swing(); CoastAudioManager.PlayAnywhere(CoastSfx.SoftHit);
+                float t = 0f; while (t < 0.3f) { t += Time.deltaTime; float k = Mathf.Sin(t / 0.3f * Mathf.PI); rock.localScale = rest * (1f - k * 0.06f); yield return null; }
+                rock.localScale = rest;
+                for (int k2 = 0; k2 < 4; k2++) StartCoroutine(DropOrange(rock.position + new Vector3(UnityEngine.Random.Range(-0.5f, 0.5f), 0.9f, UnityEngine.Random.Range(-0.5f, 0.5f)), new Color(0.62f, 0.62f, 0.60f), 0.11f));
+                yield return new WaitForSeconds(0.15f);
+            }
+            if (Save != null)
+            {
+                int n = UnityEngine.Random.Range(1, 3);
+                bool gem = UnityEngine.Random.value < 0.2f; if (gem) { Save.starShards += 1; Save.starShardsTotal += 1; }
+                _drops.Spawn(rock.position + Vector3.up * 1.0f, "mat_stone", n, new Color(0.72f, 0.72f, 0.70f));   // 159차
+                int hits = idx >= 0 && idx < Save.villageRockHits.Length ? ++Save.villageRockHits[idx] : 0;
+                if (idx >= 0 && idx < Save.villageRockGone.Length && hits >= 3)
+                {
+                    Save.villageRockGone[idx] = Save.week; Save.villageRockHits[idx] = 0; _drops.Spawn(rock.position + Vector3.up * 0.8f, "mat_stone", 2, new Color(0.72f, 0.72f, 0.70f));
+                    CoastToast.Show(Loc.T($"⛏ 바위를 다 캤다! 돌 조각 {n + 2}개{(gem ? " · 별조각 +1" : "")} — 가까이 가면 주워진다 · {VillageWorld.RegrowWeeks}주 뒤 다시 생긴다", $"⛏ Rock cleared! {n + 2} stones dropped — regrows in {VillageWorld.RegrowWeeks}w"));
+                    float t = 0f; while (t < 0.35f) { t += Time.deltaTime; rock.localScale = rest * (1f - t / 0.35f); yield return null; }
+                    VillageWorld.BuildRocks(_world, Save); _nearRock = null; _nearRockIdx = -1;
+                }
+                else
+                {
+                    CoastToast.Show(Loc.T($"⛏ 돌 조각 {n}개 떨어짐{(gem ? " · 별조각 +1" : "")} · {hits}/3", $"⛏ {n} stones dropped · {hits}/3"));
+                    VillageWorld.BuildRocks(_world, Save);   // 크기 줄어든 바위로 다시
+                }
                 CoastAudioManager.PlayAnywhere(CoastSfx.Coin); _gm.Persist(); RefreshStatus();
             }
             _busy = false;
@@ -682,6 +903,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         void TakePick(VillagePickups.Pick pk)
         {
             if (_busy || _hud.Locked || Save == null || pk.go == null) return;
+            MarkChore();
             VillagePickups.Take(Save, pk.idx); LifeItems.Add(Save, VillagePickups.ItemId(pk.kind), 1);
             _spots.RemoveAll(sp => sp.id == "pick_" + pk.idx);
             StartCoroutine(PopPick(pk.go)); pk.go = null;
@@ -694,6 +916,53 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             float t = 0f; var p0 = go.transform.position;
             while (t < 0.35f) { t += Time.deltaTime; go.transform.position = p0 + Vector3.up * t * 2.2f; go.transform.localScale = Vector3.one * (1f - t / 0.35f); yield return null; }
             Destroy(go);
+        }
+
+        // ── 155차: 얼굴 데칼 ────────────────────────────────────────────
+        Transform _faceDecal;
+        /// 머리 뼈 앞에 얇은 쿼드(UI_Face_Haneul: 큰 눈·홍조·코·미소, 살색은 투명) — 원래 텍스처 얼굴 위에 덮는다. 머리를 따라 돈다.
+        IEnumerator AttachFace()
+        {
+            yield return null;   // 애니메이터가 첫 포즈를 잡은 뒤
+            if (_anim == null || _anim.avatar == null || !_anim.avatar.isHuman) yield break;
+            var head = _anim.GetBoneTransform(HumanBodyBones.Head); if (head == null) yield break;
+            var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Face_Haneul"); if (tex == null) yield break;
+            // 머리 크기: 머리 뼈 ~ 렌더러 최상단
+            float top = 0f; foreach (var r in _rig.GetComponentsInChildren<Renderer>()) top = Mathf.Max(top, r.bounds.max.y);
+            float rad = Mathf.Clamp((top - head.position.y) * 0.62f, 0.10f, 0.35f);
+            // 158차(사용자: 「눈이 튀어나와 있다」): 평평한 쿼드는 머리 옆에서 보면 얼굴에서 떠 보인다 → 머리 구에 붙는 구면 조각(±50°×±35°) 메시로 감싼다
+            var q = new GameObject("FaceDecal", typeof(MeshFilter), typeof(MeshRenderer)); q.transform.SetParent(head, false);
+            var mat = CoastMaterials.CreateTexturedTransparent(tex, Color.white); q.GetComponent<MeshRenderer>().sharedMaterial = mat;
+            q.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            var fwd = _player.forward; var up = Vector3.up; var right = Vector3.Cross(up, fwd).normalized;
+            var center = head.position + up * (rad * 0.66f); float R = rad * 0.97f;
+            const int NX = 18, NY = 12; float hA = 50f * Mathf.Deg2Rad, vA = 35f * Mathf.Deg2Rad;
+            var verts = new Vector3[(NX + 1) * (NY + 1)]; var uvs = new Vector2[verts.Length]; var norms = new Vector3[verts.Length]; var tris = new int[NX * NY * 6];
+            for (int j = 0; j <= NY; j++)
+                for (int i = 0; i <= NX; i++)
+                {
+                    float a = (i / (float)NX - 0.5f) * 2f * hA, b = (j / (float)NY - 0.5f) * 2f * vA;
+                    var n = (right * (Mathf.Sin(a) * Mathf.Cos(b)) + up * Mathf.Sin(b) + fwd * (Mathf.Cos(a) * Mathf.Cos(b))).normalized;
+                    int k = j * (NX + 1) + i;
+                    verts[k] = head.InverseTransformPoint(center + n * R); norms[k] = head.InverseTransformDirection(n);
+                    uvs[k] = new Vector2(0.5f - a / (2f * hA), 0.5f + b / (2f * vA));
+                }
+            int t = 0;
+            for (int j = 0; j < NY; j++)
+                for (int i = 0; i < NX; i++)
+                {
+                    int v00 = j * (NX + 1) + i, v10 = v00 + 1, v01 = v00 + NX + 1, v11 = v01 + 1;
+                    tris[t++] = v00; tris[t++] = v10; tris[t++] = v11; tris[t++] = v00; tris[t++] = v11; tris[t++] = v01;
+                }
+            var mesh = new Mesh { name = "FaceCap" }; mesh.vertices = verts; mesh.uv = uvs; mesh.normals = norms; mesh.triangles = tris; mesh.RecalculateBounds();
+            q.GetComponent<MeshFilter>().sharedMesh = mesh;
+            _faceDecal = q.transform;
+        }
+        /// 데칼 크기·위치 미세 조정(개발용): dx 앞뒤, dy 위아래, s 배율
+        public void DevFace(float dx, float dy, float s)
+        {
+            if (_faceDecal == null) return;
+            _faceDecal.position += _player.forward * dx + Vector3.up * dy; _faceDecal.localScale *= s;   // 158차: 구면 조각이라 s 는 머리 중심 기준 확대
         }
 
         // ── 나무 흔들기 ──────────────────────────────────────────────────
@@ -887,16 +1156,407 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             CoastToast.Show(Loc.T($"치웠다. +{refund}G 환불", $"Removed. +{refund}G refunded"));
         }
 
+
+
+
+        // ── 159차(사용자: 「장애물 안으로 몸이 들어간다 / 갇혀서 못 움직인다」) ────────────────
+        static readonly Collider[] _ovl = new Collider[12]; float _stuckT; Vector3 _stuckFrom;
+        /// 캡슐이 콜라이더와 겹치면 침투 벡터만큼 밀어내고, 스틱을 미는데도 1 s 넘게 못 빠져나오면 가까운 빈 자리로 옮긴다.
+        void Unstick(float dt, float mag)
+        {
+            if (_cc == null || !_cc.enabled) return;
+            var p = _player.position; var c = _cc;
+            float half = Mathf.Max(0f, c.height * 0.5f - c.radius);
+            var p0 = p + c.center - Vector3.up * half; var p1 = p + c.center + Vector3.up * half;
+            int n = Physics.OverlapCapsuleNonAlloc(p0, p1, c.radius * 0.92f, _ovl, ~0, QueryTriggerInteraction.Ignore);
+            Vector3 push = Vector3.zero; bool any = false;
+            for (int i = 0; i < n; i++)
+            {
+                var col = _ovl[i]; if (col == null || col == c || col.transform.IsChildOf(_player)) continue;
+                if (Physics.ComputePenetration(c, p, _player.rotation, col, col.transform.position, col.transform.rotation, out var dir, out var dist))
+                { dir.y = 0f; if (dir.sqrMagnitude > 1e-4f) { push += dir.normalized * Mathf.Min(dist + 0.02f, 0.45f); any = true; } }
+            }
+            if (any) { c.enabled = false; _player.position = p + push; c.enabled = true; }
+            if (mag > 0.3f && any)
+            {
+                if (Vector3.Distance(p, _stuckFrom) < 0.06f) { _stuckT += dt; if (_stuckT > 1.0f) { _stuckT = 0f; EscapeToFree(); } }
+                else { _stuckT = 0f; _stuckFrom = p; }
+            }
+            else { _stuckT = 0f; _stuckFrom = p; }
+        }
+        bool FreeAt(Vector3 q)
+        {
+            var c = _cc; float half = Mathf.Max(0f, c.height * 0.5f - c.radius);
+            var p0 = q + c.center - Vector3.up * half; var p1 = q + c.center + Vector3.up * half;
+            int n = Physics.OverlapCapsuleNonAlloc(p0, p1, c.radius + 0.06f, _ovl, ~0, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < n; i++) if (_ovl[i] != null && _ovl[i] != c && !_ovl[i].transform.IsChildOf(_player)) return false;
+            return true;
+        }
+        void EscapeToFree()
+        {
+            var p = _player.position;
+            for (float r = 0.9f; r <= 3.6f; r += 0.9f)
+                for (int k = 0; k < 8; k++)
+                {
+                    float a = k * Mathf.PI * 0.25f + r; var q = new Vector3(p.x + Mathf.Cos(a) * r, 0f, p.z + Mathf.Sin(a) * r);
+                    if (_interior != null && !_interior.Contains(q.x, q.z)) continue;
+                    q.y = _interior != null ? _interior.FloorY : VillageWorld.Height(q.x, q.z);
+                    if (FreeAt(q)) { Teleport(q); CoastToast.Show(Loc.T("끼였다! 옆으로 빠져나왔다.", "Stuck! Wiggled free.")); return; }
+                }
+        }
+        /// 159차(사용자: 「어디서든 우리집으로 순간이동」)
+        IEnumerator WarpHome()
+        {
+            if (_busy) yield break; _busy = true;
+            yield return FadeScreen(true, 0.4f);
+            if (_interior != null) { var it = _interior; _interior = null; _spots.RemoveAll(s => s.id == "exit" || s.id.StartsWith("home_")); Destroy(it.gameObject); }
+            if (_yard) SetYard(false);
+            var hh = VillageWorld.HeroHouse; var home = hh != null ? hh.TransformPoint(new Vector3(0f, 0f, 5.6f)) : new Vector3(0f, 0f, 30f);
+            Teleport(new Vector3(home.x, 0f, home.z), hh != null ? hh.eulerAngles.y + 180f : 0f); _doorCooldown = Time.time + 2f;
+            _gm.Persist(); RefreshStatus();
+            yield return new WaitForSeconds(0.2f); yield return FadeScreen(false, 0.4f);
+            _busy = false;
+            CoastToast.Show(Loc.T("🏠 우리집 앞으로 순간이동했다.", "🏠 Warped home."));
+        }
+        public void DevWarpHome() { StartCoroutine(WarpHome()); }
+        /// 개발용: 우리집 콜라이더 한가운데로 — 끼임 탈출 확인
+        public void DevStuck() { var hh = VillageWorld.HeroHouse; if (hh != null) Teleport(hh.position + hh.forward * 0.5f, 0f); }
+        /// 159차: 드롭 흡수 → 가방 + 토스트
+        void OnAbsorb(string item, int n)
+        {
+            if (Save == null) return;
+            LifeItems.Add(Save, item, n);
+            if (_quitting) return;   // 씬을 떠날 때 남은 조각은 조용히 가방으로
+            if (_motion != null) _motion.Hop();
+            CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.5f);
+            string nm = item == "mat_wood" ? Loc.T("🪵 장작", "🪵 Firewood") : item == "mat_stone" ? Loc.T("🪨 돌", "🪨 Stone") : item;
+            CoastToast.Show(Loc.T($"{nm} +{n} (보유 {LifeItems.Count(Save, item)})", $"{nm} +{n} ({LifeItems.Count(Save, item)})"));
+            _gm.Persist(); RefreshStatus();
+        }
+
+        // ── 157차(사용자: 「들어갈 수 있는 문은 가까이 가면 하이라이트·반짝임, 들어갈 수 있게」) ─────────────
+        Transform _nearDoorHouse; Action _nearDoorOn; string _nearDoorLabel; GameObject _doorGlow; static float _glowPulse;
+        static Color GlowColor => new Color(1f, 0.92f, 0.45f, 0.18f + 0.30f * (0.5f + 0.5f * Mathf.Sin(Time.time * 5f)));
+        static Color RimColor => Color.Lerp(new Color(1f, 0.85f, 0.25f), Color.white, 0.5f + 0.5f * Mathf.Sin(Time.time * 6f));
+        /// 2.8 m 안의 들어갈 수 있는 문(집·알바나라·상점)을 찾아 하이라이트를 붙이거나 뗀다.
+        void UpdateDoorGlow()
+        {
+            Transform best = null; Action on = null; string label = null; float bestD = 2.8f; var p = _player.position;
+            if (!_busy && _interior == null)
+            {
+                foreach (var hs in VillageWorld.Houses)
+                {
+                    if (hs.house == null) continue;
+                    float d = Vector3.Distance(new Vector3(p.x, 0f, p.z), new Vector3(hs.door.x, 0f, hs.door.z));
+                    if (d >= bestD) continue;
+                    var cap = hs; bestD = d; best = hs.house;
+                    if (hs.house == VillageWorld.JobHouse) { on = JobMenu; label = Loc.T("알바나라 들어가기", "Enter Job Center"); }
+                    else { on = () => EnterHouse(cap.house, cap.name, cap.door); label = Loc.T(cap.name + " 들어가기", "Enter " + cap.name); }
+                }
+                if (VillageWorld.Shop != null)
+                {
+                    var sd = VillageWorld.Shop.TransformPoint(new Vector3(0f, 0f, 2.6f));
+                    float d = Vector3.Distance(new Vector3(p.x, 0f, p.z), new Vector3(sd.x, 0f, sd.z));
+                    if (d < bestD) { bestD = d; best = VillageWorld.Shop; on = OpenShop; label = Loc.T("마을상점 들어가기", "Enter shop"); }
+                }
+            }
+            if (best != _nearDoorHouse)
+            {
+                if (_doorGlow != null) { Destroy(_doorGlow); _doorGlow = null; }
+                _nearDoorHouse = best;
+                if (best != null)
+                {
+                    var door = best.Find("Door");
+                    _doorGlow = new GameObject("DoorGlow"); _doorGlow.transform.SetParent(best, false);
+                    var lp = door != null ? door.localPosition : new Vector3(0f, 1f, 2.2f); var ls = door != null ? door.localScale : new Vector3(1f, 1.9f, 0.08f);
+                    _doorGlow.transform.localPosition = lp;
+                    // 문 앞 얇은 발광판(노란 펄스) + 테두리 띠
+                    var g = GameObject.CreatePrimitive(PrimitiveType.Cube); Destroy(g.GetComponent<Collider>()); g.name = "Glow"; g.transform.SetParent(_doorGlow.transform, false);
+                    g.transform.localPosition = new Vector3(0f, 0f, ls.z * 0.5f + 0.06f); g.transform.localScale = new Vector3(ls.x + 0.34f, ls.y + 0.34f, 0.02f);
+                    g.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateTransparent(GlowColor, () => GlowColor);
+                    // 테두리 띠 4개(불투명 노랑↔흰 펄스) — 멀리서도 「여기 들어갈 수 있다」가 보이게
+                    var rimM = CoastMaterials.CreateUnlit(RimColor, () => RimColor); float rw = ls.x + 0.30f, rh = ls.y + 0.30f, rz = ls.z * 0.5f + 0.09f;
+                    foreach (var (pos, sz) in new[] { (new Vector3(-rw * 0.5f, 0f, rz), new Vector3(0.08f, rh + 0.08f, 0.04f)), (new Vector3(rw * 0.5f, 0f, rz), new Vector3(0.08f, rh + 0.08f, 0.04f)), (new Vector3(0f, rh * 0.5f, rz), new Vector3(rw, 0.08f, 0.04f)), (new Vector3(0f, -rh * 0.5f, rz), new Vector3(rw, 0.08f, 0.04f)) })
+                    { var r = GameObject.CreatePrimitive(PrimitiveType.Cube); Destroy(r.GetComponent<Collider>()); r.name = "Rim"; r.transform.SetParent(_doorGlow.transform, false); r.transform.localPosition = pos; r.transform.localScale = sz; r.GetComponent<Renderer>().sharedMaterial = rimM; }
+                    var sp = _doorGlow.AddComponent<DoorSparkle>(); sp.Init(ls.x + 0.4f, ls.y + 0.4f, ls.z * 0.5f + 0.16f);
+                    CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.15f);
+                }
+            }
+            _nearDoorOn = on; _nearDoorLabel = label;
+        }
+        /// 문 테두리를 도는 반짝이 별(작은 쿼드 8개, 빌보드·깜빡임).
+        public class DoorSparkle : MonoBehaviour
+        {
+            readonly List<Transform> _stars = new List<Transform>(); readonly List<float> _ph = new List<float>(); float _w, _h, _z;
+            public void Init(float w, float h, float z)
+            {
+                _w = w; _h = h; _z = z;
+                var m = CoastMaterials.CreateUnlit(new Color(1f, 0.97f, 0.62f));
+                for (int i = 0; i < 8; i++)
+                {
+                    var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Destroy(q.GetComponent<Collider>()); q.name = "Star"; q.transform.SetParent(transform, false);
+                    q.GetComponent<Renderer>().sharedMaterial = m; q.transform.localScale = Vector3.one * 0.16f;
+                    _stars.Add(q.transform); _ph.Add(i / 8f);
+                }
+            }
+            void Update()
+            {
+                var cam = Camera.main;
+                for (int i = 0; i < _stars.Count; i++)
+                {
+                    float t = Mathf.Repeat(_ph[i] + Time.time * 0.22f, 1f);   // 테두리 한 바퀴(아래 왼쪽 → 위 → 아래 오른쪽)
+                    float per = 2f * _w + 2f * _h, s = t * per; Vector3 lp;
+                    if (s < _h) lp = new Vector3(-_w * 0.5f, -_h * 0.5f + s, _z);
+                    else if (s < _h + _w) lp = new Vector3(-_w * 0.5f + (s - _h), _h * 0.5f, _z);
+                    else if (s < 2f * _h + _w) lp = new Vector3(_w * 0.5f, _h * 0.5f - (s - _h - _w), _z);
+                    else lp = new Vector3(_w * 0.5f - (s - 2f * _h - _w), -_h * 0.5f, _z);
+                    var st = _stars[i]; st.localPosition = lp;
+                    float tw = 0.5f + 0.5f * Mathf.Sin(Time.time * 9f + i * 1.7f);
+                    st.localScale = new Vector3(0.14f + 0.22f * tw, 0.14f + 0.22f * tw, 1f);
+                    if (cam != null) st.rotation = Quaternion.LookRotation(st.position - cam.transform.position) * Quaternion.Euler(0f, 0f, Time.time * 90f + i * 45f);
+                }
+            }
+        }
+
+        // ── 156차(사용자: 「동물의 숲 느낌 — 집에서 밥·잠, 알바는 옆 건물 알바나라, 4개 활동 다 하면 저녁 → 잠, 자면 한 주가 흐른다」) ──
+        public const int ActEat = 1, ActPlay = 2, ActJob = 4, ActChore = 8, ActsPerDay = 4;
+        int _jobPage, _playPage;
+        int ActCount { get { int m = Save != null ? Save.villageActMask : 0, c = 0; for (int b = 1; b <= 8; b <<= 1) if ((m & b) != 0) c++; return c; } }
+        bool ActDone(int bit) => Save != null && (Save.villageActMask & bit) != 0;
+        string Hero => Loc.T("하늘", "Haneul");
+        /// 활동 하나 끝 → 시각이 3시간씩 간다(08 → 11 → 14 → 17 → 20). 4개 다 하면 밤 — 자야 한다.
+        void MarkAct(int bit)
+        {
+            if (Save == null) return;
+            if ((Save.villageActMask & bit) != 0) return;
+            Save.villageActMask |= bit;
+            float h = 8f + ActCount * 3f;
+            if (_dayNight != null && _dayNight.Hour < h && _dayNight.Hour >= 5.5f) { _dayNight.Hour = h; Save.villageHour = h; }
+            _gm.Persist(); RefreshStatus();
+            if (ActCount >= ActsPerDay) CoastToast.Show(Loc.T("오늘 할 일은 다 했다 — 해가 진다. 집 침대에서 자자.", "Done for today — the sun is setting. Go to bed at home."));
+        }
+        /// 마을일(텃밭·낚시·나무·돌·줍기·벌레) — 하루에 한 번 활동으로 센다.
+        public void MarkChore() { if (!ActDone(ActChore)) MarkAct(ActChore); }
+        /// 스케줄(밥·놀기·알바)을 하나 더 할 수 있나.
+        bool CanSchedule(out string why)
+        {
+            why = null; if (Save == null) { why = "…"; return false; }
+            if (Save.boundaryPending) { why = Loc.T("이야기가 기다리고 있어 — 집 침대에서 자고 나면 시작돼.", "A story is waiting — sleep in your bed first."); return false; }
+            if (Save.phaseIndex >= Timeline.PhasesPerWeek) { why = Loc.T("이번 주 행동은 다 했어 — 집 침대에서 자자.", "All actions done this week — go to bed."); return false; }
+            return true;
+        }
+        /// 집 식탁: 요리를 골라 먹고(「집밥 먹고 쉬기」 페이즈) 기운 회복.
+        void EatHome()
+        {
+            if (_busy || Save == null) return;
+            if (ActDone(ActEat)) { _hud.Bubble(Hero, Loc.T("오늘 밥은 벌써 먹었어. 배불러~", "Already ate today. So full~")); return; }
+            if (!CanSchedule(out var why)) { _hud.Bubble(Hero, why); return; }
+            LifeItems.Ensure(Save);
+            if (!LifeItems.HasEdible(Save))
+            {
+                int ings = LifeItems.CountCat(Save, LifeItemCat.Ingredient);
+                _hud.Bubble(Hero, ings > 0 ? Loc.T("재료만 있어 — 책상(내 방)에서 조리한 뒤 먹자!", "Only ingredients — cook at the desk first!") : Loc.T("먹을 요리가 없어 — 해변 상점에서 재료·요리를 사자!", "No meals — buy some at the beach shop!"));
+                return;
+            }
+            _busy = true;
+            MealPickUI.Open(_gm, dishId =>
+            {
+                _busy = false;
+                if (!LifeItems.Eat(Save, dishId)) { CoastToast.Show(Loc.T("먹을 수 없어…", "Can't eat that…")); return; }
+                _gm.Persist();
+                var def = ScheduleTable.Get("rest_home");
+                if (def != null) StartCoroutine(ScheduleActRoutine(ActEat, def));
+            }, () => { _busy = false; });
+        }
+        /// 알바나라(옆 건물): 이번 계절에 할 수 있는 알바를 골라 바로 한다(한 페이지 5개).
+        void JobMenu()
+        {
+            if (_busy || Save == null) return;
+            if (_dayNight != null && !_dayNight.ShopOpen) { _hud.Bubble(Loc.T("알바나라", "Job Center"), Loc.T("문이 닫혔다. 접수는 오전 8시 ~ 오후 7시.", "Closed. Open 8 AM – 7 PM.")); return; }
+            if (ActDone(ActJob)) { _hud.Bubble(Hero, Loc.T("오늘 알바는 벌써 했어. 내일 또 오자.", "Already worked today. Come back tomorrow.")); return; }
+            if (!CanSchedule(out var why)) { _hud.Bubble(Hero, why); return; }
+            var season = Timeline.SeasonOf(Save.week);
+            var jobs = new List<ScheduleDef>();
+            foreach (var d in ScheduleTable.ByCategory(ScheduleCategory.Job, season)) if (d.LockReason(Save.stats) == null) jobs.Add(d);
+            if (jobs.Count == 0) { _hud.Bubble(Loc.T("알바나라", "Job Center"), Loc.T("지금 할 수 있는 알바가 없네…", "No jobs available right now…")); return; }
+            PickSchedule(Loc.T("💼 알바나라", "💼 Job Center"), Loc.T($"{Save.week}주차 · 돈 {Save.stats.money:N0}G · 스트레스 {Save.stats.stress} — 알바를 고르면 바로 다녀온다", $"Week {Save.week} · {Save.stats.money:N0}G · stress {Save.stats.stress}"), jobs, ActJob, ref _jobPage, JobMenu);
+        }
+        /// 놀기(정자·해변): 자기계발 + 돈이 있으면 교육.
+        void PlayMenu()
+        {
+            if (_busy || Save == null) return;
+            if (ActDone(ActPlay)) { _hud.Bubble(Hero, Loc.T("오늘은 벌써 놀았어. 이제 알바나 집으로!", "Already played today. Work or home!")); return; }
+            if (!CanSchedule(out var why)) { _hud.Bubble(Hero, why); return; }
+            var season = Timeline.SeasonOf(Save.week);
+            var list = new List<ScheduleDef>();
+            foreach (var d in ScheduleTable.ByCategory(ScheduleCategory.SelfDev, season)) if (d.LockReason(Save.stats) == null) list.Add(d);
+            foreach (var d in ScheduleTable.ByCategory(ScheduleCategory.Lesson, season)) if (d.LockReason(Save.stats) == null) list.Add(d);
+            if (list.Count == 0) { _hud.Bubble(Hero, Loc.T("지금은 할 게 없네…", "Nothing to do right now…")); return; }
+            PickSchedule(Loc.T("🎮 놀기 · 연습", "🎮 Play · Practice"), Loc.T($"돈 {Save.stats.money:N0}G · 스트레스 {Save.stats.stress} — 산책·수영은 스트레스↓, 연습·교실은 성장↑", $"{Save.stats.money:N0}G · stress {Save.stats.stress}"), list, ActPlay, ref _playPage, PlayMenu);
+        }
+        void PickSchedule(string title, string sub, List<ScheduleDef> list, int bit, ref int page, Action reopen)
+        {
+            const int per = 5;
+            int pages = (list.Count + per - 1) / per; page = ((page % pages) + pages) % pages;
+            var items = new List<(string, Color, Action)>();
+            for (int i = page * per; i < Mathf.Min(list.Count, page * per + per); i++)
+            {
+                var d = list[i];
+                string money = d.dMoney != 0 ? $" {d.dMoney:+#;-#}G" : "";
+                string st = d.dStress != 0 ? Loc.T($" 스트레스{d.dStress:+#;-#}", $" stress{d.dStress:+#;-#}") : "";
+                string lab = $"{d.glyph} {d.Name}{money}{st}" + (d.dTrouble > 0 ? " ⚠" : "");
+                Color col = d.category == ScheduleCategory.Job ? (d.dTrouble > 0 ? new Color(0.55f, 0.45f, 0.75f) : new Color(0.95f, 0.65f, 0.30f))
+                          : d.category == ScheduleCategory.Lesson ? new Color(0.35f, 0.62f, 0.95f) : new Color(0.45f, 0.78f, 0.55f);
+                items.Add((lab, col, () => StartCoroutine(ScheduleActRoutine(bit, d))));
+            }
+            if (pages > 1) { int p = page; items.Add((Loc.T($"▶ 다른 것 보기 ({p + 1}/{pages})", $"▶ More ({p + 1}/{pages})"), new Color(0.6f, 0.6f, 0.66f), () => { if (bit == ActJob) _jobPage = p + 1; else _playPage = p + 1; reopen(); })); }
+            _hud.Choice(title, sub, items.ToArray());
+        }
+        /// 스케줄 한 칸 실행(TamaRaisingUI.ActionRoutine 의 마을판): 큐 → ResolvePhase → 결과 말풍선 · 경험치 · 일상 장면 · 단서.
+        IEnumerator ScheduleActRoutine(int bit, ScheduleDef def)
+        {
+            if (_busy || Save == null || def == null) yield break;
+            _busy = true;
+            int slot = Mathf.Clamp(Save.phaseIndex, 0, Timeline.PhasesPerWeek - 1);
+            _gm.SetQueued(slot, def.id);
+            if (Save.lastCardIds == null || Save.lastCardIds.Length < 3) Save.lastCardIds = new string[3];
+            Save.lastCardIds[bit == ActEat ? 0 : bit == ActPlay ? 1 : 2] = def.id;
+            CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.4f);
+            yield return FadeScreen(true, 0.35f);
+            _gm.AutoActing = false;
+            var result = _gm.ResolvePhase(slot);
+            if (bit == ActEat && result.HasValue)
+            {
+                Save.stats.stamina = Mathf.Min(PlayerStats.StatMax, Save.stats.stamina + 1);
+                Save.stats.stress = Mathf.Max(0, Save.stats.stress - 2);
+                Survival.OnRestAction(Save);
+            }
+            MarkAct(bit);
+            _gm.Persist(); RefreshStatus();
+            yield return new WaitForSeconds(0.45f);
+            yield return FadeScreen(false, 0.4f);
+            if (result.HasValue)
+            {
+                var r = result.Value;
+                LevelSystem.Add(r.outcome == Outcome.GreatSuccess ? LevelSystem.ExpActionGreat : r.outcome == Outcome.Fail ? LevelSystem.ExpActionFail : LevelSystem.ExpAction);
+                if (_gm.LastMasteryUp > 0) CoastToast.Show(Loc.T($"숙련 {RaisingFun.Stars(_gm.LastMasteryUp)} — {def.Name} +{Mathf.RoundToInt((RaisingFun.MasteryMul(_gm.LastMasteryUp) - 1f) * 100f)}%", $"Mastery {RaisingFun.Stars(_gm.LastMasteryUp)} — {def.Name}"));
+                if (_gm.LastDailyScene != null && _gm.LastDailyScene[0] >= 0)
+                {
+                    var ds = _gm.LastDailyScene; _gm.LastDailyScene = null; bool dsDone = false;
+                    DailySceneUI.Show(ds[0], ds[1], () => dsDone = true);
+                    while (!dsDone) yield return null;
+                }
+                if (Save.cluePendingMask != 0) { bool clueDone = false; ClueSystem.CheckPending(Save, () => clueDone = true); while (!clueDone) yield return null; }
+                string line = r.logLines != null && r.logLines.Length > 0 ? r.logLines[r.logLines.Length - 1] : "";
+                string head = r.outcome == Outcome.GreatSuccess ? Loc.T("대성공! ", "Great! ") : r.outcome == Outcome.Fail ? Loc.T("으으… ", "Ugh… ") : "";
+                int dM = r.after.money - r.before.money, dS = r.after.stamina - r.before.stamina, dSt = r.after.stress - r.before.stress;
+                string delta = (dM != 0 ? $" {dM:+#;-#}G" : "") + (dS != 0 ? Loc.T($" 체력{dS:+#;-#}", $" STA{dS:+#;-#}") : "") + (dSt != 0 ? Loc.T($" 스트레스{dSt:+#;-#}", $" stress{dSt:+#;-#}") : "") + (r.heartsGained > 0 ? $" ♥+{r.heartsGained}" : "");
+                string ms = RaisingFun.Milestone(r.before, r.after);
+                string clock = _dayNight != null ? " · " + _dayNight.ClockText() : "";
+                _busy = false;
+                _hud.Bubble(Hero, head + (string.IsNullOrEmpty(line) ? def.Name : line) + delta + clock + (ms != null ? "\n" + ms : ""));
+            }
+            else _busy = false;
+            RefreshStatus();
+        }
+
+        /// 156차: 잠에서 깬 아침의 돌발 이벤트(옛 화면의 A/B 카드를 마을 팝업으로).
+        IEnumerator MorningEvent()
+        {
+            yield return new WaitForSeconds(1.2f);
+            while (_busy || _hud.Locked) yield return null;
+            var ev = _gm.PendingVillageEvent; _gm.PendingVillageEvent = null;
+            if (ev == null || Save == null) yield break;
+            ShowEventChoice(ev);
+        }
+        void ShowEventChoice(RandomEventDef ev)
+        {
+            bool passA = ev.CheckPasses(Save.stats);
+            string labelA = ev.ChoiceALabel + (ev.HasStatCheck ? (passA ? $" ✓ {RaisingFun.StatName(ev.condStat)} {ev.condMin}" : Loc.T($" ({RaisingFun.StatName(ev.condStat)} {ev.CheckShort(Save.stats)} 더)", $" (need {RaisingFun.StatName(ev.condStat)} +{ev.CheckShort(Save.stats)})")) : "");
+            string body = string.IsNullOrEmpty(ev.body) ? "—" : ev.body;
+            _hud.Choice(Loc.T("❗ 돌발 — ", "❗ Event — ") + Loc.Data("ev." + ev.id, ev.title), body,
+                new (string, Color, Action)[] {
+                    (labelA, passA ? new Color(0.95f, 0.55f, 0.45f) : new Color(0.6f, 0.6f, 0.66f), () => { if (!passA) { CoastToast.Show(Loc.T($"{RaisingFun.StatName(ev.condStat)}이(가) 모자라", $"Not enough {RaisingFun.StatName(ev.condStat)}")); ShowEventChoice(ev); return; } CommitEvent(ev, 0); }),
+                    (ev.ChoiceBLabel, new Color(0.35f, 0.62f, 0.95f), () => CommitEvent(ev, 1)),
+                });
+        }
+        void CommitEvent(RandomEventDef ev, int choice)
+        {
+            var res = _gm.CommitRandomEvent(ev, choice);
+            string d = "";
+            if (res.dMoney != 0) d += Loc.T($" 돈 {res.dMoney:+#;-#}G", $" {res.dMoney:+#;-#}G");
+            if (res.dStamina != 0) d += Loc.T($" 체력 {res.dStamina:+#;-#}", $" STA {res.dStamina:+#;-#}");
+            if (res.dStress != 0) d += Loc.T($" 스트레스 {res.dStress:+#;-#}", $" stress {res.dStress:+#;-#}");
+            if (res.dHearts != 0) d += Loc.T($" 하트 {res.dHearts:+#;-#}", $" ♥ {res.dHearts:+#;-#}");
+            RefreshStatus();
+            _hud.Bubble(Hero, res.Body + (d.Length > 0 ? "\n" + Loc.T("돌발 ·", "Event ·") + d : ""));
+        }
+        /// 침대: 잔다 → 한 주가 흐른다(낮이고 활동이 남았으면 한 번 묻는다).
+        void SleepBed()
+        {
+            if (_busy || Save == null) return;
+            bool allDone = Save.phaseIndex >= Timeline.PhasesPerWeek || Save.boundaryPending || ActCount >= ActsPerDay;
+            bool late = _dayNight != null && (_dayNight.IsNight || _dayNight.IsDusk);
+            if (!allDone && !late)
+            {
+                int left = Timeline.PhasesPerWeek - Save.phaseIndex;
+                _hud.Choice(Loc.T("🛏 침대", "🛏 Bed"), Loc.T($"아직 낮이야. 오늘 활동 {ActCount}/{ActsPerDay} · 남은 행동 {left}번 — 그냥 자면 이번 주가 끝난다.", $"Still daytime. {ActCount}/{ActsPerDay} done · {left} action(s) left — sleeping ends the week."),
+                    new (string, Color, Action)[] {
+                        (Loc.T("💤 그냥 잔다 — 한 주가 흘러간다", "💤 Sleep anyway — the week passes"), new Color(0.60f, 0.52f, 0.92f), () => StartCoroutine(SleepWeek())),
+                        (Loc.T("아직 안 잘래", "Not yet"), new Color(0.6f, 0.6f, 0.66f), null),
+                    });
+                return;
+            }
+            StartCoroutine(SleepWeek());
+        }
+        /// 잠 몽타주(밤 → 새벽 → 아침으로 하늘이 돌고 「n주차 → n+1주차」) → TamaRaisingUI 가 화면 없이 주말 결산·이야기를 돌리고 마을 아침으로.
+        IEnumerator SleepWeek()
+        {
+            _busy = true;
+            var cv = CoastUiCanvas.Create("SleepFade", 150);
+            var img = CoastHudLayout.MakeImage(CoastUiCanvas.Root(cv), "F", Vector2.zero, Vector2.one, new Vector2(-400f, -400f), new Vector2(400f, 400f), new Color(0.03f, 0.03f, 0.08f, 0f));
+            img.raycastTarget = true;
+            var zz = CoastHudLayout.MakeText(img.rectTransform, "Z", "z z Z …", 46, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-300f, 20f), new Vector2(300f, 120f)); zz.color = new Color(1f, 1f, 1f, 0f);
+            var cap = CoastHudLayout.MakeText(img.rectTransform, "C", "", 24, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-320f, -80f), new Vector2(320f, 10f)); cap.color = new Color(1f, 0.95f, 0.8f, 0f);
+            int wk = Save.week;
+            cap.text = Loc.T($"{wk}주차의 밤 — 잠이 든다…", $"Week {wk}, night — falling asleep…");
+            float t = 0f;
+            while (t < 1f) { t += Time.deltaTime; img.color = new Color(0.03f, 0.03f, 0.08f, t); zz.color = new Color(1f, 1f, 1f, t); cap.color = new Color(1f, 0.95f, 0.8f, t); yield return null; }
+            // 하늘이 밤 → 새벽 → 아침으로 한 바퀴(창밖 톤이 바뀐다) — 어두운 막 뒤로 살짝 비친다
+            if (_dayNight != null)
+            {
+                _dayNight.Paused = true; float h0 = _dayNight.Hour < 5.5f ? _dayNight.Hour + 24f : Mathf.Max(_dayNight.Hour, 20f);
+                for (float u = 0f; u < 1f; u += Time.deltaTime / 2.2f)
+                {
+                    float h = Mathf.Lerp(h0, 32f, u); _dayNight.Hour = h >= 24f ? h - 24f : h;
+                    img.color = new Color(0.03f, 0.03f, 0.08f, Mathf.Lerp(1f, 0.965f, u));
+                    cap.text = u < 0.5f ? Loc.T($"{wk}주차의 밤 — 잠이 든다…", $"Week {wk}, night — falling asleep…") : Loc.T($"일주일이 흘러간다 — {wk}주차 → {wk + 1}주차", $"A week goes by — week {wk} → {wk + 1}");
+                    yield return null;
+                }
+            }
+            else yield return new WaitForSeconds(1.2f);
+            // 다음 날 아침 08:00 · 활동 초기화 · 집 앞에서 시작
+            Save.villageActMask = 0; Save.villageHour = 8f;
+            var home = VillageWorld.HeroHouse != null ? VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 5.6f)) : new Vector3(0f, 0f, 30f);
+            Save.villageX = home.x; Save.villageZ = home.z;
+            if (_creatures != null) _creatures.ClearGhosts();
+            Save.stats.stamina = Mathf.Min(PlayerStats.StatMax, Save.stats.stamina + 20); Save.condition = Mathf.Min(100, Save.condition + 5);   // 잠 보너스(주간 결산의 잠 보너스와 별개, 작게)
+            _gm.SleepFromVillage = true; _gm.Persist();
+            yield return new WaitForSeconds(0.3f);
+            _driver.OpenScheduleFromVillage();   // → TamaRaisingUI.Start: SleepFromVillage → EndWeek(축제·미니게임·결산 카드) → 이야기 → ToVillage(아침)
+        }
+
         // ── 상태 알약 ─────────────────────────────────────────────────────
         public static void RefreshStatus() { if (I != null) I.RefreshStatusInner(); }
         void RefreshStatusInner()
         {
             if (_hud == null || Save == null) return;
-            string[] clocks = { Loc.T("오전 09:00", "AM 09:00"), Loc.T("오후 02:30", "PM 02:30"), Loc.T("저녁 06:00", "PM 06:00") };
             var season = Timeline.SeasonOf(Save.week);
             string weather = season == SeasonKind.Winter ? Loc.T("흐림", "Cloudy") : season == SeasonKind.Autumn ? Loc.T("바람", "Breezy") : Loc.T("맑음", "Sunny");
-            string clock = clocks[Mathf.Clamp(Save.phaseIndex, 0, 2)] + " " + weather;
-            string vil = Loc.T($"마을: 하늘 바닷가 마을  Lv.{Save.level}  ·  {Save.week}주차 {Timeline.SeasonName(season)}", $"Village: Haneul Seaside  Lv.{Save.level}  ·  Week {Save.week} {Timeline.SeasonName(season)}");
+            // 155차: 마을 시계(밤낮) — 밤엔 달 표시
+            string clock = _dayNight != null ? _dayNight.ClockText() + " " + (_dayNight.IsNight ? "🌙" : weather) : Loc.T("오전 08:00", "AM 08:00") + " " + weather;
+            string acts = Loc.T((ActDone(ActEat) ? "밥" : "·") + (ActDone(ActPlay) ? "놀" : "·") + (ActDone(ActJob) ? "알" : "·") + (ActDone(ActChore) ? "일" : "·"), (ActDone(ActEat) ? "E" : "·") + (ActDone(ActPlay) ? "P" : "·") + (ActDone(ActJob) ? "J" : "·") + (ActDone(ActChore) ? "C" : "·"));   // 이모지는 HUD 폰트에 없음
+            string vil = Loc.T($"{Save.week}주차 {Timeline.SeasonName(season)}  ·  Lv.{Save.level}  ·  활동 {ActCount}/{ActsPerDay} {acts}", $"Week {Save.week} {Timeline.SeasonName(season)}  ·  Lv.{Save.level}  ·  {ActCount}/{ActsPerDay} {acts}");
             _hud.SetStatus(Save.stats.stamina, PlayerStats.StatMax, Save.stats.money, clock, vil);
         }
     }

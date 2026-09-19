@@ -20,6 +20,9 @@ Shader "CoastRun/ToonLit"
         _DetailMap ("Detail (gray)", 2D) = "gray" {}
         _DetailScale ("Detail tiles per meter", Float) = 0.5
         _DetailStrength ("Detail strength", Range(0,1)) = 0
+        // 151차: 블렌더에서 AO 를 구운 정점색(없는 메시는 흰색 = 무시) · 디테일 맵 R=잔디 G=모래(초록 정도로 섞음, _DetailSplit 1)
+        _VertexColor ("Vertex color (baked AO)", Range(0,1)) = 1
+        _DetailSplit ("Detail R/G split by hue", Range(0,1)) = 0
     }
     SubShader
     {
@@ -45,6 +48,8 @@ Shader "CoastRun/ToonLit"
             half4 _RimColor;
             half _DetailScale;
             half _DetailStrength;
+            half _VertexColor;
+            half _DetailSplit;
         CBUFFER_END
         // 전역(코드에서 Shader.SetGlobal*): 마을에서만 1
         half _CoastSoft;            // 0 = 기존 러닝 룩, 1 = 소프트 룩
@@ -73,6 +78,7 @@ Shader "CoastRun/ToonLit"
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
+                float4 color : COLOR;
             };
 
             struct Varyings
@@ -82,6 +88,7 @@ Shader "CoastRun/ToonLit"
                 float3 normalWS : TEXCOORD1;
                 float3 positionWS : TEXCOORD2;
                 float fogFactor : TEXCOORD3;
+                float4 color : TEXCOORD4;
             };
 
             Varyings vert(Attributes IN)
@@ -93,17 +100,24 @@ Shader "CoastRun/ToonLit"
                 OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 OUT.fogFactor = ComputeFogFactor(OUT.positionCS.z);
+                OUT.color = IN.color;
                 return OUT;
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                // 151차: 구운 정점색(AO·모서리) — 흰색이면 그대로
+                albedo.rgb *= lerp(1.0, IN.color.rgb, _VertexColor);
                 if (_DetailStrength > 0.001)
                 {
                     // 월드 XZ 기준 타일(메시 UV 와 무관) — 두 스케일을 섞어 반복 무늬가 안 보이게
-                    half d1 = SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, IN.positionWS.xz * _DetailScale).r;
-                    half d2 = SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, IN.positionWS.xz * _DetailScale * 0.23 + 0.37).r;
+                    half4 t1 = SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, IN.positionWS.xz * _DetailScale);
+                    half4 t2 = SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, IN.positionWS.xz * _DetailScale * 0.23 + 0.37);
+                    // 151차: R=잔디 결, G=모래 결 — 밑색이 초록일수록 R(_DetailSplit 1 일 때)
+                    half grassK = saturate((albedo.g - max(albedo.r, albedo.b)) * 5.0);
+                    half d1 = lerp(t1.r, lerp(t1.g, t1.r, grassK), _DetailSplit);
+                    half d2 = lerp(t2.r, lerp(t2.g, t2.r, grassK), _DetailSplit);
                     half d = (d1 * 0.65 + d2 * 0.35) - 0.5;
                     albedo.rgb *= 1.0 + d * _DetailStrength * 2.0;
                 }

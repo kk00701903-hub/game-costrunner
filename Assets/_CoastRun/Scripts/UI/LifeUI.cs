@@ -531,7 +531,7 @@ namespace CoastRun
             // 병원에서 깨어나기 (파랑) — 두 줄
             TwoLineAction(card, "Hospital", "Icon_Heart",
                 Loc.T("병원에서 깨어나기", "Wake up in hospital"),
-                Loc.T("(돈 절반 · 이 주에서 계속)", "(Half money · continue this week)"),
+                Loc.T("(돈 20% · 이 주에서 계속)", "(−20% money · continue this week)"),
                 new Color(0.35f, 0.62f, 0.95f), new Vector2(0f, 214f), new Vector2(520f, 104f), () =>
                 {
                     Survival.Revive(s); gm.Persist(); Close(); onRevive?.Invoke();

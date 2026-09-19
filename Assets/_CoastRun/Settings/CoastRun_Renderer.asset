@@ -52,7 +52,8 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 0}
   m_RendererFeatures:
   - {fileID: -6161311836214485078}
-  m_RendererFeatureMap: aa9f066c879f7eaa
+  - {fileID: 2322790667930596263}
+  m_RendererFeatureMap: aa9f066c879f7eaaa7739849ce353c20
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   m_AssetVersion: 3
@@ -81,3 +82,18 @@ MonoBehaviour:
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
   m_TileOnlyMode: 0
+--- !u!114 &2322790667930596263
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54d999d3b94b8604593148c0e63fdef5, type: 3}
+  m_Name: CoastSharpen
+  m_EditorClassIdentifier: CoastRun.Runtime::CoastRun.CoastSharpenFeature
+  m_Active: 1
+  amount: 0.45
+  passEvent: 550

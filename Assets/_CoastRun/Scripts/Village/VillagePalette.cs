@@ -34,6 +34,7 @@ namespace CoastRun.Village
             Shader.SetGlobalFloat("_CoastSoftRim", 0.14f);
             Shader.SetGlobalColor("_CoastInkColor", Ink);
             Shader.SetGlobalFloat("_CoastInkWidth", 0.45f);
+            Shader.SetGlobalFloat("_CoastSharpen", on ? 1f : 0f);   // 151차: 전체 화면 언샤프(CoastSharpenFeature) 마을에서만
         }
 
         /// 마을 전용 후처리 볼륨(전역 볼륨 위에 우선순위 5) — 따뜻하고 화사하게, 그림자 들어 올림
@@ -56,7 +57,7 @@ namespace CoastRun.Village
             smh.highlights.Override(new Vector4(1.03f, 1.01f, 0.97f, 0f));
             // 146차: 피사계 심도(가우시안 — 모바일 부담 적음): 주인공(카메라 11 m) 은 또렷, 등대·반도(45 m~)부터 살짝 뭉갬
             var dof = p.Add<DepthOfField>(true); dof.mode.Override(DepthOfFieldMode.Gaussian);
-            dof.gaussianStart.Override(22f); dof.gaussianEnd.Override(60f); dof.gaussianMaxRadius.Override(0.9f); dof.highQualitySampling.Override(false);
+            dof.gaussianStart.Override(34f); dof.gaussianEnd.Override(95f); dof.gaussianMaxRadius.Override(0.6f);   // 151차: 소품이 뭉개지지 않게 더 멀리서·약하게 dof.highQualitySampling.Override(false);
             var lgg = p.Add<LiftGammaGain>(true); lgg.lift.Override(new Vector4(1f, 1f, 1f, 0.01f)); lgg.gamma.Override(new Vector4(1f, 1f, 1f, 0f));
             return vol;
         }

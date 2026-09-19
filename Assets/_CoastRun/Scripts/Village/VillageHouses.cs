@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +11,7 @@ namespace CoastRun.Village
         public enum Style { Hero, Mom, Shop, Pastel }
 
         static Material M(Color c, float smooth = 0.05f) => CoastMaterials.CreateLit(c, smooth);
+        static Texture2D _plank; static Texture2D PlankTex => _plank != null ? _plank : (_plank = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Plank"));
 
         static GameObject Box(Transform parent, string name, Vector3 pos, Vector3 size, Color col, float yaw = 0f)
         {
@@ -64,7 +66,9 @@ namespace CoastRun.Village
                 default: wall = new Color(0.80f, 0.94f, 0.90f); trim = new Color(0.40f, 0.62f, 0.58f); roof = new Color(0.98f, 0.62f, 0.32f); door = new Color(0.42f, 0.30f, 0.22f); frame = Color.white; W = 6.0f; H = 3.0f; D = 4.2f; break;
             }
             // 본채
-            Box(house, "Wall", new Vector3(0f, H * 0.5f + 0.05f, 0f), new Vector3(W, H, D), wall);
+            var wallGo = Box(house, "Wall", new Vector3(0f, H * 0.5f + 0.05f, 0f), new Vector3(W, H, D), wall);
+            // 151차: 널판 텍스처(손그림풍) — 큐브 면마다 0..1 이라 가로 2 타일·세로 1 타일
+            if (PlankTex != null && style != Style.Mom) { var pm = ArtAssets.CreateTexturedLit(PlankTex, wall, 0.02f); pm.mainTextureScale = new Vector2(2f, 1f); wallGo.GetComponent<Renderer>().sharedMaterial = pm; }
             // 147차: 널판(사이딩) 홈 + 모서리 트림 — 평평한 벽에 입체감
             var groove = Color.Lerp(wall, Color.black, 0.18f);
             for (float y = 0.75f; y < H - 0.15f; y += 0.36f)
@@ -157,8 +161,11 @@ namespace CoastRun.Village
             }
             Window(new Vector3(-W * 0.30f, 1.55f, fz + 0.02f), 0f); Window(new Vector3(W * 0.30f, 1.55f, fz + 0.02f), 0f);
             Window(new Vector3(W * 0.5f + 0.02f, 1.55f, 0f), 90f); Window(new Vector3(-W * 0.5f - 0.02f, 1.55f, 0f), -90f);
-            // 간판: 문 오른쪽 기둥 + 널판 + 글자
-            if (!string.IsNullOrEmpty(signKo)) Sign(house, Snap(house, new Vector3(W * 0.5f + 1.0f, 0f, fz + 0.8f)), signKo, signEn, style == Style.Shop ? roof : trim);
+            // 157차: 간판은 문 위 벽에(우리집·알바나라·마을상점…) — 마당의 기둥 간판은 상점만 남김
+            if (!string.IsNullOrEmpty(signKo)) WallSign(house, signKo, signEn, W, H, fz, style == Style.Shop ? roof : new Color(0.62f, 0.42f, 0.24f), new Color(0.36f, 0.22f, 0.12f));
+            if (!string.IsNullOrEmpty(signKo) && style == Style.Shop) Sign(house, Snap(house, new Vector3(W * 0.5f + 1.0f, 0f, fz + 0.8f)), signKo, signEn, roof);
+            // 157차: 우리집 굴뚝 연기
+            if (style == Style.Hero) { var sm = new GameObject("ChimneySmoke").transform; sm.SetParent(house, false); sm.localPosition = new Vector3(W * 0.28f, H + 2.2f, -0.8f); sm.gameObject.AddComponent<ChimneySmoke>(); }
             // 울타리·징검돌·화단(마당) — 우리 집만 넓게, 나머지는 작게
             if (style == Style.Hero)
             {
@@ -166,6 +173,13 @@ namespace CoastRun.Village
                 for (float z = fz + 0.8f; z < fz + 9.4f; z += 1.2f) { Fence1(house, Snap(house, new Vector3(-9.6f, 0f, z)), 90f); Fence1(house, Snap(house, new Vector3(9.6f, 0f, z)), 90f); }
                 for (int i = 0; i < 7; i++) Cyl(house, "Stone", Snap(house, new Vector3((i % 2 == 0 ? -0.25f : 0.25f), 0.03f, fz + 1.4f + i * 1.15f)), new Vector3(0.75f, 0.03f, 0.55f), new Color(0.80f, 0.78f, 0.72f));
                 Bed(house, Snap(house, new Vector3(-3.2f, 0f, fz + 1.2f))); Bed(house, Snap(house, new Vector3(3.2f, 0f, fz + 1.2f)));
+                // 157차: 우편함(동물의 숲) — 문 앞 오른쪽
+                var mb = Snap(house, new Vector3(2.0f, 0f, fz + 2.2f));
+                Cyl(house, "MailPost", mb + new Vector3(0f, 0.55f, 0f), new Vector3(0.12f, 0.55f, 0.12f), new Color(0.48f, 0.33f, 0.20f));
+                Box(house, "MailBox", mb + new Vector3(0f, 1.25f, 0f), new Vector3(0.42f, 0.36f, 0.62f), new Color(0.95f, 0.45f, 0.40f));
+                Cyl(house, "MailTop", mb + new Vector3(0f, 1.43f, 0f), new Vector3(0.42f, 0.31f, 0.42f), new Color(0.95f, 0.45f, 0.40f)).transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+                Box(house, "MailDoor", mb + new Vector3(0f, 1.25f, 0.32f), new Vector3(0.36f, 0.30f, 0.03f), new Color(0.75f, 0.30f, 0.28f));
+                Box(house, "MailFlag", mb + new Vector3(0.24f, 1.42f, -0.1f), new Vector3(0.04f, 0.32f, 0.16f), new Color(0.98f, 0.82f, 0.25f));
             }
             else
             {
@@ -263,6 +277,88 @@ namespace CoastRun.Village
             return t;
         }
 
+        // ── 153차: 언덕 채우기 — 소나무·풍차·울타리 ──────────────────────
+        static Mesh _cone;
+        static Mesh ConeMesh()
+        {
+            if (_cone != null) return _cone;
+            int n = 16; var v = new List<Vector3>(); var tr = new List<int>(); var nm = new List<Vector3>();
+            for (int i = 0; i < n; i++)
+            {
+                float a0 = i / (float)n * Mathf.PI * 2f, a1 = (i + 1) / (float)n * Mathf.PI * 2f;
+                var p0 = new Vector3(Mathf.Cos(a0), 0f, Mathf.Sin(a0)); var p1 = new Vector3(Mathf.Cos(a1), 0f, Mathf.Sin(a1)); var top = new Vector3(0f, 1f, 0f);
+                var fn = Vector3.Cross(p1 - p0, top - p0).normalized;
+                int b = v.Count; v.Add(p0); v.Add(top); v.Add(p1); nm.Add(fn); nm.Add(fn); nm.Add(fn); tr.Add(b); tr.Add(b + 1); tr.Add(b + 2);
+                // 바닥
+                int c = v.Count; v.Add(p0); v.Add(p1); v.Add(Vector3.zero); nm.Add(Vector3.down); nm.Add(Vector3.down); nm.Add(Vector3.down); tr.Add(c); tr.Add(c + 1); tr.Add(c + 2);
+            }
+            _cone = new Mesh { name = "Cone" }; _cone.SetVertices(v); _cone.SetNormals(nm); _cone.SetTriangles(tr, 0); _cone.RecalculateBounds();
+            return _cone;
+        }
+        /// 소나무: 줄기 + 원뿔 3단(아래로 갈수록 넓고, 색은 위가 밝게)
+        public static Transform Pine(Transform root, Vector3 ground, float yaw, float height)
+        {
+            var t = new GameObject("Tree_Pine").transform; t.SetParent(root, false); t.position = ground; t.rotation = Quaternion.Euler(0f, yaw, 0f);
+            Cyl(t, "Trunk", new Vector3(0f, height * 0.22f, 0f), new Vector3(0.28f, height * 0.22f, 0.28f), new Color(0.50f, 0.34f, 0.22f));
+            var cols = new[] { new Color(0.30f, 0.56f, 0.34f), new Color(0.36f, 0.64f, 0.38f), new Color(0.44f, 0.72f, 0.42f) };
+            for (int i = 0; i < 3; i++)
+            {
+                float y0 = height * (0.30f + i * 0.22f), r = height * (0.34f - i * 0.08f), hh = height * 0.34f;
+                var g = new GameObject("Cone" + i, typeof(MeshFilter), typeof(MeshRenderer)); g.transform.SetParent(t, false);
+                g.transform.localPosition = new Vector3(0f, y0, 0f); g.transform.localScale = new Vector3(r, hh, r);
+                g.GetComponent<MeshFilter>().sharedMesh = ConeMesh(); g.GetComponent<MeshRenderer>().sharedMaterial = M(cols[i]);
+            }
+            var bc = t.gameObject.AddComponent<BoxCollider>(); bc.center = new Vector3(0f, height * 0.5f, 0f); bc.size = new Vector3(0.6f, height, 0.6f);
+            BuildingOutline.Attach(t, 0.02f);
+            return t;
+        }
+        /// 풍차: 기둥 + 허브 + 날개 4(천천히 돎)
+        public static Transform Windmill(Transform root, Vector3 ground, float yaw, float height)
+        {
+            var t = new GameObject("Windmill").transform; t.SetParent(root, false); t.position = ground; t.rotation = Quaternion.Euler(0f, yaw, 0f);
+            var post = Color.Lerp(VillagePalette.Log, Color.white, 0.2f);
+            Cyl(t, "Post", new Vector3(0f, height * 0.5f, 0f), new Vector3(0.22f, height * 0.5f, 0.22f), post);
+            for (int i = 0; i < 4; i++) Box(t, "Brace", new Vector3(Mathf.Cos(i * 1.5708f) * 0.35f, height * 0.18f, Mathf.Sin(i * 1.5708f) * 0.35f), new Vector3(0.08f, height * 0.36f, 0.08f), Color.Lerp(post, Color.black, 0.2f));
+            var hub = new GameObject("Hub").transform; hub.SetParent(t, false); hub.localPosition = new Vector3(0f, height, 0.32f);
+            Ball(hub, "Cap", Vector3.zero, Vector3.one * 0.32f, new Color(0.85f, 0.35f, 0.35f));
+            for (int i = 0; i < 4; i++)
+            {
+                var b = Box(hub, "Blade", Quaternion.Euler(0f, 0f, i * 90f) * new Vector3(0f, 0.9f, 0f), new Vector3(0.36f, 1.7f, 0.04f), i % 2 == 0 ? new Color(0.98f, 0.96f, 0.90f) : new Color(0.95f, 0.78f, 0.45f));
+                b.transform.localRotation = Quaternion.Euler(0f, 0f, i * 90f);
+            }
+            hub.gameObject.AddComponent<Spin>().speed = 28f;
+            var bc = t.gameObject.AddComponent<BoxCollider>(); bc.center = new Vector3(0f, height * 0.5f, 0f); bc.size = new Vector3(0.9f, height, 0.9f);
+            BuildingOutline.Attach(t, 0.02f);
+            return t;
+        }
+        public class Spin : MonoBehaviour { public float speed = 30f; void Update() { transform.Rotate(0f, 0f, speed * Time.deltaTime, Space.Self); } }
+        /// 통나무 울타리 한 줄(두 점 사이) — 말뚝 + 가로대 2, 지면 높이 따라감
+        public static void LogFence(Transform root, Vector3 a, Vector3 b, float step = 1.6f)
+        {
+            var t = new GameObject("LogFence").transform; t.SetParent(root, false);
+            var log = VillagePalette.Log; var logD = VillagePalette.LogDark;
+            var d = b - a; d.y = 0f; float len = d.magnitude; var dir = d / Mathf.Max(0.01f, len); int n = Mathf.Max(1, Mathf.RoundToInt(len / step));
+            Vector3 prev = Vector3.zero;
+            for (int i = 0; i <= n; i++)
+            {
+                var p = a + dir * (len * i / n); p.y = VillageWorld.Height(p.x, p.z);
+                var post = Cyl(t, "Post", Vector3.zero, new Vector3(0.18f, 0.42f, 0.18f), logD); post.transform.position = p + new Vector3(0f, 0.42f, 0f);
+                if (i > 0)
+                {
+                    for (int k = 0; k < 2; k++)
+                    {
+                        var m = (prev + p) * 0.5f + new Vector3(0f, 0.30f + k * 0.32f, 0f); var seg = p - prev; float sl = seg.magnitude;
+                        var rail = Cyl(t, "Rail", Vector3.zero, new Vector3(0.11f, sl * 0.5f, 0.11f), log); rail.transform.position = m; rail.transform.rotation = Quaternion.FromToRotation(Vector3.up, seg.normalized);
+                    }
+                    // 154차: 울타리도 막힘
+                    var cgo = new GameObject("FenceCol", typeof(BoxCollider)); cgo.transform.SetParent(t, false); cgo.transform.position = (prev + p) * 0.5f + new Vector3(0f, 0.5f, 0f);
+                    cgo.transform.rotation = Quaternion.LookRotation(new Vector3(p.x - prev.x, 0f, p.z - prev.z).normalized, Vector3.up); cgo.GetComponent<BoxCollider>().size = new Vector3(0.3f, 1f, Vector3.Distance(prev, p));
+                }
+                prev = p;
+            }
+            BuildingOutline.Attach(t, 0.02f);
+        }
+
         /// 148차: 집 밖 소품(징검돌·울타리·화단·간판)은 집 발치가 아니라 그 자리 지면에 놓는다 — 언덕 위 우리집 앞이 경사라 공중에 떠 보이던 문제.
         static Vector3 Snap(Transform house, Vector3 p)
         {
@@ -297,6 +393,28 @@ namespace CoastRun.Village
             }
         }
 
+
+        /// 157차(사용자: 「집 위에 간판으로 우리집·알바나라·마을상점」): 문 위 벽에 거는 나무 간판 + 글자(앞에서 읽힘).
+        static void WallSign(Transform house, string ko, string en, float W, float H, float fz, Color board, Color dark)
+        {
+            float sw = Mathf.Min(W * 0.36f, 2.2f), sy = H - 0.45f;
+            Box(house, "WallSignEdge", new Vector3(0f, sy, fz + 0.10f), new Vector3(sw + 0.14f, 0.86f, 0.10f), dark);
+            Box(house, "WallSign", new Vector3(0f, sy, fz + 0.13f), new Vector3(sw, 0.72f, 0.12f), board);
+            Box(house, "WallSignInner", new Vector3(0f, sy, fz + 0.195f), new Vector3(sw - 0.16f, 0.56f, 0.02f), Color.Lerp(board, Color.white, 0.18f));
+            for (int s = -1; s <= 1; s += 2)
+            {
+                Box(house, "SignBracket", new Vector3(s * (sw * 0.5f - 0.10f), sy + 0.58f, fz + 0.08f), new Vector3(0.07f, 0.45f, 0.07f), dark);
+                Ball(house, "SignNail", new Vector3(s * (sw * 0.5f - 0.10f), sy + 0.30f, fz + 0.20f), Vector3.one * 0.09f, new Color(0.95f, 0.85f, 0.45f));
+            }
+            var go = new GameObject("WallSignText", typeof(RectTransform), typeof(Canvas));
+            go.transform.SetParent(house, false); go.transform.localPosition = new Vector3(0f, sy, fz + 0.215f); go.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+            var cv = go.GetComponent<Canvas>(); cv.renderMode = RenderMode.WorldSpace; cv.sortingOrder = 6;
+            var rt = go.GetComponent<RectTransform>(); rt.sizeDelta = new Vector2(sw * 100f, 60f); rt.localScale = Vector3.one * 0.01f;
+            var t = CoastHudLayout.MakeText(rt, "T", Loc.T(ko, en), 40, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(6f, 2f), new Vector2(-6f, -2f));
+            t.color = new Color(1f, 0.98f, 0.92f); t.fontStyle = FontStyle.Bold; t.resizeTextForBestFit = true; t.resizeTextMinSize = 12; t.resizeTextMaxSize = CoastHudLayout.Scaled(40);
+            CoastUiArt.OutlineText(t, new Color(0.30f, 0.16f, 0.08f, 0.95f), 2.5f);
+        }
+
         /// 간판: 나무 기둥 + 널판 + 월드 캔버스 글자(한/영).
         public static void Sign(Transform parent, Vector3 p, string ko, string en, Color board)
         {
@@ -313,6 +431,36 @@ namespace CoastRun.Village
             CoastUiArt.OutlineText(t, new Color(0.25f, 0.15f, 0.10f, 0.9f), 2f);
             // 뒷면에서도 읽히게 뒤집은 복사본
             var back = Object.Instantiate(go, parent); back.transform.localPosition = p + new Vector3(0f, 1.75f, -0.075f); back.transform.localRotation = Quaternion.identity;
+        }
+    }
+
+    /// 157차: 굴뚝 연기 — 둥근 퍼프가 천천히 올라가며 커지고 사라진다(동물의 숲 아침 굴뚝).
+    public class ChimneySmoke : MonoBehaviour
+    {
+        class Puff { public Transform t; public Material m; public float age, life; public Vector3 vel; }
+        readonly System.Collections.Generic.List<Puff> _puffs = new System.Collections.Generic.List<Puff>();
+        float _next; public float Rate = 0.75f;
+        void Update()
+        {
+            _next -= Time.deltaTime;
+            if (_next <= 0f && _puffs.Count < 10)
+            {
+                _next = Rate + Random.value * 0.3f;
+                var g = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(g.GetComponent<Collider>()); g.name = "Smoke";
+                g.transform.SetParent(transform, false); g.transform.localPosition = new Vector3(Random.value * 0.2f - 0.1f, 0f, Random.value * 0.2f - 0.1f);
+                float s = 0.35f + Random.value * 0.15f; g.transform.localScale = Vector3.one * s;
+                var m = CoastMaterials.CreateTransparent(new Color(1f, 1f, 1f, 0.55f)); g.GetComponent<Renderer>().sharedMaterial = m;
+                _puffs.Add(new Puff { t = g.transform, m = m, life = 2.8f + Random.value * 0.8f, vel = new Vector3(Random.value * 0.3f - 0.15f, 0.9f + Random.value * 0.3f, Random.value * 0.3f - 0.15f) });
+            }
+            for (int i = _puffs.Count - 1; i >= 0; i--)
+            {
+                var p = _puffs[i]; p.age += Time.deltaTime; float k = p.age / p.life;
+                if (k >= 1f) { Object.Destroy(p.t.gameObject); _puffs.RemoveAt(i); continue; }
+                p.t.localPosition += (p.vel + new Vector3(Mathf.Sin(Time.time * 1.3f + i) * 0.25f, 0f, 0f)) * Time.deltaTime;
+                p.t.localScale = Vector3.one * Mathf.Lerp(0.4f, 1.35f, k);
+                var c = new Color(1f, 1f, 1f, 0.55f * (1f - k) * Mathf.Clamp01(k * 6f));
+                if (p.m.HasProperty("_BaseColor")) p.m.SetColor("_BaseColor", c); if (p.m.HasProperty("_Color")) p.m.SetColor("_Color", c);
+            }
         }
     }
 }

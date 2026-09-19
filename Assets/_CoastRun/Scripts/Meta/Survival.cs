@@ -174,7 +174,7 @@ namespace CoastRun
         {
             if (s == null) return;
             LifeItems.Ensure(s);
-            s.stats.money /= 2;
+            s.stats.money = (int)(s.stats.money * 0.8f);   // 155차(사용자): 쓰러지면 돈 50% → 20% 잃음
             s.condition = 50; s.hunger = 50; s.dangerWeeks = 0; s.starveWeeks = 0; s.sleepDebt = 0;
             s.stressCrisisWeeks = 0; s.burnoutWeeks = 0;
             if (!LifeItems.HasEdible(s)) LifeItems.Add(s, "dish_rice", 1);

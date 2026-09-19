@@ -117,6 +117,8 @@ namespace CoastRun
                 LifeItemCat.Gather, 0, false, "UI_Goods_Shirt", null, 0, 2, -12, 0, false, true, false),
             D("mat_wood", "장작", "Firewood", "나무를 도끼로 패거나 나뭇가지를 주워 모은다. 우리집 난로 연료(1주에 1개).", "Chop trees or pick up branches. Fuel for the home stove (1 per week).",
                 LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("mat_stone", "돌", "Stone", "언덕 바위를 곡괭이로 캔 돌. 집·마당 꾸미기 재료.", "Mined from hill rocks. Building material.",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
             D("gath_coconut", "코코넛", "Coconut", "야자수를 흔들면 떨어진다. 시원하다.", "Falls from palms. Refreshing.",
                 LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 10, 3, -4, 1, true, false, false),
             D("gath_shell", "조개껍데기", "Seashell", "바닷가에서 주운 예쁜 조개. 보고 있으면 기분이 좋다. 스트레스 -6", "A pretty shell from the beach. Stress -6",
