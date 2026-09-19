@@ -59,6 +59,8 @@ namespace CoastRun
             int week = gm != null && gm.Save != null ? gm.Save.week : 1;
             return 150 + week * 5;
         }
+        /// 135차(사용자): 미니게임을 못 깼을 때 넘어가는 값 — 보상의 4배(최소 600).
+        public static int SkipCost(GameManager gm) => Mathf.Max(600, Reward(gm) * 4);
 
         /// 이 챕터를 막 클리어했고 **이번 회차**에서 아직 미션을 안 깼으면 true(SaveData.missionDoneMask — 회차마다 다시 한다).
         /// 프로필 비트(missionClearMask)는 더보기 › 미니게임 다시하기 해금용.

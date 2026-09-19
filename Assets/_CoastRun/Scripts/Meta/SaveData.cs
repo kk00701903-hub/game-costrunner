@@ -171,6 +171,20 @@ namespace CoastRun
         public int[] festivalPlace = new int[4];   // 105차: 계절 축제 등수(0 없음 / 1~3 / 4 참가)
         public int cluePendingMask;          // 105차: 컷씬은 봤지만 육성 조건이 모자라 아직 못 얻은 단서(ClueSystem.Condition) — 조건을 채우면 카드가 다시 뜬다
         public bool inheritedShown;          // 105차: 2회차 계승 안내를 보여 줬는가
+        // 131차(재미요소): 별빛 캡슐(이벤트 가챠 — 결제 없음)
+        public int starShards;               // 별조각(★) — 스토리 러닝 성과·럭키 캡슐로 모은다
+        public int starShardsTotal;          // 누적(통계)
+        public int capsuleTickets;           // 러닝 중 럭키 캡슐 = 뽑기권
+        public int gachaPulls;               // 누적 뽑기 횟수
+        public int gachaPity;                // SR 이상 없이 지나간 횟수(천장 10)
+        public bool luckyRunPending;         // 행운의 부적: 다음 완주 러닝 코인 ×2
+        public bool autoMode;
+        // 136차: 바닷가 마을 허브
+        public float villageX, villageZ;                 // 마지막 위치
+        public int villageSleepStamp = -1;               // 엄마 집 낮잠 (week*4+phase)
+        public int villageFishStamp = -1; public int villageFishCasts;   // 낚시 던진 횟수(페이즈당 5)
+        public int villageTreeWeek = -1; public int villageTreeMask;      // 이번 주 흔든 나무
+        public string[] yardItems = new string[0];       // 마당 가구 "id|x|z|rot"                // 135차: 육성 자동 진행 — 끌 때까지 유지(대회·이야기 다녀와도)
 
         public ChapterRecord CurrentChapter =>
             chapters != null && chapter >= 1 && chapter <= chapters.Length ? chapters[chapter - 1] : null;
@@ -235,6 +249,7 @@ namespace CoastRun
         public int recordNewMask;                // 37차: 아직 안 들어 본 새 레코드 비트
         public bool devUnlockAll;                // 37차: 설정 비밀코드(1111) — 전체 챕터·레코드 열림(테스트용)
         public bool starterCardsGiven;           // 38차: 실사 포토카드(21~26) 기본 지급 완료
+        public int gachaFreeDate;                // 131차: 별빛 캡슐 무료 1회를 쓴 날(yyyymmdd)
         public int decoOwnedMask;                // 28차: 방 장식 보유 비트(RoomDeco.All 순서)
         public int decoNewMask;                  // 28차: 아직 안 본 새 장식 비트
         public int missionClearMask;             // 44차: 한 번이라도 깬 챕터 미션 비트 — 더보기 › 미니게임 다시하기 해금(회차를 넘어 남는다)

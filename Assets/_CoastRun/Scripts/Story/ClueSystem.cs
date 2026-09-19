@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace CoastRun
 {
     /// 85차(대본 v4 「분기 조건」): 플레이 중 모이는 **단서 여섯 개**(SaveData.clueMask) → 엔딩 A/B/TRUE.
-    ///   이름(CS7 카드) · 편지 스무 통(EV9) · 하트 흔적(CS2 부표 페인트) · 보석 머리띠(CS8 방수 통) · 돌 세 개(CS4 뒤 다시 쌓기) · 91.9 라디오(CS3 복원).
+    ///   이름(CS7 카드) · 편지 스무 통(EV9) · 하트 흔적(CS2 부표 페인트) · 보석 머리띠(CS8 방수 통) · 돌 세 개(CS4 뒤 다시 쌓기) · 89.2 라디오(CS3 복원).
     ///   컷씬은 항상 재생되므로 단서는 **컷씬 직후 육성 화면의 「단서」 카드**에서 확정한다. 편지·돌은 카드에서 한 번 더 손을 대야(두 번째 버튼) 얻는다 —
     ///   그냥 넘기면 빠진다(놓친 단서는 시네마 다시보기로는 안 채워진다: 스토리 진행 중 카드에서만).
     ///   END_A 「엇갈린 정류장」: 이름 없음 또는 라디오 없음 · END_B 「우유 두 병」: 이름+라디오는 있으나 나머지 중 하나라도 없음 · END_TRUE: 여섯 개 전부.
@@ -49,7 +49,7 @@ namespace CoastRun
                 case Clue.Heart: return Loc.T("하트 흔적", "The heart mark");
                 case Clue.Headband: return Loc.T("보석 머리띠", "The gem headband");
                 case Clue.Stones: return Loc.T("돌 세 개", "Three stones");
-                case Clue.Radio: return Loc.T("91.9 라디오", "Radio 91.9");
+                case Clue.Radio: return Loc.T("89.2 라디오", "Radio 89.2");
                 default: return "";
             }
         }
@@ -68,7 +68,7 @@ namespace CoastRun
             switch (c)
             {
                 case Clue.Heart: return Loc.T("부표의 삐뚤어진 하트 — 아빠 손으로 그린 것과 같은 페인트 자국을 기억해 두었다.", "The crooked heart on the buoy — the same paint mark Dad used to make.");
-                case Clue.Radio: return Loc.T("고장 난 라디오를 고쳤다. 다이얼은 91.9에 멈춰 있었다.", "The broken radio works again. The dial rests at 91.9.");
+                case Clue.Radio: return Loc.T("고장 난 라디오를 고쳤다. 다이얼은 89.2에 멈춰 있었다.", "The broken radio works again. The dial rests at 89.2.");
                 case Clue.Stones: return Loc.T("탑 아래 돌 세 개가 무너져 있다. 다시 쌓을까, 그냥 둘까.", "The three stones under the tower have fallen. Stack them again — or leave them.");
                 case Clue.Name: return Loc.T("코팅된 수색 카드 — 「고하늘 실종 1년」. 내 이름이 거기 있었다.", "A laminated search card — 'Go Haneul, missing one year'. My name was there.");
                 case Clue.Headband: return Loc.T("방수 통 속 푸른 보석 머리띠. 아빠가 끝까지 지킨 것.", "The blue gem headband inside the waterproof case. What Dad kept to the end.");
@@ -153,7 +153,7 @@ namespace CoastRun
         {
             Close();
             save.cluePendingMask |= (int)c; GameManager.I?.Persist();
-            var card = EventCardKit.Card("ClueCard", 340, new Vector2(560f, 470f), out _canvas, 20f);
+            var card = EventCardKit.Card("ClueCard", 340, new Vector2(560f, 520f), out _canvas, 20f);
             EventCardKit.Kid(card, Loc.T("누나, 아직인가 봐", "Not yet, I guess"), true);   // 109차: 꼬마 동행
             EventCardKit.JellyTitle(card, Loc.T("단서?", "CLUE?"), new Color(0.80f, 0.82f, 0.90f), new Color(0.25f, 0.22f, 0.35f), 26f, 70f, 46);
             EventCardKit.Divider(card, 104f);
@@ -198,7 +198,7 @@ namespace CoastRun
         {
             Close();
             bool last = index >= pages.Length - 1;
-            var card = EventCardKit.Card("LetterRead", 340, new Vector2(560f, 520f), out _canvas, 20f);
+            var card = EventCardKit.Card("LetterRead", 340, new Vector2(560f, 620f), out _canvas, 20f);
             EventCardKit.JellyTitle(card, Loc.T($"편지 · {index + 1}/{pages.Length}", $"Letter · {index + 1}/{pages.Length}"),
                 new Color(1f, 0.88f, 0.45f), new Color(0.40f, 0.22f, 0.05f), 26f, 70f, 40);
             EventCardKit.Divider(card, 104f);

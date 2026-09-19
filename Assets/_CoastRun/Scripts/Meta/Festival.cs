@@ -104,7 +104,7 @@ namespace CoastRun
             Close();
             if (d == null) { onDone?.Invoke(); return; }
             CoastPrefs.VibrateEvent();   // 109차: 축제 결과 — 특정 이벤트 진동
-            var crt = EventCardKit.Card("FestivalResultCanvas", 466, new Vector2(640f, 560f), out _canvas, 20f);
+            var crt = EventCardKit.Card("FestivalResultCanvas", 466, new Vector2(640f, 640f), out _canvas, 20f);   // 135차: 돌아가기 버튼이 축제 이름 줄을 가렸다 → 카드 80 키움
             Banner(crt, d, 24f, 130f);
             EventCardKit.Kid(crt, place <= 3 ? Loc.T("누나 대단해!", "You did it!") : Loc.T("다음엔 더 잘할 거야", "Next time!"), true);   // 109차: 꼬마 동행
             Color fill = place == 1 ? new Color(1f, 0.80f, 0.20f) : place == 2 ? new Color(0.80f, 0.82f, 0.90f) : place == 3 ? new Color(0.85f, 0.60f, 0.40f) : new Color(0.60f, 0.72f, 0.95f);

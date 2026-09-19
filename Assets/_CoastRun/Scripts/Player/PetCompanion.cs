@@ -124,7 +124,7 @@ namespace CoastRun
             switch (kind)
             {
                 case PetKind.BikerThug: _offset = new Vector3(1.0f, 0f, 0.6f); break;   // 살짝 앞에서 나란히
-                default: _offset = new Vector3(0.82f, 1.55f, 0.35f); break;
+                default: _offset = new Vector3(0.80f, 1.30f, -0.10f); break;   // 124차(사용자 「펫을 주인공쪽으로 조금 뒤로」): 앞 0.35→-0.10, 높이 1.55→1.30 — 떠 있는 펫이 원근 때문에 저 앞에 있는 듯 보여 주인공 옆으로
             }
             Build();
             if (_player != null)

@@ -4,7 +4,7 @@ namespace CoastRun
 {
     /// 68차: 시네마틱 대본 — 오프닝 + 컷씬 8편(+ 77차: 엔딩 3편·MV)을 **같은 형식**(컷 = 클립/스틸 + 자막 + 켄번즈 + 음악 한 곡 + 마무리 카드)으로.
     ///   103차: **대본 v7.1**(Docs/CUTSCENE_SCRIPTS_v7.md, 279컷 · 한 컷 64자 이하 · 6~7초, 회상 롱컷) · 95차: 대본 v6(188컷) · 85차: 대본 v4 — OPEN 14컷(10.6s) · CS1~8(13~16컷, 8.5s) · **보조 컷씬 EV1~10(4컷 × 7s, 스토리 모드 CH2·4·6·8·9·11·13·14·15·19)** ·
-    ///   엔딩 A 「엇갈린 정류장」 / B 「우유 두 병」 / TRUE 「맞닿은 주파수 91.9」(단서 여섯 개 clueMask 로 분기 — ClueSystem).
+    ///   엔딩 A 「엇갈린 정류장」 / B 「우유 두 병」 / TRUE 「맞닿은 주파수 89.2」(단서 여섯 개 clueMask 로 분기 — ClueSystem).
     ///   그림은 `Cut_T_<컷id>`(v4, 192장: Kling 웹 116 신규 + v3 `Cut_S_*` 복사 76) — 없으면 fallback(옛 v3 스틸). 자막이 긴 컷(>108자)은 10~12초.
     ///   **이 파일은 Tools/Story/gen_cinematic_v7.py 가 v7 md 에서 생성한다** — 자막을 고치려면 md 를 고치고 다시 생성할 것(MV 절만 손으로).
     public static class CinematicTable
@@ -327,7 +327,7 @@ namespace CoastRun
                 new Cut(null, "Cut_T_N4_08", "그 봄에 소리 내서 웃었다. 「너 웃을 줄 아네.」 「시끄러워.」", 6.5f, true, "— 회상 —", null, 3),
                 new Cut(null, "Cut_T_V7_N6_05", "도윤이가 바닷가 바위 틈의 버려진 해녀 불턱을 기지로 꾸몄다.", 6.5f, true, "— 회상 —", "Cut_T_N3_07", 1),
                 new Cut(null, "Cut_T_V7_N6_05", "돌담 안에 담요를 깔고, 고장 난 라디오를 가져다 놓고, 우유를 두 병씩 숨겨 뒀다.", 6.5f, true, "— 회상 —", null, 0),
-                new Cut(null, "Cut_T_N3_09", "「여긴 우리 기지야.」 라디오를 같이 뜯다가 91.9에서 희미하게 노래가 잡혔다.", 6.5f, true, "— 회상 —", "Cut_S_N3_07", 3),
+                new Cut(null, "Cut_T_N3_09", "「여긴 우리 기지야.」 라디오를 같이 뜯다가 89.2에서 희미하게 노래가 잡혔다.", 6.5f, true, "— 회상 —", "Cut_S_N3_07", 3),
                 new Cut(null, "Cut_T_N3_09", "도윤이가 다이얼 옆에 하트를 그렸다. 「이 주파수는 우리 거야.」", 6.5f, true, "— 회상 —", "Cut_S_N3_07", 2),
                 new Cut(null, "Cut_T_N3_08", "기지까지는 방파제 길을 보드로 달렸다. 도윤이는 뒤에서 헐떡이며 따라왔다.", 6.5f, true, "— 회상 —", null, 0),
                 new Cut(null, "Cut_T_N4_02", "기지에 들어가니 촛불이 켜져 있었다. 초 열두 개. 도윤이가 케이크 뒤에서 튀어나왔다.", 6.5f, true, "— 회상 · 열두 살 생일 —", "Cut_S_N4_05", 1),
@@ -482,7 +482,7 @@ namespace CoastRun
                 new Cut(null, "Cut_T_V7_N8_22", "나는 무릎을 꿇고 도윤이와 엄마를 안았다. 품이 텅 비어 있었다. 내 몸은 이미 절반 이상 빛으로 부서지고 있었다.", 6.5f, false, null, "Cut_T_N8_13", 0),
                 new Cut(null, "Cut_T_V7_N8_22", "「울지 마. 나 여기 왔어. 약속 지켰어.」 손이 도윤이의 뺨을, 엄마의 젖은 어깨를 통과했다.", 6.5f, false, null, null, 3),
                 new Cut(null, "Cut_T_E10_03", "도윤이 발치에 낡은 라디오가 놓여 있었다. 다이얼 옆에 삐뚤어진 하트.", 6.5f, false, null, null, 2),
-                new Cut(null, "Cut_T_N3_11", "사라지기 직전, 나는 남은 힘을 다해 라디오 다이얼을 돌렸다. 91.9. 찌르르, 잡음이 일었다.", 6.5f, false, null, "Cut_S_N3_11", 0),
+                new Cut(null, "Cut_T_N3_11", "사라지기 직전, 나는 남은 힘을 다해 라디오 다이얼을 돌렸다. 89.2. 찌르르, 잡음이 일었다.", 6.5f, false, null, "Cut_S_N3_11", 0),
                 new Cut(null, "Cut_T_V7_N8_26", "도윤이의 눈에서 눈물이 흘러내렸다.", 6.5f, false, null, "Cut_T_N8_05", 1),
             }
         };
@@ -546,7 +546,7 @@ namespace CoastRun
             cuts = new[]
             {
                 new Cut("mv1", "Cut_V_MV_1", "Our frequency  —  스튜디오 우히&히시", 4.5f, false, null, "Cut_V_OP_1", 0),
-                new Cut(null, "Cut_V_MV_2", "너와 나의 주파수, 91.9", 4.5f, false, null, "Cut_V_OP_2", 1),
+                new Cut(null, "Cut_V_MV_2", "너와 나의 주파수, 89.2", 4.5f, false, null, "Cut_V_OP_2", 1),
                 new Cut(null, "Cut_V_MV_3", "하나는 오늘, 하나는 내일", 4.5f, false, null, "Cut_V_CH14_Close", 2),
                 new Cut(null, "Cut_V_MV_4", "노을 전에 닿으면 내가 이기는 놀이", 4.5f, false, null, "Cut_V_Open_7", 0),
                 new Cut("mv5", "Cut_V_MV_5", "우리의 송전탑", 4.5f, false, null, "Cut_V_Open_3", 3),

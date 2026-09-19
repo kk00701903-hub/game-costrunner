@@ -21,6 +21,7 @@ Shader "CoastRun/InkOutline"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fog
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "CoastCurve.hlsl"
 
@@ -29,9 +30,13 @@ Shader "CoastRun/InkOutline"
                 half _Width;
                 half _CurveWeight;
             CBUFFER_END
+            // 143차: 소프트 룩 전역 — 선을 가늘게(×_CoastInkWidth), 색은 잉크 대신 따뜻한 짙은 갈보라, 멀어지면 안개색으로
+            half _CoastSoft;
+            half4 _CoastInkColor;
+            half _CoastInkWidth;
 
             struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
-            struct Varyings { float4 positionCS : SV_POSITION; };
+            struct Varyings { float4 positionCS : SV_POSITION; float fogFactor : TEXCOORD0; };
 
             Varyings vert(Attributes IN)
             {
@@ -41,13 +46,20 @@ Shader "CoastRun/InkOutline"
                 // 25차-1: 손가락·팔뚝처럼 얇은 부위는 고정 폭(1.7 cm) 셸이 표면을 뒤덮어 팔 전체가 남색으로 보였다.
                 // 카메라 거리에 비례시켜(4.4 m 기준 _Width) 가까울수록 얇게 — 화면에서 보이는 선 굵기는 그대로.
                 float dist = distance(ws, _WorldSpaceCameraPos.xyz);
-                ws += nw * _Width * clamp(dist / 4.4, 0.35, 1.6);
+                half wmul = lerp(1.0, _CoastInkWidth, saturate(_CoastSoft));
+                ws += nw * _Width * wmul * clamp(dist / 4.4, 0.35, 1.6);
                 ws = CoastCurveWorld(ws, _CurveWeight);
                 OUT.positionCS = TransformWorldToHClip(ws);
+                OUT.fogFactor = ComputeFogFactor(OUT.positionCS.z);
                 return OUT;
             }
 
-            half4 frag(Varyings IN) : SV_Target { return _OutlineColor; }
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half3 c = lerp(_OutlineColor.rgb, _CoastInkColor.rgb, saturate(_CoastSoft));
+                c = MixFog(c, IN.fogFactor);
+                return half4(c, 1);
+            }
             ENDHLSL
         }
     }

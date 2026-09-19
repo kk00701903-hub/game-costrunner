@@ -15,7 +15,21 @@ namespace CoastRun
         public class Def
         {
             public int chapter; public string ko, en; public Goal goal; public int target; public float seconds;
+            /// 118차(사용자): 대회 보상 — 상금(코인) · 하트 · 스트레스 감소. 이겼을 때 StoryContest.GrantReward 가 준다.
+            public int rewardCoins; public int rewardHearts; public int rewardStress;
             public string Name => Loc.T(ko, en);
+            /// 안내 팝업·토스트에 쓰는 한 줄. 「코인 250 · 하트 1 · 스트레스 −5」
+            public string RewardText
+            {
+                get
+                {
+                    string ko2 = $"코인 {rewardCoins}";
+                    string en2 = $"{rewardCoins} coins";
+                    if (rewardHearts > 0) { ko2 += $" · 하트 {rewardHearts}"; en2 += $" · {rewardHearts} hearts"; }
+                    if (rewardStress > 0) { ko2 += $" · 스트레스 −{rewardStress}"; en2 += $" · stress −{rewardStress}"; }
+                    return Loc.T(ko2, en2);
+                }
+            }
             public string ShortGoal => goal == Goal.Coins ? Loc.T("코인", "Coins") : goal == Goal.Photos ? Loc.T("사진", "Photos") : goal == Goal.Boss ? Loc.T("보스", "Boss") : Loc.T("완주", "Finish");
             public string GoalText
             {
@@ -35,14 +49,14 @@ namespace CoastRun
         /// 러닝 챕터 8개(StoryProgress.RunChapters)에 하나씩.
         public static readonly Def[] All =
         {
-            new Def { chapter = 1,  ko = "첫 해안도로 달리기 대회", en = "First Coast Road Race", goal = Goal.Coins,  target = 120, seconds = 180f },
-            new Def { chapter = 4,  ko = "봄 사진 콘테스트",        en = "Spring Photo Contest",  goal = Goal.Photos, target = 2,   seconds = 180f },
-            new Def { chapter = 7,  ko = "갈매기 퇴치전",           en = "Seagull Hunt",          goal = Goal.Boss,   target = 1,   seconds = 180f },
-            new Def { chapter = 10, ko = "코인 마라톤",             en = "Coin Marathon",         goal = Goal.Coins,  target = 350, seconds = 180f },
-            new Def { chapter = 13, ko = "가을 사진 콘테스트",      en = "Autumn Photo Contest",  goal = Goal.Photos, target = 3,   seconds = 180f },
-            new Def { chapter = 15, ko = "골렘 격퇴전",             en = "Golem Rout",            goal = Goal.Boss,   target = 2,   seconds = 180f },
-            new Def { chapter = 18, ko = "해안도로 그랑프리",       en = "Coast Grand Prix",      goal = Goal.Coins,  target = 600, seconds = 180f },
-            new Def { chapter = 20, ko = "송전탑 완주",             en = "Tower Finish",          goal = Goal.Finish, target = 1,   seconds = 200f },
+            new Def { chapter = 1,  ko = "첫 해안도로 달리기 대회", en = "First Coast Road Race", goal = Goal.Coins,  target = 120, seconds = 180f , rewardCoins = 250, rewardHearts = 1, rewardStress = 5 },
+            new Def { chapter = 4,  ko = "봄 사진 콘테스트",        en = "Spring Photo Contest",  goal = Goal.Photos, target = 2,   seconds = 180f , rewardCoins = 300, rewardHearts = 1, rewardStress = 5 },
+            new Def { chapter = 7,  ko = "갈매기 퇴치전",           en = "Seagull Hunt",          goal = Goal.Boss,   target = 1,   seconds = 180f , rewardCoins = 350, rewardHearts = 1, rewardStress = 6 },
+            new Def { chapter = 10, ko = "코인 마라톤",             en = "Coin Marathon",         goal = Goal.Coins,  target = 350, seconds = 180f , rewardCoins = 420, rewardHearts = 2, rewardStress = 6 },
+            new Def { chapter = 13, ko = "가을 사진 콘테스트",      en = "Autumn Photo Contest",  goal = Goal.Photos, target = 3,   seconds = 180f , rewardCoins = 480, rewardHearts = 2, rewardStress = 7 },
+            new Def { chapter = 15, ko = "골렘 격퇴전",             en = "Golem Rout",            goal = Goal.Boss,   target = 2,   seconds = 180f , rewardCoins = 550, rewardHearts = 2, rewardStress = 8 },
+            new Def { chapter = 18, ko = "해안도로 그랑프리",       en = "Coast Grand Prix",      goal = Goal.Coins,  target = 600, seconds = 180f , rewardCoins = 650, rewardHearts = 3, rewardStress = 8 },
+            new Def { chapter = 20, ko = "송전탑 완주",             en = "Tower Finish",          goal = Goal.Finish, target = 1,   seconds = 200f , rewardCoins = 800, rewardHearts = 3, rewardStress = 10 },
         };
         public static Def Get(int chapter) { foreach (var d in All) if (d.chapter == chapter) return d; return null; }
 
@@ -58,7 +72,7 @@ namespace CoastRun
         {
             Current = Get(chapter);
             Active = Current != null;
-            Photos = 0; Bosses = 0; TimedOut = false;
+            Photos = 0; Bosses = 0; TimedOut = false; _rewardedChapter = -1; PaidPass = false;
             if (_hud != null) UnityEngine.Object.Destroy(_hud.gameObject);
             _hud = null;
             if (!Active) return;
@@ -74,6 +88,23 @@ namespace CoastRun
             BossDirector.Create(player, obstacles, fake, false, Current.chapter * 977 + (stage != null ? stage.stageIndex : 0));
         }
         public static void End() { Active = false; Current = null; if (_hud != null) UnityEngine.Object.Destroy(_hud.gameObject); _hud = null; ContestRivals.Clear(); }
+
+        /// 118차: 대회에 이겼을 때 한 번만 보상을 준다(SceneFlowController.NotifyStageCleared 성공 경로).
+        private static int _rewardedChapter = -1;
+        public static void GrantReward(GameManager gm)
+        {
+            if (!Active || Current == null || gm?.Save == null) return;
+            if (!Succeeded || PaidPass) return;   // 135차: 코인 통과는 보상 없음
+            if (_rewardedChapter == Current.chapter) return;
+            _rewardedChapter = Current.chapter;
+            var sv = gm.Save;
+            sv.stats.money += Current.rewardCoins;
+            sv.chapterHearts += Current.rewardHearts;
+            if (Current.rewardStress > 0) sv.stats.stress = Mathf.Max(0, sv.stats.stress - Current.rewardStress);
+            sv.stats.Clamp();
+            gm.Persist();
+            CoastToast.Show(Loc.T($"대회 보상 — {Current.RewardText}", $"Contest reward — {Current.RewardText}"));
+        }
 
         public static void NotePhoto() { if (Active) Photos++; }
         public static void NoteBoss() { if (Active) Bosses++; }
@@ -95,7 +126,10 @@ namespace CoastRun
         public static float Remaining => Active ? Mathf.Max(0f, Current.seconds - Elapsed) : 0f;
         public static bool GoalMet => Active && (Current.goal == Goal.Finish || Progress() >= Current.target);
         /// 완주 시점 판정: 목표 달성 + 제한시간 안.
-        public static bool Succeeded => Active && GoalMet && !TimedOut && Elapsed <= Current.seconds + 0.5f;
+        public static bool Succeeded => Active && (PaidPass || (GoalMet && !TimedOut && Elapsed <= Current.seconds + 0.5f));
+        /// 135차(사용자): 대회 미달 카드에서 코인을 내고 통과 — 보상 없이 주차만 넘어간다. 비용 = 상금 ×4.
+        public static bool PaidPass { get; set; }
+        public static int PassCost => Current != null ? Mathf.Max(800, Current.rewardCoins * 4) : 800;
 
         public static string ProgressText()
         {
@@ -167,32 +201,102 @@ namespace CoastRun
     public static class ContestIntroUI
     {
         private static Canvas _canvas;
+        public static bool IsOpen => _canvas != null;
+
+        static readonly Color Sky = new Color(0.80f, 0.91f, 0.99f);
+        static readonly Color SkyEdge = new Color(0.58f, 0.78f, 0.96f);
+        static readonly Color TitleBlue = new Color(0.27f, 0.47f, 0.92f);
+        static readonly Color BadgeGold = new Color(1f, 0.83f, 0.30f);
+        static readonly Color BadgeInk = new Color(0.45f, 0.26f, 0.06f);
+
+        /// 117차(사용자 시안): 하늘색 머리띠 + 노란 「이번 주말!」 배지 + 점선으로 나뉜 다섯 줄 + 양쪽 화살표 출발 버튼.
         public static void Show(StoryContest.Def d, Action onGo)
         {
             Close();
             if (d == null) { onGo?.Invoke(); return; }
-            var crt = EventCardKit.Card("ContestIntroCanvas", 466, new Vector2(640f, 720f), out _canvas, 20f);
-            EventCardKit.Kid(crt, Loc.T("누나, 달리자!", "Let's run!"), true);   // 109차: 꼬마 동행
-            var kicker = CoastHudLayout.MakeText(crt, "K", Loc.T("이번 주 대회", "This week's contest"), 18, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -56f), new Vector2(0f, -24f));
-            kicker.color = new Color(0.90f, 0.32f, 0.45f); kicker.fontStyle = FontStyle.Bold;
-            EventCardKit.JellyTitle(crt, d.Name, new Color(0.45f, 0.35f, 0.95f), new Color(0.20f, 0.12f, 0.45f), 56f, 84f, 44);
-            EventCardKit.Divider(crt, 148f);
+            var crt = EventCardKit.Card("ContestIntroCanvas", 466, new Vector2(660f, 962f), out _canvas, 12f);
+
+            var bandEdge = CoastUiArt.Panel(crt, "HeadBandEdge", new Color(SkyEdge.r, SkyEdge.g, SkyEdge.b, 0.55f), 26);
+            bandEdge.raycastTarget = false;
+            var ber = bandEdge.rectTransform;
+            ber.anchorMin = new Vector2(0f, 1f); ber.anchorMax = new Vector2(1f, 1f); ber.pivot = new Vector2(0.5f, 1f);
+            ber.offsetMin = new Vector2(14f, -190f); ber.offsetMax = new Vector2(-14f, -6f);
+
+            var band = CoastUiArt.Panel(crt, "HeadBand", Sky, 26); band.raycastTarget = false;
+            var br = band.rectTransform;
+            br.anchorMin = new Vector2(0f, 1f); br.anchorMax = new Vector2(1f, 1f); br.pivot = new Vector2(0.5f, 1f);
+            br.offsetMin = new Vector2(18f, -186f); br.offsetMax = new Vector2(-18f, -10f);
+
+            var badge = CoastUiArt.Panel(crt, "Badge", BadgeGold, 22); badge.raycastTarget = false;
+            var bgr = badge.rectTransform;
+            bgr.anchorMin = bgr.anchorMax = new Vector2(0f, 1f); bgr.pivot = new Vector2(0f, 1f);
+            bgr.anchoredPosition = new Vector2(44f, -26f); bgr.sizeDelta = new Vector2(226f, 60f);
+            var bt = CoastHudLayout.MakeText(crt, "BadgeT", Loc.T("이번 주말!", "This weekend!"), 26, TextAnchor.MiddleCenter,
+                new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(44f, -86f), new Vector2(270f, -26f));
+            bt.color = BadgeInk; bt.fontStyle = FontStyle.Bold; bt.raycastTarget = false;
+            CoastUiArt.OutlineText(bt, new Color(1f, 1f, 1f, 0.85f), 2f);
+
+            EventCardKit.JellyTitle(crt, d.Name, TitleBlue, new Color(1f, 1f, 1f, 0.95f), 96f, 82f, 46);
+            EventCardKit.Kid(crt, Loc.T("누나, 달려보자!", "Let's run!"), true, 196f);
+
             int m = Mathf.FloorToInt(d.seconds / 60f), sec = Mathf.FloorToInt(d.seconds % 60f);
             string icon = d.goal == StoryContest.Goal.Photos ? "Icon_Camera" : d.goal == StoryContest.Goal.Coins ? "Icon_Coin" : d.goal == StoryContest.Goal.Boss ? "Icon_Bang" : "Icon_Tower";
-            EventCardKit.IconRow(crt, icon, new Color(1f, 0.85f, 0.45f), Loc.T("조건 · ", "Goal · ") + d.GoalText, 180f, 64f, 24);
-            EventCardKit.IconRow(crt, "Icon_Speed", new Color(0.70f, 0.80f, 1f), Loc.T($"제한시간 · {m}:{sec:00}", $"Time limit · {m}:{sec:00}"), 254f, 64f, 24);
-            var box = EventCardKit.InfoBox(crt, 336f, 226f);
-            EventCardKit.IconRow(box, "Icon_Bulb", new Color(0.80f, 0.88f, 1f), Loc.T("이야기와 상관없는 마을 대회야.", "A village contest, unrelated to the story."), 14f, 52f, 19, null, null, 18f, 14f);
-            EventCardKit.IconRow(box, "Icon_Bang", new Color(1f, 0.85f, 0.45f), Loc.T("조건을 못 채우면 이 주는 넘어가지 않아.", "Miss the goal and the week doesn't advance."), 82f, 52f, 19, null, null, 18f, 14f);
-            // 105차(재미요소): 내가 키운 스탯이 이 대회에서 어떻게 쓰이는지(RunTuning 공식) + 추천 스탯
+
+            const float rowH = 70f, gap = 22f;
+            float y = 224f;
+            EventCardKit.IconRow(crt, icon, new Color(1f, 0.85f, 0.45f), Loc.T("조건 · ", "Goal · ") + d.GoalText, y, rowH, 27, null, null, 46f, 40f);
+            DotLine(crt, y + rowH + 9f); y += rowH + gap;
+            EventCardKit.IconRow(crt, "Icon_Speed", new Color(0.62f, 0.90f, 0.72f), Loc.T($"제한시간 · {m}:{sec:00}", $"Time limit · {m}:{sec:00}"), y, rowH, 27, null, null, 46f, 40f);
+            DotLine(crt, y + rowH + 9f); y += rowH + gap;
+            EventCardKit.IconRow(crt, "Icon_Bulb", new Color(0.70f, 0.86f, 1f), Loc.T("이야기와 상관없는 마을 대회야.", "A village contest, unrelated to the story."), y, rowH, 23, null, null, 46f, 24f);
+            DotLine(crt, y + rowH + 9f); y += rowH + gap;
+            EventCardKit.IconRow(crt, "Icon_Bang", new Color(1f, 0.82f, 0.42f), Loc.T("조건을 못 채우면 이 주는 넘어가지 않아!", "Miss the goal and the week doesn't advance!"), y, rowH, 21, null, null, 46f, 16f);
+            DotLine(crt, y + rowH + 9f); y += rowH + gap;
+
+            EventCardKit.IconRow(crt, "Icon_Star", new Color(0.78f, 0.66f, 1f), Loc.T("보상", "Reward"), y, rowH, 28, null, null, 46f, 40f);
             var gm = GameManager.I; var sv = gm != null ? gm.Save : null;
             var rs = RaisingFun.RecommendedStat(d);
-            string rec = sv != null ? Loc.T($"이 대회는 {RaisingFun.StatName(rs)}이 힘 — ", $"{RaisingFun.StatName(rs)} matters here — ") + RaisingFun.ContestStatLine(sv) : "";
-            var statT = EventCardKit.IconRow(box, "Icon_Star", new Color(0.75f, 0.62f, 1f), rec, 150f, 64f, 15, null, null, 18f, 14f);
-            if (statT != null) { statT.horizontalOverflow = HorizontalWrapMode.Wrap; statT.resizeTextForBestFit = true; statT.resizeTextMinSize = 10; statT.resizeTextMaxSize = CoastHudLayout.Scaled(16); }
-            EventCardKit.IconButton(crt, "Go", "Icon_Arrow", Loc.T("출발!", "GO!"), new Color(1f, 0.52f, 0.10f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(440f, 84f), () => { Close(); onGo?.Invoke(); }, 32);
+            string tip = d.RewardText + "\n"
+                + (sv != null
+                    ? Loc.T($"{RaisingFun.StatName(rs)}이 힘 — ", $"{RaisingFun.StatName(rs)} matters — ") + RaisingFun.ContestStatLine(sv)
+                    : Loc.T("체력 → HP · 순발력 → 레인 이동 · 매력 → 니어미스", "Stamina → HP · Agility → lanes · Charm → near-miss"));
+            // 127차(사용자 「출발 버튼하고 글자가 겹친다」): 보상 설명은 위 y 고정이 아니라 **출발 버튼 위(바닥 +152)까지**로 잡아
+            // 카드가 화면에 맞춰 줄어들어도 버튼 위에서 끝나고, 넘치면 글자가 줄어든다(Truncate).
+            var tipT = CoastHudLayout.MakeText(crt, "Tip", tip, 19, TextAnchor.UpperLeft,
+                new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(126f, 152f), new Vector2(-44f, -(y + rowH + 8f)));
+            tipT.color = new Color(0.34f, 0.28f, 0.24f); tipT.raycastTarget = false;
+            tipT.horizontalOverflow = HorizontalWrapMode.Wrap; tipT.verticalOverflow = VerticalWrapMode.Truncate;
+            tipT.resizeTextForBestFit = true; tipT.resizeTextMinSize = 12; tipT.resizeTextMaxSize = CoastHudLayout.Scaled(19);
+
+            var go = EventCardKit.IconButton(crt, "Go", "Icon_Arrow", Loc.T("출발!", "GO!"), new Color(1f, 0.52f, 0.10f),
+                new Vector2(0.5f, 0f), new Vector2(0f, 42f), new Vector2(470f, 96f), () => { Close(); onGo?.Invoke(); }, 34);
+            RightArrow(go);
             CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.5f);
         }
+
+        /// 시안의 옅은 점선 구분선.
+        static void DotLine(RectTransform card, float yTop)
+        {
+            var t = CoastHudLayout.MakeText(card, "Dots", "· · · · · · · · · · · · · · · · · · · · · ·", 16, TextAnchor.MiddleCenter,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(46f, -yTop - 12f), new Vector2(-40f, -yTop + 12f));
+            t.color = new Color(0.82f, 0.72f, 0.56f, 0.85f); t.raycastTarget = false;
+        }
+
+        /// 출발 버튼 오른쪽에도 화살표(시안은 좌우 두 개).
+        static void RightArrow(Button b)
+        {
+            if (b == null) return;
+            var sp = CoastUiArt.Art("Icon_Arrow");
+            if (sp == null) return;
+            var go = new GameObject("ArrowR", typeof(RectTransform), typeof(Image));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(b.transform, false);
+            rt.anchorMin = rt.anchorMax = new Vector2(1f, 0.5f); rt.pivot = new Vector2(1f, 0.5f);
+            rt.anchoredPosition = new Vector2(-26f, 0f); rt.sizeDelta = new Vector2(44f, 44f);
+            var im = go.GetComponent<Image>();
+            im.sprite = sp; im.color = Color.white; im.raycastTarget = false; im.preserveAspect = true;
+        }
+
         public static void Close() { if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject); _canvas = null; }
     }
 
@@ -221,7 +325,7 @@ namespace CoastRun
             var d = StoryContest.Current; if (d == null) return;
             Time.timeScale = 0f;
             CoastPrefs.VibrateEvent();   // 109차: 대회 결과 — 특정 이벤트 진동
-            var crt = EventCardKit.Card("ContestResultCanvas", 470, new Vector2(648f, 1040f), out _canvas, 0f);
+            var crt = EventCardKit.Card("ContestResultCanvas", 470, new Vector2(648f, 1130f), out _canvas, 0f);   // 135차: 버튼 3개(코인 통과 추가) — 안내 상자와 안 겹치게
             // 금테(카드 가장자리 금색 띠 + 안쪽 크림) — 카드 배경 바로 위, 스파클 아래
             var rim = CoastUiArt.Panel(crt, "Rim", Gold, 28); rim.raycastTarget = false;
             var rr = rim.rectTransform; rr.anchorMin = Vector2.zero; rr.anchorMax = Vector2.one; rr.offsetMin = new Vector2(6f, 6f); rr.offsetMax = new Vector2(-6f, -6f);
@@ -244,16 +348,29 @@ namespace CoastRun
             Box(crt, 452f, 92f, "Icon_Bang", new Color(1f, 0.82f, 0.30f), why, 22);
             Box(crt, 570f, 92f, "Icon_Bulb", new Color(0.62f, 0.80f, 1f), Loc.T("대회를 깨야 다음 주로 넘어갈 수 있어.", "You must win to move on to next week."), 22);
             Box(crt, 688f, 116f, "Icon_Refresh", new Color(0.45f, 0.85f, 0.75f), Loc.T("이 주를 다시 키우고 도전하거나,\n지금 바로 다시!", "Raise this week again, or\nretry right now!"), 22);
-            EventCardKit.IconButton(crt, "Retry", "Icon_Arrow", Loc.T("지금 다시 도전", "Retry now"), new Color(1f, 0.55f, 0.12f), new Vector2(0f, 0f), new Vector2(30f, 40f), new Vector2(284f, 84f), () =>
+            EventCardKit.IconButton(crt, "Retry", "Icon_Arrow", Loc.T("지금 다시 도전", "Retry now"), new Color(1f, 0.55f, 0.12f), new Vector2(0f, 0f), new Vector2(30f, 132f), new Vector2(284f, 78f), () =>
             {
                 Close(); Time.timeScale = 1f;
                 StageManager.Instance?.RetryCurrent();
-            }, 26);
-            EventCardKit.IconButton(crt, "Back", "Icon_Book", Loc.T("스토리화면으로", "To story"), new Color(0.28f, 0.58f, 0.98f), new Vector2(1f, 0f), new Vector2(-30f, 40f), new Vector2(284f, 84f), () =>
+            }, 24);
+            EventCardKit.IconButton(crt, "Back", "Icon_Book", Loc.T("스토리화면으로", "To story"), new Color(0.28f, 0.58f, 0.98f), new Vector2(1f, 0f), new Vector2(-30f, 132f), new Vector2(284f, 78f), () =>
             {
                 Close(); Time.timeScale = 1f;
                 if (GameManager.Active) GameManager.I.ContestFail();
-            }, 26);
+            }, 24);
+            // 135차(사용자): 그냥 넘어가기는 없다 — 코인을 내면 통과(보상 없음, 주차만 진행)
+            int cost = StoryContest.PassCost;
+            bool canPay = GameManager.Active && GameManager.I.Save != null && GameManager.I.Save.stats.money >= cost;
+            var pay = EventCardKit.IconButton(crt, "Pay", "Icon_Coin", Loc.T($"코인 {cost:N0} 내고 통과", $"Pay {cost:N0} coins to pass"), canPay ? new Color(0.95f, 0.72f, 0.20f) : new Color(0.55f, 0.55f, 0.60f), new Vector2(0.5f, 0f), new Vector2(0f, 40f), new Vector2(588f, 78f), () =>
+            {
+                if (!canPay) { CoastToast.Show(Loc.T("코인이 모자라 — 다시 도전하거나 이 주를 다시 키우자", "Not enough coins — retry or raise this week again")); return; }
+                var sv = GameManager.I.Save; sv.stats.money -= cost; GameManager.I.Persist();
+                StoryContest.PaidPass = true;
+                Close(); Time.timeScale = 1f;
+                CoastToast.Show(Loc.T($"코인 {cost:N0} 을 내고 통과했어 (보상 없음)", $"Paid {cost:N0} coins to pass (no reward)"));
+                if (timeout) StageManager.Instance?.DebugClear();
+                else UnityEngine.Object.FindAnyObjectByType<SceneFlowController>()?.ContestPaidPass();
+            }, 22);
             CoastAudioManager.PlayAnywhere(CoastSfx.NearMiss, 0.6f);
         }
 

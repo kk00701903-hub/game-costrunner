@@ -23,9 +23,11 @@ namespace CoastRun
             float h = list.Count <= 1 ? 420f : 280f + listH;
             var crt = StoryPopupKit.Frame("MealPick", 466, new Vector2(620f, h), out _canvas, 40f);
 
-            StoryPopupKit.TitleMeal(crt, Loc.T("오늘 뭐 먹을까?", "What shall we eat?"), 20f);
+            TitlePlate(crt);
+            SignDeco(crt, h, 40f);
+            StoryPopupKit.TitleMeal(crt, Loc.T("오늘 뭐 먹을까?", "What shall we eat?"), -8f);
 
-            Text nameT = null; Text fxT = null; Text badgeT = null;
+            Text nameT = null; Text fxT = null; Text badgeT = null; Text eatT = null;
             RectTransform badgeRt = null;
             Image[] rowImgs = null;
 
@@ -45,12 +47,17 @@ namespace CoastRun
                     float approx = Mathf.Clamp(nm.Length * 18f + 40f, 80f, 220f);
                     badgeRt.anchoredPosition = new Vector2(approx * 0.5f + 28f, badgeRt.anchoredPosition.y);
                 }
+                // 135차(사용자 「선택이 안 된다」): 고른 줄이 구분이 안 됐다 — 분홍 테두리 + 체크 + 진한 크림으로 확실히
                 if (rowImgs != null)
                     for (int i = 0; i < rowImgs.Length; i++)
                         if (rowImgs[i] != null)
-                            rowImgs[i].color = i == sel
-                                ? new Color(1f, 0.93f, 0.82f)
-                                : new Color(1f, 0.98f, 0.94f, 0.65f);
+                        {
+                            bool on = i == sel;
+                            rowImgs[i].color = on ? new Color(1f, 0.90f, 0.72f) : new Color(1f, 0.98f, 0.94f, 0.85f);
+                            var ring = rowImgs[i].transform.Find("Ring"); if (ring != null) ring.gameObject.SetActive(on);
+                            var chk = rowImgs[i].transform.Find("Chk"); if (chk != null) chk.gameObject.SetActive(on);
+                        }
+                if (eatT != null) eatT.text = Loc.T("먹기", "Eat") + (list.Count > 1 ? " · " + nm : "");
             }
 
             // 본문 — 시안처럼 가운데 이름 + 배지 + 효과 줄
@@ -109,7 +116,17 @@ namespace CoastRun
                     var ef = CoastHudLayout.MakeText(rt, "E", "🌱 " + LifeItems.EffectText(def), 12, TextAnchor.LowerLeft,
                         Vector2.zero, Vector2.one, new Vector2(14f, 6f), new Vector2(-14f, 34f));
                     ef.color = StoryPopupKit.Ink;
-                    row.gameObject.AddComponent<Button>().onClick.AddListener(() => ShowDish(idx));
+                    // 선택 표시: 분홍 테두리(Ring) + 체크(Chk) — ShowDish 가 켜고 끈다
+                    var ring = CoastUiArt.Panel(rt, "Ring", new Color(0.93f, 0.35f, 0.55f), 16); ring.raycastTarget = false;
+                    var rrt = ring.rectTransform; rrt.anchorMin = Vector2.zero; rrt.anchorMax = Vector2.one; rrt.offsetMin = new Vector2(-3f, -3f); rrt.offsetMax = new Vector2(3f, 3f);
+                    ring.transform.SetAsFirstSibling();
+                    var ringIn = CoastUiArt.Panel(ring.transform, "In", new Color(1f, 0.90f, 0.72f), 13); ringIn.raycastTarget = false;
+                    var rirt = ringIn.rectTransform; rirt.anchorMin = Vector2.zero; rirt.anchorMax = Vector2.one; rirt.offsetMin = new Vector2(3f, 3f); rirt.offsetMax = new Vector2(-3f, -3f);
+                    var chk = CoastHudLayout.MakeText(rt, "Chk", "✔", 22, TextAnchor.MiddleCenter, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-92f, -14f), new Vector2(-60f, 18f));
+                    chk.color = new Color(0.93f, 0.35f, 0.55f); chk.fontStyle = FontStyle.Bold; chk.raycastTarget = false;
+                    ring.gameObject.SetActive(false); chk.gameObject.SetActive(false);
+                    var rb = row.gameObject.AddComponent<Button>(); rb.transition = Selectable.Transition.None;
+                    rb.onClick.AddListener(() => { CoastPrefs.Vibrate(); ShowDish(idx); });
                     y -= 80f;
                 }
             }
@@ -125,9 +142,12 @@ namespace CoastRun
             }
 
             StoryPopupKit.SoftPill(crt, "Cancel", Loc.T("취소", "Cancel"), StoryPopupKit.SoftBlue,
-                new Vector2(-130f, 22f), new Vector2(200f, 56f), () => { Close(); onCancel?.Invoke(); }, backIcon: true);
-            StoryPopupKit.SoftPill(crt, "Eat", Loc.T("먹기", "Eat"), StoryPopupKit.SoftPink,
-                new Vector2(130f, 22f), new Vector2(200f, 56f), Pick, forkIcon: true);
+                new Vector2(-136f, 30f), new Vector2(236f, 72f), () => { Close(); onCancel?.Invoke(); }, backIcon: true);
+            var eatBtn = StoryPopupKit.SoftPill(crt, "Eat", Loc.T("먹기", "Eat"), StoryPopupKit.SoftPink,
+                new Vector2(136f, 30f), new Vector2(236f, 72f), Pick, forkIcon: true);
+            eatT = eatBtn.GetComponentInChildren<Text>();
+            if (eatT != null) { eatT.resizeTextForBestFit = true; eatT.resizeTextMinSize = 12; eatT.resizeTextMaxSize = CoastHudLayout.Scaled(22); }
+            ShowDish(sel);
         }
 
         /// Dev/캡쳐용 — 세이브와 무관하게 시안 단일 카드(삼계탕 ×2)를 띄운다.
@@ -135,7 +155,9 @@ namespace CoastRun
         {
             Close();
             var crt = StoryPopupKit.Frame("MealPick", 466, new Vector2(620f, 420f), out _canvas, 40f);
-            StoryPopupKit.TitleMeal(crt, Loc.T("오늘 뭐 먹을까?", "What shall we eat?"), 20f);
+            TitlePlate(crt);
+            SignDeco(crt, 420f, 40f);
+            StoryPopupKit.TitleMeal(crt, Loc.T("오늘 뭐 먹을까?", "What shall we eat?"), -8f);
 
             const float nameY = -150f;
             var nameT = CoastHudLayout.MakeText(crt, "Name", "✨ " + Loc.T("삼계탕", "Ginseng Chicken Soup"), 34, TextAnchor.MiddleCenter,
@@ -160,9 +182,48 @@ namespace CoastRun
             fx.color = StoryPopupKit.Ink; fx.raycastTarget = false;
 
             StoryPopupKit.SoftPill(crt, "Cancel", Loc.T("취소", "Cancel"), StoryPopupKit.SoftBlue,
-                new Vector2(-130f, 22f), new Vector2(200f, 56f), () => { Close(); onClose?.Invoke(); }, backIcon: true);
+                new Vector2(-136f, 30f), new Vector2(236f, 72f), () => { Close(); onClose?.Invoke(); }, backIcon: true);
             StoryPopupKit.SoftPill(crt, "Eat", Loc.T("먹기", "Eat"), StoryPopupKit.SoftPink,
-                new Vector2(130f, 22f), new Vector2(200f, 56f), () => { Close(); onClose?.Invoke(); }, forkIcon: true);
+                new Vector2(136f, 30f), new Vector2(236f, 72f), () => { Close(); onClose?.Invoke(); }, forkIcon: true);
+        }
+
+
+        /// 117차(사용자 시안): 밥 팝업은 **마당에 선 나무 간판**이다 — 아래로 기둥 두 개,
+        ///   제목은 카드 위쪽에 걸친 크림 리본 판에 얹는다.
+        static void SignDeco(RectTransform crt, float cardH, float cardY)
+        {
+            if (_canvas == null) return;
+            var root = CoastUiCanvas.Root(_canvas);
+            var postCol = new Color(0.60f, 0.42f, 0.29f);
+            var postTop = new Color(0.72f, 0.53f, 0.37f);
+            foreach (float fx in new[] { -210f, 210f })
+            {
+                var post = CoastUiArt.Panel(root, "Post", postCol, 9); post.raycastTarget = false;
+                var rt = post.rectTransform;
+                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0.5f, 1f);
+                rt.anchoredPosition = new Vector2(fx, cardY - cardH * 0.5f + 16f);
+                rt.sizeDelta = new Vector2(26f, 210f);
+                post.transform.SetSiblingIndex(1);   // 어둠 바로 위 = 액자 뒤
+                var cap = CoastUiArt.Panel(root, "PostCap", postTop, 8); cap.raycastTarget = false;
+                var crt2 = cap.rectTransform;
+                crt2.anchorMin = crt2.anchorMax = new Vector2(0.5f, 0.5f); crt2.pivot = new Vector2(0.5f, 1f);
+                crt2.anchoredPosition = new Vector2(fx, cardY - cardH * 0.5f + 20f);
+                crt2.sizeDelta = new Vector2(34f, 18f);
+                cap.transform.SetSiblingIndex(1);
+            }
+        }
+
+        /// 제목을 얹는 크림 리본 판(시안: 갈색 테두리 + 잎사귀 사이에 걸친 판).
+        static void TitlePlate(RectTransform crt)
+        {
+            var edge = CoastUiArt.Panel(crt, "PlateEdge", new Color(0.62f, 0.45f, 0.32f), 26); edge.raycastTarget = false;
+            var er = edge.rectTransform;
+            er.anchorMin = new Vector2(0.5f, 1f); er.anchorMax = new Vector2(0.5f, 1f); er.pivot = new Vector2(0.5f, 1f);
+            er.anchoredPosition = new Vector2(0f, 26f); er.sizeDelta = new Vector2(470f, 92f);
+            var plate = CoastUiArt.Panel(crt, "Plate", new Color(0.996f, 0.95f, 0.82f), 22); plate.raycastTarget = false;
+            var pr = plate.rectTransform;
+            pr.anchorMin = new Vector2(0.5f, 1f); pr.anchorMax = new Vector2(0.5f, 1f); pr.pivot = new Vector2(0.5f, 1f);
+            pr.anchoredPosition = new Vector2(0f, 20f); pr.sizeDelta = new Vector2(458f, 80f);
         }
 
         public static void Close()

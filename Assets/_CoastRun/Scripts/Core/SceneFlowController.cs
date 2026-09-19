@@ -253,6 +253,15 @@ namespace CoastRun
             StartCoroutine(ExecutePrologueHandoff(ctrl));
         }
 
+        private StageDef _failedStage; private bool _failedChapterComplete;
+        /// 135차(사용자): 대회 미달 카드에서 코인을 내고 통과 — StoryContest.PaidPass 가 켜진 뒤 정산을 이어간다.
+        public void ContestPaidPass()
+        {
+            if (_failedStage == null) return;
+            var st = _failedStage; _failedStage = null;
+            NotifyStageCleared(st, _failedChapterComplete);
+        }
+
         public void NotifyStageCleared(StageDef stage, bool chapterComplete)
         {
             if (stage == null)
@@ -269,9 +278,11 @@ namespace CoastRun
                 // 55차(사용자): 러닝 = 대회. 결승선을 넘어도 조건(코인·사진·보스)을 못 채웠으면 정산 없이 미달 화면 → 주차 유지.
                 if (StoryContest.Active && !GameManager.I.IsRetry && !StoryContest.Succeeded)
                 {
+                    _failedStage = stage; _failedChapterComplete = chapterComplete;   // 135차: 코인 통과 시 이어서 정산
                     ContestResultUI.ShowFail(false);
                     return;
                 }
+                StoryContest.GrantReward(GameManager.I);   // 118차: 대회 상금·하트·스트레스 감소
                 GameManager.I.OnRunCleared(StageRunStats.Instance);
                 int ch = stage.stageIndex;
                 // 52차: 챕터 엔딩 대본은 리더(StoryReaderUI)에서 오프닝과 한 편으로 이미 읽었다 → 런 뒤 VN 재생 생략

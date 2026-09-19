@@ -43,7 +43,7 @@ namespace CoastRun
             { "END_A_SENSE:4", "'Haneul. I'm going. Fixed your trucks. The bushing.' …That part you already know." },
             { "END_A_SENSE:5", "'I like you. You can come late. I'll wait.' That part I've never said out loud." },
             { "END_A_SENSE:6", "Haneul doesn't answer. That not answering is the answer — after six years, they both know." },
-            { "END_A_SENSE:7", "91.9. Two in the morning." },
+            { "END_A_SENSE:7", "89.2. Two in the morning." },
             { "END_A_SENSE:8", "Yeah. There." },
             // END_A_TRUST
             { "END_A_TRUST:1", "Sound from the bottom of the hill. Mansu's truck. Grandma. Rua. The market people." },
@@ -125,7 +125,7 @@ namespace CoastRun
             { "SIDE_DJ_3:1", "Jeju listener. This time you sent a request instead of a story. Play this song at two in the morning on the last day." },
             { "SIDE_DJ_3:2", "We'll play it. Someone else will be listening at that hour too." },
             { "SIDE_DJ_3:3", "…I never sent a request." },
-            { "SIDE_DJ_3:4", "Haneul knows who sent it. 91.9. Through the static, the first-snow song begins." },
+            { "SIDE_DJ_3:4", "Haneul knows who sent it. 89.2. Through the static, the first-snow song begins." },
         };
     }
 }

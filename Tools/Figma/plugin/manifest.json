@@ -1,0 +1,17 @@
+{
+  "name": "Frequency Bridge",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": [
+    "figma"
+  ],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "http://127.0.0.1:47010",
+      "http://localhost:47010"
+    ],
+    "reasoning": "Local Claude MCP bridge (127.0.0.1 only)"
+  }
+}

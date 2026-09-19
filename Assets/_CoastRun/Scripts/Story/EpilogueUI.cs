@@ -21,7 +21,7 @@ namespace CoastRun
             new Line { key = "Sea",      jobs = new[] { "job_haenyeo", "les_swim", "rest_sea" }, stat = StatKind.Stamina,
                 ko = "스무 살 여름. 해녀복 지퍼를 혼자 올린다.\n부표에 그려 둔 하트가 아직 안 지워졌다.", en = "Twenty, summer. She zips the wetsuit herself.\nThe heart on the buoy hasn't washed off." },
             new Line { key = "Radio",    jobs = new[] { "dev_radio", "les_ham", "job_dj_assist" }, stat = StatKind.Sense,
-                ko = "스무 살 밤. 91.9에 사연이 하나 들어왔다.\n읽기 전에 물을 한 모금 마신다.", en = "Twenty, night. A letter came in on 91.9.\nShe drinks some water before reading it." },
+                ko = "스무 살 밤. 89.2에 사연이 하나 들어왔다.\n읽기 전에 물을 한 모금 마신다.", en = "Twenty, night. A letter came in on 89.2.\nShe drinks some water before reading it." },
             new Line { key = "Delivery", jobs = new[] { "job_delivery", "job_night_delivery", "job_market", "job_orange" }, stat = StatKind.Agility,
                 ko = "스무 살 가을. 귤 상자를 스쿠터에 세 개 싣는다.\n언덕 위 집까지 8분.", en = "Twenty, autumn. Three crates of tangerines on the scooter.\nEight minutes to the house on the hill." },
             new Line { key = "Tower",    jobs = new[] { "job_tower_fix", "job_tower_watch", "job_lighthouse" }, stat = StatKind.Stamina,
@@ -58,7 +58,7 @@ namespace CoastRun
             Close();
             if (s == null) { onDone?.Invoke(); return; }
             var line = Pick(s);
-            var crt = EventCardKit.Card("EpilogueCanvas", 480, new Vector2(640f, 900f), out _canvas, 0f);
+            var crt = EventCardKit.Card("EpilogueCanvas", 480, new Vector2(640f, 960f), out _canvas, 0f);   // 135차: 「다음」 버튼이 요약 줄을 가렸다 → 60 키움
             var tex = ArtAssets.LoadTexture("UI_Epi_" + line.key);
             var im = CoastHudLayout.MakeImage(crt, "Art", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(24f, -24f - 380f), new Vector2(-24f, -24f), tex != null ? Color.white : new Color(0.55f, 0.62f, 0.85f));
             im.raycastTarget = false;

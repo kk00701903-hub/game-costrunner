@@ -107,8 +107,23 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Life - Week pass")] public static void WeekPass() { if (!Application.isPlaying || !GameManager.Active) return; var s = GameManager.I.Save; var rep = Survival.WeekTick(s); WeekPassUI.Show(s.week, s.week + 1, Timeline.SeasonOf(s.week + 1), rep, "다음 턴: 챕터 4 이야기 → 대회 「봄 사진 콘테스트」", () => Debug.LogWarning("[Dev] week pass done")); }
         [MenuItem("Coast Run/Dev/Life - Week pass (hold 60s)")] public static void WeekPassHold() { if (!Application.isPlaying || !GameManager.Active) return; float keep = WeekPassUI.AutoCloseSeconds; WeekPassUI.AutoCloseSeconds = 60f; var s = GameManager.I.Save; var rep = Survival.WeekTick(s); WeekPassUI.Show(s.week, s.week + 1, Timeline.SeasonOf(s.week + 1), rep, "…하늘이 일어나지 못한다", () => { WeekPassUI.AutoCloseSeconds = keep; Debug.LogWarning("[Dev] week pass done"); }); }
         [MenuItem("Coast Run/Dev/UI - Home (Room)")] public static void UiHomeRoom() { if (Application.isPlaying && GameManager.Active) HomeUI.Open(GameManager.I, null, null); }
+        [MenuItem("Coast Run/Dev/UI - Star Gacha")] public static void UiStarGacha() { if (Application.isPlaying && GameManager.Active) StarGachaUI.Open(GameManager.I, null); }
+        [MenuItem("Coast Run/Dev/Gacha - +50 shards, +2 tickets")] public static void GachaShards() { if (Application.isPlaying && GameManager.Active) { GameManager.I.Save.starShards += 50; GameManager.I.Save.capsuleTickets += 2; GameManager.I.Persist(); Debug.LogWarning("[Dev] shards=" + GameManager.I.Save.starShards); } }
         [MenuItem("Coast Run/Dev/UI - Shop")] public static void UiShop() { if (Application.isPlaying && GameManager.Active) ShopUI.Open(GameManager.I, 0); }
         [MenuItem("Coast Run/Dev/Life - Grocery")] public static void Grocery() { if (Application.isPlaying) GroceryUI.Open(GameManager.I); }
+        [MenuItem("Coast Run/Dev/Life - Give dishes x3")] public static void GiveDishes()
+        {
+            if (!Application.isPlaying || !GameManager.Active) return;
+            var sv = GameManager.I.Save; LifeItems.Ensure(sv);
+            LifeItems.Add(sv, "dish_rice", 2); LifeItems.Add(sv, "dish_egg", 1); LifeItems.Add(sv, "dish_fish", 1);
+            GameManager.I.Persist(); Debug.LogWarning("[Dev] dishes given: " + LifeItems.ListEdible(sv).Count);
+        }
+        [MenuItem("Coast Run/Dev/Life - Reset week actions")] public static void ResetActions()
+        {
+            if (!Application.isPlaying || !GameManager.Active) return;
+            var sv = GameManager.I.Save; sv.phaseIndex = 0; sv.queuedSchedule = new string[Timeline.PhasesPerWeek]; sv.weekMiniDone = sv.week; sv.boundaryPending = false;
+            GameManager.I.Persist(); GameManager.I.EnterRaising(); Debug.LogWarning("[Dev] week actions reset");
+        }
         [MenuItem("Coast Run/Dev/Life - Meal pick")] public static void MealPick()
         {
             if (!Application.isPlaying) return;
@@ -397,5 +412,20 @@ namespace CoastRun.EditorTools
         }
 
         [MenuItem("Coast Run/Dev/Collection - Unlock all (F9)")] public static void UnlockAll() { if (Application.isPlaying) Collection.DebugUnlockAll(); }
+
+        // ── 136차: 바닷가 마을 ──
+        [MenuItem("Coast Run/Dev/Village - Open")]
+        private static void VillageOpen() { var gm = GameManager.I; if (gm == null || gm.Save == null) return; gm.VillageNext = true; gm.EnterRaising(); }
+        [MenuItem("Coast Run/Dev/Village - Go tower")] private static void VGoTower() => VGo("tower");
+        [MenuItem("Coast Run/Dev/Village - Go hero house")] private static void VGoHero() => VGo("hero");
+        [MenuItem("Coast Run/Dev/Village - Go mom house")] private static void VGoMom() => VGo("mom");
+        [MenuItem("Coast Run/Dev/Village - Go shop")] private static void VGoShop() => VGo("shop");
+        [MenuItem("Coast Run/Dev/Village - Go garden")] private static void VGoGarden() => VGo("garden");
+        [MenuItem("Coast Run/Dev/Village - Cam info")] private static void VCamInfo() { var h = CoastRun.Village.VillageHub.I; var c = Camera.main; if (h == null || c == null) return; var p = c.transform.position; Debug.Log($"[CamInfo] cam={p} ground={CoastRun.Village.VillageWorld.Height(p.x, p.z):F2} player={h.PlayerPos} fwd={c.transform.forward}"); }
+        [MenuItem("Coast Run/Dev/Village - Go beach")] private static void VGoBeach() => VGo("beach");
+        [MenuItem("Coast Run/Dev/Village - Go tree")] private static void VGoTree() { var h = CoastRun.Village.VillageHub.I; if (h == null || CoastRun.Village.VillageWorld.Trees.Count == 0) return; var t = CoastRun.Village.VillageWorld.Trees[0].position; h.Teleport(t + new Vector3(0f, 0f, -2.2f)); }
+        [MenuItem("Coast Run/Dev/Village - Go kid")] private static void VGoKid() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(new Vector3(-4f, 0f, -21f)); }
+        [MenuItem("Coast Run/Dev/Village - Walk north 6m")] private static void VWalkN() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.WalkTo(h.transform.Find("VillagePlayer").position + new Vector3(0f, 0f, 6f)); }
+        private static void VGo(string id) { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var p = h.SpotPos(id); if (id == "garden") h.Teleport(new Vector3(0f, 0f, -10.8f), 180f); else if (id == "beach" || id == "shop" || id == "mom" || id == "light") h.Teleport(p + new Vector3(0f, 0f, 2.4f), 180f); else h.Teleport(p + new Vector3(0f, 0f, -2.6f), 0f); }
     }
 }

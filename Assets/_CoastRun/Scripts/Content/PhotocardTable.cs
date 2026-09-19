@@ -34,7 +34,7 @@ namespace CoastRun
         {
             new CardDef(1, CardKind.Chapter, 1, "무지개 해안도로", "Rainbow Coastal Road", "1챕터 클리어", "Clear chapter 1", "4.2킬로. 뛰었다.", "4.2 km. I ran."),
             new CardDef(2, CardKind.Chapter, 2, "목마등대", "Horse Lighthouse", "2챕터 클리어", "Clear chapter 2", "기지는 아직 있었다.", "The base was still there."),
-            new CardDef(3, CardKind.Chapter, 3, "정낭 대문", "Jeongnang Gate", "3챕터 클리어", "Clear chapter 3", "91.9. 누가 말하는 것 같았다.", "91.9. Someone was talking."),
+            new CardDef(3, CardKind.Chapter, 3, "정낭 대문", "Jeongnang Gate", "3챕터 클리어", "Clear chapter 3", "89.2. 누가 말하는 것 같았다.", "89.2. Someone was talking."),
             new CardDef(4, CardKind.Chapter, 4, "영등굿 마을", "Yeongdeung Village", "4챕터 클리어", "Clear chapter 4", "루아는 서울 말을 쓴다.", "Rua talks like Seoul."),
             new CardDef(5, CardKind.Chapter, 5, "유채꽃밭", "Canola Field", "5챕터 클리어", "Clear chapter 5", "봄이 끝났다.", "Spring ended."),
             new CardDef(6, CardKind.Chapter, 6, "이호테우 밤 축제", "Iho Tewoo Night", "6챕터 클리어", "Clear chapter 6", "빙떡 하나 남겼다.", "I saved one bingtteok."),

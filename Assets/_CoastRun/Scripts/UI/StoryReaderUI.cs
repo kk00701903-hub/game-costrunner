@@ -18,6 +18,10 @@ namespace CoastRun
         private static ScrollRect _scroll;
         private static Action _onDone;
         private static readonly List<Text> _texts = new List<Text>();
+        // 136차(사용자: 「컷씬 글자가 멈춰 있지 말고 읽어 주듯」): 본문을 위에서부터 한 글자씩 드러내고, 읽는 자리를 따라 살살 스크롤
+        private static readonly List<string> _fulls = new List<string>();
+        private static int _revealIdx; private static float _revealShown, _autoPause; private static bool _revealAll;
+        public const float ReadCps = 32f;
         private static float _fontScale = 1f;
         private static string[] _ids;
         private static int _chapter;
@@ -74,7 +78,7 @@ namespace CoastRun
             _canvas.gameObject.AddComponent<ReaderKeys>();   // 에디터/원격: Return = 다 읽음, Esc = 건너뛰기, F8/F7 = 한 화면씩
             _root = CoastUiCanvas.Root(_canvas);
             var pad = CoastUiCanvas.HudPad;
-            _texts.Clear(); _baseSizes.Clear();
+            _texts.Clear(); _baseSizes.Clear(); _fulls.Clear(); _revealIdx = 0; _revealShown = 0f; _autoPause = 0f; _revealAll = false;
 
             // 종이 배경(가장자리까지)
             var bg = CoastHudLayout.MakeImage(_root, "Paper", Vector2.zero, Vector2.one, new Vector2(-pad - 400f, -pad - 400f), new Vector2(pad + 400f, pad + 400f), Paper);
@@ -246,9 +250,9 @@ namespace CoastRun
         private static readonly List<int> _baseSizes = new List<int>();
         private static Text MakeBody(Transform parent, string s, int size, Color c, TextAnchor a)
         {
-            var t = CoastHudLayout.MakeText(parent, "T", s, size, a, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            t.color = c; t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Overflow; t.lineSpacing = 1.4f;
-            _texts.Add(t); _baseSizes.Add(size);
+            var t = CoastHudLayout.MakeText(parent, "T", CoastRun.Story.TextReveal.Build(s, 0f), size, a, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            t.color = c; t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Overflow; t.lineSpacing = 1.4f; t.supportRichText = true;
+            _texts.Add(t); _baseSizes.Add(size); _fulls.Add(s ?? "");
             return t;
         }
 
@@ -374,7 +378,48 @@ namespace CoastRun
         {
             if (_canvas != null) UnityEngine.Object.Destroy(_canvas.gameObject);
             _canvas = null; _root = null; _content = null; _scroll = null; _onDone = null; _illust = null; _illustFade = null; _scrollHandle = null;
-            _texts.Clear(); _baseSizes.Clear(); _marks.Clear(); _shown = null;
+            _texts.Clear(); _baseSizes.Clear(); _marks.Clear(); _shown = null; _fulls.Clear();
+        }
+
+        /// 남은 글을 한꺼번에 다 보이게(탭).
+        private static void RevealAll()
+        {
+            _revealAll = true;
+            for (int i = _revealIdx; i < _texts.Count && i < _fulls.Count; i++) if (_texts[i] != null) _texts[i].text = _fulls[i];
+            _revealIdx = _texts.Count;
+        }
+
+        /// 한 프레임치 읽기 진행. 읽고 있는 문단이 화면 아래 70 % 아래로 내려가면 살살 따라 내려간다.
+        private static void TickReveal(float dt)
+        {
+            if (_revealAll || _revealIdx >= _texts.Count || _revealIdx >= _fulls.Count) return;
+            var t = _texts[_revealIdx]; string full = _fulls[_revealIdx];
+            if (t == null || string.IsNullOrEmpty(full)) { _revealIdx++; _revealShown = 0f; return; }
+            _revealShown += dt * ReadCps;
+            if (_revealShown >= full.Length + 2f)
+            {
+                t.text = full; _revealIdx++; _revealShown = 0f;
+                return;
+            }
+            t.text = CoastRun.Story.TextReveal.Build(full, _revealShown);
+            // 따라 읽기 스크롤: 사용자가 직접 굴리는 동안(속도 있음)은 잠시 손을 뗀다
+            if (_scroll == null || _content == null) return;
+            if (Mathf.Abs(_scroll.velocity.y) > 20f) { _autoPause = 1.5f; return; }
+            if (_autoPause > 0f) { _autoPause -= dt; return; }
+            var rt = t.rectTransform;
+            // 문단 안에서 지금 읽는 줄의 대략 위치(문단 높이 × 진행도)
+            float prog = Mathf.Clamp01(_revealShown / Mathf.Max(1f, full.Length));
+            var corners = new Vector3[4]; rt.GetWorldCorners(corners);
+            var vp = _scroll.viewport;
+            var local = vp.InverseTransformPoint(Vector3.Lerp(corners[1], corners[0], prog));   // 위→아래
+            float viewH = vp.rect.height; float yFromTop = vp.rect.yMax - local.y;
+            float limit = viewH * 0.70f;
+            if (yFromTop > limit)
+            {
+                float move = Mathf.Min(yFromTop - limit, dt * 260f);
+                _content.anchoredPosition += new Vector2(0f, move);
+                _scroll.velocity = Vector2.zero;
+            }
         }
 
         /// 스크롤 위치 → 삽화 교체 + 스크롤바 손잡이 + 교차 페이드.
@@ -383,6 +428,9 @@ namespace CoastRun
             private void LateUpdate()
             {
                 if (_scroll == null || _content == null) return;
+                TickReveal(Time.unscaledDeltaTime);
+                // 136차: 본문 아무 데나 탭하면 남은 글을 한 번에(다른 게임의 「대사 스킵」과 같이) — 버튼 위 탭은 버튼이 먹는다
+                if (Input.GetMouseButtonDown(0) && !_revealAll && _revealIdx < _texts.Count) RevealAll();
                 float viewH = _scroll.viewport.rect.height, total = _content.rect.height;
                 float y = _content.anchoredPosition.y;   // 위로 스크롤한 양(0 = 맨 위)
                 // 삽화: 뷰포트 위쪽 40 % 지점을 지난 마지막 표식

@@ -26,7 +26,7 @@ namespace CoastRun
 
         [Header("Juice (27차 — 톰 히어로식 쫀득 모션)")]
         [Tooltip("레인 이동 오버슈트. 0 = 정확히 도착, 0.6 ≈ 목표를 3~4% 지나쳤다 돌아옴")]
-        public float laneOvershoot = 0.6f;
+        public float laneOvershoot = 0.25f;   // 130차(사용자 「피하기 모션 더 부드럽게」): 0.6 → 0.25, 튕김 줄임
         [Tooltip("도약 순간 세로 늘어남 배율")]
         public float jumpStretch = 1.16f;
         [Tooltip("착지 순간 납작해지는 배율")]
@@ -34,10 +34,10 @@ namespace CoastRun
         [Tooltip("슬라이드 진입 납작 배율")]
         public float crouchSquash = 0.86f;
         [Tooltip("걸음 착지 스프링이 스케일에 주는 세기(0 = 위치만)")]
-        public float stepSquash = 1.2f;
+        public float stepSquash = 0.9f;       // 130차: 발 디딤 납작임 완화
         [Tooltip("스프링 강성(클수록 빠르게 복귀) / 감쇠(작을수록 더 통통 튐)")]
-        public float squashStiffness = 260f;
-        public float squashDamping = 14f;
+        public float squashStiffness = 210f;   // 130차: 스프링 더 느긋하게
+        public float squashDamping = 16f;
         [Tooltip("가방·머리가 한 박자 늦게 따라오는 세기")]
         public float secondaryAmount = 1f;
 

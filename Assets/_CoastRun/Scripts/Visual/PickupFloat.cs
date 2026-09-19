@@ -325,6 +325,7 @@ namespace CoastRun
         private Image _vignette, _flash; private Text _slam; private RectTransform _fx;
         public static void Impact(string word)
         {
+            if (RunHudChrome.Instance != null && RunHudChrome.Instance.RunOverShowing) return;   // 128차: 결과창 위엔 안 찍는다
             var f = Ensure();
             if (f._impactCo != null) f.StopCoroutine(f._impactCo);
             f._impactCo = f.StartCoroutine(f.ImpactSeq(word));

@@ -268,6 +268,10 @@ namespace CoastRun
 
                 float t = 0f; bool isLast = i == cuts.Length - 1;
                 float dur = useVideo ? Mathf.Max(3f, (float)_player.length - 0.15f) : s.dur;
+                // 136차(사용자): 자막을 통째로 띄우지 않고 「읽어 주듯」 한 글자씩 — 컷 길이에 맞춰 속도 자동
+                float capShown = 0f, capCps = CoastRun.Story.TextReveal.Cps(s.caption, dur - 0.5f);
+                _caption.supportRichText = true;
+                { var cc0 = _caption.color; cc0.a = 1f; _caption.color = cc0; }
                 while (t < dur && !_skip)
                 {
                     t += Time.unscaledDeltaTime;
@@ -290,8 +294,11 @@ namespace CoastRun
                     UpdateFlashback(s.sepia, dt: Time.unscaledDeltaTime);
                     if (i == 0) { var c = _fader.color; c.a = 1f - Mathf.Clamp01(t / 0.9f); _fader.color = c; }
                     else if (t >= 0.8f && nxt.color.a > 0f) nxt.color = new Color(1f, 1f, 1f, 0f);
-                    if (t > 0.5f && _caption.text.Length == 0) _caption.text = s.caption;
-                    if (_caption.text.Length > 0) { var cc = _caption.color; cc.a = Mathf.Clamp01((t - 0.5f) / 0.6f); _caption.color = cc; }
+                    if (t > 0.5f && !string.IsNullOrEmpty(s.caption) && capShown < s.caption.Length + 1f)
+                    {
+                        capShown += Time.unscaledDeltaTime * capCps;
+                        _caption.text = CoastRun.Story.TextReveal.Build(s.caption, capShown);
+                    }
                     if (isLast && t > dur - 2.4f) _titleCg.alpha = Mathf.Clamp01((t - (dur - 2.4f)) / 0.9f);
                     if (Tapped()) { cutShort = true; break; }
                     yield return null;

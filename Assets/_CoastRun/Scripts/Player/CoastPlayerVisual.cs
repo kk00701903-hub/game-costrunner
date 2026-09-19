@@ -91,7 +91,7 @@ namespace CoastRun
                 bool running = RunTuning.Mode == RunMode.Running;
                 if (!running)
                     BuildBoardOnly();
-                var rig = SkaterRig.Spawn(_visualRoot, 1.62f, runner: running);
+                var rig = SkaterRig.Spawn(_visualRoot, 1.45f, runner: running);   // 121차: 치비 하늘 — 머리가 크니 1.62 보다 낮게
                 if (rig != null)
                 {
                     // Feet on the deck; the rig's origin is between the heels.

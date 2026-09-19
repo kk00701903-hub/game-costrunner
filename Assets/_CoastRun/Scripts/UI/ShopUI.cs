@@ -138,6 +138,7 @@ namespace CoastRun
             }
             var money = CoastHudLayout.MakeText(hrt, "Money", Loc.T($"{LevelSystem.FormatK(save.stats.money)}G", $"{LevelSystem.FormatK(save.stats.money)}G"), 20, TextAnchor.MiddleLeft, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-232f, 0f), new Vector2(-150f, 0f));
             money.color = new Color(1f, 0.88f, 0.50f); money.fontStyle = FontStyle.Bold;
+            money.resizeTextForBestFit = true; money.resizeTextMinSize = 12; money.resizeTextMaxSize = CoastHudLayout.Scaled(20);   // 136차
             var hearts = CoastHudLayout.MakeText(hrt, "Hearts", $"♥{Mathf.Max(0, save.stats.hearts)}", 20, TextAnchor.MiddleLeft, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-148f, 0f), new Vector2(-96f, 0f));
             hearts.color = new Color(1f, 0.55f, 0.70f); hearts.fontStyle = FontStyle.Bold;
             var leave = CoastUiArt.GlossyPill(hrt, "Leave", new Color(0.66f, 0.60f, 0.76f), 16, 5);

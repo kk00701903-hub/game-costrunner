@@ -61,7 +61,7 @@ namespace CoastRun
         /// 레인 이동 속도(m/s, +우). 리그가 몸을 기울이는 데 쓴다.
         public float LateralVelocity { get; private set; }
         /// 레인 이동 시간 배율 (config.laneChangeSeconds × 이 값). 0.15s 기본에 2.0 → 0.30s.
-        public const float LaneEaseScale = 1.35f;   // 14차-9: 0.20s ease-out (골드런 0.18~0.22s)
+        public const float LaneEaseScale = 1.7f;    // 14차-9: 0.20s ease-out (골드런 0.18~0.22s) · 130차: 0.255s 로 조금 길게(부드럽게)
 
         private CapsuleCollider _bodyCollider;
 
@@ -372,7 +372,7 @@ namespace CoastRun
         private bool _doubleJumpUsed;
         public bool DoubleJumpUsed => _doubleJumpUsed;
         /// 48차-9(사용자): 2단 점프 최고점 = 1단 점프 최고점의 2배. 현재 높이에서 그 최고점까지 남은 거리로 초기속도를 역산한다.
-        public const float DoubleJumpHeightMul = 2f;
+        public const float DoubleJumpHeightMul = 3.4f;   // 127차(사용자 「2단점프 지금보다 30% 높이」): 2.0 → 2.6 · 132차: 한 번 더 +30% → 3.4
         /// 공중에서 두 번째 점프가 나간 순간(허공 디딤 연출용). OnJumped 도 같이 나간다.
         public event Action OnDoubleJumped;
 
@@ -391,7 +391,7 @@ namespace CoastRun
                     float g = Mathf.Max(0.01f, -config.gravity);
                     float h1 = config.jumpForce * config.jumpForce / (2f * g);
                     float y0 = Mathf.Max(0f, _hop - (_groundY + _bodyHeight * 0.5f));
-                    float remain = Mathf.Max(h1 * 0.6f, h1 * DoubleJumpHeightMul - y0);   // 너무 늦게 눌러도 최소 0.6·h1 은 더 오른다
+                    float remain = Mathf.Max(h1 * 1.0f, h1 * DoubleJumpHeightMul - y0);   // 너무 늦게 눌러도 최소 1.0·h1 은 더 오른다(127차 0.78 → 132차 1.0)
                     _verticalVelocity = Mathf.Sqrt(2f * g * remain);
                     OnDoubleJumped?.Invoke();
                     OnJumped?.Invoke();
@@ -542,13 +542,16 @@ namespace CoastRun
             if (_laneT < 1f)
             {
                 // 7차: 부드럽게 — 시간을 늘리고 ease. HitStop(timeScale↓) 중에도 좌우가 안 늘어지게 unscaled 사용.
-                float dur = Mathf.Max(0.12f, config.laneChangeSeconds * LaneEaseScale * RunTuning.LaneMul);
+                float dur = Mathf.Max(0.16f, config.laneChangeSeconds * LaneEaseScale * RunTuning.LaneMul);
                 _laneT = Mathf.Min(1f, _laneT + Time.unscaledDeltaTime / dur);
                 float t = _laneT;
                 // 14차-9: ease-out · 27차: easeOutBack
                 float c1 = config != null ? config.laneOvershoot : 0f;
                 float u = t - 1f;
-                float e = c1 > 0.001f ? 1f + (c1 + 1f) * u * u * u + c1 * u * u : 1f - (1f - t) * (1f - t) * (1f - t);
+                // 130차(사용자): 출발이 툭 튀지 않게 — 앞 30 % 는 살짝 ease-in(smoothstep 과 섞음), 뒤는 기존 ease-out(-back)
+                float eOut = c1 > 0.001f ? 1f + (c1 + 1f) * u * u * u + c1 * u * u : 1f - (1f - t) * (1f - t) * (1f - t);
+                float eSmooth = t * t * (3f - 2f * t);
+                float e = Mathf.Lerp(eSmooth, eOut, Mathf.Clamp01(t / 0.3f) * 0.6f + 0.4f);
                 _lateral = Mathf.Lerp(_laneFrom, laneTarget, e);
             }
             else

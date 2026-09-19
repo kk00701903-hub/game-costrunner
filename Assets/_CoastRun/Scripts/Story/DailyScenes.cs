@@ -28,7 +28,7 @@ namespace CoastRun
                 "당산나무 아래 할머니가 자리를 반 내줬다.\n둘이 앉아 버스가 세 대 지나가는 걸 봤다.",
             },
             new[] {
-                "다이얼을 91.9에 맞췄다. 지직거리다가 노래 한 소절이 들렸다.\n다 듣기 전에 끊겼다.",
+                "다이얼을 89.2에 맞췄다. 지직거리다가 노래 한 소절이 들렸다.\n다 듣기 전에 끊겼다.",
                 "햄 교실에서 처음으로 신호를 보냈다.\n답은 없었다. 안테나를 창가로 옮겼다.",
                 "새벽 라디오에 사연 하나가 읽혔다.\n「보낸 사람: 제주 해안도로」 — 거기서 방송이 끝났다.",
             },
@@ -38,7 +38,7 @@ namespace CoastRun
             new[] { "The kid waved first on the oreum path.\nHe rode down hanging onto the back of my board.", "The kid counted the twelve lighthouse steps as he climbed.\nAt the top he put a shell in my hand.", "We sat side by side on the rocks.\nThe kid said nothing, and neither did I, until the sun was gone." },
             new[] { "Clearing the market stall, the lady wrapped a fish in newspaper.\nA hand sign: take it.", "Back from deliveries, a side-dish box sat at the gate.\nA note on the lid: heat it up.", "The lady dried my wet hair with a towel.\nWhile she did, she only looked out the window." },
             new[] { "Picking tangerines, grandma dropped two more into my basket.\n\"Eat while you work.\"", "Village hall kitchen. Grandma held out the ladle to taste the soup.\nSalty. She added water.", "Under the dangsan tree grandma gave me half her seat.\nWe watched three buses go by." },
-            new[] { "I set the dial to 91.9. Static, then one line of a song.\nIt cut off before the end.", "First signal sent from the ham class.\nNo answer. I moved the antenna to the window.", "A letter was read on the dawn radio.\n\"From: the Jeju coast road\" — the broadcast ended there." },
+            new[] { "I set the dial to 89.2. Static, then one line of a song.\nIt cut off before the end.", "First signal sent from the ham class.\nNo answer. I moved the antenna to the window.", "A letter was read on the dawn radio.\n\"From: the Jeju coast road\" — the broadcast ended there." },
         };
 
         public static string Text(int npc, int level)

@@ -533,7 +533,7 @@ namespace CoastRun
                     break;
                 }
                 shown += Time.unscaledDeltaTime * TypeCps;
-                _body.text = text.Substring(0, Mathf.Min(text.Length, Mathf.FloorToInt(shown)));
+                _body.text = CoastRun.Story.TextReveal.Build(text, shown);   // 136차: 방금 나온 글자가 살짝 빛나며 읽어 주듯
                 yield return null;
             }
             _body.text = text;
@@ -555,7 +555,7 @@ namespace CoastRun
             bool hasName = !string.IsNullOrEmpty(speaker);
             _namePlate.gameObject.SetActive(hasName);
             _nameTag.text = Loc.IsKo ? speaker : Loc.Tr(ChapterScript.SpeakerEn(speaker));
-            _body.text = body;
+            _body.text = body; _body.supportRichText = true;
             _body.fontStyle = hasName ? FontStyle.Normal : FontStyle.Italic;
             _body.color = hasName ? CoastOrnate.Ivory : new Color(0.93f, 0.90f, 0.84f, 0.92f);
             _body.alignment = letter ? TextAnchor.MiddleCenter : TextAnchor.UpperLeft;

@@ -93,7 +93,7 @@ namespace CoastRun
                 case Rua: return Loc.T("우비 꼬마", "The kid in the raincoat");
                 case Mansu: return Loc.T("밥 해 주는 아줌마", "The lady who cooks");
                 case Grandma: return Loc.T("마을 할머니", "Village grandma");
-                default: return Loc.T("주파수 91.9", "Frequency 91.9");
+                default: return Loc.T("주파수 89.2", "Frequency 89.2");
             }
         }
         /// 짧은 호감 줄용 별칭.

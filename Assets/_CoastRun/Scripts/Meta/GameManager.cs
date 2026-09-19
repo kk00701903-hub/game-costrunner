@@ -27,6 +27,8 @@ namespace CoastRun
         /// 엔딩 씬이 읽는 분기. Resolve 시점에 채워진다.
         public EndingKind PendingEnding { get; private set; } = EndingKind.None;
         public bool OpenTimelineOnRaising { get; set; }
+        /// 136차: 다음 05_Raising 진입 때 스케줄 화면 대신 바닷가 마을(VillageHub)을 연다(타이틀에서 들어올 때·「마을」 버튼).
+        public bool VillageNext { get; set; }
         /// 111차: 마을러닝(대회)·놀이 직후 육성으로 돌아올 때 돌발 이벤트를 한 번 건너뛴다.
         public bool SuppressRandomEventOnce { get; set; }
         /// 10차: 챕터 선택에서 '다시 달리기' — 재도전 육성 화면이 뜨자마자 런으로 넘어간다.
@@ -110,6 +112,7 @@ namespace CoastRun
             SaveSys.WriteProfile(Profile);
             WriteMain();
             PlayerPrefs.SetInt(MainMenuController.SkipPrologueKey, 0);
+            VillageNext = true;   // 136차: 스토리 모드 진입 = 마을부터
             EnterRaising();
         }
 
@@ -119,6 +122,15 @@ namespace CoastRun
             Save = SaveSys.Load();
             if (Save == null) { NewGame(RunMode.Running); return; }
             AdoptWallet(false);   // 109차: 코인 = 돈
+            VillageNext = true;   // 136차
+            EnterRaising();
+        }
+
+        /// 136차: 스케줄 화면 → 바닷가 마을로.
+        public void ToVillage()
+        {
+            Persist();
+            VillageNext = true;
             EnterRaising();
         }
 
@@ -371,6 +383,10 @@ namespace CoastRun
         }
 
         /// StageManager 클리어 → SceneFlow가 호출. 챕터 정산까지 여기서 끝낸다.
+        /// 131차: 직전 러닝에서 받은 별조각 / 행운의 부적으로 코인이 두 배였는가(정산 화면 표기용)
+        public int LastShards { get; private set; }
+        public bool LastLuckyDoubled { get; private set; }
+
         public void OnRunCleared(StageRunStats stats)
         {
             if (Save == null) return;
@@ -384,6 +400,10 @@ namespace CoastRun
             Save.lastRunLate = LastRunLate;
             Save.chapterHearts += LastRunHearts;
             Save.stats.money += stats != null ? stats.CoinValue + stats.NearMissValue : 0;
+            // 131차(재미요소): 행운의 부적(별빛 캡슐 SR) — 이번 완주 코인 ×2 · 완주 별조각
+            LastLuckyDoubled = false;
+            if (Save.luckyRunPending && stats != null) { Save.stats.money += stats.CoinValue; Save.luckyRunPending = false; LastLuckyDoubled = true; }
+            LastShards = StarGacha.OnStoryRunEnd(Save, stats, true);
             LevelSystem.Add(LevelSystem.ExpStoryRun);   // 53차: 스토리 러닝 완주 경험치
             Save.stats.Clamp();
             LastGrade = ChapterGrading.Settle(Save, out bool improved);
@@ -509,7 +529,7 @@ namespace CoastRun
         public void ResolveEnding()
         {
             if (Save == null) return;
-            // 85차(대본 v4): 엔딩은 **단서 여섯 개(clueMask)** 로 갈린다 — END_A 「엇갈린 정류장」 / END_B 「우유 두 병」 / END_TRUE 「맞닿은 주파수 91.9」.
+            // 85차(대본 v4): 엔딩은 **단서 여섯 개(clueMask)** 로 갈린다 — END_A 「엇갈린 정류장」 / END_B 「우유 두 병」 / END_TRUE 「맞닿은 주파수 89.2」.
             //   TRUE 만 Happy(타이틀로), A·B 는 Tragic(타임라인으로 돌아가 다음 회차). 옛 조건(전부 S / 양쪽 엔딩을 본 뒤)은 쓰지 않는다.
             string endId = ClueSystem.EndingId(Save.clueMask);
             var kind = endId == "END_TRUE" ? EndingKind.Happy : EndingKind.Tragic;

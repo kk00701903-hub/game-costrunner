@@ -312,6 +312,13 @@ namespace CoastRun
             }
             // v2: 두 번째 버튼은 육성 복귀(페이즈 소비, 챕터 하트 보존). 레거시는 타이틀.
             bool meta = GameManager.Active;
+            if (meta)
+            {
+                // 131차: 실패해도 뛴 만큼 별조각(별빛 캡슐) — 「한 번 더」의 이유
+                int shards = StarGacha.OnStoryRunEnd(GameManager.I.Save, StageRunStats.Instance, false);
+                GameManager.I.Persist();
+                if (shards > 0) CoastToast.Show(Loc.T($"별조각 +{shards} — 별빛 캡슐에서 뽑아 봐", $"Star shards +{shards} — try the Star Capsule"));
+            }
             chrome.ShowRunOver(
                 () => stages?.RetryCurrent(),
                 () =>

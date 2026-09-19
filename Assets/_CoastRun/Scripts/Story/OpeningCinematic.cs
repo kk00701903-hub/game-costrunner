@@ -207,6 +207,8 @@ namespace CoastRun
                 float t = 0f;
                 bool isLast = i == Shots.Length - 1;
                 float dur = useVideo ? Mathf.Max(3f, (float)_player.length - 0.15f) : s.dur;
+                float capShown = 0f, capCps = CoastRun.Story.TextReveal.Cps(s.caption, dur - 0.6f);   // 136차: 읽어 주듯 한 글자씩
+                _caption.supportRichText = true;
                 while (t < dur && !_skip)
                 {
                     t += Time.unscaledDeltaTime;
@@ -221,7 +223,11 @@ namespace CoastRun
                     if (i == 0) { var c = _fader.color; c.a = 1f - Mathf.Clamp01(t / 0.9f); _fader.color = c; }
                     else if (t < 0.7f) { var c = nxt.color; c.a = 1f - t / 0.7f; nxt.color = c; }
                     else if (nxt.color.a > 0f) { nxt.color = new Color(1f, 1f, 1f, 0f); }
-                    if (t > 0.6f && _caption.text.Length == 0) _caption.text = s.caption;
+                    if (t > 0.6f && !string.IsNullOrEmpty(s.caption) && capShown < s.caption.Length + 1f)
+                    {
+                        capShown += Time.unscaledDeltaTime * capCps;
+                        _caption.text = CoastRun.Story.TextReveal.Build(s.caption, capShown);
+                    }
                     if (isLast && t > dur - 2.4f)
                         _titleCg.alpha = Mathf.Clamp01((t - (dur - 2.4f)) / 0.9f);
                     if (Tapped()) { cutShort = true; break; }

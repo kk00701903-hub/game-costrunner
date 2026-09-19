@@ -49,6 +49,8 @@ namespace CoastRun
             _gm = gm;
             Build();
             LevelSystem.FlushPending();   // 53차: 세이브 없이 K-POP 에서 모은 경험치 합치기
+            // 135차(사용자): 자동은 끌 때까지 계속 — 세이브(autoMode)에서 복원(대회·이야기 다녀와도 유지)
+            if (Save != null && Save.autoMode) { _auto = true; _autoTimer = -1.5f; RefreshAuto(); }
             Refresh();
             // 105차(P2-3): 2회차 계승 안내 1회
             if (Save != null && Save.playthrough >= 2 && !Save.inheritedShown)
@@ -134,7 +136,15 @@ namespace CoastRun
         public void ShowEvent(RandomEventDef ev)
         {
             if (ev == null) return;
-            StartCoroutine(EventChoiceRoutine(ev));
+            StartCoroutine(ShowEventWhenFree(ev));
+        }
+        /// 135차(사용자 「미니게임과 이벤트가 동시에 뜬다」): 미니게임·축제·다른 루틴이 떠 있으면 끝날 때까지 기다렸다가 돌발 카드를 띄운다.
+        private IEnumerator ShowEventWhenFree(RandomEventDef ev)
+        {
+            float w = 0f;
+            while ((_busy || ChapterMissionUI.IsOpen || FestivalUI.IsOpen || ContestIntroUI.IsOpen) && w < 120f) { w += Time.unscaledDeltaTime; yield return null; }
+            if (ChapterMissionUI.IsOpen || FestivalUI.IsOpen) yield break;   // 놀이가 아직이면 이번 돌발은 접는다
+            yield return EventChoiceRoutine(ev);
         }
         /// 109차: Dev 메뉴용 — 카드 고르기 오버레이(idx 0 쉼 / 1 놀기 / 2 알바)를 바로 연다.
         public void DevOpenPick(int idx)
@@ -183,47 +193,37 @@ namespace CoastRun
 
             // ── 상단 HUD: 주차·계절 / 챕터 / 돈·하트 / 홈 ──
             var wk = CoastUiArt.CutePill(_root, "Week", new Color(0.10f, 0.13f, 0.30f, 0.92f), 18, 3);
-            Anchor(wk.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -6f), new Vector2(300f, 60f));
+            Anchor(wk.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -6f), new Vector2(CoastRun.Village.VillageHub.Enabled ? 196f : 300f, 60f));   // 137차: 오른쪽에 「마을」 알약 자리
             // 53차(사용자): 주차 아래 [상태창] [마이룸] 세로 버튼 — 레벨 배지가 상태 버튼에
             // 60차(사용자 시안): 주차 알약에 ✦, 왼쪽 버튼 3개는 아이콘 + 글자
             Sparkle(wk.rectTransform, new Vector2(1f, 1f), new Vector2(-14f, -12f), 14); Sparkle(wk.rectTransform, new Vector2(1f, 0f), new Vector2(-30f, 10f), 10);
-            // 63차(사용자 시안): 둘째 줄 한 줄에 [★ 상태창(둥근)] [🏠 마이룸] [🛒 장보기(둥근)] ○ ○ ○
-            var stBtn = CoastUiArt.GlossyPill(_root, "StatusBtn", new Color(0.55f, 0.40f, 0.95f), 30, 6);
-            Anchor(stBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(156f, -118f), new Vector2(62f, 62f)); stBtn.raycastTarget = true;
-            SideIcon(stBtn.rectTransform, "Icon_Star", 34f, 14f);
-            _levelLabel = CoastHudLayout.MakeText(stBtn.rectTransform, "T", "", 10, TextAnchor.LowerCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), new Vector2(0f, 0f));
-            _levelLabel.color = Color.white; _levelLabel.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_levelLabel, new Color(0f, 0f, 0f, 0.5f), 1f);
-            _levelLabel.color = Color.white; _levelLabel.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_levelLabel, new Color(0f, 0f, 0f, 0.35f), 1.2f);
-            var sb = stBtn.gameObject.AddComponent<Button>(); sb.transition = Selectable.Transition.None;
-            sb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); StatusUI.Open(_gm, Refresh); });
-            // 95차(사용자): ★ 왼쪽에 「도움」 전구 — 꼬마가 버튼을 하나씩 하이라이트하며 설명한다. 첫 진입 1회 말고도 언제든 다시.
-            var tutBtn = CoastUiArt.GlossyPill(_root, "TutorialBtn", new Color(0.98f, 0.45f, 0.62f), 30, 6);
-            Anchor(tutBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(84f, -118f), new Vector2(62f, 62f)); tutBtn.raycastTarget = true;
-            SideIcon(tutBtn.rectTransform, "Icon_Help", 34f, 14f);   // Icon_Bulb 의 연파랑 원판을 지운 전구(Tools/Art/make_help_icon.py)
-            var tutT = CoastHudLayout.MakeText(tutBtn.rectTransform, "T", Loc.T("도움", "Help"), 10, TextAnchor.LowerCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), new Vector2(0f, 0f));
-            tutT.color = Color.white; tutT.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(tutT, new Color(0f, 0f, 0f, 0.5f), 1f);
-            Sparkle(tutBtn.rectTransform, new Vector2(1f, 1f), new Vector2(-12f, -12f), 12);
-            var tub = tutBtn.gameObject.AddComponent<Button>(); tub.transition = Selectable.Transition.None;
-            tub.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); StartCoroutine(TamaTutorial()); });
-            var roomBtn = CoastUiArt.GlossyPill(_root, "RoomBtn", new Color(0.30f, 0.70f, 0.55f), 20, 6);
-            Anchor(roomBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(226f, -118f), new Vector2(140f, 62f)); roomBtn.raycastTarget = true;
-            SideIcon(roomBtn.rectTransform, "Icon_Home", 28f, 14f); Sparkle(roomBtn.rectTransform, new Vector2(0f, 1f), new Vector2(18f, -12f), 12);
-            var rl = CoastHudLayout.MakeText(roomBtn.rectTransform, "T", Loc.T("마이룸", "My Room"), 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(40f, 3f), new Vector2(-6f, 0f));
-            rl.color = Color.white; rl.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(rl, new Color(0f, 0f, 0f, 0.35f), 1.2f);
-            var rb = roomBtn.gameObject.AddComponent<Button>(); rb.transition = Selectable.Transition.None;
-            rb.onClick.AddListener(OpenRoom);
-            // 55차(사용자): 장보기 + 보유가방
-            var shopBtn = CoastUiArt.GlossyPill(_root, "ShopBtn", new Color(0.95f, 0.60f, 0.25f), 30, 6);
-            Anchor(shopBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(376f, -118f), new Vector2(62f, 62f)); shopBtn.raycastTarget = true;
-            SideIcon(shopBtn.rectTransform, "Icon_Cart", 34f, 14f);
-            var shb = shopBtn.gameObject.AddComponent<Button>(); shb.transition = Selectable.Transition.None;
-            shb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); ShopUI.Open(_gm, 0, Refresh); });
-            // 장바구니 옆 보유 아이템
-            var bagBtn = CoastUiArt.GlossyPill(_root, "BagBtn", new Color(0.40f, 0.62f, 0.95f), 30, 6);
-            Anchor(bagBtn.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(448f, -118f), new Vector2(62f, 62f)); bagBtn.raycastTarget = true;
-            SideIcon(bagBtn.rectTransform, "Icon_Book", 34f, 14f);
-            var bgb = bagBtn.gameObject.AddComponent<Button>(); bgb.transition = Selectable.Transition.None;
-            bgb.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); InventoryUI.Open(_gm, Refresh); });
+            // 135차(사용자 시안): 둘째 줄 = 둥근 남색 아이콘 6개(도움·뽑기·Lv·마이룸·상점·가방, Icon_Top_*) + 글자 아래 — 오른쪽은 행동 ○○○
+            Image TopIcon(string goName, string sprite, string label, float x, Action onClick, out Text labelT)
+            {
+                var img = new GameObject(goName, typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                img.transform.SetParent(_root, false);
+                var sp = ArtAssets.LoadTexture(sprite);
+                if (sp != null) { img.sprite = CoastUiArt.AsSprite(sp, 100f); img.preserveAspect = true; }
+                else img.color = new Color(0.18f, 0.24f, 0.55f);
+                Anchor(img.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x, -114f), new Vector2(64f, 64f)); img.raycastTarget = true;
+                labelT = CoastHudLayout.MakeText(img.rectTransform, "T", label, 12, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(-14f, -14f), new Vector2(14f, 8f));
+                labelT.color = Color.white; labelT.fontStyle = FontStyle.Bold; labelT.raycastTarget = false; CoastUiArt.OutlineText(labelT, new Color(0.05f, 0.08f, 0.25f, 0.95f), 1.6f);
+                var b = img.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => { if (_busy) return; CoastPrefs.Vibrate(); onClick?.Invoke(); });
+                return img;
+            }
+            const float IcoX0 = 46f, IcoDx = 70f;
+            var tutBtn = TopIcon("TutorialBtn", "Icon_Top_Help", Loc.T("도움", "Help"), IcoX0, () => StartCoroutine(TamaTutorial()), out _);
+            // 131차/135차: ★ 별빛 캡슐(이벤트 뽑기) — 도움과 Lv 사이. 무료·뽑기권이 있으면 배지.
+            var gachaBtn = TopIcon("GachaBtn", "Icon_Top_Gacha", Loc.T("뽑기", "Gacha"), IcoX0 + IcoDx, () => { _busy = true; StarGachaUI.Open(_gm, () => { _busy = false; Refresh(); }); }, out _);
+            _gachaBadge = CoastUiArt.Panel(gachaBtn.rectTransform, "Badge", new Color(1f, 0.85f, 0.25f), 12); _gachaBadge.raycastTarget = false;
+            Anchor(_gachaBadge.rectTransform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(2f, 2f), new Vector2(26f, 26f));
+            _gachaBadgeT = CoastHudLayout.MakeText(_gachaBadge.rectTransform, "T", "!", 14, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            _gachaBadgeT.color = new Color(0.45f, 0.26f, 0.06f); _gachaBadgeT.fontStyle = FontStyle.Bold; _gachaBadgeT.raycastTarget = false;
+            var stBtn = TopIcon("StatusBtn", "Icon_Top_Lv", "Lv1", IcoX0 + IcoDx * 2f, () => StatusUI.Open(_gm, Refresh), out _levelLabel);
+            var roomBtn = TopIcon("RoomBtn", "Icon_Top_Room", Loc.T("마이룸", "My Room"), IcoX0 + IcoDx * 3f, OpenRoom, out _);
+            var shopBtn = TopIcon("ShopBtn", "Icon_Top_Shop", Loc.T("상점", "Shop"), IcoX0 + IcoDx * 4f, () => ShopUI.Open(_gm, 0, Refresh), out _);
+            var bagBtn = TopIcon("BagBtn", "Icon_Top_Bag", Loc.T("가방", "Bag"), IcoX0 + IcoDx * 5f, () => InventoryUI.Open(_gm, Refresh), out _);
             // 63차(시안): 생활 경고는 카드 위 **가로 띠**
             _lifeEdge = CoastUiArt.CutePill(_root, "LifeEdge", new Color(1f, 0.85f, 0.20f), 20, 3);
             Anchor(_lifeEdge.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(34f, 266f), new Vector2(596f, 86f)); _lifeEdge.raycastTarget = false;   // 65차: 띠 키움(글자 크게)
@@ -274,7 +274,7 @@ namespace CoastRun
             _moneyLabel = CoastHudLayout.MakeText(money.rectTransform, "T", "", 22, TextAnchor.MiddleRight, Vector2.zero, Vector2.one, new Vector2(48f, 0f), new Vector2(-14f, 0f));
             _moneyLabel.color = RunHudChrome.ScoreYellow; _moneyLabel.fontStyle = FontStyle.Bold; _moneyLabel.alignment = TextAnchor.MiddleCenter;
             CoastUiArt.OutlineText(_moneyLabel, new Color(0.05f, 0.07f, 0.18f, 0.9f), 2f);
-            _moneyLabel.resizeTextForBestFit = true; _moneyLabel.resizeTextMinSize = 12; _moneyLabel.resizeTextMaxSize = CoastHudLayout.Scaled(22);
+            _moneyLabel.resizeTextForBestFit = true; _moneyLabel.resizeTextMinSize = 10; _moneyLabel.resizeTextMaxSize = CoastHudLayout.Scaled(22);
             // 60차: 오른쪽 위 큰 동그라미 3개 = 이번 주 행동(한 번 하면 초록 ✓)
             for (int i = 0; i < 3; i++)
             {
@@ -299,7 +299,18 @@ namespace CoastRun
             var homeT = CoastHudLayout.MakeText(home.rectTransform, "T", Loc.T("홈", "Home"), 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(52f, 3f), new Vector2(-8f, 0f));
             homeT.color = Color.white; homeT.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(homeT, new Color(0f, 0f, 0f, 0.35f), 1.2f);
             var hb = home.gameObject.AddComponent<Button>(); hb.transition = Selectable.Transition.None;
-            hb.onClick.AddListener(() => { if (_busy) return; _auto = false; RefreshAuto(); _gm.Persist(); _gm.ToTitle(); });
+            hb.onClick.AddListener(() => { if (_busy) return; _auto = false; RefreshAuto(); _gm.Persist(); _gm.ToTitle(); });   // 137차(사용자): 홈 = 메인화면
+            // 137차: 「마을」 알약(주차 알약 오른쪽) — 이 화면은 우리집 안, 나가면 바닷가 마을
+            if (CoastRun.Village.VillageHub.Enabled)
+            {
+                var vil = CoastUiArt.GlossyPill(_root, "Village", new Color(0.30f, 0.70f, 0.55f), 18, 6);
+                Anchor(vil.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(208f, -6f), new Vector2(112f, 60f)); vil.raycastTarget = true;
+                var vt = CoastHudLayout.MakeText(vil.rectTransform, "T", Loc.T("◀ 마을", "◀ Village"), 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(4f, 3f), new Vector2(-4f, 0f));
+                vt.color = Color.white; vt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(vt, new Color(0f, 0f, 0f, 0.35f), 1.2f);
+                vt.resizeTextForBestFit = true; vt.resizeTextMinSize = 12; vt.resizeTextMaxSize = CoastHudLayout.Scaled(20);
+                var vb = vil.gameObject.AddComponent<Button>(); vb.transition = Selectable.Transition.None;
+                vb.onClick.AddListener(() => { if (_busy) return; _auto = false; RefreshAuto(); _gm.ToVillage(); });
+            }
 
             // ── 무대: 하늘이 + 말풍선 ──
             var girlGo = new GameObject("Girl", typeof(RectTransform), typeof(Image), typeof(TouchRelay));
@@ -363,7 +374,7 @@ namespace CoastRun
             _autoLabel = CoastHudLayout.MakeText(auto.rectTransform, "T", "", 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 4f), new Vector2(0f, 2f));
             _autoLabel.color = Color.white; CoastUiArt.OutlineText(_autoLabel, new Color(0f, 0f, 0f, 0.35f), 1.5f);
             var ab = auto.gameObject.AddComponent<Button>(); ab.transition = Selectable.Transition.None;
-            ab.onClick.AddListener(() => { _auto = !_auto; _autoTimer = 0f; RefreshAuto(); ShowBubble(_auto ? Loc.T("내가 알아서 할게!", "I'll take care of myself!") : Loc.T("같이 하자.", "Let's do it together."), 2f); });
+            ab.onClick.AddListener(() => { _auto = !_auto; _autoTimer = 0f; if (Save != null) { Save.autoMode = _auto; _gm.Persist(); } RefreshAuto(); ShowBubble(_auto ? Loc.T("내가 알아서 할게!", "I'll take care of myself!") : Loc.T("같이 하자.", "Let's do it together."), 2f); });
             // 55차-2(사용자): 「이번 주 행동」 알약이 곧 **다음 턴** 버튼 — 누르면 한 주가 끝난다(행동을 다 안 했으면 한 번 더 눌러 확인).
             var prog = CoastUiArt.GlossyPill(_root, "NextTurn", Pink, 30, 12);
             Anchor(prog.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-8f, 6f), new Vector2(464f, 100f)); prog.raycastTarget = true;
@@ -411,46 +422,51 @@ namespace CoastRun
         }
 
         /// 66차: 세로 게이지 한 개 — 위 아이콘 + 라벨, 아래로 긴 막대(어두운 트랙 + 색 채움 + 흰 하이라이트).
+        private Text _hpTxt, _stressTxt;
+        /// 135차(사용자): 세로 막대(화면 양옆) → 모바일 육성게임식 **가로 상태 바** 두 개(아이콘 알약 + 채움 + 숫자), 아이콘 줄 바로 아래.
         private Image SideGauge(bool right, string label, Color col, string iconRes, string iconGlyph)
         {
-            // 오른쪽 게이지는 오른쪽 가장자리 기준(앵커·피벗 x=1)으로 잡아 HUD 여백에 잘리지 않게.
-            float ax = right ? 1f : 0f;
-            float cx = right ? -34f : 34f;   // 막대 중심 x(왼쪽 가장자리 기준 / 오른쪽 가장자리 기준)
-            Vector2 A = new Vector2(ax, 0f);
-            System.Func<float, float, float, Vector2> P = (half, y, w) => new Vector2(right ? cx + half : cx - half, y);
-            var track = CoastUiArt.CutePill(_root, (right ? "Stress" : "Hp") + "Track", Color.Lerp(col, Color.black, 0.55f), 12, 3); track.raycastTarget = false;
-            // 71차(사용자): 게이지 50% 축소 — 높이 560 → 280, 폭 26 → 20, 라벨·아이콘도 3/4. 세로 중심은 그대로(460~740).
-            Anchor(track.rectTransform, A, A, P(10f, 460f, 20f), new Vector2(20f, 280f));
-            var fill = CoastUiArt.Panel(track.transform, "Fill", col, 8); fill.raycastTarget = false;
-            fill.rectTransform.anchorMin = new Vector2(0f, 0f); fill.rectTransform.anchorMax = new Vector2(1f, 0.5f); fill.rectTransform.offsetMin = new Vector2(4f, 4f); fill.rectTransform.offsetMax = new Vector2(-4f, 0f);
+            float x0 = right ? 366f : 12f, w = 342f, y = -206f, h = 46f;
+            var track = CoastUiArt.CutePill(_root, (right ? "Stress" : "Hp") + "Track", new Color(0.10f, 0.13f, 0.30f, 0.90f), 14, 3); track.raycastTarget = false;
+            Anchor(track.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0, y), new Vector2(w, h));
+            var bg = CoastUiArt.Panel(track.transform, "Bg", new Color(0f, 0f, 0f, 0.35f), 9); bg.raycastTarget = false;
+            Anchor(bg.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
+            bg.rectTransform.offsetMin = new Vector2(112f, 9f); bg.rectTransform.offsetMax = new Vector2(-10f, -9f);
+            var fill = CoastUiArt.Panel(bg.transform, "Fill", col, 8); fill.raycastTarget = false;
+            fill.rectTransform.anchorMin = new Vector2(0f, 0f); fill.rectTransform.anchorMax = new Vector2(0.5f, 1f); fill.rectTransform.offsetMin = Vector2.zero; fill.rectTransform.offsetMax = Vector2.zero;
             var hi = CoastUiArt.Panel(fill.transform, "Hi", new Color(1f, 1f, 1f, 0.35f), 3); hi.raycastTarget = false;
-            hi.rectTransform.anchorMin = new Vector2(0.2f, 0f); hi.rectTransform.anchorMax = new Vector2(0.42f, 1f); hi.rectTransform.offsetMin = new Vector2(0f, 6f); hi.rectTransform.offsetMax = new Vector2(0f, -6f);
+            hi.rectTransform.anchorMin = new Vector2(0f, 0.56f); hi.rectTransform.anchorMax = new Vector2(1f, 0.82f); hi.rectTransform.offsetMin = new Vector2(6f, 0f); hi.rectTransform.offsetMax = new Vector2(-6f, 0f);
             if (right)
             {
-                // 74차: 번아웃 한계선 눈금 — 체력이 오르면 위로 올라간다(HP 게이지의 게이트 눈금과 같은 역할).
-                var tick = CoastUiArt.Panel(track.transform, "Limit", new Color(1f, 0.95f, 0.35f), 2); tick.raycastTarget = false;
+                // 번아웃 한계선 눈금(세로) — 체력이 오르면 오른쪽으로 이동
+                var tick = CoastUiArt.Panel(bg.transform, "Limit", new Color(1f, 0.95f, 0.35f), 2); tick.raycastTarget = false;
                 var trt = tick.rectTransform;
-                trt.anchorMin = new Vector2(0f, 0.7f); trt.anchorMax = new Vector2(1f, 0.7f); trt.pivot = new Vector2(0.5f, 0.5f);
-                trt.offsetMin = new Vector2(-3f, -2f); trt.offsetMax = new Vector2(3f, 2f);
+                trt.anchorMin = new Vector2(0.7f, 0f); trt.anchorMax = new Vector2(0.7f, 1f); trt.pivot = new Vector2(0.5f, 0.5f);
+                trt.offsetMin = new Vector2(-2f, -3f); trt.offsetMax = new Vector2(2f, 3f);
                 _stressTick = trt;
             }
-            var lab = CoastHudLayout.MakeText(_root, label, label, 15, TextAnchor.MiddleCenter, A, A, Vector2.zero, Vector2.zero);
-            Anchor(lab.rectTransform, A, A, P(60f, 744f, 120f), new Vector2(120f, 24f));
-            lab.color = col; lab.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(lab, Color.white, 2f);
+            // 아이콘 동그라미 + 라벨
+            var circ = CoastUiArt.GlossyPill(track.transform, "Ic", col, 20, 5); circ.raycastTarget = false;
+            Anchor(circ.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(6f, 0f), new Vector2(38f, 38f)); circ.rectTransform.pivot = new Vector2(0f, 0.5f);
             var tex = iconRes != null ? ArtAssets.LoadTexture(iconRes) : null;
             if (tex != null)
             {
-                var im = new GameObject("Ic", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-                im.transform.SetParent(_root, false); im.sprite = CoastUiArt.AsSprite(tex); im.preserveAspect = true; im.raycastTarget = false;
-                Anchor(im.rectTransform, A, A, P(26f, 770f, 52f), new Vector2(52f, 52f));
+                var im = new GameObject("I", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                im.transform.SetParent(circ.transform, false); im.sprite = CoastUiArt.AsSprite(tex); im.preserveAspect = true; im.raycastTarget = false;
+                Anchor(im.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(30f, 30f)); im.rectTransform.pivot = new Vector2(0.5f, 0.5f);
             }
             else
             {
-                var circ = CoastUiArt.GlossyPill(_root, "Ic", col, 24, 6); circ.raycastTarget = false;
-                Anchor(circ.rectTransform, A, A, P(24f, 772f, 48f), new Vector2(48f, 48f));
-                var g = CoastHudLayout.MakeText(circ.rectTransform, "G", iconGlyph ?? "!", 17, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 4f), Vector2.zero);
+                var g = CoastHudLayout.MakeText(circ.rectTransform, "G", iconGlyph ?? "!", 15, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
                 g.color = Color.white; g.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(g, new Color(0f, 0f, 0f, 0.4f), 1.2f);
             }
+            var lab = CoastHudLayout.MakeText(track.rectTransform, "L", label, 14, TextAnchor.MiddleLeft, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(50f, 0f), new Vector2(112f, 0f));
+            lab.color = Color.Lerp(col, Color.white, 0.55f); lab.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(lab, new Color(0f, 0f, 0f, 0.5f), 1.2f); lab.raycastTarget = false;
+            lab.resizeTextForBestFit = true; lab.resizeTextMinSize = 9; lab.resizeTextMaxSize = CoastHudLayout.Scaled(14);   // 136차: STRESS 글자가 칸 밖으로 새지 않게
+            var v = CoastHudLayout.MakeText(bg.rectTransform, "V", "", 15, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(4f, 0f), new Vector2(-4f, 0f));
+            v.color = Color.white; v.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(v, new Color(0.05f, 0.05f, 0.15f, 0.85f), 1.5f); v.raycastTarget = false;
+            v.resizeTextForBestFit = true; v.resizeTextMinSize = 10; v.resizeTextMaxSize = CoastHudLayout.Scaled(15);
+            if (right) _stressTxt = v; else _hpTxt = v;
             return fill;
         }
 
@@ -476,6 +492,7 @@ namespace CoastRun
         // ── 표시 갱신 ───────────────────────────────────────────────────
         public void Refresh()
         {
+            RefreshGachaBadge();   // 131차
             if (Save == null) return;
             _gm?.SyncWallet();   // 109차: 코인·돈 일원화 — 러닝에서 모은 코인이 바로 보이게
             LifeItems.Ensure(Save);
@@ -490,18 +507,20 @@ namespace CoastRun
             int need = StoryGate.Required(Save);
             // 57차(사용자 「체력바 확인」): 「123 / 36」이 헷갈렸다 → 막대 = 체력/최대(200), 게이트 자리에 흰 눈금, 글자 = 「체력 123 · 게이트 36 ✓」
             float gx = Mathf.Clamp01(need / (float)PlayerStats.StatMax);
-            if (_hpFill != null) _hpFill.rectTransform.anchorMax = new Vector2(1f, Mathf.Clamp(s.stamina / (float)PlayerStats.StatMax, 0.03f, 1f));
+            if (_hpFill != null) _hpFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp(s.stamina / (float)PlayerStats.StatMax, 0.03f, 1f), 1f);
+            if (_hpTxt != null) _hpTxt.text = s.stamina >= need ? $"{s.stamina} / {PlayerStats.StatMax}  ·  " + Loc.T($"게이트 {need} ✓", $"gate {need} ✓") : $"{s.stamina} / {PlayerStats.StatMax}  ·  " + Loc.T($"게이트 {need}", $"gate {need}");
             // 74차(사용자: 스트레스가 너무 적게 쌓인다): 게이지를 0~100 척도로(전엔 /200 이라 절반으로 보였다) +
             //   번아웃 한계선 눈금 + 구간별 색(평온 라벤더 → 피곤 하늘 → 지침 주황 → 번아웃 빨강).
             if (_stressFill != null)
             {
-                _stressFill.rectTransform.anchorMax = new Vector2(1f, Mathf.Clamp(s.stress / (float)PlayerStats.StressMax, 0.03f, 1f));
+                _stressFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp(s.stress / (float)PlayerStats.StressMax, 0.03f, 1f), 1f);
                 _stressFill.color = StressColor(s.Stage);
+                if (_stressTxt != null) _stressTxt.text = $"{s.stress} / {PlayerStats.StressMax}  ·  " + (s.Burnout ? Loc.T("번아웃!", "Burnout!") : Loc.T($"한계 {s.StressLimit}", $"limit {s.StressLimit}"));
             }
             if (_stressTick != null)
             {
                 float ly = Mathf.Clamp01(s.StressLimit / (float)PlayerStats.StressMax);
-                _stressTick.anchorMin = new Vector2(0f, ly); _stressTick.anchorMax = new Vector2(1f, ly);
+                _stressTick.anchorMin = new Vector2(ly, 0f); _stressTick.anchorMax = new Vector2(ly, 1f);
                 var tick = _stressTick.GetComponent<Image>();
                 if (tick != null) tick.color = s.Burnout ? new Color(1f, 0.30f, 0.30f) : new Color(1f, 0.95f, 0.35f);
             }
@@ -854,7 +873,7 @@ namespace CoastRun
             _cardPickOverlay.transform.SetParent(_root, false);
             var dim = _cardPickOverlay.GetComponent<Image>();
             // 112차 시안: 라벤더 바탕 + 꽃·나비
-            dim.color = new Color(0.91f, 0.86f, 0.97f, 0.97f); dim.raycastTarget = true;
+            dim.color = new Color(0.93f, 0.88f, 0.98f, 1f); dim.raycastTarget = true;   // 135차: 시안처럼 불투명 라벤더
             var drt = dim.rectTransform; drt.anchorMin = Vector2.zero; drt.anchorMax = Vector2.one; drt.offsetMin = new Vector2(-400f, -400f); drt.offsetMax = new Vector2(400f, 400f);
 
             // 콘텐츠는 Fit(세이프존) 안에만 — 딤만 화면 밖까지 덮는다
@@ -864,7 +883,7 @@ namespace CoastRun
             content.anchorMin = new Vector2(0.5f, 0.5f); content.anchorMax = new Vector2(0.5f, 0.5f);
             content.pivot = new Vector2(0.5f, 0.5f);
             // Fit 안쪽 크기(HudInset 기준 ≈ 세이프존). 오버레이가 -400 확장돼 있으므로 실제 보이는 박스로 맞춤.
-            float cw = 664f, ch = 1180f;
+            float cw = 664f, ch = 1500f;   // 135차: 시안처럼 화면 위아래를 꽉 쓴다(알약은 맨 위, 다음 턴은 맨 아래)
             content.sizeDelta = new Vector2(cw, ch); content.anchoredPosition = Vector2.zero;
             EventCardKit.DecoratePickBg(content);
 
@@ -879,10 +898,10 @@ namespace CoastRun
                 ? Loc.T($"이번 주말 휴식  |  치유 시간 {Save.stats.stamina}:{energy:D2}", $"Weekend rest  |  Heal {Save.stats.stamina}:{energy:D2}")
                 : idx == 1 ? Loc.T("이번 주말, 뭐 할까?", "What to do this weekend?")
                 : Loc.T("이번 주말, 어디 알바?", "Which job this weekend?");
-            var title = CoastHudLayout.MakeText(content, "Banner", "✦  " + banner + "  ✦", 20, TextAnchor.MiddleCenter,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -100f), new Vector2(-16f, -64f));
+            var title = CoastHudLayout.MakeText(content, "Banner", "✦  " + banner + "  ✦", 27, TextAnchor.MiddleCenter,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -158f), new Vector2(-16f, -104f));   // 136차: 오른쪽 ✕ 자리 확보
             title.color = EventCardKit.BrownInk; title.fontStyle = FontStyle.Bold; title.raycastTarget = false;
-            title.resizeTextForBestFit = true; title.resizeTextMinSize = 12; title.resizeTextMaxSize = CoastHudLayout.Scaled(20);
+            title.resizeTextForBestFit = true; title.resizeTextMinSize = 14; title.resizeTextMaxSize = CoastHudLayout.Scaled(27);
 
             // 시안: 세로 2장 스택 (노랑=집밥 / 라벤더=낮잠 순으로 맞춤)
             if (idx == 0 && cards.Count >= 2)
@@ -906,15 +925,16 @@ namespace CoastRun
                 new Color(0.62f, 0.48f, 0.90f),
                 new Color(0.35f, 0.65f, 0.95f)
             };
-            string[] badgeRest = { Loc.T("☀️ 힐링", "☀ Heal"), Loc.T("🌙 힐링", "☾ Heal") };
+            string[] badgeRest = { Loc.T("☀ 힐링", "☀ Heal"), Loc.T("☾ 힐링", "☾ Heal") };
             string[] badgePlay = { Loc.T("🎮 놀기", "Play"), Loc.T("✨ 놀기", "Play") };
             string[] badgeJob = { Loc.T("💼 알바", "Job"), Loc.T("🏃 알바", "Job") };
 
-            float cardW = 560f, cardH = 340f, gap = 14f;
-            float stackH = cards.Count * cardH + (cards.Count - 1) * gap;
-            float y0 = 40f + stackH * 0.5f - cardH * 0.5f;
-
-            for (int i = 0; i < cards.Count; i++)
+            // 135차(사용자 시안): 두 장을 **나란히**(세로형 카드) — 그림 4:3 + 제목 + 남색 효과 칩. 3장이면 좁게 3열.
+            int n = cards.Count;
+            float cardW = n <= 2 ? 320f : 206f, cardH = n <= 2 ? 500f : 400f, gap = n <= 2 ? 14f : 16f;   // 136차: 시안처럼 조금 더 큼직하게
+            float rowW = n * cardW + (n - 1) * gap;
+            float cy = 30f;   // 카드 중심(콘텐츠 중앙 기준) — 시안: 화면 세로 중앙보다 살짝 아래
+            for (int i = 0; i < n; i++)
             {
                 var def = cards[i];
                 string tab = idx == 0 ? badgeRest[Mathf.Min(i, badgeRest.Length - 1)]
@@ -932,12 +952,12 @@ namespace CoastRun
                     pv = (warn ? "⚠ " : "⚡ ") + pv;
 
                 var captured = def;
-                float y = y0 - i * (cardH + gap);
-                var cbtn = EventCardKit.StoryPickCard(
+                float x = -rowW * 0.5f + cardW * 0.5f + i * (cardW + gap);
+                var cbtn = EventCardKit.TallPickCard(
                     content, "C" + i, tab, titleTxt,
                     fills[Mathf.Clamp(i, 0, fills.Length - 1)],
                     tabs[Mathf.Clamp(i, 0, tabs.Length - 1)],
-                    new Vector2(0f, y),
+                    new Vector2(x, cy),
                     new Vector2(cardW, cardH),
                     () => { chosen = captured; },
                     pv);
@@ -947,40 +967,104 @@ namespace CoastRun
                 var artSlot = crt2.Find("ArtSlot") as RectTransform;
                 if (artSlot != null && artTex != null)
                 {
-                    var frame = CoastUiArt.CutePill(artSlot, "ArtFrame", Color.white, 18, 0); frame.raycastTarget = false;
+                    var frame = CoastUiArt.CutePill(artSlot, "ArtFrame", Color.white, 16, 0); frame.raycastTarget = false;
                     var fr = frame.rectTransform; fr.anchorMin = Vector2.zero; fr.anchorMax = Vector2.one; fr.offsetMin = fr.offsetMax = Vector2.zero;
-                    // 마스크로 둥글게 자르고 그림은 꽉 채움(시안처럼 레터박스 없음)
                     var mask = frame.gameObject.AddComponent<Mask>(); mask.showMaskGraphic = false;
                     var art = CoastHudLayout.MakeImage(fr, "Art", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, Color.white);
                     art.sprite = CoastUiArt.AsSprite(artTex); art.preserveAspect = false; art.raycastTarget = false;
-                    EventCardKit.Animate(art, 0.06f, 8f);
+                    EventCardKit.Animate(art, 0.04f, 8f);
                 }
             }
 
-            // 꼬마 + 말풍선(시안: 하단)
+            // 꼬마(왼쪽 아래, 크게) + 큰 말풍선(오른쪽)
             {
                 string kidLine = idx == 0 ? Loc.T("나도 푹 쉬어!", "Rest well too!")
                     : idx == 1 ? Loc.T("누나, 같이 놀자!", "Let's play!")
                     : Loc.T("누나, 돈 벌어 오자!", "Let's earn!");
-                EventCardKit.KidAt(content, kidLine, new Vector2(0.5f, 0f), new Vector2(-100f, 52f), 160f, false, false);
+                var kidTex = ArtAssets.LoadTexture("UI_Kid_Bust") ?? ArtAssets.LoadTexture("UI_Butler_Boy");
+                float ks = 262f;
+                if (kidTex != null)
+                {
+                    float kw = ks * kidTex.width / Mathf.Max(1, kidTex.height);
+                    var kid = CoastHudLayout.MakeImage(content, "Kid", new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(4f, 206f), new Vector2(4f + kw, 206f + ks), Color.white);
+                    kid.sprite = CoastUiArt.AsSprite(kidTex); kid.preserveAspect = true; kid.raycastTarget = false;
+                    kid.gameObject.AddComponent<EventCardKit.KidBob>();
+                }
+                var bub = CoastUiArt.CutePill(content, "KidBubble", new Color(1f, 0.93f, 0.96f), 26, 0); bub.raycastTarget = false;
+                var br = bub.rectTransform; br.anchorMin = br.anchorMax = new Vector2(0f, 0f); br.pivot = new Vector2(0f, 0f);
+                br.anchoredPosition = new Vector2(200f, 262f); br.sizeDelta = new Vector2(400f, 108f);
+                var bubIn = CoastUiArt.CutePill(br, "In", Color.white, 22, 0); bubIn.raycastTarget = false;
+                var bir = bubIn.rectTransform; bir.anchorMin = Vector2.zero; bir.anchorMax = Vector2.one; bir.offsetMin = new Vector2(5f, 5f); bir.offsetMax = new Vector2(-5f, -5f);
+                var tail = CoastHudLayout.MakeText(br, "Tail", "◖", 34, TextAnchor.MiddleCenter, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(-22f, -20f), new Vector2(8f, 20f));
+                tail.color = Color.white; tail.raycastTarget = false;
+                var bt = CoastHudLayout.MakeText(br, "T", kidLine, 30, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(16f, 4f), new Vector2(-16f, -4f));
+                bt.color = EventCardKit.BrownInk; bt.fontStyle = FontStyle.Bold; bt.raycastTarget = false;
+                bt.resizeTextForBestFit = true; bt.resizeTextMinSize = 16; bt.resizeTextMaxSize = CoastHudLayout.Scaled(30);
+                EventCardKit.Sparkle(br, new Vector2(0f, 1f), new Vector2(26f, -10f), 14, new Color(1f, 0.85f, 0.40f));
+                EventCardKit.Sparkle(br, new Vector2(1f, 0f), new Vector2(-26f, 12f), 12, new Color(1f, 0.85f, 0.40f));
             }
 
-            var tip = CoastUiArt.CutePill(content, "Tip", new Color(0.18f, 0.16f, 0.28f, 0.78f), 16, 0);
-            var tipRt = tip.rectTransform; tipRt.anchorMin = tipRt.anchorMax = new Vector2(0.5f, 0f); tipRt.pivot = new Vector2(0.5f, 0f);
-            tipRt.anchoredPosition = new Vector2(0f, 10f); tipRt.sizeDelta = new Vector2(400f, 36f); tip.raycastTarget = false;
-            var tipT = CoastHudLayout.MakeText(tipRt, "T", Loc.T("⧉  비교하려면 길게 누르세요", "⧉  Long-press to compare"), 13, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-8f, 0f));
-            tipT.color = Color.white; tipT.raycastTarget = false;
+            // 아래 줄: [⚠ 이번 주말 …(무작위)] [놀기] [일하기] + 큰 「다음 턴」
+            bool cancelled = false; int switchTo = -1; bool nextTurn = false;
+            Button RowBtn(string name, string label, Color fill, Color edge, float x0, float x1, Action on)
+            {
+                var e = CoastUiArt.CutePill(content, name + "E", edge, 22, 0); e.raycastTarget = false;
+                var ert = e.rectTransform; ert.anchorMin = ert.anchorMax = new Vector2(0.5f, 0f); ert.pivot = new Vector2(0.5f, 0f);
+                ert.anchoredPosition = new Vector2((x0 + x1) * 0.5f, 122f); ert.sizeDelta = new Vector2(x1 - x0, 78f);
+                var pill = CoastUiArt.CutePill(content, name, fill, 20, 0); pill.raycastTarget = true;
+                var prt = pill.rectTransform; prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 0f); prt.pivot = new Vector2(0.5f, 0f);
+                prt.anchoredPosition = new Vector2((x0 + x1) * 0.5f, 126f); prt.sizeDelta = new Vector2(x1 - x0 - 8f, 70f);
+                var b = pill.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => { CoastPrefs.Vibrate(); on?.Invoke(); });
+                var t = CoastHudLayout.MakeText(prt, "T", label, 24, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(6f, 2f), new Vector2(-6f, 0f));
+                t.color = EventCardKit.BrownInk; t.fontStyle = FontStyle.Bold; t.raycastTarget = false;
+                t.resizeTextForBestFit = true; t.resizeTextMinSize = 12; t.resizeTextMaxSize = CoastHudLayout.Scaled(24);
+                return b;
+            }
+            string randLabel = idx == 0 ? Loc.T("⚠ 이번 주말 휴식(무작위)", "⚠ Weekend rest (random)") : idx == 1 ? Loc.T("⚠ 이번 주말 놀기(무작위)", "⚠ Weekend play (random)") : Loc.T("⚠ 이번 주말 알바(무작위)", "⚠ Weekend job (random)");
+            // 136차(시안): [무작위 320] [놀기 150] [일하기 172] — 세 알약이 한 줄에 고르게, 글자도 크게
+            RowBtn("Rand", randLabel, new Color(1f, 0.90f, 0.93f), new Color(0.95f, 0.62f, 0.75f), -332f, -10f, () => { chosen = cards[UnityEngine.Random.Range(0, cards.Count)]; });
+            var lav = new Color(0.90f, 0.86f, 0.98f); var lavE = new Color(0.70f, 0.60f, 0.92f);
+            var others = new System.Collections.Generic.List<(string, string, int)>();
+            if (idx != 1) others.Add(("Play", Loc.T("❀ 놀기", "❀ Play"), 1));
+            if (idx != 2) others.Add(("Job", Loc.T("◆ 일하기", "◆ Work"), 2));
+            if (idx != 0) others.Add(("Rest", Loc.T("☾ 휴식", "☾ Rest"), 0));
+            {
+                float x0 = 0f; float[] w = { 150f, 172f };
+                for (int oi = 0; oi < others.Count && oi < 2; oi++)
+                {
+                    var o = others[oi]; int target = o.Item3;
+                    RowBtn(o.Item1, o.Item2, lav, lavE, x0, x0 + w[oi], () => { switchTo = target; });
+                    x0 += w[oi] + 10f;
+                }
+            }
+            {
+                var e = CoastUiArt.CutePill(content, "NextE", new Color(0.95f, 0.55f, 0.72f), 30, 0); e.raycastTarget = false;
+                var ert = e.rectTransform; ert.anchorMin = ert.anchorMax = new Vector2(0.5f, 0f); ert.pivot = new Vector2(0.5f, 0f);
+                ert.anchoredPosition = new Vector2(0f, 18f); ert.sizeDelta = new Vector2(560f, 92f);
+                var pill = CoastUiArt.GlossyPill(content, "Next", new Color(1f, 0.72f, 0.84f), 28, 8); pill.raycastTarget = true;
+                var prt = pill.rectTransform; prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 0f); prt.pivot = new Vector2(0.5f, 0f);
+                prt.anchoredPosition = new Vector2(0f, 22f); prt.sizeDelta = new Vector2(552f, 84f);
+                var b = pill.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => { CoastPrefs.Vibrate(); nextTurn = true; });
+                var t = CoastHudLayout.MakeText(prt, "T", Loc.T("다음 턴", "Next turn"), 36, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 4f), new Vector2(0f, 0f));
+                t.color = Color.white; t.fontStyle = FontStyle.Bold; t.raycastTarget = false; CoastUiArt.OutlineText(t, new Color(0.55f, 0.18f, 0.35f, 0.8f), 2f);
+            }
 
-            var cancel = CoastUiArt.CutePill(content, "Cancel", new Color(1f, 1f, 1f, 0.92f), 22, 2);
-            var crt = cancel.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(1f, 1f); crt.pivot = new Vector2(1f, 1f);
-            crt.anchoredPosition = new Vector2(-8f, -8f); crt.sizeDelta = new Vector2(48f, 48f); cancel.raycastTarget = true;
-            var ct = CoastHudLayout.MakeText(crt, "T", "✕", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero);
-            ct.color = new Color(0.35f, 0.32f, 0.45f);
-            var cb = cancel.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None;
-            bool cancelled = false;
-            cb.onClick.AddListener(() => { CoastPrefs.Vibrate(); cancelled = true; });
-            while (chosen == null && !cancelled) yield return null;
+            // 136차(시안): ✕ 버튼 없음 — 뒤로 가기(Android back / Esc)로 취소
+            while (chosen == null && !cancelled && switchTo < 0 && !nextTurn)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape)) { CoastPrefs.Vibrate(); cancelled = true; }
+                yield return null;
+            }
             if (_cardPickOverlay != null) { Destroy(_cardPickOverlay); _cardPickOverlay = null; }
+            if (switchTo >= 0 || nextTurn)
+            {
+                foreach (var b in _actBtn) if (b != null) b.interactable = true;
+                _busy = false;
+                if (nextTurn) OnNextTurnPressed(); else DoAction(switchTo);
+                yield break;
+            }
             if (cancelled || chosen == null)
             {
                 foreach (var b in _actBtn) if (b != null) b.interactable = true;
@@ -1011,6 +1095,8 @@ namespace CoastRun
 
         private IEnumerator EventChoiceRoutine(RandomEventDef ev)
         {
+            // 135차: 미니게임·축제 카드가 떠 있는 동안은 절대 겹쳐 띄우지 않는다
+            while (ChapterMissionUI.IsOpen || FestivalUI.IsOpen) yield return null;
             bool manageBusy = !_busy;
             if (manageBusy)
             {
@@ -1300,7 +1386,7 @@ namespace CoastRun
                     : Loc.T($"다음 턴: 챕터 {Save.chapter} 이야기", $"Next turn: chapter {Save.chapter} story");
             }
             bool passDone = false;
-            _auto = _auto && !forced && !rep.died; RefreshAuto();
+            _auto = _auto && !rep.died; RefreshAuto();   // 135차: 챕터 경계(forced)에서도 자동 유지 — 끌 때까지 계속
             WeekPassUI.Show(fromWeek, Save.week, Timeline.SeasonOf(Save.week), rep, nextNote, () => passDone = true);
             // 74차(사용자: 결산 카드 3초): 자동 진행에서도 카드가 제 시간(WeekPassUI.AutoCloseSeconds)만큼 보이게 —
             //   전엔 1.4초에 강제로 닫아 자동 모드에서만 더 빨리 사라졌다. 여유 0.3초는 자동 닫힘이 못 돌 때의 안전장치.
@@ -1308,7 +1394,7 @@ namespace CoastRun
             else while (!passDone) yield return null;
             if (rep.died)
             {
-                _auto = false; RefreshAuto();
+                _auto = false; if (Save != null) Save.autoMode = false; RefreshAuto();
                 Save.boundaryPending = false; _gm.Persist();
                 bool revived = false;
                 GameOverUI.Show(_gm, _girl != null ? _girl.sprite : null, () => revived = true);
@@ -1330,7 +1416,7 @@ namespace CoastRun
                 CoastToast.Show(_gm.PendingWeekNote);
                 _gm.PendingWeekNote = null;
                 Refresh();
-                if (Save.forfeitPending) { _auto = false; RefreshAuto(); _gm.ForfeitChapter(); yield break; }
+                if (Save.forfeitPending) { _auto = false; Save.autoMode = false; RefreshAuto(); _gm.ForfeitChapter(); yield break; }
                 yield return new WaitForSecondsRealtime(_auto ? 0.5f : 1.5f);
             }
             if (forced) { ShowBubble(BoundaryHint(), 4f); yield break; }   // 67차-8: 바로 띄우지 않고 「다음 턴」을 기다린다(동그라미 3개 찬 상태)
@@ -1345,7 +1431,7 @@ namespace CoastRun
         private IEnumerator BoundaryRoutine()
         {
             if (Save == null || !Save.boundaryPending) yield break;
-            _auto = false; RefreshAuto();
+            bool autoWas = _auto; _auto = false; RefreshAuto();   // 135차: 이야기·대회 동안만 잠시 끄고, 끝나면 복원
             // K-POP = 돈·아이템 파밍. 스토리 컷씬/엔딩은 레벨로 잠그지 않는다(예전 롱컷 Lv 게이트 제거).
             if (Save.chapter == 1 && !Save.prologueSeen)
             {
@@ -1403,6 +1489,7 @@ namespace CoastRun
                 int nextCut = 0; foreach (var cc in StoryProgress.CutsceneChapters) if (cc > done) { nextCut = StoryProgress.CutsceneIndex(cc); break; }
                 ShowBubble(Loc.T($"{done}장이 지나갔어. 이제 {Save.chapter}장, {Save.week}주차." + (nextCut > 0 ? $" 컷씬 {nextCut}은 {StoryProgress.CutsceneChapter(nextCut)}장에서." : ""), $"Chapter {done} done. Now chapter {Save.chapter}, week {Save.week}."), 3.5f);
                 CoastToast.Show(Loc.T($"챕터 {done} 완료", $"Chapter {done} complete"));
+                if (autoWas || Save.autoMode) { _auto = true; _autoTimer = -2f; RefreshAuto(); }
                 yield break;
             }
             if (StoryGate.Passes(Save))
@@ -1420,9 +1507,22 @@ namespace CoastRun
             Refresh();
             ShowBubble(StoryGate.FailText(Save), 4f);
             CoastToast.Show(Loc.T("아직 못 달려 — 한 주 더 키우자", "Not yet — one more week"));
+            if (autoWas || Save.autoMode) { _auto = true; _autoTimer = -2f; RefreshAuto(); }
         }
 
         /// 53차(사용자): 마이룸(방 꾸미기 HomeUI) — 주인공 꼬마와 펫이 같이 있다.
+        private Image _gachaBadge; private Text _gachaBadgeT;
+        /// 131차: 뽑기 버튼 배지 — 오늘 무료가 남았거나 뽑기권이 있으면 표시.
+        private void RefreshGachaBadge()
+        {
+            if (_gachaBadge == null || Save == null) return;
+            bool free = StarGacha.FreePullReady(_gm != null ? _gm.Profile : null);
+            int tickets = Save.capsuleTickets;
+            bool show = free || tickets > 0 || Save.starShards >= StarGacha.PullCost;
+            _gachaBadge.gameObject.SetActive(show);
+            if (show) _gachaBadgeT.text = tickets > 0 ? tickets.ToString() : "!";
+        }
+
         private void OpenRoom()
         {
             if (_busy || Save == null || _gm == null) return;

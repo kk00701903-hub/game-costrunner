@@ -22,13 +22,14 @@ namespace CoastRun
         private static readonly Color Sun = new Color(1f, 0.72f, 0.30f);
         private static readonly Color Cream = new Color(1f, 0.97f, 0.90f);
         private static readonly Color Grey = new Color(0.62f, 0.63f, 0.70f);
-        private static readonly Color TabOff = new Color(0.80f, 0.77f, 0.87f);   // 94차 시안: 비선택 탭 라벤더 회색
+        private static readonly Color TabOff = new Color(0.78f, 0.72f, 0.93f);   // 94차 시안: 비선택 탭 라벤더 · 126차: 시안 라벤더로
 
         private GameManager _gm;
         private Sprite _charSprite;
         private Action _onClose;
         private Canvas _canvas;
         private RectTransform _root, _body, _tray, _tabBar;
+        private RectTransform _bodyFrame, _trayFrame;   // 117차: 탭마다 본문/트레이 비율을 바꾼다
         private ScrollRect _trayScroll;
         private RectTransform _trayGhost;
         private Text _money, _hint;
@@ -73,9 +74,13 @@ namespace CoastRun
             _root = CoastUiCanvas.Root(_canvas);
 
             // 94차(시안 「우리 집」): 어두운 딤 → 크림·라벤더 바탕 + 꽃 테두리 프레임
-            var dim = CoastHudLayout.MakeImage(_root, "Dim", Vector2.zero, Vector2.one, new Vector2(-CoastUiCanvas.HudPad - 400f, -CoastUiCanvas.HudPad - 400f), new Vector2(CoastUiCanvas.HudPad + 400f, CoastUiCanvas.HudPad + 400f), new Color(0.93f, 0.89f, 0.97f, 1f));
-            dim.raycastTarget = true;
-            var frame = CoastUiArt.Panel(_root, "Frame", new Color(0.86f, 0.78f, 0.93f), 26);
+            // 126차(사용자 시안): 위 진보라 → 아래 라벤더 그라데이션 바탕 + 라벤더 프레임
+            var dimTex = new Texture2D(1, 3, TextureFormat.RGBA32, false);
+            dimTex.SetPixels(new[] { new Color(0.84f, 0.78f, 0.95f), new Color(0.62f, 0.50f, 0.82f), new Color(0.36f, 0.24f, 0.56f) });
+            dimTex.wrapMode = TextureWrapMode.Clamp; dimTex.filterMode = FilterMode.Bilinear; dimTex.Apply();
+            var dim = CoastHudLayout.MakeImage(_root, "Dim", Vector2.zero, Vector2.one, new Vector2(-CoastUiCanvas.HudPad - 400f, -CoastUiCanvas.HudPad - 400f), new Vector2(CoastUiCanvas.HudPad + 400f, CoastUiCanvas.HudPad + 400f), Color.white);
+            dim.sprite = Sprite.Create(dimTex, new Rect(0, 0, 1, 3), new Vector2(0.5f, 0.5f), 1f); dim.type = Image.Type.Simple; dim.raycastTarget = true;
+            var frame = CoastUiArt.Panel(_root, "Frame", new Color(0.80f, 0.72f, 0.94f), 26);
             Rect(frame.rectTransform, Vector2.zero, Vector2.one, new Vector2(-6f, -6f), new Vector2(6f, 6f)); frame.raycastTarget = false;
             var frameIn = CoastUiArt.Panel(frame.transform, "In", new Color(0.99f, 0.97f, 0.93f), 22);
             Rect(frameIn.rectTransform, Vector2.zero, Vector2.one, new Vector2(8f, 8f), new Vector2(-8f, -8f)); frameIn.raycastTarget = false;
@@ -85,7 +90,7 @@ namespace CoastRun
             SprinklePlayDecor(decoHost);
 
             // 헤더 — 시안: 보라 알약 + 집 아이콘 「우리 집」 · 코인 아이콘 + 돈 · 「나가기」
-            var head = CoastUiArt.CutePill(_root, "Head", new Color(0.42f, 0.30f, 0.58f), 22, 4);
+            var head = CoastUiArt.CutePill(_root, "Head", new Color(0.50f, 0.36f, 0.72f), 22, 4);   // 126차 시안: 보라
             Rect(head.rectTransform, new Vector2(0f, 0.925f), new Vector2(1f, 1f), new Vector2(10f, 4f), new Vector2(-10f, -6f));
             var homeIc = CoastUiArt.Icon("Home");
             if (homeIc != null)
@@ -110,7 +115,7 @@ namespace CoastRun
             _money = Text(head.transform, "Money", "", 24, new Color(1f, 0.88f, 0.50f), TextAnchor.MiddleRight);   // 109차: 글자 키움
             _money.fontStyle = FontStyle.Bold;
             Rect(_money.rectTransform, Vector2.zero, Vector2.one, new Vector2(200f, 0f), new Vector2(-196f, 0f));
-            var closeB = Button(head.transform, "Close", Loc.T("나가기", "Leave"), new Color(0.66f, 0.60f, 0.76f), new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(150f, 56f), Close);   // 109차: 버튼 키움
+            var closeB = Button(head.transform, "Close", Loc.T("나가기", "Leave"), new Color(0.72f, 0.64f, 0.94f), new Vector2(1f, 0.5f), new Vector2(-10f, 0f), new Vector2(150f, 56f), Close);   // 109차: 버튼 키움 · 126차: 라벤더
             { var ct0 = closeB.GetComponentInChildren<Text>(); if (ct0 != null) { ct0.resizeTextMaxSize = CoastHudLayout.Scaled(22); ct0.fontSize = CoastHudLayout.Scaled(22); } }
 
             // 탭 — 헤더 바로 아래, 클릭 보장(Fill에도 raycast)
@@ -137,12 +142,14 @@ namespace CoastRun
 
             // 본문(장면) + 트레이 — 탭과 겹치지 않게 본문 상단을 살짝 내림
             var bodyFrame = CoastUiArt.CutePill(_root, "BodyFrame", new Color(0.93f, 0.84f, 0.74f), 22, 4);
+            _bodyFrame = bodyFrame.rectTransform;
             Rect(bodyFrame.rectTransform, new Vector2(0f, 0.272f), new Vector2(1f, 0.848f), new Vector2(10f, 0f), new Vector2(-10f, 0f));   // 109차: 트레이(씨앗·펫 카드)를 키워 본문은 조금 줄임
             _body = new GameObject("Body", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
             _body.SetParent(bodyFrame.transform, false);
             Rect(_body, Vector2.zero, Vector2.one, new Vector2(7f, 10f), new Vector2(-7f, -7f));
 
             var trayFrame = CoastUiArt.CutePill(_root, "TrayFrame", new Color(1f, 0.97f, 0.90f), 22, 4);
+            _trayFrame = trayFrame.rectTransform;
             Rect(trayFrame.rectTransform, new Vector2(0f, 0.012f), new Vector2(1f, 0.264f), new Vector2(10f, 0f), new Vector2(-10f, 0f));   // 109차: 트레이 키움
             _tray = new GameObject("Tray", typeof(RectTransform)).GetComponent<RectTransform>();
             _tray.SetParent(trayFrame.transform, false);
@@ -153,14 +160,24 @@ namespace CoastRun
             _tabBar.SetAsLastSibling();
         }
 
+        /// 136차: 마을 텃밭에서 바로 텃밭 탭으로.
+        public void OpenBalcony() { SetTab(Tab.Balcony); }
+
         private void SetTab(Tab t)
         {
             _tab = t;
+            // 117차(사용자 시안): 놀이 탭은 카드가 화면을 꽉 채우고 안내는 아래 띠 한 줄.
+            if (_bodyFrame != null && _trayFrame != null)
+            {
+                bool playTab = t == Tab.Play;
+                Rect(_bodyFrame, new Vector2(0f, playTab ? 0.118f : 0.272f), new Vector2(1f, 0.848f), new Vector2(10f, 0f), new Vector2(-10f, 0f));
+                Rect(_trayFrame, new Vector2(0f, 0.012f), new Vector2(1f, playTab ? 0.110f : 0.264f), new Vector2(10f, 0f), new Vector2(-10f, 0f));
+            }
             for (int i = 0; i < 3; i++)
             {
                 var fill = _tabImgs[i].transform.Find("Fill")?.GetComponent<Image>();
                 var lip = _tabImgs[i].transform.Find("Lip")?.GetComponent<Image>();
-                Color c = i == (int)t ? (i == 0 ? Coral : i == 1 ? Mint : Sun) : TabOff;
+                Color c = i == (int)t ? (i == 0 ? new Color(1f, 0.66f, 0.78f) : i == 1 ? Mint : Sun) : TabOff;   // 126차 시안: 방 탭 분홍
                 if (fill != null) fill.color = c;
                 if (lip != null) lip.color = Color.Lerp(c, Color.black, 0.45f);
             }
@@ -210,7 +227,7 @@ namespace CoastRun
             fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;   // 여백 없이 가득
             fit.aspectRatio = 1f;
             // 38차: 쿼터뷰(아이소메트릭) 방 그림(UI_Room_Iso)
-            var iso = ArtAssets.LoadTexture("UI_Room_Iso");
+            var iso = ArtAssets.LoadTexture("UI_Room_Cozy") ?? ArtAssets.LoadTexture("UI_Room_Iso");   // 128차: 클링 AI 웹에서 뽑은 아늑한 방(시안 ②) 우선
             var art = iso ?? ArtAssets.LoadTexture("UI_Raising_Room_" + Timeline.SeasonOf(Save != null ? Save.week : 1)) ?? ArtAssets.LoadTexture("UI_Raising_Room");
             if (iso != null)
             {
@@ -238,7 +255,16 @@ namespace CoastRun
                 Rect(_charImg.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
                 _charImg.preserveAspect = true; _charImg.raycastTarget = false;
                 var sleepTex = _sleepPreview ? ArtAssets.LoadTexture("Raise_Girl_Pose_Sleep") : null;
+                var chibiTex = ArtAssets.LoadTexture("UI_Haneul_Stand");   // 126차: 러닝 캐릭터(치비 하늘)와 같은 얼굴로 — 블렌더 렌더(투명 PNG)
                 if (sleepTex != null) _charImg.sprite = CoastUiArt.AsSprite(RaisingUI.ChromaKeyed(sleepTex));
+                else if (chibiTex != null)
+                {
+                    // 129차(클링 AI 웹 생성, 마젠타 키 제거한 RGBA): 시안처럼 러그 한가운데에 크게 세운다
+                    _charImg.sprite = CoastUiArt.AsSprite(chibiTex);
+                    _charRt.anchorMin = _charRt.anchorMax = new Vector2(0.50f, 0.05f);
+                    _charRt.sizeDelta = new Vector2(250f, 440f);
+                    _charPos = new Vector2(0.50f, 0.05f);
+                }
                 else if (_charSprite != null) _charImg.sprite = _charSprite;
                 else
                 {
@@ -248,7 +274,7 @@ namespace CoastRun
                     if (girlTex != null) _charImg.sprite = CoastUiArt.AsSprite(RaisingUI.ChromaKeyed(girlTex));
                     else _charImg.color = new Color(1f, 0.8f, 0.6f);
                 }
-                _charPos = new Vector2(0.42f, 0.12f);
+                if (chibiTex == null || _sleepPreview) _charPos = new Vector2(0.42f, 0.12f);
 
                 // 꼬마 — 주인공 오른쪽 (94차: 시안대로 방에서는 숨김)
                 if (ShowRoomKid) {
@@ -306,16 +332,18 @@ namespace CoastRun
         private void BuildRoomChrome()
         {
             // 완성도 게이지 (크림 알약 + 노랑 바 + 별)
-            var bar = CoastUiArt.CutePill(_roomHost, "Done", new Color(1f, 0.98f, 0.93f, 0.97f), 16, 3); bar.raycastTarget = false;
+            var bar = CoastUiArt.CutePill(_roomHost, "Done", new Color(1f, 0.97f, 0.82f, 0.97f), 16, 3); bar.raycastTarget = false;   // 126차 시안: 노란 크림
             Rect(bar.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, Vector2.zero);
-            bar.rectTransform.pivot = new Vector2(0.5f, 1f); bar.rectTransform.anchoredPosition = new Vector2(0f, -10f); bar.rectTransform.sizeDelta = new Vector2(600f, 56f);
+            bar.rectTransform.pivot = new Vector2(0.5f, 1f); bar.rectTransform.anchoredPosition = new Vector2(0f, -10f); bar.rectTransform.sizeDelta = new Vector2(620f, 64f);
             int score = RoomScore();
+            var pct = Text(bar.transform, "Pct", $"{Mathf.RoundToInt(100f * score / RoomGoal)}%", 22, new Color(0.78f, 0.52f, 0.10f), TextAnchor.MiddleRight); pct.fontStyle = FontStyle.Bold;   // 126차 시안: 오른쪽 퍼센트
+            Rect(pct.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-96f, 0f), new Vector2(-12f, 0f));
             var star = Text(bar.transform, "Star", "★", 22, new Color(1f, 0.72f, 0.15f), TextAnchor.MiddleCenter);
             Rect(star.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(10f, 0f), new Vector2(44f, 0f));
             var lb = Text(bar.transform, "T", Loc.T($"방 완성도 {score}/{RoomGoal}", $"Room {score}/{RoomGoal}"), 20, PlayInk, TextAnchor.MiddleLeft); lb.fontStyle = FontStyle.Bold;   // 109차: 글자 키움
             Rect(lb.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 1f), new Vector2(48f, 0f), new Vector2(-12f, -2f));
-            var track = CoastUiArt.Panel(bar.transform, "Track", new Color(0.90f, 0.86f, 0.80f), 8); track.raycastTarget = false;
-            Rect(track.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.5f), new Vector2(48f, 8f), new Vector2(-16f, -4f));
+            var track = CoastUiArt.Panel(bar.transform, "Track", new Color(0.93f, 0.88f, 0.72f), 8); track.raycastTarget = false;
+            Rect(track.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.5f), new Vector2(48f, 8f), new Vector2(-100f, -4f));
             var fill = CoastUiArt.Panel(track.transform, "Fill", new Color(1f, 0.80f, 0.25f), 8); fill.raycastTarget = false;
             Rect(fill.rectTransform, new Vector2(0f, 0f), new Vector2(Mathf.Clamp01((float)score / RoomGoal), 1f), new Vector2(2f, 2f), new Vector2(0f, -2f));
             var sp = Text(track.transform, "Sp", "★", 14, new Color(1f, 0.72f, 0.15f), TextAnchor.MiddleCenter);
@@ -356,24 +384,26 @@ namespace CoastRun
             for (int i = 0; i < cmds.Length && i < 2; i++)
             {
                 int idx = i; var c = cmds[i];
-                var b = CoastUiArt.GlossyPill(_roomHost, "PetCmd" + i, used ? new Color(0.82f, 0.80f, 0.78f) : (i == 0 ? new Color(1f, 0.80f, 0.28f) : new Color(0.55f, 0.85f, 0.95f)), 18, 6);
+                // 126차(사용자 시안): 크림 카드 + 라벤더 테두리, 아이콘은 위 가운데, 제목·설명 두 줄
+                var b = CoastUiArt.Panel(_roomHost, "PetCmd" + i, used ? new Color(0.84f, 0.82f, 0.88f) : new Color(0.82f, 0.74f, 0.95f), 18);
                 var brt = b.rectTransform; brt.anchorMin = brt.anchorMax = new Vector2(1f, 0.5f); brt.pivot = new Vector2(1f, 0.5f);
-                brt.anchoredPosition = new Vector2(-10f, 82f - i * 112f); brt.sizeDelta = new Vector2(230f, 100f); b.raycastTarget = true;
-                foreach (var im in b.GetComponentsInChildren<Image>(true)) im.raycastTarget = true;
+                brt.anchoredPosition = new Vector2(-10f, 96f - i * 160f); brt.sizeDelta = new Vector2(236f, 148f); b.raycastTarget = true;
+                var bIn = CoastUiArt.Panel(brt, "In", used ? new Color(0.95f, 0.94f, 0.96f) : new Color(1f, 0.98f, 0.93f), 15); bIn.raycastTarget = true;
+                Rect(bIn.rectTransform, Vector2.zero, Vector2.one, new Vector2(4f, 4f), new Vector2(-4f, -4f));
                 var ic = CoastUiArt.Art(c.icon);
                 if (ic != null)
                 {
                     var ii = new GameObject("Ic", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-                    ii.transform.SetParent(brt, false); ii.sprite = ic; ii.preserveAspect = true; ii.raycastTarget = false; ii.color = ink;
-                    ii.rectTransform.anchorMin = ii.rectTransform.anchorMax = new Vector2(0f, 0.5f); ii.rectTransform.pivot = new Vector2(0f, 0.5f);
-                    ii.rectTransform.anchoredPosition = new Vector2(12f, 0f); ii.rectTransform.sizeDelta = new Vector2(36f, 36f);
+                    ii.transform.SetParent(brt, false); ii.sprite = ic; ii.preserveAspect = true; ii.raycastTarget = false; ii.color = i == 0 ? new Color(0.98f, 0.70f, 0.20f) : new Color(0.55f, 0.40f, 0.25f);
+                    ii.rectTransform.anchorMin = ii.rectTransform.anchorMax = new Vector2(0.5f, 1f); ii.rectTransform.pivot = new Vector2(0.5f, 1f);
+                    ii.rectTransform.anchoredPosition = new Vector2(0f, -10f); ii.rectTransform.sizeDelta = new Vector2(40f, 40f);
                 }
-                var nm = Text(brt, "N", c.Name, 21, ink, TextAnchor.MiddleLeft);
-                nm.fontStyle = FontStyle.Bold; nm.raycastTarget = false; nm.resizeTextForBestFit = true; nm.resizeTextMinSize = 13; nm.resizeTextMaxSize = CoastHudLayout.Scaled(21);
-                Rect(nm.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 1f), new Vector2(ic != null ? 56f : 12f, 0f), new Vector2(-8f, -8f));
-                var bl = Text(brt, "B", c.Blurb, 15, new Color(0.40f, 0.30f, 0.16f), TextAnchor.MiddleLeft);
+                var nm = Text(brt, "N", c.Name, 19, ink, TextAnchor.MiddleCenter);
+                nm.fontStyle = FontStyle.Bold; nm.raycastTarget = false; nm.resizeTextForBestFit = true; nm.resizeTextMinSize = 12; nm.resizeTextMaxSize = CoastHudLayout.Scaled(19);
+                Rect(nm.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(8f, -86f), new Vector2(-8f, -52f));
+                var bl = Text(brt, "B", c.Blurb, 15, i == 0 ? new Color(0.32f, 0.55f, 0.22f) : new Color(0.40f, 0.30f, 0.16f), TextAnchor.MiddleCenter);
                 bl.raycastTarget = false; bl.resizeTextForBestFit = true; bl.resizeTextMinSize = 10; bl.resizeTextMaxSize = CoastHudLayout.Scaled(15); bl.horizontalOverflow = HorizontalWrapMode.Wrap;
-                Rect(bl.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.5f), new Vector2(ic != null ? 56f : 12f, 8f), new Vector2(-8f, 0f));
+                Rect(bl.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(8f, 8f), new Vector2(-8f, 62f));
                 var btn = b.gameObject.AddComponent<Button>(); btn.transition = Selectable.Transition.None; btn.targetGraphic = b;
                 btn.onClick.AddListener(() =>
                 {
@@ -439,17 +469,17 @@ namespace CoastRun
         private void BuildRoomTray()
         {
             // 94차 시안: 안내 문구 없이 펫 카드 줄 + 오른쪽 아래 큰 노랑 「조리!!」 버튼
-            var cook = CoastUiArt.GlossyPill(_tray, "Cook", new Color(1f, 0.78f, 0.25f), 18, 6);
+            var cook = CoastUiArt.GlossyPill(_tray, "Cook", new Color(1f, 0.80f, 0.30f), 18, 6);
             cook.raycastTarget = true;
             foreach (var im in cook.GetComponentsInChildren<Image>(true)) im.raycastTarget = true;
-            Rect(cook.rectTransform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-190f, 4f), new Vector2(-6f, 70f));   // 109차: 버튼 키움
-            var ct = Text(cook.transform, "T", Loc.T("조리!!", "Cook!!"), 26, new Color(0.40f, 0.26f, 0.08f), TextAnchor.MiddleCenter);   // 109차: 글자 키움
+            Rect(cook.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(6f, 4f), new Vector2(-6f, 70f));   // 109차: 버튼 키움 · 126차 시안: 전폭
+            var ct = Text(cook.transform, "T", Loc.T("조리!!", "Cook!!"), 30, new Color(0.62f, 0.38f, 0.08f), TextAnchor.MiddleCenter);   // 109차: 글자 키움
             ct.fontStyle = FontStyle.Bold; ct.raycastTarget = false;
             var cb = cook.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None; cb.targetGraphic = cook;
             cb.onClick.AddListener(() => { CoastPrefs.Vibrate(); InventoryUI.Open(_gm, () => { if (_tab == Tab.Room) { Clear(_tray); BuildRoomTray(); RefreshMoney(); } }, cookMode: true); });
 
             _trayScroll = MakeHScroll(_tray, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(4f, 74f), new Vector2(-4f, -4f), out var content);
-            const float cw = 160f, gap = 12f;   // 109차: 펫 카드 키움
+            const float cw = 150f, gap = 10f;   // 109차: 펫 카드 키움 · 126차 시안: 4장이 한 줄에 다 보이게
             float x = 4f;
             int n = 0;
             foreach (var k in PetShop.ForSale)
@@ -471,7 +501,7 @@ namespace CoastRun
         private void AddPetCard(RectTransform content, float x, PetKind k, string name, Texture2D tex, float cw)
         {
             bool on = (Save != null ? Save.equippedPet : PetKind.None) == k;
-            var chip = CoastUiArt.CutePill(content, "Pet_" + k, on ? new Color(1f, 0.86f, 0.45f) : new Color(0.94f, 0.92f, 0.96f), 14, 3);
+            var chip = CoastUiArt.CutePill(content, "Pet_" + k, on ? new Color(1f, 0.88f, 0.50f) : new Color(0.90f, 0.86f, 0.98f), 14, 3);   // 126차 시안: 선택 노랑 / 라벤더
             chip.raycastTarget = true;
             foreach (var im in chip.GetComponentsInChildren<Image>(true)) im.raycastTarget = true;
             var crt = chip.rectTransform;
@@ -926,7 +956,7 @@ namespace CoastRun
             Rect(banner.rectTransform, new Vector2(0.06f, 0.90f), new Vector2(0.94f, 0.99f), Vector2.zero, Vector2.zero);
             PlaceCornerFlower(banner.rectTransform, new Vector2(0.04f, 0.5f), new Color(0.95f, 0.55f, 0.72f));
             PlaceCornerFlower(banner.rectTransform, new Vector2(0.96f, 0.5f), new Color(0.55f, 0.78f, 0.50f));
-            var title = Text(banner.transform, "Title", Loc.T("놀이 - 전통놀이 한마당", "Play - Festival of Games"), 20, PlayInk, TextAnchor.MiddleCenter);
+            var title = Text(banner.transform, "Title", Loc.T("놀이 - 전통놀이 한마당", "Play - Festival of Games"), 26, PlayInk, TextAnchor.MiddleCenter);   // 127차 시안: 제목 크게
             Rect(title.rectTransform, Vector2.zero, Vector2.one, new Vector2(36f, 0f), new Vector2(-36f, 0f));
             title.fontStyle = FontStyle.Bold;
             CoastUiArt.OutlineText(title, new Color(1f, 1f, 1f, 0.55f), 1.2f);
@@ -945,41 +975,45 @@ namespace CoastRun
 
                 BuildPlayIcon(card.transform, i);
 
-                var nm = Text(card.transform, "Name", Loc.T(d.nameKo, d.nameEn), 18, PlayInk, TextAnchor.MiddleLeft);
-                Rect(nm.rectTransform, new Vector2(0f, 0.52f), new Vector2(1f, 1f), new Vector2(108f, 2f), new Vector2(-128f, -2f));
+                var nm = Text(card.transform, "Name", Loc.T(d.nameKo, d.nameEn), 24, PlayInk, TextAnchor.MiddleLeft);   // 127차 시안: 이름 크게
+                Rect(nm.rectTransform, new Vector2(0f, 0.52f), new Vector2(1f, 1f), new Vector2(112f, 2f), new Vector2(-134f, -4f));
                 nm.fontStyle = FontStyle.Bold;
-                nm.resizeTextForBestFit = true; nm.resizeTextMinSize = 12; nm.resizeTextMaxSize = CoastHudLayout.Scaled(20);
+                nm.resizeTextForBestFit = true; nm.resizeTextMinSize = 12; nm.resizeTextMaxSize = CoastHudLayout.Scaled(24);
 
                 string blurb = Loc.T(PlayBlurbsKo[i % PlayBlurbsKo.Length], PlayBlurbsEn[i % PlayBlurbsEn.Length]);
-                var desc = Text(card.transform, "Desc", blurb, 11, PlayInk, TextAnchor.UpperLeft);
+                var desc = Text(card.transform, "Desc", blurb, 13, new Color(0.38f, 0.26f, 0.20f), TextAnchor.UpperLeft);
                 desc.horizontalOverflow = HorizontalWrapMode.Wrap;
                 desc.verticalOverflow = VerticalWrapMode.Truncate;
-                desc.resizeTextForBestFit = true; desc.resizeTextMinSize = 10; desc.resizeTextMaxSize = CoastHudLayout.Scaled(12);
-                Rect(desc.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.58f), new Vector2(108f, 6f), new Vector2(-128f, 0f));
+                desc.resizeTextForBestFit = true; desc.resizeTextMinSize = 10; desc.resizeTextMaxSize = CoastHudLayout.Scaled(14);
+                Rect(desc.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.56f), new Vector2(112f, 8f), new Vector2(-134f, 0f));
 
                 var kind = d.kind;
-                Button(card.transform, "Play", Loc.T("하기", "Play"), PlayDo, new Vector2(1f, 0.5f), new Vector2(-12f, 0f), new Vector2(112f, 46f), () => StartMini(kind));
+                // 127차 시안: 분홍 글로시 「하기」 + 반짝이
+                var go = CoastUiArt.GlossyPill(card.transform, "Play", PlayDo, 18, 5);
+                go.rectTransform.anchorMin = go.rectTransform.anchorMax = go.rectTransform.pivot = new Vector2(1f, 0.5f);
+                go.rectTransform.anchoredPosition = new Vector2(-14f, 0f); go.rectTransform.sizeDelta = new Vector2(118f, 52f); go.raycastTarget = true;
+                foreach (var im in go.GetComponentsInChildren<Image>(true)) im.raycastTarget = true;
+                var gb = go.gameObject.AddComponent<Button>(); gb.transition = Selectable.Transition.None; gb.targetGraphic = go;
+                gb.onClick.AddListener(() => { CoastPrefs.Vibrate(); StartMini(kind); });
+                var gt = Text(go.transform, "T", Loc.T("하기", "Play"), 22, Color.white, TextAnchor.MiddleCenter); gt.fontStyle = FontStyle.Bold; gt.raycastTarget = false;
+                CoastUiArt.OutlineText(gt, new Color(0.55f, 0.10f, 0.25f, 0.6f), 1.5f);
+                var spk = CoastUiArt.Icon("Star");
+                if (spk != null)
+                {
+                    var s1 = CoastHudLayout.MakeImage(go.transform, "Spk", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(6f, -20f), new Vector2(20f, -6f), new Color(1f, 1f, 1f, 0.9f)); s1.sprite = spk; s1.preserveAspect = true; s1.raycastTarget = false;
+                    var s2 = CoastHudLayout.MakeImage(go.transform, "Spk2", new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-18f, 6f), new Vector2(-8f, 16f), new Color(1f, 1f, 1f, 0.8f)); s2.sprite = spk; s2.preserveAspect = true; s2.raycastTarget = false;
+                }
             }
         }
 
         private static void BuildPlayIcon(Transform card, int i)
         {
+            // 127차 시안: 꽃잎 대신 흰 원 + 연한 색 테두리
             Color flower = PlayFlowerCols[i % PlayFlowerCols.Length];
-            const float cx = 50f;
-            for (int p = 0; p < 4; p++)
-            {
-                float ang = p * 90f + 45f;
-                float rad = ang * Mathf.Deg2Rad;
-                float px = cx + Mathf.Cos(rad) * 30f;
-                float py = Mathf.Sin(rad) * 30f;
-                var petal = CoastHudLayout.MakeImage(card, "Petal" + p, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
-                    new Vector2(px - 11f, py - 11f), new Vector2(px + 11f, py + 11f), flower);
-                petal.raycastTarget = false;
-                petal.sprite = CoastUiArt.RoundedRect(32);
-                petal.color = new Color(flower.r, flower.g, flower.b, 0.92f);
-            }
+            var rim = CoastHudLayout.MakeImage(card, "IcoRim", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(9f, -42f), new Vector2(93f, 42f), new Color(flower.r, flower.g, flower.b, 0.55f));
+            rim.raycastTarget = false; rim.sprite = CoastUiArt.RoundedRect(44);
             var ring = CoastHudLayout.MakeImage(card, "IcoRing", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
-                new Vector2(12f, -38f), new Vector2(88f, 38f), Color.white);
+                new Vector2(12f, -39f), new Vector2(90f, 39f), Color.white);
             ring.raycastTarget = false;
             ring.sprite = CoastUiArt.RoundedRect(40);
             ring.color = new Color(1f, 1f, 1f, 0.98f);
@@ -1058,12 +1092,23 @@ namespace CoastRun
             string en = left > 0
                 ? $"Win = money + stress -{relief} · rewards {left}/{max} this week!!\nThen practice (no reward). Refills each week."
                 : $"Win = money + stress -{relief} · rewards 0/{max} this week!!\nPractice only. Refills each week.";
-            var panel = CoastUiArt.CutePill(_tray, "InfoBox", new Color(1f, 0.97f, 0.92f), 14, 2);
+            // 127차 시안: 보라 배너 + 위 가운데 리본·별 + 흰 글씨(외곽선)
+            var panel = CoastUiArt.CutePill(_tray, "InfoBox", new Color(0.60f, 0.48f, 0.86f), 16, 4);
             Rect(panel.rectTransform, Vector2.zero, Vector2.one, new Vector2(4f, 4f), new Vector2(-4f, -4f));
-            PlaceCornerFlower(panel.rectTransform, new Vector2(0.03f, 0.5f), new Color(0.95f, 0.55f, 0.72f));
-            PlaceCornerFlower(panel.rectTransform, new Vector2(0.97f, 0.5f), new Color(0.55f, 0.78f, 0.50f));
-            var t = Text(panel.transform, "Info", Loc.T(ko, en), 18, PlayInk, TextAnchor.MiddleCenter);
+            var ribbon = CoastUiArt.Panel(panel.transform, "Ribbon", new Color(0.50f, 0.36f, 0.80f), 8); ribbon.raycastTarget = false;
+            Rect(ribbon.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-120f, -14f), new Vector2(120f, 10f));
+            var rStar = CoastUiArt.Icon("Star");
+            if (rStar != null)
+            {
+                var rs = CoastHudLayout.MakeImage(panel.transform, "RStar", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-22f, -22f), new Vector2(22f, 22f), new Color(1f, 0.85f, 0.30f)); rs.sprite = rStar; rs.preserveAspect = true; rs.raycastTarget = false;
+                foreach (var (sx, sy) in new[] { (0.05f, 0.75f), (0.95f, 0.78f), (0.08f, 0.22f), (0.93f, 0.20f) })
+                {
+                    var sp = CoastHudLayout.MakeImage(panel.transform, "Spk", new Vector2(sx, sy), new Vector2(sx, sy), new Vector2(-10f, -10f), new Vector2(10f, 10f), new Color(1f, 1f, 1f, 0.85f)); sp.sprite = rStar; sp.preserveAspect = true; sp.raycastTarget = false;
+                }
+            }
+            var t = Text(panel.transform, "Info", Loc.T(ko, en), 18, Color.white, TextAnchor.MiddleCenter);
             t.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(t, new Color(0.30f, 0.18f, 0.50f, 0.9f), 1.6f);
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
             t.verticalOverflow = VerticalWrapMode.Overflow;
             t.resizeTextForBestFit = true;

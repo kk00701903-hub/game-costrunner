@@ -98,6 +98,7 @@ namespace CoastRun
             text.raycastTarget = false;
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             text.verticalOverflow = VerticalWrapMode.Overflow;
+            go.AddComponent<CoastRun.UI.CoastTextFit>();   // 136차: Best Fit + Overflow 조합의 가로 넘침을 막는다
             return text;
         }
 

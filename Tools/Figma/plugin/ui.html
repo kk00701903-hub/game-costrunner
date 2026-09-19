@@ -1,0 +1,54 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  body{font:12px/1.5 Inter,system-ui,sans-serif;margin:0;padding:14px;color:#222;background:#fafafa}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#bbb;margin-right:6px;vertical-align:middle}
+  .on{background:#2ecc71}.err{background:#e74c3c}
+  #log{margin-top:8px;height:96px;overflow:auto;background:#fff;border:1px solid #e5e5e5;border-radius:6px;padding:6px;font-size:11px;white-space:pre-wrap}
+  b{font-size:13px}
+</style></head>
+<body>
+  <div><b>Frequency Bridge</b></div>
+  <div style="margin-top:6px"><span id="dot" class="dot"></span><span id="st">서버(127.0.0.1:47010) 찾는 중…</span></div>
+  <div id="log"></div>
+  <div style="margin-top:6px;color:#888">이 창을 닫으면 Claude 와의 연결이 끊깁니다.</div>
+<script>
+const SERVER = "http://127.0.0.1:47010";
+const client = Math.random().toString(36).slice(2, 8);
+let info = { doc: "", page: "" }, busy = false, okCount = 0, failCount = 0;
+const $ = id => document.getElementById(id);
+function log(s) { const l = $("log"); l.textContent = (new Date().toLocaleTimeString() + " " + s + "\n" + l.textContent).slice(0, 4000); }
+function status(cls, txt) { $("dot").className = "dot " + cls; $("st").textContent = txt; }
+window.onmessage = async (ev) => {
+  const m = ev.data && ev.data.pluginMessage; if (!m) return;
+  if (m.type === "info") { info = m.info; return; }
+  if (m.type === "result") {
+    if (m.ok) okCount++; else failCount++;
+    log((m.ok ? "ok " : "ERR ") + m.id + (m.ok ? "" : " " + String(m.result).slice(0, 200)));
+    try { await fetch(SERVER + "/result", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(m) }); }
+    catch (e) { log("result 전송 실패 " + e); }
+    busy = false;
+  }
+};
+async function loop() {
+  while (true) {
+    try {
+      parent.postMessage({ pluginMessage: { type: "info" } }, "*");
+      const r = await fetch(SERVER + "/poll?client=" + client + "&doc=" + encodeURIComponent(info.doc || "") + "&page=" + encodeURIComponent(info.page || ""));
+      const j = await r.json();
+      status("on", "연결됨 · 실행 " + okCount + " · 실패 " + failCount);
+      if (j.cmd) {
+        busy = true; log("run " + j.cmd.id);
+        parent.postMessage({ pluginMessage: { type: "cmd", id: j.cmd.id, code: j.cmd.code, args: j.cmd.args } }, "*");
+        // 실행이 끝나 result 가 올 때까지 다음 폴링을 기다린다(최대 10분)
+        for (let i = 0; i < 6000 && busy; i++) await new Promise(res => setTimeout(res, 100));
+      }
+    } catch (e) {
+      status("err", "서버 없음 — Claude 데스크톱(figma MCP) 이 켜져 있어야 합니다");
+      await new Promise(res => setTimeout(res, 2000));
+    }
+  }
+}
+loop();
+</script>
+</body></html>

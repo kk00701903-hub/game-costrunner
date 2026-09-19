@@ -10,7 +10,8 @@ namespace CoastRun
         BonusStar,    // starts Bonus Time
         Heart,        // 말랑이 하트: 호감도. 챕터 S급 판정의 핵심 재화
         Photocard,    // 38차: 포토카드 — 먹으면 등급(N/R/SR/SSR)을 뽑아 카드 한 장
-        Giant         // 거인 무적: 200% 크기 + 10초 HP 무피해
+        Giant,        // 거인 무적: 200% 크기 + 10초 HP 무피해
+        Capsule       // 131차: 럭키 캡슐 — 별빛 캡슐 뽑기권 +1(스토리 러닝에만)
     }
 
     /// Cookie-Run pickups. Jellies are the breadcrumbs that pull the player through
@@ -100,6 +101,10 @@ namespace CoastRun
                     else BuildGiantOrb(vis);
                     radius = 0.85f;
                     break;
+                case PickupKind.Capsule:
+                    BuildCapsule(vis);
+                    radius = 0.75f;
+                    break;
                 default:
                     BuildJelly(vis, colorIndex, 0.36f, false);   // 21차-3: 0.3→0.36, 멀리서도 읽히게
                     radius = 0.55f;
@@ -118,6 +123,7 @@ namespace CoastRun
                        : kind == PickupKind.Potion ? new Color(0.5f, 0.9f, 1f)
                        : kind == PickupKind.BonusStar ? new Color(1f, 0.9f, 0.4f)
                        : kind == PickupKind.Giant ? new Color(1f, 0.5f, 0.1f)
+                       : kind == PickupKind.Capsule ? new Color(1f, 0.6f, 0.85f)
                        : new Color(0.75f, 1f, 0.8f);
             PickupGlow.Attach(go.transform, glow, kind == PickupKind.Jelly ? 0.7f : kind == PickupKind.Giant ? 1.25f : 1.05f,
                 kind == PickupKind.Jelly ? 0.22f : 0.32f);
@@ -270,6 +276,26 @@ namespace CoastRun
             }
         }
 
+        /// 131차: 럭키 캡슐 — 분홍 윗반구 + 흰 아랫반구(구 두 개를 겹쳐 반씩 보이게) + 금색 띠.
+        private static void BuildCapsule(Transform root)
+        {
+            var top = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            top.name = "CapTop"; top.transform.SetParent(root, false);
+            top.transform.localPosition = new Vector3(0f, 0.52f, 0f); top.transform.localScale = Vector3.one * 0.62f;
+            Object.Destroy(top.GetComponent<Collider>());
+            top.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(1f, 0.50f, 0.72f));
+            var bot = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            bot.name = "CapBot"; bot.transform.SetParent(root, false);
+            bot.transform.localPosition = new Vector3(0f, 0.36f, 0f); bot.transform.localScale = new Vector3(0.64f, 0.5f, 0.64f);
+            Object.Destroy(bot.GetComponent<Collider>());
+            bot.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(0.98f, 0.97f, 0.95f));
+            var band = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            band.name = "Band"; band.transform.SetParent(root, false);
+            band.transform.localPosition = new Vector3(0f, 0.45f, 0f); band.transform.localScale = new Vector3(0.66f, 0.025f, 0.66f);
+            Object.Destroy(band.GetComponent<Collider>());
+            band.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(1f, 0.85f, 0.25f));
+        }
+
         private static void BuildGiantOrb(Transform root)
         {
             var orb = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -314,7 +340,7 @@ namespace CoastRun
             }
 
             float magnet = (_upgrades != null ? _upgrades.GetMagnetRadius() : 1.4f) + PetCompanion.MagnetBonus;
-            if (_kind == PickupKind.BonusStar || _kind == PickupKind.Potion || _kind == PickupKind.Heart || _kind == PickupKind.Giant)
+            if (_kind == PickupKind.BonusStar || _kind == PickupKind.Potion || _kind == PickupKind.Heart || _kind == PickupKind.Giant || _kind == PickupKind.Capsule)
                 magnet += 0.6f;   // the rare ones should never be a near miss
             if (BonusTimeDirector.IsActive)
                 magnet += 1.5f;
@@ -438,6 +464,13 @@ namespace CoastRun
                     GiantMode.Ensure().Activate();
                     hud?.AddScore(120, pos, true);
                     hud?.Flash(new Color(1f, 0.55f, 0.15f, 0.4f));
+                    break;
+                case PickupKind.Capsule:
+                    // 131차: 럭키 캡슐 → 별빛 캡슐 뽑기권 +1
+                    hud?.AddScore(60, pos, true);
+                    hud?.Flash(new Color(1f, 0.70f, 0.90f, 0.35f));
+                    if (GameManager.Active) StarGacha.OnCapsulePicked(GameManager.I.Save);
+                    PickupFloat.Banner(Loc.T("럭키 캡슐! 뽑기권 +1", "Lucky capsule! Ticket +1"), new Color(1f, 0.55f, 0.75f), 1.4f);
                     break;
             }
 

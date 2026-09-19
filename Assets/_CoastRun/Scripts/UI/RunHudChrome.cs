@@ -768,55 +768,108 @@ namespace CoastRun
             var root = CoastUiCanvas.Root(canvas);
             float pad = CoastUiCanvas.HudPad;
 
-            // ── 배경: 노을이 진 하늘(위 진남색 → 가운데 주황 → 아래 어두운 땅) + 반딧불 점 ──
-            var sky = CoastHudLayout.MakeImage(root, "Sky", Vector2.zero, Vector2.one, new Vector2(-pad - 400f, -pad - 400f), new Vector2(pad + 400f, pad + 400f), new Color(0.13f, 0.09f, 0.16f, 1f));
-            sky.raycastTarget = true;
-            var glow = CoastHudLayout.MakeImage(root, "Glow", new Vector2(0f, 0.50f), new Vector2(1f, 0.80f), new Vector2(-pad, 0f), new Vector2(pad, 0f), new Color(0.85f, 0.45f, 0.22f, 0.30f));
-            glow.sprite = CoastUiArt.RoundedRect(60); glow.type = Image.Type.Sliced; glow.raycastTarget = false;
-            var glow2 = CoastHudLayout.MakeImage(root, "Glow2", new Vector2(0f, 0.56f), new Vector2(1f, 0.72f), new Vector2(-pad, 0f), new Vector2(pad, 0f), new Color(1f, 0.70f, 0.35f, 0.18f));
-            glow2.sprite = CoastUiArt.RoundedRect(60); glow2.type = Image.Type.Sliced; glow2.raycastTarget = false;
-            var ground = CoastHudLayout.MakeImage(root, "Ground", new Vector2(0f, 0f), new Vector2(1f, 0.56f), new Vector2(-pad, -pad), new Vector2(pad, 0f), new Color(0.16f, 0.11f, 0.12f, 1f));
-            ground.raycastTarget = false;
-            var grassLine = CoastHudLayout.MakeImage(root, "Horizon", new Vector2(0f, 0.555f), new Vector2(1f, 0.565f), new Vector2(-pad, 0f), new Vector2(pad, 0f), new Color(0.32f, 0.22f, 0.16f, 1f));
-            grassLine.raycastTarget = false;
-            var frng = new System.Random(7);
-            for (int i = 0; i < 26; i++)
+            // ── 126차(사용자 시안): 보랏빛 밤하늘(별·달·구름·색종이) ──
+            Color nightTop = new Color(0.17f, 0.11f, 0.32f), nightBot = new Color(0.30f, 0.20f, 0.46f);
+            var bgTex = new Texture2D(1, 4, TextureFormat.RGBA32, false);
+            bgTex.SetPixels(new[] { nightBot, new Color(0.26f, 0.17f, 0.42f), new Color(0.21f, 0.13f, 0.36f), nightTop });
+            bgTex.wrapMode = TextureWrapMode.Clamp; bgTex.filterMode = FilterMode.Bilinear; bgTex.Apply();
+            var sky = CoastHudLayout.MakeImage(root, "Sky", Vector2.zero, Vector2.one, new Vector2(-pad - 400f, -pad - 400f), new Vector2(pad + 400f, pad + 400f), Color.white);
+            sky.sprite = Sprite.Create(bgTex, new Rect(0, 0, 1, 4), new Vector2(0.5f, 0.5f), 1f); sky.type = Image.Type.Simple; sky.raycastTarget = true;
+            // 128차(클링 AI 웹에서 생성): 밤하늘+흙섬 위 하늘이 일러스트(UI_RunOver_Bg, 768×1360)가 있으면 리본 아래를 그 그림으로 채운다.
+            bool kpopDoneEarly = ArcadeRun.KpopMode && ArcadeRun.KpopFinished;
+            var artBg = kpopDoneEarly ? null : ArtAssets.LoadTexture("UI_RunOver_Bg");
+            bool hasArt = artBg != null;
+            if (hasArt)
             {
-                float x = (float)frng.NextDouble(), y = 0.45f + (float)frng.NextDouble() * 0.5f; float r = 2f + (float)frng.NextDouble() * 4f;
-                var dot = CoastHudLayout.MakeImage(root, "Firefly", new Vector2(x, y), new Vector2(x, y), new Vector2(-r, -r), new Vector2(r, r), new Color(1f, 0.85f, 0.45f, 0.35f + (float)frng.NextDouble() * 0.4f));
-                dot.sprite = CoastUiArt.RoundedRect(8); dot.type = Image.Type.Sliced; dot.raycastTarget = false;
+                var artHost = new GameObject("ArtHost", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
+                artHost.SetParent(root, false);
+                // 129차: 부제 아래(−190)부터 결과 카드 위(바닥 +660)까지를 그림이 꽉 채운다(EnvelopeParent — 비율 안 맞는 쪽은 잘림)
+                artHost.anchorMin = Vector2.zero; artHost.anchorMax = Vector2.one; artHost.offsetMin = new Vector2(-pad, 660f); artHost.offsetMax = new Vector2(pad, -190f);
+                var art = new GameObject("Art", typeof(RectTransform), typeof(Image), typeof(AspectRatioFitter)).GetComponent<Image>();
+                art.transform.SetParent(artHost, false);
+                art.sprite = CoastUiArt.AsSprite(artBg); art.raycastTarget = false;
+                var art_rt = art.rectTransform; art_rt.anchorMin = Vector2.zero; art_rt.anchorMax = Vector2.one; art_rt.pivot = new Vector2(0.5f, 0.5f); art_rt.offsetMin = art_rt.offsetMax = Vector2.zero;
+                var fit = art.GetComponent<AspectRatioFitter>(); fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; fit.aspectRatio = (float)artBg.width / Mathf.Max(1, artBg.height);
+            }
+            var frng = new System.Random(7);
+            // 구름 덩어리(라벤더·분홍 반투명 원)
+            for (int i = 0; i < (hasArt ? 0 : 9); i++)
+            {
+                float x = (float)frng.NextDouble(), y = 0.30f + (float)frng.NextDouble() * 0.65f; float r = 70f + (float)frng.NextDouble() * 110f;
+                var cl = CoastHudLayout.MakeImage(root, "Cloud", new Vector2(x, y), new Vector2(x, y), new Vector2(-r, -r * 0.7f), new Vector2(r, r * 0.7f), i % 3 == 0 ? new Color(0.95f, 0.70f, 0.85f, 0.10f) : new Color(0.72f, 0.60f, 0.95f, 0.14f));
+                cl.sprite = CoastUiArt.RoundedRect(120); cl.type = Image.Type.Sliced; cl.raycastTarget = false;
+            }
+            Color[] confetti = { new Color(1f, 0.62f, 0.75f), new Color(1f, 0.85f, 0.35f), new Color(0.62f, 0.78f, 1f), new Color(0.75f, 0.92f, 0.70f), new Color(0.85f, 0.70f, 1f), Color.white };
+            var starSpBg = CoastUiArt.Icon("Star");
+            for (int i = 0; i < (hasArt ? 14 : 46); i++)
+            {
+                float x = (float)frng.NextDouble(), y = (float)frng.NextDouble();
+                if (hasArt && y > 0.36f) continue;                                  // 그림이 있으면 카드 주변 아래쪽에만 잔별
+                if (y > 0.40f && y < 0.66f && x > 0.22f && x < 0.62f) continue;   // 하늘이 자리는 비운다
+                int kind = frng.Next(5); float r = 3f + (float)frng.NextDouble() * 7f;
+                if (kind == 0 && starSpBg != null)
+                {
+                    float sz = 8f + (float)frng.NextDouble() * 14f;
+                    var ic = CoastHudLayout.MakeImage(root, "Twinkle", new Vector2(x, y), new Vector2(x, y), new Vector2(-sz, -sz), new Vector2(sz, sz), new Color(1f, 0.95f, 0.70f, 0.45f + (float)frng.NextDouble() * 0.5f));
+                    ic.sprite = starSpBg; ic.preserveAspect = true; ic.raycastTarget = false;
+                }
+                else if (kind == 1)
+                {
+                    var c = confetti[frng.Next(confetti.Length)]; c.a = 0.55f + (float)frng.NextDouble() * 0.4f;
+                    var strip = CoastHudLayout.MakeImage(root, "Confetti", new Vector2(x, y), new Vector2(x, y), new Vector2(-r * 1.6f, -r * 0.5f), new Vector2(r * 1.6f, r * 0.5f), c);
+                    strip.sprite = CoastUiArt.RoundedRect(4); strip.type = Image.Type.Sliced; strip.raycastTarget = false;
+                    strip.rectTransform.localRotation = Quaternion.Euler(0f, 0f, (float)frng.NextDouble() * 180f);
+                }
+                else
+                {
+                    var dot = CoastHudLayout.MakeImage(root, "Dot", new Vector2(x, y), new Vector2(x, y), new Vector2(-r * 0.5f, -r * 0.5f), new Vector2(r * 0.5f, r * 0.5f), new Color(1f, 1f, 1f, 0.25f + (float)frng.NextDouble() * 0.5f));
+                    dot.sprite = CoastUiArt.RoundedRect(8); dot.type = Image.Type.Sliced; dot.raycastTarget = false;
+                }
+            }
+            // 초승달(왼쪽 위): 라벤더 원 + 하늘색 원으로 파냄 (그림이 있으면 그림 속 달을 쓴다)
+            if (!hasArt)
+            {
+                var moon = CoastHudLayout.MakeImage(root, "Moon", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -112f), new Vector2(112f, -34f), new Color(0.86f, 0.78f, 1f, 0.95f));
+                moon.sprite = CoastUiArt.RoundedRect(60); moon.type = Image.Type.Sliced; moon.raycastTarget = false;
+                var moonCut = CoastHudLayout.MakeImage(root, "MoonCut", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(54f, -104f), new Vector2(124f, -34f), nightTop);
+                moonCut.sprite = CoastUiArt.RoundedRect(60); moonCut.type = Image.Type.Sliced; moonCut.raycastTarget = false;
             }
 
-            // ── 리본 배너 "아쉽지만 다음에!" + 부제 "달리기 결과" ──
+            // ── 라벤더 리본 「아쉽지만 다음에!!」 + 분홍 부제 「당당히 도전!」 ──
             var ribbon = new GameObject("Ribbon", typeof(RectTransform)).GetComponent<RectTransform>();
             ribbon.SetParent(root, false);
             ribbon.anchorMin = ribbon.anchorMax = new Vector2(0.5f, 1f); ribbon.pivot = new Vector2(0.5f, 1f);
-            ribbon.anchoredPosition = new Vector2(0f, -54f); ribbon.sizeDelta = new Vector2(520f, 92f);
-            Color ribbonCol = new Color(0.93f, 0.88f, 0.80f), ribbonDark = new Color(0.72f, 0.62f, 0.52f);
+            ribbon.anchoredPosition = new Vector2(0f, -62f); ribbon.sizeDelta = new Vector2(560f, 98f);
+            Color ribbonCol = new Color(0.87f, 0.80f, 0.97f), ribbonDark = new Color(0.70f, 0.58f, 0.90f), ribbonTail = new Color(0.93f, 0.72f, 0.86f);
             foreach (int sgn in new[] { -1, 1 })
             {
-                var tail = CoastUiArt.Panel(ribbon, "Tail", ribbonDark, 8);
+                var tail = CoastUiArt.Panel(ribbon, "Tail", ribbonTail, 8);
                 tail.rectTransform.anchorMin = tail.rectTransform.anchorMax = new Vector2(0.5f + sgn * 0.5f, 0.5f); tail.rectTransform.pivot = new Vector2(0.5f - sgn * 0.5f, 0.5f);
-                tail.rectTransform.anchoredPosition = new Vector2(sgn * -14f, -18f); tail.rectTransform.sizeDelta = new Vector2(74f, 64f);
-                tail.rectTransform.localRotation = Quaternion.Euler(0f, 0f, sgn * 8f); tail.raycastTarget = false;
+                tail.rectTransform.anchoredPosition = new Vector2(sgn * -16f, -20f); tail.rectTransform.sizeDelta = new Vector2(78f, 66f);
+                tail.rectTransform.localRotation = Quaternion.Euler(0f, 0f, sgn * 9f); tail.raycastTarget = false;
             }
-            var band = CoastUiArt.Panel(ribbon, "Band", ribbonCol, 10);
-            band.rectTransform.anchorMin = Vector2.zero; band.rectTransform.anchorMax = Vector2.one; band.rectTransform.offsetMin = new Vector2(0f, 10f); band.rectTransform.offsetMax = new Vector2(0f, -4f);
-            band.raycastTarget = false;
-            var bandShade = CoastUiArt.Panel(band.transform, "Shade", new Color(0f, 0f, 0f, 0.08f), 10);
-            bandShade.rectTransform.anchorMin = new Vector2(0f, 0f); bandShade.rectTransform.anchorMax = new Vector2(1f, 0.35f); bandShade.rectTransform.offsetMin = bandShade.rectTransform.offsetMax = Vector2.zero; bandShade.raycastTarget = false;
+            var bandEdge = CoastUiArt.Panel(ribbon, "BandEdge", ribbonDark, 16);
+            bandEdge.rectTransform.anchorMin = Vector2.zero; bandEdge.rectTransform.anchorMax = Vector2.one; bandEdge.rectTransform.offsetMin = new Vector2(0f, 6f); bandEdge.rectTransform.offsetMax = Vector2.zero; bandEdge.raycastTarget = false;
+            var band = CoastUiArt.Panel(ribbon, "Band", ribbonCol, 14);
+            band.rectTransform.anchorMin = Vector2.zero; band.rectTransform.anchorMax = Vector2.one; band.rectTransform.offsetMin = new Vector2(5f, 11f); band.rectTransform.offsetMax = new Vector2(-5f, -5f); band.raycastTarget = false;
+            if (starSpBg != null)
+                foreach (int sgn in new[] { -1, 1 })
+                {
+                    var rs = CoastHudLayout.MakeImage(band.transform, "RibbonStar", new Vector2(0.5f + sgn * 0.5f, 0.5f), new Vector2(0.5f + sgn * 0.5f, 0.5f), new Vector2(sgn < 0 ? 14f : -40f, -13f), new Vector2(sgn < 0 ? 40f : -14f, 13f), new Color(1f, 0.90f, 0.45f));
+                    rs.sprite = starSpBg; rs.preserveAspect = true; rs.raycastTarget = false;
+                }
             bool kpopDone = ArcadeRun.KpopMode && ArcadeRun.KpopFinished;   // 48차: 한 곡 완주 결과
-            var title = CoastHudLayout.MakeText(band.transform, "Title", kpopDone ? Loc.T("한 곡 완주! ♪", "Song complete! ♪") : Loc.T("아쉽지만 다음에!", "Next time!"), 30, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), new Vector2(0f, 0f));
-            title.color = new Color(0.30f, 0.20f, 0.14f); title.fontStyle = FontStyle.Bold;
-            // 51차: 보스전은 곡 크레딧까지 넣으면 한 줄을 넘쳐서 — 퇴치 수만(곡 제목은 HUD 에서 이미 봤다).
+            var title = CoastHudLayout.MakeText(band.transform, "Title", kpopDone ? Loc.T("한 곡 완주! ♪", "Song complete! ♪") : Loc.T("아쉽지만 다음에!!", "Next time!!"), 34, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), new Vector2(0f, 0f));
+            title.color = new Color(1f, 0.97f, 0.82f); title.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(title, new Color(0.46f, 0.30f, 0.68f, 1f), 2.2f);
             var sub = CoastHudLayout.MakeText(root, "Sub", ArcadeRun.BossRush ? Loc.T($"보스전 · 보스 {ArcadeRun.BossesCleared}마리 퇴치!", $"Boss Rush · {ArcadeRun.BossesCleared} bosses cleared!")
-                                                              : ArcadeRun.KpopMode ? Loc.T("K-POP 한 곡 달리기 · ", "One-Song Run · ") + ArcadeRun.KpopTrack.Credit : Loc.T("달리기 결과", "Run result"), 22, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -196f), new Vector2(0f, -156f));
-            sub.color = new Color(1f, 0.82f, 0.35f); sub.fontStyle = FontStyle.Bold;
-            sub.horizontalOverflow = HorizontalWrapMode.Wrap; sub.resizeTextForBestFit = true; sub.resizeTextMinSize = 14; sub.resizeTextMaxSize = 22;
-            CoastUiArt.OutlineText(sub, new Color(0.25f, 0.12f, 0.05f, 0.9f), 2f);
+                                                          : ArcadeRun.KpopMode ? Loc.T("K-POP 한 곡 달리기 · ", "One-Song Run · ") + ArcadeRun.KpopTrack.Credit : Loc.T("당당히 도전!", "Run proud!"), 24, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -212f), new Vector2(0f, -166f));
+            sub.color = new Color(1f, 0.66f, 0.82f); sub.fontStyle = FontStyle.Bold;
+            sub.horizontalOverflow = HorizontalWrapMode.Wrap; sub.resizeTextForBestFit = true; sub.resizeTextMinSize = 14; sub.resizeTextMaxSize = 24;
+            CoastUiArt.OutlineText(sub, new Color(0.30f, 0.16f, 0.45f, 0.9f), 2f);
 
-            // ── 주저앉은 하늘(UI_RunOver_Sad) + 별 3개 ──
-            var sad = kpopDone ? null : ArtAssets.LoadTexture("UI_RunOver_Sad");
+            // ── 흙섬 위에 앉은 하늘(UI_RunOver_Sad, 블렌더 렌더) + 반짝이는 별 소용돌이 ──
+            var sad = (kpopDone || hasArt) ? null : ArtAssets.LoadTexture("UI_RunOver_Sad");   // 128차: 배경 일러스트가 있으면 블렌더 렌더는 안 쓴다
             if (kpopDone)
             {
                 // 51차(사용자): 완주 결과에 그림이 빠져 갈색 빈 판만 보였다 → 스테이지 클리어와 같은 얼굴 컷인 + 「오늘도 찢었다! 오운완」 말풍선
@@ -835,10 +888,24 @@ namespace CoastRun
             }
             if (sad != null)
             {
-                var pic = CoastHudLayout.MakeImage(root, "Sad", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -560f), new Vector2(316f, -206f), Color.white);
+                // 별 소용돌이(그림 오른쪽): 노란 글로우 + 큰 별 3개 + 잔별
+                var glow = CoastHudLayout.MakeImage(root, "StarGlow", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(70f, -560f), new Vector2(360f, -300f), new Color(1f, 0.85f, 0.35f, 0.16f));
+                glow.sprite = CoastUiArt.RoundedRect(120); glow.type = Image.Type.Sliced; glow.raycastTarget = false;
+                if (starSpBg != null)
+                {
+                    (float x, float y, float s, float a)[] swirl = { (170f, -372f, 52f, 1f), (282f, -432f, 66f, 1f), (190f, -500f, 48f, 1f), (250f, -330f, 16f, 0.8f), (330f, -510f, 14f, 0.8f), (130f, -440f, 12f, 0.7f) };   // 127차: 시안처럼 더 크게
+                    foreach (var s in swirl)
+                    {
+                        var st1 = CoastHudLayout.MakeImage(root, "Swirl", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(s.x - s.s, s.y - s.s), new Vector2(s.x + s.s, s.y + s.s), new Color(1f, 0.90f, 0.35f, s.a));
+                        st1.sprite = starSpBg; st1.preserveAspect = true; st1.raycastTarget = false;
+                        st1.rectTransform.localRotation = Quaternion.Euler(0f, 0f, (s.x + s.y) % 30f - 15f);
+                    }
+                }
+                var picShadow = CoastHudLayout.MakeImage(root, "SadShadow", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-230f, -790f), new Vector2(230f, -740f), new Color(0.10f, 0.05f, 0.20f, 0.45f));
+                picShadow.sprite = CoastUiArt.RoundedRect(60); picShadow.type = Image.Type.Sliced; picShadow.raycastTarget = false;
+                // 127차: 시안처럼 그림을 더 크게(폭 640, 하늘이가 화면 가운데를 채우게)
+                var pic = CoastHudLayout.MakeImage(root, "Sad", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-320f, -780f), new Vector2(320f, -190f), Color.white);
                 pic.sprite = CoastUiArt.AsSprite(sad); pic.preserveAspect = true; pic.raycastTarget = false;
-                var shadow = CoastHudLayout.MakeImage(root, "SadShadow", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(60f, -572f), new Vector2(300f, -546f), new Color(0f, 0f, 0f, 0.35f));
-                shadow.sprite = CoastUiArt.RoundedRect(40); shadow.type = Image.Type.Sliced; shadow.raycastTarget = false; shadow.transform.SetSiblingIndex(pic.transform.GetSiblingIndex());
             }
             var sm = StageManager.Instance;
             var st = StageRunStats.Instance;
@@ -850,82 +917,97 @@ namespace CoastRun
             int bestDist = prof != null ? prof.endlessBestDist : 0;
             if (arcade) { dist = Mathf.RoundToInt(ArcadeRun.Distance); goal = 0f; }
             float prog = goal > 1f ? Mathf.Clamp01(dist / goal) : (arcade && bestDist > 0 ? Mathf.Clamp01(dist / (float)bestDist) : 0f);
-            int stars = arcade ? (dist >= bestDist && dist > 0 ? 3 : prog >= 0.66f ? 2 : prog >= 0.30f ? 1 : 0) : (prog >= 0.66f ? 2 : prog >= 0.30f ? 1 : 0);
-            int kpopDoneCount = 0; if (ArcadeRun.KpopMode) { for (int i = 0; i < 3 && i < ArcadeRun.Conditions.Length; i++) if (ArcadeRun.ConditionDone[i]) kpopDoneCount++; stars = kpopDoneCount; }
-            var starSp = CoastUiArt.Icon("Star");
-            for (int i = 0; i < 3; i++)
-            {
-                float sz = i == 1 ? 58f : 50f; float sx = 470f + i * 64f; float sy = -400f - (i == 1 ? 6f : 0f);
-                var star = CoastHudLayout.MakeImage(root, "Star" + i, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(sx - sz * 0.5f, sy - sz * 0.5f), new Vector2(sx + sz * 0.5f, sy + sz * 0.5f), i < stars ? Color.white : new Color(0.55f, 0.55f, 0.58f, 0.9f));
-                if (starSp != null) { star.sprite = starSp; star.preserveAspect = true; }
-                else { star.sprite = CoastUiArt.RoundedRect(24); star.type = Image.Type.Sliced; star.color = i < stars ? new Color(1f, 0.8f, 0.2f) : new Color(0.5f, 0.5f, 0.52f); }
-                star.raycastTarget = false;
-            }
-            var starLabel = CoastHudLayout.MakeText(root, "StarLabel", ArcadeRun.KpopMode ? Loc.T($"오늘 미션 {stars} / 3", $"Today's missions {stars} / 3") : arcade ? Loc.T($"기록 · 별 {stars} / 3", $"Record · {stars} / 3 stars") : Loc.T($"실패 · 별 {stars} / 3", $"Failed · {stars} / 3 stars"), 14, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(430f, -470f), new Vector2(660f, -440f));
-            starLabel.color = new Color(1f, 0.92f, 0.75f); CoastUiArt.OutlineText(starLabel, new Color(0.2f, 0.1f, 0.05f, 0.8f), 1.5f);
+            if (ArcadeRun.KpopMode) prog = Mathf.Clamp01(ArcadeRun.KpopProgress01);
 
-            // ── 결과 패널 ──
-            Color cream = new Color(0.96f, 0.93f, 0.86f), tan = new Color(0.78f, 0.66f, 0.50f), ink = new Color(0.28f, 0.20f, 0.14f), brown = new Color(0.45f, 0.35f, 0.26f);
-            var frame = CoastUiArt.Panel(root, "PanelFrame", tan, 26);
+            // ── 결과 카드(크림 + 라벤더 테두리) ──
+            Color cream = new Color(1f, 0.98f, 0.95f), lav = new Color(0.82f, 0.74f, 0.95f), ink = new Color(0.32f, 0.22f, 0.48f), brown = new Color(0.52f, 0.40f, 0.30f), lavInk = new Color(0.50f, 0.38f, 0.72f);
+            Color peach = new Color(1f, 0.93f, 0.84f), peachEdge = new Color(0.99f, 0.74f, 0.48f), orange = new Color(0.98f, 0.60f, 0.22f), orangeInk = new Color(0.72f, 0.36f, 0.08f);
+            var frame = CoastUiArt.Panel(root, "PanelFrame", lav, 30);
             var frt = frame.rectTransform; frt.anchorMin = frt.anchorMax = new Vector2(0.5f, 0f); frt.pivot = new Vector2(0.5f, 0f);
-            frt.anchoredPosition = new Vector2(0f, 34f); frt.sizeDelta = new Vector2(640f, 560f); frame.raycastTarget = true;
-            var panel = CoastUiArt.Panel(frame.transform, "Panel", cream, 22);
-            var prt = panel.rectTransform; prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one; prt.offsetMin = new Vector2(5f, 5f); prt.offsetMax = new Vector2(-5f, -5f);
-
-            var head = CoastHudLayout.MakeText(prt, "Head", Loc.T("결과", "Result"), 20, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -54f), new Vector2(0f, -14f));
+            frt.anchoredPosition = new Vector2(0f, 26f); frt.sizeDelta = new Vector2(648f, 660f); frame.raycastTarget = true;   // 129차(사용자): 카드를 위로(660) + 글자 키움
+            var panel = CoastUiArt.Panel(frame.transform, "Panel", cream, 26);
+            var prt = panel.rectTransform; prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one; prt.offsetMin = new Vector2(6f, 6f); prt.offsetMax = new Vector2(-6f, -6f);
+            if (starSpBg != null)
+                foreach (var (cx, cy) in new[] { (0f, 1f), (1f, 1f), (0f, 0f), (1f, 0f) })
+                {
+                    var cs = CoastHudLayout.MakeImage(frame.transform, "CornerStar", new Vector2(cx, cy), new Vector2(cx, cy), new Vector2(-16f, -16f), new Vector2(16f, 16f), new Color(1f, 0.88f, 0.45f));
+                    cs.sprite = starSpBg; cs.preserveAspect = true; cs.raycastTarget = false;
+                }
+            var head = CoastHudLayout.MakeText(prt, "Head", Loc.T("★ 결과 ★", "★ Result ★"), 30, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -60f), new Vector2(0f, -14f));
             head.color = ink; head.fontStyle = FontStyle.Bold;
             foreach (int sgn in new[] { -1, 1 })
             {
-                var line = CoastHudLayout.MakeImage(prt, "HeadLine", new Vector2(0.5f + sgn * 0.5f, 1f), new Vector2(0.5f + sgn * 0.5f, 1f), new Vector2(sgn < 0 ? 40f : -250f, -36f), new Vector2(sgn < 0 ? 250f : -40f, -34f), new Color(0.75f, 0.65f, 0.52f, 0.7f));
+                var line = CoastHudLayout.MakeImage(prt, "HeadLine", new Vector2(0.5f + sgn * 0.5f, 1f), new Vector2(0.5f + sgn * 0.5f, 1f), new Vector2(sgn < 0 ? 40f : -250f, -37f), new Vector2(sgn < 0 ? 250f : -40f, -34f), new Color(0.80f, 0.72f, 0.92f, 0.9f));
                 line.raycastTarget = false;
             }
-            // 큰 두 칸: 거리 / 점수
+            // 큰 두 칸: 거리 / 점수 (아이콘 + 라벨, 큰 보라 숫자)
             int score = arcade ? ArcadeRun.LastScore : Score;
             void Big(float x0, float x1, string icon, string label, string value)
             {
-                var lb = CoastHudLayout.MakeText(prt, "Lb", label, 16, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0, -100f), new Vector2(x1, -66f));
+                var isp = CoastUiArt.Icon(icon);
+                float cxm = (x0 + x1) * 0.5f;
+                if (isp != null)
+                {
+                    var ii = CoastHudLayout.MakeImage(prt, "BI", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(cxm - 66f, -108f), new Vector2(cxm - 24f, -66f), Color.white);
+                    ii.sprite = isp; ii.preserveAspect = true; ii.raycastTarget = false;
+                }
+                var lb = CoastHudLayout.MakeText(prt, "Lb", label, 22, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(cxm - 14f, -108f), new Vector2(x1, -66f));
                 lb.color = brown; lb.fontStyle = FontStyle.Bold;
-                var v = CoastHudLayout.MakeText(prt, "V", value, 30, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0, -160f), new Vector2(x1, -104f));
-                v.color = ink; v.fontStyle = FontStyle.Bold; v.resizeTextForBestFit = true; v.resizeTextMinSize = 20; v.resizeTextMaxSize = CoastHudLayout.Scaled(30);
+                var v = CoastHudLayout.MakeText(prt, "V", value, 50, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0, -190f), new Vector2(x1, -112f));
+                v.color = ink; v.fontStyle = FontStyle.Bold; v.resizeTextForBestFit = true; v.resizeTextMinSize = 24; v.resizeTextMaxSize = CoastHudLayout.Scaled(50);
                 v.horizontalOverflow = HorizontalWrapMode.Wrap; v.verticalOverflow = VerticalWrapMode.Truncate;
             }
-            Big(0f, 315f, "", Loc.T("거리", "Distance"), $"{dist:N0} m");
-            Big(315f, 630f, "", Loc.T("점수", "Score"), Loc.T($"점수 {score:N0}", $"{score:N0}"));
-            var vline = CoastHudLayout.MakeImage(prt, "VLine", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-1f, -168f), new Vector2(1f, -64f), new Color(0.75f, 0.65f, 0.52f, 0.6f)); vline.raycastTarget = false;
-            var hline = CoastHudLayout.MakeImage(prt, "HLine", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(28f, -184f), new Vector2(-28f, -182f), new Color(0.75f, 0.65f, 0.52f, 0.6f)); hline.raycastTarget = false;
-            // 작은 네 칸: 코인 / 아이템 / 최고 콤보 / 하트
+            Big(0f, 318f, "R_Shoe", Loc.T("거리", "Distance"), $"{dist:N0} m");
+            Big(318f, 636f, "R_Trophy", Loc.T("점수", "Score"), $"{score:N0}");
+            var vline = CoastHudLayout.MakeImage(prt, "VLine", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-1f, -194f), new Vector2(1f, -66f), new Color(0.80f, 0.72f, 0.92f, 0.8f)); vline.raycastTarget = false;
+            var hline = CoastHudLayout.MakeImage(prt, "HLine", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(28f, -212f), new Vector2(-28f, -210f), new Color(0.80f, 0.72f, 0.92f, 0.8f)); hline.raycastTarget = false;
+            var trophySp = CoastUiArt.Icon("R_Trophy");
+            if (trophySp != null)
+            {
+                var tp = CoastHudLayout.MakeImage(prt, "TrophyMid", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-20f, -240f), new Vector2(20f, -200f), Color.white);
+                tp.sprite = trophySp; tp.preserveAspect = true; tp.raycastTarget = false;
+            }
+            // 작은 네 칸(알약 칩): 코인 / 최고 콤보 | 아이템 / 하트
             int items = st != null ? st.Potions + st.Stars : 0;
             (string icon, string text)[] small =
             {
-                ("Coin", Loc.T($"코인 {(st != null ? st.Coins : 0)}", $"Coins {(st != null ? st.Coins : 0)}")),
-                ("Star", Loc.T($"아이템 {items}", $"Items {items}")),
-                ("Combo", Loc.T($"최고 콤보 {(st != null ? st.BestCombo : 0)}", $"Best combo {(st != null ? st.BestCombo : 0)}")),
-                ("Heart", Loc.T($"하트 {(st != null ? st.Hearts : 0)}", $"Hearts {(st != null ? st.Hearts : 0)}")),
+                ("R_Coin", Loc.T($"코인 {(st != null ? st.Coins : 0)}", $"Coins {(st != null ? st.Coins : 0)}")),
+                ("R_Combo", Loc.T($"최고 콤보 {(st != null ? st.BestCombo : 0)}", $"Best combo {(st != null ? st.BestCombo : 0)}")),
+                ("R_Star", Loc.T($"아이템 {items}", $"Items {items}")),
+                ("R_Heart", Loc.T($"하트 {(st != null ? st.Hearts : 0)}", $"Hearts {(st != null ? st.Hearts : 0)}")),
             };
+            float[] chipW = { 140f, 182f, 146f, 146f };   // 「최고 콤보」·「아이템」이 길다 · 129차: 글자 19 에 맞춰 넓힘
+            float chipX = 4f;
             for (int i = 0; i < 4; i++)
             {
-                float x0 = (i % 2) * 315f, y = -200f - (i / 2) * 52f;
-                var t = CoastHudLayout.MakeText(prt, "S" + i, small[i].text, 17, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0 + 96f, y - 44f), new Vector2(x0 + 305f, y));
-                t.color = ink; t.fontStyle = FontStyle.Bold;
+                float x0 = chipX, y = -256f; chipX += chipW[i] + 6f;
+                var chip = CoastUiArt.Panel(prt, "Chip" + i, lav, 22);
+                chip.rectTransform.anchorMin = chip.rectTransform.anchorMax = new Vector2(0f, 1f); chip.rectTransform.pivot = new Vector2(0f, 1f);
+                chip.rectTransform.anchoredPosition = new Vector2(x0, y); chip.rectTransform.sizeDelta = new Vector2(chipW[i], 64f); chip.raycastTarget = false;
+                var chipIn = CoastUiArt.Panel(chip.transform, "In", cream, 18);
+                chipIn.rectTransform.anchorMin = Vector2.zero; chipIn.rectTransform.anchorMax = Vector2.one; chipIn.rectTransform.offsetMin = new Vector2(3f, 3f); chipIn.rectTransform.offsetMax = new Vector2(-3f, -3f); chipIn.raycastTarget = false;
                 var isp = CoastUiArt.Icon(small[i].icon);
-                var ii = CoastHudLayout.MakeImage(prt, "SI" + i, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(x0 + 56f, y - 38f), new Vector2(x0 + 88f, y - 6f), Color.white);
-                if (isp != null) { ii.sprite = isp; ii.preserveAspect = true; } else { ii.sprite = CoastUiArt.RoundedRect(16); ii.type = Image.Type.Sliced; ii.color = new Color(0.95f, 0.55f, 0.25f); ii.rectTransform.offsetMin += new Vector2(6f, 6f); ii.rectTransform.offsetMax -= new Vector2(6f, 6f); }
+                var ii = CoastHudLayout.MakeImage(chip.transform, "I", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(8f, -18f), new Vector2(44f, 18f), Color.white);
+                if (isp != null) { ii.sprite = isp; ii.preserveAspect = true; } else { ii.sprite = CoastUiArt.RoundedRect(16); ii.type = Image.Type.Sliced; ii.color = new Color(0.95f, 0.75f, 0.45f); }
                 ii.raycastTarget = false;
+                var t = CoastHudLayout.MakeText(chip.transform, "S", small[i].text, 19, TextAnchor.MiddleLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(46f, 0f), new Vector2(-4f, 0f));
+                t.color = ink; t.fontStyle = FontStyle.Bold; t.resizeTextForBestFit = true; t.resizeTextMinSize = 12; t.resizeTextMaxSize = CoastHudLayout.Scaled(19);
+                t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Truncate;
             }
-            var vline2 = CoastHudLayout.MakeImage(prt, "VLine2", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-1f, -300f), new Vector2(1f, -196f), new Color(0.75f, 0.65f, 0.52f, 0.5f)); vline2.raycastTarget = false;
-            // 경고 상자
-            var warn = CoastUiArt.Panel(prt, "Warn", new Color(0.98f, 0.80f, 0.60f), 16);
-            warn.rectTransform.anchorMin = new Vector2(0f, 1f); warn.rectTransform.anchorMax = new Vector2(1f, 1f); warn.rectTransform.offsetMin = new Vector2(24f, -422f); warn.rectTransform.offsetMax = new Vector2(-24f, -318f);
+            var vline2 = CoastHudLayout.MakeImage(prt, "VLine2", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-1f, -322f), new Vector2(1f, -254f), new Color(0.80f, 0.72f, 0.92f, 0.7f)); vline2.raycastTarget = false;
+
+            // 목표 상자(살구색): 「목표 거리 N m」 + 진행 바(별) + 한 줄 격려
+            var warn = CoastUiArt.Panel(prt, "Warn", peachEdge, 18);
+            warn.rectTransform.anchorMin = new Vector2(0f, 1f); warn.rectTransform.anchorMax = new Vector2(1f, 1f); warn.rectTransform.offsetMin = new Vector2(22f, -500f); warn.rectTransform.offsetMax = new Vector2(-22f, -340f);
             warn.raycastTarget = false;
-            var warnEdge = CoastUiArt.Panel(warn.transform, "Edge", new Color(0.92f, 0.55f, 0.25f, 0.9f), 16);
-            warnEdge.rectTransform.anchorMin = Vector2.zero; warnEdge.rectTransform.anchorMax = Vector2.one; warnEdge.rectTransform.offsetMin = Vector2.zero; warnEdge.rectTransform.offsetMax = Vector2.zero; warnEdge.raycastTarget = false;
-            var warnFill = CoastUiArt.Panel(warn.transform, "Fill", new Color(0.99f, 0.85f, 0.68f), 14);
+            var warnFill = CoastUiArt.Panel(warn.transform, "Fill", peach, 16);
             warnFill.rectTransform.anchorMin = Vector2.zero; warnFill.rectTransform.anchorMax = Vector2.one; warnFill.rectTransform.offsetMin = new Vector2(3f, 3f); warnFill.rectTransform.offsetMax = new Vector2(-3f, -3f); warnFill.raycastTarget = false;
             bool newBest = arcade && dist > 0 && dist >= bestDist;
             bool newBestKpop = ArcadeRun.KpopMode && ArcadeRun.LastNewBest;
-            string reason = arcade ? (newBest ? Loc.T("★ 최고 기록 갱신!", "★ New best!") : Loc.T($"최고 기록 {bestDist:N0} m · {(prof != null ? prof.endlessBestScore : 0):N0}점", $"Best {bestDist:N0} m · {(prof != null ? prof.endlessBestScore : 0):N0} pts"))
-                          : goal > 1f ? Loc.T($"! 목표 거리 {goal:N0} m 미달", $"! Short of {goal:N0} m goal") : Loc.T("! 체력이 다 떨어졌어요", "! Out of stamina");
-            string kpopW2 = null;
+            string reason = arcade ? (newBest ? Loc.T("★ 최고 기록 갱신!", "★ New best!") : Loc.T($"최고 기록 {bestDist:N0} m", $"Best {bestDist:N0} m"))
+                          : goal > 1f ? Loc.T($"목표 거리 {goal:N0} m", $"Goal {goal:N0} m") : Loc.T("체력이 다 떨어졌어요", "Out of stamina");
+            string encourage = arcade ? Loc.T("코인은 그대로 챙겼어요. 한 번 더 달려봐요!", "Coins are yours. Run once more!")
+                             : goal > 1f ? Loc.T($"아쉽지만 조금만 더! 다음에는 {goal:N0} m를 달성해봐요!", $"So close! Reach {goal:N0} m next time!") : Loc.T("이번에는 실패했어요. 다음에는 더 멀리 달려봐요!", "Not this time. Run farther next time!");
             if (ArcadeRun.KpopMode)
             {
                 // 48차: 도장/스트릭/올클리어 + 미션 3줄
@@ -935,36 +1017,50 @@ namespace CoastRun
                 var sbW = new System.Text.StringBuilder();
                 for (int i = 0; i < 3 && i < ArcadeRun.Conditions.Length; i++) { if (i > 0) sbW.Append("   "); sbW.Append(ArcadeRun.ConditionDone[i] ? "☑ " : "☐ ").Append(ArcadeRun.Conditions[i].Text); }
                 if (ArcadeRun.LastAllClearCoins > 0) sbW.Append(Loc.T($"   미션 올클리어! +{ArcadeRun.LastAllClearCoins}G", $"   All clear! +{ArcadeRun.LastAllClearCoins}G"));
-            // 86차(사용자): 미션 3개 달성 = 이번 판 돈·젤리 ×2
-            if (ArcadeRun.LastDoubled) sbW.Append(Loc.T($"   ★ 미션 3개 달성 — 돈·젤리 ×2!  돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly}", $"   ★ 3 missions — money & jelly ×2!  +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly}"));
-            else if (ArcadeRun.LastMoney > 0 || ArcadeRun.LastJelly > 0) sbW.Append(Loc.T($"   돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly} (미션 3개면 ×2)", $"   +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly} (×2 with all 3 missions)"));
-                kpopW2 = sbW.ToString();
+                // 86차(사용자): 미션 3개 달성 = 이번 판 돈·젤리 ×2
+                if (ArcadeRun.LastDoubled) sbW.Append(Loc.T($"   ★ 미션 3개 달성 — 돈·젤리 ×2!  돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly}", $"   ★ 3 missions — money & jelly ×2!  +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly}"));
+                else if (ArcadeRun.LastMoney > 0 || ArcadeRun.LastJelly > 0) sbW.Append(Loc.T($"   돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly} (미션 3개면 ×2)", $"   +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly} (×2 with all 3 missions)"));
+                encourage = sbW.ToString();
             }
-            var w1 = CoastHudLayout.MakeText(warn.transform, "W1", reason, 19, TextAnchor.MiddleCenter, new Vector2(0f, 0.5f), new Vector2(1f, 1f), new Vector2(10f, -4f), new Vector2(-10f, -8f));
-            w1.color = new Color(0.55f, 0.25f, 0.08f); w1.fontStyle = FontStyle.Bold;
-            var w2 = CoastHudLayout.MakeText(warn.transform, "W2", kpopW2 ?? (arcade ? Loc.T("코인은 그대로 챙겼어요. 한 번 더 달려봐요!", "Coins are yours. Run once more!") : Loc.T("이번에는 실패했어요. 다음에는 더 멀리 달려봐요!", "Not this time. Run farther next time!")), 14, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 0.5f), new Vector2(10f, 8f), new Vector2(-10f, 2f));
-            w2.color = new Color(0.55f, 0.35f, 0.22f);
+            var w1 = CoastHudLayout.MakeText(warn.transform, "W1", reason, 25, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0.5f, 1f), new Vector2(16f, -60f), new Vector2(0f, -12f));
+            w1.color = orangeInk; w1.fontStyle = FontStyle.Bold; w1.resizeTextForBestFit = true; w1.resizeTextMinSize = 13; w1.resizeTextMaxSize = CoastHudLayout.Scaled(25);
+            w1.horizontalOverflow = HorizontalWrapMode.Wrap; w1.verticalOverflow = VerticalWrapMode.Truncate;
+            var track = CoastUiArt.Panel(warn.transform, "Track", new Color(0.82f, 0.66f, 0.48f), 10);
+            track.rectTransform.anchorMin = new Vector2(0.5f, 1f); track.rectTransform.anchorMax = new Vector2(1f, 1f); track.rectTransform.offsetMin = new Vector2(4f, -50f); track.rectTransform.offsetMax = new Vector2(-44f, -24f); track.raycastTarget = false;
+            var fillBar = CoastUiArt.Panel(track.transform, "Fill", orange, 10);
+            fillBar.rectTransform.anchorMin = Vector2.zero; fillBar.rectTransform.anchorMax = new Vector2(Mathf.Max(0.04f, prog), 1f); fillBar.rectTransform.offsetMin = new Vector2(2f, 2f); fillBar.rectTransform.offsetMax = new Vector2(0f, -2f); fillBar.raycastTarget = false;
+            if (starSpBg != null)
+            {
+                var gs = CoastHudLayout.MakeImage(warn.transform, "GoalStar", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-58f, -62f), new Vector2(-8f, -12f), new Color(1f, 0.85f, 0.25f));
+                gs.sprite = starSpBg; gs.preserveAspect = true; gs.raycastTarget = false;
+            }
+            var w2 = CoastHudLayout.MakeText(warn.transform, "W2", encourage, 20, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(12f, 8f), new Vector2(-12f, 84f));
+            w2.color = new Color(0.50f, 0.32f, 0.16f); w2.fontStyle = FontStyle.Bold; w2.resizeTextForBestFit = true; w2.resizeTextMinSize = 11; w2.resizeTextMaxSize = CoastHudLayout.Scaled(20);
+            w2.horizontalOverflow = HorizontalWrapMode.Wrap; w2.verticalOverflow = VerticalWrapMode.Truncate;
 
-            // 버튼
+            // 버튼: 주황 「다시 도전하기」 / 라벤더 「나가기」
             _runOverRetry = retry;
             _runOverSecond = toTitle;
-            Button Btn(string name, string label, Color col, float x0, float x1, System.Action onClick)
+            Button Btn(string name, string label, Color col, Color textCol, float x0, float x1, System.Action onClick)
             {
-                var pill = CoastUiArt.CutePill(prt, name, col, 18, 4);
+                var pill = CoastUiArt.CutePill(prt, name, col, 22, 5);
                 pill.rectTransform.anchorMin = new Vector2(0f, 0f); pill.rectTransform.anchorMax = new Vector2(0f, 0f); pill.rectTransform.pivot = new Vector2(0f, 0f);
-                pill.rectTransform.anchoredPosition = new Vector2(x0, 22f); pill.rectTransform.sizeDelta = new Vector2(x1 - x0, 64f);
+                pill.rectTransform.anchoredPosition = new Vector2(x0, 24f); pill.rectTransform.sizeDelta = new Vector2(x1 - x0, 88f);
                 pill.raycastTarget = true;
                 var b = pill.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
                 b.onClick.AddListener(() => onClick());
-                var t = CoastHudLayout.MakeText(pill.transform, "T", label, 19, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-                t.fontStyle = FontStyle.Bold; t.resizeTextForBestFit = true; t.resizeTextMinSize = 14; t.resizeTextMaxSize = CoastHudLayout.Scaled(19);
+                var t = CoastHudLayout.MakeText(pill.transform, "T", label, 30, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+                t.color = textCol; t.fontStyle = FontStyle.Bold; t.resizeTextForBestFit = true; t.resizeTextMinSize = 16; t.resizeTextMaxSize = CoastHudLayout.Scaled(30);
                 t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Truncate;
-                CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.5f);
+                CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.25f), 1.5f);
                 return b;
             }
-            Btn("Retry", ArcadeRun.KpopMode ? Loc.T("한 곡 더 ♪", "One more song ♪") : Loc.T("다시 도전하기", "Try again"), new Color(0.93f, 0.55f, 0.22f), 24f, 322f, () => { CloseRunOver(); retry?.Invoke(); });
-            Btn("Exit", secondLabel == "메인으로" ? Loc.T("나가기", "Exit") : secondLabel, new Color(0.72f, 0.60f, 0.45f), 338f, 606f, () => { CloseRunOver(); toTitle?.Invoke(); });
+            Btn("Retry", ArcadeRun.KpopMode ? Loc.T("♪ 한 곡 더", "♪ One more song") : Loc.T("다시 도전하기", "Try again"), orange, Color.white, 22f, 322f, () => { CloseRunOver(); retry?.Invoke(); });
+            Btn("Exit", secondLabel == "메인으로" ? Loc.T("나가기", "Exit") : secondLabel, new Color(0.74f, 0.68f, 0.94f), new Color(0.32f, 0.22f, 0.52f), 338f, 614f, () => { CloseRunOver(); toTitle?.Invoke(); });
         }
+
+        /// 128차: 결과창이 떠 있는 동안(dev `hit` 등으로) 꽈당 임팩트가 카드 위에 찍히지 않게 — PickupFloat.Impact 가 본다.
+        public bool RunOverShowing => _runOverOverlay != null;
 
         private void CloseRunOver()
         {

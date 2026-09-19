@@ -39,7 +39,7 @@ namespace CoastRun
         }
 
         /// 49차(사용자): 진입 화면 리디자인 — 게임 마당 그림을 배경으로 깔고, 3D 아이콘 + 큰 제목 + 「3단계 방법」 카드 + 목표 배지 + 큰 시작 버튼.
-        private static readonly string[] IntroYards = { "UI_MG_Yard_Marbles", "UI_MG_Yard_Yut", "UI_MG_Yard_Tuho", "UI_MG_Yard_Ddakji", "UI_MG_Yard_Mugunghwa" };
+        private static readonly string[] IntroYards = { "UI_MG_Yard_Marbles", "UI_MG_Yard_Yut", "UI_MG_Yard_Tuho", "UI_MG_Yard_Ddakji", "UI_MG_Yard_School" };   // 135차: 무궁화는 학교 운동장
         private static readonly string[] IntroIcons = { "UI_MG_Marbles", "UI_MG_Yut", "UI_MG_Tuho", "UI_MG_Ddakji", "UI_MG_Mugunghwa" };
         private static (string ko, string en)[] IntroSteps(ChapterMission.Kind k)
         {
@@ -48,7 +48,7 @@ namespace CoastRun
                 case ChapterMission.Kind.Yut: return new[] { ("[던지기!!]로 윷 4개를 던져요 (나 ↔ 꼬마 번갈아)", "Tap [THROW!!] — you and the kid alternate"), ("배가 위로 온 수만큼: 도1·개2·걸3·윷4·모5", "Flat sides up = cells: 1·2·3·4, none = 5"), ("같은 칸에 서면 잡고 한 번 더! 먼저 3바퀴!", "Catch on the same cell & throw again — 3 laps first!") };
                 case ChapterMission.Kind.Tuho: return new[] { ("바늘이 항아리를 향할 때 [방향 확정]", "Set aim when the needle points at the jar"), ("힘 게이지 흰 띠 안에서 [발사!]", "Throw inside the white band"), ("화살이 포물선을 그리며 쏙!", "The arrow arcs into the jar") };
                 case ChapterMission.Kind.Ddakji: return new[] { ("게이지가 오르내려요", "The timing bar swings"), ("노란 띠 안에서 [내리치기!]", "Slam inside the yellow band"), ("상대 딱지가 뒤집히면 내 것!", "Flip Dodam's ddakji to win") };
-                case ChapterMission.Kind.Mugunghwa: return new[] { ("[달리기]를 꾹 누르면 앞으로", "Hold [Run] to move forward"), ("술래가 돌아보면 손을 떼요", "Let go when the tagger looks"), ("끝까지 가서 [술래 터치!]", "Reach the end and [Tag!]") };
+                case ChapterMission.Kind.Mugunghwa: return new[] { ("[달리기!]를 꾹 누르는 동안 앞으로", "Hold [Run!] to move forward"), ("구호가 다 켜지면 술래가 돌아봐 — 미리 손 떼기!", "When the chant lights up the tagger turns — release early!"), ("종 치기 전에 끝까지 가서 [술래 터치!]", "Reach the end before the bell and [Tag!]") };
                 default: return new[] { ("바늘이 멈추길 원하는 방향에서 [방향 확정]", "Set aim where the needle points"), ("힘 게이지에서 [발사!]", "Pick power and [Shoot!]"), ("삼각형 밖으로 구슬을 튕겨 내요", "Knock marbles out of the triangle") };
             }
         }
@@ -130,7 +130,7 @@ namespace CoastRun
             start.gameObject.AddComponent<IntroPulse>();
             if (!_replay)
             {
-                var note = CoastHudLayout.MakeText(card, "Note", Loc.T($"이기면 {ChapterMission.Reward(GameManager.I)}G 보상 · 져도 다음으로 넘어가요", $"Win for {ChapterMission.Reward(GameManager.I)}G · lose and you still move on"), 13, TextAnchor.MiddleCenter,
+                var note = CoastHudLayout.MakeText(card, "Note", Loc.T($"이기면 {ChapterMission.Reward(GameManager.I)}G 보상 · 지면 {ChapterMission.SkipCost(GameManager.I)}G 내야 넘어가요", $"Win for {ChapterMission.Reward(GameManager.I)}G · lose and skipping costs {ChapterMission.SkipCost(GameManager.I)}G"), 13, TextAnchor.MiddleCenter,
                     new Vector2(0f, 0.10f), new Vector2(1f, 0.13f), new Vector2(20f, 0f), new Vector2(-20f, 0f));
                 note.color = new Color(1f, 1f, 1f, 0.75f);
             }
@@ -201,14 +201,30 @@ namespace CoastRun
             var t = CoastHudLayout.MakeText(crt, "T", Loc.T("아쉽다…", "So close…"), 40, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0.45f), new Vector2(1f, 1f), new Vector2(0f, 0f), new Vector2(0f, -30f));
             t.color = Navy;
-            var s = CoastHudLayout.MakeText(crt, "S", _replay ? Loc.T("그 자리에서 바로 다시!", "Try again right here!") : Loc.T("보상은 없지만 그냥 넘어갈 수 있어. 다시 해서 돈을 노려도 좋고!", "No reward, but you can move on — or retry for the money!"), 16, TextAnchor.MiddleCenter,
+            var s = CoastHudLayout.MakeText(crt, "S", _replay ? Loc.T("그 자리에서 바로 다시!", "Try again right here!") : Loc.T("다시 해서 보상을 노리자! 코인을 내면 넘어갈 수도 있어.", "Retry for the reward — or pay coins to skip."), 16, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0.3f), new Vector2(1f, 0.5f), new Vector2(20f, 0f), new Vector2(-20f, 0f));
             s.color = new Color(0.35f, 0.30f, 0.40f);
-            Pill(crt, "Retry", Loc.T("다시하기", "Retry"), new Color(0.93f, 0.22f, 0.52f), new Vector2(0.30f, 0f), new Vector2(0f, 22f), new Vector2(230f, 70f),
+            Pill(crt, "Retry", Loc.T("다시하기", "Retry"), new Color(0.93f, 0.22f, 0.52f), new Vector2(0.27f, 0f), new Vector2(0f, 22f), new Vector2(220f, 70f),
                 () => { UnityEngine.Object.Destroy(card.gameObject); StartGame(); });
             // 55차-2(사용자): 미니게임은 져도 다음으로 넘어간다(보상만 없음). 「넘어가기」= 시도한 것으로 표시하고 종료.
-            Pill(crt, "Quit", _replay ? Loc.T("그만", "Quit") : Loc.T("넘어가기", "Move on"), new Color(0.55f, 0.55f, 0.62f), new Vector2(0.76f, 0f), new Vector2(0f, 22f), new Vector2(170f, 70f),
-                () => { if (!_replay) ChapterMission.MarkAttempted(GameManager.I, _kind); Done(false); });
+            // 135차(사용자): 그냥 넘어가기 없음 — 코인을 내야 넘어간다(보상 ×4, 최소 600). 다시하기 쪽은 그대로.
+            if (_replay)
+                Pill(crt, "Quit", Loc.T("그만", "Quit"), new Color(0.55f, 0.55f, 0.62f), new Vector2(0.76f, 0f), new Vector2(0f, 22f), new Vector2(170f, 70f), () => Done(false));
+            else
+            {
+                int cost = ChapterMission.SkipCost(GameManager.I);
+                bool canPay = GameManager.Active && GameManager.I.Save != null && GameManager.I.Save.stats.money >= cost;
+                var pb = Pill(crt, "Pay", Loc.T($"{cost}G 내고 넘어가기", $"Pay {cost}G to skip"), canPay ? new Color(0.95f, 0.72f, 0.20f) : new Color(0.55f, 0.55f, 0.62f), new Vector2(0.76f, 0f), new Vector2(0f, 22f), new Vector2(230f, 70f),
+                    () =>
+                    {
+                        if (!canPay) { CoastToast.Show(Loc.T("코인이 모자라 — 다시 해 보자!", "Not enough coins — try again!")); return; }
+                        GameManager.I.Save.stats.money -= cost; GameManager.I.Persist();
+                        ChapterMission.MarkAttempted(GameManager.I, _kind);
+                        CoastToast.Show(Loc.T($"{cost}G 를 내고 넘어갔어", $"Paid {cost}G to skip"));
+                        Done(false);
+                    });
+                var pt = pb.GetComponentInChildren<Text>(); if (pt != null) pt.fontSize = 19;
+            }
         }
 
         private static void Done(bool won)

@@ -29,7 +29,7 @@ namespace CoastRun
         [Tooltip("Seconds the player gets to see a row and react before reaching it.")]
         [SerializeField] private float reactionSeconds = 0.55f;   // Gold Run: see the next row clearly
         [Tooltip("Extra seconds allowed per lane change needed to reach a safe lane.")]
-        [SerializeField] private float laneChangeSeconds = 0.22f;   // 14차-9: 레인 이동 0.20s ease-out 에 맞춤
+        [SerializeField] private float laneChangeSeconds = 0.28f;   // 14차-9: 레인 이동 0.20s ease-out 에 맞춤 · 130차: 0.255s 에 맞춰 0.28
         [Tooltip("Base gap between rows at the start of a stage, in seconds of travel.")]
         [SerializeField] private float rowGapSecondsStart = 1.45f;   // Gold Run: empty asphalt between challenges
         [Tooltip("Base gap at the end of a stage. Never goes below the reaction floor.")]

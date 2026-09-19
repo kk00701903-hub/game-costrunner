@@ -13,6 +13,8 @@ Shader "CoastRun/ToonLit"
         _ShadowSoftness ("Shadow Softness", Range(0.001,0.3)) = 0.08
         _Smoothness ("Smoothness", Range(0,1)) = 0.05
         _CurveWeight ("Curved World Weight", Range(0,1)) = 1
+        // 143차: 동물의 숲풍 소프트 룩(마을) — 전역 _CoastSoft(0~1) 로 켠다. 하프 램버트 + 넓은 램프 + 그림자 바닥 + SH 앰비언트 + 림
+        _RimColor ("Rim (soft look)", Color) = (0.92, 0.96, 1.0, 1)
     }
     SubShader
     {
@@ -33,7 +35,14 @@ Shader "CoastRun/ToonLit"
             half _ShadowSoftness;
             half _Smoothness;
             half _CurveWeight;
+            half4 _RimColor;
         CBUFFER_END
+        // 전역(코드에서 Shader.SetGlobal*): 마을에서만 1
+        half _CoastSoft;            // 0 = 기존 러닝 룩, 1 = 소프트 룩
+        half4 _CoastSoftShadowTint; // 그림자 곱색(따뜻한 라벤더)
+        half _CoastSoftFloor;       // 그림자 바닥(0.55: 그늘도 밝게)
+        half _CoastSoftAmbient;     // SH 앰비언트 가중치
+        half _CoastSoftRim;         // 림 세기
         ENDHLSL
 
         Pass
@@ -82,9 +91,34 @@ Shader "CoastRun/ToonLit"
                 half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
                 float3 n = normalize(IN.normalWS);
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(IN.positionWS));
+                half soft = saturate(_CoastSoft);
+                // 기존(러닝): 램버트 × 그림자, 좁은 램프
                 half ndl = dot(n, mainLight.direction) * mainLight.shadowAttenuation;
-                half shade = smoothstep(_ShadowThreshold - _ShadowSoftness, _ShadowThreshold + _ShadowSoftness, ndl);
-                half3 lit = lerp(_ShadowColor.rgb * albedo.rgb, albedo.rgb * mainLight.color, shade);
+                half shadeHard = smoothstep(_ShadowThreshold - _ShadowSoftness, _ShadowThreshold + _ShadowSoftness, ndl);
+                // 소프트(마을): 하프 램버트(0.5·N·L+0.5) × 부드러운 그림자(바닥값) → 넓은 램프(±0.22)
+                half halfL = dot(n, mainLight.direction) * 0.5 + 0.5;
+                half shAtt = lerp(_CoastSoftFloor, 1.0, mainLight.shadowAttenuation);
+                half shadeSoft = smoothstep(0.48 - 0.22, 0.48 + 0.22, halfL * shAtt);
+                half shade = lerp(shadeHard, shadeSoft, soft);
+                half3 shadowTint = lerp(_ShadowColor.rgb, _CoastSoftShadowTint.rgb, soft);
+                // 소프트 룩은 앰비언트·보조광·림이 더해지므로 주광 에너지를 낮춰 총합이 1 을 넘지 않게
+                half3 lit = lerp(shadowTint * albedo.rgb, albedo.rgb * mainLight.color * lerp(1.0, 0.82, soft), shade);
+                // SH 앰비언트(하늘/지평/땅 3색) — 그늘도 뿌옇게 살아 있게
+                lit += SampleSH(n) * albedo.rgb * (_CoastSoftAmbient * soft);
+                // 보조광(남쪽 필 라이트 등) — 같은 하프 램버트
+                #ifdef _ADDITIONAL_LIGHTS
+                uint cnt = GetAdditionalLightsCount();
+                for (uint li = 0u; li < cnt; li++)
+                {
+                    Light l = GetAdditionalLight(li, IN.positionWS);
+                    half hl = saturate(dot(n, l.direction) * 0.5 + 0.5);
+                    lit += albedo.rgb * l.color * l.distanceAttenuation * hl * lerp(0.35, 0.30, soft);
+                }
+                #endif
+                // 림: 실루엣 가장자리에 하늘빛 — 검은 외곽선 대신 형태를 잡아 준다
+                float3 v = normalize(_WorldSpaceCameraPos.xyz - IN.positionWS);
+                half fres = pow(1.0 - saturate(dot(n, v)), 3.0);
+                lit += _RimColor.rgb * fres * (_CoastSoftRim * soft) * (0.4 + 0.6 * shade);
                 lit = MixFog(lit, IN.fogFactor);
                 return half4(lit, albedo.a);
             }

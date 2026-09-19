@@ -28,6 +28,7 @@ namespace CoastRun
         private float _nextStarZ = 200f;
         private float _nextCardZ = 420f;   // 38차: 포토카드 아이템
         private float _nextGiantZ = 160f;  // 거인 무적
+        private float _nextCapsuleZ = 150f; // 131차: 럭키 캡슐(스토리 러닝만)
         private float _bonusFillZ;
         private float _nextHeartZ;
         private float _heartSpacing = 80f;
@@ -63,6 +64,7 @@ namespace CoastRun
             _nextStarZ = startZ + 320f + (float)_rng.NextDouble() * 120f;
             _nextCardZ = startZ + (StoryContest.Active && StoryContest.Current.goal == StoryContest.Goal.Photos ? 200f : 380f) + (float)_rng.NextDouble() * 180f;
             _nextGiantZ = startZ + 140f + (float)_rng.NextDouble() * 80f;
+            _nextCapsuleZ = startZ + 120f + (float)_rng.NextDouble() * 100f;
             _nextHeartZ = Mathf.Max(startZ + 40f, startZ + _heartSpacing * 0.6f);
             _heartsLeft = RunTuning.HeartsPerStage;
             ClearAll();
@@ -176,6 +178,13 @@ namespace CoastRun
                 {
                     Place(PickupKind.Giant, _nextGiantZ, _rng.Next(3) - 1, 0.45f);
                     _nextGiantZ += 220f + (float)_rng.NextDouble() * 120f;   // 스테이지당 대략 1~2개
+                }
+                // 131차: 럭키 캡슐 — 스토리(육성) 러닝에만, 200~320 m 마다 하나(뽑기권). 30 % 는 점프 높이에.
+                if (_nextCapsuleZ < z + spawnAhead)
+                {
+                    if (GameManager.Active && !ArcadeRun.Active)
+                        Place(PickupKind.Capsule, _nextCapsuleZ, _rng.Next(3) - 1, _rng.NextDouble() < 0.3 ? 1.25f : 0.45f);
+                    _nextCapsuleZ += 200f + (float)_rng.NextDouble() * 120f;
                 }
 
                 // 말랑이 하트: 트랙 전체에 고르게, 레인은 시드 난수. 점프 높이(1.2 m)에 놓이는
@@ -292,7 +301,7 @@ namespace CoastRun
         {
             // 38차: 말랑이는 장애물 3 m 안엔 안 놓고, 아이템(물약/별/하트)은 장애물 4.5 m·다른 픽업 3.5 m 떨어진 자리로 미룬다
             bool item = kind == PickupKind.Potion || kind == PickupKind.BonusStar || kind == PickupKind.Heart
-                        || kind == PickupKind.Photocard || kind == PickupKind.Giant;
+                        || kind == PickupKind.Photocard || kind == PickupKind.Giant || kind == PickupKind.Capsule;
             if (item) z = RoadOccupancy.FindClear(z, lane, 4.5f, 3.5f);
             else if (RoadOccupancy.Near(RoadOccupancy.Kind.Obstacle, z, lane, 3f)) return;
             RoadOccupancy.Add(item ? RoadOccupancy.Kind.Item : RoadOccupancy.Kind.Pickup, z, lane);

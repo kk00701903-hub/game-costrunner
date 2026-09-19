@@ -38,6 +38,14 @@ namespace CoastRun
             EnsureCamera();
             // 첫 오프닝이 바로 뜨면 M13 을 먼저 틀지 않음 — 모바일에서 오프닝 BGM 과 겹침
             bool pendingOpen = gm.Save.chapter == 1 && !gm.Save.prologueSeen && !gm.Save.boundaryPending;
+            // 136차(사용자): 스토리 모드에 들어오면(타이틀에서·「마을」 버튼) 포켓캠프풍 바닷가 마을부터. 송전탑 언덕에 가면 스케줄 화면.
+            bool wantVillage = CoastRun.Village.VillageHub.Enabled && gm.VillageNext && !pendingOpen && !gm.OpenTimelineOnRaising;
+            gm.VillageNext = false;
+            if (wantVillage)
+            {
+                _hub = CoastRun.Village.VillageHub.Create(gm, this);
+                return;
+            }
             if (!pendingOpen)
                 TitleAudio.PlayRaising();   // 스토리 모드(육성) 배경 — BGM_M13 「하늘의 약속」
             else
@@ -55,6 +63,25 @@ namespace CoastRun
                 var ev = gm.PeekRandomEvent();
                 if (ev != null)
                     _ui.ShowEvent(ev);
+            }
+        }
+
+        private CoastRun.Village.VillageHub _hub;
+
+        /// 136차: 마을의 송전탑 언덕에서 스케줄 화면으로 — 마을을 걷어내고 기존 육성 UI를 그대로 세운다.
+        public void OpenScheduleFromVillage()
+        {
+            var gm = GameManager.Ensure();
+            if (_hub != null) { Destroy(_hub.gameObject); _hub = null; }
+            RenderSettings.fog = false;
+            EnsureCamera();
+            TitleAudio.PlayRaising();
+            _ui = gameObject.AddComponent<TamaRaisingUI>();
+            _ui.Bind(gm);
+            if (gm.Save.phaseIndex == 0 && !gm.Save.HasQueuedSchedule)
+            {
+                var ev = gm.PeekRandomEvent();
+                if (ev != null) _ui.ShowEvent(ev);
             }
         }
 

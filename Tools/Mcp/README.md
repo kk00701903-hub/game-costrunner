@@ -25,6 +25,7 @@ Cursor 를 쓸 때는 `.cursor/mcp.json` 이 같은 목록을 갖고 있으니 �
 | `kling` | `Tools/Mcp/kling_mcp_server.py` | `.env` 의 `KLING_*` |
 | `mixamo` | `Tools/Mcp/mixamo_mcp_server.py` | `.env` 의 `MIXAMO_BEARER` — **신규** |
 | `pexels` | `Tools/Mcp/pexels_mcp_server.py` | `.env` 의 `PEXELS_API_KEY` — **신규** |
+| `figma` | `Tools/Mcp/figma_mcp_server.py` | Figma 개발 플러그인 `Tools/Figma/plugin` 과 127.0.0.1:47010 롱폴링 — 상세 `Tools/Figma/README.md` — **신규 2026-09-19** |
 | `android` | `Tools/Mcp/android_mcp_server.py` | `.env` 의 `ANDROID_*` — adb/emulator 래퍼 (Cursor 의 터미널 권한을 대신함) — **신규 2026-09-14** |
 
 ## mixamo
