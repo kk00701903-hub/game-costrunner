@@ -1,3 +1,4 @@
+// 146차 radial curve (CoastCurve.hlsl 갱신 후 재임포트)
 Shader "CoastRun/InkOutline"
 {
     // 14차-3: 스킨드 메시(주인공 리그)용 잉크 테두리. 인버티드 헐을 트랜스폼 스케일로 만들 수 없는

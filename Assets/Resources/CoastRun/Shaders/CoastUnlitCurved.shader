@@ -1,3 +1,4 @@
+// 146차 radial curve (CoastCurve.hlsl 갱신 후 재임포트)
 Shader "CoastRun/UnlitCurved"
 {
     // Drop-in for "Universal Render Pipeline/Unlit" that follows the curved world.

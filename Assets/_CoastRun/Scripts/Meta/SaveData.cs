@@ -184,6 +184,10 @@ namespace CoastRun
         public int villageSleepStamp = -1;               // 엄마 집 낮잠 (week*4+phase)
         public int villageFishStamp = -1; public int villageFishCasts;   // 낚시 던진 횟수(페이즈당 5)
         public int villageTreeWeek = -1; public int villageTreeMask;      // 이번 주 흔든 나무
+        // 150차: 채집 — 텃밭 9칸(스타듀식), 잡초, 난로 연료(장작), 도끼질한 나무, 주운 것(주 단위 리스폰), 잡은 벌레 수
+        public PotState[] farm; public int farmWeedMask; public int farmWetMask; public int farmWetStamp = -1;
+        public int villageFuel; public int villageChopWeek = -1; public int villageChopMask;
+        public int villagePickWeek = -1; public long villagePickMask; public int bugsCaught;
         public string[] yardItems = new string[0];       // 마당 가구 "id|x|z|rot"                // 135차: 육성 자동 진행 — 끌 때까지 유지(대회·이야기 다녀와도)
 
         public ChapterRecord CurrentChapter =>

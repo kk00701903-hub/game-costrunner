@@ -54,7 +54,7 @@ namespace CoastRun
             head.color = Navy; head.fontStyle = FontStyle.Bold;
 
             // 필터 칩
-            LifeItemCat[] cats = { LifeItemCat.Ingredient, LifeItemCat.BasicDish, LifeItemCat.PremiumDish, LifeItemCat.Medicine, LifeItemCat.Care };
+            LifeItemCat[] cats = { LifeItemCat.Ingredient, LifeItemCat.BasicDish, LifeItemCat.PremiumDish, LifeItemCat.Medicine, LifeItemCat.Care, LifeItemCat.Gather };
             float chipW = 112f;
             for (int i = 0; i < cats.Length; i++)
             {
@@ -164,6 +164,7 @@ namespace CoastRun
                 LifeItemCat.BasicDish => new Color(1f, 0.94f, 0.82f),
                 LifeItemCat.PremiumDish => new Color(1f, 0.88f, 0.92f),
                 LifeItemCat.Medicine => new Color(0.86f, 0.92f, 1f),
+                LifeItemCat.Gather => new Color(0.88f, 0.96f, 0.86f),
                 _ => new Color(0.94f, 0.90f, 0.98f)
             };
             var fin = CoastUiArt.Panel(row.transform, "F", fill, 14); fin.raycastTarget = false;

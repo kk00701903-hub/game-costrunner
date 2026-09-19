@@ -1,3 +1,4 @@
+// 146차 radial curve (CoastCurve.hlsl 갱신 후 재임포트)
 Shader "CoastRun/ToonLit"
 {
     Properties
@@ -64,6 +65,7 @@ Shader "CoastRun/ToonLit"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile_fog
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             struct Attributes
@@ -118,9 +120,17 @@ Shader "CoastRun/ToonLit"
                 half shade = lerp(shadeHard, shadeSoft, soft);
                 half3 shadowTint = lerp(_ShadowColor.rgb, _CoastSoftShadowTint.rgb, soft);
                 // 소프트 룩은 앰비언트·보조광·림이 더해지므로 주광 에너지를 낮춰 총합이 1 을 넘지 않게
-                half3 lit = lerp(shadowTint * albedo.rgb, albedo.rgb * mainLight.color * lerp(1.0, 0.82, soft), shade);
+                // 146차: SSAO — 구석·맞닿는 곳을 살짝 어둡게(간접광은 그대로, 직사광은 DirectLightingStrength 만큼)
+                half aoInd = 1.0, aoDir = 1.0;
+                #if defined(_SCREEN_SPACE_OCCLUSION)
+                {
+                    AmbientOcclusionFactor ao = GetScreenSpaceAmbientOcclusion(GetNormalizedScreenSpaceUV(IN.positionCS));
+                    aoInd = ao.indirectAmbientOcclusion; aoDir = ao.directAmbientOcclusion;
+                }
+                #endif
+                half3 lit = lerp(shadowTint * albedo.rgb * aoInd, albedo.rgb * mainLight.color * lerp(1.0, 0.82, soft) * aoDir, shade);
                 // SH 앰비언트(하늘/지평/땅 3색) — 그늘도 뿌옇게 살아 있게
-                lit += SampleSH(n) * albedo.rgb * (_CoastSoftAmbient * soft);
+                lit += SampleSH(n) * albedo.rgb * (_CoastSoftAmbient * soft) * aoInd;
                 // 보조광(남쪽 필 라이트 등) — 같은 하프 램버트
                 #ifdef _ADDITIONAL_LIGHTS
                 uint cnt = GetAdditionalLightsCount();

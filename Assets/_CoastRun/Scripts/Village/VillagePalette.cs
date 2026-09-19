@@ -17,7 +17,7 @@ namespace CoastRun.Village
         public static readonly Color GrassLight = Hex("#A6D77A"), Grass = Hex("#8DC565"), GrassShade = Hex("#6FAE58");
         public static readonly Color Sand = Hex("#F6E7CB"), SandWet = Hex("#E6D3B0"), Path = Hex("#E6D2A8"), PathEdge = Hex("#CDB58A"), Soil = Hex("#B98E6A"), SoilLight = Hex("#D2AE88");
         public static readonly Color SeaDeep = Hex("#3F8FDC"), SeaShallow = Hex("#6AB2F2"), SeaFoam = Hex("#C9E1E7");
-        public static readonly Color SkyTop = Hex("#5CA6F0"), SkyMid = Hex("#7DBCF8"), SkyHorizon = Hex("#A9D8FB");
+        public static readonly Color SkyTop = Hex("#5CA6F0"), SkyMid = Hex("#7DBCF8"), SkyHorizon = Hex("#A9D8FB"), Fog = Hex("#B7DCF7");
         public static readonly Color Rock = Hex("#A8A182"), RockShade = Hex("#7E7A5C"), Moss = Hex("#96B462");
         public static readonly Color Thatch = Hex("#E9C27A"), RoofPink = Hex("#F6B7C4"), RoofMint = Hex("#A9DCC8"), RoofSky = Hex("#BFD8F5"), RoofCream = Hex("#F7D5A6"), WallCream = Hex("#FFF6E8");
         public static readonly Color Log = Hex("#D9A66E"), LogDark = Hex("#B7834F");
@@ -54,6 +54,9 @@ namespace CoastRun.Village
             smh.shadows.Override(new Vector4(1.02f, 1.0f, 1.05f, 0.02f));    // 그림자 살짝 라벤더로
             smh.midtones.Override(new Vector4(1.02f, 1.0f, 0.99f, 0f));
             smh.highlights.Override(new Vector4(1.03f, 1.01f, 0.97f, 0f));
+            // 146차: 피사계 심도(가우시안 — 모바일 부담 적음): 주인공(카메라 11 m) 은 또렷, 등대·반도(45 m~)부터 살짝 뭉갬
+            var dof = p.Add<DepthOfField>(true); dof.mode.Override(DepthOfFieldMode.Gaussian);
+            dof.gaussianStart.Override(22f); dof.gaussianEnd.Override(60f); dof.gaussianMaxRadius.Override(0.9f); dof.highQualitySampling.Override(false);
             var lgg = p.Add<LiftGammaGain>(true); lgg.lift.Override(new Vector4(1f, 1f, 1f, 0.01f)); lgg.gamma.Override(new Vector4(1f, 1f, 1f, 0f));
             return vol;
         }

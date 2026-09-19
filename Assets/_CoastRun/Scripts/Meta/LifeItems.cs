@@ -15,6 +15,7 @@ namespace CoastRun
         Medicine = 3,
         Care = 4,
         Clothes = 5,
+        Gather = 6,   // 150차: 채집(작물·장작·벌레·조개·버섯)
     }
 
     [Serializable]
@@ -103,6 +104,32 @@ namespace CoastRun
             D("care_book", "에세이 책", "Essay Book", "읽고 쉬기. 감성·스트레스 ↓", "Quiet reading. Sense / stress ↓",
                 LifeItemCat.Care, 55, true, "Icon_Book", null, 0, 0, -12, 0, false, true, false),
 
+            // ── 150차: 채집 ──
+            D("crop_tomato", "토마토", "Tomato", "텃밭에서 키운 것. 그냥 먹어도 맛있다.", "Home-grown. Tasty as is.",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_veg", 12, 4, -1, 0, true, false, false),
+            D("crop_potato", "감자", "Potato", "텃밭 감자. 든든하다.", "Home-grown potato. Filling.",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_veg", 16, 3, 0, 1, true, false, false),
+            D("crop_rice", "볏단", "Rice Sheaf", "텃밭 벼. 방에서 쌀로.", "Home-grown rice. Cook into rice.",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Rice", "dish_rice", 0, 0, 0, 0, false, false, false),
+            D("flower_rose", "장미 한 송이", "Rose", "책상에 꽂아 두면 마음이 편해진다. 스트레스 -25", "On the desk it calms you. Stress -25",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Shirt", null, 0, 2, -25, 0, false, true, false),
+            D("flower_lavender", "라벤더 다발", "Lavender", "향이 좋다. 스트레스 -12", "Smells lovely. Stress -12",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Shirt", null, 0, 2, -12, 0, false, true, false),
+            D("mat_wood", "장작", "Firewood", "나무를 도끼로 패거나 나뭇가지를 주워 모은다. 우리집 난로 연료(1주에 1개).", "Chop trees or pick up branches. Fuel for the home stove (1 per week).",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("gath_coconut", "코코넛", "Coconut", "야자수를 흔들면 떨어진다. 시원하다.", "Falls from palms. Refreshing.",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 10, 3, -4, 1, true, false, false),
+            D("gath_shell", "조개껍데기", "Seashell", "바닷가에서 주운 예쁜 조개. 보고 있으면 기분이 좋다. 스트레스 -6", "A pretty shell from the beach. Stress -6",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Shirt", null, 0, 1, -6, 0, false, true, false),
+            D("gath_mushroom", "버섯", "Mushroom", "나무 그늘에서 딴 버섯. 볶음으로 조리.", "Picked in the shade. Cook into a side.",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_veg", 0, 0, 0, 0, false, false, false),
+            D("bug_butterfly", "나비", "Butterfly", "잠자리채로 잡은 나비. 도감용.", "Caught with the net. For the collection.",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("bug_dragonfly", "잠자리", "Dragonfly", "물가를 쌩 날아다닌다. 잡기 어렵다.", "Zips around the water. Hard to catch.",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("bug_ladybug", "무당벌레", "Ladybug", "꽃밭 풀잎에 앉아 있다. 행운의 벌레.", "Sits on the flowers. Lucky bug.",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+
             // ── 옷 ──
             D("clothes_set", "새 옷 세트", "New Clothes Set", "3개월(12주) 입는 옷. 낡으면 컨디션↓", "Lasts 12 weeks. Worn = condition ↓",
                 LifeItemCat.Clothes, Survival.ClothesPrice, true, "UI_Goods_Shirt", null, 0, 0, 0, 0, false, true, true),
@@ -139,6 +166,7 @@ namespace CoastRun
             LifeItemCat.Medicine => Loc.T("약", "Medicine"),
             LifeItemCat.Care => Loc.T("케어", "Care"),
             LifeItemCat.Clothes => Loc.T("옷·생활", "Clothes"),
+            LifeItemCat.Gather => Loc.T("채집", "Gathered"),
             _ => "?"
         };
 

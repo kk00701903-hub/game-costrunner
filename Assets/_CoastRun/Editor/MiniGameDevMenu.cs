@@ -415,16 +415,28 @@ namespace CoastRun.EditorTools
 
         // ── 136차: 바닷가 마을 ──
         [MenuItem("Coast Run/Dev/Village - Open")]
-        private static void VillageOpen() { var gm = GameManager.I; if (gm == null || gm.Save == null) return; gm.VillageNext = true; gm.EnterRaising(); }
+        private static void VillageOpen() { var gm = GameManager.I; if (gm == null || gm.Save == null) return; gm.EnterRaising(); }   // 148차: 05_Raising 은 항상 마을부터
         [MenuItem("Coast Run/Dev/Village - Go tower")] private static void VGoTower() => VGo("tower");
         [MenuItem("Coast Run/Dev/Village - Go hero house")] private static void VGoHero() => VGo("hero");
         [MenuItem("Coast Run/Dev/Village - Go mom house")] private static void VGoMom() => VGo("mom");
         [MenuItem("Coast Run/Dev/Village - Go shop")] private static void VGoShop() => VGo("shop");
         [MenuItem("Coast Run/Dev/Village - Go garden")] private static void VGoGarden() => VGo("garden");
-        [MenuItem("Coast Run/Dev/Village - Cam info")] private static void VCamInfo() { var h = CoastRun.Village.VillageHub.I; var c = Camera.main; if (h == null || c == null) return; var p = c.transform.position; Debug.Log($"[CamInfo] cam={p} ground={CoastRun.Village.VillageWorld.Height(p.x, p.z):F2} player={h.PlayerPos} fwd={c.transform.forward}"); }
+        /// 147차: 파스텔 집들 사이 골목(꽃집 오른쪽·해녀네/등대지기 왼쪽) — 시안(두 집 사이 길) 비교용
+        [MenuItem("Coast Run/Dev/Village - Diag")] private static void VDiag() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DiagLog(); }
+        [MenuItem("Coast Run/Dev/Village - Go palm")] private static void VGoPalm() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(new Vector3(13f, 0f, -18.5f), 215f); }
+        [MenuItem("Coast Run/Dev/Village - Go farm tile")] private static void VGoFarm() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var c = CoastRun.Village.VillageFarm.TileCenter(4); h.Teleport(new Vector3(c.x, 0f, c.z), 180f); }
+        [MenuItem("Coast Run/Dev/Village - Tool axe")] private static void VToolAxe() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(2); }
+        [MenuItem("Coast Run/Dev/Village - Tool net")] private static void VToolNet() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(0); }
+        [MenuItem("Coast Run/Dev/Village - Go lane")] private static void VGoLane() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(new Vector3(-10.2f, 0f, -33.2f), 180f); }
+        [MenuItem("Coast Run/Dev/Village - Cam info")] private static void VCamInfo() { var h = CoastRun.Village.VillageHub.I; var c = Camera.main; if (h == null || c == null) return; var p = c.transform.position; Debug.LogWarning($"[CamInfo] cam={p} player={h.PlayerPos} camYaw={c.transform.eulerAngles.y:F0} playerYaw={h.PlayerYaw:F0}"); }
+        [MenuItem("Coast Run/Dev/Village - Curve info")] private static void VCurveInfo() { var v = Shader.GetGlobalVector("_CoastCurveRadial"); var sea = GameObject.Find("Sea"); var mr = sea != null ? sea.GetComponent<Renderer>() : null; var m = mr != null ? mr.sharedMaterial : null; Debug.LogWarning($"[CurveInfo] radial={v} sea={(m != null ? m.shader.name : "none")} w={(m != null && m.HasProperty("_CurveWeight") ? m.GetFloat("_CurveWeight") : -1f)} curve={Shader.GetGlobalVector("_CoastCurve")}"); }
+        [MenuItem("Coast Run/Dev/Village - Enter house 0")] private static void VEnterHouse() { var h = CoastRun.Village.VillageHub.I; if (h == null || CoastRun.Village.VillageWorld.Houses.Count == 0) return; var hs = CoastRun.Village.VillageWorld.Houses[2]; h.Teleport(hs.door, 0f); h.EnterHouse(hs.house, hs.name, hs.door); }
+        [MenuItem("Coast Run/Dev/Village - Go house 0")] private static void VGoHouse() { var h = CoastRun.Village.VillageHub.I; if (h == null || CoastRun.Village.VillageWorld.Houses.Count == 0) return; var hs = CoastRun.Village.VillageWorld.Houses[2]; h.Teleport(hs.door + hs.house.forward * 3f, hs.house.eulerAngles.y + 180f); Debug.LogWarning("[GoHouse] " + hs.name + " door=" + hs.door + " fwd=" + hs.house.forward); }
         [MenuItem("Coast Run/Dev/Village - Go beach")] private static void VGoBeach() => VGo("beach");
         [MenuItem("Coast Run/Dev/Village - Go tree")] private static void VGoTree() { var h = CoastRun.Village.VillageHub.I; if (h == null || CoastRun.Village.VillageWorld.Trees.Count == 0) return; var t = CoastRun.Village.VillageWorld.Trees[0].position; h.Teleport(t + new Vector3(0f, 0f, -2.2f)); }
         [MenuItem("Coast Run/Dev/Village - Go kid")] private static void VGoKid() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(new Vector3(-4f, 0f, -21f)); }
+        [MenuItem("Coast Run/Dev/Village - Walk south 6m")] private static void VWalkS() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.WalkTo(h.transform.Find("VillagePlayer").position + new Vector3(0f, 0f, -6f)); }
+        [MenuItem("Coast Run/Dev/Village - Walk east 6m")] private static void VWalkE() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.WalkTo(h.transform.Find("VillagePlayer").position + new Vector3(6f, 0f, 0f)); }
         [MenuItem("Coast Run/Dev/Village - Walk north 6m")] private static void VWalkN() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.WalkTo(h.transform.Find("VillagePlayer").position + new Vector3(0f, 0f, 6f)); }
         private static void VGo(string id) { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var p = h.SpotPos(id); if (id == "garden") h.Teleport(new Vector3(0f, 0f, -10.8f), 180f); else if (id == "beach" || id == "shop" || id == "mom" || id == "light") h.Teleport(p + new Vector3(0f, 0f, 2.4f), 180f); else h.Teleport(p + new Vector3(0f, 0f, -2.6f), 0f); }
     }

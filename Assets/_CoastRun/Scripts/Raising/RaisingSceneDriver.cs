@@ -33,14 +33,17 @@ namespace CoastRun
                 if (loaded != null) gm.Continue();
                 else gm.NewGame(RunMode.Running);
                 if (gm.Save == null) return;
+                // 148차(사용자: 「이 화면이 처음으로 자꾸 올라온다」): Continue/NewGame 은 씬을 다시 로드한다(Flow.GoTo(Raising)).
+                // 여기서 계속 세우면 첫 Start 가 마을을 짓고 → 재로드된 두 번째 Start 가 스케줄 화면을 띄우던 찌꺼기.
+                if (GameDirector.Instance != null && GameDirector.Instance.Flow != null) return;
             }
 
             EnsureCamera();
             // 첫 오프닝이 바로 뜨면 M13 을 먼저 틀지 않음 — 모바일에서 오프닝 BGM 과 겹침
             bool pendingOpen = gm.Save.chapter == 1 && !gm.Save.prologueSeen && !gm.Save.boundaryPending;
-            // 136차(사용자): 스토리 모드에 들어오면(타이틀에서·「마을」 버튼) 포켓캠프풍 바닷가 마을부터. 송전탑 언덕에 가면 스케줄 화면.
-            bool wantVillage = CoastRun.Village.VillageHub.Enabled && gm.VillageNext && !pendingOpen && !gm.OpenTimelineOnRaising;
-            gm.VillageNext = false;
+            // 136차: 스토리 모드는 바닷가 마을부터. 148차(사용자): 05_Raising 에 들어오는 모든 길(계속하기·대회 뒤·러닝 실패 뒤·에디터 직접 열기)이
+            // 마을이 기본 — 스케줄(홈) 화면은 마을에서 「우리집 → 집에 들어가기」로만. 예외: 첫 오프닝 대기, 타임라인 열기 요청.
+            bool wantVillage = CoastRun.Village.VillageHub.Enabled && !pendingOpen && !gm.OpenTimelineOnRaising;
             if (wantVillage)
             {
                 _hub = CoastRun.Village.VillageHub.Create(gm, this);

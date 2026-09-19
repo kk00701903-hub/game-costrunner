@@ -33,6 +33,7 @@ namespace CoastRun
             LifeItems.Ensure(s);
             r.hungerBefore = s.hunger; r.condBefore = s.condition; r.stressBefore = s.stats.stress;
             r.harvested = HomeData.WeeklyGrow(s);
+            CoastRun.Village.VillageFarm.WeekTick(s, r);   // 150차: 마을 텃밭 9칸 성장·잡초·난로 장작
             HomeData.EnsurePots(s);
             for (int i = 0; i < s.pots.Length; i++)
             {

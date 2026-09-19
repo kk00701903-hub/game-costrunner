@@ -13,7 +13,7 @@ namespace CoastRun.Village
         public System.Action<string, int, int> OnCaught; // (종류, 별조각, 코인)
 
         // ── NPC ──
-        class Npc { public Transform root; public Animator anim; public CharacterMotion motion; public Vector3 home, target, vel, acc; public float wait; public Text label; public Canvas cv; public float said; public int line; public string name; public bool noticed; public float idleAct; }
+        class Npc { public Transform root; public Animator anim; public CharacterMotion motion; public Vector3 home, target, vel, acc; public float wait; public SpeechBubble bubble; public float said; public int line; public string name; public bool noticed; public float idleAct; }
         readonly List<Npc> _npcs = new List<Npc>();
         static readonly string[] NpcKo = { "누구세요?", "음…", "…?", "처음 보는 얼굴인데.", "(고개를 갸웃한다)" };
         static readonly string[] NpcEn = { "Who are you?", "Hmm…", "…?", "Never seen you before.", "(tilts head)" };
@@ -23,7 +23,7 @@ namespace CoastRun.Village
         Transform _kid; Vector3 _kidVel; int _kidLine;
 
         // ── 정령·나비 ──
-        class Critter { public Transform t; public bool spirit; public float life, phase; public Vector3 anchor; }
+        class Critter { public Transform t; public bool spirit; public int kind; public float life, phase; public Vector3 anchor; }   // kind: 0 나비 1 잠자리 2 무당벌레
         readonly List<Critter> _crit = new List<Critter>();
         float _spawnT = 4f;
 
@@ -64,21 +64,10 @@ namespace CoastRun.Village
                     n.motion = pivot.gameObject.AddComponent<CharacterMotion>(); n.motion.Anim = n.anim; n.motion.WalkSpeed = 1.2f; n.motion.RunSpeed = 3f; n.motion.BobScale = 0.8f;
                     foreach (var smr in rig.GetComponentsInChildren<SkinnedMeshRenderer>()) if (smr.GetComponent<CelOutlineHint>() == null) smr.gameObject.AddComponent<CelOutlineHint>();
                 }
-                var sh = GameObject.CreatePrimitive(PrimitiveType.Quad); Destroy(sh.GetComponent<Collider>()); sh.transform.SetParent(root, false);
-                sh.transform.localPosition = new Vector3(0f, 0.03f, 0f); sh.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); sh.transform.localScale = new Vector3(0.8f, 0.6f, 1f);
-                sh.GetComponent<MeshRenderer>().sharedMaterial = MiniStage3D.SoftDisc(new Color(0f, 0f, 0f, 0.25f));
-                var col = root.gameObject.AddComponent<CapsuleCollider>(); col.center = new Vector3(0f, 0.6f, 0f); col.radius = 0.3f; col.height = 1.2f;
-                // 머리 위 말풍선 라벨(이름 + 한마디)
-                var cvGo = new GameObject("Label", typeof(RectTransform), typeof(Canvas)); cvGo.transform.SetParent(root, false);
-                cvGo.transform.localPosition = new Vector3(0f, 1.55f, 0f);
-                n.cv = cvGo.GetComponent<Canvas>(); n.cv.renderMode = RenderMode.WorldSpace; n.cv.sortingOrder = 6;
-                var rt = cvGo.GetComponent<RectTransform>(); rt.sizeDelta = new Vector2(300f, 60f); rt.localScale = Vector3.one * 0.01f;
-                var bg = CoastUiArt.CutePill(rt, "Bg", new Color(1f, 1f, 1f, 0.92f), 20, 3); bg.raycastTarget = false;
-                bg.rectTransform.anchorMin = Vector2.zero; bg.rectTransform.anchorMax = Vector2.one; bg.rectTransform.offsetMin = bg.rectTransform.offsetMax = Vector2.zero;
-                n.label = CoastHudLayout.MakeText(rt, "T", "", 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 2f), new Vector2(-10f, 0f));
-                n.label.color = new Color(0.30f, 0.25f, 0.40f); n.label.fontStyle = FontStyle.Bold; n.label.raycastTarget = false;
-                n.label.resizeTextForBestFit = true; n.label.resizeTextMinSize = 10; n.label.resizeTextMaxSize = CoastHudLayout.Scaled(20);
-                cvGo.SetActive(false);
+                                var col = root.gameObject.AddComponent<CapsuleCollider>(); col.center = new Vector3(0f, 0.6f, 0f); col.radius = 0.3f; col.height = 1.2f;
+                // 146차: 월드 스페이스 말풍선(꼬리·둥실) + 발밑 블롭 그림자
+                n.bubble = SpeechBubble.Create(root, 1.55f);
+                GroundBlob.Attach(root, 0.42f, 0.34f, pivot);
                 n.target = n.home; n.wait = Random.Range(1f, 3f); n.idleAct = Random.Range(3f, 8f);
                 _npcs.Add(n);
             }
@@ -118,19 +107,18 @@ namespace CoastRun.Village
                 bool sees = dp < 3.2f;
                 // 141차: 6 m 안이면 고개만 돌려 주인공을 쳐다본다(몸은 그대로), 처음 눈에 띄면 「!」
                 if (n.motion != null) n.motion.LookTarget = dp < 6.5f ? Player : null;
-                if (dp < 5f && !n.noticed) { n.noticed = true; n.said = Time.time - 2.6f; n.label.text = "!"; n.cv.gameObject.SetActive(true); if (n.motion != null) n.motion.Hop(); }
+                if (dp < 5f && !n.noticed) { n.noticed = true; n.said = Time.time - 2.6f; n.bubble.Show("!"); if (n.motion != null) n.motion.Hop(); }
                 else if (dp > 9f) n.noticed = false;
                 if (sees)
                 {
                     // 주인공을 보면 멈춰서 쳐다보고, 「누구세요?」「음…」만 — 말은 안 걸어준다
                     var f = pp - p; f.y = 0f; if (f.sqrMagnitude > 0.01f) n.root.rotation = Quaternion.Slerp(n.root.rotation, Quaternion.LookRotation(f, Vector3.up), 1f - Mathf.Exp(-dt * 5f));
                     n.vel = Vector3.zero;
-                    if (Time.time - n.said > 3.5f) { n.said = Time.time; n.label.text = n.name + ": " + Loc.T(NpcKo[n.line % NpcKo.Length], NpcEn[n.line % NpcEn.Length]); n.line++; if (n.motion != null && n.line % 2 == 0) n.motion.Nod(); }
-                    n.cv.gameObject.SetActive(true);
+                    if (Time.time - n.said > 3.5f) { n.said = Time.time; n.bubble.Show(n.name + ": " + Loc.T(NpcKo[n.line % NpcKo.Length], NpcEn[n.line % NpcEn.Length])); n.line++; if (n.motion != null && n.line % 2 == 0) n.motion.Nod(); }
                 }
                 else
                 {
-                    if (n.cv.gameObject.activeSelf && Time.time - n.said > 2.5f) n.cv.gameObject.SetActive(false);
+                    if (n.bubble.Visible && Time.time - n.said > 2.5f) n.bubble.Hide();
                     var d = n.target - p; d.y = 0f;
                     if (d.magnitude < 0.35f)
                     {
@@ -155,7 +143,6 @@ namespace CoastRun.Village
                         n.root.position = np; n.root.rotation = Quaternion.Slerp(n.root.rotation, Quaternion.LookRotation(d, Vector3.up), 1f - Mathf.Exp(-dt * 6f));
                     }
                 }
-                if (n.cv.gameObject.activeSelf && Camera.main != null) { var cf = Camera.main.transform.forward; cf.y = 0f; n.cv.transform.rotation = Quaternion.LookRotation(cf, Vector3.up); }
             }
         }
 
@@ -168,7 +155,7 @@ namespace CoastRun.Village
                 if (n.root == null) continue;
                 if (Vector3.Distance(n.root.position, Player.position) < 3.2f)
                 {
-                    n.said = Time.time; n.label.text = n.name + ": " + Loc.T(NpcKo[n.line % NpcKo.Length], NpcEn[n.line % NpcEn.Length]); n.line++; n.cv.gameObject.SetActive(true);
+                    n.said = Time.time; n.bubble.Show(n.name + ": " + Loc.T(NpcKo[n.line % NpcKo.Length], NpcEn[n.line % NpcEn.Length])); n.line++;
                     CoastToast.Show(Loc.T("…마을 사람은 낯선 나에게 말을 걸어주지 않는다.", "…The villager doesn't talk to a stranger."));
                     return true;
                 }
@@ -201,9 +188,7 @@ namespace CoastRun.Village
                     q.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateTexturedTransparent(tex, Color.white); _kidBillboard = q.transform;
                 }
             }
-            var sh = GameObject.CreatePrimitive(PrimitiveType.Quad); Destroy(sh.GetComponent<Collider>()); sh.name = "KidShadow"; sh.transform.SetParent(root, false);
-            sh.transform.localPosition = new Vector3(0f, 0.03f, 0f); sh.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); sh.transform.localScale = new Vector3(0.7f, 0.5f, 1f);
-            sh.GetComponent<MeshRenderer>().sharedMaterial = MiniStage3D.SoftDisc(new Color(0f, 0f, 0f, 0.25f));
+            GroundBlob.Attach(root, 0.34f, 0.32f, pivot);
             if (Player != null) { var p = Player.position - Player.forward * 1.2f + Player.right * 0.7f; p.y = VillageWorld.Height(p.x, p.z); root.position = p; root.rotation = Player.rotation; }
         }
         Animator _kidAnim; Transform _kidBillboard; bool _kidMoving; CharacterMotion _kidMotion; float _kidHopT = 4f;
@@ -256,7 +241,7 @@ namespace CoastRun.Village
                 _spawnT = Random.Range(6f, 10f);
                 int spirits = 0, bugs = 0; foreach (var c in _crit) if (c.spirit) spirits++; else bugs++;
                 bool spirit = Random.value < 0.6f ? spirits < 2 : bugs >= 3;
-                if (spirit && spirits < 2) Spawn(true); else if (bugs < 3) Spawn(false);
+                if (spirit && spirits < 2) Spawn(true); else if (bugs < 4) Spawn(false);
             }
             for (int i = _crit.Count - 1; i >= 0; i--)
             {
@@ -278,10 +263,27 @@ namespace CoastRun.Village
                 }
                 else
                 {
-                    // 나비: 닻 주변을 8자로 팔랑
-                    var o = new Vector3(Mathf.Sin(c.phase * 1.3f) * 2.2f, 0f, Mathf.Sin(c.phase * 2.6f) * 1.2f);
-                    var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 0.9f + Mathf.Sin(c.phase * 7f) * 0.15f;
-                    c.t.position = np; c.t.rotation = Quaternion.Euler(0f, c.phase * 90f, Mathf.Sin(c.phase * 14f) * 35f);
+                    if (c.kind == 1)
+                    {
+                        // 잠자리: 넓고 빠른 8자, 방향은 진행 방향
+                        var o = new Vector3(Mathf.Sin(c.phase * 2.2f) * 3.2f, 0f, Mathf.Sin(c.phase * 4.4f) * 1.6f);
+                        var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 1.1f + Mathf.Sin(c.phase * 5f) * 0.2f;
+                        var dv = np - p; c.t.position = np; if (dv.sqrMagnitude > 1e-4f) c.t.rotation = Quaternion.LookRotation(dv.normalized, Vector3.up);
+                    }
+                    else if (c.kind == 2)
+                    {
+                        // 무당벌레: 땅 위를 천천히 돌며 기어다님
+                        var o = new Vector3(Mathf.Cos(c.phase * 0.5f) * 1.0f, 0f, Mathf.Sin(c.phase * 0.5f) * 1.0f);
+                        var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 0.10f;
+                        var dv = np - p; c.t.position = np; if (dv.sqrMagnitude > 1e-5f) c.t.rotation = Quaternion.LookRotation(dv.normalized, Vector3.up);
+                    }
+                    else
+                    {
+                        // 나비: 닻 주변을 8자로 팔랑
+                        var o = new Vector3(Mathf.Sin(c.phase * 1.3f) * 2.2f, 0f, Mathf.Sin(c.phase * 2.6f) * 1.2f);
+                        var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 0.9f + Mathf.Sin(c.phase * 7f) * 0.15f;
+                        c.t.position = np; c.t.rotation = Quaternion.Euler(0f, c.phase * 90f, Mathf.Sin(c.phase * 14f) * 35f);
+                    }
                 }
                 if (c.life <= 0f) { Destroy(c.t.gameObject); _crit.RemoveAt(i); }
             }
@@ -311,13 +313,45 @@ namespace CoastRun.Village
             }
             else
             {
-                var g = new GameObject("Butterfly"); g.transform.SetParent(transform, false); g.transform.position = pos;
-                Color col = Random.value < 0.5f ? new Color(1f, 0.75f, 0.30f) : new Color(1f, 0.55f, 0.75f);
-                for (int k = 0; k < 2; k++)
+                // 150차: 벌레 3종 — 나비(어디나) · 잠자리(바닷가 z<-20, 빠름) · 무당벌레(풀밭 땅 위, 느림)
+                float rv = Random.value; c.kind = rv < 0.5f ? 0 : rv < 0.72f && pos.z < -20f ? 1 : rv < 0.72f ? 0 : 2;
+                var g = new GameObject(c.kind == 1 ? "Dragonfly" : c.kind == 2 ? "Ladybug" : "Butterfly"); g.transform.SetParent(transform, false); g.transform.position = pos;
+                if (c.kind == 1)
                 {
-                    var w = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(w.GetComponent<Collider>()); w.transform.SetParent(g.transform, false);
-                    w.transform.localPosition = new Vector3(k == 0 ? -0.16f : 0.16f, 0f, 0f); w.transform.localScale = new Vector3(0.28f, 0.06f, 0.2f);
-                    w.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(col);
+                    var body = GameObject.CreatePrimitive(PrimitiveType.Capsule); Destroy(body.GetComponent<Collider>()); body.transform.SetParent(g.transform, false);
+                    body.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); body.transform.localScale = new Vector3(0.06f, 0.26f, 0.06f);
+                    body.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(0.30f, 0.60f, 0.95f));
+                    for (int k = 0; k < 4; k++)
+                    {
+                        var w = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(w.GetComponent<Collider>()); w.transform.SetParent(g.transform, false);
+                        w.transform.localPosition = new Vector3(k % 2 == 0 ? -0.24f : 0.24f, 0.02f, k < 2 ? 0.06f : -0.06f); w.transform.localScale = new Vector3(0.42f, 0.02f, 0.10f);
+                        w.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateTransparent(new Color(0.85f, 0.95f, 1f, 0.55f));
+                    }
+                }
+                else if (c.kind == 2)
+                {
+                    var body = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(body.GetComponent<Collider>()); body.transform.SetParent(g.transform, false);
+                    body.transform.localScale = new Vector3(0.22f, 0.14f, 0.26f);
+                    body.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(0.92f, 0.22f, 0.20f));
+                    var head = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(head.GetComponent<Collider>()); head.transform.SetParent(g.transform, false);
+                    head.transform.localPosition = new Vector3(0f, 0.02f, 0.13f); head.transform.localScale = Vector3.one * 0.10f;
+                    head.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(0.12f, 0.10f, 0.12f));
+                    for (int k = 0; k < 4; k++)
+                    {
+                        var d = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(d.GetComponent<Collider>()); d.transform.SetParent(g.transform, false);
+                        d.transform.localPosition = new Vector3(k % 2 == 0 ? -0.06f : 0.06f, 0.06f, k < 2 ? 0.04f : -0.05f); d.transform.localScale = Vector3.one * 0.05f;
+                        d.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(0.12f, 0.10f, 0.12f));
+                    }
+                }
+                else
+                {
+                    Color col = Random.value < 0.5f ? new Color(1f, 0.75f, 0.30f) : Random.value < 0.5f ? new Color(1f, 0.55f, 0.75f) : new Color(0.65f, 0.80f, 1f);
+                    for (int k = 0; k < 2; k++)
+                    {
+                        var w = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(w.GetComponent<Collider>()); w.transform.SetParent(g.transform, false);
+                        w.transform.localPosition = new Vector3(k == 0 ? -0.16f : 0.16f, 0f, 0f); w.transform.localScale = new Vector3(0.28f, 0.06f, 0.2f);
+                        w.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(col);
+                    }
                 }
                 c.t = g.transform;
             }
@@ -348,9 +382,13 @@ namespace CoastRun.Village
                 if (d < bd) { if (c.spirit == bat) { bd = d; best = c; } else wrong = true; }
             }
             if (best == null) return wrong ? (bat ? Loc.T("나비는 잠자리채로!", "Use the net for butterflies!") : Loc.T("정령은 방망이로!", "Use the bat for spirits!")) : null;
+            if (bat) { _crit.Remove(best); Pop(best, Color.white); OnCaught?.Invoke("spirit", 2, 30); return Loc.T("✨ 정령을 잡았다! 별조각 +2 · 30G", "✨ Caught a spirit! Shards +2 · 30G"); }
+            // 150차: 잠자리는 빨라서 60% 만 잡힌다(놓치면 멀리 달아남)
+            if (best.kind == 1 && Random.value > 0.6f) { best.anchor += new Vector3(Random.Range(-4f, 4f), 0f, Random.Range(-3f, 3f)); return Loc.T("휙— 잠자리가 도망갔다! 다시 노려 보자.", "Swish — the dragonfly got away!"); }
             _crit.Remove(best); Pop(best, Color.white);
-            if (bat) { OnCaught?.Invoke("spirit", 2, 30); return Loc.T("✨ 정령을 잡았다! 별조각 +2 · 30G", "✨ Caught a spirit! Shards +2 · 30G"); }
-            OnCaught?.Invoke("butterfly", 1, 0); return Loc.T("🦋 나비를 잡았다! 별조각 +1", "🦋 Caught a butterfly! Shard +1");
+            if (best.kind == 1) { OnCaught?.Invoke("dragonfly", 2, 0); return Loc.T("🪰 잠자리를 잡았다! 별조각 +2 · 가방에 넣었다", "🪰 Caught a dragonfly! Shards +2"); }
+            if (best.kind == 2) { OnCaught?.Invoke("ladybug", 1, 0); return Loc.T("🐞 무당벌레를 잡았다! 별조각 +1 · 가방에 넣었다", "🐞 Caught a ladybug! Shard +1"); }
+            OnCaught?.Invoke("butterfly", 1, 0); return Loc.T("🦋 나비를 잡았다! 별조각 +1 · 가방에 넣었다", "🦋 Caught a butterfly! Shard +1");
         }
 
         public bool AnyCritterNear(bool spirit, float r = 2.6f)

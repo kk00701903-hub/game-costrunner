@@ -28,7 +28,6 @@ namespace CoastRun
         public EndingKind PendingEnding { get; private set; } = EndingKind.None;
         public bool OpenTimelineOnRaising { get; set; }
         /// 136차: 다음 05_Raising 진입 때 스케줄 화면 대신 바닷가 마을(VillageHub)을 연다(타이틀에서 들어올 때·「마을」 버튼).
-        public bool VillageNext { get; set; }
         /// 111차: 마을러닝(대회)·놀이 직후 육성으로 돌아올 때 돌발 이벤트를 한 번 건너뛴다.
         public bool SuppressRandomEventOnce { get; set; }
         /// 10차: 챕터 선택에서 '다시 달리기' — 재도전 육성 화면이 뜨자마자 런으로 넘어간다.
@@ -112,7 +111,6 @@ namespace CoastRun
             SaveSys.WriteProfile(Profile);
             WriteMain();
             PlayerPrefs.SetInt(MainMenuController.SkipPrologueKey, 0);
-            VillageNext = true;   // 136차: 스토리 모드 진입 = 마을부터
             EnterRaising();
         }
 
@@ -122,7 +120,6 @@ namespace CoastRun
             Save = SaveSys.Load();
             if (Save == null) { NewGame(RunMode.Running); return; }
             AdoptWallet(false);   // 109차: 코인 = 돈
-            VillageNext = true;   // 136차
             EnterRaising();
         }
 
@@ -130,7 +127,6 @@ namespace CoastRun
         public void ToVillage()
         {
             Persist();
-            VillageNext = true;
             EnterRaising();
         }
 

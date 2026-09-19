@@ -11,6 +11,7 @@ namespace CoastRun.Village
     public class VillageHud : MonoBehaviour
     {
         public Vector2 Joy => _joy != null ? _joy.Value : Vector2.zero;
+        public RectTransform JoyRect => _joy != null ? _joy.transform as RectTransform : null;
         public bool Locked;   // 팝업이 떠 있는 동안 이동·행동 막기
 
         Canvas _canvas; RectTransform _root;
@@ -73,14 +74,14 @@ namespace CoastRun.Village
             var mb = menu.gameObject.AddComponent<Button>(); mb.transition = Selectable.Transition.None; mb.onClick.AddListener(() => { CoastPrefs.Vibrate(); _onMenu?.Invoke(); });
 
             // ── 왼쪽 아래 조이스틱 ──
-            _joy = VirtualJoystick.Create(_root, new Vector2(120f, 190f), 190f);
+            _joy = VirtualJoystick.Create(_root, new Vector2(130f, 300f), 200f);   // 149차: 버튼과 함께 위로(하단 제스처 영역 회피), 조금 크게
 
-            // ── 오른쪽 둥근 버튼 3개 ──
+            // ── 오른쪽 둥근 버튼 4개 ── 149차(사용자): 전체를 188 만큼 위로(엄지 닿는 높이)
             // 137차: 잡기 버튼 위 「도구」(잠자리채/방망이 고르기) — 행동 버튼 라벨은 고른 도구를 따른다
-            Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), new Vector2(-64f, 452f), 96f, () => _onTool?.Invoke(), out _toolT);
-            _actBtn = Round(_root, "Act", "◎", Loc.T("잡기", "Act"), new Color(0.45f, 0.78f, 0.55f), new Vector2(-64f, 330f), 108f, () => _onAct?.Invoke(), out _actT);
-            Round(_root, "Talk", "…", Loc.T("대화", "Talk"), new Color(0.98f, 0.62f, 0.72f), new Vector2(-64f, 208f), 96f, () => _onTalk?.Invoke(), out _);
-            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), new Vector2(-64f, 96f), 96f, () => _onBag?.Invoke(), out _);
+            Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), new Vector2(-64f, 640f), 96f, () => _onTool?.Invoke(), out _toolT);
+            _actBtn = Round(_root, "Act", "◎", Loc.T("잡기", "Act"), new Color(0.45f, 0.78f, 0.55f), new Vector2(-64f, 518f), 108f, () => _onAct?.Invoke(), out _actT);
+            Round(_root, "Talk", "…", Loc.T("대화", "Talk"), new Color(0.98f, 0.62f, 0.72f), new Vector2(-64f, 396f), 96f, () => _onTalk?.Invoke(), out _);
+            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), new Vector2(-64f, 284f), 96f, () => _onBag?.Invoke(), out _);
 
             // ── 아래 마을 알약 ──
             var vp = CoastUiArt.CutePill(_root, "Village", new Color(0.36f, 0.30f, 0.52f, 0.92f), 20, 3); vp.raycastTarget = false;
@@ -264,14 +265,43 @@ namespace CoastRun.Village
             return j;
         }
 
-        void Move(PointerEventData e)
+        // 149차(사용자: 「상하좌우 움직여지지 않는다」): 드래그 이벤트(임계값·이벤트 유실)에 기대지 않고, 누른 손가락/마우스를
+        // Update 에서 직접 추적해 매 프레임 값을 갱신한다. 손가락 id 를 기억해 멀티터치(버튼 동시 조작)에도 흔들리지 않는다.
+        int _pointerId = int.MinValue; Camera _cam;
+        void MoveTo(Vector2 screen)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_ring, e.position, e.pressEventCamera, out var lp);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_ring, screen, _cam, out var lp);
             var v = Vector2.ClampMagnitude(lp / _radius, 1f);
             Value = v; _knob.anchoredPosition = v * _radius;
         }
-        public void OnPointerDown(PointerEventData e) { Move(e); }
-        public void OnDrag(PointerEventData e) { Move(e); }
-        public void OnPointerUp(PointerEventData e) { Value = Vector2.zero; _knob.anchoredPosition = Vector2.zero; }
+        void Move(PointerEventData e) { _cam = e.pressEventCamera; MoveTo(e.position); }
+        public void OnPointerDown(PointerEventData e) { _pointerId = e.pointerId; Move(e); }
+        public void OnDrag(PointerEventData e) { if (e.pointerId == _pointerId) Move(e); }
+        public void OnPointerUp(PointerEventData e) { if (e.pointerId != _pointerId && _pointerId != int.MinValue) return; Release(); }
+        void Release() { _pointerId = int.MinValue; Value = Vector2.zero; _knob.anchoredPosition = Vector2.zero; }
+        void Update()
+        {
+            if (_pointerId == int.MinValue) return;
+            if (_pointerId >= 0)
+            {
+                // 터치: fingerId 로 찾기(없으면 놓은 것)
+                bool found = false;
+                for (int i = 0; i < Input.touchCount; i++)
+                {
+                    var tc = Input.GetTouch(i);
+                    if (tc.fingerId != _pointerId) continue;
+                    found = true;
+                    if (tc.phase == TouchPhase.Ended || tc.phase == TouchPhase.Canceled) Release(); else MoveTo(tc.position);
+                    break;
+                }
+                if (!found && Input.touchCount == 0 && !Input.GetMouseButton(0)) Release();
+                else if (!found && Input.GetMouseButton(0)) MoveTo(Input.mousePosition);   // 에디터 시뮬레이션(터치 id 0 = 마우스)
+            }
+            else
+            {
+                if (!Input.GetMouseButton(0)) Release(); else MoveTo(Input.mousePosition);
+            }
+        }
+        void OnDisable() { Release(); }
     }
 }

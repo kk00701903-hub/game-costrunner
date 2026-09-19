@@ -1,3 +1,4 @@
+// 146차 radial curve (CoastCurve.hlsl 갱신 후 재임포트)
 Shader "CoastRun/ChromaUnlit"
 {
     Properties
