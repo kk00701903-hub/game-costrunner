@@ -146,6 +146,10 @@ namespace CoastRun.Village
             var mr = go.GetComponent<MeshRenderer>();
             SplatTex = Splat();
             mr.sharedMaterial = ArtAssets.CreateTexturedLit(SplatTex, Color.white, 0.02f);
+            // 144차: 디테일 맵(2 m 타일 잔결) — 큰 스플랫 위에 미세 명암을 곱해 가까이서도 표면이 살아 있게
+            var dm = DetailTex();
+            var tm = mr.sharedMaterial;
+            if (tm != null && tm.HasProperty("_DetailMap")) { tm.SetTexture("_DetailMap", dm); tm.SetFloat("_DetailScale", 0.5f); tm.SetFloat("_DetailStrength", 0.16f); }
             mr.receiveShadows = true; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
             // 바깥 울타리(보이지 않는 벽) — 마을 밖으로 못 나가게
@@ -169,7 +173,7 @@ namespace CoastRun.Village
 
         static Texture2D Splat()
         {
-            const int S = 1024;
+            const int S = 2048;   // 144차: 1024(10 px/m)→2048(20 px/m) — 발밑 잔디가 뭉개지지 않게
             var tex = new Texture2D(S, S, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
             var px = new Color32[S * S];
             Color grassA = VillagePalette.Grass, grassB = VillagePalette.GrassShade, grassC = VillagePalette.GrassLight;
@@ -217,8 +221,28 @@ namespace CoastRun.Village
                     px[j * S + i] = c;
                 }
             tex.SetPixels32(px); tex.Apply(true, false);
-            tex.filterMode = FilterMode.Trilinear; tex.anisoLevel = 8; tex.mipMapBias = -0.6f;   // 138차: 지면이 뿌옇지 않게
+            tex.filterMode = FilterMode.Trilinear; tex.anisoLevel = 16; tex.mipMapBias = -0.35f;   // 144차: 2048 이라 바이어스는 -0.35 면 충분(과하면 도트가 튄다)
             return tex;
+        }
+
+        static Texture2D _detail;
+        /// 타일 가능한 부드러운 노이즈(256) — 잔디·모래 결. 회색 0.5 중심, ±0.5
+        static Texture2D DetailTex()
+        {
+            if (_detail != null) return _detail;
+            const int S = 256;
+            var t = new Texture2D(S, S, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Repeat, filterMode = FilterMode.Trilinear, anisoLevel = 8, name = "VillageDetail" };
+            var px = new Color32[S * S];
+            for (int j = 0; j < S; j++) for (int i = 0; i < S; i++)
+            {
+                // 주기적(타일) 노이즈: 두 옥타브를 원환면(torus) 좌표로 샘플
+                float u = i / (float)S * Mathf.PI * 2f, v = j / (float)S * Mathf.PI * 2f;
+                float nx = Mathf.Cos(u) * 3f + 10f, ny = Mathf.Sin(u) * 3f + 10f, nz = Mathf.Cos(v) * 3f + 20f, nw = Mathf.Sin(v) * 3f + 20f;
+                float n = Mathf.PerlinNoise(nx + nz, ny + nw) * 0.6f + Mathf.PerlinNoise((nx + nz) * 2.3f + 5f, (ny + nw) * 2.3f + 7f) * 0.4f;
+                byte g = (byte)Mathf.Clamp(Mathf.RoundToInt(n * 255f), 0, 255);
+                px[j * S + i] = new Color32(g, g, g, 255);
+            }
+            t.SetPixels32(px); t.Apply(true, false); _detail = t; return t;
         }
 
         // 바다: 큰 판 + 파도 흔들림(CoastSea 방식 축약)

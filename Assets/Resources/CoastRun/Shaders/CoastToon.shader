@@ -15,6 +15,10 @@ Shader "CoastRun/ToonLit"
         _CurveWeight ("Curved World Weight", Range(0,1)) = 1
         // 143차: 동물의 숲풍 소프트 룩(마을) — 전역 _CoastSoft(0~1) 로 켠다. 하프 램버트 + 넓은 램프 + 그림자 바닥 + SH 앰비언트 + 림
         _RimColor ("Rim (soft look)", Color) = (0.92, 0.96, 1.0, 1)
+        // 144차: 디테일 맵(회색 0.5 중심) — 큰 텍스처 위에 미세 결을 곱한다. _DetailStrength 0 이면 무시
+        _DetailMap ("Detail (gray)", 2D) = "gray" {}
+        _DetailScale ("Detail tiles per meter", Float) = 0.5
+        _DetailStrength ("Detail strength", Range(0,1)) = 0
     }
     SubShader
     {
@@ -27,6 +31,8 @@ Shader "CoastRun/ToonLit"
 
         TEXTURE2D(_BaseMap);
         SAMPLER(sampler_BaseMap);
+        TEXTURE2D(_DetailMap);
+        SAMPLER(sampler_DetailMap);
         CBUFFER_START(UnityPerMaterial)
             float4 _BaseMap_ST;
             half4 _BaseColor;
@@ -36,6 +42,8 @@ Shader "CoastRun/ToonLit"
             half _Smoothness;
             half _CurveWeight;
             half4 _RimColor;
+            half _DetailScale;
+            half _DetailStrength;
         CBUFFER_END
         // 전역(코드에서 Shader.SetGlobal*): 마을에서만 1
         half _CoastSoft;            // 0 = 기존 러닝 룩, 1 = 소프트 룩
@@ -89,6 +97,14 @@ Shader "CoastRun/ToonLit"
             half4 frag(Varyings IN) : SV_Target
             {
                 half4 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                if (_DetailStrength > 0.001)
+                {
+                    // 월드 XZ 기준 타일(메시 UV 와 무관) — 두 스케일을 섞어 반복 무늬가 안 보이게
+                    half d1 = SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, IN.positionWS.xz * _DetailScale).r;
+                    half d2 = SAMPLE_TEXTURE2D(_DetailMap, sampler_DetailMap, IN.positionWS.xz * _DetailScale * 0.23 + 0.37).r;
+                    half d = (d1 * 0.65 + d2 * 0.35) - 0.5;
+                    albedo.rgb *= 1.0 + d * _DetailStrength * 2.0;
+                }
                 float3 n = normalize(IN.normalWS);
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(IN.positionWS));
                 half soft = saturate(_CoastSoft);

@@ -187,7 +187,7 @@ namespace CoastRun.Village
             {
                 _kidAnim = rig.GetComponent<Animator>();
                 if (_kidAnim != null) { _kidAnim.SetBool("Grounded", true); _kidAnim.Play("Run", 0, 0.12f); _kidAnim.speed = 0f; }
-                _kidMotion = pivot.gameObject.AddComponent<CharacterMotion>(); _kidMotion.Anim = _kidAnim; _kidMotion.WalkSpeed = 1.5f; _kidMotion.RunSpeed = 3.4f; _kidMotion.Stride = 0.62f; _kidMotion.BobScale = 1.25f; _kidMotion.LookTarget = Player;
+                _kidMotion = pivot.gameObject.AddComponent<CharacterMotion>(); _kidMotion.Anim = _kidAnim; _kidMotion.WalkSpeed = 1.8f; _kidMotion.RunSpeed = 4.2f; _kidMotion.Stride = 0.62f; _kidMotion.BobScale = 1.25f; _kidMotion.LookTarget = Player;
                 foreach (var smr in rig.GetComponentsInChildren<SkinnedMeshRenderer>()) if (smr.GetComponent<CelOutlineHint>() == null) smr.gameObject.AddComponent<CelOutlineHint>();
             }
             else
@@ -221,7 +221,7 @@ namespace CoastRun.Village
             var want = Player.position - Player.forward * 1.3f + Player.right * 0.8f;
             var cur = _kid.position; cur.y = 0f; want.y = 0f;
             float far = Vector3.Distance(cur, want);
-            var next = far < 0.25f ? cur : Vector3.SmoothDamp(cur, want, ref _kidVel, 0.30f, 3.2f, dt);
+            var next = far < 0.25f ? cur : Vector3.SmoothDamp(cur, want, ref _kidVel, 0.28f, 4.2f, dt);
             if (far < 0.25f) _kidVel = Vector3.zero;
             float g = VillageWorld.Height(next.x, next.z);
             bool moving = _kidVel.magnitude > 0.25f;

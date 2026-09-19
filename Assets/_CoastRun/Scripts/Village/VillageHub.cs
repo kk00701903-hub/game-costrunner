@@ -71,7 +71,7 @@ namespace CoastRun.Village
             var rigHost = new GameObject("Rig").transform; rigHost.SetParent(_player, false); _rigT = rigHost;
             _rig = SkaterRig.Spawn(rigHost, 1.25f, true);
             // 141차: 절차 모션(바운스·기울기·스쿼시·발먼지·고개)
-            _motion = rigHost.gameObject.AddComponent<CharacterMotion>(); _motion.WalkSpeed = 1.7f; _motion.RunSpeed = 3.8f;
+            _motion = rigHost.gameObject.AddComponent<CharacterMotion>(); _motion.WalkSpeed = 2.05f; _motion.RunSpeed = 4.55f;
             if (_rig != null)
             {
                 _anim = _rig.GetComponent<Animator>(); if (_anim != null) { _anim.SetBool("Grounded", true); _anim.SetFloat("Speed", 0f); _anim.Play("Run", 0, 0.12f); _anim.speed = 0f; }
@@ -92,16 +92,16 @@ namespace CoastRun.Village
             _cam.clearFlags = CameraClearFlags.SolidColor; _cam.backgroundColor = new Color(0.68f, 0.85f, 0.98f);
             if (_cam.GetComponent<CoastPortraitViewport>() == null) _cam.gameObject.AddComponent<CoastPortraitViewport>();
             var camData = _cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>() ?? _cam.gameObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
-            camData.renderPostProcessing = true; camData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.FastApproximateAntialiasing;
+            camData.renderPostProcessing = true; camData.antialiasing = UnityEngine.Rendering.Universal.AntialiasingMode.SubpixelMorphologicalAntiAliasing; camData.antialiasingQuality = UnityEngine.Rendering.Universal.AntialiasingQuality.High;
             SnapCamera();
         }
 
         // 140차(시안): 주인공 뒤에서 낮게 따라가는 카메라 — 바다 쪽을 보면 수평선·등대·마을이 한눈에
         float _camYaw, _camYawVel;
-        float _swingK;   // 141차: 크게 방향을 바꿀 때 카메라가 바깥 큰 원을 돌지 않게 — 가까이·높게 붙었다가 다시 멀어진다
+        float _swingK, _camYawTarget, _backT;   // 141차: 크게 방향을 바꿀 때 카메라가 바깥 큰 원을 돌지 않게 — 가까이·높게 붙었다가 다시 멀어진다
         Vector3 CamTarget => _player.position + Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, Mathf.Lerp(3.2f, 4.6f, _swingK), Mathf.Lerp(-11.2f, -4.2f, _swingK));
         Vector3 CamLook => _player.position + new Vector3(0f, 0.9f, 0f) + Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, 0f, 3.0f);
-        void SnapCamera() { _camYaw = _player.eulerAngles.y; _cam.transform.position = CamTarget; _cam.transform.LookAt(CamLook); _camVel = Vector3.zero; _snapCam = true; LateUpdate(); }
+        void SnapCamera() { _camYaw = _camYawTarget = _player.eulerAngles.y; _backT = 0f; _cam.transform.position = CamTarget; _cam.transform.LookAt(CamLook); _camVel = Vector3.zero; _snapCam = true; LateUpdate(); }
         bool _snapCam;
         bool CamBlocked(Vector3 p)
         {
@@ -144,7 +144,7 @@ namespace CoastRun.Village
             var camRot = Quaternion.Euler(0f, _camYaw, 0f);
             var dir = camRot * new Vector3(j.x, 0f, j.y);
             // 141차(동물의 숲 느낌): 스틱을 조금 밀면 걷고 끝까지 밀면 달림, 가속·감속은 부드럽게, 몸은 진행 방향으로 스르륵
-            float wantSpeed = mag < 0.05f ? 0f : Mathf.Lerp(1.7f, 3.8f, Mathf.InverseLerp(0.35f, 0.95f, mag));
+            float wantSpeed = mag < 0.05f ? 0f : Mathf.Lerp(2.05f, 4.55f, Mathf.InverseLerp(0.35f, 0.95f, mag));   // 144차: +20%
             var wantVel = mag < 0.05f ? Vector3.zero : dir.normalized * wantSpeed;
             _vel = Vector3.SmoothDamp(_vel, wantVel, ref _acc, mag < 0.05f ? 0.08f : 0.13f, 100f, dt);
             var move = _vel * dt;
@@ -169,11 +169,17 @@ namespace CoastRun.Village
         void LateUpdate()
         {
             if (_cam == null || _player == null) return;
-            float yawErr = Mathf.Abs(Mathf.DeltaAngle(_camYaw, _player.eulerAngles.y));
+            // 144차(사용자: 「좌우로 움직이면 획획 넘어감」): 카메라 방향은 좌우 이동에 따라 돌지 않는다(동물의 숲처럼 고정).
+            // 카메라 쪽(뒤)으로 1.2 초 이상 계속 걸을 때만 목표 방향을 바꿔 천천히 돌아붙고, 그 외엔 진행 방향으로 살짝 기울기만.
+            float dtc = Time.deltaTime; float pyaw = _player.eulerAngles.y;
+            float headErr = Mathf.DeltaAngle(_camYawTarget, pyaw);
+            if (_moving && Mathf.Abs(headErr) > 115f) _backT += dtc; else _backT = Mathf.Max(0f, _backT - dtc * 2f);
+            if (_backT > 1.2f) { _camYawTarget = pyaw; _backT = 0f; }
+            float lean = Mathf.Clamp(headErr, -90f, 90f) * (_moving ? 0.12f : 0f);
+            float yawErr = Mathf.Abs(Mathf.DeltaAngle(_camYaw, _camYawTarget));
             float kWant = Mathf.Clamp01((yawErr - 25f) / 90f);
-            _swingK = Mathf.Lerp(_swingK, kWant, 1f - Mathf.Exp(-Time.deltaTime * (kWant > _swingK ? 9f : 3f)));
-            // 작은 방향 차이는 느긋하게(동물의 숲처럼 카메라가 덜 흔들림), 큰 회전은 빠르게 돌아 붙는다
-            _camYaw = Mathf.SmoothDampAngle(_camYaw, _player.eulerAngles.y, ref _camYawVel, yawErr > 60f ? 0.30f : 0.65f);
+            _swingK = Mathf.Lerp(_swingK, kWant, 1f - Mathf.Exp(-dtc * (kWant > _swingK ? 9f : 3f)));
+            _camYaw = Mathf.SmoothDampAngle(_camYaw, _camYawTarget + lean, ref _camYawVel, yawErr > 60f ? 0.45f : 0.5f);
             var look = CamLook; var ct = CamTarget;
             // 140차: 카메라가 멀어진 만큼 지형·바다·건물 안으로 파고들지 않게 — 땅/바다 높이 클램프 + 구체 캐스트로 당기기
             float gy = VillageWorld.Height(ct.x, ct.z) + 1.6f; if (ct.y < gy) ct.y = gy;
