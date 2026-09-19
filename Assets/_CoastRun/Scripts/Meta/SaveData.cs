@@ -191,7 +191,8 @@ namespace CoastRun
         // 154차: 나무 베기(3번 패면 쓰러짐)·돌 캐기(3번) — 사라진 주(-1 없음), 8주 뒤 다시 생김
         public int[] villageTreeHits; public int[] villageTreeGone; public int[] villageRockHits; public int[] villageRockGone;
         public float villageHour;   // 155차: 마을 시계(0~24, 0 이면 08:00 부터)
-        public int villageActMask;  // 156차: 오늘 한 활동(1 밥 · 2 놀기 · 4 알바 · 8 마을일) — 잠자면 0
+        public int villageActMask;  // 156차: 오늘 한 활동(1 밥 · 2 놀기 · 4 알바 · 8 일일 미션) — 잠자면 0
+        public int villageMissionKind = -1, villageMissionProg;   // 160차: 오늘의 미션(VillageMission.Kind)과 진행도
         public string[] yardItems = new string[0];       // 마당 가구 "id|x|z|rot"                // 135차: 육성 자동 진행 — 끌 때까지 유지(대회·이야기 다녀와도)
 
         public ChapterRecord CurrentChapter =>

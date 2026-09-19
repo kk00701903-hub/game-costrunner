@@ -177,6 +177,8 @@ namespace CoastRun.Editor
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+            // preferExternal 는 SD 없는 기기에서 설치 실패하는 경우가 있어 Auto(내부 저장소)로 고정
+            PlayerSettings.Android.preferredInstallLocation = AndroidPreferredInstallLocation.Auto;
             PlayerSettings.Android.bundleVersionCode = Mathf.Max(1, PlayerSettings.Android.bundleVersionCode + 1);
             PlayerSettings.Android.useCustomKeystore = false;
             PlayerSettings.stripEngineCode = false;
@@ -193,11 +195,13 @@ namespace CoastRun.Editor
             switch (kind)
             {
                 case BuildKind.Quick:
-                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.Mono2x);
-                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7;
+                    // Mono는 ARMv7만 나와 최신 폰(ARM64-only)에 설치가 거부된다 → IL2CPP ARM64(+v7) 로 맞춤
+                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
+                    PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Android, Il2CppCompilerConfiguration.Release);
                     apkName = "CoastRun_quick.apk";
                     optsFlags = BuildOptions.Development;
-                    kindLabel = "Mono/ARMv7/dev";
+                    kindLabel = "IL2CPP/ARM64+ARMv7/dev";
                     break;
                 case BuildKind.Emulator:
                     // Unity 6000.5+: AndroidArchitecture.X86_64 is obsolete / stripped from builds

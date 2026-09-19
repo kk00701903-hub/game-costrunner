@@ -526,6 +526,7 @@ namespace CoastRun
                 if (cg.gameObject.name == "TitleUI") continue;
                 if (cg.GetComponentInParent<Selectable>() != null) continue;
                 if (cg.GetComponentInParent<ScrollRect>() != null) continue;   // 24차-10(점검 2-5): 스크롤 수신 영역은 투명이 정상
+                if (cg.GetComponentInParent<IPointerDownHandler>() != null) continue;   // 160차
                 if (!CoversScreen(cg.transform as RectTransform)) continue;
                 cg.blocksRaycasts = false;
                 Log(cg.gameObject, "CanvasGroup alpha≈0");
@@ -536,6 +537,8 @@ namespace CoastRun
                 if (img.GetComponentInParent<Selectable>() != null) continue;
                 // 24차-10(점검 2-5): ScrollRect 의 투명 수신 이미지(알파 0.01)를 1초 뒤 꺼 버려 도감 팬아트·트로피 탭 스크롤이 죽었다.
                 if (img.GetComponentInParent<ScrollRect>() != null) continue;
+                // 160차: 투명한 **입력 수신판**(플로팅 조이스틱 영역 등)은 의도된 것 — 누르기 처리기가 달려 있으면 건드리지 않는다
+                if (img.GetComponentInParent<IPointerDownHandler>() != null) continue;
                 if (!CoversScreen(img.rectTransform)) continue;
                 img.raycastTarget = false;
                 Log(img.gameObject, "Image alpha≈0");

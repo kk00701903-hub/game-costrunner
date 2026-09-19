@@ -11,7 +11,7 @@ namespace CoastRun.Village
     public class VillageHud : MonoBehaviour
     {
         public Vector2 Joy => _joy != null ? _joy.Value : Vector2.zero;
-        public RectTransform JoyRect => _joy != null ? _joy.transform as RectTransform : null;
+        public RectTransform JoyRect => _joy != null ? _joy.transform as RectTransform : null;   // 160차: 터치 영역(JoyZone)
         public bool Locked;   // 팝업이 떠 있는 동안 이동·행동 막기
 
         Canvas _canvas; RectTransform _root;
@@ -74,7 +74,8 @@ namespace CoastRun.Village
             var mb = menu.gameObject.AddComponent<Button>(); mb.transition = Selectable.Transition.None; mb.onClick.AddListener(() => { CoastPrefs.Vibrate(); _onMenu?.Invoke(); });
 
             // ── 왼쪽 아래 조이스틱 ──
-            _joy = VirtualJoystick.Create(_root, new Vector2(130f, 300f), 200f);   // 149차: 버튼과 함께 위로(하단 제스처 영역 회피), 조금 크게
+            // 160차(사용자): 탕탕특공대식 플로팅 조이스틱 — 아래 화면 아무 곳이나 누르면 그 자리에 생긴다(힌트는 왼쪽 아래)
+            _joy = VirtualJoystick.Create(_root, new Vector2(150f, 260f), 200f);
 
             // ── 오른쪽 둥근 버튼 4개 ── 149차(사용자): 전체를 188 만큼 위로(엄지 닿는 높이)
             // 137차: 잡기 버튼 위 「도구」(잠자리채/방망이 고르기) — 행동 버튼 라벨은 고른 도구를 따른다
@@ -93,6 +94,16 @@ namespace CoastRun.Village
             _villageT = CoastHudLayout.MakeText(vrt, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(12f, 2f), new Vector2(-12f, 0f));
             _villageT.color = Color.white; _villageT.fontStyle = FontStyle.Bold;
             _villageT.resizeTextForBestFit = true; _villageT.resizeTextMinSize = 11; _villageT.resizeTextMaxSize = CoastHudLayout.Scaled(18);
+
+            // ── 160차: 오늘 미션 띠(위 알약 아래, 오른쪽) ──
+            var mp = CoastUiArt.CutePill(_root, "Mission", new Color(0.98f, 0.72f, 0.42f, 0.94f), 18, 3); mp.raycastTarget = false;
+            _mission = mp.rectTransform; _mission.anchorMin = _mission.anchorMax = new Vector2(1f, 1f); _mission.pivot = new Vector2(1f, 1f);
+            _mission.anchoredPosition = new Vector2(-12f, -92f); _mission.sizeDelta = new Vector2(330f, 46f);
+            _missionT = CoastHudLayout.MakeText(_mission, "T", "", 16, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 2f), new Vector2(-10f, 0f));
+            _missionT.color = Color.white; _missionT.fontStyle = FontStyle.Bold;
+            _missionT.resizeTextForBestFit = true; _missionT.resizeTextMinSize = 10; _missionT.resizeTextMaxSize = CoastHudLayout.Scaled(16);
+            CoastUiArt.OutlineText(_missionT, new Color(0.45f, 0.25f, 0.10f, 0.7f), 1.4f);
+            _mission.gameObject.SetActive(false);
 
             // ── 장소 안내(가까이 가면 뜸) ──
             var pr = CoastUiArt.GlossyPill(_root, "Prompt", new Color(1f, 0.72f, 0.84f), 24, 8);
@@ -161,6 +172,15 @@ namespace CoastRun.Village
             if (_villageT != null) _villageT.text = village;
         }
 
+        RectTransform _mission; Text _missionT;
+        /// 160차: 오늘 미션 한 줄(없으면 숨김)
+        public void SetMission(string text)
+        {
+            if (_mission == null) return;
+            bool on = !string.IsNullOrEmpty(text);
+            if (_mission.gameObject.activeSelf != on) _mission.gameObject.SetActive(on);
+            if (on && _missionT != null && _missionT.text != text) _missionT.text = text;
+        }
         public void SetAction(string label) { if (_actT != null && _actT.text != label) _actT.text = label; }
         public void SetTool(string label, int toolIdx = 0)
         {
@@ -248,6 +268,9 @@ namespace CoastRun.Village
         }
 
         public bool PopupOpen => _popup != null;
+        /// 개발용: 화면 비율 좌표(0~1)에서 조이스틱을 잡고 있는 것처럼
+        public void DevJoy(float nx, float ny, float sec) { if (_joy != null) _joy.DebugHold(new Vector2(nx * Screen.width, ny * Screen.height), sec); }
+        public string JoyDiag() => _joy != null ? _joy.Diag() : "no joystick";
 
         /// 화면 가운데 큰 말풍선 한 줄(대화). 탭하면 닫힘.
         public void Bubble(string who, string line)
@@ -272,50 +295,105 @@ namespace CoastRun.Village
     }
 
     /// 가상 조이스틱: 왼쪽 아래 고정 링 + 손잡이. 값은 -1..1.
+    /// 160차(사용자: 「탕탕특공대 같은 플로팅 조이스틱」): 화면 아래 아무 곳이나 누르면 그 자리에 조이스틱이 생기고,
+    /// 손가락을 따라 링이 끌려오며(원 밖으로 나가면 링이 따라붙는다), 떼면 사라진다. 평소엔 아주 연한 힌트만.
     public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         public Vector2 Value { get; private set; }
-        RectTransform _ring, _knob; float _radius;
+        RectTransform _zone, _ring, _knob, _hint; CanvasGroup _ringGrp, _hintGrp; float _radius, _size;
+        Vector2 _origin; float _fade;
 
-        public static VirtualJoystick Create(RectTransform parent, Vector2 center, float size)
+        /// parent 아래에 「투명한 터치 영역 + 떠다니는 링」을 만든다. zoneHeight = 아래에서부터 몇 px(720 기준)을 조이스틱 영역으로 쓸지.
+        public static VirtualJoystick Create(RectTransform parent, Vector2 hintCenter, float size)
         {
-            var ring = CoastUiArt.CutePill(parent, "Joystick", new Color(1f, 1f, 1f, 0.16f), (int)(size * 0.5f), 4);   // 153차: 반투명
-            var rt = ring.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(0f, 0f); rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = center; rt.sizeDelta = new Vector2(size, size); ring.raycastTarget = true;
-            var knob = CoastUiArt.GlossyPill(rt, "Knob", new Color(1f, 1f, 1f, 0.45f), (int)(size * 0.2f), 6); knob.raycastTarget = false;
+            // 1) 터치 영역(투명) — 맨 아래 형제로 두어 버튼·프롬프트가 먼저 먹는다
+            // 화면 아래 78% 를 조이스틱 영역으로(위 알약·☰ 는 제외). 로컬 좌표 = 화면 좌표가 되도록 오프셋 0.
+            var zoneImg = CoastHudLayout.MakeImage(parent, "JoyZone", new Vector2(0f, 0f), new Vector2(1f, 0.78f),
+                Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0.004f));
+            zoneImg.raycastTarget = true;
+            var zone = zoneImg.rectTransform; zone.SetAsFirstSibling();
+
+            var j = zoneImg.gameObject.AddComponent<VirtualJoystick>();
+            j._zone = zone; j._size = size; j._radius = size * 0.34f;
+
+            // 2) 평소 힌트(아주 연한 링) — 어디를 눌러야 하는지 한 번은 보이게
+            var hint = CoastUiArt.CutePill(zone, "JoyHint", new Color(1f, 1f, 1f, 0.10f), (int)(size * 0.5f), 0); hint.raycastTarget = false;
+            var hrt = hint.rectTransform; hrt.anchorMin = hrt.anchorMax = new Vector2(0f, 0f); hrt.pivot = new Vector2(0.5f, 0.5f);
+            hrt.anchoredPosition = hintCenter; hrt.sizeDelta = new Vector2(size * 0.8f, size * 0.8f);
+            var ht = CoastHudLayout.MakeText(hrt, "T", "✥", 30, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            ht.color = new Color(1f, 1f, 1f, 0.5f);
+            j._hint = hrt; j._hintGrp = hint.gameObject.AddComponent<CanvasGroup>(); j._hintGrp.alpha = 0.55f; j._hintGrp.blocksRaycasts = false;
+
+            // 3) 떠다니는 링 + 손잡이
+            var ring = CoastUiArt.CutePill(zone, "Joystick", new Color(1f, 1f, 1f, 0.20f), (int)(size * 0.5f), 4); ring.raycastTarget = false;
+            // ScreenPointToLocalPointInRectangle 은 **영역의 피벗(가운데) 기준** 좌표를 준다 → 링도 가운데 앵커여야 손가락 자리에 정확히 뜬다
+            var rt = ring.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = Vector2.zero; rt.sizeDelta = new Vector2(size, size);
+            var knob = CoastUiArt.GlossyPill(rt, "Knob", new Color(1f, 1f, 1f, 0.60f), (int)(size * 0.2f), 6); knob.raycastTarget = false;
             var krt = knob.rectTransform; krt.anchorMin = krt.anchorMax = new Vector2(0.5f, 0.5f); krt.sizeDelta = new Vector2(size * 0.42f, size * 0.42f);
-            var j = ring.gameObject.AddComponent<VirtualJoystick>();
-            j._ring = rt; j._knob = krt; j._radius = size * 0.34f;
-            // 방향 화살표 4개(연하게)
             string[] ar = { "▲", "▼", "◀", "▶" }; Vector2[] ap = { new Vector2(0f, 1f), new Vector2(0f, -1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
             for (int i = 0; i < 4; i++)
             {
                 var t = CoastHudLayout.MakeText(rt, "A" + i, ar[i], 16, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-                t.rectTransform.sizeDelta = new Vector2(30f, 30f); t.rectTransform.anchoredPosition = ap[i] * (size * 0.40f); t.color = new Color(1f, 1f, 1f, 0.35f);
+                t.rectTransform.sizeDelta = new Vector2(30f, 30f); t.rectTransform.anchoredPosition = ap[i] * (size * 0.40f); t.color = new Color(1f, 1f, 1f, 0.40f);
             }
+            j._ring = rt; j._knob = krt;
+            j._ringGrp = ring.gameObject.AddComponent<CanvasGroup>(); j._ringGrp.alpha = 0f; j._ringGrp.blocksRaycasts = false;
+            j._origin = Vector2.zero;
             return j;
         }
 
-        // 149차(사용자: 「상하좌우 움직여지지 않는다」): 드래그 이벤트(임계값·이벤트 유실)에 기대지 않고, 누른 손가락/마우스를
-        // Update 에서 직접 추적해 매 프레임 값을 갱신한다. 손가락 id 를 기억해 멀티터치(버튼 동시 조작)에도 흔들리지 않는다.
         int _pointerId = int.MinValue; Camera _cam;
+        // 개발/검증용: 손가락 없이 화면 좌표를 누른 것처럼 잡고 있는다(원 그리며 드래그)
+        float _dbgUntil; Vector2 _dbgStart;
+        public void DebugHold(Vector2 screen, float seconds)
+        { _cam = null; _pointerId = -999; _dbgStart = screen; Begin(screen); _dbgUntil = Time.unscaledTime + seconds; }
+
+        bool ToLocal(Vector2 screen, out Vector2 lp) => RectTransformUtility.ScreenPointToLocalPointInRectangle(_zone, screen, _cam, out lp);
+
+        void Begin(Vector2 screen)
+        {
+            if (!ToLocal(screen, out var lp)) return;
+            _origin = lp; _ring.anchoredPosition = lp; _knob.anchoredPosition = Vector2.zero; Value = Vector2.zero;
+            _fade = 1f; _ringGrp.alpha = 1f; _ring.localScale = Vector3.one * 0.82f;
+        }
+
         void MoveTo(Vector2 screen)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_ring, screen, _cam, out var lp);
-            var v = Vector2.ClampMagnitude(lp / _radius, 1f);
-            Value = v; _knob.anchoredPosition = v * _radius;
+            if (!ToLocal(screen, out var lp)) return;
+            var d = lp - _origin;
+            // 탕탕특공대식: 반지름을 넘어가면 링(기준점)이 손가락을 따라 끌려온다
+            if (d.magnitude > _radius) { _origin = lp - d.normalized * _radius; _ring.anchoredPosition = _origin; d = d.normalized * _radius; }
+            Value = d / _radius;
+            _knob.anchoredPosition = d;
         }
-        void Move(PointerEventData e) { _cam = e.pressEventCamera; MoveTo(e.position); }
-        public void OnPointerDown(PointerEventData e) { _pointerId = e.pointerId; Move(e); }
-        public void OnDrag(PointerEventData e) { if (e.pointerId == _pointerId) Move(e); }
+
+        void Release()
+        {
+            _pointerId = int.MinValue; Value = Vector2.zero; _knob.anchoredPosition = Vector2.zero;
+        }
+
+        public void OnPointerDown(PointerEventData e) { _cam = e.pressEventCamera; _pointerId = e.pointerId; Begin(e.position); }
+        public void OnDrag(PointerEventData e) { if (e.pointerId == _pointerId) { _cam = e.pressEventCamera; MoveTo(e.position); } }
         public void OnPointerUp(PointerEventData e) { if (e.pointerId != _pointerId && _pointerId != int.MinValue) return; Release(); }
-        void Release() { _pointerId = int.MinValue; Value = Vector2.zero; _knob.anchoredPosition = Vector2.zero; }
+
         void Update()
         {
-            // 152차(사용자: 「커서가 안 움직인다」): 폴링은 보조만 — 이벤트로 눌린 손가락을 찾으면 위치를 따라가고,
-            // 못 찾아도 놓지 않는다(Device Simulator·Unity Remote 처럼 Input.touches 에 안 잡히는 경우 즉시 놓아 버려 손잡이가 안 움직이던 문제).
-            // 놓기는 OnPointerUp(이벤트) 또는 터치 Ended 에서만.
-            if (_pointerId == int.MinValue) return;
+            float dt = Time.unscaledDeltaTime;
+            bool held = _pointerId != int.MinValue;
+            // 링 나타나기/사라지기 + 살짝 커지는 연출
+            _fade = Mathf.MoveTowards(_fade, held ? 1f : 0f, dt * (held ? 12f : 6f));
+            if (_ringGrp != null) _ringGrp.alpha = _fade;
+            if (_ring != null) _ring.localScale = Vector3.one * Mathf.Lerp(0.82f, 1f, _fade);
+            if (_hintGrp != null) _hintGrp.alpha = Mathf.MoveTowards(_hintGrp.alpha, held ? 0f : 0.55f, dt * 4f);
+            if (!held) return;
+            if (_dbgUntil > 0f)
+            {
+                if (Time.unscaledTime < _dbgUntil)
+                { float a = Time.unscaledTime * 2.2f; MoveTo(_dbgStart + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * 120f); return; }
+                _dbgUntil = 0f; Release(); return;
+            }
+            // 152차: 폴링은 보조 — 이벤트로 눌린 손가락을 못 찾아도 놓지 않는다(놓기는 OnPointerUp/터치 Ended 에서만)
             if (_pointerId >= 0)
             {
                 for (int i = 0; i < Input.touchCount; i++)
@@ -325,9 +403,15 @@ namespace CoastRun.Village
                     if (tc.phase == TouchPhase.Ended || tc.phase == TouchPhase.Canceled) Release(); else MoveTo(tc.position);
                     return;
                 }
-                if (Input.touchCount == 0 && Input.GetMouseButton(0)) MoveTo(Input.mousePosition);   // 시뮬레이터(터치 id 인데 마우스)
+                if (Input.touchCount == 0 && Input.GetMouseButton(0)) MoveTo(Input.mousePosition);
             }
             else if (Input.GetMouseButton(0)) MoveTo(Input.mousePosition);
+            else Release();
+        }
+        public string Diag()
+        {
+            var zr = _zone.rect;
+            return $"zone={zr.size} ring={_ring.anchoredPosition} knob={_knob.anchoredPosition} value={Value} alpha={_ringGrp.alpha:F2} hint={_hintGrp.alpha:F2} held={_pointerId != int.MinValue} raycast={_zone.GetComponent<Image>().raycastTarget}";
         }
         void OnDisable() { Release(); }
     }

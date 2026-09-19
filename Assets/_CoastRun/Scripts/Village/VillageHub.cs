@@ -53,10 +53,11 @@ namespace CoastRun.Village
             _creatures.OnSpiritHit = SpiritHit;
             _creatures.OnGhostHit = GhostHit;   // 155차
             _dayNight = VillageDayNight.Create(_world, Save); _dayNight.OnMinute = () => RefreshStatus();
-            _creatures.OnCaught = (kind, shards, coins) => { if (Save == null) return; Save.starShards += shards; Save.starShardsTotal += shards; Save.stats.money += coins; if (kind != "spirit") { LifeItems.Add(Save, "bug_" + kind, 1); Save.bugsCaught++; MarkChore(); } _gm.Persist(); RefreshStatus(); CoastAudioManager.PlayAnywhere(CoastSfx.Coin); };   // 150차: 벌레는 가방(채집)에도
+            _creatures.OnCaught = (kind, shards, coins) => { if (Save == null) return; Save.starShards += shards; Save.starShardsTotal += shards; Save.stats.money += coins; if (kind != "spirit") { LifeItems.Add(Save, "bug_" + kind, 1); Save.bugsCaught++; MissionTick(VillageMission.Kind.Bug); } _gm.Persist(); RefreshStatus(); CoastAudioManager.PlayAnywhere(CoastSfx.Coin); };   // 150차: 벌레는 가방(채집)에도
             _map = VillageMap.Create(_hud.Root, _player);
             ApplyTool();
             BuildSpots();
+            EnsureMission();   // 160차
             _doorCooldown = Time.time + 2f;   // 156차: 문 앞에서 시작해도 바로 들어가지 않게
             RefreshStatus();
             TitleAudio.PlayRaising();
@@ -444,7 +445,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (_busy || _hud.Locked) return;
             // 마을 사람이 가까우면 그쪽(대답은 「누구세요?」「음…」뿐), 아니면 옆에 붙어 다니는 꼬마
-            if (_creatures != null && _creatures.TalkNearestNpc()) return;
+            if (_creatures != null && _creatures.TalkNearestNpc()) { MissionTick(VillageMission.Kind.Talk); return; }   // 160차: 대화 미션
             if (_creatures != null) { _hud.Bubble(Loc.T("꼬마", "Kid"), _creatures.KidLine()); return; }
             if (_near != null) { _hud.Bubble(Loc.T("하늘", "Haneul"), _near.title); return; }
         }
@@ -629,6 +630,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_busy) return;
             _hud.Choice(Loc.T("마을 메뉴", "Village menu"), Loc.T($"{Save.week}주차 · {Timeline.SeasonName(Timeline.SeasonOf(Save.week))} · Lv.{Save.level}", $"Week {Save.week} · {Timeline.SeasonName(Timeline.SeasonOf(Save.week))} · Lv.{Save.level}"),
                 new (string, Color, Action)[] {
+                    (Loc.T($"🎯 오늘 미션 — {VillageMission.Title(MissionKind)}", $"🎯 Today's mission — {VillageMission.Title(MissionKind)}"), new Color(0.98f, 0.55f, 0.35f), MissionPopup),
                     (Loc.T($"🎮 놀기 · 연습 (오늘 활동 {ActCount}/{ActsPerDay})", $"🎮 Play · Practice ({ActCount}/{ActsPerDay})"), new Color(0.45f, 0.78f, 0.55f), PlayMenu),
                     (Loc.T("🏠 우리집으로 순간이동", "🏠 Warp home"), new Color(0.35f, 0.62f, 0.95f), () => StartCoroutine(WarpHome())),
                     (Loc.T("🛍 마을상점", "🛍 Village shop"), new Color(0.98f, 0.62f, 0.72f), OpenShop),
@@ -714,7 +716,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             _busy = true; ShopUI.Open(_gm, 0, () => { _busy = false; RefreshStatus(); });
         }
         void OpenGarden() { OpenHome(1); }
-        void OpenFishing() { if (_busy) return; _busy = true; FishingMini.Open(_gm, () => { _busy = false; MarkChore(); RefreshStatus(); }); }
+        void OpenFishing() { if (_busy) return; _busy = true; FishingMini.Open(_gm, () => { _busy = false; MissionTick(VillageMission.Kind.Fish); RefreshStatus(); }); }
 
         // ── 150차: 텃밭(스타듀식 9칸) ─────────────────────────────────────
         string FarmTitle(int tile)
@@ -776,7 +778,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             _hud.Choice(Loc.T("씨 뿌리기", "Plant seeds"), Loc.T($"보유 {Save.stats.money:N0}G · 페이즈마다 물 한 번, 주가 바뀌면 한 단계 더 자란다.", $"{Save.stats.money:N0}G · water once per phase; grows more each week."), opts.ToArray());
         }
 
-        void AfterFarm() { MarkChore(); _gm.Persist(); RefreshStatus(); VillageWorld.BuildCrops(_world, Save); }
+        void AfterFarm() { MissionTick(VillageMission.Kind.Farm); _gm.Persist(); RefreshStatus(); VillageWorld.BuildCrops(_world, Save); }
 
         IEnumerator WaterPour(int tile)
         {
@@ -803,7 +805,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         // ── 150차: 도끼질(장작) · 난로 연료 · 줍기 ───────────────────────
         IEnumerator ChopTree(Transform tree, int idx)
         {
-            _busy = true; MarkChore();
+            _busy = true; MissionTick(VillageMission.Kind.Chop);
             VillageWorld.EnsureGather(Save);
             var rest = tree.localRotation;
             for (int hit = 0; hit < 3; hit++)
@@ -845,7 +847,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         /// 154차: 곡괭이질 — 3타마다 돌 +1~2, 세 번(9타) 캐면 바위가 사라지고 8주 뒤 다시 생긴다
         IEnumerator MineRock(Transform rock, int idx)
         {
-            _busy = true; VillageWorld.EnsureGather(Save); MarkChore();
+            _busy = true; VillageWorld.EnsureGather(Save); MissionTick(VillageMission.Kind.Mine);
             var rest = rock.localScale;
             for (int hit = 0; hit < 3; hit++)
             {
@@ -903,7 +905,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         void TakePick(VillagePickups.Pick pk)
         {
             if (_busy || _hud.Locked || Save == null || pk.go == null) return;
-            MarkChore();
+            MissionTick(VillageMission.Kind.Pick);
             VillagePickups.Take(Save, pk.idx); LifeItems.Add(Save, VillagePickups.ItemId(pk.kind), 1);
             _spots.RemoveAll(sp => sp.id == "pick_" + pk.idx);
             StartCoroutine(PopPick(pk.go)); pk.go = null;
@@ -1219,6 +1221,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             CoastToast.Show(Loc.T("🏠 우리집 앞으로 순간이동했다.", "🏠 Warped home."));
         }
         public void DevWarpHome() { StartCoroutine(WarpHome()); }
+        public void DevJoy(float nx, float ny, float sec) { if (_hud != null) _hud.DevJoy(nx, ny, sec); }
+        public void DevJoyDiag() { Debug.LogWarning("[JoyDiag] " + (_hud != null ? _hud.JoyDiag() : "-") + $" | mission={MissionLine()} acts={ActCount}/{ActsPerDay} phase={Save.phaseIndex}/{Timeline.PhasesPerWeek}"); }
         /// 개발용: 우리집 콜라이더 한가운데로 — 끼임 탈출 확인
         public void DevStuck() { var hh = VillageWorld.HeroHouse; if (hh != null) Teleport(hh.position + hh.forward * 0.5f, 0f); }
         /// 159차: 드롭 흡수 → 가방 + 토스트
@@ -1319,7 +1323,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         }
 
         // ── 156차(사용자: 「동물의 숲 느낌 — 집에서 밥·잠, 알바는 옆 건물 알바나라, 4개 활동 다 하면 저녁 → 잠, 자면 한 주가 흐른다」) ──
-        public const int ActEat = 1, ActPlay = 2, ActJob = 4, ActChore = 8, ActsPerDay = 4;
+        public const int ActEat = 1, ActPlay = 2, ActJob = 4, ActMission = 8, ActsPerDay = 4;
         int _jobPage, _playPage;
         int ActCount { get { int m = Save != null ? Save.villageActMask : 0, c = 0; for (int b = 1; b <= 8; b <<= 1) if ((m & b) != 0) c++; return c; } }
         bool ActDone(int bit) => Save != null && (Save.villageActMask & bit) != 0;
@@ -1335,8 +1339,43 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             _gm.Persist(); RefreshStatus();
             if (ActCount >= ActsPerDay) CoastToast.Show(Loc.T("오늘 할 일은 다 했다 — 해가 진다. 집 침대에서 자자.", "Done for today — the sun is setting. Go to bed at home."));
         }
-        /// 마을일(텃밭·낚시·나무·돌·줍기·벌레) — 하루에 한 번 활동으로 센다.
-        public void MarkChore() { if (!ActDone(ActChore)) MarkAct(ActChore); }
+
+        // ── 160차(사용자: 「하루에 미션 포함 4개까지, 그게 1주」): 네 번째 활동 = 일일 미션 ──
+        VillageMission.Kind MissionKind => Save == null ? VillageMission.Kind.Bug : (VillageMission.Kind)Mathf.Clamp(Save.villageMissionKind, 0, VillageMission.Count - 1);
+        int MissionGoal => VillageMission.Goal(MissionKind);
+        /// 아침마다(세이브에 없으면) 오늘 미션을 정한다.
+        void EnsureMission()
+        {
+            if (Save == null) return;
+            if (Save.villageMissionKind < 0 || Save.villageMissionKind >= VillageMission.Count)
+            { Save.villageMissionKind = (int)VillageMission.Pick(Save); Save.villageMissionProg = 0; _gm.Persist(); }
+        }
+        public string MissionLine()
+        {
+            if (Save == null) return null;
+            EnsureMission();
+            bool done = ActDone(ActMission);
+            return done ? Loc.T("🎯 오늘 미션 완료!", "🎯 Mission done!")
+                        : Loc.T($"🎯 {VillageMission.Title(MissionKind)}  ({Save.villageMissionProg}/{MissionGoal})",
+                                $"🎯 {VillageMission.Title(MissionKind)}  ({Save.villageMissionProg}/{MissionGoal})");
+        }
+        /// 마을 활동 한 번 → 오늘 미션과 같은 종류면 진행. 목표를 채우면 네 번째 활동으로 센다(보상: 돈·별조각·경험치).
+        public void MissionTick(VillageMission.Kind k, int n = 1)
+        {
+            if (Save == null) return;
+            EnsureMission();
+            if (ActDone(ActMission) || MissionKind != k) return;
+            Save.villageMissionProg = Mathf.Min(MissionGoal, Save.villageMissionProg + n);
+            if (Save.villageMissionProg < MissionGoal)
+            { _gm.Persist(); RefreshStatus(); CoastToast.Show(Loc.T($"🎯 {VillageMission.Title(k)} ({Save.villageMissionProg}/{MissionGoal})", $"🎯 {VillageMission.Title(k)} ({Save.villageMissionProg}/{MissionGoal})")); return; }
+            int money = VillageMission.Money(k);
+            Save.stats.money += money; Save.starShards += VillageMission.Shards; Save.starShardsTotal += VillageMission.Shards;
+            LevelSystem.Add(LevelSystem.ExpAction);
+            MarkAct(ActMission);
+            CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
+            CoastToast.Show(Loc.T($"🎯 오늘 미션 완료! +{money}G · 별조각 +{VillageMission.Shards}", $"🎯 Mission complete! +{money}G · shards +{VillageMission.Shards}"));
+        }
+
         /// 스케줄(밥·놀기·알바)을 하나 더 할 수 있나.
         bool CanSchedule(out string why)
         {
@@ -1344,6 +1383,18 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (Save.boundaryPending) { why = Loc.T("이야기가 기다리고 있어 — 집 침대에서 자고 나면 시작돼.", "A story is waiting — sleep in your bed first."); return false; }
             if (Save.phaseIndex >= Timeline.PhasesPerWeek) { why = Loc.T("이번 주 행동은 다 했어 — 집 침대에서 자자.", "All actions done this week — go to bed."); return false; }
             return true;
+        }
+
+        /// 160차: 오늘 미션 안내 팝업(무엇을·어디서·보상)
+        void MissionPopup()
+        {
+            if (Save == null) return; EnsureMission();
+            var k = MissionKind; bool done = ActDone(ActMission);
+            string body = done
+                ? Loc.T($"오늘 미션은 끝났어. 활동 {ActCount}/{ActsPerDay} — 다 하면 집 침대에서 자자(한 주가 지나간다).", $"Done. {ActCount}/{ActsPerDay} today.")
+                : Loc.T($"{VillageMission.Title(k)}  ({Save.villageMissionProg}/{MissionGoal})\n{VillageMission.Hint(k)}\n보상: {VillageMission.Money(k)}G · 별조각 {VillageMission.Shards} · 오늘 활동 1칸",
+                        $"{VillageMission.Title(k)}  ({Save.villageMissionProg}/{MissionGoal})\n{VillageMission.Hint(k)}\nReward: {VillageMission.Money(k)}G · {VillageMission.Shards} shards · 1 activity");
+            _hud.Bubble(Loc.T("🎯 오늘의 미션", "🎯 Today's mission"), body);
         }
         /// 집 식탁: 요리를 골라 먹고(「집밥 먹고 쉬기」 페이즈) 기운 회복.
         void EatHome()
@@ -1537,6 +1588,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             else yield return new WaitForSeconds(1.2f);
             // 다음 날 아침 08:00 · 활동 초기화 · 집 앞에서 시작
             Save.villageActMask = 0; Save.villageHour = 8f;
+            Save.villageMissionKind = -1; Save.villageMissionProg = 0;   // 160차: 내일 아침 새 미션
             var home = VillageWorld.HeroHouse != null ? VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 5.6f)) : new Vector3(0f, 0f, 30f);
             Save.villageX = home.x; Save.villageZ = home.z;
             if (_creatures != null) _creatures.ClearGhosts();
@@ -1555,9 +1607,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             string weather = season == SeasonKind.Winter ? Loc.T("흐림", "Cloudy") : season == SeasonKind.Autumn ? Loc.T("바람", "Breezy") : Loc.T("맑음", "Sunny");
             // 155차: 마을 시계(밤낮) — 밤엔 달 표시
             string clock = _dayNight != null ? _dayNight.ClockText() + " " + (_dayNight.IsNight ? "🌙" : weather) : Loc.T("오전 08:00", "AM 08:00") + " " + weather;
-            string acts = Loc.T((ActDone(ActEat) ? "밥" : "·") + (ActDone(ActPlay) ? "놀" : "·") + (ActDone(ActJob) ? "알" : "·") + (ActDone(ActChore) ? "일" : "·"), (ActDone(ActEat) ? "E" : "·") + (ActDone(ActPlay) ? "P" : "·") + (ActDone(ActJob) ? "J" : "·") + (ActDone(ActChore) ? "C" : "·"));   // 이모지는 HUD 폰트에 없음
+            string acts = Loc.T((ActDone(ActEat) ? "밥" : "·") + (ActDone(ActPlay) ? "놀" : "·") + (ActDone(ActJob) ? "알" : "·") + (ActDone(ActMission) ? "미" : "·"), (ActDone(ActEat) ? "E" : "·") + (ActDone(ActPlay) ? "P" : "·") + (ActDone(ActJob) ? "J" : "·") + (ActDone(ActMission) ? "M" : "·"));   // 이모지는 HUD 폰트에 없음
             string vil = Loc.T($"{Save.week}주차 {Timeline.SeasonName(season)}  ·  Lv.{Save.level}  ·  활동 {ActCount}/{ActsPerDay} {acts}", $"Week {Save.week} {Timeline.SeasonName(season)}  ·  Lv.{Save.level}  ·  {ActCount}/{ActsPerDay} {acts}");
             _hud.SetStatus(Save.stats.stamina, PlayerStats.StatMax, Save.stats.money, clock, vil);
+            _hud.SetMission(_interior == null ? MissionLine() : null);   // 160차
         }
     }
 
