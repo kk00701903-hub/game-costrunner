@@ -251,7 +251,7 @@ namespace CoastRun
             var juice = JuiceDirector.Instance;
             juice?.OnFeverStart();
             PickupFloat.Banner(Loc.T("FEVER!", "FEVER!"), new Color(1f, 0.85f, 0.25f), Duration);
-            CoastPrefs.Vibrate();
+            CoastPrefs.VibrateEvent();
             // 피버 중에도 새로 스폰된 아이템을 주기적으로 끌어당긴다
             float pulse = 0f;
             while (Active)

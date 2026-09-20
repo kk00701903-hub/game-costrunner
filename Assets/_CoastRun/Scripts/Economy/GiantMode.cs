@@ -61,7 +61,7 @@ namespace CoastRun
         private IEnumerator RunFx()
         {
             PickupFloat.Banner(Loc.T("거인 무적!", "GIANT!"), new Color(1f, 0.55f, 0.15f), 1.4f);
-            CoastPrefs.Vibrate();
+            CoastPrefs.VibrateEvent();
             JuiceDirector.Instance?.OnFeverStart();   // 속도선·채도 킥 재사용
 
             float pop = 0f;

@@ -230,7 +230,7 @@ namespace CoastRun
             SpawnCoinBurst(worldPos, Color.white, 10);
             StartCoroutine(FlashRing(worldPos, new Color(1f, 0.95f, 0.7f, 0.9f), 2.2f));
             PunchSaturation(+25f, 0.3f);
-            CoastPrefs.Vibrate();
+            CoastPrefs.VibrateEvent();
             audio?.PlaySfx(CoastSfx.NearMiss);
         }
 
@@ -260,7 +260,7 @@ namespace CoastRun
             }
             speedLines?.Burst(36);
             cameraRig?.FovKick(+5f, 0.25f);
-            CoastPrefs.Vibrate();
+            CoastPrefs.VibrateEvent();
             audio?.PlaySfx(CoastSfx.Boost);
         }
 
@@ -420,7 +420,7 @@ namespace CoastRun
             cameraRig?.Shake(0.28f, 0.22f);
             SpawnPop(_popPuff, worldPos + Vector3.up * 0.2f, new Color(0.62f, 0.55f, 0.45f, 0.9f), 14);
             StartCoroutine(FlashRing(worldPos + Vector3.up * 0.1f, new Color(0.9f, 0.8f, 0.6f, 0.8f), 2.4f));
-            CoastPrefs.Vibrate();
+            CoastPrefs.VibrateEvent();
             audio?.PlaySfx(CoastSfx.SoftHit);
         }
 
@@ -429,7 +429,7 @@ namespace CoastRun
             cameraRig?.Shake(0.18f, 0.12f);
             speedLines?.Burst(36);
             SpawnCoinBurst(worldPos);
-            CoastPrefs.Vibrate();
+            CoastPrefs.VibrateEvent();
         }
 
         /// 86차(사용자): 마을 대회 NPC 러너가 장애물에 부딪힐 때 — 주인공 꽈당과 같은 재료(별·하트·퍼프 파편 + 흰 링 + 「꽈당!」 + 꽈당 효과음)를 그 자리에.
@@ -458,7 +458,7 @@ namespace CoastRun
                 _hitStopRoutine = StartCoroutine(PlayerController.NoHitSlow ? HitStop(0.6f, 0.04f) : HitStop(0.04f, 0.07f));
                 cameraRig?.Shake(0.32f, 0.16f);
                 cameraRig?.FovKick(-5f, 0.15f);
-                CoastPrefs.Vibrate();
+                CoastPrefs.VibrateEvent();
             }
             EnsurePopBursts();
             SpawnPop(_popStar, worldPos, new Color(1f, 0.93f, 0.45f), 9);
@@ -848,7 +848,7 @@ namespace CoastRun
 
         private void HandleNearMiss(int reward, int combo, Vector3 worldPos)
         {
-            CoastPrefs.Vibrate();   // 14차 게임필: 아슬아슬 통과에 짧은 진동
+            CoastPrefs.VibrateEvent();   // 14차 게임필: 아슬아슬 통과에 짧은 진동
             StartCoroutine(NearMissSequence(combo));
         }
 
@@ -898,7 +898,7 @@ namespace CoastRun
         /// 장애물 충돌 피드백(꽈당). SoftHit 성공·실패(무적프레임) 모두 같은 연출.
         public void PlayHitImpact()
         {
-            CoastPrefs.Vibrate();
+            CoastPrefs.VibrateEvent();
             if (_softHitCo != null) StopCoroutine(_softHitCo);
             _softHitCo = StartCoroutine(SoftHitSequence());
         }
