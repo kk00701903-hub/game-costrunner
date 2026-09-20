@@ -103,6 +103,7 @@ namespace CoastRun
                     // default cool shade turned her muddy. A pale warm shade with a low
                     // threshold keeps hair and shirt at key-art brightness.
                     CoastMaterials.SetShadow(toon, new Color(0.86f, 0.80f, 0.80f), 0.22f);   // 25차-1: 팔레트 갱신에도 유지
+                    toon.name = mats[i].name;   // 167차: 원래 재질 이름 유지 — FaceDecal 이 HN_Blush/KD_Blush 등 얼굴 부품을 이름으로 찾는다(텍스처 없는 재질은 이름이 유일한 단서)
                     mats[i] = toon;
                 }
                 r.sharedMaterials = mats;

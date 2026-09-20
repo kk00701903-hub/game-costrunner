@@ -11,6 +11,7 @@ namespace CoastRun.Village
         public enum Style { Hero, Mom, Shop, Pastel }
 
         static Material M(Color c, float smooth = 0.05f) => CoastMaterials.CreateLit(c, smooth);
+        static Texture2D _roof; static Texture2D RoofTex => _roof != null ? _roof : (_roof = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Roof"));   // 163차
         static Texture2D _plank; static Texture2D PlankTex => _plank != null ? _plank : (_plank = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Plank"));
 
         static GameObject Box(Transform parent, string name, Vector3 pos, Vector3 size, Color col, float yaw = 0f)
@@ -47,8 +48,13 @@ namespace CoastRun.Village
             Tri(b0, t0, a0);           // 왼쪽 박공
             Tri(a1, t1, b1);           // 오른쪽 박공
             Quad(a0, a1, b1, b0);      // 바닥
-            var m = new Mesh(); m.SetVertices(v); m.SetTriangles(tris, 0); m.RecalculateNormals(); m.RecalculateBounds();
-            go.GetComponent<MeshFilter>().sharedMesh = m; go.GetComponent<MeshRenderer>().sharedMaterial = M(col);
+            // 163차(D-8 「Gable 메시에 UV 없음」): 경사면은 x·경사 길이 기준 평면 UV(1 m ≈ 1 타일) → 클링 기와 타일(Tex_Roof) 이 붙는다
+            var uv = new System.Collections.Generic.List<Vector2>(v.Count);
+            for (int i = 0; i < v.Count; i++) { var q = v[i]; uv.Add(new Vector2(q.x, q.y * 1.2f + q.z * 0.35f)); }
+            var m = new Mesh(); m.SetVertices(v); m.SetUVs(0, uv); m.SetTriangles(tris, 0); m.RecalculateNormals(); m.RecalculateBounds();
+            go.GetComponent<MeshFilter>().sharedMesh = m;
+            var roofTex = RoofTex;
+            go.GetComponent<MeshRenderer>().sharedMaterial = roofTex != null ? CoastMaterials.CreateToon(Color.Lerp(col, Color.white, 0.35f), roofTex, 0.05f) : M(col);
             return go;
         }
 
@@ -147,6 +153,7 @@ namespace CoastRun.Village
             {
                 var f = Box(house, "WinFrame", p, new Vector3(1.0f, 1.0f, 0.10f), frame, yawW);
                 var g = Box(house, "Win", p + Quaternion.Euler(0f, yawW, 0f) * new Vector3(0f, 0f, 0.03f), new Vector3(0.82f, 0.82f, 0.08f), new Color(0.72f, 0.88f, 1f), yawW);
+                g.AddComponent<WindowGlow>();   // 163차(D-8 「창문 밤 불빛 없음」): 밤이면 따뜻한 불빛(창마다 켜지는 시각이 다르고 30% 는 안 켜짐)
                 Box(house, "WinBar", p + Quaternion.Euler(0f, yawW, 0f) * new Vector3(0f, 0f, 0.06f), new Vector3(0.06f, 0.82f, 0.04f), frame, yawW);
                 Box(house, "WinBar2", p + Quaternion.Euler(0f, yawW, 0f) * new Vector3(0f, 0f, 0.06f), new Vector3(0.82f, 0.06f, 0.04f), frame, yawW);
                 Box(house, "Sill", p + Quaternion.Euler(0f, yawW, 0f) * new Vector3(0f, -0.56f, 0.08f), new Vector3(1.1f, 0.08f, 0.22f), trim, yawW);
@@ -461,6 +468,25 @@ namespace CoastRun.Village
                 var c = new Color(1f, 1f, 1f, 0.55f * (1f - k) * Mathf.Clamp01(k * 6f));
                 if (p.m.HasProperty("_BaseColor")) p.m.SetColor("_BaseColor", c); if (p.m.HasProperty("_Color")) p.m.SetColor("_Color", c);
             }
+        }
+    }
+
+    /// 163차: 창문 밤 불빛 — VillageDayNight.Night(0~1) 가 문턱을 넘으면 창 유리 재질을 따뜻한 무광 노랑(Unlit)으로 바꾼다. 창마다 문턱이 달라 하나씩 켜지고, 30% 는 빈집처럼 어둡게.
+    public class WindowGlow : MonoBehaviour
+    {
+        static Material _on; Material _off; MeshRenderer _r; float _th; bool _dark, _lit;
+        void Start()
+        {
+            _r = GetComponent<MeshRenderer>(); if (_r == null) { enabled = false; return; }
+            _off = _r.sharedMaterial; int h = Mathf.Abs(transform.position.GetHashCode());
+            _dark = (h % 10) < 3; _th = 0.25f + (h % 7) * 0.08f;
+            if (_on == null) _on = CoastMaterials.CreateUnlit(new Color(1f, 0.86f, 0.52f));
+        }
+        void Update()
+        {
+            if (_dark || _r == null) return;
+            bool want = VillageDayNight.Night > _th;
+            if (want != _lit) { _lit = want; _r.sharedMaterial = want ? _on : _off; }
         }
     }
 }

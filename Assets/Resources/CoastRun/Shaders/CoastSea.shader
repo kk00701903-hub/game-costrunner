@@ -31,7 +31,7 @@ Shader "CoastRun/CoastSea"
                 float4 _BaseMap_ST; half4 _BaseColor; half4 _DeepColor; half4 _FoamColor; float _Amp; float _Speed; half _Foam; half _CurveWeight;
             CBUFFER_END
             half _CoastNight;
-            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; float2 uv2 : TEXCOORD1; };   // 161차: uv2.x = 너울 가중치(육지 밑 0)
             struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 positionWS : TEXCOORD1; float wave : TEXCOORD2; float fogFactor : TEXCOORD3; };
             float WaveH(float3 w, float t)
             {
@@ -42,7 +42,7 @@ Shader "CoastRun/CoastSea"
                 Varyings OUT;
                 float3 ws = TransformObjectToWorld(IN.positionOS.xyz);
                 float t = _Time.y;
-                float h = WaveH(ws, t);
+                float h = WaveH(ws, t) * IN.uv2.x;   // 161차(사용자: 「바닷물이 육지 가운데서 생성」): 물가·육지 밑에서는 너울이 땅을 뚫지 않게 가중치
                 ws.y += h * _Amp;
                 ws = CoastCurveWorld(ws, _CurveWeight);
                 OUT.positionCS = TransformWorldToHClip(ws); OUT.positionWS = ws; OUT.uv = IN.uv; OUT.wave = h;

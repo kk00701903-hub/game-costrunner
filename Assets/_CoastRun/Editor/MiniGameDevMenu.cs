@@ -432,6 +432,7 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Village - Go hill west")] private static void VGoHillW() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new Vector3(-8f, 0f, 30f), 270f); }
         [MenuItem("Coast Run/Dev/Village - Count pines")] private static void VCountPines() { int n = 0; foreach (var t in GameObject.FindObjectsByType<Transform>(FindObjectsSortMode.None)) if (t.name.StartsWith("Tree_Pine") || t.name == "Windmill") n++; Debug.LogWarning("[Pines] " + n); }
         [MenuItem("Coast Run/Dev/Village - Tool pick")] private static void VToolPick() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(3); }
+        [MenuItem("Coast Run/Dev/Village - Tool rod")] private static void VToolRod() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(4); }
         [MenuItem("Coast Run/Dev/Village - Go rock")] private static void VGoRock() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; foreach (var rk in CoastRun.Village.VillageWorld.Rocks) if (rk.t != null) { var p = rk.t.position + new Vector3(0f, 0f, 1.9f); h.Teleport(new Vector3(p.x, 0f, p.z), 180f); return; } }
         [MenuItem("Coast Run/Dev/Village - Time 18")] private static void VTime18() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHour(18.3f); }
         [MenuItem("Coast Run/Dev/Village - Time 22")] private static void VTime22() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHour(22.2f); }

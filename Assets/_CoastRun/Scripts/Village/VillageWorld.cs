@@ -129,7 +129,7 @@ namespace CoastRun.Village
             foreach (var r in root.GetComponentsInChildren<Renderer>(true))
             {
                 string n = r.gameObject.name; var t = r.transform;
-                bool flat = n == "SkyDome" || n == "Vista" || n == "VistaSide" || n == "FarHill" || n == "Cloud" || n == "Bird" || (t.parent != null && (t.parent.name == "Cloud" || t.parent.name == "Bird"));
+                bool flat = n == "SkyDome" || n == "Vista" || n == "VistaSide" || n == "FarHill" || n == "Cloud" || n == "SunDisc" || n == "Bird" || (t.parent != null && (t.parent.name == "Cloud" || t.parent.name == "Bird"));
                 foreach (var m in r.sharedMaterials) if (m != null && m.HasProperty("_CurveWeight")) m.SetFloat("_CurveWeight", flat ? 0f : 1f);
             }
             return root;
@@ -278,6 +278,14 @@ namespace CoastRun.Village
                 float s = 1.3f + (float)rng.NextDouble() * 0.5f;
                 int hits = save != null && save.villageRockHits != null ? save.villageRockHits[i] : 0;
                 float shrink = 1f - hits * 0.18f;
+                // 162차(사용자: 「바위 더 이쁘게」): 블렌더 키트 VRock_A/B/C(각진 현무암 + 이끼 + 광석 결정, AO 정점색). 없으면 옛 구 조합
+                var kit = JejuKit.Spawn("VRock_" + "ABC"[i % 3], t, Vector3.zero, 0f, s * 1.7f * shrink);
+                if (kit != null)
+                {
+                    var bc0 = t.gameObject.AddComponent<BoxCollider>(); bc0.center = new Vector3(0f, s * 0.35f, 0f); bc0.size = new Vector3(s * 0.9f, s * 0.7f, s * 0.8f) * shrink;
+                    GroundBlob.Static(root, g, s * 1.1f, s * 0.9f, 0.2f);
+                    Rocks.Add((t, i)); continue;
+                }
                 var body = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(body.GetComponent<Collider>()); body.name = "Body"; body.transform.SetParent(t, false);
                 body.transform.localPosition = new Vector3(0f, s * 0.32f * shrink, 0f); body.transform.localScale = new Vector3(s, s * 0.72f, s * 0.86f) * shrink; body.GetComponent<Renderer>().sharedMaterial = rockM;
                 var b2 = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(b2.GetComponent<Collider>()); b2.name = "Body2"; b2.transform.SetParent(t, false);
@@ -461,13 +469,21 @@ namespace CoastRun.Village
             var go = new GameObject("Sea", typeof(MeshFilter), typeof(MeshRenderer));
             go.transform.SetParent(root, false); go.transform.localPosition = new Vector3(0f, SeaLevel, -20f);
             int sx = 84, sz = 60; float w = 420f, len = 300f;   // 155차: 5 m 격자(셰이더 너울이 각지지 않게)
-            var verts = new Vector3[(sx + 1) * (sz + 1)]; var uvs = new Vector2[verts.Length]; var tris = new int[sx * sz * 6];
+            var verts = new Vector3[(sx + 1) * (sz + 1)]; var uvs = new Vector2[verts.Length]; var uv2 = new Vector2[verts.Length]; var tris = new int[sx * sz * 6];
             for (int j = 0; j <= sz; j++) for (int i = 0; i <= sx; i++)
-            { float fx = i / (float)sx, fz = j / (float)sz; verts[j * (sx + 1) + i] = new Vector3(fx * w - w * 0.5f, 0f, -fz * len); uvs[j * (sx + 1) + i] = new Vector2(fx * 22f, fz * 16f); }
+            {
+                float fx = i / (float)sx, fz = j / (float)sz; float vx = fx * w - w * 0.5f, vz = -fz * len;
+                // 161차(사용자: 「바닷물이 육지 가운데서 생성해서 왔다갔다」): 물가(z −20~−26)와 만·반도 가장자리는 땅이 해수면 근처라
+                // 너울(±0.64 m)이 잔디 위로 솟았다 꺼졌다 했다 → 땅 높이가 해수면보다 1.2 m 이상 낮은 곳만 너울(uv2.x), 얕은 곳은 판을 가라앉힌다.
+                float gh = Height(vx, vz + -20f) - SeaLevel;   // 판은 z=−20 에서 시작(부모 오프셋)
+                float wgt = Mathf.Clamp01(Mathf.InverseLerp(-0.3f, -1.4f, gh));
+                float sink = gh > -0.6f ? -1.0f : 0f;
+                verts[j * (sx + 1) + i] = new Vector3(vx, sink, vz); uvs[j * (sx + 1) + i] = new Vector2(fx * 22f, fz * 16f); uv2[j * (sx + 1) + i] = new Vector2(wgt, 0f);
+            }
             int t = 0;
             for (int j = 0; j < sz; j++) for (int i = 0; i < sx; i++)
             { int a = j * (sx + 1) + i; tris[t++] = a; tris[t++] = a + 1; tris[t++] = a + sx + 1; tris[t++] = a + 1; tris[t++] = a + sx + 2; tris[t++] = a + sx + 1; }
-            var mesh = new Mesh { name = "VillageSea" }; mesh.vertices = verts; mesh.uv = uvs; mesh.triangles = tris; mesh.RecalculateNormals();
+            var mesh = new Mesh { name = "VillageSea" }; mesh.vertices = verts; mesh.uv = uvs; mesh.uv2 = uv2; mesh.triangles = tris; mesh.RecalculateNormals();
             go.GetComponent<MeshFilter>().sharedMesh = mesh;
             // 154차: 클링 생성 바다 텍스처(Tex_Sea) 우선, 없으면 옛 타일
             var klingSea = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Sea");
@@ -570,6 +586,10 @@ namespace CoastRun.Village
         {
             var cloudM = CoastMaterials.SetNoFog(CoastMaterials.CreateUnlit(new Color(0.94f, 0.97f, 1f)));
             var rng = new System.Random(7);
+            // 168차(사용자: 「구름은 K-POP 러닝 구름으로」): 러닝 모드 CloudLayerScroller 가 쓰는 손그림 뭉게구름(Cloud_Cumulus_A/B/C, 알파) 빌보드
+            var painted = new List<Texture2D>(); foreach (var n in new[] { "Cloud_Cumulus_A", "Cloud_Cumulus_B", "Cloud_Cumulus_C" }) { var t = ArtAssets.LoadTexture(n); if (t != null) painted.Add(t); }
+            // 168차: 태양 — 남동쪽 하늘 높이, 밤엔 사라짐(SunDisc)
+            BuildSunDisc(root);
             for (int i = 0; i < 13; i++)
             {
                 var c = new GameObject("Cloud").transform; c.SetParent(root, false);
@@ -578,6 +598,17 @@ namespace CoastRun.Village
                 // 157차: 안개 안쪽(70~110 m)·낮게 떠서 세로 화면에도 보이는 뭉게구름 4개(남쪽 하늘)
                 else if (i >= 9) { ang = -Mathf.PI * 0.5f + (float)(rng.NextDouble() - 0.5) * 2.2f; r = 70f + (float)rng.NextDouble() * 40f; }
                 c.localPosition = new Vector3(Mathf.Cos(ang) * r, (i >= 9 ? 22f : 34f) + (float)rng.NextDouble() * (i >= 9 ? 12f : 30f), Mathf.Sin(ang) * r);
+                if (painted.Count > 0)
+                {
+                    var tex = painted[rng.Next(painted.Count)];
+                    var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Object.Destroy(q.GetComponent<Collider>()); q.name = "Billboard"; q.transform.SetParent(c, false);
+                    float sc = (i >= 9 ? 26f : 40f) * (0.8f + (float)rng.NextDouble() * 0.5f), aspect = tex.width / (float)tex.height;
+                    q.transform.localScale = new Vector3(sc * (rng.NextDouble() < 0.5 ? -1f : 1f), sc / aspect, 1f);
+                    var cm = CoastMaterials.CreateTexturedTransparent(tex, new Color(1f, 1f, 1f, i >= 9 ? 0.95f : 0.8f)); CoastMaterials.SetNoFog(cm, 0f);
+                    var qr = q.GetComponent<MeshRenderer>(); qr.sharedMaterial = CoastMaterials.SetFlat(cm); qr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; qr.receiveShadows = false;
+                    c.gameObject.AddComponent<CloudDrift>(); c.gameObject.AddComponent<SkyBillboard>();
+                    continue;
+                }
                 int n = 3 + rng.Next(3);
                 for (int k = 0; k < n; k++)
                 {
@@ -609,6 +640,34 @@ namespace CoastRun.Village
                 q.GetComponent<MeshRenderer>().sharedMaterial = sparkM;
                 var tw = q.AddComponent<Twinkle>(); tw.phase = (float)rng.NextDouble() * 6f;
             }
+        }
+        /// 168차: 하늘 빌보드 — 카메라를 향해 Y축만 돌린다(구름·태양)
+        public class SkyBillboard : MonoBehaviour { void LateUpdate() { var cam = Camera.main; if (cam == null) return; var d = transform.position - cam.transform.position; d.y = 0f; if (d.sqrMagnitude > 0.01f) transform.rotation = Quaternion.LookRotation(d); } }
+        /// 168차: 태양 원반 — 절차 텍스처(흰 중심·노란 테·부드러운 글로우), 밤(VillageDayNight.Night)엔 사라진다
+        public class SunDisc : MonoBehaviour { Material _m; Color _c; void Start() { _m = GetComponent<MeshRenderer>().sharedMaterial; _c = _m.color; } void Update() { if (_m == null) return; var c = _c; c.a = _c.a * Mathf.Clamp01(1f - VillageDayNight.Night * 1.6f); _m.color = c; } }
+        static Texture2D _sunTex;
+        static void BuildSunDisc(Transform root)
+        {
+            if (_sunTex == null)
+            {
+                const int N = 256; _sunTex = new Texture2D(N, N, TextureFormat.RGBA32, true) { name = "SunDisc", wrapMode = TextureWrapMode.Clamp };
+                var px = new Color[N * N];
+                for (int y = 0; y < N; y++) for (int x = 0; x < N; x++)
+                {
+                    float d = Vector2.Distance(new Vector2(x, y), new Vector2(N * 0.5f, N * 0.5f)) / (N * 0.5f);
+                    float core = Mathf.Clamp01((0.42f - d) / 0.04f);                       // 흰 원반(가장자리 부드럽게)
+                    float glow = Mathf.Pow(Mathf.Clamp01(1f - d), 2.6f) * 0.55f;           // 바깥 글로우
+                    var col = Color.Lerp(new Color(1f, 0.86f, 0.45f), new Color(1f, 0.99f, 0.92f), core);
+                    px[y * N + x] = new Color(col.r, col.g, col.b, Mathf.Clamp01(core + glow));
+                }
+                _sunTex.SetPixels(px); _sunTex.Apply(true);
+            }
+            var sun = new GameObject("SunDisc").transform; sun.SetParent(root, false);
+            sun.localPosition = new Vector3(150f, 62f, -270f);   // 남동쪽 하늘, 고도 ≈11°(마을 카메라는 24° 내려다봐서 지평선 위 조금만 보인다)
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Object.Destroy(q.GetComponent<Collider>()); q.transform.SetParent(sun, false); q.transform.localScale = new Vector3(70f, 70f, 1f);
+            var m = CoastMaterials.CreateTexturedTransparent(_sunTex, new Color(1f, 1f, 1f, 0.95f)); CoastMaterials.SetNoFog(m, 0f);
+            var mr = q.GetComponent<MeshRenderer>(); mr.sharedMaterial = CoastMaterials.SetFlat(m); mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; mr.receiveShadows = false;
+            sun.gameObject.AddComponent<SkyBillboard>(); q.AddComponent<SunDisc>();
         }
         public class CloudDrift : MonoBehaviour { Vector3 _p; float _ph; void Start() { _p = transform.localPosition; _ph = Random.value * 6f; } void Update() { transform.localPosition = _p + new Vector3(Mathf.Sin(Time.time * 0.05f + _ph) * 8f, 0f, 0f); } }
         public class BirdFly : MonoBehaviour
@@ -712,7 +771,7 @@ namespace CoastRun.Village
             foreach (Transform ch in root)
             {
                 string n = ch.name;
-                if (n == "Terrain" || n == "Sea" || n == "Foam" || n == "Vista" || n == "VistaSide" || n == "FarHill" || n == "Bound" || n == "Sun" || n == "Fill" || n == "Crops" || n == "Yard" || n == "Ghost" || n == "Pampas" || n == "FlowerClump" || n == "Sparkle" || n == "Cloud" || n == "Bird" || n == "SkyDome" || n == "CliffRock" || n.Contains("StoneWall")) continue;
+                if (n == "Terrain" || n == "Sea" || n == "Foam" || n == "Vista" || n == "VistaSide" || n == "FarHill" || n == "Bound" || n == "Sun" || n == "SunDisc" || n == "Fill" || n == "Crops" || n == "Yard" || n == "Ghost" || n == "Pampas" || n == "FlowerClump" || n == "Sparkle" || n == "Cloud" || n == "Bird" || n == "SkyDome" || n == "CliffRock" || n.Contains("StoneWall")) continue;
                 BuildingOutline.Attach(ch, 0.022f);
             }
         }
@@ -745,6 +804,14 @@ namespace CoastRun.Village
         static void Bush(Transform root, float x, float z, System.Random rng)
         {
             var go = new GameObject("Bush"); go.transform.SetParent(root, false); go.transform.position = Ground(x, z);
+            // 162차(사용자: 「원형 장애물 더 이쁘게」): 키트 VBush_A/B(잎 뭉치 + 열매, AO 정점색). 없으면 옛 구 뭉치
+            var kb = JejuKit.Spawn("VBush_" + (rng.NextDouble() < 0.5 ? "A" : "B"), go.transform, Vector3.zero, (float)rng.NextDouble() * 360f, 1.0f + (float)rng.NextDouble() * 0.4f);
+            if (kb != null)
+            {
+                var s2 = kb.gameObject.AddComponent<WindSway>(); s2.Amp = 2.5f; s2.Speed = 1.1f;
+                var bc2 = go.AddComponent<BoxCollider>(); bc2.center = new Vector3(0f, 0.4f, 0f); bc2.size = new Vector3(1.3f, 0.8f, 1.3f);
+                return;
+            }
             int n = 2 + rng.Next(3);
             for (int i = 0; i < n; i++)
             {
@@ -771,6 +838,14 @@ namespace CoastRun.Village
             var rng = new System.Random(141);
             void R(float x, float z, float s, Material m)
             {
+                // 162차: 키트 VCliff_A/B(각진 현무암) — 콜라이더는 구 하나로 유지
+                var kc = JejuKit.Spawn("VCliff_" + (m == rockM ? "A" : "B"), root, Vector3.zero, (float)rng.NextDouble() * 360f, s * 2.2f);
+                if (kc != null)
+                {
+                    kc.name = "CliffRock"; kc.transform.position = new Vector3(x, SeaLevel - s * 0.25f, z);
+                    var sc = kc.AddComponent<SphereCollider>(); sc.center = new Vector3(0f, 0.28f, 0f); sc.radius = 0.55f;
+                    return;
+                }
                 var r = GameObject.CreatePrimitive(PrimitiveType.Sphere); r.name = "CliffRock"; r.transform.SetParent(root, false);   // 159차: 콜라이더 유지(주인공·카메라가 바위 안으로 안 들어가게)
                 r.transform.position = new Vector3(x, SeaLevel + s * 0.12f, z); r.transform.localScale = new Vector3(s * 1.3f, s * 1.3f, s * 1.1f); r.transform.rotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 360f, 0f);
                 r.GetComponent<MeshRenderer>().sharedMaterial = m;
@@ -786,8 +861,11 @@ namespace CoastRun.Village
 
         static void Rock(Transform root, float x, float z, System.Random rng)
         {
-            var r = GameObject.CreatePrimitive(PrimitiveType.Sphere); r.name = "Rock"; r.transform.SetParent(root, false);
             float s = 0.6f + (float)rng.NextDouble() * 0.9f;
+            // 162차: 키트 VStone_A/B(있을 때)
+            var kr = JejuKit.Spawn("VStone_" + (rng.NextDouble() < 0.5 ? "A" : "B"), root, Vector3.zero, (float)rng.NextDouble() * 360f, s * 1.6f);
+            if (kr != null) { kr.name = "Rock"; kr.transform.position = Ground(x, z); return; }
+            var r = GameObject.CreatePrimitive(PrimitiveType.Sphere); r.name = "Rock"; r.transform.SetParent(root, false);
             r.transform.position = Ground(x, z) + new Vector3(0f, s * 0.2f, 0f); r.transform.localScale = new Vector3(s, s * 0.55f, s * 0.8f); r.transform.rotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 360f, 0f);
             r.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(VillagePalette.RockShade);
         }

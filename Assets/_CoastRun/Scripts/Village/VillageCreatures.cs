@@ -64,6 +64,7 @@ namespace CoastRun.Village
                     if (n.anim != null) { n.anim.SetBool("Grounded", true); n.anim.Play("Run", 0, 0.12f); n.anim.speed = 0f; }
                     n.motion = pivot.gameObject.AddComponent<CharacterMotion>(); n.motion.Anim = n.anim; n.motion.WalkSpeed = 1.2f; n.motion.RunSpeed = 3f; n.motion.BobScale = 0.8f;
                     foreach (var smr in rig.GetComponentsInChildren<SkinnedMeshRenderer>()) if (smr.GetComponent<CelOutlineHint>() == null) smr.gameObject.AddComponent<CelOutlineHint>();
+                    StartCoroutine(AttachNpcFace(n, rig.gameObject, d.model));   // 161차: NPC 도 주인공과 같은 그림 얼굴(UI_Face_Npc_*)
                 }
                                 var col = root.gameObject.AddComponent<CapsuleCollider>(); col.center = new Vector3(0f, 0.6f, 0f); col.radius = 0.3f; col.height = 1.2f;
                 // 146차: 월드 스페이스 말풍선(꼬리·둥실) + 발밑 블롭 그림자
@@ -72,6 +73,14 @@ namespace CoastRun.Village
                 n.target = n.home; n.wait = Random.Range(1f, 3f); n.idleAct = Random.Range(3f, 8f);
                 _npcs.Add(n);
             }
+        }
+
+        /// 161차(사용자: 「다른 NPC 들도 얼굴 확인」): 3D 눈알 대신 그림 얼굴 데칼 — 모델별 UI_Face_Npc_<이름>, 없으면 주인공 얼굴로 폴백
+        System.Collections.IEnumerator AttachNpcFace(Npc n, GameObject rig, string model)
+        {
+            yield return null;
+            var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Face_" + model) ?? Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Face_Haneul");
+            if (tex != null && n.anim != null && rig != null) FaceDecal.Attach(n.anim, rig, tex, n.root.forward);
         }
 
         /// 옷·머리 색 바꾸기(같은 치비 리그를 마을 사람으로) — 머티리얼 이름에 Jacket/Shirt/Top/Pants/Skirt/Hair 가 있으면 그 부분만.
@@ -173,6 +182,7 @@ namespace CoastRun.Village
             var rig = SkaterRig.SpawnModel(ArtAssets.ResourceRoot + "Rig/KidChibi", pivot, 0.92f, true);
             if (rig != null)
             {
+                FaceDecal.HideBlush(rig.gameObject);   // 167차: 꼬마 볼터치 제거
                 _kidAnim = rig.GetComponent<Animator>();
                 if (_kidAnim != null) { _kidAnim.SetBool("Grounded", true); _kidAnim.Play("Run", 0, 0.12f); _kidAnim.speed = 0f; }
                 _kidMotion = pivot.gameObject.AddComponent<CharacterMotion>(); _kidMotion.Anim = _kidAnim; _kidMotion.WalkSpeed = 1.8f; _kidMotion.RunSpeed = 4.2f; _kidMotion.Stride = 0.62f; _kidMotion.BobScale = 1.25f; _kidMotion.LookTarget = Player;
@@ -411,7 +421,7 @@ namespace CoastRun.Village
                 var np = best.t.position + away; best.t.position = new Vector3(np.x, VillageWorld.Height(np.x, np.z) + 1f, np.z);
                 return Loc.T("👻 귀신을 밀어냈다! 잡을 순 없다 — 집으로 도망치자!", "👻 Pushed the ghost back! Can't catch it — run home!");
             }
-            if (bat) { _crit.Remove(best); Pop(best, Color.white); OnCaught?.Invoke("spirit", 2, 30); return Loc.T("✨ 정령을 잡았다! 별조각 +2 · 30G", "✨ Caught a spirit! Shards +2 · 30G"); }
+            if (bat) { _crit.Remove(best); if (best.t != null) VillagePang.Burst(best.t.position, new Color(1f, 0.93f, 0.45f), Color.white, 1.0f); Pop(best, Color.white); OnCaught?.Invoke("spirit", 2, 30); return Loc.T("✨ 정령을 잡았다! 별조각 +2 · 30G", "✨ Caught a spirit! Shards +2 · 30G"); }
             // 150차: 잠자리는 빨라서 60% 만 잡힌다(놓치면 멀리 달아남)
             if (best.kind == 1 && Random.value > 0.6f) { best.anchor += new Vector3(Random.Range(-4f, 4f), 0f, Random.Range(-3f, 3f)); return Loc.T("휙— 잠자리가 도망갔다! 다시 노려 보자.", "Swish — the dragonfly got away!"); }
             _crit.Remove(best); Pop(best, Color.white);

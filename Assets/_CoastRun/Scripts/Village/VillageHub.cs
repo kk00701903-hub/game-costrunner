@@ -19,7 +19,7 @@ namespace CoastRun.Village
         Transform _world, _player, _rigT, _yardHost; CharacterController _cc; SkaterRig _rig; Animator _anim; Camera _cam; CharacterMotion _motion; Vector3 _vel, _acc;
         VillageHud _hud; readonly List<Spot> _spots = new List<Spot>(); Spot _near; Transform _nearTree; int _nearTreeIdx = -1;
         bool _moving; float _idleT; Vector3 _camVel; bool _busy; bool _yard; string _yardPick; float _yardRot; Transform _ghost; Canvas _yardCanvas; RectTransform _yardTray; Text _yardHint;
-        VillageCreatures _creatures; VillageMap _map; bool _bat, _axe, _pick; /* 150차: 도끼(장작) · 154차: 곡괭이(돌) */ Transform _nearRock; int _nearRockIdx = -1; float _doorCooldown; Transform _toolVis;
+        VillageCreatures _creatures; VillageMap _map; bool _bat, _axe, _pick, _rod; /* 150차: 도끼(장작) · 154차: 곡괭이(돌) · 168차: 낚싯대 */ Transform _nearRock; int _nearRockIdx = -1; float _doorCooldown; Transform _toolVis;
 
         SaveData Save => _gm != null ? _gm.Save : null;
 
@@ -47,6 +47,12 @@ namespace CoastRun.Village
             BuildPlayer();
             BuildCamera();
             _hud = VillageHud.Create(OnAct, OnTalk, OnBag, OnMenu, OnTool);
+            // 162차: 오른쪽 반 화면 — 드래그로 카메라 회전(0.32°/px), 톡이면 행동(휘두르기·잡기·들어가기…)
+            if (_hud.CamPad != null)
+            {
+                _hud.CamPad.OnOrbit = dx => { if (_busy || _hud.Locked) return; _camYawTarget += dx * 0.32f; _camYaw += dx * 0.32f; _backT = 0f; _camYawVel = 0f; };
+                _hud.CamPad.OnTap = OnAct;
+            }
             _drops = VillageDrops.Create(transform, _player, () => _busy || _hud.Locked || _interior != null, OnAbsorb);   // 159차
             _creatures = VillageCreatures.Create(transform, _player);
             _creatures.Locked = () => _busy || _hud.Locked;
@@ -100,7 +106,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             _cam = Camera.main;
             if (_cam == null) { var go = new GameObject("Main Camera"); go.tag = "MainCamera"; _cam = go.AddComponent<Camera>(); go.AddComponent<AudioListener>(); }
-            _cam.orthographic = false; _cam.fieldOfView = 46f;   // 146차: 피치 ≈20° + 방사형 곡면(CurveK)으로 디오라마 — 수평선은 화면 31% _cam.nearClipPlane = 0.3f; _cam.farClipPlane = 420f;
+            _cam.orthographic = false; _cam.fieldOfView = 50f; _cam.nearClipPlane = 0.2f; _cam.farClipPlane = 420f;   // 161차: FOV 46→50(배경 넓게), 근평면 0.2(벽 안으로 당겨질 때 잘림 최소) · 146차: 피치 ≈20° + 방사형 곡면(CurveK)으로 디오라마
             _cam.clearFlags = CameraClearFlags.SolidColor; _cam.backgroundColor = new Color(0.68f, 0.85f, 0.98f);
             if (_cam.GetComponent<CoastPortraitViewport>() == null) _cam.gameObject.AddComponent<CoastPortraitViewport>();
             var camData = _cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>() ?? _cam.gameObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
@@ -112,8 +118,11 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         float _camYaw, _camYawVel;
         float _swingK, _camYawTarget, _backT, _stickYaw; bool _stickHeld;
         public const float CurveK = 0.0018f;   // 방사형 곡률(m/m²): 40 m 에서 2.9 m, 60 m 에서 6.5 m 아래로 — 피치 20°·FOV 46 에서 수평선이 화면 31% 에 온다   // 141차: 크게 방향을 바꿀 때 카메라가 바깥 큰 원을 돌지 않게 — 가까이·높게 붙었다가 다시 멀어진다
-        Vector3 CamTarget => _player.position + Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, Mathf.Lerp(4.5f, 5.6f, _swingK), Mathf.Lerp(-8.8f, -4.0f, _swingK));
-        Vector3 CamLook => _player.position + new Vector3(0f, 0.7f, 0f) + Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, 0f, 1.6f);
+        // 161차(사용자: 「캐릭터가 화면을 너무 차지 — 배경 넓게, 주인공 작게」): 뒤 8.8→12.6 m · 높이 4.5→6.4 m(피치 ≈ 같음) · 시선 1.6→2.4 m 앞.
+        // 주인공은 화면 높이의 ≈14%(전엔 ≈20%), 폰 세로 화면에서 앞길이 2.4 배 더 보인다. FOV 는 BuildCamera 에서 46→50.
+        public static float CamBack = 12.6f, CamHeight = 6.4f, CamAhead = 2.4f;
+        Vector3 CamTarget => _player.position + Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, Mathf.Lerp(CamHeight, CamHeight + 1.4f, _swingK), Mathf.Lerp(-CamBack, -5.2f, _swingK));
+        Vector3 CamLook => _player.position + new Vector3(0f, 0.7f, 0f) + Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, 0f, CamAhead);
         void SnapCamera() { _camYaw = _camYawTarget = _player.eulerAngles.y; _backT = 0f; _cam.transform.position = CamTarget; _cam.transform.LookAt(CamLook); _camVel = Vector3.zero; _snapCam = true; LateUpdate(); }
         bool _snapCam;
         bool CamBlocked(Vector3 p)
@@ -249,19 +258,14 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             var dir = ct - look; float dist = dir.magnitude; float best = CamFree(look, ct);
             if (best < dist)
             {
-                float pull = Mathf.Max(2.6f, best - 0.3f);
-                var ctPull = look + dir / dist * pull;
-                // 147차: 건물 사이에 끼어 카메라가 머리 뒤까지 당겨지면(5.5 m 미만) 위로 올려 내려다본다(머리통만 찍히던 문제).
-                // 올린 자리도 지붕·차양에 막히면 그쪽 자유 거리만큼만.
-                float kUp = Mathf.Clamp01((5.5f - pull) / 3f);
-                var flat = new Vector3(dir.x, 0f, dir.z); if (flat.sqrMagnitude < 0.01f) flat = -_cam.transform.forward; flat.y = 0f;
-                var ctHigh = look + flat.normalized * 2.4f + Vector3.up * 7.2f;
-                var dh = ctHigh - look; float lh = dh.magnitude; float fh = CamFree(look, ctHigh);
-                if (fh < lh) ctHigh = look + dh / lh * Mathf.Max(2.6f, fh - 0.4f);
-                ct = Vector3.Lerp(ctPull, ctHigh, kUp);
+                // 161차(사용자: 「건물 벽에 가면 카메라가 위로 올라가 뭉개진 건물 이미지만 보임」): 147차의 「위로 올려 내려다보기」를 없앴다.
+                // 막히면 같은 각도로 당겨 붙기만 하고(최소 3.4 m), 그보다 더 가까워야 하면 카메라가 벽 안으로 들어가 뒷면 컬링으로 안이 비친다
+                // (지붕 텍스처를 코앞에서 찍는 것보다 낫다). 당김은 부드럽게(SmoothDamp) 되돌아온다.
+                float pull = Mathf.Max(3.4f, best - 0.3f);
+                ct = look + dir / dist * pull;
             }
             // 캐스트 시작점이 이미 건물 안이면(스폿이 건물 바로 앞) 앞으로 당겨 가며 빈 자리 찾기
-            for (int guard = 0; guard < 24 && CamBlocked(ct); guard++) { var dd = ct - look; float d2 = dd.magnitude - 0.5f; if (d2 < 2.6f) break; ct = look + dd.normalized * d2; }
+            for (int guard = 0; guard < 24 && CamBlocked(ct); guard++) { var dd = ct - look; float d2 = dd.magnitude - 0.5f; if (d2 < 3.4f) break; ct = look + dd.normalized * d2; }
             _cam.transform.position = _snapCam ? ct : Vector3.SmoothDamp(_cam.transform.position, ct, ref _camVel, 0.16f); _snapCam = false;
             _cam.transform.LookAt(look);
         }
@@ -322,10 +326,11 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_heroInside)
             {
                 // 156차: 우리집 안 — 식탁(밥) · 침대(잠 → 한 주) · 책상(옛 홈 화면: 방 꾸미기·조리)
-                float ox = VillageInterior.OX, oz = VillageInterior.OZ, fy = _interior.FloorY;
-                _spots.Add(new Spot { id = "home_table", title = Loc.T("🍚 식탁 · 밥 먹기", "🍚 Table · Eat"), pos = new Vector3(ox + 1.6f, fy, oz - 0.9f), radius = 1.25f, on = EatHome });
-                _spots.Add(new Spot { id = "home_bed", title = Loc.T("🛏 침대 · 자기 (한 주가 지난다)", "🛏 Bed · Sleep (week passes)"), pos = new Vector3(ox - 1.15f, fy, oz + 1.0f), radius = 1.3f, on = SleepBed });
-                _spots.Add(new Spot { id = "home_desk", title = Loc.T("📻 책상 · 내 방 꾸미기 / 조리", "📻 Desk · My room / Cook"), pos = new Vector3(ox + 2.1f, fy, oz + 1.6f), radius = 1.2f, on = () => OpenHome(0) });
+                float ox = VillageInterior.OX, oz = VillageInterior.OZ, fy = _interior.FloorY, kx = VillageInterior.KX, kz = VillageInterior.KZ;   // 161차: 방이 2배(10×7.8) — 가구 좌표 비율
+                _spots.Add(new Spot { id = "home_table", title = Loc.T("🍚 식탁 · 밥 먹기", "🍚 Table · Eat"), pos = new Vector3(ox + 1.6f * kx, fy, oz - 0.9f * kz), radius = 1.4f, on = EatHome });
+                // 161차(사용자: 「침대에서는 잠을 잘 수 있게」): 침대 옆(동쪽)에 서면 뜨는 스팟 — 반경을 침대 길이만큼 넓혀 어느 쪽에서 다가가도 잡힌다
+                _spots.Add(new Spot { id = "home_bed", title = Loc.T("🛏 침대 · 자기 (한 주가 지난다)", "🛏 Bed · Sleep (week passes)"), pos = new Vector3(ox - 1.2f * kx, fy, oz + 1.3f * kz), radius = 1.9f, on = SleepBed });
+                _spots.Add(new Spot { id = "home_desk", title = Loc.T("📻 책상 · 내 방 꾸미기 / 조리", "📻 Desk · My room / Cook"), pos = new Vector3(ox + 2.1f * kx, fy, oz + 1.6f * kz), radius = 1.3f, on = () => OpenHome(0) });
             }
             yield return null; yield return FadeScreen(false, 0.3f);
             _busy = false; _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T(name + " 안이다. 아늑하네.", "Inside " + name + ". Cozy."));
@@ -413,8 +418,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 if (show) { var c = VillageFarm.TileCenter(tile); VillageFarm.Marker.position = new Vector3(c.x, VillageWorld.Height(c.x, c.z) + VillageFarm.Top + 0.012f, c.z); }
             }
             _hud.SetPrompt(_near != null ? "▶ " + _near.title : null, _near != null ? _near.on : null);
-            bool critter = _creatures != null && !_axe && _creatures.AnyCritterNear(_bat);
-            string toolAct = _pick ? Loc.T("돌 캐기", "Mine") : _axe ? Loc.T("나무 패기", "Chop") : _bat ? Loc.T("휘두르기", "Swing") : Loc.T("잡기", "Catch");
+            bool critter = _creatures != null && !_axe && !_rod && !_pick && _creatures.AnyCritterNear(_bat);
+            string toolAct = _rod ? Loc.T("낚시", "Fish") : _pick ? Loc.T("돌 캐기", "Mine") : _axe ? Loc.T("나무 패기", "Chop") : _bat ? Loc.T("휘두르기", "Swing") : Loc.T("잡기", "Catch");
             _hud.SetAction(_nearDoorOn != null && !critter ? Loc.T("들어가기", "Enter") : critter ? toolAct : _pick && _nearRock != null ? Loc.T("돌 캐기", "Mine") : _nearTree != null ? (_axe ? Loc.T("나무 패기", "Chop") : Loc.T("흔들기", "Shake")) : _near != null && _near.id == "beach" ? Loc.T("낚시", "Fish") : toolAct);
         }
 
@@ -425,6 +430,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_yard) { PlaceGhost(); return; }
             // 157차: 반짝이는 문 앞에서 행동 버튼 = 들어가기(벌레가 코앞이면 잡기가 먼저)
             if (_nearDoorOn != null && !(_creatures != null && _creatures.AnyCritterNear(_bat))) { _doorCooldown = Time.time + 3f; var on = _nearDoorOn; on(); return; }
+            // 168차: 낚싯대 — 바닷가 스팟이면 낚시, 아니면 헛던지기
+            if (_rod) { if (_near != null && _near.id == "beach") { OpenFishing(); return; } Swing(); CoastToast.Show(Loc.T("휙— 바닷가(모래사장)에서 던져야 물고기가 문다.", "Whoosh — cast from the beach.")); return; }
             // 154차: 곡괭이 — 바위 곁이면 캔다(돌), 아니면 헛스윙
             if (_pick) { if (_nearRock != null) { StartCoroutine(MineRock(_nearRock, _nearRockIdx)); return; } Swing(); CoastToast.Show(Loc.T("탕— 언덕의 바위 곁에서 휘둘러야 돌이 나온다.", "Clang — swing next to a hill rock.")); return; }
             // 150차: 도끼 — 나무 곁이면 팬다(장작), 아니면 헛스윙
@@ -455,20 +462,21 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_busy || _hud.Locked) return;
             _hud.Choice(Loc.T("도구 고르기", "Choose a tool"), Loc.T("잠자리채: 나비 잡기(별조각) · 방망이: 다가오는 정령을 톡(별조각·코인). 정령과 부딪히면 HP가 깎여!", "Net: catch butterflies (shards) · Bat: bop spirits (shards, coins). Bumping a spirit costs HP!"),
                 new (string, Color, Action)[] {
-                    (Loc.T("🦋 잠자리채", "🦋 Net") + (!_bat ? Loc.T(" (지금)", " (now)") : ""), new Color(0.45f, 0.78f, 0.55f), () => { _bat = false; _axe = false; _pick = false; ApplyTool(); }),
-                    (Loc.T("🏏 방망이", "🏏 Bat") + (_bat && !_axe ? Loc.T(" (지금)", " (now)") : ""), new Color(0.98f, 0.62f, 0.45f), () => { _bat = true; _axe = false; _pick = false; ApplyTool(); }),
-                    (Loc.T("🪓 도끼 — 나무 패서 장작(3번이면 쓰러짐, 8주 뒤 다시)", "🪓 Axe — chop trees (falls after 3, regrows in 8w)") + (_axe && !_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.62f, 0.52f, 0.40f), () => { _axe = true; _pick = false; ApplyTool(); }),
-                    (Loc.T("⛏ 곡괭이 — 언덕 바위 캐서 돌(3번이면 사라짐, 8주 뒤 다시)", "⛏ Pickaxe — mine hill rocks (gone after 3, regrows in 8w)") + (_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.55f, 0.58f, 0.66f), () => { _pick = true; _axe = false; _bat = false; ApplyTool(); }),
+                    (Loc.T("🦋 잠자리채", "🦋 Net") + (!_bat ? Loc.T(" (지금)", " (now)") : ""), new Color(0.45f, 0.78f, 0.55f), () => { _rod = false; _bat = false; _axe = false; _pick = false; ApplyTool(); }),
+                    (Loc.T("🏏 방망이", "🏏 Bat") + (_bat && !_axe ? Loc.T(" (지금)", " (now)") : ""), new Color(0.98f, 0.62f, 0.45f), () => { _rod = false; _bat = true; _axe = false; _pick = false; ApplyTool(); }),
+                    (Loc.T("🪓 도끼 — 나무 패서 장작(3번이면 쓰러짐, 8주 뒤 다시)", "🪓 Axe — chop trees (falls after 3, regrows in 8w)") + (_axe && !_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.62f, 0.52f, 0.40f), () => { _rod = false; _axe = true; _pick = false; ApplyTool(); }),
+                    (Loc.T("⛏ 곡괭이 — 언덕 바위 캐서 돌(3번이면 사라짐, 8주 뒤 다시)", "⛏ Pickaxe — mine hill rocks (gone after 3, regrows in 8w)") + (_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.55f, 0.58f, 0.66f), () => { _rod = false; _pick = true; _axe = false; _bat = false; ApplyTool(); }),
+                    (Loc.T("🎣 낚싯대 — 바닷가에서 낚시", "🎣 Rod — fish at the beach") + (_rod ? Loc.T(" (지금)", " (now)") : ""), new Color(0.40f, 0.62f, 0.85f), () => { _rod = true; _pick = false; _axe = false; _bat = false; ApplyTool(); }),
                 });
         }
 
         /// 도구 표시: 오른손 뼈에 잠자리채(막대+고리) 또는 방망이(막대) 붙이기 + 버튼 라벨
         /// 개발용: 도구 바로 바꾸기(0 잠자리채 1 방망이 2 도끼)
         public void DevHour(float h) { if (_dayNight != null) _dayNight.Hour = h; RefreshStatus(); }
-        public void DevTool(int t) { _bat = t == 1; _axe = t == 2; _pick = t == 3; ApplyTool(); }
+        public void DevTool(int t) { _bat = t == 1; _axe = t == 2; _pick = t == 3; _rod = t == 4; ApplyTool(); }
         void ApplyTool()
         {
-            if (_hud != null) _hud.SetTool(_pick ? Loc.T("곡괭이", "Pickaxe") : _axe ? Loc.T("도끼", "Axe") : _bat ? Loc.T("방망이", "Bat") : Loc.T("잠자리채", "Net"), _pick ? 3 : _axe ? 2 : _bat ? 1 : 0);
+            if (_hud != null) _hud.SetTool(_rod ? Loc.T("낚싯대", "Rod") : _pick ? Loc.T("곡괭이", "Pickaxe") : _axe ? Loc.T("도끼", "Axe") : _bat ? Loc.T("방망이", "Bat") : Loc.T("잠자리채", "Net"), _rod ? 4 : _pick ? 3 : _axe ? 2 : _bat ? 1 : 0);
             StartCoroutine(OutlineToolLater());
             if (_toolVis != null) Destroy(_toolVis.gameObject);
             Transform hand = _anim != null && _anim.avatar != null && _anim.avatar.isHuman ? _anim.GetBoneTransform(HumanBodyBones.RightHand) : null;
@@ -477,6 +485,9 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             root.localPosition = hand != null ? new Vector3(0f, -0.02f, 0.02f) : new Vector3(0.28f, 0.7f, 0.1f);
             root.localRotation = Quaternion.Euler(-70f, 0f, 0f);
             float k = hand != null ? 1f / Mathf.Max(0.01f, hand.lossyScale.x) : 1f;
+            // 168차(사용자: 「블렌더로 도구 다시」): Models/VTool_{Net,Bat,Axe,Pick,Rod}.fbx(village_tool_kit.py, 원점 = 손잡이 아래, +Y 위, 높이 1 m) 가 있으면 그것을 손에
+            var kitTool = JejuKit.Spawn("VTool_" + (_rod ? "Rod" : _pick ? "Pick" : _axe ? "Axe" : _bat ? "Bat" : "Net"), root, Vector3.zero, 0f, k);
+            if (kitTool != null) return;
             if (_pick)
             {
                 // 154차: 곡괭이 — 자루 + 가로 쇠머리(양끝 뾰족)
@@ -611,6 +622,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             Save.stats.stamina = Mathf.Max(1, Save.stats.stamina - dmg);
             _gm.Persist(); RefreshStatus(); CoastPrefs.VibrateEvent();
             CoastToast.Show(Loc.T($"💥 정령과 부딪혔다! HP −{dmg} — 방망이로 먼저 톡!", $"💥 Bumped a spirit! HP −{dmg} — bop it with the bat first!"));
+            VillagePang.Burst(_player.position + Vector3.up * 0.9f + _player.forward * 0.3f, new Color(0.95f, 0.45f, 0.65f), new Color(0.75f, 0.6f, 1f), 1.2f);   // 162차: 부딪히면 팡
             StartCoroutine(HitFlash());
         }
         IEnumerator HitFlash()
@@ -920,52 +932,16 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             Destroy(go);
         }
 
-        // ── 155차: 얼굴 데칼 ────────────────────────────────────────────
-        Transform _faceDecal;
-        /// 머리 뼈 앞에 얇은 쿼드(UI_Face_Haneul: 큰 눈·홍조·코·미소, 살색은 투명) — 원래 텍스처 얼굴 위에 덮는다. 머리를 따라 돈다.
+        // ── 155차: 얼굴 데칼 → 161차: FaceDecal.cs 로 공용화(눈 서브메시 제거 + LateUpdate 핀) ─────────────
+        FaceDecal _faceDecal;
         IEnumerator AttachFace()
         {
             yield return null;   // 애니메이터가 첫 포즈를 잡은 뒤
-            if (_anim == null || _anim.avatar == null || !_anim.avatar.isHuman) yield break;
-            var head = _anim.GetBoneTransform(HumanBodyBones.Head); if (head == null) yield break;
-            var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Face_Haneul"); if (tex == null) yield break;
-            // 머리 크기: 머리 뼈 ~ 렌더러 최상단
-            float top = 0f; foreach (var r in _rig.GetComponentsInChildren<Renderer>()) top = Mathf.Max(top, r.bounds.max.y);
-            float rad = Mathf.Clamp((top - head.position.y) * 0.62f, 0.10f, 0.35f);
-            // 158차(사용자: 「눈이 튀어나와 있다」): 평평한 쿼드는 머리 옆에서 보면 얼굴에서 떠 보인다 → 머리 구에 붙는 구면 조각(±50°×±35°) 메시로 감싼다
-            var q = new GameObject("FaceDecal", typeof(MeshFilter), typeof(MeshRenderer)); q.transform.SetParent(head, false);
-            var mat = CoastMaterials.CreateTexturedTransparent(tex, Color.white); q.GetComponent<MeshRenderer>().sharedMaterial = mat;
-            q.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            var fwd = _player.forward; var up = Vector3.up; var right = Vector3.Cross(up, fwd).normalized;
-            var center = head.position + up * (rad * 0.66f); float R = rad * 0.97f;
-            const int NX = 18, NY = 12; float hA = 50f * Mathf.Deg2Rad, vA = 35f * Mathf.Deg2Rad;
-            var verts = new Vector3[(NX + 1) * (NY + 1)]; var uvs = new Vector2[verts.Length]; var norms = new Vector3[verts.Length]; var tris = new int[NX * NY * 6];
-            for (int j = 0; j <= NY; j++)
-                for (int i = 0; i <= NX; i++)
-                {
-                    float a = (i / (float)NX - 0.5f) * 2f * hA, b = (j / (float)NY - 0.5f) * 2f * vA;
-                    var n = (right * (Mathf.Sin(a) * Mathf.Cos(b)) + up * Mathf.Sin(b) + fwd * (Mathf.Cos(a) * Mathf.Cos(b))).normalized;
-                    int k = j * (NX + 1) + i;
-                    verts[k] = head.InverseTransformPoint(center + n * R); norms[k] = head.InverseTransformDirection(n);
-                    uvs[k] = new Vector2(0.5f - a / (2f * hA), 0.5f + b / (2f * vA));
-                }
-            int t = 0;
-            for (int j = 0; j < NY; j++)
-                for (int i = 0; i < NX; i++)
-                {
-                    int v00 = j * (NX + 1) + i, v10 = v00 + 1, v01 = v00 + NX + 1, v11 = v01 + 1;
-                    tris[t++] = v00; tris[t++] = v10; tris[t++] = v11; tris[t++] = v00; tris[t++] = v11; tris[t++] = v01;
-                }
-            var mesh = new Mesh { name = "FaceCap" }; mesh.vertices = verts; mesh.uv = uvs; mesh.normals = norms; mesh.triangles = tris; mesh.RecalculateBounds();
-            q.GetComponent<MeshFilter>().sharedMesh = mesh;
-            _faceDecal = q.transform;
+            var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Face_Haneul"); if (tex == null || _rig == null) yield break;
+            _faceDecal = FaceDecal.Attach(_anim, _rig.gameObject, tex, _player.forward);
         }
         /// 데칼 크기·위치 미세 조정(개발용): dx 앞뒤, dy 위아래, s 배율
-        public void DevFace(float dx, float dy, float s)
-        {
-            if (_faceDecal == null) return;
-            _faceDecal.position += _player.forward * dx + Vector3.up * dy; _faceDecal.localScale *= s;   // 158차: 구면 조각이라 s 는 머리 중심 기준 확대
-        }
+        public void DevFace(float dx, float dy, float s) { if (_faceDecal != null) _faceDecal.Nudge(_player.forward, dx, dy, s); }
 
         // ── 나무 흔들기 ──────────────────────────────────────────────────
         IEnumerator ShakeTree(Transform tree, int idx)
@@ -1564,6 +1540,15 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         IEnumerator SleepWeek()
         {
             _busy = true;
+            // 161차: 집 안이면 침대 매트리스 위에 눕는다(머리는 베개 쪽, 몸은 등을 대고) — 몽타주 뒤 마을 아침으로 가므로 되돌릴 필요 없음
+            if (_interior != null && _rigT != null)
+            {
+                var bed = new Vector3(VillageInterior.OX - 2.2f * VillageInterior.KX, _interior.FloorY, VillageInterior.OZ + 1.15f * VillageInterior.KZ);
+                _cc.enabled = false; _player.position = bed; _player.rotation = Quaternion.Euler(0f, 180f, 0f);
+                if (_motion != null) _motion.enabled = false;   // 절차 모션(바운스·기울기)이 눕힌 자세를 덮어쓰지 않게
+                _rigT.localPosition = new Vector3(0f, 0.72f, 0f); _rigT.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+                if (_anim != null) _anim.speed = 0f;
+            }
             var cv = CoastUiCanvas.Create("SleepFade", 150);
             var img = CoastHudLayout.MakeImage(CoastUiCanvas.Root(cv), "F", Vector2.zero, Vector2.one, new Vector2(-400f, -400f), new Vector2(400f, 400f), new Color(0.03f, 0.03f, 0.08f, 0f));
             img.raycastTarget = true;

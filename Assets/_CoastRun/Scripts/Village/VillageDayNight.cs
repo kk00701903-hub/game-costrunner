@@ -13,6 +13,7 @@ namespace CoastRun.Village
         public static float SkyTintR = 1f, SkyTintG = 1f, SkyTintB = 1f;
         public static Color SkyTint => new Color(SkyTintR, SkyTintG, SkyTintB, 1f);
         public float Hour = 8f;
+        public static float Night;   // 163차: 0(낮)~1(밤)
         public bool IsNight => Hour >= 20f || Hour < 5.5f;
         public bool IsDusk => Hour >= 17.5f && Hour < 20f;
         public bool ShopOpen => Hour >= 8f && Hour < 19f;
@@ -86,7 +87,7 @@ namespace CoastRun.Village
             float lamp = Mathf.Clamp01(night * 1.2f + dusk * 0.6f);
             for (int i = 0; i < _lamps.Count; i++) _lamps[i].intensity = 2.6f * lamp;
             var lm = lamp > 0.3f ? _lampOn : _lampOff; foreach (var h in _lampHeads) if (h != null && h.sharedMaterial != lm) h.sharedMaterial = lm;
-            Shader.SetGlobalFloat("_CoastNight", night);
+            Shader.SetGlobalFloat("_CoastNight", night); Night = night;   // 163차: 창문 불빛(WindowGlow) 등이 읽는다
         }
 
         public string ClockText()

@@ -226,13 +226,13 @@ cap = sphere('HairCap', HC + Vector((0, 0.015, 0.02)), HR + 0.03, seg=64, rings=
 bisect(cap, HC + Vector((0, 0, 0.03)), Vector((0, 0.6, 1.0)).normalized())   # 앞(이마)은 높게, 뒤는 낮게
 finish(cap, HAIR, 'Head')
 bangs = sphere('Bangs', HC + Vector((0, 0.0, 0.02)), HR + 0.042, seg=64, rings=32)   # 캡보다 살짝 두껍게 → 그늘이 생겨 앞머리로 읽힘
-bisect(bangs, HC + Vector((0, 0, 0.085)), Vector((0.10, 0, 1.0)).normalized())   # 눈썹 바로 위, 오른쪽(-X)이 살짝 더 길게(가르마)
+bisect(bangs, HC + Vector((0, 0, 0.112)), Vector((0.10, 0, 1.0)).normalized())   # 164차: 앞머리를 2.7 cm 올려 눈이 다 보이게(레퍼런스: 앞머리 끝이 눈 위) · 눈썹 바로 위, 오른쪽(-X)이 살짝 더 길게(가르마)
 bisect(bangs, HC + Vector((0, 0, 0.26)), (0, 0, -1))                 # 캡과 넉넉히 겹치게
 bisect(bangs, HC + Vector((0, -0.02, 0)), (0, -1, 0))               # 앞쪽만
 finish(bangs, HAIR, 'Head')
 # 122차: 앞머리 끝이 헬멧 챙처럼 일직선이라 둥근 술 4개로 물결 지게
 for i, tx in enumerate((-0.16, -0.055, 0.055, 0.16)):
-    dz = 0.075 + (0.012 if i in (0, 3) else 0.0)
+    dz = 0.102 + (0.012 if i in (0, 3) else 0.0)   # 164차: 술도 같이 위로
     ty = -math.sqrt(max(0.0, (HR + 0.035) ** 2 - tx * tx - dz * dz)) + 0.01
     tuft = sphere('BangTuft_%d' % i, (tx, ty, HC.z + dz), 0.05, scale=(1.0, 0.5, 0.72), seg=20, rings=12); finish(tuft, HAIR, 'Head')
 back = sphere('HairBack', HC + Vector((0, 0.10, -0.05)), 0.24, scale=(1.05, 0.75, 1.0), seg=48, rings=24)

@@ -175,7 +175,7 @@ namespace CoastRun
             : act == 1 ? Loc.T("2막 · 같은 주파수", "Act 2 · The Same Frequency") : Loc.T("3막 · 마지막 노을", "Act 3 · The Last Sunset");
         static string ActSeason(int act) => act == 0 ? Loc.T("봄", "Spring") : act == 1 ? Loc.T("여름 · 가을", "Summer · Autumn") : Loc.T("겨울", "Winter");
         static string ActSynopsis(int act) => act == 0
-            ? Loc.T("19살 봄. 유채꽃 길을 보드로 달려 송전탑까지.\n정류장에서 돌아온 도윤과 다시 마주친다.", "Spring, 19. Ride the rapeseed road to the tower.\nAt the bus stop, Doyun is back.")
+            ? Loc.T("19살 봄. 유채꽃 길을 보드로 달려 송전탑까지.\n정류장에서 돌아온 그 애와 다시 마주친다.", "Spring, 19. Ride the rapeseed road to the tower.\nAt the bus stop, the boy is back.")
             : act == 1 ? Loc.T("여름 축제와 가을 귤밭. 같은 주파수를 찾는 두 사람.\n노을 전에 닿아야 들리는 목소리가 있다.", "Summer festival, autumn orchards. Two people on one frequency.\nSome voices only reach you before sunset.")
             : Loc.T("눈 내리는 겨울. 마지막 노을을 향해 달린다.\n모든 챕터 S급이면, 송전탑이 답을 준다.", "Snow. Run toward the last sunset.\nRank S everywhere, and the tower answers.");
 

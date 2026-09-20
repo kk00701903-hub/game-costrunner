@@ -436,6 +436,17 @@ namespace CoastRun
                 case "BuoyOrange": return CoastMaterials.CreateToon(new Color(0.98f, 0.45f, 0.15f), null, null, 0.3f);
                 case "BuoyWhite": return CoastMaterials.CreateToon(new Color(0.96f, 0.95f, 0.90f), null, null, 0.3f);
                 case "Rope": return CoastMaterials.CreateLit(new Color(0.80f, 0.70f, 0.45f));
+                // 168차: 마을 손 도구 키트(VTool_*, village_tool_kit.py)
+                case "ToolRed": return CoastMaterials.CreateLit(new Color(0.90f, 0.32f, 0.30f), 0.3f);
+                case "ToolNet": return CoastMaterials.CreateTransparent(new Color(0.85f, 0.95f, 1f, 0.35f));
+                case "ToolCork": return CoastMaterials.CreateLit(new Color(0.86f, 0.72f, 0.50f), 0.05f);
+                case "ToolLine": return CoastMaterials.CreateUnlit(new Color(0.96f, 0.96f, 0.96f));
+                // 162차: 마을 바위·덤불 키트(VRock/VStone/VCliff/VBush, village_rock_kit.py) — AO 정점색이 곱해진다
+                case "Basalt": { var t = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Basalt"); return t != null ? CoastMaterials.CreateToon(new Color(0.92f, 0.94f, 1f), t, 0.06f) : CoastMaterials.CreateLit(new Color(0.46f, 0.49f, 0.55f), 0.06f); }   // 162차: 클링 손그림 현무암 타일
+                case "Moss": { var t = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Moss"); return t != null ? CoastMaterials.CreateToon(new Color(0.95f, 1f, 0.9f), t, 0.02f) : CoastMaterials.CreateLit(new Color(0.44f, 0.70f, 0.32f), 0.02f); }
+                case "Ore": { var om = CoastMaterials.CreateLit(new Color(1f, 0.84f, 0.28f), 0.55f); CoastMaterials.SetShadow(om, new Color(0.85f, 0.65f, 0.25f), 0.3f); return om; }
+                case "LeafBush": { var t = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Leaf"); return t != null ? CoastMaterials.CreateToon(new Color(0.95f, 1f, 0.92f), t, 0.02f) : CoastMaterials.CreateLit(new Color(0.38f, 0.66f, 0.32f), 0.02f); }   // 162차: 클링 잎 타일
+                case "Berry": return CoastMaterials.CreateLit(new Color(0.98f, 0.40f, 0.55f), 0.4f);
                 // 64차: 제주 집 키트(JHouse_*) — 초가·기와·창호지·회벽
                 case "Thatch": return CoastMaterials.CreateLit(new Color(0.74f, 0.60f, 0.36f), 0.02f);
                 case "Tile": return CoastMaterials.CreateLit(new Color(0.34f, 0.36f, 0.40f), 0.08f);

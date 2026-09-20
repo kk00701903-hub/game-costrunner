@@ -74,6 +74,10 @@ namespace CoastRun.Editor
                 // 24차-4b: 리로드 직전에 받아 둔 연결(Serve 스레드, 최대 20초 대기)이 같은 포트를 물고 있어 재바인드가 실패했다.
                 _listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 _listener.Start();
+                // 161차(브릿지 무응답 재발): 유니티 메뉴 RunBat 로 띄운 자식 프로세스(블렌더·파이썬)가 이 리슨 소켓 핸들을 상속해 에디터가
+                // 죽거나 리로드된 뒤에도 포트를 물고 있었다(95차 kg_server.py 와 같은 원인) → 연결이 유령 소켓으로 가서 timed out.
+                // 소켓 핸들을 「상속 불가」로 표시해 자식이 물려받지 못하게 한다.
+                try { SetHandleInformation(_listener.Server.Handle, 1 /*HANDLE_FLAG_INHERIT*/, 0); } catch { }
                 _thread = new Thread(Accept) { IsBackground = true, Name = "CoastRemote" };
                 _thread.Start();
                 _startRetries = 0;
@@ -91,6 +95,9 @@ namespace CoastRun.Editor
                 }
             }
         }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool SetHandleInformation(IntPtr hObject, uint dwMask, uint dwFlags);
 
         static readonly List<TcpClient> _clients = new List<TcpClient>();
 

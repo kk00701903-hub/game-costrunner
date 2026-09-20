@@ -63,7 +63,7 @@ namespace CoastRun
         private static void Ensure()
         {
             if (_all != null) return;
-            // 본편 v4 톤: 하늘 / 도윤 / 꼬마. 선택 A = 적극 / B = 소극·다른 길.
+            // 본편 v4 톤: 하늘 / 도윤 / 꼬마. 164차: 돌발 이벤트 본문은 17장 반전 전에도 뜨므로 「도윤」 이름 대신 「그 애」(대본 규칙: 이름은 CS7 뒤에). 선택 A = 적극 / B = 소극·다른 길.
             _all = new List<RandomEventDef>
             {
                 new RandomEventDef { id = "ev_orange", title = "이웃의 귤 선물", weight = 1.2f, hasSeason = true, season = SeasonKind.Autumn,
@@ -92,12 +92,12 @@ namespace CoastRun
                     choiceA = "끌고 간다", choiceB = "수리한다",
                     dStress = 10, altMoney = -40 },
                 new RandomEventDef { id = "ev_tower", title = "송전탑 아래서", weight = 0.9f, condStat = StatKind.Stamina, condMin = 45,
-                    body = "송전탑까지 뛰어 올라갔더니 도윤이 멀리 서 있었다. 우유 병 두 개. 같이 바다를 봤다.",
+                    body = "송전탑까지 뛰어 올라갔더니 그 애가 멀리 서 있었다. 우유 병 두 개. 같이 바다를 봤다.",
                     altBody = "숨이 차서 중간에 앉았다. 멀리 송전탑만 바라봤다.",
                     choiceA = "끝까지 오른다", choiceB = "중간에 쉰다",
                     dHearts = 2, dStress = -3, altStress = 3 },
                 new RandomEventDef { id = "ev_hospital", title = "약 먹는 뒷모습", weight = 0.9f,
-                    body = "정류장에서 약을 삼키는 도윤을 봤다. 말없이 옆에 섰다. 바람이 찼다.",
+                    body = "정류장에서 약을 삼키는 그 애를 봤다. 말없이 옆에 섰다. 바람이 찼다.",
                     altBody = "멀리서 배웅만 했다. 혼자 병을 여는 등이 작아 보였다.",
                     choiceA = "옆에 선다", choiceB = "멀리서 본다",
                     dHearts = 1, dStress = 2, altHearts = 0, altStress = 1 },
@@ -117,8 +117,8 @@ namespace CoastRun
                     choiceA = "사진을 찍어준다", choiceB = "그냥 지나간다",
                     dStress = -3, dMoney = 5, altStress = 0 },
                 new RandomEventDef { id = "ev_milk", title = "가게 앞 우유", weight = 1.1f,
-                    body = "주인 할머니가 \"오늘도 두 개라?\" 물었다. 도윤이 짧게 대답하고 나갔다. 따라가진 않았다.",
-                    altBody = "도윤이 우유를 집는 걸 보고 발걸음을 돌렸다. 가슴이 뛰었다.",
+                    body = "주인 할머니가 \"오늘도 두 개라?\" 물었다. 그 애가 짧게 대답하고 나갔다. 따라가진 않았다.",
+                    altBody = "그 애가 우유를 집는 걸 보고 발걸음을 돌렸다. 가슴이 뛰었다.",
                     choiceA = "자리를 지킨다", choiceB = "발길을 돌린다",
                     dHearts = 1, dStress = -2, altStress = 2 },
                 new RandomEventDef { id = "ev_name", title = "바다누나", weight = 1.0f, condStat = StatKind.Sense, condMin = 35,

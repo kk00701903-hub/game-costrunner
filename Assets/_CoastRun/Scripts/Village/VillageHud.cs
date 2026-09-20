@@ -13,6 +13,7 @@ namespace CoastRun.Village
         public Vector2 Joy => _joy != null ? _joy.Value : Vector2.zero;
         public RectTransform JoyRect => _joy != null ? _joy.transform as RectTransform : null;   // 160차: 터치 영역(JoyZone)
         public bool Locked;   // 팝업이 떠 있는 동안 이동·행동 막기
+        public CameraPad CamPad;   // 162차: 오른쪽 반 화면(카메라 회전 드래그 · 탭 = 행동)
 
         Canvas _canvas; RectTransform _root;
         VirtualJoystick _joy;
@@ -83,9 +84,12 @@ namespace CoastRun.Village
             var tl = new Vector2(0f, 1f);
             Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), new Vector2(64f, -150f), 96f, () => _onTool?.Invoke(), out _toolT, tl);
             _toolGlyph = _toolT != null ? _toolT.transform.parent.Find("G")?.GetComponent<Text>() : null;
-            _actBtn = Round(_root, "Act", "◎", Loc.T("잡기", "Act"), new Color(0.45f, 0.78f, 0.55f), new Vector2(64f, -272f), 108f, () => _onAct?.Invoke(), out _actT, tl);
-            Round(_root, "Talk", "…", Loc.T("대화", "Talk"), new Color(0.98f, 0.62f, 0.72f), new Vector2(64f, -394f), 96f, () => _onTalk?.Invoke(), out _, tl);
-            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), new Vector2(64f, -516f), 96f, () => _onBag?.Invoke(), out _, tl);
+            // 162차(사용자: 「좌측 상단의 휘두르기 버튼은 지워줘」): 행동(잡기/휘두르기/들어가기…) 라운드 버튼 삭제 — 오른쪽 반 화면 탭이 행동이다(CameraPad.OnTap)
+            _actBtn = null; _actT = null;
+            Round(_root, "Talk", "…", Loc.T("대화", "Talk"), new Color(0.98f, 0.62f, 0.72f), new Vector2(64f, -272f), 96f, () => _onTalk?.Invoke(), out _, tl);
+            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), new Vector2(64f, -394f), 96f, () => _onBag?.Invoke(), out _, tl);
+            // 162차: 오른쪽 반 = 투명 카메라 패드(드래그 = 카메라 돌리기, 탭 = 행동/휘두르기). 힌트 링은 조이스틱과 같은 크기로 오른쪽 아래에
+            CamPad = CameraPad.Create(_root, new Vector2(-150f, 260f), 200f);
 
             // ── 아래 마을 알약 ──
             var vp = CoastUiArt.CutePill(_root, "Village", new Color(0.36f, 0.30f, 0.52f, 0.92f), 20, 3); vp.raycastTarget = false;
@@ -188,8 +192,8 @@ namespace CoastRun.Village
             // 154차: 클링 생성 도구 아이콘(UI_Tool_Net/Bat/Axe/Pick) 이 있으면 글리프 대신 그림
             if (_toolGlyph != null)
             {
-                string[] keys = { "UI_Tool_Net", "UI_Tool_Bat", "UI_Tool_Axe", "UI_Tool_Pick" };
-                string key = keys[Mathf.Clamp(toolIdx, 0, 3)];
+                string[] keys = { "UI_Tool_Net", "UI_Tool_Bat", "UI_Tool_Axe", "UI_Tool_Pick", "UI_Tool_Rod" };   // 168차: 낚싯대
+                string key = keys[Mathf.Clamp(toolIdx, 0, 4)];
                 var sp = Resources.Load<Sprite>("CoastRun/Textures/Village/" + key);
                 if (sp == null)
                 {
@@ -308,7 +312,8 @@ namespace CoastRun.Village
         {
             // 1) 터치 영역(투명) — 맨 아래 형제로 두어 버튼·프롬프트가 먼저 먹는다
             // 화면 아래 78% 를 조이스틱 영역으로(위 알약·☰ 는 제외). 로컬 좌표 = 화면 좌표가 되도록 오프셋 0.
-            var zoneImg = CoastHudLayout.MakeImage(parent, "JoyZone", new Vector2(0f, 0f), new Vector2(1f, 0.78f),
+            // 162차(사용자: 「화면 반을 나눠 왼쪽 이동 · 오른쪽 카메라」): 조이스틱 영역은 왼쪽 반(0~0.5), 오른쪽 반은 CameraPad
+            var zoneImg = CoastHudLayout.MakeImage(parent, "JoyZone", new Vector2(0f, 0f), new Vector2(0.5f, 0.78f),
                 Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0.004f));
             zoneImg.raycastTarget = true;
             var zone = zoneImg.rectTransform; zone.SetAsFirstSibling();
@@ -317,19 +322,19 @@ namespace CoastRun.Village
             j._zone = zone; j._size = size; j._radius = size * 0.34f;
 
             // 2) 평소 힌트(아주 연한 링) — 어디를 눌러야 하는지 한 번은 보이게
-            var hint = CoastUiArt.CutePill(zone, "JoyHint", new Color(1f, 1f, 1f, 0.10f), (int)(size * 0.5f), 0); hint.raycastTarget = false;
+            var hint = CoastUiArt.CutePill(zone, "JoyHint", new Color(1f, 1f, 1f, 0.05f), (int)(size * 0.5f), 0);   // 166차(사용자: 「거의 투명하게」) hint.raycastTarget = false;
             var hrt = hint.rectTransform; hrt.anchorMin = hrt.anchorMax = new Vector2(0f, 0f); hrt.pivot = new Vector2(0.5f, 0.5f);
             hrt.anchoredPosition = hintCenter; hrt.sizeDelta = new Vector2(size * 0.8f, size * 0.8f);
             var ht = CoastHudLayout.MakeText(hrt, "T", "✥", 30, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            ht.color = new Color(1f, 1f, 1f, 0.5f);
-            j._hint = hrt; j._hintGrp = hint.gameObject.AddComponent<CanvasGroup>(); j._hintGrp.alpha = 0.55f; j._hintGrp.blocksRaycasts = false;
+            ht.color = new Color(1f, 1f, 1f, 0.35f);
+            j._hint = hrt; j._hintGrp = hint.gameObject.AddComponent<CanvasGroup>(); j._hintGrp.alpha = 0.22f; j._hintGrp.blocksRaycasts = false;
 
             // 3) 떠다니는 링 + 손잡이
-            var ring = CoastUiArt.CutePill(zone, "Joystick", new Color(1f, 1f, 1f, 0.20f), (int)(size * 0.5f), 4); ring.raycastTarget = false;
+            var ring = CoastUiArt.CutePill(zone, "Joystick", new Color(1f, 1f, 1f, 0.10f), (int)(size * 0.5f), 4); ring.raycastTarget = false;
             // ScreenPointToLocalPointInRectangle 은 **영역의 피벗(가운데) 기준** 좌표를 준다 → 링도 가운데 앵커여야 손가락 자리에 정확히 뜬다
             var rt = ring.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = Vector2.zero; rt.sizeDelta = new Vector2(size, size);
-            var knob = CoastUiArt.GlossyPill(rt, "Knob", new Color(1f, 1f, 1f, 0.60f), (int)(size * 0.2f), 6); knob.raycastTarget = false;
+            var knob = CoastUiArt.GlossyPill(rt, "Knob", new Color(1f, 1f, 1f, 0.32f), (int)(size * 0.2f), 6); knob.raycastTarget = false;
             var krt = knob.rectTransform; krt.anchorMin = krt.anchorMax = new Vector2(0.5f, 0.5f); krt.sizeDelta = new Vector2(size * 0.42f, size * 0.42f);
             string[] ar = { "▲", "▼", "◀", "▶" }; Vector2[] ap = { new Vector2(0f, 1f), new Vector2(0f, -1f), new Vector2(-1f, 0f), new Vector2(1f, 0f) };
             for (int i = 0; i < 4; i++)
@@ -383,9 +388,9 @@ namespace CoastRun.Village
             bool held = _pointerId != int.MinValue;
             // 링 나타나기/사라지기 + 살짝 커지는 연출
             _fade = Mathf.MoveTowards(_fade, held ? 1f : 0f, dt * (held ? 12f : 6f));
-            if (_ringGrp != null) _ringGrp.alpha = _fade;
+            if (_ringGrp != null) _ringGrp.alpha = _fade * 0.6f;   // 166차: 누르는 동안도 60% 만
             if (_ring != null) _ring.localScale = Vector3.one * Mathf.Lerp(0.82f, 1f, _fade);
-            if (_hintGrp != null) _hintGrp.alpha = Mathf.MoveTowards(_hintGrp.alpha, held ? 0f : 0.55f, dt * 4f);
+            if (_hintGrp != null) _hintGrp.alpha = Mathf.MoveTowards(_hintGrp.alpha, held ? 0f : 0.22f, dt * 4f);
             if (!held) return;
             if (_dbgUntil > 0f)
             {
@@ -414,5 +419,63 @@ namespace CoastRun.Village
             return $"zone={zr.size} ring={_ring.anchoredPosition} knob={_knob.anchoredPosition} value={Value} alpha={_ringGrp.alpha:F2} hint={_hintGrp.alpha:F2} held={_pointerId != int.MinValue} raycast={_zone.GetComponent<Image>().raycastTarget}";
         }
         void OnDisable() { Release(); }
+    }
+
+    /// 162차(사용자: 「오른쪽에는 카메라 무빙 조절하는 투명 버튼 · 오른쪽 화면을 타격하면 휘두르기」):
+    /// 화면 오른쪽 반(아래 78%)의 투명 터치 영역. 가로 드래그 → OnOrbit(픽셀 Δx, 720 기준), 짧게 톡(0.28 s·18 px 안) → OnTap.
+    /// 힌트 링(「⟲ 카메라 / 톡 = 휘두르기」)은 조이스틱 힌트와 같은 크기·투명도로 오른쪽 아래.
+    public class CameraPad : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+    {
+        public Action<float> OnOrbit; public Action OnTap;
+        RectTransform _zone, _hint; CanvasGroup _hintGrp, _ringGrp; RectTransform _ring;
+        int _pointerId = int.MinValue; Vector2 _down, _last; float _downAt; bool _dragged; Camera _cam;
+        public static CameraPad Create(RectTransform parent, Vector2 hintFromRight, float size)
+        {
+            var zoneImg = CoastHudLayout.MakeImage(parent, "CamPad", new Vector2(0.5f, 0f), new Vector2(1f, 0.78f), Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0.004f));
+            zoneImg.raycastTarget = true; var zone = zoneImg.rectTransform; zone.SetSiblingIndex(1);   // JoyZone 바로 위(버튼·프롬프트보다 아래)
+            var p = zoneImg.gameObject.AddComponent<CameraPad>(); p._zone = zone;
+            var hint = CoastUiArt.CutePill(zone, "CamHint", new Color(1f, 1f, 1f, 0.05f), (int)(size * 0.5f), 0); hint.raycastTarget = false;
+            var hrt = hint.rectTransform; hrt.anchorMin = hrt.anchorMax = new Vector2(1f, 0f); hrt.pivot = new Vector2(0.5f, 0.5f);
+            hrt.anchoredPosition = hintFromRight; hrt.sizeDelta = new Vector2(size * 0.8f, size * 0.8f);
+            var ht = CoastHudLayout.MakeText(hrt, "T", "⟲", 34, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, new Vector2(0f, 14f)); ht.color = new Color(1f, 1f, 1f, 0.35f);
+            var hl = CoastHudLayout.MakeText(hrt, "L", Loc.T("카메라 · 톡=휘두르기", "camera · tap=swing"), 13, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(-40f, -8f), new Vector2(40f, -60f)); hl.color = new Color(1f, 1f, 1f, 0.35f);
+            p._hint = hrt; p._hintGrp = hint.gameObject.AddComponent<CanvasGroup>(); p._hintGrp.alpha = 0.22f; p._hintGrp.blocksRaycasts = false;
+            // 누른 자리에 뜨는 얇은 링(드래그 중 표시)
+            var ring = CoastUiArt.CutePill(zone, "CamRing", new Color(1f, 1f, 1f, 0.08f), (int)(size * 0.5f), 4); ring.raycastTarget = false;
+            var rt = ring.rectTransform; rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f); rt.pivot = new Vector2(0.5f, 0.5f); rt.sizeDelta = new Vector2(size * 0.8f, size * 0.8f);
+            var rl = CoastHudLayout.MakeText(rt, "A", "◀  ⟲  ▶", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero); rl.color = new Color(1f, 1f, 1f, 0.5f);
+            p._ring = rt; p._ringGrp = ring.gameObject.AddComponent<CanvasGroup>(); p._ringGrp.alpha = 0f; p._ringGrp.blocksRaycasts = false;
+            return p;
+        }
+        float Scale => Screen.width > 0 ? 720f / Screen.width : 1f;   // 720 기준 픽셀로 정규화(폰 해상도 무관하게 같은 회전량)
+        public void OnPointerDown(PointerEventData e)
+        {
+            if (_pointerId != int.MinValue) return;
+            _pointerId = e.pointerId; _cam = e.pressEventCamera; _down = _last = e.position; _downAt = Time.unscaledTime; _dragged = false;
+            if (_ring != null && RectTransformUtility.ScreenPointToLocalPointInRectangle(_zone, e.position, _cam, out var lp)) _ring.anchoredPosition = lp;
+        }
+        public void OnDrag(PointerEventData e)
+        {
+            if (e.pointerId != _pointerId) return;
+            var d = e.position - _last; _last = e.position;
+            if (!_dragged && (e.position - _down).magnitude * Scale > 18f) _dragged = true;
+            if (_dragged) OnOrbit?.Invoke(d.x * Scale);
+        }
+        public void OnPointerUp(PointerEventData e)
+        {
+            if (e.pointerId != _pointerId) return;
+            bool tap = !_dragged && Time.unscaledTime - _downAt < 0.28f;
+            _pointerId = int.MinValue;
+            if (tap) OnTap?.Invoke();
+        }
+        void Update()
+        {
+            float dt = Time.unscaledDeltaTime; bool held = _pointerId != int.MinValue && _dragged;
+            if (_ringGrp != null) _ringGrp.alpha = Mathf.MoveTowards(_ringGrp.alpha, held ? 0.6f : 0f, dt * (held ? 12f : 6f));
+            if (_hintGrp != null) _hintGrp.alpha = Mathf.MoveTowards(_hintGrp.alpha, _pointerId != int.MinValue ? 0f : 0.22f, dt * 4f);
+            // 손가락을 놓쳤을 때(이벤트 유실) 안전 해제
+            if (_pointerId >= 0 && Input.touchCount == 0 && !Input.GetMouseButton(0)) _pointerId = int.MinValue;
+            else if (_pointerId == -1 && !Input.GetMouseButton(0)) _pointerId = int.MinValue;
+        }
     }
 }
