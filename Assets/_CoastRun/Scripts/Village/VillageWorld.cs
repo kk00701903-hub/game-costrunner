@@ -22,6 +22,10 @@ namespace CoastRun.Village
             new Vector2(0f, 31f), new Vector2(-7f, 25f), new Vector2(3f, 18f), new Vector2(-2f, 11f),
             new Vector2(0f, 3f), new Vector2(-5.6f, -4f), new Vector2(-3.4f, -12f), new Vector2(-1.5f, -18f), new Vector2(-2.5f, -24f), new Vector2(-8f, -30f), new Vector2(-11f, -37f), new Vector2(-12f, -47f), new Vector2(-9f, -60f)
         };
+        // 178차: 큰길 굽이(−7, 25)에서 언덕 서쪽 방목장 문(−23, 30)까지 갈림길 — 우리집 현무암 담 남서 모서리 아래로 돈다
+        public static readonly Vector2[] RanchPath = {
+            new Vector2(-7f, 25f), new Vector2(-13f, 23.2f), new Vector2(-18.5f, 25.2f), new Vector2(-21.6f, 28.6f), new Vector2(-23.4f, 30f)
+        };
 
         // ── 높이 ─────────────────────────────────────────────────────────
         public static VillageInterior Interior;
@@ -101,10 +105,15 @@ namespace CoastRun.Village
 
         public static float PathDist(float x, float z)
         {
-            var p = new Vector2(x, z); float best = 999f;
-            for (int i = 0; i < Path.Length - 1; i++)
+            var p = new Vector2(x, z);
+            return Mathf.Min(PolyDist(Path, p), PolyDist(RanchPath, p));   // 178차: 방목장 갈림길도 길로 친다(흙·평탄화·소품 비키기)
+        }
+        static float PolyDist(Vector2[] line, Vector2 p)
+        {
+            float best = 999f;
+            for (int i = 0; i < line.Length - 1; i++)
             {
-                var a = Path[i]; var b = Path[i + 1]; var ab = b - a;
+                var a = line[i]; var b = line[i + 1]; var ab = b - a;
                 float k = Mathf.Clamp01(Vector2.Dot(p - a, ab) / ab.sqrMagnitude);
                 best = Mathf.Min(best, Vector2.Distance(p, a + ab * k));
             }
@@ -202,6 +211,7 @@ namespace CoastRun.Village
             }
             mr.receiveShadows = true; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             BuildPathMesh(root);   // 157차: 돌길
+            BuildPathMesh(root, RanchPath, "PathMesh_Ranch", 0.085f);   // 178차: 방목장 갈림길(큰길보다 살짝 낮게 — 만나는 곳 깜빡임 방지)
 
             // 바깥 울타리(보이지 않는 벽) — 마을 밖으로 못 나가게
             float lim = Half - 4f;
@@ -506,7 +516,8 @@ namespace CoastRun.Village
         /// 157차(사용자: 「마을 이미지를 동물의 숲 수준으로」): 흙길 위에 진짜 돌길 — 폴리라인을 캣멀롬으로 부드럽게 잇고
         /// 띠 메시(폭 3.5 m, 지형 높이 +0.06)에 클링 생성 돌길 텍스처(Tex_Path)를 길이 방향으로 타일링. 텍스처가 없으면 그리지 않는다(스플랫 흙길 유지).
         static bool HasPathTex => Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Path") != null;
-        static void BuildPathMesh(Transform root)
+        static void BuildPathMesh(Transform root) => BuildPathMesh(root, Path, "PathMesh", 0.10f);
+        static void BuildPathMesh(Transform root, Vector2[] Path, string goName, float lift)
         {
             var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Path");
             if (tex == null) { Debug.LogError("[PathMesh] Tex_Path not found"); return; }
@@ -535,7 +546,7 @@ namespace CoastRun.Village
                 for (int c = 0; c < 5; c++)
                 {
                     var q = p + nrm * off[c]; float edge = Mathf.Abs(off[c]) / hw;
-                    verts.Add(new Vector3(q.x, Height(q.x, q.y) + 0.10f - edge * edge * 0.05f, q.y));
+                    verts.Add(new Vector3(q.x, Height(q.x, q.y) + lift - edge * edge * 0.05f, q.y));
                     uvs.Add(new Vector2(c / 4f * (hw * 2f / 2.7f), dist / 2.7f));   // 돌 한 장 ≈ 2.7 m 타일
                     cols.Add(Color.Lerp(Color.white, new Color(0.80f, 0.76f, 0.70f), edge * edge));
                 }
@@ -547,7 +558,7 @@ namespace CoastRun.Village
             }
             var mesh = new Mesh { name = "VillagePath", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
             mesh.SetVertices(verts); mesh.SetUVs(0, uvs); mesh.SetColors(cols); mesh.SetTriangles(tris, 0); mesh.RecalculateNormals(); mesh.RecalculateBounds();
-            var go = new GameObject("PathMesh", typeof(MeshFilter), typeof(MeshRenderer)); go.transform.SetParent(root, false);
+            var go = new GameObject(goName, typeof(MeshFilter), typeof(MeshRenderer)); go.transform.SetParent(root, false);
             go.GetComponent<MeshFilter>().sharedMesh = mesh;
             var mr = go.GetComponent<MeshRenderer>();
             var m = ArtAssets.CreateTexturedLit(tex, new Color(0.98f, 0.96f, 0.92f), 0.02f); m.mainTextureScale = Vector2.one;

@@ -457,6 +457,29 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Village - Weather rain")] private static void VWRain() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWeather(CoastRun.WeatherKind.Rain); }
         [MenuItem("Coast Run/Dev/Village - Weather snow")] private static void VWSnow() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWeather(CoastRun.WeatherKind.Snow); }
         [MenuItem("Coast Run/Dev/Village - Weather clear")] private static void VWClear() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWeather(CoastRun.WeatherKind.Clear); }
+        // 178차: 밤 몬스터 → 실제 펫 획득 분기 확인용(펫을 잠시 비웠다가 되돌린다)
+        static int _petBakMask = -1; static PetKind _petBakEq;
+        [MenuItem("Coast Run/Dev/Village - Pet test: clear pets (backup)")] private static void VPetClear()
+        {
+            var gm = GameManager.I; if (!Application.isPlaying || gm == null || gm.Save == null) return; var s = gm.Save;
+            if (_petBakMask < 0) { _petBakMask = s.ownedPetMask; _petBakEq = s.equippedPet; }
+            s.ownedPetMask = 0; s.equippedPet = PetKind.None;
+            Debug.LogWarning($"[PetTest] cleared (backup mask={_petBakMask} eq={_petBakEq})");
+        }
+        [MenuItem("Coast Run/Dev/Village - Pet test: catch in front")] private static void VPetCatch()
+        {
+            var h = CoastRun.Village.VillageHub.I; if (h == null) return;
+            h.DevTool(0); h.DevMonster();
+            typeof(CoastRun.Village.VillageHub).GetMethod("OnAct", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)?.Invoke(h, null);
+            var s = GameManager.I.Save; Debug.LogWarning($"[PetTest] after catch mask={s.ownedPetMask} eq={s.equippedPet}");
+        }
+        [MenuItem("Coast Run/Dev/Village - Go behind hero house")] private static void VGoBehindHero() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(h.SpotPos("hero") + new Vector3(0f, 0f, 9.5f), 0f); }   // 178차: 집이 카메라를 가리는 자리(반투명 확인)
+        [MenuItem("Coast Run/Dev/Village - Pet test: restore")] private static void VPetRestore()
+        {
+            var gm = GameManager.I; if (gm == null || gm.Save == null || _petBakMask < 0) { Debug.LogWarning("[PetTest] nothing to restore"); return; }
+            gm.Save.ownedPetMask = _petBakMask; gm.Save.equippedPet = _petBakEq; gm.Persist();
+            Debug.LogWarning($"[PetTest] restored mask={_petBakMask} eq={_petBakEq}"); _petBakMask = -1;
+        }
         [MenuItem("Coast Run/Dev/Village - Go boundary")] private static void VGoBound() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new Vector3(0f, 0f, 41.5f), 0f); }   // 173차: 경계 바위 담 확인용
         [MenuItem("Coast Run/Dev/Village - Time 18")] private static void VTime18() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHour(18.3f); }
         [MenuItem("Coast Run/Dev/Village - Time 22")] private static void VTime22() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHour(22.2f); }

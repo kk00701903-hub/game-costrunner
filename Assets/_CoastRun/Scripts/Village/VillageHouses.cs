@@ -326,18 +326,46 @@ namespace CoastRun.Village
             _cone = new Mesh { name = "Cone" }; _cone.SetVertices(v); _cone.SetNormals(nm); _cone.SetTriangles(tr, 0); _cone.RecalculateBounds();
             return _cone;
         }
+        static Texture2D _pineTex; static Texture2D PineTex => _pineTex != null ? _pineTex : (_pineTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Pine"));
+        static readonly Material[] _pineM = new Material[3];
+        static Material PineMat(int i, Color c)
+        {
+            if (_pineM[i] != null) return _pineM[i];
+            var tex = PineTex;
+            if (tex == null) return _pineM[i] = M(c);
+            var m = ArtAssets.CreateTexturedLit(tex, c * 1.16f, 0.04f); m.mainTextureScale = new Vector2(3f - i * 0.6f, 1.2f);
+            return _pineM[i] = m;
+        }
+        static Mesh _coneUV;
+        /// 원뿔 + UV(u = 둘레, v = 높이). 면은 ConeMesh 와 같이 각진 채로 둔다
+        static Mesh ConeMeshUV()
+        {
+            if (_coneUV != null) return _coneUV;
+            int n = 16; var v = new List<Vector3>(); var tr = new List<int>(); var nm = new List<Vector3>(); var uv = new List<Vector2>();
+            for (int i = 0; i < n; i++)
+            {
+                float a0 = i / (float)n * Mathf.PI * 2f, a1 = (i + 1) / (float)n * Mathf.PI * 2f, u0 = i / (float)n, u1 = (i + 1) / (float)n;
+                var p0 = new Vector3(Mathf.Cos(a0), 0f, Mathf.Sin(a0)); var p1 = new Vector3(Mathf.Cos(a1), 0f, Mathf.Sin(a1)); var top = new Vector3(0f, 1f, 0f);
+                var fn = Vector3.Cross(p1 - p0, top - p0).normalized;
+                int b = v.Count; v.Add(p0); v.Add(top); v.Add(p1); nm.Add(fn); nm.Add(fn); nm.Add(fn); uv.Add(new Vector2(u0, 0f)); uv.Add(new Vector2((u0 + u1) * 0.5f, 1f)); uv.Add(new Vector2(u1, 0f)); tr.Add(b); tr.Add(b + 1); tr.Add(b + 2);
+                int c = v.Count; v.Add(p0); v.Add(p1); v.Add(Vector3.zero); nm.Add(Vector3.down); nm.Add(Vector3.down); nm.Add(Vector3.down); uv.Add(new Vector2(u0, 0f)); uv.Add(new Vector2(u1, 0f)); uv.Add(new Vector2((u0 + u1) * 0.5f, 0.3f)); tr.Add(c); tr.Add(c + 1); tr.Add(c + 2);
+            }
+            _coneUV = new Mesh { name = "ConeUV" }; _coneUV.SetVertices(v); _coneUV.SetNormals(nm); _coneUV.SetUVs(0, uv); _coneUV.SetTriangles(tr, 0); _coneUV.RecalculateBounds();
+            return _coneUV;
+        }
         /// 소나무: 줄기 + 원뿔 3단(아래로 갈수록 넓고, 색은 위가 밝게)
         public static Transform Pine(Transform root, Vector3 ground, float yaw, float height)
         {
             var t = new GameObject("Tree_Pine").transform; t.SetParent(root, false); t.position = ground; t.rotation = Quaternion.Euler(0f, yaw, 0f);
-            Cyl(t, "Trunk", new Vector3(0f, height * 0.22f, 0f), new Vector3(0.28f, height * 0.22f, 0.28f), new Color(0.50f, 0.34f, 0.22f));
+            // 178차: 줄기는 나무결, 원뿔 3단은 Firefly 솔잎 질감(Tex_Pine, 중성 회녹색)에 단마다 녹색 틴트
+            CylM(t, "Trunk", new Vector3(0f, height * 0.22f, 0f), new Vector3(0.28f, height * 0.22f, 0.28f), WoodMat(true));
             var cols = new[] { new Color(0.30f, 0.56f, 0.34f), new Color(0.36f, 0.64f, 0.38f), new Color(0.44f, 0.72f, 0.42f) };
             for (int i = 0; i < 3; i++)
             {
                 float y0 = height * (0.30f + i * 0.22f), r = height * (0.34f - i * 0.08f), hh = height * 0.34f;
                 var g = new GameObject("Cone" + i, typeof(MeshFilter), typeof(MeshRenderer)); g.transform.SetParent(t, false);
                 g.transform.localPosition = new Vector3(0f, y0, 0f); g.transform.localScale = new Vector3(r, hh, r);
-                g.GetComponent<MeshFilter>().sharedMesh = ConeMesh(); g.GetComponent<MeshRenderer>().sharedMaterial = M(cols[i]);
+                g.GetComponent<MeshFilter>().sharedMesh = PineTex != null ? ConeMeshUV() : ConeMesh(); g.GetComponent<MeshRenderer>().sharedMaterial = PineMat(i, cols[i]);
             }
             var bc = t.gameObject.AddComponent<BoxCollider>(); bc.center = new Vector3(0f, height * 0.5f, 0f); bc.size = new Vector3(0.6f, height, 0.6f);
             BuildingOutline.Attach(t, 0.02f);

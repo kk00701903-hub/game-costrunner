@@ -112,7 +112,7 @@ namespace CoastRun.Village
         }
 
         bool _quitting;
-        void OnDestroy() { _quitting = true; RestoreHidden(); if (_drops != null && Save != null) _drops.AbsorbAll(); if (I == this) I = null; RenderSettings.fog = false; VillagePalette.ApplySoftLook(false); Shader.SetGlobalVector("_CoastCurveRadial", Vector4.zero); if (_hud != null) Destroy(_hud.gameObject); if (_yardCanvas != null) Destroy(_yardCanvas.gameObject); }
+        void OnDestroy() { _quitting = true; RestoreHidden(); RestoreHouseFades(); if (_drops != null && Save != null) _drops.AbsorbAll(); if (I == this) I = null; RenderSettings.fog = false; VillagePalette.ApplySoftLook(false); Shader.SetGlobalVector("_CoastCurveRadial", Vector4.zero); if (_hud != null) Destroy(_hud.gameObject); if (_yardCanvas != null) Destroy(_yardCanvas.gameObject); }
 
         // ── 플레이어 ─────────────────────────────────────────────────────
         void BuildPlayer()
@@ -389,6 +389,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             // 171차: 산적·벌레는 카메라를 막지 않게 무시하는데, 그러다 보니 코앞에 선 산적 뒤통수가 화면을 덮었다(캡처 r171_farmcam3) → 1.9 m 안이면 잠깐 감춘다
             if (_creatures != null) _creatures.CullNearCamera(_cam.transform.position, 1.9f);
             HideThinOccluders(look, _cam.transform.position);   // 172차: 야자수 줄기·가로등 같은 가는 기둥은 비켜 돌기로 못 피한다 — 가린 동안만 숨긴다
+            UpdateHouseFades(_cam.transform.position);   // 179차: 집은 페이드(가리면 반투명, 카메라가 집 안이면 완전히 사라짐)
         }
 
         // 171차: 건물 지붕·차양은 콜라이더가 없어 구체 캐스트가 지나간다 → 집·상점의 렌더러 경계 상자로도 가림을 잰다
@@ -425,6 +426,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (Time.time < _camHideT) return;
             _camHideT = Time.time + 0.12f;
             RestoreHidden();
+            _occHouses.Clear();   // 179차
             if (_interior != null) return;
             var d = cam - look; float len = d.magnitude; if (len < 0.5f) return;
             var hits = Physics.SphereCastAll(look, 0.55f, d / len, len, ~0, QueryTriggerInteraction.Ignore);
@@ -434,6 +436,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 if (c.name == "Bound" || c.name == "FenceCol" || c.name == "GardenFence") continue;
                 if (c.transform.IsChildOf(_player) || c.GetComponentInParent<VillageCreatures>() != null) continue;
                 if (c.name == "Terrain" || c.name == "Sea") continue;   // 174차: 지형·바다는 숨기면 세상이 사라진다
+                var hr = FadeRootOf(c.transform); if (hr != null) { _occHouses.Add(hr); continue; }   // 179차: 집·상점은 UpdateHouseFades 가 부드럽게 처리
                 var bs = c.bounds.size; bool big = bs.x > 6f || bs.z > 6f;   // 174차-2: 집·상점은 사라지지 않고 반투명으로
                 foreach (var r in c.GetComponentsInChildren<Renderer>())
                 {
@@ -466,6 +469,124 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             c.a = 0.30f;
             g = tex != null ? CoastMaterials.CreateTexturedTransparent(tex, c) : CoastMaterials.CreateTransparent(c);
             _ghostMats[src] = g;
+            return g;
+        }
+
+        // ── 179차(사용자: 「카메라가 집안으로 들어가면 집을 다른 게임들처럼 자연스럽게 숨겨줘」) ──
+        // 집·상점마다 알파를 따로 들고 부드럽게 옮긴다: 카메라가 집 경계(+3 m) 안 → 0(사라짐), 시선을 가림 → 0.12(옅게), 그 밖 → 1(원래 재질로 복귀).
+        // 사라질 땐 약 0.22초, 돌아올 땐 약 0.33초. 알파 0 근처에선 렌더러를 꺼서 투명 정렬 잔상도 없앤다.
+        class HouseFade
+        {
+            public Transform root; public Renderer[] rs; public Renderer[] soft; public bool[] softEn; public CanvasGroup[] groups; public Bounds b; public float a = 1f; public bool swapped;
+            public Material[][] orig; public bool[] en;
+            public readonly Dictionary<Material, Material> map = new Dictionary<Material, Material>();
+            public readonly List<(Material m, Color c)> tints = new List<(Material, Color)>();
+        }
+        readonly List<HouseFade> _fades = new List<HouseFade>(); float _fadeScanT;
+        readonly HashSet<Transform> _occHouses = new HashSet<Transform>();
+        const float HouseGhostA = 0.12f;   // 가릴 때: 벽·지붕이 여러 겹 겹치므로 옅게(0.30 은 겹쳐서 주인공이 안 보였다)
+
+        void ScanHouseFades()
+        {
+            _fadeScanT = Time.time + 5f;
+            _fades.RemoveAll(f => f.root == null || !f.swapped);   // 켜 둔(페이드 중인) 것만 남기고 다시 훑는다 — 집이 새로 지어져도 따라간다
+            void Add(Transform t)
+            {
+                if (t == null) return; foreach (var f in _fades) if (f.root == t) return;
+                var list = new List<Renderer>(); var soft = new List<Renderer>(); bool first = true; Bounds b = default;
+                foreach (var r in t.GetComponentsInChildren<Renderer>(true))
+                {
+                    if (r is ParticleSystemRenderer || r is LineRenderer || r is TrailRenderer) continue;
+                    string n = r.gameObject.name;
+                    if (n.Contains("Blob")) continue;   // 바닥 그림자는 그대로
+                    if (n.Contains("Text") || n.Contains("Canvas") || r.GetComponent<TextMesh>() != null) { soft.Add(r); continue; }   // 글자·간판 글씨는 재질을 못 바꾸니 반쯤 사라질 때 끈다
+                    list.Add(r);
+                    if (n.Contains("Smoke") || n.Contains("Puff") || n.Contains("Glow") || n.Contains("Sparkle") || n.Contains("Rim")) continue;   // 경계는 몸체만
+                    if (first) { b = r.bounds; first = false; } else b.Encapsulate(r.bounds);
+                }
+                if (first) return;
+                var s = b.size; b.size = new Vector3(Mathf.Min(s.x, 16f), Mathf.Min(s.y, 14f), Mathf.Min(s.z, 16f));
+                // 간판 글씨는 월드 캔버스 — CanvasGroup 알파로 같이 흐리게
+                var groups = new List<CanvasGroup>();
+                foreach (var cv in t.GetComponentsInChildren<Canvas>(true)) { var g = cv.GetComponent<CanvasGroup>(); if (g == null) g = cv.gameObject.AddComponent<CanvasGroup>(); groups.Add(g); }
+                _fades.Add(new HouseFade { root = t, rs = list.ToArray(), soft = soft.ToArray(), groups = groups.ToArray(), b = b });
+            }
+            foreach (var hs in VillageWorld.Houses) Add(hs.house);
+            Add(VillageWorld.Shop);
+        }
+
+        Transform FadeRootOf(Transform t)
+        {
+            foreach (var f in _fades) if (f.root != null && (t == f.root || t.IsChildOf(f.root))) return f.root;
+            return null;
+        }
+
+        void UpdateHouseFades(Vector3 cam)
+        {
+            if (Time.time > _fadeScanT) ScanHouseFades();
+            float dt = Time.deltaTime;
+            foreach (var f in _fades)
+            {
+                if (f.root == null) continue;
+                var bb = f.b; bb.Expand(3f);   // 벽·지붕에 3 m 안으로 붙으면 집 안으로 친다
+                bool inside = _interior == null && bb.Contains(cam);
+                float target = inside ? 0f : (_occHouses.Contains(f.root) ? HouseGhostA : 1f);
+                if (Mathf.Approximately(f.a, target) && (target < 1f ? f.swapped : !f.swapped)) continue;
+                f.a = Mathf.MoveTowards(f.a, target, dt * (target < f.a ? 4.5f : 3f));
+                if (f.a >= 0.999f) { f.a = 1f; UnswapFade(f); continue; }
+                if (!f.swapped) SwapFade(f);
+                foreach (var (m, c) in f.tints) if (m != null) { var cc = c; cc.a = c.a * f.a; m.SetColor("_BaseColor", cc); }
+                bool vis = f.a > 0.02f;
+                for (int i = 0; i < f.rs.Length; i++) if (f.rs[i] != null) f.rs[i].enabled = vis && f.en[i];
+                for (int i = 0; i < f.soft.Length; i++) if (f.soft[i] != null) f.soft[i].enabled = f.a > 0.55f && f.softEn[i];
+                foreach (var g in f.groups) if (g != null) g.alpha = f.a;
+            }
+        }
+
+        void SwapFade(HouseFade f)
+        {
+            f.orig = new Material[f.rs.Length][]; f.en = new bool[f.rs.Length];
+            f.softEn = new bool[f.soft.Length]; for (int i = 0; i < f.soft.Length; i++) f.softEn[i] = f.soft[i] != null && f.soft[i].enabled;
+            for (int i = 0; i < f.rs.Length; i++)
+            {
+                var r = f.rs[i]; if (r == null) continue;
+                f.en[i] = r.enabled; var src = r.sharedMaterials; f.orig[i] = src;
+                var gs = new Material[src.Length];
+                for (int k = 0; k < src.Length; k++) gs[k] = FadeMat(f, src[k]);
+                r.sharedMaterials = gs;
+            }
+            f.swapped = true;
+        }
+
+        void UnswapFade(HouseFade f)
+        {
+            if (!f.swapped) return;
+            for (int i = 0; i < f.rs.Length; i++)
+            {
+                var r = f.rs[i]; if (r == null || f.orig[i] == null) continue;
+                r.sharedMaterials = f.orig[i]; r.enabled = f.en[i];
+            }
+            for (int i = 0; i < f.soft.Length; i++) if (f.soft[i] != null) f.soft[i].enabled = f.softEn[i];
+            foreach (var g in f.groups) if (g != null) g.alpha = 1f;
+            f.swapped = false;
+        }
+
+        void RestoreHouseFades() { foreach (var f in _fades) if (f.root != null) UnswapFade(f); }
+
+        /// 집마다 따로 쓰는 투명 재질(같은 지붕 재질을 여러 집이 나눠 써도 알파가 섞이지 않게)
+        static Material FadeMat(HouseFade f, Material src)
+        {
+            if (src == null) return null;
+            if (f.map.TryGetValue(src, out var g) && g != null) return g;
+            Texture2D tex = null;
+            if (src.HasProperty("_BaseMap")) tex = src.GetTexture("_BaseMap") as Texture2D;
+            if (tex == null && src.HasProperty("_MainTex")) tex = src.GetTexture("_MainTex") as Texture2D;
+            Color c = src.HasProperty("_BaseColor") ? src.GetColor("_BaseColor") : (src.HasProperty("_Color") ? src.GetColor("_Color") : Color.white);
+            // 언릿 투명이라 낮 조명만큼 살짝 어둡게 — 바꿔 끼울 때 번쩍 밝아지지 않게
+            var lit = new Color(c.r * 0.86f, c.g * 0.86f, c.b * 0.88f, 1f);
+            g = tex != null ? CoastMaterials.CreateTexturedTransparent(tex, lit) : CoastMaterials.CreateTransparent(lit);
+            if (g != null && src.HasProperty("_BaseMap") && g.HasProperty("_BaseMap")) { g.SetTextureScale("_BaseMap", src.GetTextureScale("_BaseMap")); g.SetTextureOffset("_BaseMap", src.GetTextureOffset("_BaseMap")); }
+            f.map[src] = g; if (g != null) f.tints.Add((g, lit));
             return g;
         }
 
