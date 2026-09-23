@@ -225,7 +225,7 @@ namespace CoastRun.Village
         }
 
         /// 선택 팝업(2~4개): 제목 + 세로 버튼. 닫기 버튼 포함.
-        public void Choice(string title, string sub, (string label, Color col, Action on)[] items)
+        public void Choice(string title, string sub, (string label, Color col, Action on)[] items, Texture2D[] icons = null)
         {
             ClosePopup(); Locked = true;
             var dim = CoastHudLayout.MakeImage(_root, "Popup", Vector2.zero, Vector2.one, new Vector2(-400f, -400f), new Vector2(400f, 400f), new Color(0f, 0f, 0f, 0.45f));
@@ -254,6 +254,16 @@ namespace CoastRun.Village
                 var bt = CoastHudLayout.MakeText(brt, "T", it.label, 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 3f), new Vector2(-10f, 0f));
                 bt.color = Color.white; bt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(bt, new Color(0f, 0f, 0f, 0.35f), 1.5f);
                 bt.resizeTextForBestFit = true; bt.resizeTextMinSize = 12; bt.resizeTextMaxSize = CoastHudLayout.Scaled(22);
+                // 169차: 항목 왼쪽 그림(있을 때만) — 씨앗 고르기 메뉴의 작물 그림
+                if (icons != null && i < icons.Length && icons[i] != null)
+                {
+                    var ig = new GameObject("Icon", typeof(RawImage));
+                    var irt = ig.GetComponent<RectTransform>(); irt.SetParent(brt, false);
+                    irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f); irt.pivot = new Vector2(0f, 0.5f);
+                    irt.anchoredPosition = new Vector2(14f, 0f); irt.sizeDelta = new Vector2(56f, 56f);
+                    var ri = ig.GetComponent<RawImage>(); ri.texture = icons[i]; ri.raycastTarget = false;
+                    bt.rectTransform.offsetMin = new Vector2(80f, 3f);
+                }
                 var btn = b.gameObject.AddComponent<Button>(); btn.transition = Selectable.Transition.None;
                 var cap = it.on;
                 btn.onClick.AddListener(() => { CoastPrefs.Vibrate(); ClosePopup(); cap?.Invoke(); });

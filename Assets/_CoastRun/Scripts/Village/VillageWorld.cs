@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace CoastRun.Village
@@ -32,7 +32,8 @@ namespace CoastRun.Village
             new Pad(0f, 36f, 3.8f, 3.4f, 180f), new Pad(4.8f, -21.5f, 3.7f, 3.1f, 25f), new Pad(-5.8f, -33.5f, 3.0f, 2.7f, 20f),
             new Pad(-5.2f, -39.5f, 2.2f, 1.9f, -80f), new Pad(-8.5f, -43f, 2.2f, 1.9f, 5f), new Pad(-12.5f, -39f, 2.1f, 1.8f, -8f),
             new Pad(-9.5f, -51f, 2.2f, 1.9f, -5f), new Pad(-6.2f, -46.5f, 2.1f, 1.8f, -15f),
-            new Pad(9.8f, 33.5f, 2.4f, 2.1f, 200f) };   // 156차: 알바나라(우리집 옆)
+            new Pad(9.8f, 33.5f, 2.4f, 2.1f, 200f),   // 156차: 알바나라(우리집 옆)
+            new Pad(-10f, 34.5f, 3.6f, 2.8f, 0f) };     // 171차: 농장(우리집 서쪽)
         static float[] _padY;
         public static float Height(float x, float z)
         {
@@ -191,7 +192,14 @@ namespace CoastRun.Village
             var dmTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Detail");
             var dm = dmTex != null ? dmTex : DetailTex();
             var tm = mr.sharedMaterial;
-            if (tm != null && tm.HasProperty("_DetailMap")) { tm.SetTexture("_DetailMap", dm); tm.SetFloat("_DetailScale", dmTex != null ? 0.45f : 0.5f); tm.SetFloat("_DetailStrength", dmTex != null ? 0.30f : 0.16f); if (tm.HasProperty("_DetailSplit")) tm.SetFloat("_DetailSplit", dmTex != null ? 1f : 0f); }
+            // 174차: 디테일 맵 R 채널을 Firefly 잔디로 바꾸고, 타일 3.3 m·세기 0.48 로 올려 잔디 포기가 보이게
+            if (tm != null && tm.HasProperty("_DetailMap"))
+            {
+                tm.SetTexture("_DetailMap", dm);
+                tm.SetFloat("_DetailScale", dmTex != null ? 0.30f : 0.5f);
+                tm.SetFloat("_DetailStrength", dmTex != null ? 0.48f : 0.16f);
+                if (tm.HasProperty("_DetailSplit")) tm.SetFloat("_DetailSplit", dmTex != null ? 1f : 0f);
+            }
             mr.receiveShadows = true; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             BuildPathMesh(root);   // 157차: 돌길
 
@@ -206,6 +214,105 @@ namespace CoastRun.Village
             Wall(root, new Vector3(-40f, 5f, -34f), new Vector3(22f, 12f, 1f));
             Wall(root, new Vector3(lim, 5f, 0f), new Vector3(1f, 12f, 2f * Half));
             Wall(root, new Vector3(-lim, 5f, 0f), new Vector3(1f, 12f, 2f * Half));
+        }
+
+        /// 171차(사용자: 「산 쪽에 분명히 갈 수 있는 곳인데 못 움직이는 벽」): 보이지 않는 경계(z=46, x=±46)가 땅 위를 지나므로
+        /// 그 선을 따라 소나무·바위 띠를 세워 「여기까지」가 보이게 한다(콜라이더는 기존 Bound 그대로).
+        static void BuildBoundaryDeco(Transform root)
+        {
+            var rng = new System.Random(171); int n = 0;
+            _boulderMats = null;   // 173차: 씬마다 새로 만든다(옛 머티리얼 참조가 남지 않게)
+            void Post(float x, float z)
+            {
+                if (Height(x, z) < SeaLevel + 0.3f) return;
+                // 173차(사용자 시안): 경계는 둥근 파스텔 바위가 이어진 담 — 바위는 칸마다, 소나무는 네 칸에 한 번 뒤로
+                BoulderCluster(root, x + (float)(rng.NextDouble() - 0.5) * 0.8f, z + (float)(rng.NextDouble() - 0.5) * 0.8f, rng);
+                if ((n++ % 4) != 3) return;
+                var t = VillageHouses.Pine(root, Ground(x + (float)(rng.NextDouble() - 0.5) * 1.4f, z + (float)(rng.NextDouble() - 0.5) * 1.4f), (float)rng.NextDouble() * 360f, 3.8f + (float)rng.NextDouble() * 2.2f);
+                if (t != null) t.name = "Tree_PineEdge";
+            }
+            for (float x = -44f; x <= 44f; x += 3.4f) Post(x, 45.3f);
+            for (float z = -18f; z <= 44f; z += 3.4f) { Post(45.3f, z); Post(-45.3f, z); }
+        }
+
+        // ── 173차: 경계 바위 담(시안: 둥글둥글한 파스텔 바위가 쌓이고 위에 이끼·꽃) ──
+        // 173차: 색은 Firefly 그림에서 그대로 뽑아 쓴다 — 바위마다 그림의 다른 자리를 보게 오프셋만 돌린다
+        static readonly Vector2[] BoulderUv = {
+            new Vector2(0.00f, 0.00f), new Vector2(0.33f, 0.11f), new Vector2(0.66f, 0.22f), new Vector2(0.12f, 0.45f),
+            new Vector2(0.45f, 0.56f), new Vector2(0.78f, 0.67f), new Vector2(0.24f, 0.80f), new Vector2(0.57f, 0.91f),
+            new Vector2(0.90f, 0.05f), new Vector2(0.06f, 0.28f), new Vector2(0.39f, 0.72f), new Vector2(0.71f, 0.38f)
+        };
+        // 174차(시안): 크림·연노랑·민트·라벤더·청회색·따뜻한 회색 — 한 덩이에 한 색
+        static readonly Color[] BoulderTint = {
+            new Color(0.97f, 0.93f, 0.78f), new Color(0.86f, 0.91f, 0.72f), new Color(0.70f, 0.86f, 0.76f),
+            new Color(0.72f, 0.83f, 0.90f), new Color(0.76f, 0.74f, 0.88f), new Color(0.82f, 0.79f, 0.74f)
+        };
+        static Material[] _boulderMats;
+        static Material BoulderMat(int i)
+        {
+            if (_boulderMats == null)
+            {
+                var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_RockSurf");   // 174차: 자갈 그림 대신 매끈한 돌 표면(Firefly)
+                _boulderMats = new Material[BoulderUv.Length];
+                for (int k = 0; k < BoulderUv.Length; k++)
+                {
+                    var tint = BoulderTint[k % BoulderTint.Length];
+                    var m = tex != null ? ArtAssets.CreateTexturedLit(tex, tint, 0.02f) : CoastMaterials.CreateLit(tint, 0.02f);
+                    m.mainTextureScale = new Vector2(1.0f, 1.0f);
+                    m.mainTextureOffset = BoulderUv[k];
+                    _boulderMats[k] = m;
+                }
+            }
+            int n = _boulderMats.Length;
+            return _boulderMats[((i % n) + n) % n];
+        }
+
+        /// 174차: 마을 바위는 전부 이 한 덩이로 만든다(옛 VStone 키트·회색 구 폐기) — 콜라이더를 남겨 통과하지 않게.
+        public static Transform PastelBoulder(Transform parent, Vector3 pos, float s, System.Random rng, bool moss, bool keepCollider = true, int matIdx = -1)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            if (!keepCollider) Object.Destroy(b.GetComponent<Collider>());
+            b.name = "Boulder"; b.transform.SetParent(parent, false); b.transform.position = pos;
+            b.transform.localScale = new Vector3(s * 1.30f, s * 1.0f, s * 1.15f);
+            b.transform.rotation = Quaternion.Euler((float)(rng.NextDouble() - 0.5) * 16f, (float)rng.NextDouble() * 360f, (float)(rng.NextDouble() - 0.5) * 16f);
+            b.GetComponent<Renderer>().sharedMaterial = BoulderMat(matIdx >= 0 ? matIdx : rng.Next(64));
+            if (moss) BoulderMoss(b.transform, rng);
+            return b.transform;
+        }
+
+        /// 바위 한 무더기(아래 두세 덩이 + 위에 한두 덩이) — 경계 담 한 칸
+        static void BoulderCluster(Transform root, float x, float z, System.Random rng)
+        {
+            var host = new GameObject("RockBand").transform; host.SetParent(root, false); host.position = Ground(x, z);
+            int count = 3 + rng.Next(2);   // 173차: 담이 이어져 보이되 오브젝트 수는 억제
+            for (int i = 0; i < count; i++)
+            {
+                float s = 0.74f + (float)rng.NextDouble() * 0.62f;   // 173차: 시안처럼 담이 어깨높이로 쌓이게
+                bool upper = i >= count - 2 && rng.NextDouble() < 0.7;
+                var off = new Vector3((float)(rng.NextDouble() - 0.5) * 2.9f, (upper ? 1.05f : 0.30f) * s + 0.04f, (float)(rng.NextDouble() - 0.5) * 0.7f);
+                PastelBoulder(host, host.position + off, s, rng, rng.NextDouble() < 0.40);
+            }
+        }
+
+        /// 바위 위 이끼 방석 + 작은 꽃 두세 송이
+        static void BoulderMoss(Transform rock, System.Random rng)
+        {
+            var moss = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(moss.GetComponent<Collider>());
+            moss.name = "RockMoss"; moss.transform.SetParent(rock, false);
+            float mx = (float)(rng.NextDouble() - 0.5) * 0.3f, mz = (float)(rng.NextDouble() - 0.5) * 0.3f;
+            moss.transform.localPosition = new Vector3(mx, 0.40f, mz);
+            moss.transform.localScale = new Vector3(0.54f, 0.20f, 0.50f);
+            moss.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(new Color(0.55f, 0.78f, 0.45f), 0.02f);
+            Color[] petals = { new Color(1f, 0.72f, 0.82f), new Color(1f, 0.95f, 0.62f), Color.white };
+            int fl = 3;
+            for (int i = 0; i < fl; i++)
+            {
+                var f = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(f.GetComponent<Collider>());
+                f.name = "RockFlower"; f.transform.SetParent(rock, false);
+                f.transform.localPosition = new Vector3(mx + (float)(rng.NextDouble() - 0.5) * 0.24f, 0.47f, mz + (float)(rng.NextDouble() - 0.5) * 0.24f);
+                f.transform.localScale = new Vector3(0.17f, 0.07f, 0.17f);
+                f.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(petals[rng.Next(petals.Length)], 0.02f);
+            }
         }
 
         /// 153차: 언덕(z 14~44, 마당·집·송전탑 비켜서) 채우기
@@ -278,18 +385,12 @@ namespace CoastRun.Village
                 float s = 1.3f + (float)rng.NextDouble() * 0.5f;
                 int hits = save != null && save.villageRockHits != null ? save.villageRockHits[i] : 0;
                 float shrink = 1f - hits * 0.18f;
-                // 162차(사용자: 「바위 더 이쁘게」): 블렌더 키트 VRock_A/B/C(각진 현무암 + 이끼 + 광석 결정, AO 정점색). 없으면 옛 구 조합
-                var kit = JejuKit.Spawn("VRock_" + "ABC"[i % 3], t, Vector3.zero, 0f, s * 1.7f * shrink);
-                if (kit != null)
-                {
-                    var bc0 = t.gameObject.AddComponent<BoxCollider>(); bc0.center = new Vector3(0f, s * 0.35f, 0f); bc0.size = new Vector3(s * 0.9f, s * 0.7f, s * 0.8f) * shrink;
-                    GroundBlob.Static(root, g, s * 1.1f, s * 0.9f, 0.2f);
-                    Rocks.Add((t, i)); continue;
-                }
-                var body = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(body.GetComponent<Collider>()); body.name = "Body"; body.transform.SetParent(t, false);
-                body.transform.localPosition = new Vector3(0f, s * 0.32f * shrink, 0f); body.transform.localScale = new Vector3(s, s * 0.72f, s * 0.86f) * shrink; body.GetComponent<Renderer>().sharedMaterial = rockM;
-                var b2 = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(b2.GetComponent<Collider>()); b2.name = "Body2"; b2.transform.SetParent(t, false);
-                b2.transform.localPosition = new Vector3(s * 0.35f, s * 0.22f * shrink, s * 0.1f); b2.transform.localScale = new Vector3(s * 0.55f, s * 0.42f, s * 0.5f) * shrink; b2.GetComponent<Renderer>().sharedMaterial = darkM;
+                // 174차(사용자: 「옛 껍데기 걷어내고 다시 다 그려줘」): 각진 현무암 키트(VRock)를 버리고 캘 수 있는 바위도 시안 파스텔 덩이로.
+                // 광석 결정만 남겨 「캘 수 있는 것」임을 알아보게 한다.
+                var body = PastelBoulder(t, t.position + new Vector3(0f, s * 0.34f * shrink, 0f), s * 0.92f * shrink, rng, true, false).gameObject;
+                body.name = "Body"; body.transform.SetParent(t, true);
+                var b2go = PastelBoulder(t, t.position + new Vector3(s * 0.38f, s * 0.20f * shrink, s * 0.12f), s * 0.5f * shrink, rng, false, false).gameObject;
+                b2go.name = "Body2"; b2go.transform.SetParent(t, true);
                 for (int k = 0; k < 3; k++)
                 {
                     var o = GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.Destroy(o.GetComponent<Collider>()); o.name = "Ore"; o.transform.SetParent(t, false);
@@ -331,6 +432,11 @@ namespace CoastRun.Village
             Color path = VillagePalette.Path, pathEdge = VillagePalette.PathEdge;
             Color soil = new Color(0.45f, 0.31f, 0.20f), rock = new Color(0.62f, 0.60f, 0.56f);
             var rng = new System.Random(1234);
+            // 174차(사용자: 「동물의 숲 대비 잔디가 미흡」): Firefly 잔디 타일을 스플랫에 구워 넣는다.
+            // 읽기 불가 텍스처면 예전 퍼린 잔디 그대로.
+            var gTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_GrassTile");
+            Color32[] gPx = null; int gW = 0, gH = 0; const float GrassTileM = 5.5f;
+            if (gTex != null) { try { gPx = gTex.GetPixels32(); gW = gTex.width; gH = gTex.height; } catch { gPx = null; Debug.LogWarning("[Splat] Tex_GrassTile 읽기 불가(Read/Write 꺼짐) — 옛 잔디 사용"); } }
             bool cobble = HasPathTex;   // 157차: 돌길 메시가 덮으니 스플랫 길은 밝은 흙 어깨만(진한 테두리·바퀴 자국 없음)
             for (int j = 0; j < S; j++)
                 for (int i = 0; i < S; i++)
@@ -343,6 +449,12 @@ namespace CoastRun.Village
                     float n3 = Mathf.PerlinNoise(x * 5.5f + 71f, z * 5.5f + 23f), n4 = Mathf.PerlinNoise(x * 11f + 7f, z * 11f + 99f);
                     c = Color.Lerp(c, new Color(0.70f, 0.90f, 0.42f), Mathf.Clamp01((n3 - 0.55f) * 3.2f) * 0.42f);
                     c = Color.Lerp(c, new Color(0.40f, 0.66f, 0.30f), Mathf.Clamp01((0.42f - n4) * 3.5f) * 0.45f);
+                    if (gPx != null)
+                    {
+                        float gu = Mathf.Repeat(x / GrassTileM, 1f), gv = Mathf.Repeat(z / GrassTileM, 1f);
+                        int gi = Mathf.Clamp((int)(gv * gH), 0, gH - 1) * gW + Mathf.Clamp((int)(gu * gW), 0, gW - 1);
+                        c = Color.Lerp(c, (Color)gPx[gi], 0.38f);
+                    }
                     // 언덕 정상부 바위 얼룩
                     if (h > 8.5f) c = Color.Lerp(c, rock, Mathf.Clamp01((h - 8.5f) / 2.5f) * n2 * 0.9f);
                     // 해변 모래
@@ -545,6 +657,7 @@ namespace CoastRun.Village
             if (tex == null) return;
             // 140차: 평면 비스타 그림 대신 하늘 돔(BuildSkyDome)으로 교체 — 세로 화면에서 그림 수평선이 안 보이던 문제
             BuildSkyDressing(root);
+            VillageSky.Create(root);   // 170차: 카메라를 따라다니는 구름 링 + 비행기(비행운) + 새 떼
             // 137차: 먼 산 능선(안개색 구릉) — 언덕 위에서도 파란 여백이 남지 않게
             var mist = CoastMaterials.CreateLit(new Color(0.62f, 0.74f, 0.86f));
             for (int i = 0; i < 18; i++)
@@ -580,6 +693,7 @@ namespace CoastRun.Village
             dome.transform.SetParent(root, false); dome.transform.localPosition = new Vector3(0f, 2f, 0f); dome.transform.localScale = new Vector3(-780f, 780f, 780f);
             var m = CoastMaterials.SetNoFog(CoastMaterials.CreateUnlit(() => VillageDayNight.SkyTint)); m.mainTexture = tex;   // 155차: 밤낮 틴트
             var mr = dome.GetComponent<MeshRenderer>(); mr.sharedMaterial = m; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; mr.receiveShadows = false;
+            dome.AddComponent<VillageSky.SkyDomeTint>();   // 170차: 밤낮 틴트를 매 프레임 갱신(라이브 색 추적은 에디터 전용이었다)
         }
 
         static void BuildSkyDressing(Transform root)
@@ -711,6 +825,8 @@ namespace CoastRun.Village
             Reg(VillageHouses.Build(root, Ground(-6.2f, -46.5f), -15f, VillageHouses.Style.Pastel, "서퍼 하우스", "Surf house", new Color(1f, 0.97f, 0.88f), VillagePalette.RoofCream, 0.7f), "서퍼 하우스");
             // 153차(사용자: 「언덕이 휑하다」): 언덕 채우기 — 소나무 숲·풍차·벤치·바위·꽃밭·통나무 울타리·억새
             BuildHillDeco(root);
+            VillageRanch.Build(root);   // 176차: 언덕 서쪽 넓은 방목장(말·헛간·목장집)
+            BuildBoundaryDeco(root);   // 171차: 경계 나무·바위 띠
             // 정자·벤치·돌하르방·귤 매대
             Place(root, "Prop_Pavilion", 28f, -6f, 200f, 1f);
             Place(root, "Prop_Bench", -3f, -24f, -90f, 1f); Place(root, "Prop_Bench", -11f, -42f, 60f, 1f);
@@ -724,7 +840,25 @@ namespace CoastRun.Village
             var stoneTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Stone");
             var stoneM = stoneTex != null ? ArtAssets.CreateTexturedLit(stoneTex, new Color(0.92f, 0.90f, 0.86f), 0.02f) : CoastMaterials.CreateLit(new Color(0.66f, 0.63f, 0.58f));   // 151차: 현무암 돌담 텍스처
             void StoneWall(float x, float z) { var t = Place(root, "Prop_StoneWall", x, z, 0f, 1f, true); /* 154차: 돌담도 막힘 */ if (t == null) return; foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = stoneM; r.sharedMaterials = arr; } }
-            for (int i = 0; i < 4; i++) StoneWall(-9f + i * 4.2f, 27.5f);
+            // 174차-3(사용자: 「집앞에 길게 뻗은 현무암을 집 둘레 경계로」): 한 줄로 뻗던 돌담을 우리집 마당을 두르는 담으로.
+            // 앞 가운데는 길이 지나가게 비우고, 송전탑 자리는 건너뛴다.
+            void StoneRing(float x, float z, float yaw)
+            {
+                if (Mathf.Abs(x) < 3.2f && z < 28f) return;                      // 대문(길)
+                if (Vector2.Distance(new Vector2(x, z), new Vector2(11f, 38f)) < 5.5f) return;   // 송전탑
+                var t = Place(root, "Prop_StoneWall", x, z, yaw, 1f, true);
+                if (t == null) return;
+                // 176차-2(사용자 캡처: 「경사에서 담 조각이 떠 보인다」): 경사지에선 조각을 땅에 묻어 아랫단 틈을 없앤다.
+                // 양옆 땅 높이 차이만큼 더 내려 앉힌다(평지 0.18 m, 가파를수록 깊게).
+                float hL = Height(x - 1.1f, z), hR = Height(x + 1.1f, z), hB = Height(x, z - 1.1f), hF = Height(x, z + 1.1f);
+                float drop = 0.18f + Mathf.Max(Mathf.Abs(hL - hR), Mathf.Abs(hB - hF)) * 0.9f;
+                t.position -= new Vector3(0f, Mathf.Min(drop, 0.85f), 0f);
+                foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = stoneM; r.sharedMaterials = arr; }
+            }
+            // 176차-2: 조각 사이가 벌어져 판때기처럼 보여서 간격을 1.1 m 로 좁혀 겹치게 놓는다
+            // 176차-2 재수정: Prop_StoneWall 은 길이가 Z 축이다 — 앞뒤 담(x 방향)은 yaw 90, 옆 담(z 방향)은 yaw 0
+            for (float x = -14.7f; x <= 14.8f; x += 1.6f) { StoneRing(x, 26.4f, 90f); StoneRing(x, 40.8f, 90f); }
+            for (float z = 27.0f; z <= 40.3f; z += 1.6f) { StoneRing(-14.7f, z, 0f); StoneRing(14.7f, z, 0f); }
             for (int i = 0; i < 3; i++) StoneWall(-20f + i * 4.2f, 2f);
             for (int i = 0; i < 3; i++) StoneWall(12f + i * 4.2f, 5f);
             // 나무: 귤나무(흔들면 귤) + 야자수(시안처럼 텃밭 주변·바다 쪽에 여럿)
@@ -836,24 +970,31 @@ namespace CoastRun.Village
         {
             var rockM = CoastMaterials.CreateLit(VillagePalette.Rock); var rockD = CoastMaterials.CreateLit(VillagePalette.RockShade);
             var rng = new System.Random(141);
+            // 174차-3(사용자: 「바닷가 바위도 귀여운 스타일로」): 각진 현무암 키트(VCliff)를 버리고
+            // 마을 바위와 같은 둥근 덩이로 — 바닷가는 청회색·라벤더·회색(찬 색)만 골라 쓴다.
+            int[] coolMat = { 3, 4, 5, 9, 10, 11 };
             void R(float x, float z, float s, Material m)
             {
-                // 162차: 키트 VCliff_A/B(각진 현무암) — 콜라이더는 구 하나로 유지
-                var kc = JejuKit.Spawn("VCliff_" + (m == rockM ? "A" : "B"), root, Vector3.zero, (float)rng.NextDouble() * 360f, s * 2.2f);
-                if (kc != null)
+                float baseY = SeaLevel + s * 0.10f;
+                var t = PastelBoulder(root, new Vector3(x, baseY, z), s * 0.95f, rng, rng.NextDouble() < 0.22, true, coolMat[rng.Next(coolMat.Length)]);
+                t.name = "CliffRock";
+                int extra = 1 + rng.Next(2);
+                for (int i = 0; i < extra; i++)
                 {
-                    kc.name = "CliffRock"; kc.transform.position = new Vector3(x, SeaLevel - s * 0.25f, z);
-                    var sc = kc.AddComponent<SphereCollider>(); sc.center = new Vector3(0f, 0.28f, 0f); sc.radius = 0.55f;
-                    return;
+                    float s2 = s * (0.38f + (float)rng.NextDouble() * 0.36f);
+                    float a = (float)rng.NextDouble() * 6.283f;
+                    var p2 = new Vector3(x + Mathf.Cos(a) * s * 1.05f, baseY - s * 0.06f, z + Mathf.Sin(a) * s * 1.05f);
+                    PastelBoulder(root, p2, s2, rng, false, true, coolMat[rng.Next(coolMat.Length)]).name = "CliffRock";
                 }
-                var r = GameObject.CreatePrimitive(PrimitiveType.Sphere); r.name = "CliffRock"; r.transform.SetParent(root, false);   // 159차: 콜라이더 유지(주인공·카메라가 바위 안으로 안 들어가게)
-                r.transform.position = new Vector3(x, SeaLevel + s * 0.12f, z); r.transform.localScale = new Vector3(s * 1.3f, s * 1.3f, s * 1.1f); r.transform.rotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 360f, 0f);
-                r.GetComponent<MeshRenderer>().sharedMaterial = m;
             }
             for (float z = -38f; z > -64f; z -= 2.4f) { float s = 1.2f + (float)rng.NextDouble() * 0.7f; R(-3.6f + (float)rng.NextDouble() * 0.6f - (z < -46f ? 0.8f : 0f), z, s, (z % 4.8f) > -2.4f ? rockM : rockD); }
             // 반도 근처 가장자리는 덤불로(시안: 오른쪽 절벽 위 초록)
             for (float z = -27f; z > -38f; z -= 3.6f) Bush(root, -2.8f + (float)rng.NextDouble() * 1.0f, z, rng);
             for (float x = -3f; x > -28f; x -= 3f) { float s = 2.4f + (float)rng.NextDouble() * 1.6f; R(x, -63.5f + (float)rng.NextDouble(), s, rockM); }
+            // 171차(사용자: 「끝에 절벽 모습」): 반도 서쪽 가장자리(x≈−28)와 끝(z≈−65)에 절벽 바위 띠를 두 겹으로 — 땅이 그냥 끊기던 곳이 바위 절벽으로 보인다
+            for (float z = -36f; z > -64f; z -= 2.6f) { float s = 1.6f + (float)rng.NextDouble() * 1.0f; R(-27.6f + (float)rng.NextDouble() * 0.8f, z, s, (z % 5.2f) > -2.6f ? rockD : rockM); }
+            for (float z = -38f; z > -62f; z -= 4.5f) { float s = 1.0f + (float)rng.NextDouble() * 0.6f; R(-26.2f + (float)rng.NextDouble() * 0.6f, z, s, rockM); }
+            for (float x = -4f; x > -27f; x -= 2.2f) { float s = 1.4f + (float)rng.NextDouble() * 0.8f; R(x, -65.6f + (float)rng.NextDouble() * 0.5f, s, (x % 4.4f) > -2.2f ? rockD : rockM); }
             for (float z = -31f; z > -62f; z -= 3.2f) { float s = 2.2f + (float)rng.NextDouble() * 1.4f; R(-28.5f, z, s, rockD); }
             // 만(灣) 쪽 물가 바위
             R(6.8f, -27.5f, 1.3f, rockD); R(10.5f, -28f, 1.6f, rockM); R(4.2f, -29f, 1.1f, rockM);
@@ -861,13 +1002,18 @@ namespace CoastRun.Village
 
         static void Rock(Transform root, float x, float z, System.Random rng)
         {
-            float s = 0.6f + (float)rng.NextDouble() * 0.9f;
-            // 162차: 키트 VStone_A/B(있을 때)
-            var kr = JejuKit.Spawn("VStone_" + (rng.NextDouble() < 0.5 ? "A" : "B"), root, Vector3.zero, (float)rng.NextDouble() * 360f, s * 1.6f);
-            if (kr != null) { kr.name = "Rock"; kr.transform.position = Ground(x, z); return; }
-            var r = GameObject.CreatePrimitive(PrimitiveType.Sphere); r.name = "Rock"; r.transform.SetParent(root, false);
-            r.transform.position = Ground(x, z) + new Vector3(0f, s * 0.2f, 0f); r.transform.localScale = new Vector3(s, s * 0.55f, s * 0.8f); r.transform.rotation = Quaternion.Euler(0f, (float)rng.NextDouble() * 360f, 0f);
-            r.GetComponent<Renderer>().sharedMaterial = CoastMaterials.CreateLit(VillagePalette.RockShade);
+            // 174차(사용자: 「옛 껍데기 걷어내고 다시 다 그려줘」): 옛 VStone 키트·칙칙한 회색 구를 버리고 시안 파스텔 덩이로 통일
+            float s = 0.55f + (float)rng.NextDouble() * 0.7f;
+            var g = Ground(x, z) + new Vector3(0f, s * 0.22f, 0f);
+            var t = PastelBoulder(root, g, s, rng, rng.NextDouble() < 0.45);
+            t.name = "Rock";
+            if (rng.NextDouble() < 0.55)   // 시안처럼 큰 덩이 옆에 작은 덩이가 붙어 있다
+            {
+                float s2 = s * (0.45f + (float)rng.NextDouble() * 0.28f);
+                float a = (float)rng.NextDouble() * 6.28f;
+                var g2 = Ground(x + Mathf.Cos(a) * s * 1.15f, z + Mathf.Sin(a) * s * 1.15f) + new Vector3(0f, s2 * 0.22f, 0f);
+                PastelBoulder(root, g2, s2, rng, rng.NextDouble() < 0.3).name = "Rock";
+            }
         }
 
         static void FlowerBed(Transform root, float x, float z, System.Random rng)
@@ -1140,6 +1286,7 @@ namespace CoastRun.Village
         public static void BuildCrops(Transform root, SaveData save)
         {
             VillageFarm.Build(root, save);
+            VillageLivestock.Build(root, save);   // 171차: 농장 가축도 같이 다시 세운다
             var host = root.Find("Crops"); if (host != null) BuildingOutline.Attach(host, 0.02f);
         }
     }

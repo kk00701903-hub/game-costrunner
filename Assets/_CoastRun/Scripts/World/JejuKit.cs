@@ -441,6 +441,26 @@ namespace CoastRun
                 case "ToolNet": return CoastMaterials.CreateTransparent(new Color(0.85f, 0.95f, 1f, 0.35f));
                 case "ToolCork": return CoastMaterials.CreateLit(new Color(0.86f, 0.72f, 0.50f), 0.05f);
                 case "ToolLine": return CoastMaterials.CreateUnlit(new Color(0.96f, 0.96f, 0.96f));
+                // 169차: 텃밭 작물 키트(VCrop_*, village_crop_kit.py)
+                case "CropStem": return CoastMaterials.CreateLit(new Color(0.35f, 0.60f, 0.26f), 0.02f);
+                case "CropLeaf": return CoastMaterials.CreateLit(new Color(0.42f, 0.72f, 0.32f), 0.02f);
+                case "CropLeafGray": return CoastMaterials.CreateLit(new Color(0.55f, 0.68f, 0.50f), 0.02f);
+                case "CropStake": return CoastMaterials.CreateLit(new Color(0.62f, 0.46f, 0.28f), 0.02f);
+                case "CropSoil": return CoastMaterials.CreateLit(new Color(0.44f, 0.31f, 0.20f));
+                case "CropTomato": return CoastMaterials.CreateLit(new Color(0.93f, 0.22f, 0.18f), 0.35f);
+                case "CropPotato": return CoastMaterials.CreateLit(new Color(0.80f, 0.64f, 0.38f), 0.05f);
+                case "CropRice": return CoastMaterials.CreateLit(new Color(0.92f, 0.80f, 0.32f), 0.15f);
+                case "CropRose": return CoastMaterials.CreateLit(new Color(0.97f, 0.42f, 0.60f), 0.20f);
+                case "CropLavender": return CoastMaterials.CreateLit(new Color(0.70f, 0.52f, 0.92f), 0.20f);
+                case "CropBloomWhite": return CoastMaterials.CreateLit(new Color(0.97f, 0.96f, 0.92f), 0.15f);
+                case "CropBloomYellow": return CoastMaterials.CreateLit(new Color(1f, 0.86f, 0.25f), 0.25f);
+                // 171차: 가축 키트(VAnimal_*, village_animal_kit.py)
+                case "AnimWhite": return CoastMaterials.CreateLit(new Color(0.97f, 0.96f, 0.92f), 0.05f);
+                case "AnimRed": return CoastMaterials.CreateLit(new Color(0.92f, 0.22f, 0.22f), 0.2f);
+                case "AnimYellow": return CoastMaterials.CreateLit(new Color(0.98f, 0.75f, 0.25f), 0.2f);
+                case "AnimGray": return CoastMaterials.CreateLit(new Color(0.72f, 0.68f, 0.66f), 0.05f);
+                case "AnimPink": return CoastMaterials.CreateLit(new Color(0.98f, 0.78f, 0.82f), 0.1f);
+                case "AnimDark": return CoastMaterials.CreateUnlit(new Color(0.12f, 0.10f, 0.12f));
                 // 162차: 마을 바위·덤불 키트(VRock/VStone/VCliff/VBush, village_rock_kit.py) — AO 정점색이 곱해진다
                 case "Basalt": { var t = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Basalt"); return t != null ? CoastMaterials.CreateToon(new Color(0.92f, 0.94f, 1f), t, 0.06f) : CoastMaterials.CreateLit(new Color(0.46f, 0.49f, 0.55f), 0.06f); }   // 162차: 클링 손그림 현무암 타일
                 case "Moss": { var t = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Moss"); return t != null ? CoastMaterials.CreateToon(new Color(0.95f, 1f, 0.9f), t, 0.02f) : CoastMaterials.CreateLit(new Color(0.44f, 0.70f, 0.32f), 0.02f); }

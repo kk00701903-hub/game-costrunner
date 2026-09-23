@@ -151,6 +151,9 @@ namespace CoastRun.Village
                 for (int q = 0; q < 4; q++)
                 {
                     float x = c.x + (q % 2 == 0 ? -0.55f : 0.55f), z = c.z + (q / 2 == 0 ? -0.45f : 0.45f);
+                    // 169차(사용자: 「식물별 육성 사진이 달라야 한다」): 작물 5종 × 성장 4단계 블렌더 모델(VCrop_<종>_<2..5>).
+                    // 씨앗(1단계)은 어느 작물이나 같은 흙더미 + 떡잎, 2단계부터 종이 갈린다. 모델이 없으면 옛 공용 줄기+잎으로 떨어진다.
+                    if (stage >= 2 && SpawnCropModel(host, sd, stage, new Vector3(x, gy + 0.01f, z), (i * 4 + q) * 53f)) continue;
                     if (stage <= 1)
                     {
                         // 씨앗: 작은 흙더미 + 떡잎
@@ -177,6 +180,32 @@ namespace CoastRun.Village
             // 서 있는 칸 표시(노란 링) — VillageHub 가 옮긴다
             var ring = Prim(host, PrimitiveType.Cylinder, Vector3.zero, new Vector3(CellW - 0.35f, 0.012f, CellD - 0.35f), M(ref _ring, new Color(1f, 0.92f, 0.45f)));
             ring.name = "TileMarker"; ring.SetActive(false); Marker = ring.transform;
+        }
+
+        // ── 169차: 작물별 모델(Tools/blender/village_crop_kit.py → Resources/CoastRun/Models/VCrop_*) ──
+        public static string CropKey(string id)
+        {
+            switch (id)
+            {
+                case "tomato": return "Tomato";
+                case "potato": return "Potato";
+                case "rice": return "Rice";
+                case "rose": return "Rose";
+                case "lavender": return "Lavender";
+                default: return null;
+            }
+        }
+
+        /// 한 포기를 심는다. 모델이 없으면 false 를 돌려 옛 프리미티브 조합으로 떨어진다.
+        static bool SpawnCropModel(Transform host, SeedDef sd, int stage, Vector3 pos, float yaw)
+        {
+            string key = sd != null ? CropKey(sd.id) : null;
+            if (key == null) return false;
+            var t = new GameObject("Crop_" + key + "_" + stage).transform;
+            t.SetParent(host, false); t.position = pos;
+            var go = JejuKit.Spawn("VCrop_" + key + "_" + stage, t, Vector3.zero, yaw % 360f, 1.35f);   // 게임 카메라 거리에서 읽히게
+            if (go == null) { Object.Destroy(t.gameObject); return false; }
+            return true;
         }
 
         static GameObject Prim(Transform parent, PrimitiveType t, Vector3 pos, Vector3 scale, Material m)

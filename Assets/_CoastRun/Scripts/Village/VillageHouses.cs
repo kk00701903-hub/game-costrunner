@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +13,30 @@ namespace CoastRun.Village
         static Material M(Color c, float smooth = 0.05f) => CoastMaterials.CreateLit(c, smooth);
         static Texture2D _roof; static Texture2D RoofTex => _roof != null ? _roof : (_roof = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Roof"));   // 163차
         static Texture2D _plank; static Texture2D PlankTex => _plank != null ? _plank : (_plank = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Plank"));
+        // 174차-3(사용자: 「울타리 파이어플라이로 다시 그려줘」): Firefly 나무결을 울타리 기둥·가로대에 입힌다
+        static Texture2D _wood; static Texture2D WoodTex => _wood != null ? _wood : (_wood = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Wood"));
+        static Material _woodM, _woodDM;
+        static Material WoodMat(bool dark)
+        {
+            if (dark && _woodDM != null) return _woodDM;
+            if (!dark && _woodM != null) return _woodM;
+            var tex = WoodTex;
+            Material m;
+            if (tex != null)
+            {
+                m = ArtAssets.CreateTexturedLit(tex, dark ? new Color(0.76f, 0.66f, 0.55f) : new Color(1f, 0.95f, 0.88f), 0.04f);
+                m.mainTextureScale = new Vector2(1.1f, 0.45f);
+            }
+            else m = M(dark ? VillagePalette.LogDark : VillagePalette.Log);
+            if (dark) _woodDM = m; else _woodM = m;
+            return m;
+        }
+        static GameObject CylM(Transform parent, string name, Vector3 pos, Vector3 size, Material mat)
+        {
+            var g = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.Destroy(g.GetComponent<Collider>()); g.name = name;
+            g.transform.SetParent(parent, false); g.transform.localPosition = pos; g.transform.localScale = size;
+            g.GetComponent<Renderer>().sharedMaterial = mat; return g;
+        }
 
         static GameObject Box(Transform parent, string name, Vector3 pos, Vector3 size, Color col, float yaw = 0f)
         {
@@ -349,13 +373,13 @@ namespace CoastRun.Village
             for (int i = 0; i <= n; i++)
             {
                 var p = a + dir * (len * i / n); p.y = VillageWorld.Height(p.x, p.z);
-                var post = Cyl(t, "Post", Vector3.zero, new Vector3(0.18f, 0.42f, 0.18f), logD); post.transform.position = p + new Vector3(0f, 0.42f, 0f);
+                var post = CylM(t, "Post", Vector3.zero, new Vector3(0.20f, 0.46f, 0.20f), WoodMat(true)); post.transform.position = p + new Vector3(0f, 0.46f, 0f);
                 if (i > 0)
                 {
                     for (int k = 0; k < 2; k++)
                     {
                         var m = (prev + p) * 0.5f + new Vector3(0f, 0.30f + k * 0.32f, 0f); var seg = p - prev; float sl = seg.magnitude;
-                        var rail = Cyl(t, "Rail", Vector3.zero, new Vector3(0.11f, sl * 0.5f, 0.11f), log); rail.transform.position = m; rail.transform.rotation = Quaternion.FromToRotation(Vector3.up, seg.normalized);
+                        var rail = CylM(t, "Rail", Vector3.zero, new Vector3(0.12f, sl * 0.5f, 0.12f), WoodMat(false)); rail.transform.position = m; rail.transform.rotation = Quaternion.FromToRotation(Vector3.up, seg.normalized);
                     }
                     // 154차: 울타리도 막힘
                     var cgo = new GameObject("FenceCol", typeof(BoxCollider)); cgo.transform.SetParent(t, false); cgo.transform.position = (prev + p) * 0.5f + new Vector3(0f, 0.5f, 0f);

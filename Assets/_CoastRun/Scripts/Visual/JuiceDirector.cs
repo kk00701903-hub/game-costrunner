@@ -918,10 +918,11 @@ namespace CoastRun
             // 63차(사용자): 보스 중엔 피격 순간 정지(슬로모)를 거의 없앤다 — 연타 피격이 「느려지는 보스」로 느껴졌다
             if (_hitStopRoutine != null) AbortHitStop();
             _hitStopRoutine = StartCoroutine(PlayerController.NoHitSlow ? HitStop(0.6f, 0.04f) : HitStop(0.03f, 0.10f));
-            cameraRig?.Shake(0.55f, 0.38f);
+            // 170차(사용자: 「부딪힐 때 카메라가 앞으로 확 커졌다가 울렁거린다 — 살짝만, 진동으로」): 흔들림 0.38→0.10·0.55→0.22 s, FOV 킥 −9→−2. 진동(VibrateEvent)은 그대로.
+            cameraRig?.Shake(0.22f, 0.10f);
             PunchSaturation(-70f, 0.55f);
             player?.FreezeInput(0.12f);   // brief only — long SoftHit lock felt like dead keyboard
-            cameraRig?.FovKick(-9f, 0.28f);
+            cameraRig?.FovKick(-2f, 0.22f);
             PickupFloat.Impact(Loc.T("꽈당!", "OUCH!"));
             // ★ BGM never stops — SFX only.
             audio?.PlaySfx(CoastSfx.SoftHit);

@@ -188,6 +188,8 @@ namespace CoastRun
         public PotState[] farm; public int farmWeedMask; public int farmWetMask; public int farmWetStamp = -1;
         public int villageFuel; public int villageChopWeek = -1; public int villageChopMask;
         public int villagePickWeek = -1; public long villagePickMask; public int bugsCaught;
+        public int farmChickens, farmEggs; public int[] farmRabbitAge = new int[0];
+        public int reqWeek = -1; public int[] reqNpc = new int[0], reqKind = new int[0], reqProg = new int[0], reqState = new int[0];   // 171차: 주민 요청(주 2~3개)   // 171차: 농장 가축(닭 수·쌓인 달걀·토끼 나이=잠 횟수)
         // 154차: 나무 베기(3번 패면 쓰러짐)·돌 캐기(3번) — 사라진 주(-1 없음), 8주 뒤 다시 생김
         public int[] villageTreeHits; public int[] villageTreeGone; public int[] villageRockHits; public int[] villageRockGone;
         public float villageHour;   // 155차: 마을 시계(0~24, 0 이면 08:00 부터)

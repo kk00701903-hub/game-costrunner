@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace CoastRun.EditorTools
@@ -432,8 +432,32 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Village - Go hill west")] private static void VGoHillW() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new Vector3(-8f, 0f, 30f), 270f); }
         [MenuItem("Coast Run/Dev/Village - Count pines")] private static void VCountPines() { int n = 0; foreach (var t in GameObject.FindObjectsByType<Transform>(FindObjectsSortMode.None)) if (t.name.StartsWith("Tree_Pine") || t.name == "Windmill") n++; Debug.LogWarning("[Pines] " + n); }
         [MenuItem("Coast Run/Dev/Village - Tool pick")] private static void VToolPick() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(3); }
+        // 172차: 이번 주 주민 부탁을 로그로 찍고, 첫 번째 부탁 NPC 앞으로 옮긴다
+        [MenuItem("Coast Run/Dev/Village - Go request NPC")]
+        private static void VGoReq()
+        {
+            var h = CoastRun.Village.VillageHub.I; var gm = CoastRun.GameManager.I;
+            if (h == null || gm == null || gm.Save == null) return;
+            var s = gm.Save; CoastRun.Village.VillageRequest.Ensure(s);
+            var sb = new System.Text.StringBuilder($"[Req] week={s.week} n={s.reqKind.Length}");
+            for (int i = 0; i < s.reqKind.Length; i++)
+                sb.Append($" | npc{s.reqNpc[i]}({h.NpcName(s.reqNpc[i])}) {(CoastRun.Village.VillageMission.Kind)s.reqKind[i]} state={s.reqState[i]} prog={s.reqProg[i]}");
+            Debug.LogWarning(sb.ToString());
+            if (s.reqNpc.Length == 0) return;
+            var p = h.NpcPos(s.reqNpc[0]); h.Teleport(new Vector3(p.x, 0f, p.z - 1.6f), 0f);
+        }
+        [MenuItem("Coast Run/Dev/Village - Act now (test)")] private static void VActNow() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.SendMessage("OnAct", SendMessageOptions.DontRequireReceiver); }   // 172차: 행동 버튼(오른쪽 반 톡) 대신 바로 실행 — 원격 tap 으로는 CameraPad 를 못 누른다
+        [MenuItem("Coast Run/Dev/Village - Swing now (test)")] private static void VSwingNow() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.SendMessage("Swing", SendMessageOptions.DontRequireReceiver); }   // 171차: 도구 모션 확인용
+        [MenuItem("Coast Run/Dev/Village - Tool bat")] private static void VToolBat() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(1); }   // 171차: 방망이(빠져 있었음)
         [MenuItem("Coast Run/Dev/Village - Tool rod")] private static void VToolRod() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(4); }
         [MenuItem("Coast Run/Dev/Village - Go rock")] private static void VGoRock() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; foreach (var rk in CoastRun.Village.VillageWorld.Rocks) if (rk.t != null) { var p = rk.t.position + new Vector3(0f, 0f, 1.9f); h.Teleport(new Vector3(p.x, 0f, p.z), 180f); return; } }
+        [MenuItem("Coast Run/Dev/Village - Go ranch inside")] private static void VGoRanchIn() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new Vector3(CoastRun.Village.VillageRanch.CX + 2f, 0f, CoastRun.Village.VillageRanch.CZ - 4f), 340f); }
+        [MenuItem("Coast Run/Dev/Village - Go ranch")] private static void VGoRanch() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var g = CoastRun.Village.VillageRanch.Gate; h.Teleport(new Vector3(g.x + 3f, 0f, g.z), 270f); }
+        [MenuItem("Coast Run/Dev/Village - Spawn monster")] private static void VMonster() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevMonster(); }
+        [MenuItem("Coast Run/Dev/Village - Weather rain")] private static void VWRain() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWeather(CoastRun.WeatherKind.Rain); }
+        [MenuItem("Coast Run/Dev/Village - Weather snow")] private static void VWSnow() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWeather(CoastRun.WeatherKind.Snow); }
+        [MenuItem("Coast Run/Dev/Village - Weather clear")] private static void VWClear() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWeather(CoastRun.WeatherKind.Clear); }
+        [MenuItem("Coast Run/Dev/Village - Go boundary")] private static void VGoBound() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new Vector3(0f, 0f, 41.5f), 0f); }   // 173차: 경계 바위 담 확인용
         [MenuItem("Coast Run/Dev/Village - Time 18")] private static void VTime18() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHour(18.3f); }
         [MenuItem("Coast Run/Dev/Village - Time 22")] private static void VTime22() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHour(22.2f); }
         [MenuItem("Coast Run/Dev/Village - Time 8")] private static void VTime8() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHour(8f); }
@@ -444,6 +468,47 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Village - Go home bed")] private static void VGoBed() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var p = h.SpotPos("home_bed"); h.Teleport(new Vector3(p.x, 0f, p.z), 270f); }
         [MenuItem("Coast Run/Dev/Village - Go job house")] private static void VGoJob() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var p = h.SpotPos("job"); h.Teleport(new Vector3(p.x, 0f, p.z + 3.2f), 0f); }
         [MenuItem("Coast Run/Dev/Village - Exit house")] private static void VExitHouse() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.ExitHouse(); }
+        // 169차: 작물별 모델 확인용 — 9칸을 5종으로 채운다(앞 5칸 다 자람, 뒤 4칸 자라는 중) 뒤 텃밭으로.
+        [MenuItem("Coast Run/Dev/Village - Farm demo (test)")]
+        private static void VFarmDemo()
+        {
+            var h = CoastRun.Village.VillageHub.I; var gm = CoastRun.GameManager.I;
+            if (h == null || gm == null || gm.Save == null) return;
+            var s = gm.Save; CoastRun.Village.VillageFarm.Ensure(s); s.farmWeedMask = 0;
+            string[] ids = { "tomato", "potato", "rice", "rose", "lavender" };
+            for (int i = 0; i < CoastRun.Village.VillageFarm.Tiles; i++)
+            {
+                var sd = CoastRun.HomeData.Seed(ids[i % ids.Length]); if (sd == null) continue;
+                s.farm[i].seed = sd.id;
+                s.farm[i].growth = i < 5 ? sd.weeks : Mathf.Max(1, sd.weeks - 1);
+                s.farm[i].waterStamp = -1;
+            }
+            h.SendMessage("AfterFarm", SendMessageOptions.DontRequireReceiver);
+            var c = CoastRun.Village.VillageFarm.TileCenter(1); h.Teleport(new Vector3(c.x, 0f, c.z - 3.4f), 0f);
+            Debug.LogWarning("[FarmDemo] 9칸 = 토마토·감자·벼·장미·라벤더 (앞 5칸 수확기, 뒤 4칸 성장 중)");
+        }
+
+        [MenuItem("Coast Run/Dev/Village - Sky plane now")] private static void VSkyPlane() { var s = CoastRun.Village.VillageSky.I; if (s != null) s.DevPlaneNow(); }   // 170차
+        // 171차: 보이지 않는 벽 진단 — Bound 벽마다 양쪽이 모두 걸을 수 있는 땅(해수면+0.3 위)인 구간 비율을 로그
+        [MenuItem("Coast Run/Dev/Village - Bound diag")]
+        private static void VBoundDiag()
+        {
+            foreach (var bc in GameObject.FindObjectsByType<BoxCollider>(FindObjectsSortMode.None))
+            {
+                if (bc.gameObject.name != "Bound" && bc.gameObject.name != "FenceCol" && bc.gameObject.name != "GardenFence") continue;
+                var c = bc.transform.position + bc.center; var s = bc.size; bool alongX = s.x > s.z;
+                int n = 0, both = 0; var spans = new System.Text.StringBuilder();
+                for (float t = -0.5f; t <= 0.5f; t += 0.05f)
+                {
+                    float x = alongX ? c.x + t * s.x : c.x, z = alongX ? c.z : c.z + t * s.z;
+                    float hA = CoastRun.Village.VillageWorld.Height(alongX ? x : x - 1.5f, alongX ? z - 1.5f : z), hB = CoastRun.Village.VillageWorld.Height(alongX ? x : x + 1.5f, alongX ? z + 1.5f : z);
+                    n++; if (hA > CoastRun.Village.VillageWorld.SeaLevel + 0.3f && hB > CoastRun.Village.VillageWorld.SeaLevel + 0.3f) { both++; spans.Append($"({x:F0},{z:F0}) "); }
+                }
+                Debug.LogWarning($"[Bound] {bc.gameObject.name} c=({c.x:F1},{c.z:F1}) size=({s.x:F0},{s.z:F0}) 양쪽땅={both}/{n} {spans}");
+            }
+        }
+        [MenuItem("Coast Run/Dev/Village - Go farm")] private static void VGoLivestock() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var g = CoastRun.Village.VillageLivestock.Gate; h.Teleport(new Vector3(g.x, 0f, g.z - 2.5f), 0f); }   // 171차
+        [MenuItem("Coast Run/Dev/Village - Farm demo animals (test)")] private static void VFarmAnimals() { var h = CoastRun.Village.VillageHub.I; var gm = CoastRun.GameManager.I; if (h == null || gm == null || gm.Save == null) return; var s = gm.Save; s.farmChickens = 3; s.farmRabbitAge = new[] { 0, 2, 4 }; s.farmEggs = 2; gm.Persist(); CoastRun.Village.VillageLivestock.Build(GameObject.Find("VillageWorld").transform, s); CoastRun.Village.VillageHub.RefreshStatus(); }   // 171차
         [MenuItem("Coast Run/Dev/Village - Dev reset week (test)")] private static void VResetWeek() { var gm = CoastRun.GameManager.I; if (gm == null || gm.Save == null) return; gm.Save.boundaryPending = false; gm.Save.phaseIndex = 0; gm.Save.villageActMask = 0; gm.Persist(); CoastRun.Village.VillageHub.RefreshStatus(); }
         [MenuItem("Coast Run/Dev/Village - Go hero door")] private static void VGoHeroDoor() { var h = CoastRun.Village.VillageHub.I; var hh = CoastRun.Village.VillageWorld.HeroHouse; if (h == null || hh == null) return; var d = hh.TransformPoint(new Vector3(0f, 0f, 2.2f)) + hh.forward * 3.0f; h.Teleport(new Vector3(d.x, 0f, d.z), hh.eulerAngles.y + 180f); }
         [MenuItem("Coast Run/Dev/Village - Go shop door")] private static void VGoShopDoor() { var h = CoastRun.Village.VillageHub.I; var sh = CoastRun.Village.VillageWorld.Shop; if (h == null || sh == null) return; var d = sh.TransformPoint(new Vector3(0f, 0f, 2.6f)) + sh.forward * 2.2f; h.Teleport(new Vector3(d.x, 0f, d.z), sh.eulerAngles.y + 180f); }
@@ -454,7 +519,7 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Village - Joy demo R")] private static void VJoyR() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevJoy(0.74f, 0.42f, 3.5f); }
         [MenuItem("Coast Run/Dev/Village - Go job door")] private static void VGoJobDoor() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; var p = h.SpotPos("job"); h.Teleport(new Vector3(p.x, 0f, p.z), 0f); }
         [MenuItem("Coast Run/Dev/Village - Go lane")] private static void VGoLane() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(new Vector3(-10.2f, 0f, -33.2f), 180f); }
-        [MenuItem("Coast Run/Dev/Village - Cam info")] private static void VCamInfo() { var h = CoastRun.Village.VillageHub.I; var c = Camera.main; if (h == null || c == null) return; var p = c.transform.position; Debug.LogWarning($"[CamInfo] cam={p} player={h.PlayerPos} camYaw={c.transform.eulerAngles.y:F0} playerYaw={h.PlayerYaw:F0}"); }
+        [MenuItem("Coast Run/Dev/Village - Cam info")] private static void VCamInfo() { var h = CoastRun.Village.VillageHub.I; var c = Camera.main; if (h == null || c == null) return; var p = c.transform.position; Debug.LogWarning($"[CamInfo] cam={p} player={h.PlayerPos} camYaw={c.transform.eulerAngles.y:F0} playerYaw={h.PlayerYaw:F0} {h.CamDiag}"); }
         [MenuItem("Coast Run/Dev/Village - Curve info")] private static void VCurveInfo() { var v = Shader.GetGlobalVector("_CoastCurveRadial"); var sea = GameObject.Find("Sea"); var mr = sea != null ? sea.GetComponent<Renderer>() : null; var m = mr != null ? mr.sharedMaterial : null; Debug.LogWarning($"[CurveInfo] radial={v} sea={(m != null ? m.shader.name : "none")} w={(m != null && m.HasProperty("_CurveWeight") ? m.GetFloat("_CurveWeight") : -1f)} curve={Shader.GetGlobalVector("_CoastCurve")}"); }
         [MenuItem("Coast Run/Dev/Village - Enter house 0")] private static void VEnterHouse() { var h = CoastRun.Village.VillageHub.I; if (h == null || CoastRun.Village.VillageWorld.Houses.Count == 0) return; var hs = CoastRun.Village.VillageWorld.Houses[2]; h.Teleport(hs.door, 0f); h.EnterHouse(hs.house, hs.name, hs.door); }
         [MenuItem("Coast Run/Dev/Village - Go house 0")] private static void VGoHouse() { var h = CoastRun.Village.VillageHub.I; if (h == null || CoastRun.Village.VillageWorld.Houses.Count == 0) return; var hs = CoastRun.Village.VillageWorld.Houses[2]; h.Teleport(hs.door + hs.house.forward * 3f, hs.house.eulerAngles.y + 180f); Debug.LogWarning("[GoHouse] " + hs.name + " door=" + hs.door + " fwd=" + hs.house.forward); }

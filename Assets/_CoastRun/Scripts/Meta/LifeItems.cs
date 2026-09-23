@@ -131,6 +131,16 @@ namespace CoastRun
                 LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
             D("bug_ladybug", "무당벌레", "Ladybug", "꽃밭 풀잎에 앉아 있다. 행운의 벌레.", "Sits on the flowers. Lucky bug.",
                 LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            // 170차: 큰 벌레 — 방망이로 때려잡는다
+            D("bug_bigbeetle", "왕사슴벌레", "Giant Beetle", "턱이 큰 왕사슴벌레. 방망이로 때려잡았다.", "Big-jawed beetle. Smacked with the bat.",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("bug_hornet", "왕말벌", "Giant Hornet", "붕붕 다가오는 왕말벌. 방망이로 때려잡았다.", "Buzzing giant hornet. Smacked with the bat.",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            // 171차: 바닷가 생물 — 방망이로 잡는다
+            D("bug_crab", "꽃게", "Crab", "모래밭을 옆으로 종종 달리던 꽃게. 찜으로 조리.", "Scuttled sideways on the sand. Steam it.",
+                LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_veg", 0, 0, 0, 0, false, false, false),
+            D("bug_hermit", "소라게", "Hermit Crab", "소라 껍데기를 지고 다니는 소라게. 도감용.", "Carries a shell around. For the collection.",
+                LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
 
             // ── 옷 ──
             D("clothes_set", "새 옷 세트", "New Clothes Set", "3개월(12주) 입는 옷. 낡으면 컨디션↓", "Lasts 12 weeks. Worn = condition ↓",
