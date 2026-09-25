@@ -27,7 +27,7 @@ namespace CoastRun
 
         public bool Eval(PlayerStats s)
         {
-            if (condMoneyBelow) return s.money < condMin;
+            if (condMoneyBelow) return s.money < condMin * EconomyScale.Living;
             if (condStat == StatKind.None) return true;
             return s.Get(condStat) >= condMin;
         }
@@ -214,14 +214,14 @@ namespace CoastRun
             if (a)
             {
                 res.dStamina = ev.dStamina;
-                res.dMoney = ev.dMoney;
+                res.dMoney = ev.dMoney * EconomyScale.Living;   // 186차
                 res.dHearts = ev.dHearts;
                 res.dStress = ev.dStress;
             }
             else
             {
                 res.dStamina = ev.altStamina;
-                res.dMoney = ev.altMoney;
+                res.dMoney = ev.altMoney * EconomyScale.Living;
                 res.dHearts = ev.altHearts;
                 res.dStress = ev.altStress;
             }

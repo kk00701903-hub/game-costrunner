@@ -265,6 +265,10 @@ namespace CoastRun
             // 21차: 빨래줄 활공 — 카메라를 조금 더 높이·뒤로 빼고 아래를 내려다봐서 '떠 있음'과 슈퍼맨 자세가 읽히게
             _glideCam = Mathf.MoveTowards(_glideCam, target.IsGliding ? 1f : 0f, dt * 2.2f);
             camPos += frame * new Vector3(0f, 0.75f, -0.9f) * _glideCam;
+            // 201차(보완 점검): 거대화(×2)일 때 주인공이 화면 가운데를 가려 앞 장애물이 안 보이던 문제 — 커진 만큼 카메라를 위·뒤로 뺀다
+            float giant = Mathf.Clamp01((target.VisualScaleMul - 1f) / 1f);
+            _giantCam = Mathf.MoveTowards(_giantCam, giant, dt * 2.5f);
+            camPos += frame * new Vector3(0f, 1.9f, -3.2f) * _giantCam;
 
             transform.position = camPos;
 
@@ -286,6 +290,7 @@ namespace CoastRun
             RoadUvScroller.SetScrollSpeed(speed);
         }
 
+        private float _giantCam;
         private float _bobOffset;
 
         private void UpdateBob(float speed, float speedT, float dt)

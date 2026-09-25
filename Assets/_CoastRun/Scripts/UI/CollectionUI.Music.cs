@@ -10,6 +10,16 @@ namespace CoastRun
     public partial class CollectionUI
     {
         private GameObject _mockRec;
+        /// 193차(사용자: 「더보기의 레코드 음악 다 비활성화, 전체곡 듣기에 유튜브 뮤직 링크」): 게임 안 재생은 끄고 공식 앨범(유튜브 뮤직)으로 보낸다.
+        /// 앨범은 사용자(권리자) 본인 곡 — 음원을 앱에 넣지 않고 공식 재생목록 주소만 여는 방식(외부 앱/브라우저).
+        public const bool RecordsExternal = true;
+        public const string YtMusicAlbumUrl = "https://music.youtube.com/playlist?list=OLAK5uy_mFuZfnTycjxE_TfWmkiZlDk1qeRqRHl5k";
+        private void OpenYtMusic()
+        {
+            StopPlayAll(); if (_preview != null) _preview.Stop(); _playingNum = 0; TitleAudio.SetBedVolume(0.85f);
+            Toast(Loc.T("유튜브 뮤직에서 앨범을 열어요", "Opening the album on YouTube Music"));
+            Application.OpenURL(YtMusicAlbumUrl);
+        }
         private Coroutine _playAll;
 
         private static Vector2 MM(float mx, float my) => new Vector2((mx + 93f) * (720f / 1242f) - 360f, 640f - my * (1280f / 2208f));
@@ -65,7 +75,7 @@ namespace CoastRun
             for (int i = 0; i < RecordTable.All.Length && i < 7; i++)
             {
                 var t = RecordTable.All[i];
-                bool has = RecordTable.IsUnlocked(p, t);
+                bool has = !RecordsExternal && RecordTable.IsUnlocked(p, t);   // 193차: 게임 안 재생 끔
                 bool playing = _playingNum == t.num;
                 float y0 = 500f + 203.3f * i;
                 var row = MMRect(root, "Row" + t.num, 147f, y0, 920f, y0 + 167f);
@@ -77,7 +87,8 @@ namespace CoastRun
                 name.fontStyle = FontStyle.Bold; name.horizontalOverflow = HorizontalWrapMode.Overflow; name.verticalOverflow = VerticalWrapMode.Overflow;
                 Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -22f), new Vector2(0f, 44f));
                 name.rectTransform.offsetMax = new Vector2(-6f, name.rectTransform.offsetMax.y);
-                string sub = has ? "♪ " + (Loc.IsKo ? t.noteKo : t.noteEn) : Loc.T("🔒 잠김 · 기부 선물 「OST 잠금해제」로 열려요", "🔒 Locked · unlock with the donor gift \"OST\"");   // 74차: 기부로만
+                string sub = RecordsExternal ? Loc.T("유튜브 뮤직에서 들을 수 있어요 · 아래 「전체곡 듣기」", "Listen on YouTube Music · \"Full album\" below")
+                           : has ? "♪ " + (Loc.IsKo ? t.noteKo : t.noteEn) : Loc.T("🔒 잠김 · 기부 선물 「OST 잠금해제」로 열려요", "🔒 Locked · unlock with the donor gift \"OST\"");   // 74차: 기부로만
                 var subL = CoastOrnate.Label(textRt, "S", sub, 13, has ? new Color(0.42f, 0.34f, 0.50f) : new Color(0.55f, 0.48f, 0.60f), TextAnchor.LowerLeft);
                 Place(subL.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 12f), new Vector2(0f, 22f));
                 subL.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -93,7 +104,7 @@ namespace CoastRun
                 {
                     var cover = CoastUiArt.CutePill(btn, "Cover", playing ? new Color(1f, 0.55f, 0.32f) : new Color(0.62f, 0.60f, 0.68f), 14, 3); cover.raycastTarget = false;
                     Place(cover.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, btn.sizeDelta - new Vector2(6f, 10f));
-                    var cl = CoastOrnate.Label(cover.transform, "T", playing ? "■  STOP" : Loc.T("잠김", "Locked"), 15, playing ? new Color(0.4f, 0.15f, 0.05f) : new Color(1f, 1f, 1f, 0.9f)); cl.fontStyle = FontStyle.Bold;
+                    var cl = CoastOrnate.Label(cover.transform, "T", playing ? "■  STOP" : RecordsExternal ? "YouTube" : Loc.T("잠김", "Locked"), 15, playing ? new Color(0.4f, 0.15f, 0.05f) : new Color(1f, 1f, 1f, 0.9f)); cl.fontStyle = FontStyle.Bold;
                 }
                 if (!has)
                 {
@@ -105,12 +116,15 @@ namespace CoastRun
                 b.onClick.AddListener(() =>
                 {
                     CoastPrefs.Vibrate();
+                    if (RecordsExternal) { OpenYtMusic(); return; }
                     if (!h) { Toast(Loc.T("잠김 — 기부부탁(☕)에서 선물 「OST 잠금해제」를 고르면 전곡이 열려요", "Locked — pick the \"Unlock the OST\" gift when donating")); return; }
                     StopPlayAll(); ToggleRecord(tr); ShowMockRecords();
                 });
             }
 
             // 75차(사용자): 레코드 맨 끝 「▶ 뮤직비디오 Our frequency」(M1 OST 30초, CinematicPlayer "MV"). 히든 트랙 띠가 열려 있으면 그 위로.
+            // 195차(사용자: 「뮤직비디오 버튼 꺼줘」): 버튼을 만들지 않는다.
+            if (false)
             {
                 var mvRt = MMRect(root, "MV", 147f, 1893f, 920f, 1943f);
                 var mvPill = CoastUiArt.GlossyPill(mvRt, "Pill", new Color(0.93f, 0.40f, 0.70f), 14, 4); mvPill.raycastTarget = true;
@@ -125,7 +139,7 @@ namespace CoastRun
                 });
             }
             // 52차: 기부 선물 ① 히든 트랙 — 얇은 금색 띠(75차: MV 띠 위 1840~1888). 탭하면 M9/M10 번갈아 재생.
-            if (RecordTable.HiddenOpen)
+            if (RecordTable.HiddenOpen && !RecordsExternal)   // 193차: 히든 트랙 재생도 끔
             {
                 var hRt = MMRect(root, "Hidden", 147f, 1840f, 920f, 1888f);
                 var hPill = CoastUiArt.GlossyPill(hRt, "Pill", new Color(1f, 0.84f, 0.35f), 14, 4); hPill.raycastTarget = true;
@@ -146,6 +160,20 @@ namespace CoastRun
             }
 
             // K-POP 전체재생 (시안 105~950 × 1948~2130)
+            if (RecordsExternal)
+            {
+                // 193차: 「K-POP 전체재생」 자리 → 「전체곡 듣기 · YouTube Music」(공식 앨범 재생목록을 연다)
+                var yRt = MMRect(root, "PlayAll", 105f, 1948f, 950f, 2130f);
+                var yPill = CoastUiArt.GlossyPill(yRt, "Cover", new Color(0.93f, 0.22f, 0.22f), 26, 10); yPill.raycastTarget = true;
+                Place(yPill.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, yRt.sizeDelta - new Vector2(10f, 10f));
+                var yl = CoastOrnate.Label(yPill.transform, "T", Loc.T("▶  전체곡 듣기", "▶  Full album"), 26, Color.white); yl.fontStyle = FontStyle.Bold;
+                Place(yl.rectTransform, new Vector2(0f, 0.35f), new Vector2(1f, 1f), Vector2.zero, Vector2.zero);
+                var ys = CoastOrnate.Label(yPill.transform, "S", Loc.T("YouTube Music 에서 「Our frequency」 앨범 열기", "Open \"Our frequency\" on YouTube Music"), 13, new Color(1f, 0.92f, 0.92f));
+                Place(ys.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0.4f), Vector2.zero, Vector2.zero);
+                var yb = yPill.gameObject.AddComponent<Button>(); yb.transition = Selectable.Transition.None;
+                yb.onClick.AddListener(() => { CoastPrefs.Vibrate(); OpenYtMusic(); });
+                return;
+            }
             bool all = _playAllOn;
             var allRt = MMRect(root, "PlayAll", 105f, 1948f, 950f, 2130f);
             if (all)

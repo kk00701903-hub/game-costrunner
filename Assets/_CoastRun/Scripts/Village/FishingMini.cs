@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace CoastRun.Village
     /// 잡은 물고기는 재료 「생선」(LifeItems ing_fish)과 코인이 된다. 한 페이즈에 5번.
     public class FishingMini : MonoBehaviour
     {
+        public static int RodTier;
+        public static bool DevAuto;   // 198차 테스트용: 입질·릴 자동   // 198차: 낚싯대 등급 — 귀한 물고기 확률↑
         public const int CastsPerPhase = 5;
         struct Fish { public string ko, en; public int coins; public float weight, hard; public Color col; }
         static readonly Fish[] Table = {
@@ -112,6 +115,7 @@ namespace CoastRun.Village
             else { _msg.text = Loc.T("찌를 던지고 「!」가 뜨면 바로 당겨!", "Cast, then pull the moment you see 「!」"); _btnT.text = Loc.T("🎣 던지기", "🎣 Cast"); }
         }
 
+        public void DevCast() { OnBtn(); }
         void OnBtn()
         {
             CoastPrefs.Vibrate();
@@ -135,7 +139,7 @@ namespace CoastRun.Village
             // 입질
             _state = 2; _msg.text = "<size=60>!</size>"; _btnT.text = Loc.T("당겨!!", "PULL!!"); CoastPrefs.VibrateEvent();
             float win = 0.9f; t = 0f;
-            while (t < win && _state == 2) { t += Time.deltaTime; _bobber.anchoredPosition = to + new Vector2(0f, -22f + Mathf.Sin(t * 30f) * 6f); yield return null; }
+            while (t < win && _state == 2) { t += Time.deltaTime; if (DevAuto && t > 0.2f) _state = 3; _bobber.anchoredPosition = to + new Vector2(0f, -22f + Mathf.Sin(t * 30f) * 6f); yield return null; }
             if (_state != 3) { Result(false, Loc.T("놓쳤다… 「!」가 뜨면 바로 당겨야 해.", "Missed… pull right when 「!」 shows.")); yield break; }
             // 릴 감기
             _cur = Pick(); _bar.gameObject.SetActive(true); _progHost.gameObject.SetActive(true);
@@ -146,7 +150,7 @@ namespace CoastRun.Village
             float limit = 12f; t = 0f;
             while (t < limit)
             {
-                float dt = Time.deltaTime; t += dt; _fishT += dt;
+                float dt = Time.deltaTime; t += dt; _fishT += dt; if (DevAuto) _holding = _fishY > _zoneY + zoneH * 0.5f;
                 // 물고기: 느린 사인 + 가끔 튐
                 float target = 60f + (Mathf.PerlinNoise(_fishT * 0.45f * _cur.hard, 3.7f) * (barH - 140f));
                 if (UnityEngine.Random.value < 0.012f * _cur.hard) target = UnityEngine.Random.Range(40f, barH - 80f);
@@ -169,9 +173,10 @@ namespace CoastRun.Village
 
         Fish Pick()
         {
-            float sum = 0f; foreach (var f in Table) sum += f.weight;
+            float W(Fish f) => f.coins >= 160 ? f.weight * (1f + 0.35f * RodTier) : f.weight;   // 198차: 낚싯대 등급
+            float sum = 0f; foreach (var f in Table) sum += W(f);
             float r = UnityEngine.Random.value * sum;
-            foreach (var f in Table) { r -= f.weight; if (r <= 0f) return f; }
+            foreach (var f in Table) { r -= W(f); if (r <= 0f) return f; }
             return Table[0];
         }
 
@@ -181,18 +186,21 @@ namespace CoastRun.Village
             if (ok)
             {
                 bool boot = _cur.ko == "낡은 장화";
-                int coins = _cur.coins; Save.stats.money += coins;
-                int fish = boot ? 0 : (_cur.coins >= 160 ? 2 : 1);
-                if (fish > 0) LifeItems.Add(Save, "ing_fish", fish);
+                // 198차(사용자: 「낚시할 때 물고기도 팔 수 있게」): 즉시 코인 대신 그 물고기가 가방에(상점에서 판다) + 요리용 생선 1
+                int coins = boot ? 4 : 0; Save.stats.money += coins;
+                int fidx = 0; for (int fi = 0; fi < Table.Length; fi++) if (Table[fi].ko == _cur.ko) { VillageDex.See(Save, "fish_" + fi); fidx = fi; break; }   // 195차: 도감
+                int fish = boot ? 0 : 1;
+                if (!boot) { LifeItems.Add(Save, "fish_" + fidx, 1); LifeItems.Add(Save, "ing_fish", 1); }
                 Save.stats.stress = Mathf.Max(0, Save.stats.stress - 2);
                 _gm.Persist();
                 string nm = Loc.T(_cur.ko, _cur.en);
                 _msg.text = boot ? Loc.T($"…{nm}?! 그래도 {coins}G", $"…{nm}?! Still {coins}G")
-                    : Loc.T($"🎉 {nm} 낚았다!  +{coins}G · 생선 +{fish} · 기운 +2", $"🎉 Caught {nm}!  +{coins}G · Fish +{fish} · Energy +2");
+                    : Loc.T($"{nm} 낚았다! 가방에 {nm} +1 · 생선 +{fish} (상점에서 팔 수 있다)", $"Caught {nm}! {nm} +1 · Fish +{fish} (sell at the shop)");
                 CoastAudioManager.PlayAnywhere(CoastSfx.Coin); CoastPrefs.VibrateEvent();
                 VillageHub.RefreshStatus();
             }
             else _msg.text = failMsg;
+            if (DevAuto) Debug.LogWarning($"[Fish] ok={ok} msg={_msg.text} bag fish_0..4=" + string.Join(",", new[]{0,1,2,3,4}.Select(i => LifeItems.Count(Save, "fish_" + i))) + " ing_fish=" + LifeItems.Count(Save, "ing_fish"));
             _btnT.text = CastsLeft > 0 ? Loc.T("다시 던지기", "Cast again") : Loc.T("돌아가기", "Back");
         }
 

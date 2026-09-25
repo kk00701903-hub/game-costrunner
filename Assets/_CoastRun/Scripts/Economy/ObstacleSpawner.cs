@@ -82,6 +82,7 @@ namespace CoastRun
         /// player replaying the same 200 m expects.
         /// 아케이드(오늘의 런): 날짜 시드로 코스 고정.
         public static int? SeedOverride;
+        public Transform Root => _root;
 
         public void ResetForStage(int stageIndex, float startZ)
         {
@@ -148,6 +149,8 @@ namespace CoastRun
             }
 #endif
 
+            // 194차: 튜토리얼 중엔 대본이 장애물을 놓는다.
+            if (KpopTutorial.Active) { _nextSpawnZ = Mathf.Max(_nextSpawnZ, z + 25f); return; }
             if (_suppressed)
             {
                 // Keep the cursor just ahead so rows resume right after Bonus Time.

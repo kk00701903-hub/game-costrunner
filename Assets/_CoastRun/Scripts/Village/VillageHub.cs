@@ -8,7 +8,7 @@ namespace CoastRun.Village
 {
     /// 136차(사용자): 스토리 모드 허브 = 포켓캠프풍 바닷가 마을. 조이스틱 이동·충돌·나무 흔들기·낚시·상점/가방·텃밭·가구(마당) 배치.
     /// 송전탑 언덕 → 기존 주차 스케줄(TamaRaisingUI), 엄마 집 → 펫 돌보기·잠자기, 구멍가게 → ShopUI, 텃밭 → HomeUI 텃밭 탭, 해변 → FishingMini.
-    public class VillageHub : MonoBehaviour
+    public partial class VillageHub : MonoBehaviour
     {
         public static bool Enabled = true;
         public static VillageHub I { get; private set; }
@@ -19,7 +19,7 @@ namespace CoastRun.Village
         Transform _world, _player, _rigT, _yardHost; CharacterController _cc; SkaterRig _rig; Animator _anim; Camera _cam; CharacterMotion _motion; Vector3 _vel, _acc;
         VillageHud _hud; readonly List<Spot> _spots = new List<Spot>(); Spot _near; Transform _nearTree; int _nearTreeIdx = -1;
         bool _moving; float _idleT; Vector3 _camVel; bool _busy; bool _yard; string _yardPick; float _yardRot; Transform _ghost; Canvas _yardCanvas; RectTransform _yardTray; Text _yardHint;
-        VillageCreatures _creatures; VillageMap _map; bool _bat, _axe, _pick, _rod; /* 150차: 도끼(장작) · 154차: 곡괭이(돌) · 168차: 낚싯대 */ Transform _nearRock; int _nearRockIdx = -1; float _doorCooldown; Transform _toolVis;
+        VillageCreatures _creatures; VillageMap _map; bool _bat, _axe, _pick, _rod, _road; /* 150차: 도끼(장작) · 154차: 곡괭이(돌) · 168차: 낚싯대 */ Transform _nearRock; int _nearRockIdx = -1; float _doorCooldown; Transform _toolVis;
 
         SaveData Save => _gm != null ? _gm.Save : null;
         public SaveData SaveRef => Save;   // 171차: VillageRequest 용
@@ -57,11 +57,11 @@ namespace CoastRun.Village
             if (_hud.CamPad != null)
             {
                 _hud.CamPad.OnOrbit = dx => { if (_busy || _hud.Locked) return; _camYawTarget += dx * 0.32f; _camYaw += dx * 0.32f; _backT = 0f; _camYawVel = 0f; };
-                _hud.CamPad.OnTap = OnAct;
+                _hud.CamPad.OnTap = OnPadTap; if (_hud.JoyStick != null) _hud.JoyStick.OnTapAt = p => TryTalkAt(p);   // 187차: 마을 사람을 탭하면 대화, 아니면 행동
             }
             _drops = VillageDrops.Create(transform, _player, () => _busy || _hud.Locked || _interior != null, OnAbsorb);   // 159차
             _creatures = VillageCreatures.Create(transform, _player);
-            _creatures.Locked = () => _busy || _hud.Locked;
+            _creatures.Locked = () => _busy || _hud.Locked || StoryCalm;   // 196차: 튜토리얼 동안 벌레·산적 멈춤
             _creatures.OnSpiritHit = SpiritHit;
             _creatures.OnGhostHit = GhostHit;   // 155차
             _creatures.OnBanditHit = BanditHit;   // 171차
@@ -74,8 +74,8 @@ namespace CoastRun.Village
                 string nm = PetCompanion.Names != null && (int)k < PetCompanion.Names.Length ? PetCompanion.Names[(int)k] : k.ToString();
                 if (PetShop.Owns(Save, k))
                 {
-                    Save.starShards += 3; Save.stats.money += 30; _gm.Persist(); RefreshStatus();
-                    CoastToast.Show(Loc.T($"✨ 몬스터를 잡았다! 이미 있는 {nm} — 별조각 +3 · 30G", $"✨ Caught a monster! Already own {k} — shards +3 · 30G"));
+                    Save.starShards += 3; Save.stats.money += 150; _gm.Persist(); RefreshStatus();
+                    CoastToast.Show(Loc.T($"✨ 몬스터를 잡았다! 이미 있는 {nm} — 별조각 +3 · 150G", $"✨ Caught a monster! Already own {k} — shards +3 · 150G"));
                     return;
                 }
                 Save.ownedPetMask |= 1 << (int)k;
@@ -83,7 +83,7 @@ namespace CoastRun.Village
                 _gm.Persist(); RefreshStatus();
                 CoastToast.Show(Loc.T($"🎉 몬스터를 잡았다! 펫 「{nm}」 을 얻었다 — 펫 상점에서 장착", $"🎉 Caught a monster! Got the pet 「{k}」 — equip it at the pet shop"));
             };
-            _creatures.OnBanditGroupCleared = () => { if (Save == null) return; Save.stats.money += 40; _gm.Persist(); RefreshStatus(); CoastToast.Show(Loc.T("🎉 산적 무리를 다 물리쳤다! 보너스 +40G", "🎉 Bandit gang cleared! Bonus +40G")); };
+            _creatures.OnBanditGroupCleared = () => { if (Save == null) return; Save.stats.money += 120; _gm.Persist(); RefreshStatus(); CoastToast.Show(Loc.T("🎉 산적 무리를 다 물리쳤다! 보너스 +120G", "🎉 Bandit gang cleared! Bonus +120G")); };
             _dayNight = VillageDayNight.Create(_world, Save); _dayNight.OnMinute = () => RefreshStatus();
             _creatures.OnCaught = (kind, shards, coins) =>
             {
@@ -97,17 +97,20 @@ namespace CoastRun.Village
                 }
                 else if (kind == "bandit") MissionTick(VillageMission.Kind.Bandit);
                 else if (kind == "crab" || kind == "hermit") { LifeItems.Add(Save, "bug_" + kind, 1); Save.bugsCaught++; MissionTick(VillageMission.Kind.Crab); }
+                else if (kind == "kill") { }   // 198차: 방망이로 처치(가방 X)
                 else if (kind != "spirit") { LifeItems.Add(Save, "bug_" + kind, 1); Save.bugsCaught++; MissionTick(VillageMission.Kind.Bug); }
                 _gm.Persist(); RefreshStatus(); CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
             };   // 150차: 벌레는 가방(채집)에도
             _map = VillageMap.Create(_hud.Root, _player);
             ApplyTool();
             BuildSpots();
+            InitAutoFeatures();   // 183차: 자동이동·자동사냥·말/경찰·땅/월세·팔기
             EnsureMission();   // 160차
             _doorCooldown = Time.time + 2f;   // 156차: 문 앞에서 시작해도 바로 들어가지 않게
             RefreshStatus();
             TitleAudio.PlayRaising();
             if (_gm != null && _gm.PendingVillageEvent != null) StartCoroutine(MorningEvent());   // 156차
+            InitStory();   // 196차: 송전탑 위 기상 도입 · 이야기 장소
             CoastToast.Show(Loc.T("조이스틱으로 걸어다니고, 가까이 가면 뜨는 분홍 버튼으로 들어가자!", "Walk with the joystick — tap the pink prompt to enter a place!"));
         }
 
@@ -125,7 +128,11 @@ namespace CoastRun.Village
             if (VillageWorld.Shop != null) { var sd = VillageWorld.Shop.TransformPoint(new Vector3(0f, 0f, 2.6f)); if (Vector3.Distance(new Vector3(start.x, 0f, start.z), new Vector3(sd.x, 0f, sd.z)) < 1.3f) { var f = VillageWorld.Shop.forward; start = new Vector3(sd.x + f.x * 1.6f, 0f, sd.z + f.z * 1.6f); } }
             start.y = VillageWorld.Height(start.x, start.z);
             _player.position = start; _player.rotation = Quaternion.Euler(0f, 180f, 0f);
-            _cc = go.AddComponent<CharacterController>(); _cc.height = 1.2f; _cc.radius = 0.36f;   // 159차: 몸이 소품에 덜 파고들게 _cc.center = new Vector3(0f, 0.62f, 0f); _cc.slopeLimit = 60f; _cc.stepOffset = 0.35f;
+            _cc = go.AddComponent<CharacterController>(); _cc.height = 1.2f; _cc.radius = 0.36f;   // 159차: 몸이 소품에 덜 파고들게
+            // 181차(사용자: 「바닷가·언덕 근처에서 옆으로 밀림 / 바닷가 장애물 통과」): 아래 세 줄이 159차부터 위 줄 주석 안에 딸려 들어가 **한 번도 적용되지 않았다**.
+            // 그래서 캡슐 중심이 발(0)에 있어 몸 절반(−0.6~0 m)이 땅속에 묻혀 있었고 — 언덕·바닷가처럼 반쯤 묻힌 둥근 바위 옆에서 땅속 반구가
+            // 바위 아랫면을 타고 옆으로 미끄러지고, 땅 위로는 0.6 m 만 남아 낮은 바위는 그냥 넘어가거나 통과했다.
+            _cc.center = new Vector3(0f, 0.62f, 0f); _cc.slopeLimit = 50f; _cc.stepOffset = 0.28f;
             go.AddComponent<CcHitLog>();   // 149차 진단: 마지막으로 부딪힌 콜라이더
             var rigHost = new GameObject("Rig").transform; rigHost.SetParent(_player, false); _rigT = rigHost;
             _rig = SkaterRig.Spawn(rigHost, 1.25f, true);
@@ -169,6 +176,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             float back = Mathf.Lerp(Mathf.Lerp(-CamBack, -5.2f, _swingK), -7.2f, _camLowK);
             // 172차: 벽에 바짝 붙어 어느 각도도 못 쓰면(집 문 앞 등) 위에서 내려다본다 — 벽 텍스처가 화면을 덮는 것보다 낫다
             hgt = Mathf.Lerp(hgt, 9.5f, _camHighK); back = Mathf.Lerp(back, -4.5f, _camHighK);
+            if (_dun != null && _dun.Active && VillageDungeon.Contains(_player.position)) { hgt = 11f; back = -8.5f; }   // 199차: 갱도에선 비스듬히 내려다본다(벽 너머 하늘·벽에 가리지 않게)
             return _player.position + Quaternion.Euler(0f, yaw, 0f) * new Vector3(0f, hgt, back);
         }
         Vector3 CamLook => CamLookAt(_camYaw + _camDodge);
@@ -193,7 +201,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             // 148차(사용자): 스케줄(홈) 화면은 우리집에 들어갈 때만 — 송전탑 언덕 스팟은 경치만(스케줄 진입 찌꺼기 제거)
             _spots.Add(new Spot { id = "tower", title = Loc.T("송전탑 언덕 · 마을이 다 보인다", "Tower hill · View of the village"), pos = VillageWorld.Ground(11f, 38f), radius = 5.5f, on = () => _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("여기서 보면 마을이 다 보여. 이번 주 할 일은 집에 가서 정하자.", "You can see the whole village from here. Let's plan the week at home.")) });
             _spots.Add(new Spot { id = "hero", title = Loc.T("우리집 · 들어가기", "Our home · Enter"), pos = VillageWorld.Ground(0f, 32f), radius = 4.6f, on = HeroHouseMenu });
-            _spots.Add(new Spot { id = "mom", title = Loc.T("엄마 집 · 펫 돌보기 / 잠자기", "Mom's house · Pets / Sleep"), pos = VillageWorld.Ground(1.2f, -20f), radius = 4.2f, on = MomHouseMenu });
+            _spots.Add(new Spot { id = "mom", title = Loc.T("엄마 집 · 펫 돌보기 / 잠자기", "Mom's house · Pets / Sleep"), pos = VillageWorld.Ground(1.2f, -18.4f), radius = 4.2f, on = MomHouseMenu });
             _spots.Add(new Spot { id = "shop", title = Loc.T("마을상점 · 들어가기", "Village shop · Enter"), pos = VillageWorld.Ground(-5.5f, -29.5f), radius = 4f, on = EnterShopHouse });   // 171차: 실내로
             _spots.Add(new Spot { id = "garden", title = Loc.T("텃밭 · 밭 칸으로 들어가자", "Garden · Step onto a plot"), pos = VillageWorld.Ground(0f, -6f), radius = 6.6f, on = FarmAct });   // 150차: 스타듀식 9칸
             _spots.Add(new Spot { id = "farm", title = Loc.T("🐔 농장", "🐔 Farm"), pos = VillageLivestock.Gate, radius = 3.6f, on = LivestockAct });   // 171차: 우리집 서쪽 가축 울타리
@@ -203,11 +211,16 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             foreach (var hs in VillageWorld.Houses)
             {
                 if (hs.house == VillageWorld.HeroHouse || hs.house == VillageWorld.MomHouse) continue;
+                if (hs.house == VillageWorld.Hospital) { _spots.Add(new Spot { id = "hospital", title = Loc.T("🏥 병원 · 들어가기", "🏥 Hospital · Enter"), pos = hs.door, radius = 2.6f, on = EnterHospital }); continue; }   // 189차
+                if (hs.house == VillageEast.Bank) { _spots.Add(new Spot { id = "bank", title = Loc.T("🏦 은행 · 들어가기", "🏦 Bank · Enter"), pos = hs.door, radius = 2.6f, on = EnterBank }); continue; }   // 194차
+                if (hs.house == VillageEast.Cafe) { _spots.Add(new Spot { id = "cafe", title = Loc.T("🍊 귤빛 브런치 · 들어가기", "🍊 Tangerine Brunch · Enter"), pos = hs.door, radius = 2.6f, on = EnterCafe }); continue; }   // 194차
                 if (hs.house == VillageWorld.JobHouse) { _spots.Add(new Spot { id = "job", title = Loc.T("💼 알바나라 · 들어가기", "💼 Job Center · Enter"), pos = hs.door, radius = 2.6f, on = EnterJobHouse }); continue; }   // 156차 → 171차 실내로
                 var cap = hs; 
                 _spots.Add(new Spot { id = "house_" + cap.name, title = Loc.T(cap.name + " · 들어가기", cap.name + " · Enter"), pos = cap.door, radius = 2.4f, on = () => EnterHouse(cap.house, cap.name, cap.door) });
             }
-            _spots.Add(new Spot { id = "light", title = Loc.T("등대 · 바다 구경", "Lighthouse · Sea view"), pos = VillageWorld.Ground(-9f, -61f), radius = 4.5f, on = () => _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("등대 불빛이 89.2처럼 깜빡인다. 바다가 오늘은 조용하다.", "The lighthouse blinks like 89.2. The sea is quiet today.")) });
+            AddEastSpots();   // 194차: 버스 정류장
+            AddZoneSpots();   // 195차: 시내·관광지·광산·과수원·벌통·축사·계절 부스
+            _spots.Add(new Spot { id = "light", title = Loc.T("등대 · 바다 구경", "Lighthouse · Sea view"), pos = VillageWorld.Ground(-9.5f, -58.2f), radius = 4.5f, on = () => _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("등대 불빛이 89.2처럼 깜빡인다. 바다가 오늘은 조용하다.", "The lighthouse blinks like 89.2. The sea is quiet today.")) });
         }
 
         // ── 매 프레임 ─────────────────────────────────────────────────────
@@ -215,6 +228,13 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (_player == null || _hud == null) return;
             bool locked = _busy || _hud.Locked;
+            if (!locked && _hud.Joy.magnitude > 0.3f) CancelAuto(true);
+            if (!locked) TickAutoTalk();
+            TickRoadGhost(locked);
+            TickZones();   // 195차
+            TickDungeon();   // 199차
+            TickStory();   // 196차: 이야기 장소(빛) — 들어가면 컷씬
+            TickSea();   // 192차: 바다 10초 → 병원   // 187차: 가까이 가면 자동 대화   // 183차: 직접 조이스틱을 밀면 자동이동·자동사냥을 멈춘다
             Vector2 j = locked ? Vector2.zero : _hud.Joy;
             // 에디터/원격 테스트: 방향키·WASD
             if (!locked)
@@ -245,7 +265,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             float gy = VillageWorld.Height(_player.position.x, _player.position.z);
             if (VillageFarm.TileAt(_player.position) >= 0) gy += VillageFarm.Top;   // 150차: 밭 흙 상자 위에 선다
             move.y = gy - _player.position.y;
-            _cc.Move(move);
+            if (_cc.enabled) _cc.Move(move);   // 180차: 잠자기(침대에 눕힘)·순간이동 중엔 컨트롤러가 꺼져 있다 — 「Move called on inactive controller」 에러
             if (!locked) Unstick(dt, mag);   // 159차
             // 159차: 줍기(나뭇가지·조개·버섯)는 1.2 m 안에 오면 자동으로
             if (!locked && _picks != null && Time.frameCount % 5 == 0) { foreach (var pk in _picks) { if (pk.go == null) continue; if (Vector3.Distance(new Vector3(_player.position.x, 0f, _player.position.z), new Vector3(pk.pos.x, 0f, pk.pos.z)) < 1.2f) { TakePick(pk); break; } } }
@@ -277,6 +297,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         void LateUpdate()
         {
             if (_cam == null || _player == null) return;
+            if (_storyCam) { StoryCamTick(); return; }   // 196차: 도입 연출 카메라
             // 154차: 휘두르는 동안 오른팔을 캐릭터 기준 앞/위로 들어 올림(애니메이터 위에 덧씌움)
             if (_swingArm != 0f && _anim != null && _anim.avatar != null && _anim.avatar.isHuman)
             {
@@ -318,7 +339,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             // 카메라가 돌면서 같은 스틱 방향이 화면에서 대각선으로 흐르던 것. 뒤로 돌아설 때(>135°)만 1.0 s 뒤 초당 55°, 앞쪽(<45°)은 미세 보정(25°/s).
             float absErr = Mathf.Abs(headErr);
             if (_backT > 1.0f && absErr > 135f) _camYawTarget = Mathf.MoveTowardsAngle(_camYawTarget, pyaw, dtc * 55f);
-            else if (_backT > 0.6f && absErr < 45f) _camYawTarget = Mathf.MoveTowardsAngle(_camYawTarget, pyaw, dtc * 25f);
+            // 198차(사용자: 「움직일 때 카메라가 살짝 도는 느낌」): 앞쪽 미세 보정(25°/s)을 뺐다 — 카메라는 뒤돌아설 때만 돈다
             float lean = 0f;   // 기울기(lean)도 옆걸음에서 화면을 흔들어 뺐다
             float yawErr = Mathf.Abs(Mathf.DeltaAngle(_camYaw, _camYawTarget));
             float kWant = Mathf.Clamp01((yawErr - 40f) / 90f);
@@ -428,15 +449,24 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             RestoreHidden();
             _occHouses.Clear();   // 179차
             if (_interior != null) return;
-            var d = cam - look; float len = d.magnitude; if (len < 0.5f) return;
-            var hits = Physics.SphereCastAll(look, 0.55f, d / len, len, ~0, QueryTriggerInteraction.Ignore);
+            // 180차(사용자: 「집이 아닌 사물 근처만 가도 사라진다」): 예전엔 시선점(주인공 2.4 m 앞)에서 쏴서 주인공 앞·옆 소품이 캐스트 시작 구와
+            // 겹치기만 해도(거리 0) 숨겨졌다 → 주인공 머리에서 카메라로 쏘고, 시작부터 겹친 것(바로 옆에 닿은 것)은 가림이 아니므로 뺀다.
+            var head = _player.position + new Vector3(0f, 1.0f, 0f);
+            var d = cam - head; float len = d.magnitude; if (len < 0.5f) return;
+            var hits = Physics.SphereCastAll(head, 0.4f, d / len, len, ~0, QueryTriggerInteraction.Ignore);
             foreach (var hit in hits)
             {
                 var c = hit.collider; if (c == null) continue;
+                if (hit.distance <= 0f) continue;   // 시작부터 겹침 = 주인공 곁에 닿은 것(문 앞에 선 집 포함) — 가림이 아니다
+                // 187차(사용자: 「여전히 작은 장애물 근처에 가면 사라진다」): 주인공 바로 뒤 2.5 m 안(발치 바위·울타리)은 카메라가 24° 내려다봐서
+                // 주인공을 거의 안 가린다 → 숨기지 않는다. 더 멀어도 물체 윗면이 그 지점의 시선보다 낮으면(발만 걸침) 그대로 둔다.
+                if (hit.distance < 2.5f && !(c.bounds.size.x > 6f || c.bounds.size.z > 6f)) continue;
+                { float lineY = head.y + (d.y / len) * hit.distance; if (c.bounds.max.y < lineY - 0.15f) continue; }
                 if (c.name == "Bound" || c.name == "FenceCol" || c.name == "GardenFence") continue;
                 if (c.transform.IsChildOf(_player) || c.GetComponentInParent<VillageCreatures>() != null) continue;
                 if (c.name == "Terrain" || c.name == "Sea") continue;   // 174차: 지형·바다는 숨기면 세상이 사라진다
-                var hr = FadeRootOf(c.transform); if (hr != null) { _occHouses.Add(hr); continue; }   // 179차: 집·상점은 UpdateHouseFades 가 부드럽게 처리
+                var hr = FadeRootOf(c.transform); if (hr != null && c.transform == hr) { _occHouses.Add(hr); continue; }   // 179차: 집·상점 몸체는 UpdateHouseFades 가 부드럽게 처리
+                // 180차: 집에 딸린 소품(우체통·울타리 등, 집의 자식)에 맞았다고 집 전체를 숨기던 것 — 몸체 콜라이더(루트)만 집으로 친다
                 var bs = c.bounds.size; bool big = bs.x > 6f || bs.z > 6f;   // 174차-2: 집·상점은 사라지지 않고 반투명으로
                 foreach (var r in c.GetComponentsInChildren<Renderer>())
                 {
@@ -473,7 +503,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         }
 
         // ── 179차(사용자: 「카메라가 집안으로 들어가면 집을 다른 게임들처럼 자연스럽게 숨겨줘」) ──
-        // 집·상점마다 알파를 따로 들고 부드럽게 옮긴다: 카메라가 집 경계(+3 m) 안 → 0(사라짐), 시선을 가림 → 0.12(옅게), 그 밖 → 1(원래 재질로 복귀).
+        // 집·상점마다 알파를 따로 들고 부드럽게 옮긴다: 카메라가 집 경계(+3 m) 안이거나 집이 시선을 가림 → 0(사라짐), 그 밖 → 1(원래 재질로 복귀).
         // 사라질 땐 약 0.22초, 돌아올 땐 약 0.33초. 알파 0 근처에선 렌더러를 꺼서 투명 정렬 잔상도 없앤다.
         class HouseFade
         {
@@ -484,7 +514,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         }
         readonly List<HouseFade> _fades = new List<HouseFade>(); float _fadeScanT;
         readonly HashSet<Transform> _occHouses = new HashSet<Transform>();
-        const float HouseGhostA = 0.12f;   // 가릴 때: 벽·지붕이 여러 겹 겹치므로 옅게(0.30 은 겹쳐서 주인공이 안 보였다)
+        const float HouseGhostA = 0f;   // 180차: 가릴 때도 완전히 숨긴다 — 0.12 여도 지붕 기와·벽이 여러 겹 겹쳐 분홍 막처럼 화면을 덮었다(아침에 집 앞에서 깰 때)
 
         void ScanHouseFades()
         {
@@ -506,6 +536,9 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 }
                 if (first) return;
                 var s = b.size; b.size = new Vector3(Mathf.Min(s.x, 16f), Mathf.Min(s.y, 14f), Mathf.Min(s.z, 16f));
+                // 180차: 집 앞 돌길·우체통까지 렌더러 경계에 들어가 「집 안」 판정이 문 앞 몇 m 까지 번졌다 → 몸체 콜라이더 경계(+지붕 높이)를 쓴다
+                var body = t.GetComponent<BoxCollider>();
+                if (body != null) { var cb = body.bounds; cb.Encapsulate(new Vector3(cb.center.x, Mathf.Min(b.max.y, cb.max.y + 4f), cb.center.z)); b = cb; }
                 // 간판 글씨는 월드 캔버스 — CanvasGroup 알파로 같이 흐리게
                 var groups = new List<CanvasGroup>();
                 foreach (var cv in t.GetComponentsInChildren<Canvas>(true)) { var g = cv.GetComponent<CanvasGroup>(); if (g == null) g = cv.gameObject.AddComponent<CanvasGroup>(); groups.Add(g); }
@@ -540,6 +573,13 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 for (int i = 0; i < f.rs.Length; i++) if (f.rs[i] != null) f.rs[i].enabled = vis && f.en[i];
                 for (int i = 0; i < f.soft.Length; i++) if (f.soft[i] != null) f.soft[i].enabled = f.a > 0.55f && f.softEn[i];
                 foreach (var g in f.groups) if (g != null) g.alpha = f.a;
+            }
+            // 180차: 문 반짝이 테두리(DoorGlow)는 페이드 뒤에 붙어서 목록에 없다 — 집이 사라지면 허공에 노란 틀만 떠 있던 것
+            if (_doorGlow != null)
+            {
+                bool show = true;
+                foreach (var f in _fades) if (f.root != null && _doorGlow.transform.IsChildOf(f.root)) { show = f.a > 0.5f; break; }
+                foreach (var r in _doorGlow.GetComponentsInChildren<Renderer>()) r.enabled = show;
             }
         }
 
@@ -681,7 +721,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             string[] acc = { "#FEC4DD", "#A9DCC8", "#BFD8F5", "#F7D5A6", "#CDBDDA" }; accent = VillagePalette.Hex(acc[Mathf.Abs(name.GetHashCode()) % acc.Length]);
             var back = door + (house != null ? house.forward * 1.7f : Vector3.zero);   // 154차: 나오면 문에서 1.7 m 앞(자동 입장 문 밖)
             _heroInside = house != null && house == VillageWorld.HeroHouse;
-            if (house != VillageWorld.Shop && house != VillageWorld.JobHouse) _interiorKind = null;
+            _interiorKind = InteriorKindOf(house);   // 194차: 문으로 걸어 들어가도 병원·은행·카페 방이 꾸며지게(예전엔 스팟으로 들어갈 때만)
             StartCoroutine(EnterHouseRoutine(name, wall, accent, back, house != null ? house.eulerAngles.y : 180f));
         }
         bool _heroInside; string _interiorKind;   // 171차: "shop" / "job" 이면 실내에 점원 카운터
@@ -701,6 +741,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 _spots.Add(new Spot { id = "home_desk", title = Loc.T("📻 책상 · 내 방 꾸미기 / 조리", "📻 Desk · My room / Cook"), pos = new Vector3(ox + 2.1f * kx, fy, oz + 1.6f * kz), radius = 1.3f, on = () => OpenHome(0) });
             }
             if (_interiorKind == "shop" || _interiorKind == "job") BuildCounter(_interiorKind == "shop");
+            if (_interiorKind == "hospital") BuildHospitalRoom();   // 189차
+            if (_interiorKind == "bank") BuildBankRoom();   // 194차
+            if (_interiorKind == "cafe") BuildCafeRoom();   // 194차
+            if (_interiorKind != null && _interiorKind != "shop" && _interiorKind != "job" && _interiorKind != "hospital" && _interiorKind != "bank" && _interiorKind != "cafe") BuildZoneRoom(_interiorKind);   // 195차: 시내·관광지 가게
             yield return null; yield return FadeScreen(false, 0.3f);
             _busy = false; _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T(name + " 안이다. 아늑하네.", "Inside " + name + ". Cozy."));
         }
@@ -750,7 +794,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 StartCoroutine(ClerkFace(anim, rig.gameObject, model, npcRoot));
             }
             string who = shop ? Loc.T("상점 아줌마", "Shopkeeper") : Loc.T("알바나라 아저씨", "Job clerk");
-            _spots.Add(new Spot { id = "counter", title = shop ? Loc.T("🛍 " + who + " · 장보기", "🛍 " + who + " · Buy") : Loc.T("💼 " + who + " · 알바 고르기", "💼 " + who + " · Pick a job"), pos = new Vector3(ox, fy, oz + 0.6f), radius = 2.0f, on = shop ? (Action)OpenShop : JobMenu });
+            _spots.Add(new Spot { id = "counter", title = shop ? Loc.T("🛍 " + who + " · 장보기", "🛍 " + who + " · Buy") : Loc.T("💼 " + who + " · 알바 고르기", "💼 " + who + " · Pick a job"), pos = new Vector3(ox, fy, oz + 0.6f), radius = 2.0f, on = shop ? (Action)ShopCounterMenu : JobMenu });
             var bubble = SpeechBubble.Create(npcRoot, 1.55f); bubble.Show(who + ": " + (shop ? Loc.T("어서 와! 뭐 찾는 거 있어?", "Welcome! Looking for something?") : Loc.T("어서 와. 오늘 할 만한 알바가 있지.", "Come in. There's work today.")));
         }
         IEnumerator ClerkFace(Animator anim, GameObject rig, string model, Transform root)
@@ -781,13 +825,32 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             _busy = true; yield return FadeScreen(true, 0.25f);
             var it = _interior; _interior = null;
-            _spots.RemoveAll(s => s.id == "exit" || s.id.StartsWith("home_") || s.id == "counter"); _interiorKind = null;   // 171차: 카운터 스팟도
+            _spots.RemoveAll(s => s.id == "exit" || s.id.StartsWith("home_") || s.id == "counter" || s.id.StartsWith("hosp_") || s.id.StartsWith("in_")); _interiorKind = null;   // 171차: 카운터 스팟도
             Teleport(it.ReturnPos, it.ReturnYaw); Destroy(it.gameObject);
+            // 191차(사용자: 「병원에서 나오면 건물만 보이고 인물이 안 보인다」): 문을 등지고 서면 카메라가 뒤 = 집 지붕 위에 놓여 지붕이 주인공을 덮었다
+            // → 나올 때는 카메라를 앞(길 쪽)으로 돌려 주인공과 뒤의 집이 함께 보이게. 걷기 시작하면 평소처럼 뒤로 따라 돈다
+            _camYaw = _camYawTarget = it.ReturnYaw + 180f; _cam.transform.position = CamTarget; _cam.transform.LookAt(CamLook); _camVel = Vector3.zero; _snapCam = true;
             _doorCooldown = Time.time + 3f;   // 154차: 문 앞에 나와서 바로 다시 들어가지 않게
             yield return null; yield return FadeScreen(false, 0.3f); _busy = false;
         }
 
         public void Teleport(Vector3 p, float faceYaw = float.NaN) { _walkTo = null; _vel = Vector3.zero; _cc.enabled = false; _player.position = new Vector3(p.x, VillageWorld.Height(p.x, p.z), p.z); if (!float.IsNaN(faceYaw)) _player.rotation = Quaternion.Euler(0f, faceYaw, 0f); _cc.enabled = true; SnapCamera(); if (_creatures != null) _creatures.SnapKid(); }
+        /// 181차 진단: 지금 보는 방향으로 3초 곧장 걷게 하고, 0.25초마다 옆으로 벗어난 거리·마지막으로 부딪힌 콜라이더를 로그로 남긴다
+        public void DevLegacyCc(bool legacy) { _cc.enabled = false; _cc.center = legacy ? Vector3.zero : new Vector3(0f, 0.62f, 0f); _cc.slopeLimit = legacy ? 45f : 50f; _cc.stepOffset = legacy ? 0.3f : 0.28f; _cc.enabled = true; Debug.LogWarning("[Cc] legacy=" + legacy); }   // 181차 비교용
+        public void DevWalkTest(float yaw) { StartCoroutine(WalkTestCo(yaw)); }
+        IEnumerator WalkTestCo(float yaw)
+        {
+            var fwd = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward; var start = _player.position;
+            var hl = _player.GetComponent<CcHitLog>(); var sb = new System.Text.StringBuilder($"[WalkTest] yaw={yaw:F0} from={start}");
+            for (float t = 0f; t < 3f; t += 0.25f)
+            {
+                WalkTo(_player.position + fwd * 6f);
+                yield return new WaitForSeconds(0.25f);
+                var d = _player.position - start; float along = Vector3.Dot(d, fwd); float side = Vector3.Dot(d, Vector3.Cross(Vector3.up, fwd));
+                sb.Append($" | {along:F1}/{side:+0.00;-0.00} {(hl != null && Time.time - hl.At < 0.3f ? hl.Last : "")}");
+            }
+            _walkTo = null; Debug.LogWarning(sb.ToString());
+        }
         public string CamDiag
         {
             get
@@ -831,6 +894,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                     _doorCooldown = Time.time + 3f;
                     // 156차: 우리집은 늘 집 안(식탁·침대·책상)으로, 알바나라는 알바 고르기
                     if (hs.house == VillageWorld.JobHouse) EnterJobHouse();   // 171차: 실내 카운터
+                    else if (hs.house == VillageWorld.HeroHouse) { var h0 = hs; AskEnterHome(() => EnterHouse(h0.house, h0.name, h0.door)); }   // 185차: 우리집은 물어본다
                     else EnterHouse(hs.house, hs.name, hs.door);
                     break;
                 }
@@ -861,8 +925,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (_busy || _hud.Locked) return;
             if (_yard) { PlaceGhost(); return; }
+            if (DungeonAct()) return;   // 199차: 깊은 갱도 — 싸움·광맥
             // 157차: 반짝이는 문 앞에서 행동 버튼 = 들어가기(벌레가 코앞이면 잡기가 먼저)
             if (_nearDoorOn != null && !(_creatures != null && _creatures.AnyCritterNear(_bat))) { _doorCooldown = Time.time + 3f; var on = _nearDoorOn; on(); return; }
+            if (_road) { PlaceRoad(); return; }   // 187차: 도로 깔기
             // 168차: 낚싯대 — 바닷가 스팟이면 낚시, 아니면 헛던지기
             if (_bat && Save != null && VillageLivestock.Inside(_player.position) && VillageLivestock.GrownRabbits(Save) > 0)
             {
@@ -880,18 +946,20 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 Swing(); CoastToast.Show(Loc.T("휙— 물가에서 물을 보고 던져야 물고기가 문다.", "Whoosh — face the water at the shore.")); return;
             }
             // 154차: 곡괭이 — 바위 곁이면 캔다(돌), 아니면 헛스윙
+            if (_pick && TryMineOre()) return;   // 195차: 광산 광맥
             if (_pick) { if (_nearRock != null) { StartCoroutine(MineRock(_nearRock, _nearRockIdx)); return; } Swing(); CoastToast.Show(Loc.T("탕— 언덕의 바위 곁에서 휘둘러야 돌이 나온다.", "Clang — swing next to a hill rock.")); return; }
             // 150차: 도끼 — 나무 곁이면 팬다(장작), 아니면 헛스윙
             if (_axe) { if (_nearTree != null) { StartCoroutine(ChopTree(_nearTree, _nearTreeIdx)); return; } Swing(); CoastToast.Show(Loc.T("붕— 나무 곁에서 휘둘러야 장작이 나온다.", "Whoosh — swing next to a tree.")); return; }
             // 도구 먼저: 큰 벌레(방망이)·정령/나비(잠자리채)가 가까우면 휘두른다 (170차)
             if (_creatures != null && _creatures.AnyCritterNear(_bat))
             {
-                Swing(); var msg = _creatures.Swing(_bat); if (msg != null) CoastToast.Show(msg); return;
+                Swing(); var msg = _creatures.Swing(_bat); if (!string.IsNullOrEmpty(msg)) CoastToast.Show(msg); return;
             }
             if (_nearTree != null) { StartCoroutine(ShakeTree(_nearTree, _nearTreeIdx)); return; }
             if (_near != null && _near.id == "beach") { OpenFishing(); return; }
             Swing();
             var m2 = _creatures != null ? _creatures.Swing(_bat) : null;
+            if (m2 == "") return;   // 183차: 말이 쓰러짐 — 메시지는 HorseKilled 가
             CoastToast.Show(m2 ?? (_bat ? Loc.T("붕— 큰 벌레가 없다. 왕사슴벌레·왕말벌은 가끔 나타나 다가온다.", "Whoosh — no big bug. They show up now and then.") : Loc.T("휙— 잡을 게 없다. 나비나 정령 곁에서 휘둘러 보자.", "Swish — nothing to catch nearby.")));
         }
 
@@ -902,7 +970,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             // 171차: 부탁이 있는 마을 사람이면 부탁부터(받기·진행·보상)
             int ni = _creatures != null ? _creatures.NearestNpcIndex(3.2f) : -1;
             if (ni >= 0 && VillageRequest.OnTalk(this, ni)) { MissionTick(VillageMission.Kind.Talk); return; }
-            if (_creatures != null && _creatures.TalkNearestNpc()) { MissionTick(VillageMission.Kind.Talk); return; }   // 160차: 대화 미션
+            if (_creatures != null && _creatures.TalkNearestNpc()) { MissionTick(VillageMission.Kind.Talk); FriendTalkVillager(ni); return; }   // 195차: 호감도   // 160차: 대화 미션
+            if (_creatures != null && !_creatures.KidHidden && StoryKidTalk()) return;   // 196차: 갈 곳이 있으면 꼬마가 데려다준다
             if (_creatures != null) { _hud.Bubble(Loc.T("꼬마", "Kid"), _creatures.KidLine()); return; }
             if (_near != null) { _hud.Bubble(Loc.T("하늘", "Haneul"), _near.title); return; }
         }
@@ -910,25 +979,28 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         void OnTool()
         {
             if (_busy || _hud.Locked) return;
-            _hud.Choice(Loc.T("도구 고르기", "Choose a tool"), Loc.T("잠자리채: 나비·정령 잡기(별조각·코인) · 방망이: 다가오는 큰 벌레를 톡(별조각). 큰 벌레와 부딪히면 HP가 깎여!", "Net: catch butterflies and spirits (shards, coins) · Bat: bop big bugs (shards). Bumping a big bug costs HP!"),
+            _hud.Choice(Loc.T("도구 고르기", "Choose a tool"), Loc.T("잠자리채: 나비·정령 잡기(별조각·코인) · 방망이: 큰 벌레·산적·말(고기)을 친다, 정령은 흩어질 뿐. 큰 벌레와 부딪히면 HP가 깎여!", "Net: catch butterflies and spirits (shards, coins) · Bat: bop big bugs (shards). Bumping a big bug costs HP!"),
                 new (string, Color, Action)[] {
-                    (Loc.T("🦋 잠자리채", "🦋 Net") + (!_bat ? Loc.T(" (지금)", " (now)") : ""), new Color(0.45f, 0.78f, 0.55f), () => { _rod = false; _bat = false; _axe = false; _pick = false; ApplyTool(); }),
-                    (Loc.T("🏏 방망이", "🏏 Bat") + (_bat && !_axe ? Loc.T(" (지금)", " (now)") : ""), new Color(0.98f, 0.62f, 0.45f), () => { _rod = false; _bat = true; _axe = false; _pick = false; ApplyTool(); }),
-                    (Loc.T("🪓 도끼 — 나무 패서 장작(3번이면 쓰러짐, 8주 뒤 다시)", "🪓 Axe — chop trees (falls after 3, regrows in 8w)") + (_axe && !_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.62f, 0.52f, 0.40f), () => { _rod = false; _axe = true; _pick = false; ApplyTool(); }),
-                    (Loc.T("⛏ 곡괭이 — 언덕 바위 캐서 돌(3번이면 사라짐, 8주 뒤 다시)", "⛏ Pickaxe — mine hill rocks (gone after 3, regrows in 8w)") + (_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.55f, 0.58f, 0.66f), () => { _rod = false; _pick = true; _axe = false; _bat = false; ApplyTool(); }),
-                    (Loc.T("🎣 낚싯대 — 바닷가에서 낚시", "🎣 Rod — fish at the beach") + (_rod ? Loc.T(" (지금)", " (now)") : ""), new Color(0.40f, 0.62f, 0.85f), () => { _rod = true; _pick = false; _axe = false; _bat = false; ApplyTool(); }),
+                    (Loc.T("🦋 잠자리채", "🦋 Net") + (!_bat && !_axe && !_pick && !_rod && !_road ? Loc.T(" (지금)", " (now)") : ""), new Color(0.45f, 0.78f, 0.55f), () => { _rod = false; _bat = false; _axe = false; _pick = false; _road = false; ApplyTool(); }),
+                    (Loc.T("🏏 방망이", "🏏 Bat") + (_bat && !_axe ? Loc.T(" (지금)", " (now)") : ""), new Color(0.98f, 0.62f, 0.45f), () => { _rod = false; _bat = true; _axe = false; _pick = false; _road = false; ApplyTool(); }),
+                    (Loc.T("🪓 도끼 — 나무 패서 장작(3번이면 쓰러짐, 8주 뒤 다시)", "🪓 Axe — chop trees (falls after 3, regrows in 8w)") + (_axe && !_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.62f, 0.52f, 0.40f), () => { _rod = false; _axe = true; _pick = false; _road = false; ApplyTool(); }),
+                    (Loc.T("⛏ 곡괭이 — 언덕 바위 캐서 돌(3번이면 사라짐, 8주 뒤 다시)", "⛏ Pickaxe — mine hill rocks (gone after 3, regrows in 8w)") + (_pick ? Loc.T(" (지금)", " (now)") : ""), new Color(0.55f, 0.58f, 0.66f), () => { _rod = false; _pick = true; _axe = false; _bat = false; _road = false; ApplyTool(); }),
+                    (Loc.T("🎣 낚싯대 — 바닷가에서 낚시", "🎣 Rod — fish at the beach") + (_rod ? Loc.T(" (지금)", " (now)") : ""), new Color(0.40f, 0.62f, 0.85f), () => { _rod = true; _pick = false; _axe = false; _bat = false; _road = false; ApplyTool(); }),
+                    (Loc.T($"🛣 도로 깔기 — 한 칸 {VillageRoad.Price}G, 이어진 도로로만 자동이동", $"🛣 Lay road — {VillageRoad.Price}G a tile, auto-move follows roads") + (_road ? Loc.T(" (지금)", " (now)") : ""), new Color(0.80f, 0.66f, 0.45f), () => { _rod = false; _pick = false; _axe = false; _bat = false; _road = true; ApplyTool(); CoastToast.Show(Loc.T($"🛣 도로 깔기: 앞 칸(초록 네모)에 행동 버튼 → {VillageRoad.Price}G", $"🛣 Road: press action on the green tile → {VillageRoad.Price}G")); }),
                 });
         }
 
         /// 도구 표시: 오른손 뼈에 잠자리채(막대+고리) 또는 방망이(막대) 붙이기 + 버튼 라벨
         /// 개발용: 도구 바로 바꾸기(0 잠자리채 1 방망이 2 도끼)
         public void DevHour(float h) { if (_dayNight != null) _dayNight.Hour = h; RefreshStatus(); }
-        public void DevTool(int t) { _bat = t == 1; _axe = t == 2; _pick = t == 3; _rod = t == 4; ApplyTool(); }
+        public void DevTool(int t) { _road = t == 5; _bat = t == 1; _axe = t == 2; _pick = t == 3; _rod = t == 4; ApplyTool(); }
         void ApplyTool()
         {
-            if (_hud != null) _hud.SetTool(_rod ? Loc.T("낚싯대", "Rod") : _pick ? Loc.T("곡괭이", "Pickaxe") : _axe ? Loc.T("도끼", "Axe") : _bat ? Loc.T("방망이", "Bat") : Loc.T("잠자리채", "Net"), _rod ? 4 : _pick ? 3 : _axe ? 2 : _bat ? 1 : 0);
+            PushToolTiers();   // 198차
+            if (_hud != null) _hud.SetTool(_road ? Loc.T("도로", "Road") : ToolLabel(_rod ? 4 : _pick ? 3 : _axe ? 2 : _bat ? 1 : 0), _road ? 5 : _rod ? 4 : _pick ? 3 : _axe ? 2 : _bat ? 1 : 0);
             StartCoroutine(OutlineToolLater());
             if (_toolVis != null) Destroy(_toolVis.gameObject);
+            if (_road) { _toolVis = null; return; }   // 187차: 도로 깔기 — 손에 든 것 없음(앞 칸 미리보기로 대신)
             Transform hand = _anim != null && _anim.avatar != null && _anim.avatar.isHuman ? _anim.GetBoneTransform(HumanBodyBones.RightHand) : null;
             var root = new GameObject("ToolVis").transform; _toolVis = root;
             root.SetParent(hand != null ? hand : _rigT, false);
@@ -1055,7 +1127,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (Save == null) return;
             Save.stats.stamina = Mathf.Max(1, Save.stats.stamina - dmg);
-            int steal = Mathf.Min(100, Mathf.RoundToInt(Save.stats.money * 0.02f)); Save.stats.money = Mathf.Max(0, Save.stats.money - steal);
+            int steal = Mathf.Min(400, Mathf.RoundToInt(Save.stats.money * 0.02f));   // 186차: 상한 100→400 Save.stats.money = Mathf.Max(0, Save.stats.money - steal);
             _gm.Persist(); RefreshStatus(); CoastPrefs.VibrateEvent();
             CoastToast.Show(Loc.T($"💢 산적에게 잡혔다! HP −{dmg} · {steal}G 뺏김 — 방망이로 두 번!", $"💢 Grabbed by a bandit! HP −{dmg} · lost {steal}G — bat them twice!"));
             VillagePang.Burst(_player.position + Vector3.up * 0.9f, new Color(0.95f, 0.5f, 0.3f), new Color(1f, 0.85f, 0.4f), 1.2f);
@@ -1078,13 +1150,18 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             Save.stats.stamina = Mathf.Max(40, PlayerStats.StatMax / 3); Save.condition = Mathf.Max(Save.condition, 40);
             if (_creatures != null) _creatures.ClearGhosts();
             if (_dayNight != null) _dayNight.SetMorning();
-            var home = VillageWorld.HeroHouse != null ? VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 4.5f)) : new Vector3(0f, 0f, 30f);
-            Teleport(new Vector3(home.x, 0f, home.z), 180f);
+            // 189차(사용자: 「병원에서 눈을 뜰 때는 병원 침대 옆에서 보이게」): 병원 안 첫 침대 옆에서 깨어난다(나가면 병원 문 앞)
+            if (!WakeInHospital())
+            {
+                var home = VillageWorld.HeroHouse != null ? VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 4.5f)) : new Vector3(0f, 0f, 30f);
+                Teleport(new Vector3(home.x, 0f, home.z), 180f);
+            }
             _gm.Persist(); RefreshStatus();
             yield return new WaitForSeconds(0.6f);
             yield return FadeScreen(false, 0.6f);
             _busy = false;
-            _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T($"…병원에서 눈을 떴다. 치료비로 {lost:N0}G 를 냈다(20%). 밤엔 꼭 집으로!", $"…Woke up in the hospital. Paid {lost:N0}G (20%). Go home at night!"));
+            string tail = _hospSea ? Loc.T("바다엔 10초 넘게 있으면 안 돼!", "Don't stay in the sea over 10s!") : _hospDun ? Loc.T("갱도에선 HP 를 보며 싸우자.", "Watch your HP in the shaft.") : Loc.T("밤엔 꼭 집으로!", "Go home at night!"); _hospSea = false; _hospDun = false;   // 192차
+            _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T($"…병원에서 눈을 떴다. 치료비로 {lost:N0}G 를 냈다(20%). ", $"…Woke up in the hospital. Paid {lost:N0}G (20%). ") + tail);
         }
         /// 155차: 밤에 집에 들어가면 잔다 → 다음 날 08:00, HP +40
         IEnumerator SleepHome()
@@ -1105,6 +1182,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         void SpiritHit(int dmg)
         {
             if (Save == null) return;
+            if (StoryCalm) return;   // 196차
             Save.stats.stamina = Mathf.Max(1, Save.stats.stamina - dmg);
             _gm.Persist(); RefreshStatus(); CoastPrefs.VibrateEvent();
             CoastToast.Show(Loc.T($"💥 큰 벌레에게 물렸다! HP −{dmg} — 방망이로 먼저 톡!", $"💥 Bitten by a big bug! HP −{dmg} — bop it with the bat first!"));
@@ -1114,7 +1192,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         IEnumerator HitFlash()
         {
             var rs = _rigT != null ? _rigT.GetComponentsInChildren<Renderer>() : new Renderer[0];
-            for (int i = 0; i < 3; i++) { foreach (var r in rs) r.enabled = false; yield return new WaitForSeconds(0.08f); foreach (var r in rs) r.enabled = true; yield return new WaitForSeconds(0.08f); }
+            // 183차: 깜빡이는 동안 도구가 바뀌면(자동사냥) 옛 도구 렌더러가 파괴돼 있다 — null 건너뛰기
+            for (int i = 0; i < 3; i++) { foreach (var r in rs) if (r != null) r.enabled = false; yield return new WaitForSeconds(0.08f); foreach (var r in rs) if (r != null) r.enabled = true; yield return new WaitForSeconds(0.08f); }
         }
 
         void OnBag()
@@ -1132,7 +1211,12 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                     (Loc.T($"🎮 놀기 · 연습 (오늘 활동 {ActCount}/{ActsPerDay})", $"🎮 Play · Practice ({ActCount}/{ActsPerDay})"), new Color(0.45f, 0.78f, 0.55f), PlayMenu),
                     (Loc.T("🏠 우리집으로 순간이동", "🏠 Warp home"), new Color(0.35f, 0.62f, 0.95f), () => StartCoroutine(WarpHome())),
                     (Loc.T("🛍 마을상점", "🛍 Village shop"), new Color(0.98f, 0.62f, 0.72f), OpenShop),
+                    (Loc.T("🧭 자동 이동 — 장소를 고르면 알아서 걸어간다", "🧭 Auto-move — pick a place"), new Color(0.40f, 0.70f, 0.95f), AutoMoveMenu),
+                    (_autoHunt ? Loc.T("⚔ 자동사냥 끄기", "⚔ Auto-hunt off") : Loc.T("⚔ 자동사냥 켜기 — 가까운 벌레·정령·산적을 알아서", "⚔ Auto-hunt on"), new Color(0.92f, 0.45f, 0.45f), ToggleAutoHunt),
+                    (Loc.T("💰 물건 팔기 (가방 → 코인)", "💰 Sell items"), new Color(0.98f, 0.80f, 0.30f), SellMenu),
+                    (Loc.T($"🏡 땅 · 월세 (보유 {VillageLand.OwnedCount(Save)}곳 · 한 달 {VillageLand.MonthlyRent(Save)}G)", $"🏡 Land · rent ({VillageLand.OwnedCount(Save)} lots · {VillageLand.MonthlyRent(Save)}G/mo)"), new Color(0.45f, 0.75f, 0.50f), LandMenu),
                     (Loc.T("🎒 가방", "🎒 Bag"), new Color(0.98f, 0.78f, 0.35f), OnBag),
+                    (Loc.T($"📖 도감 — 물고기·벌레·광물·화석·주민 호감도", "📖 Encyclopedia · friendships"), new Color(0.62f, 0.55f, 0.92f), () => OpenDex(0)),   // 195차
                     (Loc.T("🏠 타이틀로", "🏠 To title"), new Color(0.55f, 0.55f, 0.62f), () => { _gm.Persist(); _gm.ToTitle(); }),
                 });
         }
@@ -1341,7 +1425,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             }
             if (Save != null)
             {
-                int n = UnityEngine.Random.Range(2, 4);
+                int n = UnityEngine.Random.Range(2, 4) + Tier(2);   // 198차: 도끼 등급
                 _drops.Spawn(tree.position + Vector3.up * 1.5f, "mat_wood", n, new Color(0.60f, 0.42f, 0.26f));   // 159차: 조각이 떨어지고 가까이 가면 흡수
                 Save.stats.stamina = Mathf.Min(PlayerStats.StatMax, Save.stats.stamina + 1);
                 // 154차: 3번 패면 쓰러진다(장작 +4 더) → 그루터기, 8주 뒤 다시 자람
@@ -1381,7 +1465,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             }
             if (Save != null)
             {
-                int n = UnityEngine.Random.Range(1, 3);
+                int n = UnityEngine.Random.Range(1, 3) + Tier(3);   // 198차: 곡괭이 등급
                 bool gem = UnityEngine.Random.value < 0.2f; if (gem) { Save.starShards += 1; Save.starShardsTotal += 1; }
                 _drops.Spawn(rock.position + Vector3.up * 1.0f, "mat_stone", n, new Color(0.72f, 0.72f, 0.70f));   // 159차
                 int hits = idx >= 0 && idx < Save.villageRockHits.Length ? ++Save.villageRockHits[idx] : 0;
@@ -1502,18 +1586,18 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         // ── 마당 가구 배치 ───────────────────────────────────────────────
         public struct YardDef { public string id, ko, en, model; public int price; }
         public static readonly YardDef[] Yard = {
-            new YardDef { id = "bench", ko = "벤치", en = "Bench", model = "Prop_Bench", price = 300 },
-            new YardDef { id = "planter", ko = "나무 화분", en = "Planter", model = "Kerb_PlanterWood", price = 150 },
-            new YardDef { id = "basalt", ko = "현무암 화단", en = "Basalt bed", model = "Kerb_PlanterBasalt", price = 220 },
-            new YardDef { id = "onggi", ko = "항아리", en = "Onggi jar", model = "Kerb_Onggi", price = 200 },
-            new YardDef { id = "buoy", ko = "부표 더미", en = "Buoys", model = "Kerb_Buoys", price = 120 },
-            new YardDef { id = "crate", ko = "상자 더미", en = "Crates", model = "Kerb_CrateStack", price = 100 },
-            new YardDef { id = "hareubang", ko = "돌하르방", en = "Hareubang", model = "Prop_Hareubang", price = 500 },
-            new YardDef { id = "cafe", ko = "카페 세트", en = "Cafe set", model = "Prop_CafeSet", price = 800 },
-            new YardDef { id = "stall", ko = "귤 매대", en = "Orange stall", model = "Prop_OrangeStall", price = 600 },
-            new YardDef { id = "palm", ko = "야자수", en = "Palm", model = "Prop_Palm", price = 400 },
-            new YardDef { id = "orange", ko = "귤나무", en = "Orange tree", model = "Prop_OrangeTree", price = 450 },
-            new YardDef { id = "pavilion", ko = "정자", en = "Pavilion", model = "Prop_Pavilion", price = 1500 },
+            new YardDef { id = "bench", ko = "벤치", en = "Bench", model = "Prop_Bench", price = 1500 },
+            new YardDef { id = "planter", ko = "나무 화분", en = "Planter", model = "Kerb_PlanterWood", price = 750 },
+            new YardDef { id = "basalt", ko = "현무암 화단", en = "Basalt bed", model = "Kerb_PlanterBasalt", price = 1100 },
+            new YardDef { id = "onggi", ko = "항아리", en = "Onggi jar", model = "Kerb_Onggi", price = 1000 },
+            new YardDef { id = "buoy", ko = "부표 더미", en = "Buoys", model = "Kerb_Buoys", price = 600 },
+            new YardDef { id = "crate", ko = "상자 더미", en = "Crates", model = "Kerb_CrateStack", price = 500 },
+            new YardDef { id = "hareubang", ko = "돌하르방", en = "Hareubang", model = "Prop_Hareubang", price = 2500 },
+            new YardDef { id = "cafe", ko = "카페 세트", en = "Cafe set", model = "Prop_CafeSet", price = 4000 },
+            new YardDef { id = "stall", ko = "귤 매대", en = "Orange stall", model = "Prop_OrangeStall", price = 3000 },
+            new YardDef { id = "palm", ko = "야자수", en = "Palm", model = "Prop_Palm", price = 2000 },
+            new YardDef { id = "orange", ko = "귤나무", en = "Orange tree", model = "Prop_OrangeTree", price = 2250 },
+            new YardDef { id = "pavilion", ko = "정자", en = "Pavilion", model = "Prop_Pavilion", price = 7500 },
         };
         static YardDef? FindYard(string id) { foreach (var y in Yard) if (y.id == id) return y; return null; }
         static bool InYard(Vector3 p) => Mathf.Abs(p.x) < 9.5f && p.z > 25f && p.z < 33.2f;
@@ -1662,7 +1746,12 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             {
                 var col = _ovl[i]; if (col == null || col == c || col.transform.IsChildOf(_player)) continue;
                 if (Physics.ComputePenetration(c, p, _player.rotation, col, col.transform.position, col.transform.rotation, out var dir, out var dist))
-                { dir.y = 0f; if (dir.sqrMagnitude > 1e-4f) { push += dir.normalized * Mathf.Min(dist + 0.02f, 0.45f); any = true; } }
+                {
+                    // 181차: 예전엔 수평 성분만 남겨 **정규화**해서, 거의 수직으로 겹친(발밑 바위) 경우에도 옆으로 최대 0.45 m 씩 밀었다 → 옆으로 밀림.
+                    // 수평 성분 크기 그대로만 민다(수직 겹침은 밀지 않는다).
+                    var h = new Vector3(dir.x, 0f, dir.z) * (dist + 0.02f);
+                    if (h.sqrMagnitude > 1e-4f) { push += Vector3.ClampMagnitude(h, 0.25f); any = true; }
+                }
             }
             if (any) { c.enabled = false; _player.position = p + push; c.enabled = true; }
             if (mag > 0.3f && any)
@@ -1741,6 +1830,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                     if (d >= bestD) continue;
                     var cap = hs; bestD = d; best = hs.house;
                     if (hs.house == VillageWorld.JobHouse) { on = EnterJobHouse; label = Loc.T("알바나라 들어가기", "Enter Job Center"); }
+                    else if (hs.house == VillageWorld.HeroHouse) { on = () => AskEnterHome(() => EnterHouse(cap.house, cap.name, cap.door)); label = Loc.T(cap.name + " 들어가기", "Enter " + cap.name); }   // 185차
                     else { on = () => EnterHouse(cap.house, cap.name, cap.door); label = Loc.T(cap.name + " 들어가기", "Enter " + cap.name); }
                 }
                 if (VillageWorld.Shop != null)
@@ -1909,6 +1999,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         /// 알바나라(옆 건물): 이번 계절에 할 수 있는 알바를 골라 바로 한다(한 페이지 5개).
         void JobMenu()
         {
+            VillageDex.Talk(Save, VillageDex.NpcIndex("job"), 1);   // 195차
             if (_busy || Save == null) return;
             if (_dayNight != null && !_dayNight.ShopOpen) { _hud.Bubble(Loc.T("알바나라", "Job Center"), Loc.T("문이 닫혔다. 접수는 오전 8시 ~ 오후 7시.", "Closed. Open 8 AM – 7 PM.")); return; }
             if (ActDone(ActJob)) { _hud.Bubble(Hero, Loc.T("오늘 알바는 벌써 했어. 내일 또 오자.", "Already worked today. Come back tomorrow.")); return; }
@@ -2033,6 +2124,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         void SleepBed()
         {
             if (_busy || Save == null) return;
+            if (StorySleepGate()) return;   // 196차: 안 본 이야기(장소)가 있으면 꼬마가 붙잡는다
             bool allDone = Save.phaseIndex >= Timeline.PhasesPerWeek || Save.boundaryPending || ActCount >= ActsPerDay;
             bool late = _dayNight != null && (_dayNight.IsNight || _dayNight.IsDusk);
             if (!allDone && !late)
@@ -2121,10 +2213,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_wfx == null)
             {
                 var go = new GameObject("VillageWeather"); go.transform.SetParent(transform, false);
-                _wfx = go.AddComponent<WeatherFx>(); _wfx.Bind(_cam.transform);
+                _wfx = go.AddComponent<WeatherFx>(); _wfx.Bind(_cam.transform); _wfx.Density = 0.5f;   // 182차: 마을은 벚꽃·비·눈을 절반만
                 _weather = PickWeather(season); _weatherT = 80f;
             }
-            if (_interior != null) { if (_wfxOn) { _wfx.SetState(WeatherKind.Clear, season); _wfxOn = false; } return; }   // 집 안엔 안 내린다
+            if (_interior != null || VillageZones.At(_player.position) == VillageZones.Zone.Mine) { if (_wfxOn) { _wfx.Indoor(); _wfxOn = false; } return; }   // 199차: 광산·갱도(땅속)도   // 집 안엔 안 내린다 — 198차: 봄 벚꽃까지 모두 끄고 지운다(예전엔 벚꽃이 계속 날렸다)
             if (!_wfxOn) { _wfx.SetState(_weather, season); _wfxOn = true; RefreshStatus(); }
             _weatherT -= dt;
             if (_weatherT <= 0f)
@@ -2162,7 +2254,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             string acts = Loc.T((ActDone(ActEat) ? "밥" : "·") + (ActDone(ActPlay) ? "놀" : "·") + (ActDone(ActJob) ? "알" : "·") + (ActDone(ActMission) ? "미" : "·"), (ActDone(ActEat) ? "E" : "·") + (ActDone(ActPlay) ? "P" : "·") + (ActDone(ActJob) ? "J" : "·") + (ActDone(ActMission) ? "M" : "·"));   // 이모지는 HUD 폰트에 없음
             string vil = Loc.T($"{Save.week}주차 {Timeline.SeasonName(season)}  ·  Lv.{Save.level}  ·  활동 {ActCount}/{ActsPerDay} {acts}", $"Week {Save.week} {Timeline.SeasonName(season)}  ·  Lv.{Save.level}  ·  {ActCount}/{ActsPerDay} {acts}");
             _hud.SetStatus(Save.stats.stamina, PlayerStats.StatMax, Save.stats.money, clock, vil);
-            _hud.SetMission(_interior == null ? MissionLine() : null);   // 160차
+            _hud.SetMission(_interior == null ? (StoryLine() ?? MissionLine()) : null);   // 160차 · 196차: 이야기 줄이 먼저
         }
     }
 

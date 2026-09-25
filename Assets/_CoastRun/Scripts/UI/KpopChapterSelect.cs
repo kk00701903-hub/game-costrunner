@@ -199,6 +199,15 @@ namespace CoastRun
             var pb = play.gameObject.AddComponent<Button>(); pb.transition = Selectable.Transition.None;
             pb.onClick.AddListener(() => { int c = _picked; var cb = _onPlay; Close(); cb?.Invoke(c); });
 
+            // 194차(사용자): 튜토리얼 다시보기 — 1챕터 코스에서 아이템·장애물을 천천히 하나씩 설명.
+            var tut = CoastUiArt.GlossyPill(root, "Tutorial", new Color(0.30f, 0.70f, 0.95f), 20, 8);
+            var tutRt = tut.rectTransform; tutRt.anchorMin = tutRt.anchorMax = new Vector2(0.5f, 0f); tutRt.pivot = new Vector2(0.5f, 0.5f);
+            tutRt.anchoredPosition = new Vector2(0f, 192f); tutRt.sizeDelta = new Vector2(250f, 44f); tut.raycastTarget = true;
+            var tl = CoastHudLayout.MakeText(tutRt, "T", Loc.T("▶ 튜토리얼 다시보기", "▶ Replay tutorial"), 17, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 4f), new Vector2(0f, 2f));
+            tl.color = Color.white; tl.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(tl, new Color(0.05f, 0.25f, 0.45f, 0.6f), 1.3f);
+            var tb = tut.gameObject.AddComponent<Button>(); tb.transition = Selectable.Transition.None;
+            tb.onClick.AddListener(() => { KpopTutorial.Pending = true; var cb = _onPlay; Close(); cb?.Invoke(1); });
+
             var foot = CoastHudLayout.MakeText(root, "Foot", "K-POP 러닝  ·  JEJU", 11, TextAnchor.MiddleCenter,
                 new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 34f), new Vector2(0f, 62f));
             foot.color = Navy; foot.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(foot, new Color(1f, 1f, 1f, 0.8f), 1.2f);

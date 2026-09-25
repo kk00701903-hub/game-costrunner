@@ -32,6 +32,22 @@ namespace CoastRun
             }
         }
 
+        /// 198차: 굵은 윤곽(병원처럼 흰 방) — 별도 재질 캐시
+        private static readonly System.Collections.Generic.Dictionary<int, Material> _thick = new System.Collections.Generic.Dictionary<int, Material>();
+        public static void AttachThick(Transform root, float widthMeters)
+        {
+            if (root == null) return;
+            int key = Mathf.RoundToInt(widthMeters * 1000f); if (!_thick.TryGetValue(key, out var mat) || mat == null) { mat = Make(widthMeters); _thick[key] = mat; }
+            foreach (var mf in root.GetComponentsInChildren<MeshFilter>())
+            {
+                if (mf == null || mf.sharedMesh == null) continue; var mr = mf.GetComponent<MeshRenderer>(); if (mr == null || !mr.enabled) continue;
+                string n = mf.gameObject.name; if (n == "Ink" || n == "Outline" || n.StartsWith("Decal_") || n == "HPoster") continue;
+                var old = mf.transform.Find("Ink"); if (old != null) Object.Destroy(old.gameObject);
+                var shell = new GameObject("Ink"); shell.transform.SetParent(mf.transform, false);
+                shell.AddComponent<MeshFilter>().sharedMesh = mf.sharedMesh; var r = shell.AddComponent<MeshRenderer>(); r.sharedMaterial = mat;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+            }
+        }
         private static Material Make(float width)
         {
             var sh = Shader.Find("CoastRun/InkOutline");

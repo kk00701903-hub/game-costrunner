@@ -141,10 +141,40 @@ namespace CoastRun
                 LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_veg", 0, 0, 0, 0, false, false, false),
             D("bug_hermit", "소라게", "Hermit Crab", "소라 껍데기를 지고 다니는 소라게. 도감용.", "Carries a shell around. For the collection.",
                 LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            // 198차: 희귀 벌레(잠자리채로 잡으면 비싸게 팔린다) · 물고기(낚시 — 상점에 판다)
+            D("bug_rare_butterfly", "무지개나비", "Rainbow Butterfly", "날개가 무지갯빛으로 반짝인다. 아주 드물다.", "Rainbow wings. Very rare.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("bug_rare_dragonfly", "황금잠자리", "Golden Dragonfly", "햇빛에 금색으로 빛나는 잠자리.", "Glints gold in the sun.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("bug_rare_ladybug", "칠보무당벌레", "Jewel Ladybug", "등의 점이 보석처럼 빛난다.", "Spots shine like jewels.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("bug_rare_beetle", "황금사슴벌레", "Golden Stag Beetle", "금빛 등딱지의 왕사슴벌레. 전설로만 듣던 것.", "A legendary golden stag beetle.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("fish_0", "멸치", "Anchovy", "바닷가에서 낚은 멸치. 상점에 팔 수 있다.", "Caught at the beach. Sell it.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_fish", 0, 0, 0, 0, false, false, false),
+            D("fish_1", "고등어", "Mackerel", "등이 푸른 고등어.", "Blue-backed mackerel.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_fish", 0, 0, 0, 0, false, false, false),
+            D("fish_2", "옥돔", "Tilefish", "제주의 귀한 생선 옥돔.", "Jeju's prized tilefish.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_fish", 0, 0, 0, 0, false, false, false),
+            D("fish_3", "갈치", "Hairtail", "은빛으로 긴 갈치.", "Long silver hairtail.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_fish", 0, 0, 0, 0, false, false, false),
+            D("fish_4", "다금바리", "Grouper", "전설의 다금바리.", "The legendary grouper.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", "dish_fish", 0, 0, 0, 0, false, false, false),
+
+            // ── 195차: 광산·과수원·양봉 ──
+            D("ore_iron", "철광석", "Iron ore", "광산에서 캔 무거운 광석. 시내에서 사 준다.", "Heavy ore from the mine.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("ore_silver", "은광석", "Silver ore", "반짝이는 은빛 광석.", "Shiny silver ore.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("ore_gold", "금광석", "Gold ore", "광산 깊은 곳의 금.", "Gold from deep in the mine.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("gem_amethyst", "자수정", "Amethyst", "보랏빛 보석. 도감·박물관.", "A violet gem.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("gem_jade", "비취", "Jade", "초록 보석. 귀하다.", "A rare green gem.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("gem_ruby", "루비", "Ruby", "광산에서 가장 귀한 붉은 보석.", "The mine's rarest red gem.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("fossil_ammonite", "암모나이트 화석", "Ammonite fossil", "빙글빙글 조개 화석. 박물관에 기증할 수 있다.", "A spiral fossil — donate it!", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("fossil_trilobite", "삼엽충 화석", "Trilobite fossil", "오래된 바다 벌레 화석.", "An ancient sea bug.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("fossil_fern", "고사리 화석", "Fern fossil", "돌에 찍힌 고사리.", "A fern pressed in stone.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("fossil_shark", "상어 이빨 화석", "Shark tooth fossil", "옛날 바다의 주인.", "Ruler of the old seas.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("fruit_tangerine", "감귤", "Tangerine", "내 과수원 감귤. 그대로 팔거나 귤청으로.", "From my orchard.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
+            D("fruit_hallabong", "한라봉", "Hallabong", "꼭지가 볼록한 귀한 귤.", "The prized bumpy tangerine.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
+            D("honey_jar", "꿀 한 병", "Jar of honey", "벌통에서 뜬 꿀. 유채꽃 철엔 더 많이.", "From my hives.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
+            D("jam_tangerine", "귤청", "Tangerine syrup", "감귤 3 + 꿀 1 로 담근 귤청. 비싸게 팔린다.", "3 tangerines + 1 honey.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
+
+            D("souv_choco", "귤 초콜릿", "Tangerine chocolate", "중문 기념품. 선물하면 좋아한다.", "Jungmun souvenir — a nice gift.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
+            D("souv_doll", "하르방 인형", "Hareubang doll", "중문 기념품 인형.", "A souvenir doll.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("gift_snack", "선물 과자 세트", "Gift snack box", "시내 마트 선물용. 누구나 조금은 좋아한다.", "Everyone likes it a little.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
 
             // ── 옷 ──
             D("clothes_set", "새 옷 세트", "New Clothes Set", "3개월(12주) 입는 옷. 낡으면 컨디션↓", "Lasts 12 weeks. Worn = condition ↓",
-                LifeItemCat.Clothes, Survival.ClothesPrice, true, "UI_Goods_Shirt", null, 0, 0, 0, 0, false, true, true),
+                LifeItemCat.Clothes, Survival.ClothesPrice / EconomyScale.Living, true, "UI_Goods_Shirt", null, 0, 0, 0, 0, false, true, true),
         };
 
         private static LifeItemDef D(string id, string ko, string en, string bk, string be,
@@ -154,7 +184,7 @@ namespace CoastRun
             return new LifeItemDef
             {
                 id = id, nameKo = ko, nameEn = en, blurbKo = bk, blurbEn = be,
-                cat = cat, price = price, shop = shop, art = art, cookTo = cookTo,
+                cat = cat, price = price * EconomyScale.Living, shop = shop, art = art, cookTo = cookTo,   // 186차: 생활비 ×5(KPOP 수입 기준)
                 hunger = hunger, condition = condition, stress = stress, stamina = stamina,
                 edible = edible, usable = usable, clothesPack = clothes
             };
@@ -243,6 +273,7 @@ namespace CoastRun
 
         public static void Add(SaveData s, string id, int n = 1)
         {
+            if (n > 0 && s != null && (id.StartsWith("bug_") || id.StartsWith("ore_") || id.StartsWith("gem_") || id.StartsWith("fossil_") || id == "mat_stone")) CoastRun.Village.VillageDex.See(s, id);   // 195차: 도감
             if (s == null || string.IsNullOrEmpty(id) || n <= 0) return;
             if (s.bag == null) s.bag = Array.Empty<LifeStack>();
             for (int i = 0; i < s.bag.Length; i++)

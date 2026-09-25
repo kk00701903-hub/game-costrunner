@@ -1367,7 +1367,8 @@ namespace CoastRun
             if (_combo > 1 && Time.time > _comboExpire)
                 SetCombo(1);
 
-            int score = Score;
+            // 201차(보완 점검): K-POP·아케이드는 결과 화면(ArcadeRun.Score)과 같은 식으로 보여 준다 — 달리는 중 08,108 이던 점수가 결과에서 2,287 로 떨어져 보이던 문제
+            int score = ArcadeRun.Active ? ArcadeRun.Score(StageRunStats.Instance) : Score;
             if (score != _shownScore)
             {
                 _shownScore = score;

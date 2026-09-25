@@ -399,7 +399,7 @@ namespace CoastRun
             Save.lateRuns += LastRunLate ? 1 : 0;
             Save.lastRunLate = LastRunLate;
             Save.chapterHearts += LastRunHearts;
-            Save.stats.money += stats != null ? stats.CoinValue + stats.NearMissValue : 0;
+            // 194차: 러닝 코인·니어미스는 줍는 순간 코인 지갑(= 스토리 돈)에 들어간다 — 여기서 또 더하면 SyncWallet 이 두 번 적립했다.
             // 131차(재미요소): 행운의 부적(별빛 캡슐 SR) — 이번 완주 코인 ×2 · 완주 별조각
             LastLuckyDoubled = false;
             if (Save.luckyRunPending && stats != null) { Save.stats.money += stats.CoinValue; Save.luckyRunPending = false; LastLuckyDoubled = true; }

@@ -440,7 +440,7 @@ namespace CoastRun
                     BonusTimeDirector.Instance?.Activate();
                     break;
                 case PickupKind.Heart:
-                    health?.HealJelly();
+                    health?.HealHeart();   // 194차: +15 게이지
                     hud?.AddScore(40, pos, true);
                     hud?.Flash(new Color(1f, 0.6f, 0.75f, 0.28f));
                     StageRunStats.Instance?.NotifyHeart(1);

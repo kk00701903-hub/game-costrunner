@@ -131,6 +131,11 @@ namespace CoastRun
         public int playthrough = 1;
         public RunMode runMode = RunMode.Running;
         public bool prologueSeen;
+        public int storyTut;        // 196차: 꼬마와 마을 튜토리얼 단계(0 없음 · 1 가게 · 2 텃밭 · 3 언덕 빈집 · 9 끝)
+        public int storyFragMask;
+        public int storySeenMask; public bool storyMaskInit;
+        public int[] toolTier = new int[5];   // 198차: 도구 등급(0 잠자리채 1 방망이 2 도끼 3 곡괭이 4 낚싯대) 0~3   // 196차: 장소 컷씬을 본 것(세이브마다 — 새 게임이면 처음부터). 비트 = VillageStory.Order 순서
+        public int[] actStamp = new int[7];   // 196차: 중문 액티비티 마지막 사용(week*4+phase): 0 제트스키 1 요트 2 서핑 3 카트 4 승마 5 포토존 6 테디 관람   // 196차: 오프닝 「그 약속」 기억 조각(비트 1·2·3)
         public int seed;
         public int rollCount;
         // ── 6차 2단계 ──
@@ -195,6 +200,28 @@ namespace CoastRun
         public float villageHour;   // 155차: 마을 시계(0~24, 0 이면 08:00 부터)
         public int villageActMask;  // 156차: 오늘 한 활동(1 밥 · 2 놀기 · 4 알바 · 8 일일 미션) — 잠자면 0
         public int villageMissionKind = -1, villageMissionProg;   // 160차: 오늘의 미션(VillageMission.Kind)과 진행도
+        // 183차: 임대 땅(비트마스크)·마지막으로 월세를 받은 주 / 말 사냥 수배도(주마다 1 줄어듦)·죽은 말 수(주가 바뀌면 다시 태어남)
+        public int landMask; public int landRentWeek = -1;
+        public System.Collections.Generic.List<int> roadCells = new System.Collections.Generic.List<int>();   // 187차: 플레이어가 깐 도로 칸(VillageRoad.Key, 2 m 격자)
+        // 194차(사용자: 「은행 — 예금+이자, 대출, K-POP 러닝 수입 정산」)
+        public int bankDeposit;              // 예금(주 2 % 복리)
+        public int bankLoan;                 // 대출 잔액(주 4 % 복리, 한도 3,000G)
+        public int bankWeekStamp = -1;       // 마지막으로 이자를 붙인 주(year*52+week)
+        public int kpopUnsettled;            // 아직 은행에서 정산 안 한 K-POP 러닝 수입(이미 지갑에 들어간 돈 — 정산하면 +5 % 보너스)
+        public int kpopUnsettledRuns;
+        // 195차(사용자: 「버스로 시내·관광지, 광산·과수원·양봉·가축·도감, 동물의 숲급 NPC 도감·계절 이벤트」)
+        public int[] tourStamp = new int[5];                 // 관광지 스팟 마지막 사용(week*4+phase): 0 해변 1 주상절리 2 폭포 3 식물원 4 전망대
+        public System.Collections.Generic.List<string> dexSeen = new System.Collections.Generic.List<string>();      // 도감 발견(fish_/bug_/ore_/gem_/fossil_/npc_)
+        public System.Collections.Generic.List<string> dexDonated = new System.Collections.Generic.List<string>();   // 박물관 기증
+        public int[] npcFriend = new int[32]; public int[] npcTalkStamp = new int[32];  // NPC 호감도(0~100)·마지막 대화(week*4+phase)
+        public int dungeonBossWeek = -1, dungeonBossKills, dungeonDeepest;   // 199차: 광산 던전
+        public int mineWeek = -1; public System.Collections.Generic.List<int> mineDone = new System.Collections.Generic.List<int>();   // 광산 광맥(주마다 새로)
+        public bool orchardOwned; public int orchardWeek = -1; public int hives; public int hiveWeek = -1;   // 과수원·벌통
+        public int[] calfAge = new int[0]; public int[] pigAge = new int[0]; public int milkWeek = -1;       // 소·흑돼지(주 단위 나이)
+        public System.Collections.Generic.List<string> outfits = new System.Collections.Generic.List<string>(); public string outfit = "";
+        public int animalWeek = -1;                          // 소·흑돼지 나이 계산 마지막 주
+        public int seasonEventSeen = -1;                     // 마지막으로 연출을 본 계절 이벤트 주차
+        public int horseHeat; public int horseHeatWeek = -1; public int ranchHorseDead; public int ranchHorseWeek = -1;
         public string[] yardItems = new string[0];       // 마당 가구 "id|x|z|rot"                // 135차: 육성 자동 진행 — 끌 때까지 유지(대회·이야기 다녀와도)
 
         public ChapterRecord CurrentChapter =>

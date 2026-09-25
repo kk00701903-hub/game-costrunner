@@ -286,6 +286,16 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/Cine - END_TRUE")] public static void CineEndTrue() { if (Application.isPlaying) CinematicPlayer.Play("END_TRUE", () => Debug.LogWarning("[Dev] cine done")); }
         [MenuItem("Coast Run/Dev/Clue - Card CS4 (돌)")] public static void ClueCs4() { if (Application.isPlaying && GameManager.I != null && GameManager.I.Save != null) { GameManager.I.Save.clueMask &= ~(int)ClueSystem.Clue.Stones; ClueSystem.ShowAfterScene(GameManager.I.Save, "CS4", () => Debug.LogWarning("[Dev] clue " + ClueSystem.Summary(GameManager.I.Save))); } }
         [MenuItem("Coast Run/Dev/Clue - Card CS7 (이름)")] public static void ClueCs7() { if (Application.isPlaying && GameManager.I != null && GameManager.I.Save != null) { GameManager.I.Save.clueMask &= ~(int)ClueSystem.Clue.Name; ClueSystem.ShowAfterScene(GameManager.I.Save, "CS7", () => Debug.LogWarning("[Dev] clue " + ClueSystem.Summary(GameManager.I.Save))); } }
+        [MenuItem("Coast Run/Dev/186 - Econ table")] public static void EconTable()
+        {
+            var sb = new System.Text.StringBuilder("[EconTable]");
+            foreach (var id in new[] { "ing_rice", "dish_rice", "dish_meat", "dish_soup", "med_cold", "care_perfume", "clothes_set" }) { var d = LifeItems.Get(id); sb.Append($" {id}={(d.HasValue ? d.Value.price : -1)}"); }
+            foreach (var j in new[] { "job_orange", "job_night_delivery", "job_hall" }) { var d = ScheduleTable.Get(j); sb.Append($" {j}={(d != null ? d.dMoney : -999)}"); }
+            sb.Append($" fest1={Festival.Money(1)} bed={HomeData.Furniture[0].price} seed={HomeData.Seeds[0].price} yard0={CoastRun.Village.VillageHub.Yard[0].price} lot0={CoastRun.Village.VillageLand.Lots[0].price}/{CoastRun.Village.VillageLand.Lots[0].rent} mission={CoastRun.Village.VillageMission.Money(CoastRun.Village.VillageMission.Kind.Fish)}");
+            Debug.LogWarning(sb.ToString());
+        }
+        [MenuItem("Coast Run/Dev/186 - Econ reset")] public static void EconReset() { CoinPickup.DevSpawnedValue = 0; Debug.LogWarning("[Econ] reset"); }
+        [MenuItem("Coast Run/Dev/186 - Econ log")] public static void EconLog() { var st = StageRunStats.Instance; var sv = GameManager.I != null ? GameManager.I.PeekSave() : null; Debug.LogWarning($"[Econ] spawned={CoinPickup.DevSpawnedValue} coin={(st != null ? st.CoinValue : -1)} near={(st != null ? st.NearMissValue : -1)} coins#={(st != null ? st.Coins : -1)} lastMoney={ArcadeRun.LastMoney} finished={ArcadeRun.KpopFinished} doubled={ArcadeRun.LastDoubled} money={(sv != null ? sv.stats.money : -1)} jelly={JellyWallet.Total} lastJelly={ArcadeRun.LastJelly}"); }
         [MenuItem("Coast Run/Dev/Kpop - Start")] public static void KpopStart() { if (Application.isPlaying) ArcadeRun.StartKpop(GameManager.Ensure()); }
         [MenuItem("Coast Run/Dev/Kpop - Log pet")] public static void KpopPet() { var gm = GameManager.I; var sv = gm != null ? gm.PeekSave() : null; Debug.LogWarning($"[Dev] pet save={(sv != null ? sv.equippedPet.ToString() : "nosave")} owned={(sv != null ? sv.ownedPetMask : 0)} tuning={RunTuning.Pet} inst={(PetCompanion.Instance != null)}"); }
         [MenuItem("Coast Run/Dev/UI - Donate")] public static void UiDonate() { if (Application.isPlaying) DonateUI.Open(); }
@@ -474,6 +484,213 @@ namespace CoastRun.EditorTools
             var s = GameManager.I.Save; Debug.LogWarning($"[PetTest] after catch mask={s.ownedPetMask} eq={s.equippedPet}");
         }
         [MenuItem("Coast Run/Dev/Village - Go behind hero house")] private static void VGoBehindHero() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(h.SpotPos("hero") + new Vector3(0f, 0f, 9.5f), 0f); }   // 178차: 집이 카메라를 가리는 자리(반투명 확인)
+        [MenuItem("Coast Run/Dev/Village - Go wake-up spot")] private static void VGoWake() { var h = CoastRun.Village.VillageHub.I; var hh = CoastRun.Village.VillageWorld.HeroHouse; if (h == null || hh == null) return; h.Teleport(hh.TransformPoint(new Vector3(0f, 0f, 5.6f)), 180f); }   // 180차: 잠 뒤 아침에 서는 자리(집 앞 5.6 m, 남향)
+        // 181차 진단: 바닷가·언덕 걷기 시험(북·남·동·서로 3초씩)
+        [MenuItem("Coast Run/Dev/Village - Walk test N")] private static void VWalkTestN() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWalkTest(0f); }
+        [MenuItem("Coast Run/Dev/Village - Walk test S")] private static void VWalkTestS() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWalkTest(180f); }
+        [MenuItem("Coast Run/Dev/Village - Walk test E")] private static void VWalkTestE() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWalkTest(90f); }
+        [MenuItem("Coast Run/Dev/Village - Walk test W")] private static void VWalkTestW() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWalkTest(270f); }
+        [MenuItem("Coast Run/Dev/Village - Go beach rocks")] private static void VGoBeachRocks() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new Vector3(-9f, 0f, -58f), 90f); }
+        [MenuItem("Coast Run/Dev/Village - Go beach rocks W")] private static void VGoBeachRocksW() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new Vector3(-21f, 0f, -50f), 270f); }
+        // 181차 진단: 바닷가(z<-14) 근처에 서 있는데 콜라이더가 없는 소품(발밑 높이 0.5 m 이상 솟은 것) 목록
+        [MenuItem("Coast Run/Dev/Village - Diag no-collider props")] private static void VDiagNoCol()
+        {
+            var w = GameObject.Find("VillageWorld"); if (w == null) { Debug.LogWarning("[NoCol] no world"); return; }
+            var sb = new System.Text.StringBuilder("[NoCol]"); int n = 0; var seen = new System.Collections.Generic.HashSet<string>();
+            foreach (Transform ch in w.transform)
+            {
+                var p = ch.position; if (p.z > -14f) continue;
+                string nm = ch.name; if (nm == "Terrain" || nm == "Sea" || nm == "Foam" || nm.StartsWith("Vista") || nm == "FarHill" || nm == "Bound" || nm == "Cloud" || nm == "Bird" || nm == "SkyDome" || nm == "Sun" || nm == "SunDisc" || nm == "Fill" || nm == "PathMesh" || nm == "Pampas" || nm == "FlowerClump" || nm == "Sparkle") continue;
+                if (ch.GetComponentInChildren<Collider>() != null) continue;
+                Bounds b = default; bool f = true; foreach (var r in ch.GetComponentsInChildren<Renderer>()) { if (f) { b = r.bounds; f = false; } else b.Encapsulate(r.bounds); }
+                if (f) continue; float gy = CoastRun.Village.VillageWorld.Height(p.x, p.z); if (b.max.y - gy < 0.5f || b.size.x < 0.3f && b.size.z < 0.3f) continue;
+                n++; if (seen.Add(nm)) sb.Append($" | {nm} @({p.x:F0},{p.z:F0}) h={b.max.y - gy:F1} w={Mathf.Max(b.size.x, b.size.z):F1}");
+            }
+            Debug.LogWarning(sb.Append($" | total={n}").ToString());
+        }
+        [MenuItem("Coast Run/Dev/Village - Cc legacy (old capsule)")] private static void VCcOld() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevLegacyCc(true); }
+        [MenuItem("Coast Run/Dev/Village - Cc fixed")] private static void VCcNew() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevLegacyCc(false); }
+        [MenuItem("Coast Run/Dev/Fx - Weather probe all")] private static void WeatherProbeAll()
+        {
+            var sb = new System.Text.StringBuilder("[WeatherAll]");
+            foreach (var fx in Object.FindObjectsByType<WeatherFx>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                sb.Append($"\n {fx.gameObject.name} parent={(fx.transform.parent != null ? fx.transform.parent.name : "-")} active={fx.isActiveAndEnabled} weather={fx.Current} density={fx.Density}");
+                foreach (var ps in fx.GetComponentsInChildren<ParticleSystem>(true)) if (ps.particleCount > 0) sb.Append($" | {ps.name} n={ps.particleCount} rate={ps.emission.rateOverTime.constant:F0}");
+            }
+            Debug.LogWarning(sb.ToString());
+        }
+        // 183차 진단: 임대 땅 후보 — 7×7 m 안에 콜라이더·렌더러가 없고 평평(높이차 <0.9 m)하고 길에서 4 m 이상 떨어진 칸
+        [MenuItem("Coast Run/Dev/Village - Diag free lots")] private static void VDiagLots()
+        {
+            var sb = new System.Text.StringBuilder("[Lots]"); int n = 0;
+            for (float z = -22f; z <= 42f; z += 4f) for (float x = -42f; x <= 42f; x += 4f)
+            {
+                var W = CoastRun.Village.VillageWorld.Height(x, z);
+                if (W < -0.3f || z < -18f) continue;   // 바다·모래
+                float hmin = 99f, hmax = -99f; for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++) { float h = CoastRun.Village.VillageWorld.Height(x + i * 3.5f, z + j * 3.5f); hmin = Mathf.Min(hmin, h); hmax = Mathf.Max(hmax, h); }
+                if (hmax - hmin > 1.3f) continue;
+                if (CoastRun.Village.VillageWorld.PathDist(x, z) < 4.5f) continue;
+                if (Physics.CheckBox(new Vector3(x, W + 1.5f, z), new Vector3(3.5f, 1.4f, 3.5f), Quaternion.identity, ~0, QueryTriggerInteraction.Collide)) continue;
+                bool rend = false; var bb = new Bounds(new Vector3(x, W + 1.5f, z), new Vector3(7f, 3f, 7f));
+                foreach (var r in Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)) { var nm = r.gameObject.name; if (nm == "Terrain" || nm == "Sea" || nm.Contains("Path") || nm.Contains("Sky") || nm.Contains("Cloud") || nm.Contains("Vista") || nm.Contains("FarHill")) continue; if (r.bounds.size.x > 40f || Mathf.Max(r.bounds.size.x, r.bounds.size.y, r.bounds.size.z) < 1.3f) continue; if (r.bounds.Intersects(bb)) { rend = true; break; } }
+                if (rend) continue;
+                n++; sb.Append($" ({x:F0},{z:F0} h{W:F1})");
+            }
+            Debug.LogWarning(sb.Append($" n={n}").ToString());
+        }
+        [MenuItem("Coast Run/Dev/Village - Diag lot blockers")] private static void VDiagBlk()
+        {
+            var sb = new System.Text.StringBuilder("[Blk]");
+            foreach (var q in new[] { new Vector2(20f, 10f), new Vector2(-15f, 5f), new Vector2(30f, 20f), new Vector2(-30f, 0f), new Vector2(15f, -12f), new Vector2(-20f, -10f) })
+            {
+                float W = CoastRun.Village.VillageWorld.Height(q.x, q.y); sb.Append($"\n ({q.x},{q.y}) h={W:F1} pd={CoastRun.Village.VillageWorld.PathDist(q.x, q.y):F1}:");
+                foreach (var c in Physics.OverlapBox(new Vector3(q.x, W + 1.5f, q.y), new Vector3(3.5f, 1.4f, 3.5f), Quaternion.identity, ~0, QueryTriggerInteraction.Collide)) sb.Append(" " + c.name + "/" + (c.transform.parent != null ? c.transform.parent.name : "-"));
+            }
+            Debug.LogWarning(sb.ToString());
+        }
+        // 183차 시험 메뉴
+        [MenuItem("Coast Run/Dev/183 - Dump editor log")] private static void D183Log()
+        {
+            var src = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Unity/Editor/Editor.log");
+            string txt; using (var fs = new System.IO.FileStream(src, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite)) using (var sr = new System.IO.StreamReader(fs)) txt = sr.ReadToEnd();
+            var lines = txt.Split('\n'); var ex = new System.Text.StringBuilder(); for (int i = 0; i < lines.Length; i++) if (lines[i].Contains("Exception:")) { for (int k = i; k < Mathf.Min(lines.Length, i + 14); k++) ex.AppendLine(lines[k]); ex.AppendLine("-----"); } System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, "../Tools/_view/editor_ex.txt"), ex.ToString()); int from = Mathf.Max(0, lines.Length - 400);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(Application.dataPath, "../Tools/_view/editorlog.txt"), string.Join("\n", lines, from, lines.Length - from));
+        }
+        [MenuItem("Coast Run/Dev/183 - Backup save")] private static void D183Bak() { var src = CoastRun.SaveManager.SavePath; var dst = System.IO.Path.Combine(Application.dataPath, "../Tools/_savebak_183.json"); System.IO.File.Copy(src, dst, true); Debug.LogWarning("[SaveBak] " + src + " -> " + dst); }
+        [MenuItem("Coast Run/Dev/183 - Restore save (not playing)")] private static void D183Res() { if (Application.isPlaying) { Debug.LogWarning("[SaveBak] stop play first"); return; } var dst = CoastRun.SaveManager.SavePath; var src = System.IO.Path.Combine(Application.dataPath, "../Tools/_savebak_183.json"); System.IO.File.Copy(src, dst, true); Debug.LogWarning("[SaveBak] restored " + dst); }
+        [MenuItem("Coast Run/Dev/185 - Walk into hero door")] private static void D185Door() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWalkIntoHeroDoor(); }
+        [MenuItem("Coast Run/Dev/187 - Road report")] private static void D187RoadRep() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevRoadReport(); }
+        [MenuItem("Coast Run/Dev/187 - Road demo")] private static void D187RoadDemo() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevRoadDemo(); }
+        [MenuItem("Coast Run/Dev/187 - Obstacle map")] private static void D187Obs() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevObstacleMap(); }
+        [MenuItem("Coast Run/Dev/187 - NPC tap setup")] private static void D187Npc() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevNpcTapSetup(); }
+        [MenuItem("Coast Run/Dev/188 - Auto move play")] private static void D188Goplay() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevAutoMove("play"); }
+        [MenuItem("Coast Run/Dev/188 - Auto move job")] private static void D188Gojob() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevAutoMove("job"); }
+        [MenuItem("Coast Run/Dev/188 - Auto move tower")] private static void D188Gotower() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevAutoMove("tower"); }
+        [MenuItem("Coast Run/Dev/191 - Go east beach N")] private static void D191GoEN() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(38f, -22f, 0f); }
+        [MenuItem("Coast Run/Dev/191 - Go east beach E")] private static void D191GoEE() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(38f, -22f, 90f); }
+        [MenuItem("Coast Run/Dev/191 - Go west beach N")] private static void D191GoWN() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(-40f, -22f, 0f); }
+        [MenuItem("Coast Run/Dev/191 - Go west beach W")] private static void D191GoWW() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(-40f, -22f, -90f); }
+        [MenuItem("Coast Run/Dev/192 - Tour shots")] private static void D192Tour() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTour(); }
+        [MenuItem("Coast Run/Dev/192 - Fade log")] private static void D192Fade() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevFadeLog(); }
+        [MenuItem("Coast Run/Dev/192 - Go hero front S")] private static void D192Hero() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(0f, 26f, 180f); }
+        [MenuItem("Coast Run/Dev/193 - Go shore S")] private static void D193Shore() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(-2.5f, -23f, 180f); }
+        [MenuItem("Coast Run/Dev/193 - Face bird")] private static void D193Bird() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevFaceBird(); }
+        [MenuItem("Coast Run/Dev/193 - Face flock")] private static void D193Flock() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevFaceFlock(); }
+        [MenuItem("Coast Run/Dev/192 - Go sea")] private static void D192Sea() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoSea(); }
+        [MenuItem("Coast Run/Dev/191 - Obstacle map east")] private static void D191ObsE() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevObstacleMap(-2, 50, -32, 22, "_obsmap_east.txt"); }
+        [MenuItem("Coast Run/Dev/191 - Obstacle map west")] private static void D191ObsW() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevObstacleMap(-50, -2, -32, 22, "_obsmap_west.txt"); }
+        [MenuItem("Coast Run/Dev/191 - Obstacle map north")] private static void D191ObsN() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevObstacleMap(-50, 50, 20, 50, "_obsmap_north.txt"); }
+        [MenuItem("Coast Run/Dev/189 - Obstacle map beach")] private static void D189ObsB() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevObstacleMap(-36, 16, -74, -12, "_obsmap_beach.txt"); }
+        [MenuItem("Coast Run/Dev/189 - Collider dump beach")] private static void D189Col() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevColliderDump(); }
+        [MenuItem("Coast Run/Dev/189 - Beach reach test")] private static void D189Reach() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevBeachReach(); }
+        [MenuItem("Coast Run/Dev/190 - Exit house")] private static void D190Exit() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevExitHouse(); }
+        [MenuItem("Coast Run/Dev/194 - KPOP tutorial")] private static void D194Tut() { if (!Application.isPlaying) return; CoastRun.GameDirector.Instance?.Flow?.ForceIdle(); CoastRun.KpopTutorial.Pending = true; CoastRun.ArcadeRun.StartKpop(CoastRun.GameManager.I, 1); }
+        [MenuItem("Coast Run/Dev/194 - KPOP chapter 1")] private static void D194Ch1() { if (!Application.isPlaying) return; CoastRun.GameDirector.Instance?.Flow?.ForceIdle(); CoastRun.ArcadeRun.StartKpop(CoastRun.GameManager.I, 1); }
+        [MenuItem("Coast Run/Dev/194 - Heart heal test")] private static void D194Heart() { var h = CoastRun.HealthSystem.Instance; if (h == null) return; h.SetFraction(0.5f); float a = h.Normalized; h.HealHeart(); Debug.LogWarning($"[194] heart heal {a:F2} -> {h.Normalized:F2}"); }
+        [MenuItem("Coast Run/Dev/194 - Restore prefs (coins 753, jelly 840, tutorial unseen)")] private static void D194Prefs() { PlayerPrefs.SetInt("CoastRun.Coins", 753); PlayerPrefs.SetInt("CoastRun.Jelly", 840); PlayerPrefs.DeleteKey("CoastRun_KpopTutorialDone"); PlayerPrefs.Save(); Debug.LogWarning("[194] prefs restored"); }
+        [MenuItem("Coast Run/Dev/195 - Bus to city")] private static void D195City() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTravel(1); }
+        [MenuItem("Coast Run/Dev/195 - Bus to Jungmun")] private static void D195Tour() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTravel(2); }
+        [MenuItem("Coast Run/Dev/195 - Bus to village")] private static void D195Vil() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTravel(0); }
+        [MenuItem("Coast Run/Dev/195 - Next spot")] private static void D195Spot() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevNextSpot(); }
+        [MenuItem("Coast Run/Dev/195 - Go tour shore")] private static void D195Shore() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(330f, -21f, 180f); }
+        [MenuItem("Coast Run/Dev/195 - Log tour heights")] private static void D195H() { var p = GameObject.Find("Player"); var ts = GameObject.Find("TourSea"); var tg = GameObject.Find("Zones/Tour/Terrain"); Debug.LogWarning($"[195] floor(-21)={CoastRun.Village.VillageZones.TourFloor(330f,-21f)} h={CoastRun.Village.VillageWorld.Height(330f,-21f)} sea={(ts!=null?ts.transform.position.ToString():"none")} seaActive={(ts!=null&&ts.activeInHierarchy)} ground={(tg!=null? tg.GetComponent<MeshFilter>().sharedMesh.bounds.ToString():"none")} cam={Camera.main.transform.position}"); }
+        [MenuItem("Coast Run/Dev/195 - Sea probe")] private static void D195SeaP() { var ts = GameObject.Find("TourSea"); if (ts == null) return; var mr = ts.GetComponent<MeshRenderer>(); Debug.LogWarning($"[195] sea mat={mr.sharedMaterial.shader.name} q={mr.sharedMaterial.renderQueue} enabled={mr.enabled} layer={ts.layer} fwd={ts.transform.forward}"); ts.transform.position = new Vector3(330f, 0.6f, -90f); }
+        [MenuItem("Coast Run/Dev/195 - Go counter")] private static void D195Ctr() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(300f, 300.4f, 0f); }
+        [MenuItem("Coast Run/Dev/195 - Look north (Hallasan)")] private static void D195N() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(-2f, 10f, 0f); }
+        [MenuItem("Coast Run/Dev/195 - Enter mine")] private static void D195Mine() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevMine(); }
+        [MenuItem("Coast Run/Dev/195 - Mine one ore")] private static void D195Ore() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevMineOre(); }
+        [MenuItem("Coast Run/Dev/195 - Open encyclopedia")] private static void D195Dex() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevDex(); }
+        [MenuItem("Coast Run/Dev/195 - Give animals+hives+orchard")] private static void D195Ani() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGiveAnimals(); }
+        [MenuItem("Coast Run/Dev/195 - Enter records")] private static void D195Rec() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("records"); }
+        [MenuItem("Coast Run/Dev/195 - Enter boutique")] private static void D195Bou() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("boutique"); }
+        // 196차: 이야기 장소 · 송전탑 위 기상 도입
+        [MenuItem("Coast Run/Dev/196 - Story intro (tower wake)")] private static void D196Intro() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryIntro(); }
+        [MenuItem("Coast Run/Dev/196 - Story go target")] private static void D196Go() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryGoTarget(); }
+        [MenuItem("Coast Run/Dev/196 - Story force CS2")] private static void D196F2() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryForce("CS2"); }
+        [MenuItem("Coast Run/Dev/196 - Story force EV3")] private static void D196F3() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryForce("EV3"); }
+        [MenuItem("Coast Run/Dev/196 - Story force CS8")] private static void D196F8() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryForce("CS8"); }
+        [MenuItem("Coast Run/Dev/196 - Activity jetski")] private static void D196A0() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevActivity(0); }
+        [MenuItem("Coast Run/Dev/196 - Activity yacht")] private static void D196A1() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevActivity(1); }
+        [MenuItem("Coast Run/Dev/196 - Activity surf")] private static void D196A2() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevActivity(2); }
+        [MenuItem("Coast Run/Dev/196 - Activity kart")] private static void D196A3() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevActivity(3); }
+        [MenuItem("Coast Run/Dev/196 - Activity horse")] private static void D196A4() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevActivity(4); }
+        [MenuItem("Coast Run/Dev/196 - Go marina")] private static void D196Gmarina() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoSpot("marina"); }
+        [MenuItem("Coast Run/Dev/196 - Go surf")] private static void D196Gsurf() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoSpot("surf"); }
+        [MenuItem("Coast Run/Dev/196 - Go track")] private static void D196Gtrack() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoSpot("track"); }
+        [MenuItem("Coast Run/Dev/196 - Go photo")] private static void D196Gphoto() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoSpot("photo"); }
+        [MenuItem("Coast Run/Dev/196 - New game (village story)")] private static void D196New() { var gm = CoastRun.GameManager.I; if (gm != null) gm.NewGame(CoastRun.RunMode.Running); }
+        [MenuItem("Coast Run/Dev/196 - Story force EV1")] private static void D196F1() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryForce("EV1"); }
+        [MenuItem("Coast Run/Dev/196 - Try sleep")] private static void D196Sl() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTrySleep(); }
+        [MenuItem("Coast Run/Dev/196 - Kid talk")] private static void D196Kt() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevKidTalk(); }
+        [MenuItem("Coast Run/Dev/196 - Story guide (auto-move)")] private static void D196Gd() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryGuide(); }
+        [MenuItem("Coast Run/Dev/196 - Story force OPEN_F1")] private static void D196Fr1() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryForce("OPEN_F1"); }
+        [MenuItem("Coast Run/Dev/196 - Enter teddy museum")] private static void D196Td() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("teddy"); }
+        [MenuItem("Coast Run/Dev/198 - Gacha 1")] private static void D198_0() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGacha(1); }
+        [MenuItem("Coast Run/Dev/198 - Gacha 10")] private static void D198_1() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGacha(10); }
+        [MenuItem("Coast Run/Dev/198 - Workshop (give mats)")] private static void D198_2() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevWorkshop(); }
+        [MenuItem("Coast Run/Dev/198 - Tool log")] private static void D198_3() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevToolLog(); }
+        [MenuItem("Coast Run/Dev/198 - Story man show")] private static void D198_4() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryManShow(); }
+        [MenuItem("Coast Run/Dev/198 - Enter gacha")] private static void D198_5() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("gacha"); }
+        [MenuItem("Coast Run/Dev/198 - Enter workshop")] private static void D198_6() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("workshop"); }
+        [MenuItem("Coast Run/Dev/198 - Fishing")] private static void D198_7() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevFish(); }
+        [MenuItem("Coast Run/Dev/199 - Dungeon B1")] private static void D199_1() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevDungeon(1); }
+        [MenuItem("Coast Run/Dev/199 - Dungeon B3")] private static void D199_2() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevDungeon(3); }
+        [MenuItem("Coast Run/Dev/199 - Dungeon boss")] private static void D199_3() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevDungeon(5); }
+        [MenuItem("Coast Run/Dev/199 - Dungeon swing")] private static void D199_8() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevDunSwing(); }
+        [MenuItem("Coast Run/Dev/199 - Boss rush (3D)")] private static void D199_9() { if (!Application.isPlaying) return; CoastRun.GameDirector.Instance?.Flow?.ForceIdle(); CoastRun.ArcadeRun.StartBossRush(CoastRun.GameManager.I); }
+        [MenuItem("Coast Run/Dev/199 - Bug log")] private static void D199_10() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevBugLog(); }
+        [MenuItem("Coast Run/Dev/199 - Go meadow")] private static void D199_11() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.Teleport(new UnityEngine.Vector3(-24f, 0f, 18f), 0f); }
+        [MenuItem("Coast Run/Dev/199 - Man log")] private static void D199_12() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevManLog(); }
+        [MenuItem("Coast Run/Dev/199 - Man approach")] private static void D199_13() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevManApproach(); }
+        [MenuItem("Coast Run/Dev/201 - KPOP chapter 10")] private static void D201_1() { if (!Application.isPlaying) return; CoastRun.GameDirector.Instance?.Flow?.ForceIdle(); CoastRun.ArcadeRun.StartKpop(CoastRun.GameManager.I, 10); }
+        [MenuItem("Coast Run/Dev/201 - KPOP chapter 18")] private static void D201_2() { if (!Application.isPlaying) return; CoastRun.GameDirector.Instance?.Flow?.ForceIdle(); CoastRun.ArcadeRun.StartKpop(CoastRun.GameManager.I, 18); }
+        [MenuItem("Coast Run/Dev/201 - Giant now")] private static void D201_3() { if (Application.isPlaying) CoastRun.GiantMode.Ensure().Activate(); }
+        [MenuItem("Coast Run/Dev/199 - Dungeon log")] private static void D199_4() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevDungeonLog(); }
+        [MenuItem("Coast Run/Dev/199 - Boss hurt 18")] private static void D199_5() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevBossHurt(); }
+        [MenuItem("Coast Run/Dev/199 - Dungeon exit")] private static void D199_6() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevDungeon(0); }
+        [MenuItem("Coast Run/Dev/199 - Auto-move menu")] private static void D199_7() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevAutoMoveMenu(); }
+        [MenuItem("Coast Run/Dev/198 - Fishing auto on")] private static void D198_8() { CoastRun.Village.FishingMini.DevAuto = true; }
+        [MenuItem("Coast Run/Dev/198 - Fishing auto cast")] private static void D198_9() { var f = UnityEngine.Object.FindObjectOfType<CoastRun.Village.FishingMini>(); if (f != null) f.DevCast(); }
+        [MenuItem("Coast Run/Dev/196 - Story log")] private static void D196Log() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStoryLog(); }
+        [MenuItem("Coast Run/Dev/196 - Story skip tutorial")] private static void D196Skip() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevStorySkipTut(); }
+        [MenuItem("Coast Run/Dev/196 - Story auto bubbles toggle")] private static void D196Auto() { CoastRun.Village.VillageHub.DevAutoBubble = !CoastRun.Village.VillageHub.DevAutoBubble; Debug.LogWarning("[Story] auto bubbles " + CoastRun.Village.VillageHub.DevAutoBubble); }
+        [MenuItem("Coast Run/Dev/195 - Enter museum")] private static void D195Mus() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("museum"); }
+        [MenuItem("Coast Run/Dev/195 - Enter noodle")] private static void D195Noo() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("noodle"); }
+        [MenuItem("Coast Run/Dev/195 - Enter market")] private static void D195Mkt() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("market"); }
+        [MenuItem("Coast Run/Dev/195 - Enter souvenir")] private static void D195Sou() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterZone("souv"); }
+        [MenuItem("Coast Run/Dev/194 - Go bank")] private static void D194GoBank() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoEast(0); }
+        [MenuItem("Coast Run/Dev/194 - Go cafe")] private static void D194GoCafe() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoEast(1); }
+        [MenuItem("Coast Run/Dev/194 - Go bus stop")] private static void D194GoBus() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGoEast(2); }
+        [MenuItem("Coast Run/Dev/194 - Enter bank")] private static void D194InBank() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterBank(); }
+        [MenuItem("Coast Run/Dev/194 - Enter cafe")] private static void D194InCafe() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterCafe(); }
+        [MenuItem("Coast Run/Dev/194 - Bank menu")] private static void D194BankMenu() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevBankMenu(); }
+        [MenuItem("Coast Run/Dev/194 - Cafe menu")] private static void D194CafeMenu() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevCafeMenu(); }
+        [MenuItem("Coast Run/Dev/190 - Auto move menu")] private static void D190Menu() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevAutoMenu(); }
+        [MenuItem("Coast Run/Dev/190 - Go lighthouse")] private static void D190Light() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(-9.5f, -56f, 180f); }
+        [MenuItem("Coast Run/Dev/190 - Go peninsula")] private static void D190Pen() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevGo(-11f, -34f, 180f); }
+        [MenuItem("Coast Run/Dev/189 - Hospital (faint)")] private static void D189Hosp() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHospital(); }
+        [MenuItem("Coast Run/Dev/189 - Enter hospital")] private static void D189HospIn() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevEnterHospital(); }
+        [MenuItem("Coast Run/Dev/189 - Auto move hospital")] private static void D189GoHosp() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevAutoMove("hospital"); }
+        [MenuItem("Coast Run/Dev/187 - Road tool")] private static void D187RoadTool() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevRoadTool(); }
+        [MenuItem("Coast Run/Dev/187 - Place road")] private static void D187RoadPlace() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevPlaceRoad(); }
+        [MenuItem("Coast Run/Dev/187 - Face sea")] private static void D187Sea() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevFaceSea(); }
+        [MenuItem("Coast Run/Dev/183 - Heal")] private static void D183Heal() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevHeal(); }
+        [MenuItem("Coast Run/Dev/183 - State")] private static void D183State() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; Debug.LogWarning("[183] " + h.DevStateLine()); }
+        [MenuItem("Coast Run/Dev/183 - Auto move shop")] private static void D183Shop() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevAutoMove("shop"); }
+        [MenuItem("Coast Run/Dev/183 - Auto move my room")] private static void D183Room() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevAutoMove("hero"); }
+        [MenuItem("Coast Run/Dev/183 - Auto move ranch")] private static void D183Ranch() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevAutoMove("ranch"); }
+        [MenuItem("Coast Run/Dev/183 - Auto move lot 3")] private static void D183Lot() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevAutoMove("lot_3"); }
+        [MenuItem("Coast Run/Dev/183 - Auto hunt on")] private static void D183HuntOn() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevAutoHunt(true); }
+        [MenuItem("Coast Run/Dev/183 - Auto hunt off")] private static void D183HuntOff() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevAutoHunt(false); }
+        [MenuItem("Coast Run/Dev/183 - Spirit + bat")] private static void D183Spirit() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevSpawnSpiritBat(); }
+        [MenuItem("Coast Run/Dev/183 - Bat nearest horse")] private static void D183Horse() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevBatNearestHorse(); }
+        [MenuItem("Coast Run/Dev/183 - Police Lv2")] private static void D183Police() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevPolice(2); }
+        [MenuItem("Coast Run/Dev/183 - Give sellables")] private static void D183Give() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevGiveSellables(); }
+        [MenuItem("Coast Run/Dev/183 - Sell all")] private static void D183Sell() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevSellAll(); }
+        [MenuItem("Coast Run/Dev/183 - Buy lot 0")] private static void D183Buy() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevBuyLot(0); }
+        [MenuItem("Coast Run/Dev/183 - Rent sim +8w")] private static void D183Rent() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.DevRentSim(8); }
+        [MenuItem("Coast Run/Dev/183 - Go lot 0")] private static void D183GoLot() { var h = CoastRun.Village.VillageHub.I; if (h == null) return; h.Teleport(CoastRun.Village.VillageLand.Front(0) + new Vector3(0f, 0f, 4f), 180f); }
         [MenuItem("Coast Run/Dev/Village - Pet test: restore")] private static void VPetRestore()
         {
             var gm = GameManager.I; if (gm == null || gm.Save == null || _petBakMask < 0) { Debug.LogWarning("[PetTest] nothing to restore"); return; }

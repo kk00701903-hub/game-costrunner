@@ -204,7 +204,7 @@ namespace CoastRun
             var parent = _fx != null ? _fx : _root;
             var strip = CoastUiArt.Panel(parent, "InfoStrip", new Color(0.10f, 0.08f, 0.16f, 0.62f), 26);
             var srt = strip.rectTransform; srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 0.5f); srt.pivot = new Vector2(0.5f, 0.5f);
-            srt.anchoredPosition = new Vector2(0f, 150f); srt.sizeDelta = new Vector2(620f, 150f); strip.raycastTarget = false;
+            srt.anchoredPosition = new Vector2(0f, 300f); srt.sizeDelta = new Vector2(620f, 150f); strip.raycastTarget = false;   // 201차: 화면 가운데(+150)는 보스·앞 장애물을 가려서 조금 위(+300, 미션 목록 아래)로
             var cg = strip.gameObject.AddComponent<CanvasGroup>(); cg.alpha = 0f; cg.blocksRaycasts = false; cg.interactable = false;
             var tex = ArtAssets.LoadTexture(iconRes);
             float textL = 24f;

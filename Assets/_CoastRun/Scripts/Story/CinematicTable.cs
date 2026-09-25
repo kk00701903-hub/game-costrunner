@@ -44,6 +44,7 @@ namespace CoastRun
             switch (id)
             {
                 case "OPEN": return Opening;
+                case "OPEN_F1": return Frag(1); case "OPEN_F2": return Frag(2); case "OPEN_F3": return Frag(3);   // 196차: 기억 조각
                 case "CS1": return CS1; case "CS2": return CS2; case "CS3": return CS3; case "CS4": return CS4;
                 case "CS5": return CS5; case "CS6": return CS6; case "CS7": return CS7; case "CS8": return CS8;
                 case "EV1": return EV1; case "EV2": return EV2; case "EV3": return EV3; case "EV4": return EV4; case "EV5": return EV5;
@@ -61,6 +62,18 @@ namespace CoastRun
         public static readonly string[] EndingIds = { "END_A", "END_B", "END_TRUE" };
 
         // ── 오프닝 「그 약속」 · BGM_M5 · 5컷 ──
+        /// 196차(사용자: OPEN 「처음엔 숨기고 기억 조각으로」): 오프닝 다섯 컷을 세 조각(1–2 · 3–4 · 5)으로 — 자막·그림 그대로 잘라 쓴다.
+        private static readonly Def[] _frags = new Def[4];
+        private static Def Frag(int n)
+        {
+            if (n < 1 || n > 3) return null;
+            if (_frags[n] != null) return _frags[n];
+            int a = n == 1 ? 0 : n == 2 ? 2 : 4, len = n == 3 ? 1 : 2;
+            var cuts = new Cut[len]; System.Array.Copy(Opening.cuts, a, cuts, 0, len);
+            _frags[n] = new Def { id = "OPEN_F" + n, title = Opening.title, bgm = Opening.bgm, sat = Opening.sat, cardMain = Opening.title, cardSub = n + " / 3", cuts = cuts };
+            return _frags[n];
+        }
+
         private static readonly Def Opening = new Def
         {
             id = "OPEN", title = "그 약속", bgm = "BGM_M5", sat = 1.00f, holdToSeconds = 12f, gameTitleCard = true, cardMain = "너와 나의 주파수", cardSub = "우리의 송전탑  ·  COAST RUN",

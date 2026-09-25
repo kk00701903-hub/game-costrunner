@@ -155,6 +155,12 @@ namespace CoastRun
                     _nextTrailZ += len + Mathf.Lerp(trailGapMin, trailGapMax, (float)_rng.NextDouble());
                 }
 
+                if (KpopTutorial.Active)   // 194차: 튜토리얼 중엔 아이템도 대본만
+                {
+                    float hold = z + spawnAhead + 20f;
+                    _nextPotionZ = Mathf.Max(_nextPotionZ, hold); _nextCardZ = Mathf.Max(_nextCardZ, hold); _nextStarZ = Mathf.Max(_nextStarZ, hold);
+                    _nextGiantZ = Mathf.Max(_nextGiantZ, hold); _nextCapsuleZ = Mathf.Max(_nextCapsuleZ, hold); _nextHeartZ = Mathf.Max(_nextHeartZ, hold);
+                }
                 if (_nextPotionZ < z + spawnAhead)
                 {
                     Place(PickupKind.Potion, _nextPotionZ, _rng.Next(3) - 1, 0.35f);

@@ -50,12 +50,12 @@ namespace CoastRun
         // ── 가구(방 꾸미기 v2에서 추가된 것; 장식 12종은 RoomDeco.All) ──
         public static readonly DecoDef[] Furniture =
         {
-            new DecoDef { id = "bed",       ko = "침대",       en = "Bed",        slot = DecoSlot.FloorR, price = 250, tag = "寢", color = new Color(0.95f, 0.75f, 0.80f), blurbKo = "폭신한 이불. 주말엔 여기서 안 나온다.",  blurbEn = "Fluffy blanket. Weekend HQ." },
-            new DecoDef { id = "desk",      ko = "책상",       en = "Desk",       slot = DecoSlot.FloorL, price = 220, tag = "机", color = new Color(0.80f, 0.62f, 0.45f), blurbKo = "라디오 사연을 쓰는 자리.",              blurbEn = "Where the radio letters get written." },
-            new DecoDef { id = "sofa",      ko = "소파",       en = "Sofa",       slot = DecoSlot.FloorR, price = 300, tag = "沙", color = new Color(0.55f, 0.70f, 0.85f), blurbKo = "셋이 앉으면 딱 맞는 크기.",             blurbEn = "Seats exactly three." },
-            new DecoDef { id = "treadmill", ko = "러닝머신",   en = "Treadmill",  slot = DecoSlot.FloorL, price = 400, tag = "走", color = new Color(0.45f, 0.48f, 0.55f), blurbKo = "탭하면 운동: 체력 +2 (페이즈마다 1번).",  blurbEn = "Tap to train: stamina +2 (once per phase)." },
-            new DecoDef { id = "shelf",     ko = "책장",       en = "Bookshelf",  slot = DecoSlot.WallL,  price = 180, tag = "架", color = new Color(0.70f, 0.50f, 0.35f), blurbKo = "앨범과 포토카드가 꽂혀 있다.",          blurbEn = "Albums and photocards live here." },
-            new DecoDef { id = "window",    ko = "창가 커튼",  en = "Curtains",   slot = DecoSlot.WallR,  price = 140, tag = "帘", color = new Color(0.98f, 0.85f, 0.60f), blurbKo = "노을이 들어오면 방이 주황색.",          blurbEn = "The sunset turns the room orange." },
+            new DecoDef { id = "bed",       ko = "침대",       en = "Bed",        slot = DecoSlot.FloorR, price = 1250, tag = "寢", color = new Color(0.95f, 0.75f, 0.80f), blurbKo = "폭신한 이불. 주말엔 여기서 안 나온다.",  blurbEn = "Fluffy blanket. Weekend HQ." },
+            new DecoDef { id = "desk",      ko = "책상",       en = "Desk",       slot = DecoSlot.FloorL, price = 1100, tag = "机", color = new Color(0.80f, 0.62f, 0.45f), blurbKo = "라디오 사연을 쓰는 자리.",              blurbEn = "Where the radio letters get written." },
+            new DecoDef { id = "sofa",      ko = "소파",       en = "Sofa",       slot = DecoSlot.FloorR, price = 1500, tag = "沙", color = new Color(0.55f, 0.70f, 0.85f), blurbKo = "셋이 앉으면 딱 맞는 크기.",             blurbEn = "Seats exactly three." },
+            new DecoDef { id = "treadmill", ko = "러닝머신",   en = "Treadmill",  slot = DecoSlot.FloorL, price = 2000, tag = "走", color = new Color(0.45f, 0.48f, 0.55f), blurbKo = "탭하면 운동: 체력 +2 (페이즈마다 1번).",  blurbEn = "Tap to train: stamina +2 (once per phase)." },
+            new DecoDef { id = "shelf",     ko = "책장",       en = "Bookshelf",  slot = DecoSlot.WallL,  price = 900, tag = "架", color = new Color(0.70f, 0.50f, 0.35f), blurbKo = "앨범과 포토카드가 꽂혀 있다.",          blurbEn = "Albums and photocards live here." },
+            new DecoDef { id = "window",    ko = "창가 커튼",  en = "Curtains",   slot = DecoSlot.WallR,  price = 700, tag = "帘", color = new Color(0.98f, 0.85f, 0.60f), blurbKo = "노을이 들어오면 방이 주황색.",          blurbEn = "The sunset turns the room orange." },
         };
 
         private static DecoDef[] _all;
@@ -212,11 +212,11 @@ namespace CoastRun
         // ── 베란다 화분 ──
         public static readonly SeedDef[] Seeds =
         {
-            new SeedDef { id = "tomato",   ko = "토마토",  en = "Tomato",   price = 200, weeks = 2, chance = 0.70f, food = 2, petal = new Color(0.95f, 0.25f, 0.20f), center = new Color(0.40f, 0.70f, 0.35f), emoji = "🍅", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
-            new SeedDef { id = "potato",   ko = "감자",    en = "Potato",   price = 180, weeks = 3, chance = 0.80f, food = 3, petal = new Color(0.82f, 0.66f, 0.38f), center = new Color(0.45f, 0.70f, 0.35f), emoji = "🥔", growHintKo = "성장 3-4분", growHintEn = "grow 3-4m" },
-            new SeedDef { id = "rice",     ko = "벼",      en = "Rice",     price = 200, weeks = 3, chance = 0.50f, rice = 2, petal = new Color(0.90f, 0.80f, 0.35f), center = new Color(0.55f, 0.75f, 0.30f), emoji = "🌾", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
-            new SeedDef { id = "rose",     ko = "장미",    en = "Rose",     price = 180, weeks = 2, chance = 0.60f, rose = true, petal = new Color(0.98f, 0.45f, 0.62f), center = new Color(0.35f, 0.60f, 0.30f), emoji = "🌹", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
-            new SeedDef { id = "lavender", ko = "라벤더",  en = "Lavender", price = 160, weeks = 2, chance = 0.40f, food = 1, petal = new Color(0.72f, 0.55f, 0.92f), center = new Color(0.40f, 0.68f, 0.40f), emoji = "💜", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
+            new SeedDef { id = "tomato",   ko = "토마토",  en = "Tomato",   price = 1000, weeks = 2, chance = 0.70f, food = 2, petal = new Color(0.95f, 0.25f, 0.20f), center = new Color(0.40f, 0.70f, 0.35f), emoji = "🍅", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
+            new SeedDef { id = "potato",   ko = "감자",    en = "Potato",   price = 900, weeks = 3, chance = 0.80f, food = 3, petal = new Color(0.82f, 0.66f, 0.38f), center = new Color(0.45f, 0.70f, 0.35f), emoji = "🥔", growHintKo = "성장 3-4분", growHintEn = "grow 3-4m" },
+            new SeedDef { id = "rice",     ko = "벼",      en = "Rice",     price = 1000, weeks = 3, chance = 0.50f, rice = 2, petal = new Color(0.90f, 0.80f, 0.35f), center = new Color(0.55f, 0.75f, 0.30f), emoji = "🌾", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
+            new SeedDef { id = "rose",     ko = "장미",    en = "Rose",     price = 900, weeks = 2, chance = 0.60f, rose = true, petal = new Color(0.98f, 0.45f, 0.62f), center = new Color(0.35f, 0.60f, 0.30f), emoji = "🌹", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
+            new SeedDef { id = "lavender", ko = "라벤더",  en = "Lavender", price = 800, weeks = 2, chance = 0.40f, food = 1, petal = new Color(0.72f, 0.55f, 0.92f), center = new Color(0.40f, 0.68f, 0.40f), emoji = "💜", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
         };
         public static SeedDef Seed(string id) { foreach (var s in Seeds) if (s.id == id) return s; return null; }
         public static void EnsurePots(SaveData s)

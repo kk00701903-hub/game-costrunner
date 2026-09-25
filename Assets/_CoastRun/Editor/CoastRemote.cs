@@ -314,6 +314,16 @@ namespace CoastRun.Editor
                 ExecuteEvents.Execute(target, pd, ExecuteEvents.pointerClickHandler);
                 return "clicked " + target.name;
             }
+            // 188차: 클릭 핸들러가 없으면 누름/뗌 핸들러(조이스틱·카메라 패드 톡)로
+            foreach (var h in hits)
+            {
+                var target = ExecuteEvents.GetEventHandler<IPointerDownHandler>(h.gameObject);
+                if (target == null) continue;
+                pd.pointerPress = target; pd.pointerPressRaycast = h; pd.pointerCurrentRaycast = h; pd.pressPosition = pos;
+                ExecuteEvents.Execute(target, pd, ExecuteEvents.pointerDownHandler);
+                ExecuteEvents.Execute(target, pd, ExecuteEvents.pointerUpHandler);
+                return "pressed " + target.name;
+            }
             return "no handler at " + pos + " (screen " + Screen.width + "x" + Screen.height + ")";
         }
 

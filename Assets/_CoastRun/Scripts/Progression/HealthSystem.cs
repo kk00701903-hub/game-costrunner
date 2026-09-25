@@ -26,6 +26,7 @@ namespace CoastRun
         public const float MinHitFrac = 0.30f, MaxHitFrac = 0.60f;
         public const float MinHitHp = 30f, MaxHitHp = 60f;
         public const float PotionHealFrac = 0.30f;     // 물약 +30 게이지
+        public const float HeartHealFrac = 0.15f;      // 194차(사용자: 「하트 먹으면 채워지는 것」): 하트 +15 게이지(예전엔 말랑이와 같은 +0.4 라 거의 안 찼다)
         public const float JellyHealFrac = 0.004f;     // 말랑이 +0.4 게이지(기존 절대 0.4 @ max100)
         public const float DrainFracPerSec = 0.016f;   // 초당 −1.6 게이지(기존 절대 1.6 @ max100)
         [SerializeField] private float jellyHeal = 0.4f;
@@ -101,7 +102,8 @@ namespace CoastRun
             if (_player.State == SkateState.Finish || _player.Speed < 0.5f)
                 return;
 
-            Apply(-drainPerSecond * Time.deltaTime, silent: true);
+            if (KpopTutorial.Active && _current <= max * 0.2f) return;   // 194차: 튜토리얼 바닥
+            Apply(-drainPerSecond * (KpopTutorial.Active ? 0.5f : 1f) * Time.deltaTime, silent: true);
         }
 
         private void HandleHit()
@@ -121,6 +123,8 @@ namespace CoastRun
             // 장애물 표 = 게이지 그대로(콘 −30 · … · 버스 −60). 체력 스탯은 MaxHp 만 키운다.
             frac = Mathf.Clamp(frac, MinHitFrac, MaxHitFrac);
             float dmg = max * frac;
+            // 194차: 튜토리얼에선 아프기만 하고 끝나지 않게 — 10 % 만 깎고 20 % 밑으로는 안 내려간다.
+            if (KpopTutorial.Active) dmg = Mathf.Min(max * 0.10f, Mathf.Max(0f, _current - max * 0.20f));
             Apply(-dmg, silent: false);
             OnDamaged?.Invoke(dmg);
         }
@@ -137,6 +141,9 @@ namespace CoastRun
 
         public void HealJelly() => Heal(jellyHeal);
         public void HealPotion() => Heal(potionHeal);
+        public void HealHeart() => Heal(max * HeartHealFrac);
+        /// 194차: 튜토리얼 — 하트가 차오르는 걸 보여 주려고 게이지를 맞춘다.
+        public void SetFraction(float f) => Apply(Mathf.Clamp01(f) * max - _current, silent: true);
 
         private void Apply(float delta, bool silent)
         {

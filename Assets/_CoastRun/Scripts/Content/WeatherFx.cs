@@ -16,6 +16,16 @@ namespace CoastRun
         // 48차-12(사용자): 비·눈은 한 번에 계속 오지 않고 왔다 안 왔다 — 러닝 시간의 약 50%. ON 10~18초 / OFF 10~18초, 2초 페이드.
         private float _precipTimer, _precipPhase = 14f; private bool _precipOn = true; private float _precipMul = 1f;
         private int _rainBase = 800, _rainNearBase = 160, _snowBase = 350, _snowNearBase = 70;
+        /// 182차(사용자: 「벚꽃·비·눈이 너무 많이 내린다 — 지금의 50% 로」): 내리는 양 배율. 마을(VillageHub)이 0.5 로 둔다. 러닝은 기본 1.
+        public float Density = 1f;
+        // 182차: 개수 상한(maxParticles)이 먼저 걸리는 층(벚꽃 원경 120×7초 > 480)은 발생량만 줄여선 화면 속 개수가 거의 안 준다 → 상한도 같은 배율로
+        private readonly System.Collections.Generic.Dictionary<ParticleSystem, int> _baseMax = new System.Collections.Generic.Dictionary<ParticleSystem, int>();
+        private void ScaleMax(ParticleSystem ps)
+        {
+            if (ps == null) return;
+            if (!_baseMax.TryGetValue(ps, out int b)) { b = ps.main.maxParticles; _baseMax[ps] = b; }
+            var m = ps.main; m.maxParticles = Mathf.Max(1, Mathf.RoundToInt(b * Density));
+        }
         private System.Random _precipRng = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
 
         public void Bind(Transform follow)
@@ -165,10 +175,10 @@ namespace CoastRun
 
         private void ApplyPrecipMul()
         {
-            var re = _rain.emission; re.rateOverTime = _rainBase * _precipMul;
-            var rn = _rainNear.emission; rn.rateOverTime = _rainNearBase * _precipMul;
-            var se = _snow.emission; se.rateOverTime = _snowBase * _precipMul;
-            var sn = _snowNear.emission; sn.rateOverTime = _snowNearBase * _precipMul;
+            var re = _rain.emission; re.rateOverTime = _rainBase * _precipMul * Density;
+            var rn = _rainNear.emission; rn.rateOverTime = _rainNearBase * _precipMul * Density;
+            var se = _snow.emission; se.rateOverTime = _snowBase * _precipMul * Density;
+            var sn = _snowNear.emission; sn.rateOverTime = _snowNearBase * _precipMul * Density;
         }
 
         public void SetState(WeatherKind weather, SeasonKind season)
@@ -179,12 +189,14 @@ namespace CoastRun
             bool rain = weather == WeatherKind.Rain, snow = weather == WeatherKind.Snow || (windy && season == SeasonKind.Winter);
             // 비/눈으로 바뀌면 사이클을 '오는 중'으로 시작
             if (rain || weather == WeatherKind.Snow) { _precipOn = true; _precipTimer = 0f; _precipPhase = 12f + (float)_precipRng.NextDouble() * 6f; _precipMul = 1f; }
-            if (rain) { var re = _rain.emission; re.rateOverTime = _rainBase * _precipMul; var rn = _rainNear.emission; rn.rateOverTime = _rainNearBase * _precipMul; }
+            if (rain) { var re = _rain.emission; re.rateOverTime = _rainBase * _precipMul * Density; var rn = _rainNear.emission; rn.rateOverTime = _rainNearBase * _precipMul * Density; }
             SetActive(_rain, rain); SetActive(_rainNear, rain);
             SetActive(_snow, snow); SetActive(_snowNear, snow);
             SetActive(_mist, weather == WeatherKind.Mist || weather == WeatherKind.Cloudy);
             bool petals = season == SeasonKind.Spring && weather != WeatherKind.Rain;   // 63차: 봄이면 늘 벚꽃잎
             SetActive(_petals, petals); SetActive(_petalsNear, petals);
+            { var pe = _petals.emission; pe.rateOverTime = 120f * Density; var pn = _petalsNear.emission; pn.rateOverTime = 40f * Density; }   // 182차
+            ScaleMax(_petals); ScaleMax(_petalsNear); ScaleMax(_rain); ScaleMax(_rainNear); ScaleMax(_snow); ScaleMax(_snowNear); ScaleMax(_wind);   // 182차
             // 35차: 바람 — 계절별 날리는 것: 봄 벚꽃·유채 꽃잎 / 여름 초록 잎·물보라 / 가을 낙엽 / 겨울 눈보라
             Color leaf = season == SeasonKind.Spring ? new Color(1f, 0.78f, 0.86f, 0.95f)
                 : season == SeasonKind.Autumn ? new Color(0.92f, 0.52f, 0.18f, 0.95f)
@@ -198,6 +210,7 @@ namespace CoastRun
                 if (wmMat != null) wr.material = wmMat;
             }
             SetActive(_wind, windy || (weather == WeatherKind.Rain && season == SeasonKind.Autumn));
+            { var we = _wind.emission; we.rateOverTime = 90f * Density; }   // 182차
             // 비·눈 기울기: 바람이면 옆으로, 아니면 수직
             _windTilt = windy ? 28f : (weather == WeatherKind.Rain ? 10f : 4f);
             var rainRot = Quaternion.Euler(0f, 0f, -_windTilt) * Quaternion.Euler(90f, 0f, 0f);
@@ -208,13 +221,19 @@ namespace CoastRun
             {
                 var sm = _snow.main; sm.startSpeed = windy ? new ParticleSystem.MinMaxCurve(5f, 7.5f) : new ParticleSystem.MinMaxCurve(1.8f, 3.2f);
                 _snowBase = windy ? 550 : 350; _snowNearBase = windy ? 110 : 70;
-                var se = _snow.emission; se.rateOverTime = _snowBase * _precipMul;
+                var se = _snow.emission; se.rateOverTime = _snowBase * _precipMul * Density;
                 var nm = _snowNear.main; nm.startSpeed = windy ? new ParticleSystem.MinMaxCurve(4f, 6f) : new ParticleSystem.MinMaxCurve(1.4f, 2.4f);
-                var ne = _snowNear.emission; ne.rateOverTime = _snowNearBase * _precipMul;
+                var ne = _snowNear.emission; ne.rateOverTime = _snowNearBase * _precipMul * Density;
             }
         }
 
         public WeatherKind Current => _weather;
+        /// 198차(사용자: 「집 안에 벚꽃 흩날림 — 특히 병원」): 실내 — 모든 입자를 멈추고 지운다(SetState(Clear) 는 봄 벚꽃을 켠 채 두었다)
+        public void Indoor()
+        {
+            foreach (var ps in new[] { _petals, _petalsNear, _rain, _rainNear, _snow, _snowNear, _mist, _wind })
+                if (ps != null) { ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); ps.Clear(true); }
+        }
 
         private static void SetActive(ParticleSystem ps, bool on)
         {

@@ -26,6 +26,8 @@ namespace CoastRun
         private System.Random _rng;
         private Transform _boss, _bossVis, _bossBlob;
         private BossBody _body;
+        private BossModel3D _model;   // 199차: 입체 보스
+        private float _swoopNext, _swoopT = -1f, _prevAhead, _prevLatPos, _hoverNow;
         private float _bossT, _bossLen, _attackT, _lat, _latTarget, _appear;
         // 86차: 3D 스러운 움직임 — 앞뒤 스윙(원근)·기울기·윈드업
         private float _latVel, _prevLat, _prevHover, _depth, _depthTarget, _windup;
@@ -150,7 +152,11 @@ namespace CoastRun
             // 보스 본체
             _boss = new GameObject("Boss_" + kind).transform;
             _boss.SetParent(SkyHazards.Root, false);
-            _bossVis = SkyHazards.Visual(_boss, Art(kind), kind == Kind.Golem ? 7.8f : 6.9f, new Color(0.5f, 0.2f, 0.6f), outline: true);   // 52차: 3배
+            // 199차(사용자: 「보스 모션이 너무 2D 같다 — 자연스럽게, 앞뒤로 오가며 원근감」): 그림 대신 입체 모형(BossModel3D). 실패하면 예전 그림.
+            _model = null; _bossVis = null;
+            try { _model = BossModel3D.Build(_boss, (int)kind, kind == Kind.Golem ? 6.4f : 6.0f, 0.07f); _model.flying = true; _model.speedRef = 6f; _model.baseWalk = kind == Kind.Seagull ? 0.2f : 0.35f; }
+            catch (System.Exception ex) { Debug.LogWarning("[Boss] 3D model failed: " + ex.Message); _model = null; }
+            if (_model == null) _bossVis = SkyHazards.Visual(_boss, Art(kind), kind == Kind.Golem ? 7.8f : 6.9f, new Color(0.5f, 0.2f, 0.6f), outline: true);   // 52차: 3배
             // 86차(사용자): 종이 인형처럼 보이던 보스 → 카메라를 향해 돌되 **기울기(롤·피치)·앞뒤 스윙(원근)·윈드업 스쿼시**를 얹는 BossBody
             if (_bossVis != null)
             {
@@ -158,6 +164,7 @@ namespace CoastRun
                 _body = _bossVis.gameObject.AddComponent<BossBody>(); _body.kind = kind; _body.baseScale = _bossVis.localScale;
             }
             _depth = 0f; _depthTarget = 0f; _latVel = 0f; _prevLat = 0f; _prevHover = Hover; _windup = 0f;
+            _swoopT = -1f; _swoopNext = 4f + (float)_rng.NextDouble() * 2f; _prevAhead = 60f; _prevLatPos = 0f;
             // 떠 있는 보스의 바닥 그림자(직접 놓는 소프트 원판 — BlobShadow 는 호스트 높이를 따라가 버림)
             var sq = GameObject.CreatePrimitive(PrimitiveType.Quad); sq.name = "BossShadow"; Destroy(sq.GetComponent<Collider>());
             sq.transform.SetParent(SkyHazards.Root, false); sq.transform.rotation = Quaternion.Euler(90f, 0f, 0f); sq.transform.localScale = new Vector3(5.5f, 5.5f, 1f);
@@ -169,7 +176,7 @@ namespace CoastRun
                 float dt = Time.deltaTime; _bossT += dt; _appear = Mathf.Min(1f, _appear + dt * 1.2f);
                 _attackT -= dt;
                 if (_attackT <= 0.32f && _windup <= 0f) _windup = 0.32f;   // 86차: 공격 직전 윈드업(부풀었다 튕김)
-                if (_attackT <= 0f) { Attack(kind); _attackT = AttackGap(kind); _body?.Recoil(); }
+                if (_attackT <= 0f) { Attack(kind); _attackT = AttackGap(kind); _body?.Recoil(); _model?.Attack(); }
                 yield return null;
             }
             // 퇴장: 위로 날아가며 사라짐(Active 를 먼저 꺼서 FollowBoss 가 붙잡지 않게)
@@ -264,14 +271,29 @@ namespace CoastRun
             float rhythm = kind == Kind.Seagull ? Mathf.Sin(t * 5.2f) * 0.22f + Mathf.Sin(t * 1.3f) * 0.7f
                          : kind == Kind.Golem ? Mathf.Sin(t * 1.1f) * 0.5f
                          : Mathf.Sin(t * 2.4f) * 0.6f + Mathf.Sin(t * 5.7f) * 0.25f;
-            float hover = Hover + rhythm + _bob * 2f;
-            float ahead = Mathf.Lerp(60f, Ahead, 1f - (1f - _appear) * (1f - _appear)) + _depth * _appear;
+            // 199차: 종류별 높이(갈매기 높이 날기 · 골렘 낮게 둥실 · 도깨비 중간) + 가끔 「덮치기」— 12 m 까지 다가와 낮게 내려왔다가 물러난다
+            float baseH = kind == Kind.Seagull ? Hover : kind == Kind.Golem ? 2.6f : 3.4f;
+            _swoopNext -= dt;
+            if (_swoopT < 0f && _swoopNext <= 0f && _appear >= 1f) { _swoopT = 0f; _swoopNext = 5f + (float)_rng.NextDouble() * 3.5f; }
+            float swoop = 0f;
+            if (_swoopT >= 0f) { _swoopT += dt / (kind == Kind.Golem ? 3.2f : 2.4f); if (_swoopT >= 1f) _swoopT = -1f; else { float k = Mathf.Sin(_swoopT * Mathf.PI); swoop = k * k * (3f - 2f * k); } }
+            float hover = Mathf.Lerp(baseH, Mathf.Max(1.6f, baseH * 0.45f), swoop) + rhythm + _bob * 2f;
+            _hoverNow = hover;
+            float ahead = Mathf.Lerp(60f, Ahead, 1f - (1f - _appear) * (1f - _appear)) + _depth * _appear - swoop * 15f;
             _boss.position = RoadPlacement.OnRoad(_player.PathDistance + ahead, _lat, hover);
             if (_bossBlob != null)
             {
                 _bossBlob.position = RoadPlacement.OnRoad(_player.PathDistance + ahead, _lat, 0.03f);
                 float hs = Mathf.Lerp(4.2f, 6.8f, Mathf.InverseLerp(3.5f, 8f, hover));
                 _bossBlob.localScale = new Vector3(hs, hs, 1f);
+            }
+            if (_model != null)
+            {
+                // 뛰는 속도는 빼고(주인공 기준) 보스가 실제로 오가는 속도만 — 앞(멀어짐)·옆
+                float dA = (ahead - _prevAhead) / dt, dL = (_lat - _prevLatPos) / dt; _prevAhead = ahead; _prevLatPos = _lat;
+                var fwd = _player.transform.forward; fwd.y = 0f; fwd = fwd.sqrMagnitude > 0.01f ? fwd.normalized : Vector3.forward; var right = Vector3.Cross(Vector3.up, fwd);
+                _model.vel = Vector3.ClampMagnitude(fwd * dA + right * dL, 30f);
+                var cam = Camera.main; _model.lookAt = cam != null ? cam.transform.position : _player.transform.position;
             }
             if (_body != null)
             {

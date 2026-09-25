@@ -8,7 +8,7 @@ namespace CoastRun
     public static class Survival
     {
         public const int ClothesWeeks = 12;
-        public const int RicePrice = 60, SidePrice = 40, ClothesPrice = 300; // 레거시 상수(새 단가는 LifeItems)
+        public const int RicePrice = 60 * EconomyScale.Living, SidePrice = 40 * EconomyScale.Living, ClothesPrice = 300 * EconomyScale.Living;   // 186차 ×5 // 레거시 상수(새 단가는 LifeItems)
         public const int DangerWeeksToDie = 2;
         /// 74차: 한 주를 살면 그냥 쌓이는 피로. 다 잘 챙긴 주에만 겨우 -1 이 되고(공짜 회복을 없앤다),
         ///   굶고 못 자고 옷까지 낡으면 +40 까지 오른다.

@@ -19,13 +19,16 @@ def load_env():
             env[k.strip()] = v.strip().strip('"').strip("'")
     return env
 
-def send(text: str) -> dict:
+def send(text: str, force_reply: bool = False) -> dict:
     env = load_env()
     tok = env.get("TELEGRAM_BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN")
     chat = env.get("TELEGRAM_ALLOWED_USER_ID") or os.environ.get("TELEGRAM_ALLOWED_USER_ID")
     if not tok or not chat:
         raise SystemExit("TELEGRAM_BOT_TOKEN / TELEGRAM_ALLOWED_USER_ID missing in .env")
-    data = urllib.parse.urlencode({"chat_id": chat, "text": text, "disable_web_page_preview": "true"}).encode()
+    fields = {"chat_id": chat, "text": text, "disable_web_page_preview": "true"}
+    if force_reply:   # 196차: 보고 아래 입력칸(ForceReply) — 답장은 fetch_inbox.py 가 inbox/ 에 저장
+        fields["reply_markup"] = json.dumps({"force_reply": True, "input_field_placeholder": "다음 작업을 입력하세요"}, ensure_ascii=False)
+    data = urllib.parse.urlencode(fields).encode()
     req = urllib.request.Request(f"https://api.telegram.org/bot{tok}/sendMessage", data=data)
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read().decode())

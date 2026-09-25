@@ -46,7 +46,7 @@ namespace CoastRun
                 default: return "";
             }
         }
-        public static int Money(int place) => place == 1 ? 300 : place == 2 ? 200 : place == 3 ? 100 : 50;
+        public static int Money(int place) => (place == 1 ? 300 : place == 2 ? 200 : place == 3 ? 100 : 50) * EconomyScale.Living;   // 186차 ×5
         public static int Hearts(int place) => place == 1 ? 3 : place == 2 ? 2 : place == 3 ? 1 : 0;
 
         /// 결과 판정 + 보상 적용. 돌려주는 값 = 등수.
@@ -94,7 +94,7 @@ namespace CoastRun
             EventCardKit.IconRow(crt, "Icon_Star", new Color(0.75f, 0.62f, 1f), Loc.T($"{RaisingFun.StatName(d.stat)} {have} / 목표 {d.target}", $"{RaisingFun.StatName(d.stat)} {have} / target {d.target}") + (have >= d.target ? " ✓" : ""), 398f, 60f, 22);
             var box = EventCardKit.InfoBox(crt, 476f, 150f);
             EventCardKit.IconRow(box, "Icon_Bulb", new Color(0.80f, 0.88f, 1f), Loc.T("이기고 스탯도 채우면 1등 · 하나만 되면 2·3등", "Win + stat = 1st · one of them = 2nd/3rd"), 14f, 52f, 18, null, null, 18f, 14f);
-            EventCardKit.IconRow(box, "Icon_Coin", new Color(1f, 0.85f, 0.45f), Loc.T("1등 300G ♥3 상품 · 2등 200G ♥2 · 3등 100G ♥1", "1st 300G ♥3 prize · 2nd 200G ♥2 · 3rd 100G ♥1"), 82f, 52f, 18, null, null, 18f, 14f);
+            EventCardKit.IconRow(box, "Icon_Coin", new Color(1f, 0.85f, 0.45f), Loc.T($"1등 {Festival.Money(1)}G ♥3 상품 · 2등 {Festival.Money(2)}G ♥2 · 3등 {Festival.Money(3)}G ♥1", $"1st {Festival.Money(1)}G ♥3 prize · 2nd {Festival.Money(2)}G ♥2 · 3rd {Festival.Money(3)}G ♥1"), 82f, 52f, 18, null, null, 18f, 14f);
             EventCardKit.IconButton(crt, "Go", "Icon_Arrow", Loc.T("참가!", "Enter!"), new Color(1f, 0.52f, 0.10f), new Vector2(0.5f, 0f), new Vector2(0f, 30f), new Vector2(440f, 84f), () => { Close(); onGo?.Invoke(); }, 32);
             CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear, 0.5f);
         }

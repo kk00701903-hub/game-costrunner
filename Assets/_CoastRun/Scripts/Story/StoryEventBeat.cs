@@ -22,6 +22,12 @@ namespace CoastRun
         public static void ShowAfterEvent(SaveData save, int ev, Action onDone)
         {
             if (save == null || ev < 1 || ev > 10) { onDone?.Invoke(); return; }
+            // 197차(사용자: 「순서 맞게」): 선택 카드를 지금 이야기 순서(v7 EV)에 맞춰 붙인다 — 카드 문장은 그대로, 붙는 자리만.
+            //   EV1 보드→「지금 잡을 수 있는 건」 · EV2 스무 살 생일→「달력의 X」 · EV3 물장구→「처음 듣는 이름」 · EV4 태왁→「물때의 뒷모습」
+            //   EV5 우유 두 병→「저녁 우유 두 병」 · EV6 첫눈→「성에 창의 두 얼굴」 · EV10 안을 수 없는→「전날 밤의 우비」 · EV7~9(회상)은 카드 없음
+            int[] beatOf = { 0, 1, 4, 2, 6, 3, 7, 0, 0, 0, 10 };
+            ev = beatOf[ev];
+            if (ev == 0) { onDone?.Invoke(); return; }
             switch (ev)
             {
                 case 1: Choice(save, Loc.T("지금 잡을 수 있는 건", "What still fits in my hand"),

@@ -16,6 +16,8 @@ namespace CoastRun
         public static void Show(string msg)
         {
             if (RunHudChrome.Instance != null) { Pop(msg); return; }
+            // 187차(사용자: 「큰 벌레에게 물렸다 등 캡션은 kpop 러닝의 분홍 큰 글씨처럼」): 마을도 분홍 팝. 같은 문구가 떠 있는 동안엔 겹쳐 띄우지 않는다
+            if (CoastRun.Village.VillageHub.I != null) { if (_popping.Contains(msg)) return; Pop(msg); return; }
             ShowBar(msg);
         }
 
@@ -32,6 +34,7 @@ namespace CoastRun
         }
 
         private int _popStack;
+        static readonly HashSet<string> _popping = new HashSet<string>(); GameObject _villagePop;
         IEnumerator PopCo(string msg)
         {
             if (_canvas == null) Build();
@@ -39,7 +42,10 @@ namespace CoastRun
             var go = new GameObject("Pop", typeof(RectTransform), typeof(CanvasGroup));
             go.transform.SetParent(root, false);
             var rt = go.GetComponent<RectTransform>(); rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.62f); rt.sizeDelta = new Vector2(640f, 120f);
-            float yOff = -_popStack * 70f; _popStack++;
+            bool village = CoastRun.Village.VillageHub.I != null;
+            // 187차: 마을은 한 번에 하나 — 새 캡션이 오면 앞의 것을 바로 치운다(두 줄 캡션이 겹쳐 읽히지 않던 것)
+            if (village) { if (_villagePop != null) Destroy(_villagePop); _villagePop = go; }
+            float yOff = village ? 0f : -_popStack * 70f; _popStack++; _popping.Add(msg);
             var cg = go.GetComponent<CanvasGroup>();
             var t = CoastHudLayout.MakeText(rt, "T", msg, 34, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
             t.color = new Color(1f, 0.36f, 0.66f); t.fontStyle = FontStyle.Bold; t.horizontalOverflow = HorizontalWrapMode.Wrap; t.verticalOverflow = VerticalWrapMode.Overflow;
@@ -52,14 +58,14 @@ namespace CoastRun
                 k += Time.unscaledDeltaTime; float u = Mathf.Clamp01(k / 0.35f);
                 float sc = u < 0.6f ? Mathf.Lerp(0.6f, 1.15f, u / 0.6f) : Mathf.Lerp(1.15f, 1f, (u - 0.6f) / 0.4f);
                 rt.localScale = Vector3.one * sc; rt.anchoredPosition = new Vector2(0f, yOff); cg.alpha = Mathf.Clamp01(u * 3f);
-                yield return null;
+                yield return null; if (go == null) { _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg); yield break; }
             }
             rt.localScale = Vector3.one;
             float hold = 0f;
-            while (hold < 1.6f) { hold += Time.unscaledDeltaTime; rt.anchoredPosition = new Vector2(Mathf.Sin(hold * 6f) * 2f, yOff + Mathf.Sin(hold * 2.5f) * 4f); yield return null; }
+            while (hold < 1.6f) { hold += Time.unscaledDeltaTime; rt.anchoredPosition = new Vector2(Mathf.Sin(hold * 6f) * 2f, yOff + Mathf.Sin(hold * 2.5f) * 4f); yield return null; if (go == null) { _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg); yield break; } }
             k = 0f;
-            while (k < 0.5f) { k += Time.unscaledDeltaTime; float u = k / 0.5f; rt.anchoredPosition = new Vector2(0f, yOff + u * 90f); cg.alpha = 1f - u; yield return null; }
-            _popStack = Mathf.Max(0, _popStack - 1);
+            while (k < 0.5f) { k += Time.unscaledDeltaTime; float u = k / 0.5f; rt.anchoredPosition = new Vector2(0f, yOff + u * 90f); cg.alpha = 1f - u; yield return null; if (go == null) { _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg); yield break; } }
+            _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg);
             Destroy(go);
         }
 

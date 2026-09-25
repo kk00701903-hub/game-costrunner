@@ -10,6 +10,7 @@ namespace CoastRun
     public class CoinPickup : MonoBehaviour
     {
         public const int GoldValue = 2;
+        public static int DevSpawnedValue;   // 186차: 개발용 — 이번 판에 깔린 코인 값 합(후렴 ×2·업그레이드 배율 전)
         public const int SilverValue = 1;
         public const int BundleValue = GoldValue * 10;   // 기존 금화 10배
 
@@ -88,6 +89,7 @@ namespace CoastRun
         public static CoinPickup Spawn(Transform parent, Vector3 worldPos, CoinWallet wallet,
             UpgradeManager upgrades, UI_FeedbackController feedback, Transform player, CoinTier tier)
         {
+            DevSpawnedValue += tier == CoinTier.Bundle ? BundleValue : tier == CoinTier.Silver ? SilverValue : GoldValue;   // 186차 경제 점검용(판에 깔린 코인 총액)
             var reuse = PopPool(tier);
             if (reuse != null)
             {

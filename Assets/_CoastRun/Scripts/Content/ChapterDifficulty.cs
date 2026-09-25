@@ -29,12 +29,18 @@ namespace CoastRun
         /// 0(1챕터) → 1(20챕터). 아케이드는 1을 넘어 계속 어려워진다.
         public static float T => (StageF - 1f) / 19f;
 
-        public static float SpeedMul => 1f + 0.32f * T;
-        public static float GapMul => Mathf.Lerp(1f, 0.74f, T);
-        public static float DoubleLaneBonus => 0.14f * T;
+        public static float SpeedMul => (1f + 0.32f * T) * Ease(0.88f, 0.92f, 0.96f) * KpopTutorial.SpeedMul;
+        public static float GapMul => Mathf.Lerp(1f, 0.74f, T) * Ease(1.3f, 1.2f, 1.1f);
+        public static float DoubleLaneBonus => ArcadeRun.KpopEasy > 0 ? 0f : 0.14f * T;
         public static float CarSpeedMul => 1f + 0.25f * T;
         /// 마주 오는 차 간격도 좁아진다(행 수 기준 배율).
-        public static float CarEveryMul => Mathf.Lerp(1f, 0.7f, T);
+        public static float CarEveryMul => Mathf.Lerp(1f, 0.7f, T) * Ease(1.6f, 1.4f, 1.2f);
+
+        /// 194차: K-POP 챕터 1/2/3 완화 배율(그 외 1).
+        static float Ease(float c1, float c2, float c3)
+        {
+            switch (ArcadeRun.KpopEasy) { case 1: return c1; case 2: return c2; case 3: return c3; default: return 1f; }
+        }
 
         public const int StatueFrom = 5;     // 돌하르방 석상 — 옆으로 피해야 함(점프 불가)
         public const int ScooterFrom = 7;    // 세워 둔 스쿠터 — 낮음, 점프 가능

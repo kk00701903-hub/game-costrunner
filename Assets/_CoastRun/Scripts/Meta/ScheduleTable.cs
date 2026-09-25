@@ -151,7 +151,7 @@ namespace CoastRun
             var d = new ScheduleDef
             {
                 id = id, displayName = name, place = place, category = ScheduleCategory.Job, primaryStat = primary,
-                difficulty = diff, dStamina = st, dAgility = ag, dCharm = ch, dStress = stress, dMoney = money, glyph = glyph,
+                difficulty = diff, dStamina = st, dAgility = ag, dCharm = ch, dStress = stress, dMoney = money * EconomyScale.Living, glyph = glyph,
                 dSense = sense, dTrust = trust, dTrouble = trouble, condTrust = condTrust, condTroubleMax = condTroubleMax,
                 condStamina = condStamina, condAgility = condAgility,
             };
@@ -166,7 +166,7 @@ namespace CoastRun
             return new ScheduleDef
             {
                 id = id, displayName = name, place = place, category = ScheduleCategory.SelfDev, primaryStat = primary,
-                difficulty = diff, dStamina = st, dAgility = ag, dCharm = ch, dStress = stress, dMoney = money,
+                difficulty = diff, dStamina = st, dAgility = ag, dCharm = ch, dStress = stress, dMoney = money * EconomyScale.Living,
                 heartsOnGreat = hearts, glyph = glyph, dSense = sense,
             };
         }
@@ -179,7 +179,7 @@ namespace CoastRun
             {
                 id = id, displayName = name, place = place, category = ScheduleCategory.Lesson, primaryStat = StatKind.None,
                 difficulty = 0, dStamina = st, dAgility = ag, dCharm = ch, dSense = sense, dTrust = trust, dStress = stress,
-                dMoney = -cost, glyph = glyph, deterministic = true, heartsOnGreat = 0,
+                dMoney = -cost * EconomyScale.Living, glyph = glyph, deterministic = true, heartsOnGreat = 0,
             };
             if (only.HasValue) { d.hasOnlySeason = true; d.onlySeason = only.Value; }
             return d;

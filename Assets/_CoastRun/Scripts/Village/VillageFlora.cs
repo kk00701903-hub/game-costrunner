@@ -30,11 +30,13 @@ namespace CoastRun.Village
                 for (float x = -half; x < half; x += spacing)
                 {
                     float px = x + ((float)rng.NextDouble() - 0.5f) * spacing * 0.9f, pz = z + ((float)rng.NextDouble() - 0.5f) * spacing * 0.9f;
+                    if (px < VillageWorld.WestLim || px > VillageWorld.EastLim || pz > VillageWorld.NorthLim) continue;   // 194차: 걸을 수 있는 곳만(지도 1.5배)
                     if (!GrassAt(splat, px, pz)) continue;
                     if (VillageWorld.PathDist(px, pz) < 2.4f) continue;
                     if (Mathf.Abs(px - VillageWorld.GardenX) < 5.4f && Mathf.Abs(pz - VillageWorld.GardenZ) < 4.9f) continue;   // 텃밭
                     if (Mathf.Abs(px) < 10f && pz > 24f && pz < 34f) continue;                                                     // 마당
                     if (VillageWorld.NearBuildingPublic(px, pz, 4.2f)) continue;
+                    { bool lot = false; foreach (var L in VillageLand.Lots) if (Mathf.Abs(px - L.pos.x) < 4.4f && Mathf.Abs(pz - L.pos.y) < 4.4f) { lot = true; break; } if (lot) continue; }   // 183차: 임대 땅 자리
                     if (VillageWorld.Bay(px, pz) > 0.02f) continue;
                     float h = VillageWorld.Height(px, pz); if (h < VillageWorld.SeaLevel + 0.4f) continue;
                     // 밀도: 잔디는 촘촘히, 언덕 위는 듬성

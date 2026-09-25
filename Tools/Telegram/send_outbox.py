@@ -24,7 +24,10 @@ def main():
     if not msg:
         RES.write_text("empty", encoding="utf-8"); print("empty"); return
     try:
-        ok = send(msg).get("ok")
+        # 196차: 보고는 입력칸(ForceReply)과 함께 — 첫 줄이 #noreply 면 입력칸 없이
+        fr = not msg.startswith("#noreply")
+        if not fr: msg = msg[len("#noreply"):].lstrip()
+        ok = send(msg, force_reply=fr).get("ok")
     except Exception as e:
         ok = f"ERR {e}"
     first = msg.splitlines()[0][:60]

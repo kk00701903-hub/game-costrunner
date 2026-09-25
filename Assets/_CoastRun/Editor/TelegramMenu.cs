@@ -38,6 +38,26 @@ namespace CoastRun.EditorTools
             Process.Start(psi);
         }
 
+        /// 196차: 텔레그램 입력칸 답장을 받아 Tools/Telegram/inbox/ 에 저장(실행은 하지 않는다 — Claude 가 채팅에서 확인 받고 진행)
+        [MenuItem("Coast Run/Telegram/Fetch inbox")]
+        public static void FetchInbox() { RunPy("fetch_inbox.py", "inbox"); }
+        private static void RunPy(string script, string tag)
+        {
+            var psi = new ProcessStartInfo("python", "\"Tools\\Telegram\\" + script + "\"")
+            { WorkingDirectory = Root, UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true, StandardOutputEncoding = System.Text.Encoding.UTF8, StandardErrorEncoding = System.Text.Encoding.UTF8 };
+            try
+            {
+                using (var p = Process.Start(psi))
+                {
+                    if (p == null) { UnityEngine.Debug.LogError("[Telegram] python 실행 실패"); return; }
+                    string outp = p.StandardOutput.ReadToEnd(); string err = p.StandardError.ReadToEnd();
+                    if (!p.WaitForExit(40000)) { UnityEngine.Debug.LogError("[Telegram] " + script + " 40초 초과"); return; }
+                    UnityEngine.Debug.LogWarning("[Telegram] " + tag + " exit=" + p.ExitCode + " " + outp.Trim() + (string.IsNullOrEmpty(err) ? "" : "\n" + err.Trim()));
+                }
+            }
+            catch (System.Exception e) { UnityEngine.Debug.LogError("[Telegram] " + e.Message); }
+        }
+
         [MenuItem("Coast Run/Telegram/Send outbox")]
         public static void SendOutbox()
         {

@@ -9,7 +9,7 @@ namespace CoastRun.Village
     /// 일일 미션(VillageMission)과 달리 활동 칸을 쓰지 않는다. 데이터: SaveData.reqWeek/reqNpc/reqKind/reqProg/reqState(0 제안·1 받음·2 완료·3 보상 받음).
     public static class VillageRequest
     {
-        static readonly VillageMission.Kind[] Pool = { VillageMission.Kind.Rabbit, VillageMission.Kind.Crab, VillageMission.Kind.Fish, VillageMission.Kind.Bug, VillageMission.Kind.Egg, VillageMission.Kind.Chop, VillageMission.Kind.Pick, VillageMission.Kind.Bandit, VillageMission.Kind.Mine };
+        static readonly VillageMission.Kind[] Pool = { VillageMission.Kind.Rabbit, VillageMission.Kind.Crab, VillageMission.Kind.Fish, VillageMission.Kind.Bug, VillageMission.Kind.Egg, VillageMission.Kind.Chop, VillageMission.Kind.Pick, VillageMission.Kind.Bandit, VillageMission.Kind.Mine, VillageMission.Kind.TourPhoto, VillageMission.Kind.TourShell, VillageMission.Kind.TourFalls, VillageMission.Kind.TourSouvenir, VillageMission.Kind.Ore };   // 195차: 관광지·광산 부탁
         public const int NpcCount = 6;
 
         public static void Ensure(SaveData s)
@@ -33,7 +33,7 @@ namespace CoastRun.Village
         /// NPC 머리 위 표시용: 0 없음 · 1 제안 있음(📜) · 2 완료(🎁) · 3 진행 중
         public static int MarkFor(SaveData s, int npc) { int i = IndexFor(s, npc); if (i < 0) return 0; int st = s.reqState[i]; return st == 0 ? 1 : st == 2 ? 2 : st == 1 ? 3 : 0; }
         public static int Goal(SaveData s, int i) => VillageMission.Goal((VillageMission.Kind)s.reqKind[i]);
-        public static int Reward(VillageMission.Kind k) => VillageMission.Money(k) + 40;
+        public static int Reward(VillageMission.Kind k) => VillageMission.Money(k) + 80;   // 186차 +40→+120 · 195차(돈 밸런스: 조금 모자라게) +80
 
         /// 목표 진행(VillageHub.MissionTick 이 종류마다 부른다)
         public static void Tick(VillageHub hub, VillageMission.Kind k, int n)

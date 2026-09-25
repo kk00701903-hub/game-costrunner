@@ -9,6 +9,10 @@ namespace CoastRun.Village
     {
         public const float CX = -31f, CZ = 30f, HW = 8f, HD = 11f;   // 중심·반폭·반깊이
         public static Vector3 Gate => VillageWorld.Ground(CX + HW, CZ - 3f);
+        // 183차(사용자: 「말도 때려서 식량으로」): 살아 있는 말 목록 · 이번 주 살아 있는 수(죽은 말은 주가 바뀌면 다시 태어난다)
+        public static readonly List<RanchHorse> Horses = new List<RanchHorse>();
+        public static int Alive = 4;
+        public static int AliveFor(SaveData s) { if (s == null) return 4; if (s.ranchHorseWeek != s.week) { s.ranchHorseWeek = s.week; s.ranchHorseDead = 0; } return Mathf.Clamp(4 - s.ranchHorseDead, 0, 4); }
 
         public static void Build(Transform root)
         {
@@ -48,13 +52,16 @@ namespace CoastRun.Village
             // ── 말 네 마리 ────────────────────────────────────────────────
             var mane = new[] { new Color(0.24f, 0.17f, 0.13f), new Color(0.95f, 0.92f, 0.86f), new Color(0.20f, 0.16f, 0.18f), new Color(0.42f, 0.28f, 0.18f) };
             var coat = new[] { new Color(0.55f, 0.36f, 0.22f), new Color(0.78f, 0.62f, 0.45f), new Color(0.35f, 0.28f, 0.26f), new Color(0.90f, 0.86f, 0.80f) };
+            Horses.Clear();
             for (int i = 0; i < 4; i++)
             {
+                if (i >= Alive) break;   // 183차: 이번 주 잡힌 말은 빼고
                 float x = CX + (float)(rng.NextDouble() - 0.5) * (HW * 1.4f);
                 float z = CZ + (float)(rng.NextDouble() - 0.5) * (HD * 1.4f);
                 var h = Horse(host, VillageWorld.Ground(x, z), (float)rng.NextDouble() * 360f, coat[i], mane[i]);
                 var w = h.gameObject.AddComponent<RanchHorse>();
                 w.Init(new Vector2(CX, CZ), new Vector2(HW - 1.2f, HD - 1.2f), 0.9f + (float)rng.NextDouble() * 0.5f, (float)rng.NextDouble() * 6f);
+                Horses.Add(w);
             }
         }
 
@@ -187,6 +194,18 @@ namespace CoastRun.Village
     {
         Vector2 _c, _half; float _speedK, _phase, _wait, _run; Vector3 _dir;
         Transform[] _legs; Transform _head;
+        // 183차: 방망이 세 방이면 쓰러진다. 맞으면 반대쪽으로 달아난다
+        public int Hp = 3; public bool Dead; float _deadT;
+        /// 맞기 — 쓰러지면 true
+        public bool Hit(Vector3 from)
+        {
+            if (Dead) return false;
+            Hp--; var away = transform.position - from; away.y = 0f; _dir = away.sqrMagnitude > 0.01f ? away.normalized : transform.forward;
+            _run = 2.5f; _wait = 2.5f;
+            if (Hp > 0) return false;
+            Dead = true; _deadT = 0f; VillageRanch.Horses.Remove(this);
+            return true;
+        }
 
         public void Init(Vector2 center, Vector2 half, float speedK, float phase)
         {
@@ -200,6 +219,13 @@ namespace CoastRun.Village
         void Update()
         {
             float dt = Time.deltaTime; _phase += dt;
+            if (Dead)
+            {
+                // 옆으로 쓰러졌다 2.5초 뒤 사라짐
+                _deadT += dt; transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0f, transform.eulerAngles.y, 88f), dt * 5f);
+                if (_deadT > 2.5f) Destroy(gameObject);
+                return;
+            }
             _wait -= dt; _run -= dt;
             if (_wait <= 0f)
             {

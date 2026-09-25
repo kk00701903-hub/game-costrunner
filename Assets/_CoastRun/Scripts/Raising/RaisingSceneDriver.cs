@@ -43,7 +43,8 @@ namespace CoastRun
             bool pendingOpen = gm.Save.chapter == 1 && !gm.Save.prologueSeen && !gm.Save.boundaryPending;
             // 136차: 스토리 모드는 바닷가 마을부터. 148차(사용자): 05_Raising 에 들어오는 모든 길(계속하기·대회 뒤·러닝 실패 뒤·에디터 직접 열기)이
             // 마을이 기본 — 스케줄(홈) 화면은 마을에서 「우리집 → 집에 들어가기」로만. 예외: 첫 오프닝 대기, 타임라인 열기 요청.
-            bool wantVillage = CoastRun.Village.VillageHub.Enabled && !pendingOpen && !gm.OpenTimelineOnRaising && !gm.SleepFromVillage;
+            // 196차(사용자: 「처음에는 송전탑 위에서 깨어나는걸로」): 새 게임도 마을로 — 오프닝 대신 VillageHubStory 도입(탑 위 기상)
+            bool wantVillage = CoastRun.Village.VillageHub.Enabled && !gm.OpenTimelineOnRaising && !gm.SleepFromVillage;
             if (wantVillage)
             {
                 _hub = CoastRun.Village.VillageHub.Create(gm, this);

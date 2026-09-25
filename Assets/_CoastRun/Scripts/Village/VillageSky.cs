@@ -47,7 +47,7 @@ namespace CoastRun.Village
         {
             var rng = new System.Random(170);
             var painted = new List<Texture2D>();
-            foreach (var n in new[] { "Cloud_Cumulus_A", "Cloud_Cumulus_B", "Cloud_Cumulus_C" }) { var t = ArtAssets.LoadTexture(n); if (t != null) painted.Add(t); }
+            foreach (var n in new[] { "Cloud_Cumulus_A", "Cloud_Cumulus_B", "Cloud_Cumulus_C" }) { var t = ArtAssets.LoadTexture(n + "_V") ?? ArtAssets.LoadTexture(n); if (t != null) painted.Add(t); }   // 187차: 마을용 _V(남색 테두리 → 하늘색)
             // 구름 링: 14개, 25° 간격 근처에 흩뿌림, 겉보기 고도 −11~−3°(하늘 띠의 아래~위)
             for (int i = 0; i < 14; i++)
             {
@@ -95,9 +95,60 @@ namespace CoastRun.Village
             Part(_plane, PrimitiveType.Cube, new Vector3(0f, -0.05f, 0.6f), new Vector3(1.14f, 0.22f, 2.6f), Quaternion.identity, accent);                  // 창문 띠
             for (int k = -1; k <= 1; k += 2) Part(_plane, PrimitiveType.Capsule, new Vector3(k * 2.4f, -0.55f, 0.6f), new Vector3(0.55f, 1.2f, 0.55f), Quaternion.Euler(90f, 0f, 0f), _planeM);   // 엔진
             _plane.gameObject.SetActive(false);
-            // 새 떼 2: V 자 5마리, 날개 두 장(검은 얇은 상자)이 퍼덕인다
-            _birdM = Curved(CoastMaterials.SetNoFog(CoastMaterials.CreateTransparent(new Color(0.16f, 0.18f, 0.26f, 1f))));
-            _flockA = Flock(0f, 65f, SkyY(65f, -9f), 0.11f, rng); _flockB = Flock(2.2f, 80f, SkyY(80f, -7f), -0.08f, rng);
+            // 새 떼 2: V 자 5마리 — 187차(사용자: 「새를 파이어플라이로 다시 그리고 배경과 겹치지 않게」): Firefly 갈매기 그림(Tex_Bird) 빌보드.
+            // 바다 쪽 하늘(남쪽 −90°±50°)만 오가고, 겉보기 고도 −12.5/−11°(188차 캡처로 보정 — 위 버튼 줄 아래 하늘 가운데)로 두어 언덕·집과 겹치지 않게 한다
+            var birdTex = ArtAssets.LoadTexture("Tex_Bird");
+            _birdM = birdTex != null ? Curved(CoastMaterials.SetNoFog(CoastMaterials.CreateTexturedTransparentCurved(birdTex, Color.white), 0f))
+                                     : Curved(CoastMaterials.SetNoFog(CoastMaterials.CreateTransparent(new Color(0.16f, 0.18f, 0.26f, 1f))));
+            _flockA = Flock(0.2f, 70f, SkyY(70f, -12.5f), 0.10f, rng); _flockB = Flock(2.4f, 85f, SkyY(85f, -11f), -0.075f, rng);
+        }
+
+
+        // ── 193차(사용자: 「새들 밑에 이런 게 보인다」·「날갯짓 모션」) ──
+        // 네모 한 장(투명도에 기대는 판)은 기기에 따라 알파가 빠지면 어두운 네모로 보였다 → Firefly 갈매기 그림의 윤곽(32×32 칸)대로만 면을 만든다.
+        // 날개(윗부분)는 어깨선 피벗 아래로 따로 두어 세로로 뒤집히며 퍼덕인다.
+        const string BirdMask = "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000111000000000000000000100000000001111100000000000000011100000000011111110000000000001111000000000011111111100000000011111000000000111111111110000001111110000000001111111111111000111111100000000001111111111111001111111000000000001111111111110111111110000000000011111111111111111111000000000000011111111111111111111100000000000001111111111111111111110000000000011111111111111111111111100000000001111111111111111111111110000000011111111111111111111111100000000011111111111111111111100000000000011111111111111111000000000000001111111111111111100000000000011111111111111111110000000000111111111111111111111000000000001111111111111111111100000000000001111111111111111110000000000000000000001111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        const int BirdN = 32, BirdShoulderRow = 15;
+        static Mesh _birdBody, _birdWing;
+        static Mesh BirdPart(bool wing)
+        {
+            var v = new List<Vector3>(); var uv = new List<Vector2>(); var tri = new List<int>();
+            float ys = 0.5f - BirdShoulderRow / (float)BirdN;
+            int r0 = wing ? 0 : BirdShoulderRow, r1 = wing ? BirdShoulderRow : BirdN;
+            for (int gy = r0; gy < r1; gy++)
+                for (int gx = 0; gx < BirdN; gx++)
+                {
+                    if (BirdMask[gy * BirdN + gx] != '1') continue;
+                    int run = 1; while (gx + run < BirdN && BirdMask[gy * BirdN + gx + run] == '1') run++;
+                    float x0 = gx / (float)BirdN - 0.5f, x1 = (gx + run) / (float)BirdN - 0.5f;
+                    float yT = 0.5f - gy / (float)BirdN, yB = 0.5f - (gy + 1) / (float)BirdN;
+                    float oy = wing ? -ys : 0f; int b = v.Count;
+                    v.Add(new Vector3(x0, yB + oy, 0f)); v.Add(new Vector3(x1, yB + oy, 0f)); v.Add(new Vector3(x1, yT + oy, 0f)); v.Add(new Vector3(x0, yT + oy, 0f));
+                    uv.Add(new Vector2(x0 + 0.5f, yB + 0.5f)); uv.Add(new Vector2(x1 + 0.5f, yB + 0.5f)); uv.Add(new Vector2(x1 + 0.5f, yT + 0.5f)); uv.Add(new Vector2(x0 + 0.5f, yT + 0.5f));
+                    tri.AddRange(new[] { b, b + 2, b + 1, b, b + 3, b + 2 });
+                    gx += run - 1;
+                }
+            var m = new Mesh { name = wing ? "BirdWing" : "BirdBody" }; m.SetVertices(v); m.SetUVs(0, uv); m.SetTriangles(tri, 0); m.RecalculateBounds(); return m;
+        }
+        /// 갈매기 한 마리(몸 + 어깨 피벗의 날개). 반환 = 빌보드로 돌릴 루트("BirdSprite")
+        public static Transform MakeBird(Transform parent, Material m, float size)
+        {
+            if (_birdBody == null) { _birdBody = BirdPart(false); _birdWing = BirdPart(true); }
+            var root = new GameObject("BirdSprite").transform; root.SetParent(parent, false); root.localScale = Vector3.one * size;
+            GameObject Part(string n, Transform p, Mesh mesh) { var g = new GameObject(n, typeof(MeshFilter), typeof(MeshRenderer)); g.transform.SetParent(p, false); g.GetComponent<MeshFilter>().sharedMesh = mesh; var r = g.GetComponent<MeshRenderer>(); r.sharedMaterial = m; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false; return g; }
+            Part("Body", root, _birdBody);
+            var piv = new GameObject("WingPivot").transform; piv.SetParent(root, false); piv.localPosition = new Vector3(0f, 0.5f - BirdShoulderRow / (float)BirdN, 0f);
+            Part("Wing", piv, _birdWing);
+            return root;
+        }
+        /// 날갯짓: 위로 편 날개(1) → 아래로 접어 내림(−0.6). 가끔 글라이드(날개 편 채)
+        public static void FlapBird(Transform sprite, float phase)
+        {
+            if (sprite == null || sprite.childCount < 2) return;
+            float glide = Mathf.PerlinNoise(phase * 0.05f, Time.time * 0.25f) > 0.62f ? 1f : 0f;
+            float k = 0.5f + 0.5f * Mathf.Sin(Time.time * 8.5f + phase);
+            float y = Mathf.Lerp(Mathf.Lerp(-0.6f, 1f, k), 0.95f, glide);
+            sprite.GetChild(1).localScale = new Vector3(1f, y, 1f);
         }
 
         static GameObject Part(Transform p, PrimitiveType t, Vector3 pos, Vector3 scale, Quaternion rot, Material m)
@@ -116,15 +167,8 @@ namespace CoastRun.Village
             {
                 var b = new GameObject("Bird").transform; b.SetParent(f, false);
                 int row = (i + 1) / 2, side = i == 0 ? 0 : (i % 2 == 0 ? 1 : -1);
-                b.localPosition = new Vector3(side * row * 2.6f, -row * 0.35f, -row * 2.4f);
-                for (int k = -1; k <= 1; k += 2)
-                {
-                    var w = GameObject.CreatePrimitive(PrimitiveType.Cube); Destroy(w.GetComponent<Collider>()); w.transform.SetParent(b, false);
-                    w.transform.localPosition = new Vector3(k * 0.9f, 0.2f, 0f); w.transform.localScale = new Vector3(1.9f, 0.10f, 0.35f);
-                    var mr = w.GetComponent<MeshRenderer>(); mr.sharedMaterial = _birdM; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; mr.receiveShadows = false;
-                }
-                var body = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(body.GetComponent<Collider>()); body.transform.SetParent(b, false); body.transform.localScale = new Vector3(0.35f, 0.3f, 0.7f);
-                body.GetComponent<MeshRenderer>().sharedMaterial = _birdM;
+                b.localPosition = new Vector3(side * row * 2.2f, -row * 0.5f, -row * 1.6f);
+                MakeBird(b, _birdM, 1.0f + (float)rng.NextDouble() * 0.25f);   // 193차: 윤곽 메시 + 날개 피벗
                 fl.phases.Add((float)rng.NextDouble() * 6f);
             }
             return f;
@@ -133,19 +177,28 @@ namespace CoastRun.Village
         /// 170차: 하늘 돔 밤낮 틴트 — 155차의 CreateUnlit(() => SkyTint) 는 에디터 전용 추적이라 빌드·플레이 중 갱신되지 않았다(밤이 된 뒤 낮이 돼도 남색 하늘). 매 프레임 직접 넣는다.
         public class SkyDomeTint : MonoBehaviour { Material _m; void Start() { var mr = GetComponent<MeshRenderer>(); _m = mr != null ? mr.sharedMaterial : null; } void Update() { if (_m != null) SetTint(_m, VillageDayNight.SkyTint); } }
 
+        /// 187차: 새 떼 — 세계 기준(구름 링 회전과 무관) 바다 쪽 하늘 호를 천천히 오가고, 새 한 마리 한 마리는 카메라를 보는 그림(날갯짓 = 세로 눌림)
         public class FlockFly : MonoBehaviour
         {
             public float ang, r, h, speed; public readonly List<float> phases = new List<float>();
+            float _t;
             void Update()
             {
-                ang += speed * Time.deltaTime;
-                var p = new Vector3(Mathf.Cos(ang) * r, h + Mathf.Sin(ang * 3f) * 2f, Mathf.Sin(ang) * r);
-                var fwd = new Vector3(-Mathf.Sin(ang), 0f, Mathf.Cos(ang)) * Mathf.Sign(speed);
-                transform.localPosition = p; transform.localRotation = Quaternion.LookRotation(fwd, Vector3.up);
+                _t += Time.deltaTime * Mathf.Abs(speed);
+                float a = -Mathf.PI * 0.5f + 0.87f * Mathf.Sin(_t + ang);   // 바다(−Z) 중심 ±50°
+                var par = transform.parent; var c = par != null ? par.position : Vector3.zero;
+                var p = c + new Vector3(Mathf.Cos(a) * r, h + Mathf.Sin(_t * 3f) * 1.5f, Mathf.Sin(a) * r);
+                var tan = new Vector3(-Mathf.Sin(a), 0f, Mathf.Cos(a)) * Mathf.Cos(_t + ang);   // 호 위 진행 방향
+                transform.position = p; transform.rotation = tan.sqrMagnitude > 1e-4f ? Quaternion.LookRotation(tan.normalized, Vector3.up) : transform.rotation;   // V 자가 진행 방향 뒤로 벌어지게
+                var cam = Camera.main;
+                float dir = 1f;
+                if (cam != null) dir = Vector3.Dot(tan, cam.transform.right) >= 0f ? 1f : -1f;
                 for (int i = 0; i < transform.childCount && i < phases.Count; i++)
                 {
-                    var b = transform.GetChild(i); float flap = Mathf.Sin(Time.time * 7.5f + phases[i]) * 32f;
-                    for (int k = 0; k < 2 && k < b.childCount; k++) b.GetChild(k).localRotation = Quaternion.Euler(0f, 0f, (k == 0 ? -1f : 1f) * (18f + flap));
+                    var b = transform.GetChild(i); if (b.childCount == 0) continue; var q = b.GetChild(0);
+                    if (cam != null) q.rotation = Quaternion.LookRotation(q.position - cam.transform.position, Vector3.up);
+                    float w = Mathf.Abs(q.localScale.x);
+                    q.localScale = new Vector3(w * dir, w, 1f); FlapBird(q, phases[i]);   // 193차: 날개 퍼덕임
                 }
                 transform.localScale = Vector3.one * 3.0f * Mathf.Clamp01(1f - VillageDayNight.Night * 1.8f);
             }

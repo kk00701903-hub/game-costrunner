@@ -66,7 +66,7 @@ namespace CoastRun
             // 67차-8(사용자): 들어오자마자 팝업을 띄우지 않는다 — 동그라미 3개가 찬 상태로 보여 주고 「다음 턴」을 눌러야 이야기·대회가 시작.
             if (Save != null && Save.boundaryPending) ShowBubble(BoundaryHint(), 4f);
             // 72차(사용자): 육성 모드를 **처음 시작할 때** 바로 오프닝(1장 첫 「다음 턴」이 아니라 들어오자마자).
-            if (Save != null && Save.chapter == 1 && !Save.prologueSeen && !Save.boundaryPending) StartCoroutine(OpeningFirst());
+            if (Save != null && Save.chapter == 1 && !Save.prologueSeen && !Save.boundaryPending && !CoastRun.Village.VillageStory.PlaceMode) StartCoroutine(OpeningFirst());
             else if (PlayerPrefs.GetInt(RaisingTutorial.PrefKey, 0) == 0)
                 StartCoroutine(TamaTutorial());
         }
@@ -1452,7 +1452,7 @@ namespace CoastRun
             if (Save == null || !Save.boundaryPending) yield break;
             bool autoWas = _auto; _auto = false; RefreshAuto();   // 135차: 이야기·대회 동안만 잠시 끄고, 끝나면 복원
             // K-POP = 돈·아이템 파밍. 스토리 컷씬/엔딩은 레벨로 잠그지 않는다(예전 롱컷 Lv 게이트 제거).
-            if (Save.chapter == 1 && !Save.prologueSeen)
+            if (Save.chapter == 1 && !Save.prologueSeen && !CoastRun.Village.VillageStory.PlaceMode)   // 196차: 마을(장소) 모드는 송전탑 위 기상 도입이 대신
             {
                 // 55차: 프롤로그는 러닝 앞이 아니라 여기(첫 이야기 앞)에서. 68차: 오프닝 시네마틱(M3)으로 — 「PRO」 VN 대신.
                 TitleAudio.StopMenuGlobal();
@@ -1464,7 +1464,8 @@ namespace CoastRun
             }
             // 61차(사용자): 컷씬은 8개. 85차(대본 v4): 컷씬 챕터는 StoryProgress.CutsceneChapters(1·3·5·7·10·12·17·20) — 러닝 챕터와 다르다.
             int cut = StoryProgress.CutsceneIndex(Save.chapter);
-            if (cut > 0 && !StoryProgress.CutsceneRead(cut))
+            // 196차(사용자: 「자고난 다음에 컷씬이 아니라 그 장소에 갔을 때」): 마을(장소) 모드면 컷씬은 VillageHubStory 가 장소에서 튼다
+            if (cut > 0 && !StoryProgress.CutsceneRead(cut) && !CoastRun.Village.VillageStory.PlaceMode)
             {
                 ShowBubble(Loc.T($"컷씬 {cut} — 이야기.", $"Cutscene {cut} — story time."), 1.5f);
                 yield return new WaitForSecondsRealtime(0.8f);
@@ -1482,7 +1483,7 @@ namespace CoastRun
             }
             // 85차: 보조 컷씬 EV1~10(CH2·4·6·8·9·11·13·14·15·19) — 4컷 × 7초 짧은 이야기. EV9 뒤엔 편지 단서 카드.
             int ev = StoryProgress.EventIndex(Save.chapter);
-            if (ev > 0 && !StoryProgress.EventSeen(ev) && CinematicTable.Event(ev) != null)
+            if (ev > 0 && !StoryProgress.EventSeen(ev) && CinematicTable.Event(ev) != null && !CoastRun.Village.VillageStory.PlaceMode)
             {
                 ShowBubble(Loc.T($"이야기 — 「{StoryProgress.EventTitle(ev)}」", $"Story — '{StoryProgress.EventTitle(ev)}'"), 1.5f);
                 yield return new WaitForSecondsRealtime(0.8f);

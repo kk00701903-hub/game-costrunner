@@ -213,7 +213,23 @@ namespace CoastRun
         }
 
         /// 챕터 난이도 가상 스테이지: 250m마다 1스테이지. 20을 넘어도 계속 오른다(최대 26).
-        public static float VirtualStage => Mathf.Min(26f, 1f + Distance / 250f);
+        public static float VirtualStage
+        {
+            get
+            {
+                // 194차(사용자): K-POP 챕터 1~3 은 쉽게 — 난이도가 천천히 오르고 상한도 낮다.
+                if (KpopEasy > 0)
+                {
+                    float per = KpopEasy == 1 ? 700f : KpopEasy == 2 ? 550f : 420f;
+                    float cap = KpopEasy == 1 ? 6f : KpopEasy == 2 ? 8f : 10f;
+                    return Mathf.Min(cap, 1f + Distance / per);
+                }
+                return Mathf.Min(26f, 1f + Distance / 250f);
+            }
+        }
+
+        /// 194차: 쉬운 K-POP 챕터 단계(1~3), 아니면 0. 보스전·튜토리얼 제외.
+        public static int KpopEasy => KpopMode && !BossRush && StageIndex >= 1 && StageIndex <= 3 ? StageIndex : 0;
 
         public static int Today => int.Parse(DateTime.Now.ToString("yyyyMMdd"));
         public static bool DailyDoneToday(MetaProfile p) => p != null && p.lastDailyDate == Today;
@@ -328,6 +344,7 @@ namespace CoastRun
         {
             int top = BossRushChapter(gm);
             int ch = Mathf.Max(6, UnityEngine.Random.Range(Mathf.Max(6, top - 4), top + 1));
+            KpopTutorial.SuppressOnce = true;
             StartKpop(gm, ch);
             BossRush = true;
         }
@@ -343,6 +360,8 @@ namespace CoastRun
             KpopMode = true; BossRush = false; BossesCleared = 0;
             ReturnToRaising = false;
             Seed = Today;
+            bool tutorial = KpopTutorial.ShouldRun();   // 194차: 처음 한 번 자동 + 다시보기
+            if (tutorial) chapter = 1;
             chapter = Mathf.Clamp(chapter, 1, Timeline.Chapters);
             Season = (SeasonKind)((chapter - 1) / 5);
             Conditions = MakeKpopConditions(Seed);
@@ -366,6 +385,7 @@ namespace CoastRun
             RunTuning.CoinMul *= LevelSystem.CoinMul(save);   // 53차: 레벨 코인 보너스
             RunTuning.Pet = save != null ? save.equippedPet : PetCompanion.Selected;
             ObstacleSpawner.SeedOverride = Seed * 7 + chapter;
+            if (tutorial) KpopTutorial.Begin();
 
             var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
             TitleAudio.StopMenuGlobal();
@@ -390,6 +410,7 @@ namespace CoastRun
                     if (p.kpopRunsDate != Today) { p.kpopRunsDate = Today; p.kpopRunsToday = 0; }
                     p.kpopRunsToday++;
                 }
+                KpopTutorial.OnStageBegin();   // 194차: 재도전하면 튜토리얼 대본도 처음부터
             }
         }
 
@@ -539,14 +560,22 @@ namespace CoastRun
                              + BossesCleared * BossDirector.BossCoins;
                     if (all) gain *= 2;
                     LastMoney = gain;
-                    if (gain > 0)
+                    // 194차(사용자: 「러닝 돈이 스토리로 잘 들어가는지」): 코인·니어미스·도장·보스 코인은 줍는 순간 이미
+                    //   코인 지갑(= 스토리 돈, 109차 일원화)에 들어가 있다. 예전엔 여기서 gain 을 stats.money 에 또 더해
+                    //   SyncWallet 이 그 차이를 지갑에 한 번 더 넣었다 → 결과창 +61G 인데 실제 +122G(두 번 적립).
+                    //   이제 지갑에 아직 안 들어간 몫(미션 3개 ×2 보너스)만 지갑에 더하고, 세이브 돈은 지갑 값으로 맞춘다.
+                    int already = wallet != null ? wallet.SessionCoins : 0;
+                    int extra = Mathf.Max(0, gain - already);
+                    if (extra > 0) CoinWallet.AddStatic(extra);
+                    if (gain > 0) { save.kpopUnsettled += gain; save.kpopUnsettledRuns++; }   // 194차: 은행 「러닝 수입 정산」 장부
+                    wallet?.Persist();
+                    if (gm.Save != null)
+                        gm.Persist();
+                    else
                     {
-                        save.stats.money += gain;
+                        save.stats.money = CoinWallet.TotalStatic;
                         save.stats.Clamp();
-                        if (gm.Save != null)
-                            gm.Persist();
-                        else
-                            gm.SaveSys.Write(save);
+                        gm.SaveSys.Write(save);
                     }
                 }
             }

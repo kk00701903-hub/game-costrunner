@@ -8,7 +8,9 @@ namespace CoastRun.Village
     /// 기존 자산 재활용: JejuKit 모델(제주 초가/기와집·FShop 상가·야자수·귤나무·돌담·돌하르방·벤치…), TransmissionTower 프리팹, 바다 셰이더.
     public static class VillageWorld
     {
-        public const float Half = 50f;          // 마을 반폭(m) — 스플랫·산책 영역
+        public const float Half = 80f;          // 마을 반폭(m) — 스플랫 영역. 194차(사용자: 「지도 1.5배」): 50 → 80(동쪽 새 동네·북쪽 언덕까지)
+        /// 194차: 걸을 수 있는 경계 — 동쪽은 차도 앞 연석(x 70.5), 북쪽 언덕 z 60, 서쪽 x −46.
+        public const float EastLim = 70.5f, NorthLim = 60f, WestLim = -46f;
         public const float MeshHalf = 120f;     // 137차: 지형 메시는 더 멀리(언덕 위에서 하늘 여백이 보이지 않게)
         public const int Res = 120;             // 지형 격자 수(2m)
         public static Texture2D SplatTex { get; private set; }
@@ -26,6 +28,26 @@ namespace CoastRun.Village
         public static readonly Vector2[] RanchPath = {
             new Vector2(-7f, 25f), new Vector2(-13f, 23.2f), new Vector2(-18.5f, 25.2f), new Vector2(-21.6f, 28.6f), new Vector2(-23.4f, 30f)
         };
+        // 187차(사용자: 「정자, 알바나라, 송전탑에는 짧은 갈림길」): 막힘 지도(개발 메뉴 187 - Obstacle map)로 건물·담을 피해 그은 갈림길 3개
+        public static readonly Vector2[] JobPath = { new Vector2(0.5f, 31f), new Vector2(4.5f, 30.8f), new Vector2(8.9f, 31.1f) };                                            // 우리집 앞 → 알바나라 문
+        public static readonly Vector2[] TowerPath = { new Vector2(4.5f, 30.8f), new Vector2(4.8f, 33.5f), new Vector2(5.5f, 36.6f), new Vector2(8.2f, 37.6f), new Vector2(11f, 38f) };   // 우리집 담과 알바나라 사이 → 송전탑 언덕
+        public static readonly Vector2[] PlayPath = { new Vector2(-1.5f, 0.5f), new Vector2(8f, -0.6f), new Vector2(14.3f, -1.6f), new Vector2(16.8f, -5.2f), new Vector2(23.8f, -6.2f) };  // 하르방 사이 큰길 → 동쪽 정자
+        public static readonly Vector2[] HospitalPath = { new Vector2(-1.5f, 10.5f), new Vector2(10f, 10.5f), new Vector2(16f, 12.6f), new Vector2(20f, 13.5f) };   // 189차: 큰길 → 병원 문(서쪽)
+        public static readonly Vector2[][] Branches = { JobPath, TowerPath, PlayPath, HospitalPath, VillageEast.EastPath, VillageEast.BankPath, VillageEast.CafePath };   // 194차: 동쪽 새 동네(은행·브런치 카페·버스 정류장)
+        // 190차(사용자: 「처음엔 자동이동 우리집·알바나라만. 가는 길 중간을 끊어서, 끊어진 길을 이어야 자동이동」): 돌길이 끊긴 곳(주황 고깔 2개).
+        // 여기 반경 GapR 안은 돌길 메시를 그리지 않고 도로망(VillageRoad.Base)에서도 빠진다 → 도로 깔기(한 칸 500G)로 이어야 한다
+        public const float GapR = 3.0f;
+        public static readonly Vector2[] RoadGaps = {
+            new Vector2(-3.5f, 28f),     // 큰길: 우리집 ↔ 마을(농장·방목장·아래 전부)
+            new Vector2(-1f, 7f),        // 큰길: 병원 갈림길 ↔ 텃밭·정자·엄마 집
+            new Vector2(-2f, -21f),      // 큰길: 엄마 집 ↔ 바닷가·상점·반도 집들
+            new Vector2(-9.6f, -57.5f),  // 큰길: 반도 ↔ 등대
+            new Vector2(5.2f, 35.2f),    // 송전탑 갈림길
+            new Vector2(-15.7f, 24.2f),  // 방목장 갈림길
+            new Vector2(11f, -1.1f),     // 정자 갈림길
+            new Vector2(8f, 10.5f),      // 병원 갈림길
+        };
+        public static bool InGap(float x, float z, float pad = 0f) { foreach (var g in RoadGaps) if ((g.x - x) * (g.x - x) + (g.y - z) * (g.y - z) < (GapR + pad) * (GapR + pad)) return true; return false; }
 
         // ── 높이 ─────────────────────────────────────────────────────────
         public static VillageInterior Interior;
@@ -33,15 +55,17 @@ namespace CoastRun.Village
         // 경사에서 문 앞 지면이 더 낮아 주인공이 집 바닥 아래로 내려가던 문제. 받침 밖 1.6 m 에서 부드럽게 원래 지형으로.
         struct Pad { public float x, z, hw, hd, yaw; public Pad(float x, float z, float hw, float hd, float yaw) { this.x = x; this.z = z; this.hw = hw; this.hd = hd; this.yaw = yaw; } }
         static readonly Pad[] Pads = {
-            new Pad(0f, 36f, 3.8f, 3.4f, 180f), new Pad(4.8f, -21.5f, 3.7f, 3.1f, 25f), new Pad(-5.8f, -33.5f, 3.0f, 2.7f, 20f),
-            new Pad(-5.2f, -39.5f, 2.2f, 1.9f, -80f), new Pad(-8.5f, -43f, 2.2f, 1.9f, 5f), new Pad(-12.5f, -39f, 2.1f, 1.8f, -8f),
-            new Pad(-9.5f, -51f, 2.2f, 1.9f, -5f), new Pad(-6.2f, -46.5f, 2.1f, 1.8f, -15f),
+            new Pad(0f, 36f, 3.8f, 3.4f, 180f), new Pad(4.8f, -19.9f, 3.7f, 3.1f, 25f), new Pad(-5.8f, -33.5f, 3.0f, 2.7f, 20f),
+            new Pad(-6.2f, -44f, 2.2f, 1.9f, -80f), new Pad(-23f, -58f, 2.2f, 1.9f, 90f), new Pad(-23f, -35f, 2.1f, 1.8f, 90f),   // 190~191차: 반도 집 간격 벌림(191: 서쪽 줄을 x −23 으로 더 멀리)
+            new Pad(-23.5f, -46.5f, 2.2f, 1.9f, 90f), new Pad(-6.3f, -54.5f, 2.1f, 1.8f, -80f),
             new Pad(9.8f, 33.5f, 2.4f, 2.1f, 200f),   // 156차: 알바나라(우리집 옆)
-            new Pad(-10f, 34.5f, 3.6f, 2.8f, 0f) };     // 171차: 농장(우리집 서쪽)
+            new Pad(-10f, 34.5f, 3.6f, 2.8f, 0f),       // 171차: 농장(우리집 서쪽)
+            new Pad(VillageEast.BankX, VillageEast.BankZ, 3.4f, 3.0f, 180f), new Pad(VillageEast.CafeX, VillageEast.CafeZ, 3.4f, 3.0f, 0f) };   // 194차: 은행·브런치 카페
         static float[] _padY;
         public static float Height(float x, float z)
         {
             if (Interior != null && Interior.Contains(x, z)) return Interior.FloorY;
+            if (VillageZones.TryFloor(x, z, out float zy)) return zy;   // 195차: 시내·관광지·광산
             float h = HeightRaw(x, z);
             if (_padY == null) { _padY = new float[Pads.Length]; for (int i = 0; i < Pads.Length; i++) _padY[i] = HeightRaw(Pads[i].x, Pads[i].z); }
             for (int i = 0; i < Pads.Length; i++)
@@ -74,12 +98,17 @@ namespace CoastRun.Village
             float bay = Bay(x, z);
             if (bay > 0f) h = Mathf.Lerp(h, SeaLevel - 1.4f, bay);
             // 137차: 마을 밖(±50 너머)은 완만한 구릉으로 올라가 지평선을 가린다(남쪽 바다 쪽은 제외)
-            float outside = Mathf.Max(Mathf.Abs(x) - 46f, z - 46f);
+            // 194차: 지도 1.5배 — 동쪽은 차도 너머(x 80), 북쪽은 z 62 부터 오른다
+            float hRoad = h;
+            float outside = Mathf.Max(Mathf.Max(x - 80f, -x - 46f), z - 62f);
             if (outside > 0f && z > -20f)
             {
                 float k = Mathf.SmoothStep(0f, 1f, outside / 40f);
                 h += k * (7f + 9f * Mathf.PerlinNoise(x * 0.03f + 1.7f, z * 0.03f + 9.2f));
             }
+            // 194차: 차도는 매끈하게(언덕을 깎아 지나간다)
+            float rdist = VillageEast.RoadDist(x, z);
+            if (rdist < 7f) h = Mathf.Lerp(h, hRoad, 1f - Mathf.SmoothStep(0f, 1f, (rdist - 4.5f) / 2.5f));
             // 길 위는 살짝 평평하게(걷기 편하게)
             float pd = PathDist(x, z);
             if (pd < 2.2f)
@@ -106,7 +135,9 @@ namespace CoastRun.Village
         public static float PathDist(float x, float z)
         {
             var p = new Vector2(x, z);
-            return Mathf.Min(PolyDist(Path, p), PolyDist(RanchPath, p));   // 178차: 방목장 갈림길도 길로 친다(흙·평탄화·소품 비키기)
+            float d = Mathf.Min(PolyDist(Path, p), PolyDist(RanchPath, p));
+            foreach (var b in Branches) d = Mathf.Min(d, PolyDist(b, p));   // 187차: 갈림길 3개
+            return d;   // 178차: 방목장 갈림길도 길로 친다(흙·평탄화·소품 비키기)
         }
         static float PolyDist(Vector2[] line, Vector2 p)
         {
@@ -125,6 +156,7 @@ namespace CoastRun.Village
         // ── 세우기 ───────────────────────────────────────────────────────
         public static Transform Build(Transform parent, SaveData save)
         {
+            VillageRanch.Alive = VillageRanch.AliveFor(save);   // 183차: 이번 주 잡힌 말 수만큼 빼고
             var root = new GameObject("VillageWorld").transform;
             root.SetParent(parent, false);
             BuildLight(root);
@@ -132,14 +164,17 @@ namespace CoastRun.Village
             BuildSea(root);
             BuildVista(root, save);
             BuildProps(root);
+            VillageZones.Build(root);        // 195차: 버스로 가는 시내·중문관광단지 + 광산
+            VillageSeason.Build(root, save); // 195차: 계절 이벤트 장식·부스
             BuildRocks(root, save); ApplyFelledTrees(root, save);   // 154차: 캘 수 있는 바위·쓰러진 나무(8주 뒤 재생)
+            VillageLand.Build(root, save);   // 183차: 임대 땅(매물 푯말 / 산 땅은 임대 주택)
             // 147차: 조경 밀도 — 잔디에 꽃·클로버·풀포기 자동 배치(종류별 메시 합침)
             FloraCount = VillageFlora.Scatter(root);
             // 146차: 곡면 가중치 — 하늘·구름·새·먼 산은 고정(0), 거품·반짝임 등 투명 장식은 지면과 같이 휘게(1)
             foreach (var r in root.GetComponentsInChildren<Renderer>(true))
             {
                 string n = r.gameObject.name; var t = r.transform;
-                bool flat = n == "SkyDome" || n == "Vista" || n == "VistaSide" || n == "FarHill" || n == "Cloud" || n == "SunDisc" || n == "Bird" || (t.parent != null && (t.parent.name == "Cloud" || t.parent.name == "Bird"));
+                bool flat = n == "SkyDome" || n == "Vista" || n == "VistaSide" || n == "FarHill" || n == "Cloud" || n == "SunDisc" || n == "Bird" || (t.parent != null && (t.parent.name == "Cloud" || t.parent.name == "Bird")) || t.GetComponentInParent<BirdFly>() != null;   // 193차: 새 윤곽 메시(Body/Wing)
                 foreach (var m in r.sharedMaterials) if (m != null && m.HasProperty("_CurveWeight")) m.SetFloat("_CurveWeight", flat ? 0f : 1f);
             }
             return root;
@@ -211,19 +246,22 @@ namespace CoastRun.Village
             }
             mr.receiveShadows = true; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             BuildPathMesh(root);   // 157차: 돌길
-            BuildPathMesh(root, RanchPath, "PathMesh_Ranch", 0.085f);   // 178차: 방목장 갈림길(큰길보다 살짝 낮게 — 만나는 곳 깜빡임 방지)
+            BuildPathMesh(root, RanchPath, "PathMesh_Ranch", 0.085f);
+            for (int bi = 0; bi < Branches.Length; bi++) BuildPathMesh(root, Branches[bi], "PathMesh_Branch" + bi, 0.08f - bi * 0.004f);
+            BuildGapCones(root);   // 190차   // 187차   // 178차: 방목장 갈림길(큰길보다 살짝 낮게 — 만나는 곳 깜빡임 방지)
 
             // 바깥 울타리(보이지 않는 벽) — 마을 밖으로 못 나가게
-            float lim = Half - 4f;
-            Wall(root, new Vector3(0f, 5f, lim), new Vector3(2f * Half, 12f, 1f));
-            Wall(root, new Vector3(0.5f, 5f, -34f), new Vector3(10f, 12f, 1f)); Wall(root, new Vector3(28f, 5f, -26f), new Vector3(46f, 12f, 1f)); Wall(root, new Vector3(4.5f, 5f, -30f), new Vector3(1f, 12f, 9f));   // 바다 앞(반도 오른쪽은 열어둠)
-            // 140차: 절벽 반도 둘레
-            Wall(root, new Vector3(-4.2f, 5f, -49f), new Vector3(1f, 12f, 32f));
-            Wall(root, new Vector3(-16f, 5f, -65f), new Vector3(30f, 12f, 1f));
-            Wall(root, new Vector3(-29f, 5f, -50f), new Vector3(1f, 12f, 32f));
-            Wall(root, new Vector3(-40f, 5f, -34f), new Vector3(22f, 12f, 1f));
-            Wall(root, new Vector3(lim, 5f, 0f), new Vector3(1f, 12f, 2f * Half));
-            Wall(root, new Vector3(-lim, 5f, 0f), new Vector3(1f, 12f, 2f * Half));
+            // 194차(지도 1.5배): 북쪽 z 60, 동쪽 차도 연석 x 70.5, 서쪽 x −46
+            Wall(root, new Vector3((WestLim + EastLim) * 0.5f, 5f, NorthLim), new Vector3(EastLim - WestLim + 2f, 12f, 1f));
+            // 192차(사용자: 「바닷가는 들어갈 수 있게, 10초 넘게 있으면 병원행」): 바다 앞 보이지 않는 벽을 물가에서 바다 쪽으로 약 10 m 밀어낸다
+            // (예전: 모래사장 끝 z −26·−34, 반도 둘레 바로 바깥). 물속 10초 → 병원은 VillageHubSea.cs
+            Wall(root, new Vector3(38.5f, 5f, -38f), new Vector3(65f, 12f, 1f));    // 동쪽 바다 남단 (x 6~71) — 194차: 새 동네까지
+            Wall(root, new Vector3(6f, 5f, -56.5f), new Vector3(1f, 12f, 37f));     // 반도 동쪽 바다 (z −38~−75)
+            Wall(root, new Vector3(-15.5f, 5f, -75f), new Vector3(43f, 12f, 1f));   // 반도 남쪽 바다
+            Wall(root, new Vector3(-37f, 5f, -54.5f), new Vector3(1f, 12f, 41f));   // 반도 서쪽 바다
+            Wall(root, new Vector3(-44f, 5f, -34f), new Vector3(14f, 12f, 1f));     // 서쪽 바다 남단 (x −51~−37)
+            Wall(root, new Vector3(EastLim, 5f, 11f), new Vector3(1f, 12f, 98f));
+            Wall(root, new Vector3(WestLim, 5f, 13f), new Vector3(1f, 12f, 94f));
         }
 
         /// 171차(사용자: 「산 쪽에 분명히 갈 수 있는 곳인데 못 움직이는 벽」): 보이지 않는 경계(z=46, x=±46)가 땅 위를 지나므로
@@ -241,8 +279,10 @@ namespace CoastRun.Village
                 var t = VillageHouses.Pine(root, Ground(x + (float)(rng.NextDouble() - 0.5) * 1.4f, z + (float)(rng.NextDouble() - 0.5) * 1.4f), (float)rng.NextDouble() * 360f, 3.8f + (float)rng.NextDouble() * 2.2f);
                 if (t != null) t.name = "Tree_PineEdge";
             }
-            for (float x = -44f; x <= 44f; x += 3.4f) Post(x, 45.3f);
-            for (float z = -18f; z <= 44f; z += 3.4f) { Post(45.3f, z); Post(-45.3f, z); }
+            // 194차(지도 1.5배): 북쪽 담 z 59.3 · 서쪽 x −45.3. 동쪽은 차도 연석 가드레일(VillageEast)
+            for (float x = -44f; x <= 66f; x += 3.4f) Post(x, NorthLim - 0.7f);
+            // 192차(사용자: 「바닷가 끝에서 올라갈 것처럼 보이는데 못 간다 — 그런 곳엔 바위 등 장애물」): 동·서 경계 바위 담을 모래사장(z −18 → −30)까지 잇는다
+            for (float z = -30f; z <= 58f; z += 3.4f) Post(WestLim + 0.7f, z);
         }
 
         // ── 173차: 경계 바위 담(시안: 둥글둥글한 파스텔 바위가 쌓이고 위에 이끼·꽃) ──
@@ -291,7 +331,7 @@ namespace CoastRun.Village
         }
 
         /// 바위 한 무더기(아래 두세 덩이 + 위에 한두 덩이) — 경계 담 한 칸
-        static void BoulderCluster(Transform root, float x, float z, System.Random rng)
+        internal static void BoulderCluster(Transform root, float x, float z, System.Random rng)
         {
             var host = new GameObject("RockBand").transform; host.SetParent(root, false); host.position = Ground(x, z);
             int count = 3 + rng.Next(2);   // 173차: 담이 이어져 보이되 오브젝트 수는 억제
@@ -426,6 +466,42 @@ namespace CoastRun.Village
             }
         }
 
+        /// 190차: 끊긴 길 양옆에 주황 고깔(콜라이더 없음 — 그 사이에 도로를 깔 수 있게)
+        static void BuildGapCones(Transform root)
+        {
+            var orange = CoastMaterials.CreateLit(new Color(1f, 0.52f, 0.18f), 0.1f); var white = CoastMaterials.CreateLit(Color.white, 0.1f);
+            var lines = new List<Vector2[]> { Path, RanchPath }; lines.AddRange(Branches);
+            foreach (var g in RoadGaps)
+            {
+                // 가장 가까운 선분의 방향 → 수직으로 길 양옆
+                Vector2 dir = Vector2.right; float bd = 1e9f;
+                foreach (var L in lines) for (int i = 0; i < L.Length - 1; i++) { var a = L[i]; var ab = L[i + 1] - a; float t = Mathf.Clamp01(Vector2.Dot(g - a, ab) / ab.sqrMagnitude); float d = (a + ab * t - g).sqrMagnitude; if (d < bd) { bd = d; dir = ab.normalized; } }
+                var nrm = new Vector2(-dir.y, dir.x);
+                for (int k = -1; k <= 1; k += 2)
+                {
+                    var q = g + nrm * (k * 2.2f); var basePos = Ground(q.x, q.y);
+                    // 192차: 러닝 장애물 고깔 모델(Obs3_Cone)이 있으면 그것 — 콜라이더 없음
+                    var kc = SpawnScaled("Obs3_Cone", root, q.x, q.y, k * 25f, 0.8f); if (kc != null) { kc.name = "GapCone"; continue; }
+                    var cone = new GameObject("GapCone").transform; cone.SetParent(root, false); cone.position = basePos;
+                    void C(float y, float r, float h, Material m) { var c = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.Destroy(c.GetComponent<Collider>()); c.transform.SetParent(cone, false); c.transform.localPosition = new Vector3(0f, y, 0f); c.transform.localScale = new Vector3(r, h, r); c.GetComponent<MeshRenderer>().sharedMaterial = m; }
+                    C(0.03f, 0.55f, 0.03f, orange); C(0.18f, 0.36f, 0.12f, orange); C(0.36f, 0.27f, 0.06f, white); C(0.48f, 0.2f, 0.06f, orange); C(0.62f, 0.12f, 0.08f, orange);
+                }
+            }
+        }
+
+        /// 192차: 정자 재질 — 키트 공용 재질(지붕 = 흰 파스텔, 돌 = 어두움) 대신 기와 청회색·밝은 화강석·단청 민트
+        static void TintJeongja(Transform t)
+        {
+            var roof = CoastMaterials.CreateLit(new Color(0.38f, 0.43f, 0.50f), 0.1f); var stone = CoastMaterials.CreateLit(new Color(0.80f, 0.78f, 0.72f), 0.05f);
+            var trim = CoastMaterials.CreateLit(new Color(0.40f, 0.72f, 0.62f), 0.1f); var wood = CoastMaterials.CreateLit(new Color(0.62f, 0.30f, 0.22f), 0.05f);
+            foreach (var r in t.GetComponentsInChildren<Renderer>())
+            {
+                var ms = r.sharedMaterials;
+                for (int i = 0; i < ms.Length; i++) { string n = ms[i] != null ? ms[i].name : ""; if (n.StartsWith("Roof")) ms[i] = roof; else if (n.StartsWith("Stone")) ms[i] = stone; else if (n.StartsWith("Trim")) ms[i] = trim; else if (n == "Wood") ms[i] = wood; }
+                r.sharedMaterials = ms;
+            }
+        }
+
         static void Wall(Transform root, Vector3 c, Vector3 size)
         {
             var w = new GameObject("Bound", typeof(BoxCollider)); w.transform.SetParent(root, false);
@@ -434,7 +510,7 @@ namespace CoastRun.Village
 
         static Texture2D Splat()
         {
-            const int S = 2048;   // 144차: 1024(10 px/m)→2048(20 px/m) — 발밑 잔디가 뭉개지지 않게
+            const int S = 2560;   // 194차: 지도 1.5배(±80 m)라 2048→2560 · 144차: 1024(10 px/m)→2048(20 px/m) — 발밑 잔디가 뭉개지지 않게
             var tex = new Texture2D(S, S, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
             var px = new Color32[S * S];
             Color grassA = VillagePalette.Grass, grassB = VillagePalette.GrassShade, grassC = VillagePalette.GrassLight;
@@ -550,7 +626,7 @@ namespace CoastRun.Village
                     uvs.Add(new Vector2(c / 4f * (hw * 2f / 2.7f), dist / 2.7f));   // 돌 한 장 ≈ 2.7 m 타일
                     cols.Add(Color.Lerp(Color.white, new Color(0.80f, 0.76f, 0.70f), edge * edge));
                 }
-                if (i > 0)
+                if (i > 0 && !(InGap(p.x, p.y) && InGap(pts[i - 1].x, pts[i - 1].y)))   // 190차: 끊긴 곳은 비운다
                 {
                     int a = (i - 1) * 5, b = i * 5;
                     for (int c = 0; c < 4; c++) { tris.AddRange(new[] { a + c, a + c + 1, b + c, a + c + 1, b + c + 1, b + c }); }   // 위에서 보이게(시계 방향)
@@ -712,7 +788,7 @@ namespace CoastRun.Village
             var cloudM = CoastMaterials.SetNoFog(CoastMaterials.CreateUnlit(new Color(0.94f, 0.97f, 1f)));
             var rng = new System.Random(7);
             // 168차(사용자: 「구름은 K-POP 러닝 구름으로」): 러닝 모드 CloudLayerScroller 가 쓰는 손그림 뭉게구름(Cloud_Cumulus_A/B/C, 알파) 빌보드
-            var painted = new List<Texture2D>(); foreach (var n in new[] { "Cloud_Cumulus_A", "Cloud_Cumulus_B", "Cloud_Cumulus_C" }) { var t = ArtAssets.LoadTexture(n); if (t != null) painted.Add(t); }
+            var painted = new List<Texture2D>(); foreach (var n in new[] { "Cloud_Cumulus_A", "Cloud_Cumulus_B", "Cloud_Cumulus_C" }) { var t = ArtAssets.LoadTexture(n + "_V") ?? ArtAssets.LoadTexture(n); if (t != null) painted.Add(t); }   // 187차: 마을용 _V(남색 테두리 → 하늘색)
             // 168차: 태양 — 남동쪽 하늘 높이, 밤엔 사라짐(SunDisc)
             BuildSunDisc(root);
             for (int i = 0; i < 13; i++)
@@ -744,16 +820,13 @@ namespace CoastRun.Village
                 }
                 c.gameObject.AddComponent<CloudDrift>();
             }
-            var birdM = CoastMaterials.SetNoFog(CoastMaterials.CreateUnlit(new Color(0.20f, 0.22f, 0.30f)));
+            // 187차(사용자: 「새를 파이어플라이로 다시」): 바다 위 갈매기 = Firefly 그림(Tex_Bird) 빌보드, 날갯짓은 세로 눌림
+            var birdTex = ArtAssets.LoadTexture("Tex_Bird");
+            var birdM = birdTex != null ? CoastMaterials.SetNoFog(CoastMaterials.CreateTexturedTransparent(birdTex, Color.white), 0f) : CoastMaterials.SetNoFog(CoastMaterials.CreateUnlit(new Color(0.20f, 0.22f, 0.30f)));
             for (int i = 0; i < 10; i++)
             {
                 var b = new GameObject("Bird").transform; b.SetParent(root, false);
-                for (int k = -1; k <= 1; k += 2)
-                {
-                    var wgo = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.Destroy(wgo.GetComponent<Collider>()); wgo.transform.SetParent(b, false);
-                    wgo.transform.localPosition = new Vector3(k * 0.55f, 0.18f, 0f); wgo.transform.localScale = new Vector3(1.1f, 0.08f, 0.16f); wgo.transform.localRotation = Quaternion.Euler(0f, 0f, k * 22f);
-                    wgo.GetComponent<MeshRenderer>().sharedMaterial = birdM;
-                }
+                VillageSky.MakeBird(b, birdM, 1.6f);   // 193차: 윤곽 메시 + 날개 피벗
                 var fl = b.gameObject.AddComponent<BirdFly>(); fl.center = new Vector3((float)rng.NextDouble() * 30f - 12f, 9f + (float)rng.NextDouble() * 7f, -34f - (float)rng.NextDouble() * 30f); fl.radius = 5f + (float)rng.NextDouble() * 9f; b.localScale = Vector3.one * 0.85f; fl.phase = (float)rng.NextDouble() * 6f; fl.speed = 0.25f + (float)rng.NextDouble() * 0.2f;
             }
             var sparkM = CoastMaterials.CreateTransparent(new Color(1f, 1f, 1f, 0.85f));
@@ -797,14 +870,17 @@ namespace CoastRun.Village
         public class CloudDrift : MonoBehaviour { Vector3 _p; float _ph; void Start() { _p = transform.localPosition; _ph = Random.value * 6f; } void Update() { transform.localPosition = _p + new Vector3(Mathf.Sin(Time.time * 0.05f + _ph) * 8f, 0f, 0f); } }
         public class BirdFly : MonoBehaviour
         {
-            public Vector3 center; public float radius = 12f, phase, speed = 0.3f;
+            public Vector3 center; public float radius = 12f, phase, speed = 0.3f; float _dir = 1f;
             void Update()
             {
                 float t = Time.time * speed + phase;
                 var p = center + new Vector3(Mathf.Cos(t) * radius, Mathf.Sin(t * 2.3f) * 1.5f, Mathf.Sin(t) * radius * 0.6f);
-                var d = p - transform.position; transform.position = p; if (d.sqrMagnitude > 1e-4f) transform.rotation = Quaternion.LookRotation(d, Vector3.up);
-                float flap = Mathf.Sin(Time.time * 9f + phase) * 28f;
-                for (int i = 0; i < transform.childCount; i++) transform.GetChild(i).localRotation = Quaternion.Euler(0f, 0f, (i == 0 ? -1f : 1f) * (22f + flap));
+                var d = p - transform.position; transform.position = p;
+                var cam = Camera.main; if (cam == null || transform.childCount == 0) return;
+                var q = transform.GetChild(0);   // 187차: 카메라를 보는 그림 — 진행 방향이 화면 왼쪽이면 좌우 뒤집고, 날갯짓은 세로 눌림
+                q.rotation = Quaternion.LookRotation(q.position - cam.transform.position, Vector3.up);
+                if (d.sqrMagnitude > 1e-6f) _dir = Vector3.Dot(d, cam.transform.right) >= 0f ? 1f : -1f;
+                q.localScale = new Vector3(1.6f * _dir, 1.6f, 1f); VillageSky.FlapBird(q, phase * 3f);   // 193차: 날개 퍼덕임
             }
         }
         public class Twinkle : MonoBehaviour { public float phase; Vector3 _s; void Start() { _s = transform.localScale; } void Update() { float k = Mathf.Max(0f, Mathf.Sin(Time.time * 2.2f + phase)); transform.localScale = new Vector3(_s.x * k, _s.y * k, 1f); } }
@@ -814,6 +890,7 @@ namespace CoastRun.Village
         public static Transform HeroHouse, MomHouse, Shop, Tower, Lighthouse;
         /// 156차(사용자: 「알바는 옆 건물 알바나라에서」): 우리집 옆 알바 소개소.
         public static Transform JobHouse;
+        public static Transform Hospital;   // 189차(사용자: 「병원도 만들어줘」)
 
         static void BuildProps(Transform root)
         {
@@ -823,24 +900,37 @@ namespace CoastRun.Village
             Tower = PlaceTower(root, 15f, 41f);
             // 156차: 알바나라 — 우리집 오른쪽(동쪽) 옆, 문은 마당 쪽(남서)
             JobHouse = VillageHouses.Build(root, Ground(9.8f, 33.5f), 200f, VillageHouses.Style.Pastel, "알바나라", "Job Center", new Color(1f, 0.96f, 0.86f), VillagePalette.RoofSky, 0.8f); Reg(JobHouse, "알바나라");
+            // 189차(사용자: 「병원도 만들어줘」): 큰길 동쪽 빈 풀밭(막힘 지도로 확인)에 흰 벽·빨간 지붕 병원, 문은 서쪽(큰길 쪽). 다락 창 자리에 빨간 십자
+            Hospital = VillageHouses.Build(root, Ground(23f, 13.5f), -90f, VillageHouses.Style.Pastel, "병원", "Hospital", new Color(0.97f, 0.98f, 1f), new Color(0.90f, 0.36f, 0.38f), 0.85f); Reg(Hospital, "병원");
+            if (Hospital != null)
+            {
+                foreach (Transform ch in Hospital) if (ch.name == "Attic" || ch.name == "AtticFrame") ch.gameObject.SetActive(false);
+                var crossM = CoastMaterials.CreateLit(new Color(0.92f, 0.20f, 0.24f), 0.1f); var plateM = CoastMaterials.CreateLit(Color.white, 0.1f);
+                void CB(string n, Vector3 lp, Vector3 s, Material m) { var g = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.Destroy(g.GetComponent<Collider>()); g.name = n; g.transform.SetParent(Hospital, false); g.transform.localPosition = lp; g.transform.localScale = s; g.GetComponent<MeshRenderer>().sharedMaterial = m; }
+                float cz = 2.0f + 0.5f, cy = 2.7f + 0.85f;
+                CB("CrossPlate", new Vector3(0f, cy, cz), new Vector3(1.05f, 1.05f, 0.08f), plateM);
+                CB("Cross", new Vector3(0f, cy, cz + 0.05f), new Vector3(0.78f, 0.24f, 0.06f), crossM);
+                CB("Cross", new Vector3(0f, cy, cz + 0.05f), new Vector3(0.24f, 0.78f, 0.06f), crossM);
+            }
             // 마을: 엄마 집(초가) · 구멍가게(그림 파사드 상가)
             // 140차(시안): 텃밭(0,-6)에서 바다 쪽을 보면 왼쪽에 초가(엄마 집), 오른쪽 아래로 파스텔 집들 + 상점, 절벽 위 등대
             // (세로 화면은 가로 시야가 좁아(±18°) 텃밭에서 남쪽으로 보이는 원뿔 안에 배치)
-            MomHouse = VillageHouses.Build(root, Ground(4.8f, -21.5f), 25f, VillageHouses.Style.Mom, "엄마 집", "Mom's", null, null, 1.1f); Reg(MomHouse, "엄마 집");
+            MomHouse = VillageHouses.Build(root, Ground(4.8f, -19.9f), 25f, VillageHouses.Style.Mom, "엄마 집", "Mom's", null, null, 1.1f); Reg(MomHouse, "엄마 집");   // 189차(사용자: 「바닷가 끝쪽에서 길 쪽으로 못 감」): −21.5 → −19.9 로 1.6 m 북쪽 — 동쪽 모래사장에서 엄마 집 남쪽(바다 쪽)으로 큰길까지 걸어갈 틈을 낸다
             Shop = VillageHouses.Build(root, Ground(-5.8f, -33.5f), 20f, VillageHouses.Style.Shop, "마을상점", "Village shop", null, null, 0.75f);
             // 147차: 해녀네는 상점 바로 뒤(북)·바다(동)에 막혀 → 서쪽 골목(꽃집 쪽 길)을 보게 돌려 문 앞에 설 자리를 만든다
-            Reg(VillageHouses.Build(root, Ground(-5.2f, -39.5f), -80f, VillageHouses.Style.Pastel, "해녀네", "Haenyeo's", VillagePalette.WallCream, VillagePalette.RoofMint, 0.75f), "해녀네");
-            Reg(VillageHouses.Build(root, Ground(-8.5f, -43f), 5f, VillageHouses.Style.Pastel, "등대지기 집", "Keeper's", new Color(0.93f, 0.96f, 1f), VillagePalette.RoofSky, 0.75f), "등대지기 집");
-            Reg(VillageHouses.Build(root, Ground(-12.5f, -39f), -8f, VillageHouses.Style.Pastel, "꽃집", "Flower shop", VillagePalette.WallCream, VillagePalette.RoofPink, 0.7f), "꽃집");
-            Reg(VillageHouses.Build(root, Ground(-9.5f, -51f), -5f, VillageHouses.Style.Pastel, "바다 카페", "Sea cafe", new Color(1f, 0.94f, 0.95f), VillagePalette.RoofPink, 0.75f), "바다 카페");
-            Reg(VillageHouses.Build(root, Ground(-6.2f, -46.5f), -15f, VillageHouses.Style.Pastel, "서퍼 하우스", "Surf house", new Color(1f, 0.97f, 0.88f), VillagePalette.RoofCream, 0.7f), "서퍼 하우스");
+            Reg(VillageHouses.Build(root, Ground(-6.2f, -44f), -80f, VillageHouses.Style.Pastel, "해녀네", "Haenyeo's", VillagePalette.WallCream, VillagePalette.RoofMint, 0.75f), "해녀네");
+            Reg(VillageHouses.Build(root, Ground(-23f, -58f), 90f, VillageHouses.Style.Pastel, "등대지기 집", "Keeper's", new Color(0.93f, 0.96f, 1f), VillagePalette.RoofSky, 0.75f), "등대지기 집");
+            Reg(VillageHouses.Build(root, Ground(-23f, -35f), 90f, VillageHouses.Style.Pastel, "꽃집", "Flower shop", VillagePalette.WallCream, VillagePalette.RoofPink, 0.7f), "꽃집");
+            Reg(VillageHouses.Build(root, Ground(-23.5f, -46.5f), 90f, VillageHouses.Style.Pastel, "바다 카페", "Sea cafe", new Color(1f, 0.94f, 0.95f), VillagePalette.RoofPink, 0.75f), "바다 카페");
+            Reg(VillageHouses.Build(root, Ground(-6.3f, -54.5f), -80f, VillageHouses.Style.Pastel, "서퍼 하우스", "Surf house", new Color(1f, 0.97f, 0.88f), VillagePalette.RoofCream, 0.7f), "서퍼 하우스");
             // 153차(사용자: 「언덕이 휑하다」): 언덕 채우기 — 소나무 숲·풍차·벤치·바위·꽃밭·통나무 울타리·억새
             BuildHillDeco(root);
             VillageRanch.Build(root);   // 176차: 언덕 서쪽 넓은 방목장(말·헛간·목장집)
             BuildBoundaryDeco(root);   // 171차: 경계 나무·바위 띠
+            VillageEast.Build(root);   // 194차: 동쪽 새 동네(은행·제주 브런치 카페·차도·버스 정류장·귤밭·유채꽃)
             // 정자·벤치·돌하르방·귤 매대
-            Place(root, "Prop_Pavilion", 28f, -6f, 200f, 1f);
-            Place(root, "Prop_Bench", -3f, -24f, -90f, 1f); Place(root, "Prop_Bench", -11f, -42f, 60f, 1f);
+            var jj = Place(root, "Prop_Jeongja", 28f, -6f, 200f, 1f); if (jj == null) Place(root, "Prop_Pavilion", 28f, -6f, 200f, 1f); else TintJeongja(jj);   // 192차: 블렌더로 새로 만든 한옥 정자(곡선 기와지붕·마루·난간), 없으면 옛 정자
+            Place(root, "Prop_Bench", -3f, -24f, -90f, 1f); Place(root, "Prop_Bench", -14.5f, -43.5f, 90f, 1f);   // 190차: 집 간격 벌리며 길 서쪽으로
             Place(root, "Prop_Hareubang", 6.5f, 2f, 200f, 1f); Place(root, "Prop_Hareubang", -6.5f, 2f, 160f, 1f);
             Place(root, "Prop_OrangeStall", 12f, 8f, 240f, 1f);
             Place(root, "Kerb_Onggi", -16f, -4f, 0f, 1f); Place(root, "Kerb_PlanterWood", -15f, -13f, 20f, 1f);
@@ -875,7 +965,7 @@ namespace CoastRun.Village
             // 나무: 귤나무(흔들면 귤) + 야자수(시안처럼 텃밭 주변·바다 쪽에 여럿)
             float[,] oranges = { { -9f, 15f }, { 11f, 14f }, { 24f, 6f }, { -27f, 8f }, { -24f, -14f }, { 30f, -2f }, { -7f, 33f }, { 13.5f, 29.5f } };   // 156차: (8,32) 귤나무는 알바나라 자리라 옮김
             for (int i = 0; i < oranges.GetLength(0); i++) { var tr = Place(root, "Prop_OrangeTree", oranges[i, 0], oranges[i, 1], i * 47f, 1f); if (tr != null) { tr.name = "Tree_Orange_" + i; Trees.Add(tr); GroundBlob.Static(root, tr.position, 2.2f, 1.7f, 0.22f); } }
-            float[,] palms = { { -2.8f, -20.5f, 0.62f }, { 5.5f, -27.5f, 0.7f }, { 8.5f, -27f, 0.75f }, { 11.5f, -26.5f, 0.7f }, { 2.5f, -30.5f, 0.6f }, { -11f, -36f, 0.8f }, { -13f, -50f, 0.8f }, { -4f, -44.5f, 0.7f }, { -10f, -60f, 0.8f }, { 11f, -14f, 0.9f }, { -20f, -44f, 0.9f }, { -4f, -62f, 0.7f }, { 9.5f, -19f, 0.85f } };
+            float[,] palms = { { -2.8f, -20.5f, 0.62f }, { 5.5f, -27.5f, 0.7f }, { 8.5f, -27f, 0.75f }, { 11.5f, -26.5f, 0.7f }, { 2.5f, -30.5f, 0.6f }, { -14.5f, -33f, 0.8f }, { -13f, -50f, 0.8f }, { -4.9f, -48.5f, 0.7f }, { -10f, -60f, 0.8f }, { 11f, -14f, 0.9f }, { -20f, -44f, 0.9f }, { -4f, -62f, 0.7f }, { 11f, -17f, 0.85f } };   // 190차: 집 간격을 벌리며 길·집과 겹치던 야자수 3그루 비킴
             // 149차: 시안식 절차 야자수(마디 줄기·코코넛·잎) — Prop_Palm FBX 대신
             for (int i = 0; i < palms.GetLength(0); i++) { var tr = VillageHouses.Palm(root, Ground(palms[i, 0], palms[i, 1]), i * 63f, 5.2f * palms[i, 2]); tr.name = "Tree_Palm_" + i; Trees.Add(tr); GroundBlob.Static(root, tr.position, 1.4f, 1.1f, 0.22f); }   // 150차: 야자수도 흔들기(코코넛)·도끼(장작) 대상
             // 등대(절차) — 바다 쪽 절벽 위(시안: 오른쪽 가운데 수평선)
@@ -932,9 +1022,9 @@ namespace CoastRun.Village
             return false;
         }
 
-        static readonly Vector2[] BuildingCenters = { new Vector2(0f, 36f), new Vector2(4.8f, -21.5f), new Vector2(-5.8f, -33.5f), new Vector2(15f, 41f), new Vector2(28f, -6f), new Vector2(-5.2f, -39.5f), new Vector2(-8.5f, -43f), new Vector2(-12.5f, -39f), new Vector2(-9.5f, -51f), new Vector2(-6.2f, -46.5f), new Vector2(0f, -6f) };
+        static readonly Vector2[] BuildingCenters = { new Vector2(VillageEast.BankX, VillageEast.BankZ), new Vector2(VillageEast.CafeX, VillageEast.CafeZ), new Vector2(VillageEast.StopX, VillageEast.StopZ), new Vector2(0f, 36f), new Vector2(4.8f, -19.9f), new Vector2(-5.8f, -33.5f), new Vector2(15f, 41f), new Vector2(28f, -6f), new Vector2(-6.2f, -44f), new Vector2(-23f, -58f), new Vector2(-23f, -35f), new Vector2(-23.5f, -46.5f), new Vector2(-6.3f, -54.5f), new Vector2(0f, -6f) };
 
-        static void Lamp(Transform root, float x, float z)
+        internal static void Lamp(Transform root, float x, float z)
         {
             var go = new GameObject("Lamp"); go.transform.SetParent(root, false); go.transform.position = Ground(x, z);
             var pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.Destroy(pole.GetComponent<Collider>()); pole.transform.SetParent(go.transform, false);
@@ -946,7 +1036,7 @@ namespace CoastRun.Village
             var bc = go.AddComponent<BoxCollider>(); bc.center = new Vector3(0f, 1.5f, 0f); bc.size = new Vector3(0.4f, 3f, 0.4f);
         }
 
-        static void Bush(Transform root, float x, float z, System.Random rng)
+        internal static void Bush(Transform root, float x, float z, System.Random rng)
         {
             var go = new GameObject("Bush"); go.transform.SetParent(root, false); go.transform.position = Ground(x, z);
             // 162차(사용자: 「원형 장애물 더 이쁘게」): 키트 VBush_A/B(잎 뭉치 + 열매, AO 정점색). 없으면 옛 구 뭉치
@@ -1056,6 +1146,7 @@ namespace CoastRun.Village
                 case "Prop_StoneWall": return 1.0f;
                 case "Prop_OrangeTree": return 3.0f;
                 case "Prop_Palm": return 5.2f;
+                case "Prop_Jeongja": return 4.4f;
                 case "Prop_Bench": return 0.9f;
                 case "Prop_Pavilion": return 3.6f;
                 case "Prop_Hareubang": return 1.6f;
@@ -1095,7 +1186,7 @@ namespace CoastRun.Village
             return go;
         }
 
-        static Transform Place(Transform root, string model, float x, float z, float yaw, float scale, bool collide = true)
+        internal static Transform Place(Transform root, string model, float x, float z, float yaw, float scale, bool collide = true)
         {
             var go = SpawnScaled(model, root, x, z, yaw, TargetHeight(model) * scale);
             if (go == null) return null;
@@ -1117,7 +1208,7 @@ namespace CoastRun.Village
             bc.center = lc; bc.size = ls;
         }
 
-        static void Reg(Transform house, string name) { if (house == null) return; float fz = 2.2f; foreach (Transform ch in house) if (ch.name == "Door") { fz = ch.localPosition.z; break; } Houses.Add((house, name, house.TransformPoint(new Vector3(0f, 0f, fz + 1.1f)))); }
+        internal static void Reg(Transform house, string name) { if (house == null) return; float fz = 2.2f; foreach (Transform ch in house) if (ch.name == "Door") { fz = ch.localPosition.z; break; } Houses.Add((house, name, house.TransformPoint(new Vector3(0f, 0f, fz + 1.1f)))); }
 
         static Transform PlaceTower(Transform root, float x, float z)
         {
@@ -1166,6 +1257,8 @@ namespace CoastRun.Village
             R(new Vector3(-4f, 2f, 3f), new Vector3(9f, 6f, 8f), rockD);
             R(new Vector3(5f, 1.5f, -3f), new Vector3(8f, 5f, 7f), rockD);
             R(new Vector3(0f, CliffTop, 0f), new Vector3(12f, 1.2f, 9f), grass);
+            // 190차(사용자: 「등대 밑으로 주인공이 들어가 버린다」): 바위 덩어리에 콜라이더가 없어 절벽 속(등대 밑)으로 걸어 들어갔다 → 바위 모양 그대로 막는다
+            foreach (Transform ch in go.transform) { var mc = ch.gameObject.AddComponent<MeshCollider>(); mc.sharedMesh = ch.GetComponent<MeshFilter>().sharedMesh; }
         }
 
         static Transform BuildLighthouse(Transform root, float x, float z)
@@ -1252,7 +1345,7 @@ namespace CoastRun.Village
             BuildingOutline.Attach(host, 0.02f);
         }
 
-        static void Pampas(Transform root, float x, float z, System.Random rng)
+        internal static void Pampas(Transform root, float x, float z, System.Random rng)
         {
             var go = new GameObject("Pampas"); go.transform.SetParent(root, false); go.transform.position = Ground(x, z);
             var stem = CoastMaterials.CreateLit(new Color(0.72f, 0.78f, 0.45f)); var plume = CoastMaterials.CreateLit(new Color(0.97f, 0.95f, 0.88f));
@@ -1270,7 +1363,7 @@ namespace CoastRun.Village
             }
         }
 
-        static void FlowerClump(Transform root, float x, float z, System.Random rng)
+        internal static void FlowerClump(Transform root, float x, float z, System.Random rng)
         {
             var go = new GameObject("FlowerClump"); go.transform.SetParent(root, false); go.transform.position = Ground(x, z);
             Color[] cols = { new Color(1f, 0.55f, 0.72f), new Color(1f, 0.70f, 0.80f), Color.white };

@@ -11,6 +11,7 @@ namespace CoastRun.Village
     public class VillageHud : MonoBehaviour
     {
         public Vector2 Joy => _joy != null ? _joy.Value : Vector2.zero;
+        public VirtualJoystick JoyStick => _joy;   // 188차
         public RectTransform JoyRect => _joy != null ? _joy.transform as RectTransform : null;   // 160차: 터치 영역(JoyZone)
         public bool Locked;   // 팝업이 떠 있는 동안 이동·행동 막기
         public CameraPad CamPad;   // 162차: 오른쪽 반 화면(카메라 회전 드래그 · 탭 = 행동)
@@ -41,32 +42,28 @@ namespace CoastRun.Village
 
             // ── 위 알약 3개 + ☰ ──
             float y = -14f, hgt = 66f;
-            var hp = Pill(_root, "Hp", new Color(1f, 0.90f, 0.93f), new Vector2(0f, 1f), new Vector2(14f, y), new Vector2(206f, hgt));
+            var hp = Pill(_root, "Hp", new Color(1f, 0.90f, 0.93f), new Vector2(0f, 1f), new Vector2(12f, y), new Vector2(174f, hgt));   // 187차: 세로로 긴 화면(폭≈577)에서 알약끼리 겹치지 않게 폭 축소
             IconIn(hp, "Heart", "♥", new Color(0.98f, 0.40f, 0.50f));
-            var hpLab = CoastHudLayout.MakeText(hp, "L", Loc.T("체력", "HP"), 15, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(58f, -26f), new Vector2(-8f, -4f));
-            hpLab.color = new Color(0.55f, 0.35f, 0.45f); hpLab.fontStyle = FontStyle.Bold;
             var bar = CoastUiArt.Panel(hp, "Bar", new Color(1f, 1f, 1f, 0.9f), 8); bar.raycastTarget = false;
-            var brt = bar.rectTransform; brt.anchorMin = new Vector2(0f, 0f); brt.anchorMax = new Vector2(1f, 0f); brt.offsetMin = new Vector2(58f, 10f); brt.offsetMax = new Vector2(-10f, 24f);
+            var brt = bar.rectTransform; brt.anchorMin = new Vector2(0f, 0f); brt.anchorMax = new Vector2(1f, 0f); brt.offsetMin = new Vector2(58f, 7f); brt.offsetMax = new Vector2(-10f, 16f);   // 187차: 가는 띠(숫자를 크게)
             _hpFill = CoastUiArt.Panel(bar.transform, "Fill", new Color(0.98f, 0.45f, 0.55f), 6); _hpFill.raycastTarget = false;
             _hpFill.rectTransform.anchorMin = Vector2.zero; _hpFill.rectTransform.anchorMax = new Vector2(1f, 1f); _hpFill.rectTransform.offsetMin = new Vector2(2f, 2f); _hpFill.rectTransform.offsetMax = new Vector2(-2f, -2f);
-            _hpT = CoastHudLayout.MakeText(hp, "V", "", 14, TextAnchor.LowerRight, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(58f, 26f), new Vector2(-10f, -4f));
-            _hpT.color = new Color(0.45f, 0.30f, 0.40f); _hpT.fontStyle = FontStyle.Bold;
+            // 187차(사용자: 「체력·코인·시간 글자는 빼고 숫자를 최대한 크게」)
+            _hpT = CoastHudLayout.MakeText(hp, "V", "", 30, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(56f, 16f), new Vector2(-8f, -2f));
+            _hpT.color = new Color(0.50f, 0.20f, 0.32f); _hpT.fontStyle = FontStyle.Bold; _hpT.resizeTextForBestFit = true; _hpT.resizeTextMinSize = 14; _hpT.resizeTextMaxSize = CoastHudLayout.Scaled(30); _hpT.horizontalOverflow = HorizontalWrapMode.Wrap; _hpT.verticalOverflow = VerticalWrapMode.Truncate;
 
-            var coin = Pill(_root, "Coin", new Color(1f, 0.96f, 0.80f), new Vector2(0f, 1f), new Vector2(230f, y), new Vector2(190f, hgt));
+            var coin = Pill(_root, "Coin", new Color(1f, 0.96f, 0.80f), new Vector2(0f, 1f), new Vector2(192f, y), new Vector2(156f, hgt));
             IconIn(coin, "Coin", "●", new Color(0.98f, 0.75f, 0.20f));
-            var coinLab = CoastHudLayout.MakeText(coin, "L", Loc.T("코인", "Coins"), 15, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(58f, -26f), new Vector2(-8f, -4f));
-            coinLab.color = new Color(0.60f, 0.45f, 0.20f); coinLab.fontStyle = FontStyle.Bold;
-            _coinT = CoastHudLayout.MakeText(coin, "V", "", 22, TextAnchor.LowerLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(58f, 6f), new Vector2(-8f, -26f));
+            _coinT = CoastHudLayout.MakeText(coin, "V", "", 34, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(56f, 2f), new Vector2(-8f, -2f));
             _coinT.color = new Color(0.45f, 0.32f, 0.12f); _coinT.fontStyle = FontStyle.Bold;
-            _coinT.resizeTextForBestFit = true; _coinT.resizeTextMinSize = 12; _coinT.resizeTextMaxSize = CoastHudLayout.Scaled(22);
+            _coinT.resizeTextForBestFit = true; _coinT.resizeTextMinSize = 14; _coinT.resizeTextMaxSize = CoastHudLayout.Scaled(32);
+            _coinT.horizontalOverflow = HorizontalWrapMode.Wrap; _coinT.verticalOverflow = VerticalWrapMode.Truncate;   // 187차: 큰 수(8,069)도 알약 안에 맞게 줄어들도록
 
-            var time = Pill(_root, "Time", new Color(0.88f, 0.95f, 1f), new Vector2(1f, 1f), new Vector2(-80f, y), new Vector2(206f, hgt));
+            var time = Pill(_root, "Time", new Color(0.88f, 0.95f, 1f), new Vector2(1f, 1f), new Vector2(-76f, y), new Vector2(156f, hgt));
             IconIn(time, "Clock", "◔", new Color(0.35f, 0.65f, 0.95f));
-            var timeLab = CoastHudLayout.MakeText(time, "L", Loc.T("시간", "Time"), 15, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(58f, -26f), new Vector2(-8f, -4f));
-            timeLab.color = new Color(0.30f, 0.45f, 0.65f); timeLab.fontStyle = FontStyle.Bold;
-            _timeT = CoastHudLayout.MakeText(time, "V", "", 18, TextAnchor.LowerLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(58f, 6f), new Vector2(-6f, -26f));
+            _timeT = CoastHudLayout.MakeText(time, "V", "", 28, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(54f, 2f), new Vector2(-6f, -2f));
             _timeT.color = new Color(0.20f, 0.35f, 0.55f); _timeT.fontStyle = FontStyle.Bold;
-            _timeT.resizeTextForBestFit = true; _timeT.resizeTextMinSize = 11; _timeT.resizeTextMaxSize = CoastHudLayout.Scaled(18);
+            _timeT.resizeTextForBestFit = true; _timeT.resizeTextMinSize = 12; _timeT.resizeTextMaxSize = CoastHudLayout.Scaled(28); _timeT.horizontalOverflow = HorizontalWrapMode.Wrap; _timeT.verticalOverflow = VerticalWrapMode.Truncate;
 
             var menu = CoastUiArt.CutePill(_root, "Menu", new Color(0.30f, 0.32f, 0.48f), 16, 3);
             var mrt = menu.rectTransform; mrt.anchorMin = mrt.anchorMax = new Vector2(1f, 1f); mrt.pivot = new Vector2(1f, 1f);
@@ -81,13 +78,14 @@ namespace CoastRun.Village
             // ── 오른쪽 둥근 버튼 4개 ── 149차(사용자): 전체를 188 만큼 위로(엄지 닿는 높이)
             // 137차: 잡기 버튼 위 「도구」(잠자리채/방망이 고르기) — 행동 버튼 라벨은 고른 도구를 따른다
             // 153차(사용자): 둥근 버튼 4개를 왼쪽 위(체력 알약 아래)에 세로로
+            // 187차(사용자: 「도구·이동·자동 배치를 다른 게임처럼 — 지금은 세로로 길게 늘어져 화면을 가린다」):
+            // 포켓캠프·쿠키런 킹덤처럼 상태 알약 바로 아래 **가로 한 줄 작은 원** [도구][가방][이동][자동]. 대화 버튼은 없앰(근처 자동 대화·상대 탭).
             var tl = new Vector2(0f, 1f);
-            Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), new Vector2(64f, -150f), 96f, () => _onTool?.Invoke(), out _toolT, tl);
+            Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), RowPos(0), RowSize, () => _onTool?.Invoke(), out _toolT, tl); _rowN = 1; Register("Tool");
             _toolGlyph = _toolT != null ? _toolT.transform.parent.Find("G")?.GetComponent<Text>() : null;
             // 162차(사용자: 「좌측 상단의 휘두르기 버튼은 지워줘」): 행동(잡기/휘두르기/들어가기…) 라운드 버튼 삭제 — 오른쪽 반 화면 탭이 행동이다(CameraPad.OnTap)
             _actBtn = null; _actT = null;
-            Round(_root, "Talk", "…", Loc.T("대화", "Talk"), new Color(0.98f, 0.62f, 0.72f), new Vector2(64f, -272f), 96f, () => _onTalk?.Invoke(), out _, tl);
-            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), new Vector2(64f, -394f), 96f, () => _onBag?.Invoke(), out _, tl);
+            Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), RowPos(1), RowSize, () => _onBag?.Invoke(), out _, tl); _rowN = 2; Register("Bag");
             // 162차: 오른쪽 반 = 투명 카메라 패드(드래그 = 카메라 돌리기, 탭 = 행동/휘두르기). 힌트 링은 조이스틱과 같은 크기로 오른쪽 아래에
             CamPad = CameraPad.Create(_root, new Vector2(-150f, 260f), 200f);
 
@@ -167,6 +165,41 @@ namespace CoastRun.Village
             return btn;
         }
 
+        /// 183차: 왼쪽 둥근 버튼 열(도구·대화·가방) 아래에 버튼을 더 붙인다. 라벨 Text 를 돌려준다(켜짐/꺼짐 표시용)
+        public Text AddSideButton(string name, string glyph, string label, Color col, float y, Action on)
+        {
+            Round(_root, name, glyph, label, col, RowPos(_rowN), RowSize, on, out var t, new Vector2(0f, 1f)); _rowN++; Register(name);
+            return t;
+        }
+        // ── 187차: 버튼 줄 · 켜짐 하이라이트 ──
+        const float RowSize = 74f; int _rowN;
+        static Vector2 RowPos(int i) => new Vector2(50f + i * 84f, -126f);
+        readonly Dictionary<string, (RectTransform btn, RectTransform edge, Image ring)> _btns = new Dictionary<string, (RectTransform, RectTransform, Image)>();
+        readonly HashSet<string> _on = new HashSet<string>();
+        void Register(string name)
+        {
+            var b = _root.Find(name) as RectTransform; var e = _root.Find(name + "E") as RectTransform; if (b == null) return;
+            // 켜짐 표시: 버튼 뒤 노란 고리(평소엔 숨김)
+            var ring = CoastUiArt.CutePill(_root, name + "Ring", new Color(1f, 0.90f, 0.30f), (int)(RowSize * 0.5f + 8), 0); ring.raycastTarget = false;
+            var rrt = ring.rectTransform; rrt.anchorMin = rrt.anchorMax = b.anchorMin; rrt.pivot = new Vector2(0.5f, 0.5f); rrt.anchoredPosition = b.anchoredPosition; rrt.sizeDelta = new Vector2(RowSize + 16f, RowSize + 16f);
+            rrt.SetSiblingIndex(e != null ? e.GetSiblingIndex() : b.GetSiblingIndex()); ring.gameObject.SetActive(false);
+            _btns[name] = (b, e, ring);
+        }
+        /// 이동(자동 이동 중)·자동(자동사냥 ON) 버튼을 켜진 상태로 보이게 — 노란 고리 + 살짝 커졌다 작아졌다
+        public void SetButtonOn(string name, bool on)
+        {
+            if (!_btns.TryGetValue(name, out var x)) return;
+            if (on) _on.Add(name); else _on.Remove(name);
+            if (x.ring != null) x.ring.gameObject.SetActive(on);
+            if (!on) { x.btn.localScale = Vector3.one; if (x.edge != null) x.edge.localScale = Vector3.one; }
+        }
+        void Update()
+        {
+            if (_on.Count == 0) return;
+            float k = 1f + 0.07f * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f));
+            foreach (var n in _on) if (_btns.TryGetValue(n, out var x)) { x.btn.localScale = Vector3.one * k; if (x.edge != null) x.edge.localScale = Vector3.one * k; if (x.ring != null) { var c = x.ring.color; c.a = 0.55f + 0.45f * (0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 6f)); x.ring.color = c; } }
+        }
+
         public void SetStatus(int hp, int hpMax, int coins, string time, string village)
         {
             if (_hpT != null) _hpT.text = $"{hp}/{hpMax}";
@@ -192,8 +225,8 @@ namespace CoastRun.Village
             // 154차: 클링 생성 도구 아이콘(UI_Tool_Net/Bat/Axe/Pick) 이 있으면 글리프 대신 그림
             if (_toolGlyph != null)
             {
-                string[] keys = { "UI_Tool_Net", "UI_Tool_Bat", "UI_Tool_Axe", "UI_Tool_Pick", "UI_Tool_Rod" };   // 168차: 낚싯대
-                string key = keys[Mathf.Clamp(toolIdx, 0, 4)];
+                string[] keys = { "UI_Tool_Net", "UI_Tool_Bat", "UI_Tool_Axe", "UI_Tool_Pick", "UI_Tool_Rod", "UI_Tool_Road" };   // 168차: 낚싯대 · 187차: 도로(그림 없으면 ▦)
+                string key = keys[Mathf.Clamp(toolIdx, 0, 5)];
                 var sp = Resources.Load<Sprite>("CoastRun/Textures/Village/" + key);
                 if (sp == null)
                 {
@@ -207,10 +240,10 @@ namespace CoastRun.Village
                 }
                 if (sp != null)
                 {
-                    if (_toolImg == null) { var go = new GameObject("I", typeof(RectTransform), typeof(Image)); go.transform.SetParent(_toolGlyph.transform.parent, false); _toolImg = go.GetComponent<Image>(); _toolImg.raycastTarget = false; _toolImg.preserveAspect = true; var r = _toolImg.rectTransform; r.anchorMin = new Vector2(0.5f, 0.5f); r.anchorMax = new Vector2(0.5f, 0.5f); r.anchoredPosition = new Vector2(0f, 10f); r.sizeDelta = new Vector2(56f, 56f); }
+                    if (_toolImg == null) { var go = new GameObject("I", typeof(RectTransform), typeof(Image)); go.transform.SetParent(_toolGlyph.transform.parent, false); _toolImg = go.GetComponent<Image>(); _toolImg.raycastTarget = false; _toolImg.preserveAspect = true; var r = _toolImg.rectTransform; r.anchorMin = new Vector2(0.5f, 0.5f); r.anchorMax = new Vector2(0.5f, 0.5f); r.anchoredPosition = new Vector2(0f, 8f); r.sizeDelta = new Vector2(42f, 42f); }
                     _toolImg.sprite = sp; _toolImg.gameObject.SetActive(true); _toolGlyph.gameObject.SetActive(false);
                 }
-                else { if (_toolImg != null) _toolImg.gameObject.SetActive(false); _toolGlyph.gameObject.SetActive(true); }
+                else { if (_toolImg != null) _toolImg.gameObject.SetActive(false); _toolGlyph.gameObject.SetActive(true); _toolGlyph.text = toolIdx == 5 ? "▦" : "⚒"; }
             }
         }
         Text _toolGlyph; Image _toolImg; readonly System.Collections.Generic.Dictionary<string, Sprite> _toolSprites = new System.Collections.Generic.Dictionary<string, Sprite>();
@@ -388,9 +421,17 @@ namespace CoastRun.Village
             _pointerId = int.MinValue; Value = Vector2.zero; _knob.anchoredPosition = Vector2.zero;
         }
 
-        public void OnPointerDown(PointerEventData e) { _cam = e.pressEventCamera; _pointerId = e.pointerId; Begin(e.position); }
-        public void OnDrag(PointerEventData e) { if (e.pointerId == _pointerId) { _cam = e.pressEventCamera; MoveTo(e.position); } }
-        public void OnPointerUp(PointerEventData e) { if (e.pointerId != _pointerId && _pointerId != int.MinValue) return; Release(); }
+        /// 188차(사용자: 「근처에서 상대방 누르면 대화」): 왼쪽 반(조이스틱 영역)에서도 짧게 톡 하면 그 자리를 알린다(사람이 있으면 대화)
+        public Action<Vector2> OnTapAt; Vector2 _tapDown; float _tapAt; bool _tapMoved;
+        public void OnPointerDown(PointerEventData e) { _cam = e.pressEventCamera; _pointerId = e.pointerId; Begin(e.position); _tapDown = e.position; _tapAt = Time.unscaledTime; _tapMoved = false; }
+        public void OnDrag(PointerEventData e) { if (e.pointerId == _pointerId) { _cam = e.pressEventCamera; MoveTo(e.position); if ((e.position - _tapDown).magnitude * (Screen.width > 0 ? 720f / Screen.width : 1f) > 18f) _tapMoved = true; } }
+        public void OnPointerUp(PointerEventData e)
+        {
+            if (e.pointerId != _pointerId && _pointerId != int.MinValue) return;
+            bool tap = !_tapMoved && Time.unscaledTime - _tapAt < 0.28f && (e.position - _tapDown).magnitude * (Screen.width > 0 ? 720f / Screen.width : 1f) <= 18f;
+            Release();
+            if (tap) OnTapAt?.Invoke(e.position);
+        }
 
         void Update()
         {
@@ -436,7 +477,7 @@ namespace CoastRun.Village
     /// 힌트 링(「⟲ 카메라 / 톡 = 휘두르기」)은 조이스틱 힌트와 같은 크기·투명도로 오른쪽 아래.
     public class CameraPad : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
-        public Action<float> OnOrbit; public Action OnTap;
+        public Action<float> OnOrbit; public Action OnTap; public Vector2 LastTap;   // 187차: 탭한 화면 좌표(상대 탭 = 대화)
         RectTransform _zone, _hint; CanvasGroup _hintGrp, _ringGrp; RectTransform _ring;
         int _pointerId = int.MinValue; Vector2 _down, _last; float _downAt; bool _dragged; Camera _cam;
         public static CameraPad Create(RectTransform parent, Vector2 hintFromRight, float size)
@@ -476,7 +517,7 @@ namespace CoastRun.Village
             if (e.pointerId != _pointerId) return;
             bool tap = !_dragged && Time.unscaledTime - _downAt < 0.28f;
             _pointerId = int.MinValue;
-            if (tap) OnTap?.Invoke();
+            if (tap) { LastTap = e.position; OnTap?.Invoke(); }
         }
         void Update()
         {

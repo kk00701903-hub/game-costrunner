@@ -160,6 +160,7 @@ namespace CoastRun
         private void Update()
         {
             bool racing = IsRacing();
+            if (KpopTutorial.HoldFever && !Active && _offerUntil < 0f) _nextOffer = Mathf.Max(_nextOffer, Time.time + 0.5f);   // 194차
             if (!Active && racing && Time.time >= _nextOffer && _offerUntil < 0f)
             {
                 _offerUntil = Time.time + OfferWindow;

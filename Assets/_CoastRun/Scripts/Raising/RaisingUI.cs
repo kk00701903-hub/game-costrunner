@@ -1377,14 +1377,14 @@ namespace CoastRun
                 if (!string.IsNullOrEmpty(Save.queuedSchedule[i])) continue;
                 ScheduleDef pick = null;
                 if (stress >= s.StressLimit - 10) pick = Best(ScheduleCategory.Rest, season, used, d => -d.dStress);   // 74차: 번아웃 문턱 기준
-                else if (money < 60) pick = Best(ScheduleCategory.Job, season, used, d => d.dMoney - d.dStress * 0.5f);
+                else if (money < 60 * EconomyScale.Living) pick = Best(ScheduleCategory.Job, season, used, d => d.dMoney - d.dStress * 0.5f);
                 else if (gateSoon && stamina < gateNeed)
                 {
                     System.Func<ScheduleDef, float> staGain = d =>
                     {
                         if (d.dStamina <= 0) return float.NegativeInfinity;
                         float v = d.dStamina * 14f - d.dStress * 0.35f + (d.hasBonusSeason && d.bonusSeason == season ? 6f : 0f);
-                        if (d.category == ScheduleCategory.Lesson && money + d.dMoney < 40) return float.NegativeInfinity;
+                        if (d.category == ScheduleCategory.Lesson && money + d.dMoney < 40 * EconomyScale.Living) return float.NegativeInfinity;
                         return v;
                     };
                     pick = Best(ScheduleCategory.Lesson, season, used, staGain)
@@ -1402,7 +1402,7 @@ namespace CoastRun
                         int g = low == StatKind.Stamina ? d.dStamina : low == StatKind.Agility ? d.dAgility : d.dCharm;
                         if (g <= 0) return float.NegativeInfinity;
                         float v = g * 10f - d.dStress * 0.4f + (d.hasBonusSeason && d.bonusSeason == season ? 6f : 0f);
-                        if (d.category == ScheduleCategory.Lesson && money + d.dMoney < 40) return float.NegativeInfinity;   // 돈 바닥나는 교육은 금지
+                        if (d.category == ScheduleCategory.Lesson && money + d.dMoney < 40 * EconomyScale.Living) return float.NegativeInfinity;   // 돈 바닥나는 교육은 금지
                         return v;
                     };
                     pick = Best(ScheduleCategory.Lesson, season, used, gain) ?? Best(ScheduleCategory.SelfDev, season, used, gain) ?? Best(ScheduleCategory.Job, season, used, gain);

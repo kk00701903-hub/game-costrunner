@@ -45,6 +45,7 @@ namespace CoastRun
             int legacyCoins = PlayerPrefs.GetInt(CoinWallet.PrefsKey, 0);
             if (legacyCoins > 0)
                 s.stats.money += Mathf.Min(legacyCoins, 500);
+            s.stats.stamina = Mathf.Max(s.stats.stamina, 150);   // 197차(사용자: 「hp 올려줘」): 새 게임 시작 HP 30 → 150
             BindRng(s);
             return s;
         }
