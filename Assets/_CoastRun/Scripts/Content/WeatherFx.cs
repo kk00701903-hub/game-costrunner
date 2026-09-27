@@ -18,6 +18,7 @@ namespace CoastRun
         private int _rainBase = 800, _rainNearBase = 160, _snowBase = 350, _snowNearBase = 70;
         /// 182차(사용자: 「벚꽃·비·눈이 너무 많이 내린다 — 지금의 50% 로」): 내리는 양 배율. 마을(VillageHub)이 0.5 로 둔다. 러닝은 기본 1.
         public float Density = 1f;
+        public const float PetalMul = 0.3f;   // 203차(사용자: 「벚꽃잎 날리는 양을 30% 수준으로」) — 마을·러닝 모두
         // 182차: 개수 상한(maxParticles)이 먼저 걸리는 층(벚꽃 원경 120×7초 > 480)은 발생량만 줄여선 화면 속 개수가 거의 안 준다 → 상한도 같은 배율로
         private readonly System.Collections.Generic.Dictionary<ParticleSystem, int> _baseMax = new System.Collections.Generic.Dictionary<ParticleSystem, int>();
         private void ScaleMax(ParticleSystem ps)
@@ -76,8 +77,8 @@ namespace CoastRun
                 // 63차(사용자): 봄 벚꽃 — 위에서 살랑살랑 떨어지는 분홍 꽃잎(회전·노이즈), 원경 + 근경 두 겹.
                 //   첫 확인에서 희미해 눈에 안 띄었다 → 채도·개수 올리고 카메라 앞 근경 층을 추가(근경은 너무 크면 분홍 덩어리로 보여 0.16~0.28).
                 var petalTex = ArtAssets.LoadTexture("Fx_Petal");
-                _petals = MakePetals("PetalFx", 120, new ParticleSystem.MinMaxCurve(0.14f, 0.26f), new Vector3(22f, 1f, 30f), Vector3.zero, petalTex);
-                _petalsNear = MakePetals("PetalNearFx", 40, new ParticleSystem.MinMaxCurve(0.11f, 0.19f), new Vector3(9f, 1f, 8f), new Vector3(0f, -2.5f, -5f), petalTex);
+                _petals = MakePetals("PetalFx", Mathf.RoundToInt(120 * PetalMul), new ParticleSystem.MinMaxCurve(0.14f, 0.26f), new Vector3(22f, 1f, 30f), Vector3.zero, petalTex);
+                _petalsNear = MakePetals("PetalNearFx", Mathf.RoundToInt(40 * PetalMul), new ParticleSystem.MinMaxCurve(0.11f, 0.19f), new Vector3(9f, 1f, 8f), new Vector3(0f, -2.5f, -5f), petalTex);
             }
             if (_wind == null)
             {
@@ -115,6 +116,7 @@ namespace CoastRun
             ps.transform.localPosition = localPos;
             var pr = ps.GetComponent<ParticleSystemRenderer>();
             if (tex != null && pr.material.HasProperty("_BaseMap")) pr.material.SetTexture("_BaseMap", tex);
+            pr.maxParticleSize = 0.022f;   // 204차(동물의 숲 느낌): 카메라 앞을 지나는 꽃잎이 화면 절반만 하게 커지던 것 — 화면 높이 2.2 % 로 상한
             return ps;
         }
 
@@ -195,7 +197,7 @@ namespace CoastRun
             SetActive(_mist, weather == WeatherKind.Mist || weather == WeatherKind.Cloudy);
             bool petals = season == SeasonKind.Spring && weather != WeatherKind.Rain;   // 63차: 봄이면 늘 벚꽃잎
             SetActive(_petals, petals); SetActive(_petalsNear, petals);
-            { var pe = _petals.emission; pe.rateOverTime = 120f * Density; var pn = _petalsNear.emission; pn.rateOverTime = 40f * Density; }   // 182차
+            { var pe = _petals.emission; pe.rateOverTime = 120f * Density * PetalMul; var pn = _petalsNear.emission; pn.rateOverTime = 40f * Density * PetalMul; }   // 182차 · 203차: 벚꽃잎 30%
             ScaleMax(_petals); ScaleMax(_petalsNear); ScaleMax(_rain); ScaleMax(_rainNear); ScaleMax(_snow); ScaleMax(_snowNear); ScaleMax(_wind);   // 182차
             // 35차: 바람 — 계절별 날리는 것: 봄 벚꽃·유채 꽃잎 / 여름 초록 잎·물보라 / 가을 낙엽 / 겨울 눈보라
             Color leaf = season == SeasonKind.Spring ? new Color(1f, 0.78f, 0.86f, 0.95f)

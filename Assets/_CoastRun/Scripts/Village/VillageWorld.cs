@@ -230,7 +230,7 @@ namespace CoastRun.Village
             go.GetComponent<MeshFilter>().sharedMesh = mesh;
             var mr = go.GetComponent<MeshRenderer>();
             SplatTex = Splat();
-            mr.sharedMaterial = ArtAssets.CreateTexturedLit(SplatTex, Color.white, 0.02f);
+            mr.sharedMaterial = ArtAssets.CreateTexturedLit(SplatTex, new Color(0.84f, 0.84f, 0.84f, 1f), 0.02f);   // 204차(동물의 숲 느낌): 해 드는 평지가 (253,251,140)처럼 노랗게 하얗게 날아가던 것 — 땅만 16 % 눌러 진한 풀색으로
             // 144차: 디테일 맵(2 m 타일 잔결) — 큰 스플랫 위에 미세 명암을 곱해 가까이서도 표면이 살아 있게
             // 151차: 손그림풍 디테일(R 잔디 결 · G 모래 결, 밑색 초록 정도로 갈라 씀) — 없으면 옛 노이즈
             var dmTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Detail");
@@ -558,7 +558,7 @@ namespace CoastRun.Village
                     // 흙길
                     float pd = PathDist(x, z);
                     float w = 1.7f + (n1 - 0.5f) * 0.6f;
-                    if (cobble) { float sh = Mathf.Clamp01((w + 0.9f - pd) / 0.9f); if (pd < w + 0.9f) c = Color.Lerp(c, Color.Lerp(path, sand, 0.45f), sh * 0.85f); }
+                    if (cobble) { float sh = Mathf.Clamp01((w + 0.5f - pd) / 0.7f); if (pd < w + 0.5f) c = Color.Lerp(c, Color.Lerp(path, VillagePalette.SoilLight, 0.45f), sh * 0.7f); }   // 204차(동물의 숲 느낌): 돌길 어깨가 넓고 하얗게 떠 보이던 것 — 폭 0.9→0.5 m, 밝은 흙색으로
                     else if (pd < w + 0.5f) c = Color.Lerp(c, pd < w ? Color.Lerp(path, pathEdge, n2 * 0.5f) : pathEdge, pd < w ? 1f : (w + 0.5f - pd) / 0.5f);
                     if (pd < w && !cobble)
                     {
@@ -577,7 +577,7 @@ namespace CoastRun.Village
                         c = ridge ? new Color(0.55f, 0.42f, 0.28f) : Color.Lerp(soil, Color.Lerp(soil, Color.black, 0.25f), n2 * 0.4f);
                     }
                     // 마당(언덕 집 앞) 잔디는 밝게
-                    if (Mathf.Abs(x) < 9f && z > 24f && z < 33f) c = Color.Lerp(c, grassC, 0.35f);
+                    if (Mathf.Abs(x) < 9f && z > 24f && z < 33f) c = Color.Lerp(c, grassC, 0.15f);   // 204차: 0.35→0.15(마당이 하얗게 날아감)
                     // 꽃 점
                     if (sandK < 0.2f && pd > w + 0.6f && rng.NextDouble() < 0.012)
                         c = rng.NextDouble() < 0.5 ? new Color(1f, 0.72f, 0.82f) : rng.NextDouble() < 0.5 ? new Color(1f, 0.95f, 0.65f) : Color.white;

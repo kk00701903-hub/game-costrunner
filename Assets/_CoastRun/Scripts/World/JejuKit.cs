@@ -467,6 +467,12 @@ namespace CoastRun
                 case "Ore": { var om = CoastMaterials.CreateLit(new Color(1f, 0.84f, 0.28f), 0.55f); CoastMaterials.SetShadow(om, new Color(0.85f, 0.65f, 0.25f), 0.3f); return om; }
                 case "LeafBush": { var t = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Leaf"); return t != null ? CoastMaterials.CreateToon(new Color(0.95f, 1f, 0.92f), t, 0.02f) : CoastMaterials.CreateLit(new Color(0.38f, 0.66f, 0.32f), 0.02f); }   // 162차: 클링 잎 타일
                 case "Berry": return CoastMaterials.CreateLit(new Color(0.98f, 0.40f, 0.55f), 0.4f);
+                // 206차: 광산 던전 키트(VCave*/VMine*, village_cave_kit.py) — 바위는 Firefly 손그림 타일(Tex_CaveRock)
+                case "CaveRock": return CoastMaterials.CreateToon(new Color(0.47f, 0.40f, 0.35f), (Texture2D)null, 0.04f);   // 206차: 각진 면에 사진 타일을 입히면 지저분 — 단색 + 구운 AO 로 동물의 숲식 매끈한 바위
+                case "CaveCrystal": { var cm = CoastMaterials.CreateUnlit(new Color(0.78f, 0.60f, 1f)); return cm; }
+                case "MineWood": return CoastMaterials.CreateLit(new Color(0.62f, 0.43f, 0.26f), 0.05f);
+                case "MineMetal": return CoastMaterials.CreateLit(new Color(0.42f, 0.44f, 0.48f), 0.35f);
+                case "LampGlow": return CoastMaterials.CreateUnlit(new Color(1f, 0.84f, 0.50f));
                 // 64차: 제주 집 키트(JHouse_*) — 초가·기와·창호지·회벽
                 case "Thatch": return CoastMaterials.CreateLit(new Color(0.74f, 0.60f, 0.36f), 0.02f);
                 case "Tile": return CoastMaterials.CreateLit(new Color(0.34f, 0.36f, 0.40f), 0.08f);

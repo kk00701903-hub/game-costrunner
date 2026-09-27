@@ -7,24 +7,45 @@ namespace CoastRun.Village
     /// 주가 바뀌면 자라고, 빈 칸엔 잡초가 나서 뽑아야 심을 수 있다. 데이터는 SaveData.farm(PotState 9개) — 옛 베란다 화분(pots 3개)은 첫 진입 때 옮겨 온다.
     public static class VillageFarm
     {
-        public const int Rows = 3, Cols = 3, Tiles = 9;
+        public const int Cols = 3, MaxRows = 5;
+        /// 205차(사용자: 「밭 넓히기」): 줄 수는 세이브(farmRows 3→4→5) — 늘어난 칸은 울타리 서쪽 빈터(TileCenter 참고)
+        public static int Rows = 3;
+        public static int Tiles => Rows * Cols;
+        public static readonly int[] ExpandPrice = { 0, 0, 0, 3000, 6000 };   // [다음 줄 수] 값
         public const float CellW = 2.66f, CellD = 2.33f;
         public const float Top = 0.20f;   // 밭 표면 높이(지형 + 흙 상자)
         static float X0 => VillageWorld.GardenX - 4f;
         static float Z0 => VillageWorld.GardenZ - 3.5f;
 
-        public static Vector3 TileCenter(int i) { int r = i / Cols, c = i % Cols; return new Vector3(X0 + (c + 0.5f) * CellW, 0f, Z0 + (r + 0.5f) * CellD); }
+        /// 205차: 넓힌 칸(9번부터)은 울타리 서쪽 빈터에 3칸씩 한 줄 — 북쪽은 돌길, 동쪽은 꽃밭, 남쪽은 엄마 집이라 서쪽으로(탐색 로그 기준)
+        public const float WestGap = 8.4f;
+        public static float WestX0 => X0 - WestGap;
+        public static Vector3 WestCenter => new Vector3(WestX0 + Cols * CellW * 0.5f, 0f, Z0 + (Rows - 3) * CellD * 0.5f);
+        public static Vector3 TileCenter(int i)
+        {
+            if (i >= 9) { int j = i - 9, rr = j / Cols, cc = j % Cols; return new Vector3(WestX0 + (cc + 0.5f) * CellW, 0f, Z0 + (rr + 0.5f) * CellD); }
+            int r = i / Cols, c = i % Cols; return new Vector3(X0 + (c + 0.5f) * CellW, 0f, Z0 + (r + 0.5f) * CellD);
+        }
         public static int TileAt(Vector3 p)
         {
             float u = (p.x - X0) / CellW, v = (p.z - Z0) / CellD;
-            if (u < 0f || v < 0f || u >= Cols || v >= Rows) return -1;
-            return (int)v * Cols + (int)u;
+            if (u >= 0f && v >= 0f && u < Cols && v < 3) return (int)v * Cols + (int)u;
+            float wu = (p.x - WestX0) / CellW;
+            if (wu >= 0f && v >= 0f && wu < Cols && v < Rows - 3) return 9 + (int)v * Cols + (int)wu;
+            return -1;
         }
         public static int Stamp(SaveData s) => s.week * 4 + s.phaseIndex;
 
         public static void Ensure(SaveData s)
         {
             if (s == null) return;
+            if (s.farmRows < 3) s.farmRows = 3; Rows = Mathf.Clamp(s.farmRows, 3, MaxRows);
+            if (s.farm != null && s.farm.Length > 0 && s.farm.Length < Tiles && s.farm.Length % Cols == 0)
+            {   // 205차: 밭을 넓혔을 때 — 기존 칸은 그대로 두고 뒤에 빈 칸을 붙인다
+                var g = new PotState[Tiles]; for (int i = 0; i < Tiles; i++) g[i] = i < s.farm.Length && s.farm[i] != null ? s.farm[i] : new PotState(); s.farm = g;
+            }
+            if (s.farmFert == null || s.farmFert.Length < Tiles) { var a = new int[Tiles]; if (s.farmFert != null) System.Array.Copy(s.farmFert, a, s.farmFert.Length); s.farmFert = a; }
+            if (s.farmMiss == null || s.farmMiss.Length < Tiles) { var a = new int[Tiles]; if (s.farmMiss != null) System.Array.Copy(s.farmMiss, a, s.farmMiss.Length); s.farmMiss = a; }
             if (s.farm == null || s.farm.Length != Tiles)
             {
                 var n = new PotState[Tiles];
@@ -59,6 +80,7 @@ namespace CoastRun.Village
             Ensure(s);
             if (seed == null || !Empty(s, i) || HasWeed(s, i) || s.stats.money < seed.price) return false;
             s.stats.money -= seed.price; s.farm[i].seed = seed.id; s.farm[i].growth = 0; s.farm[i].waterStamp = -1;
+            s.farmFert[i] = 0; s.farmMiss[i] = 0;   // 205차
             return true;
         }
         public static bool Water(SaveData s, int i)
@@ -73,15 +95,38 @@ namespace CoastRun.Village
             if (!HasWeed(s, i)) return false;
             s.farmWeedMask &= ~(1 << i); return true;
         }
-        /// 수확 — 성공 확률(SeedDef.chance)을 굴려 성공이면 작물 아이템(가방), 실패면 시든다. 어느 쪽이든 칸은 비운다.
+        /// 205차: 마지막 수확 품질(★1~3). 0 = 시듦.
+        public static int LastStar;
+        /// 비료(품질 ★+1) — 심은 칸에 한 번
+        public static bool CanFertilize(SaveData s, int i) { Ensure(s); return SeedOf(s, i) != null && !Bloomed(s, i) && s.farmFert[i] == 0; }
+        public const int FertPrice = 150;
+        public static bool Fertilize(SaveData s, int i) { if (!CanFertilize(s, i) || s.stats.money < FertPrice) return false; s.stats.money -= FertPrice; s.farmFert[i] = 1; return true; }
+        /// 비 오는 날: 물이 필요한 칸에 저절로 물이 든다. 돌려주는 값 = 적신 칸 수.
+        public static int RainWater(SaveData s)
+        {
+            if (s == null) return 0; Ensure(s); int n = 0;
+            for (int i = 0; i < Tiles; i++) if (CanWater(s, i) && Water(s, i)) n++;
+            return n;
+        }
+        public static int Star(SaveData s, int i) { Ensure(s); return 1 + (s.farmFert[i] > 0 ? 1 : 0) + (s.farmMiss[i] == 0 ? 1 : 0); }
+        /// 수확 — 205차(사용자: 「실패는 물을 빼먹었을 때만」): 물을 두 주 넘게 못 받았을 때만 시든다. 품질 ★ = 1 + 비료 + (한 번도 안 빼먹음) → 그만큼 더 거둔다.
         public static bool Harvest(SaveData s, int i, out SeedDef seed, out string gotKo, out string gotEn)
         {
-            seed = null; gotKo = gotEn = "";
+            seed = null; gotKo = gotEn = ""; LastStar = 0;
             if (!Bloomed(s, i)) return false;
             seed = SeedOf(s, i); var p = s.farm[i];
-            p.seed = null; p.growth = 0; p.waterStamp = -1;
-            bool ok = Random.value < seed.chance;
+            int star = Star(s, i); bool ok = s.farmMiss[i] < 2;
+            p.seed = null; p.growth = 0; p.waterStamp = -1; s.farmFert[i] = 0; s.farmMiss[i] = 0;
             if (!ok) return false;
+            LastStar = star; int extra = star - 1;
+            int year = s.week / Timeline.Weeks; if (s.farmStarYear != year) { s.farmStarYear = year; s.farmBestStar = 0; }
+            s.farmBestStar = Mathf.Max(s.farmBestStar, star);
+            if (seed.season >= 0)
+            {
+                int n = Mathf.Max(1, seed.food) + extra; LifeItems.Add(s, "crop_" + seed.id, n);
+                gotKo = $"{seed.ko} ×{n} {new string('★', star)}"; gotEn = $"{seed.en} ×{n} {new string('★', star)}";
+                s.flowersSold++; LifeItems.SyncLegacy(s); return true;
+            }
             switch (seed.id)
             {
                 case "tomato": LifeItems.Add(s, "crop_tomato", seed.food + 1); gotKo = $"토마토 ×{seed.food + 1}"; gotEn = $"Tomato ×{seed.food + 1}"; break;
@@ -91,6 +136,8 @@ namespace CoastRun.Village
                 case "lavender": LifeItems.Add(s, "flower_lavender", 1); gotKo = "라벤더 다발"; gotEn = "lavender"; break;
                 default: LifeItems.Add(s, "ing_veg", Mathf.Max(1, seed.food)); gotKo = $"채소 ×{Mathf.Max(1, seed.food)}"; gotEn = $"Veg ×{Mathf.Max(1, seed.food)}"; break;
             }
+            if (extra > 0) { string xid = seed.id == "tomato" ? "crop_tomato" : seed.id == "potato" ? "crop_potato" : seed.id == "rice" ? "crop_rice" : seed.id == "rose" ? "flower_rose" : seed.id == "lavender" ? "flower_lavender" : "ing_veg"; LifeItems.Add(s, xid, extra); }
+            gotKo += " " + new string('★', star); gotEn += " " + new string('★', star);
             s.flowersSold++; LifeItems.SyncLegacy(s);
             return true;
         }
@@ -103,7 +150,12 @@ namespace CoastRun.Village
             for (int i = 0; i < Tiles; i++)
             {
                 var sd = HomeData.Seed(s.farm[i].seed);
-                if (sd != null) { if (s.farm[i].growth < sd.weeks) s.farm[i].growth++; if (s.farm[i].growth >= sd.weeks) { ripe++; r?.harvestNames.Add(sd.Name); } }
+                if (sd != null)
+                {
+                    // 205차: 이번·지난 주에 물을 한 번도 못 받았으면 「빼먹은 주」 +1 (두 번이면 시든다), 받았으면 0
+                    if (s.farm[i].growth < sd.weeks) { bool wet = s.farm[i].waterStamp >= 0 && s.farm[i].waterStamp / 4 >= s.week - 1; s.farmMiss[i] = wet ? 0 : s.farmMiss[i] + 1; }
+                    if (s.farm[i].growth < sd.weeks) s.farm[i].growth++; if (s.farm[i].growth >= sd.weeks) { ripe++; r?.harvestNames.Add(sd.Name); }
+                }
                 else if (!HasWeed(s, i) && rng.NextDouble() < 0.25) s.farmWeedMask |= 1 << i;
             }
             if (r != null) r.harvested += ripe;
@@ -117,7 +169,7 @@ namespace CoastRun.Village
 
         // ── 마을 안 표시 ─────────────────────────────────────────────────
         public static Transform Marker;
-        static Material _soil, _wet, _weed, _stem, _leaf, _sprout, _ring;
+        static Material _soil, _wet, _weed, _stem, _leaf, _sprout, _ring, _rim;
         static Material M(ref Material m, Color c) { if (m == null) m = CoastMaterials.CreateLit(c); return m; }
 
         public static void Build(Transform root, SaveData s)
@@ -132,6 +184,12 @@ namespace CoastRun.Village
             for (int i = 0; i < Tiles; i++)
             {
                 var c = TileCenter(i); float gy = VillageWorld.Height(c.x, c.z) + Top;
+                if (i >= 9)
+                {   // 205차: 넓힌 칸 — 원래 밭처럼 흙 상자 + 밝은 두둑 테두리를 먼저 깐다
+                    float h0 = VillageWorld.Height(c.x, c.z);
+                    Prim(host, PrimitiveType.Cube, new Vector3(c.x, h0 + 0.05f, c.z), new Vector3(CellW - 0.11f, 0.10f, CellD - 0.08f), M(ref _rim, new Color(0.82f, 0.68f, 0.53f)));
+                    Prim(host, PrimitiveType.Cube, new Vector3(c.x, h0 + 0.08f, c.z), new Vector3(CellW - 0.36f, 0.16f, CellD - 0.33f), soil);
+                }
                 // 이랑(칸) — 옛 흙 상자(높이 0.16) 위에 얹는 표면, 물 주면 진한 흙
                 var bed = Prim(host, PrimitiveType.Cube, new Vector3(c.x, gy - 0.05f, c.z), new Vector3(CellW - 0.5f, 0.10f, CellD - 0.5f), IsWet(s, i) ? wet : soil);
                 bed.name = "Bed" + i;

@@ -653,8 +653,9 @@ namespace CoastRun.Village
                 {
                     if (!LifeItems.Take(Save, d.id, 1)) return;
                     int amt = d.id == n.likes ? 10 : d.id == "gift_snack" ? 5 : 2;
+                    bool bday = BirthdayWeek(npc) == Save.week; if (bday) amt *= 3;   // 205차: 생일이면 세 배
                     VillageDex.AddFriend(Save, npc, amt); _gm.Persist(); RefreshStatus();
-                    CoastToast.Show(Loc.T($"🎁 {n.ko}에게 {LifeItems.Name(d)} — {(d.id == n.likes ? "정말 좋아한다! 💗 +10" : $"고마워한다 +{amt}")} (우편으로 보냄)", $"🎁 Sent to {n.en} (+{amt})"));
+                    CoastToast.Show(Loc.T($"🎁 {n.ko}에게 {LifeItems.Name(d)} — {(bday ? $"생일 선물! 🎂 +{amt}" : d.id == n.likes ? "정말 좋아한다! 💗 +10" : $"고마워한다 +{amt}")} (우편으로 보냄)", $"🎁 Sent to {n.en} (+{amt})"));
                     VillageDex.Show(Save, GiftTo, () => { _busy = false; RefreshStatus(); }, 4);
                 }));
             }

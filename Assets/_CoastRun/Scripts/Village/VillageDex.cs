@@ -96,6 +96,8 @@ namespace CoastRun.Village
         public static int Friend(SaveData s, int i) { Ensure(s); return i >= 0 && i < s.npcFriend.Length ? s.npcFriend[i] : 0; }
         public static string Hearts(int f) { int h = Mathf.Clamp(f / 20, 0, 5); return new string('♥', h) + new string('♡', 5 - h); }
 
+        /// 205차: 방금 넘은 호감 단계(하트 이벤트 대기) — VillageHub 가 보여 주고 -1 로
+        public static int PendingHeartNpc = -1, PendingHeartLv;
         /// 호감도 올리기 — 20·50·80·100 을 넘으면 보상 + 큰 글씨 연출. 돌려주는 값 = 넘은 단계(0 없음).
         public static int AddFriend(SaveData s, int i, int amt)
         {
@@ -106,6 +108,7 @@ namespace CoastRun.Village
             for (int k = 0; k < steps.Length; k++) if (before < steps[k] && after >= steps[k]) crossed = k + 1;
             if (crossed > 0)
             {
+                PendingHeartNpc = i; PendingHeartLv = crossed;   // 205차: 하트 이벤트(마을에서 팝업이 닫히면 한 마디)
                 int money = crossed == 1 ? 60 : crossed == 2 ? 150 : crossed == 3 ? 300 : 600;
                 s.stats.money += money; s.starShards += crossed; s.starShardsTotal += crossed;
                 string lv = crossed == 1 ? Loc.T("아는 사이", "Acquaintance") : crossed == 2 ? Loc.T("친구", "Friend") : crossed == 3 ? Loc.T("단짝", "Close friend") : Loc.T("평생 친구", "Best friend");

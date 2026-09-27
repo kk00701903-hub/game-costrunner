@@ -23,10 +23,22 @@ namespace CoastRun.Village
         public static void SleepTick(SaveData s)
         {
             Ensure(s);
-            s.farmEggs = Mathf.Min(EggCap, s.farmEggs + s.farmChickens);
+            // 205차(사용자: 「동물 돌보기 — 애정 하트」): ♥3 이상이면 달걀이 가끔 황금 달걀, ♥5 면 하루 한 개 더. 그날 쓰다듬지 않았으면 애정 −3
+            int eggs = s.farmChickens; int hh = Hearts(s.loveHen);
+            if (s.farmChickens > 0 && hh >= 5) eggs++;
+            int gold = 0; if (hh >= 3) for (int k = 0; k < eggs; k++) if (Random.value < (hh >= 5 ? 0.35f : 0.2f)) gold++;
+            s.farmEggs = Mathf.Min(EggCap, s.farmEggs + eggs - gold); s.farmGoldEggs = Mathf.Min(EggCap, s.farmGoldEggs + gold);
             for (int i = 0; i < s.farmRabbitAge.Length; i++) s.farmRabbitAge[i]++;
+            if (Rabbits(s) > 0 && Hearts(s.loveRabbit) >= 5) { s.starShards++; s.starShardsTotal++; }   // 205차: 토끼 ♥5 — 네잎클로버(별조각 +1)
+            bool petHen = s.carePetWeek == s.week && (s.carePetMask & 1) != 0, petRab = s.carePetWeek == s.week && (s.carePetMask & 2) != 0;
+            if (s.farmChickens > 0 && !petHen) s.loveHen = Mathf.Max(0, s.loveHen - 3);
+            if (Rabbits(s) > 0 && !petRab) s.loveRabbit = Mathf.Max(0, s.loveRabbit - 3);
+            if (s.horsePetWeek != s.week) s.loveHorse = Mathf.Max(0, s.loveHorse - 2);
         }
+        public static int Hearts(int love) => Mathf.Clamp(love / 20, 0, 5);
+        public static string HeartText(int love) { int h = Hearts(love); return new string('♥', h) + new string('♡', 5 - h); }
         public static int CollectEggs(SaveData s) { int n = s.farmEggs; if (n > 0) LifeItems.Add(s, "ing_egg", n); s.farmEggs = 0; return n; }
+        public static int CollectGoldEggs(SaveData s) { int n = s.farmGoldEggs; if (n > 0) LifeItems.Add(s, "ing_egg_gold", n); s.farmGoldEggs = 0; return n; }
         /// 다 큰 토끼 한 마리 → 고기 2
         public static bool Butcher(SaveData s)
         {

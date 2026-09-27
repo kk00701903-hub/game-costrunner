@@ -78,6 +78,9 @@ namespace CoastRun.Village
             _root = new GameObject("Dungeon_B" + floor).transform; _root.SetParent(transform, false);
             _open = new bool[N, N];
             var floorMat = floor >= BossFloor ? Lit(new Color(0.30f, 0.22f, 0.24f)) : _dirt;
+            // 206차(사용자: 「동굴 등 모자란 부분은 파이어플라이·블렌더로」): 바닥 = Firefly 손그림 흙바닥 타일(4 m 반복), 보스 방은 붉게 물들임
+            var ftex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_CaveFloor");
+            if (ftex != null) { floorMat = CoastMaterials.CreateToon(floor >= BossFloor ? new Color(0.62f, 0.50f, 0.56f) : new Color(0.96f, 0.92f, 0.88f), ftex, 0.04f); floorMat.mainTextureScale = new Vector2((HX * 2f + 6f) / 7f, (HZ * 2f + 6f) / 7f); if (floorMat.HasProperty("_BaseMap")) floorMat.SetTextureScale("_BaseMap", floorMat.mainTextureScale); }
             Prim(_root, PrimitiveType.Cube, C + new Vector3(0f, -0.06f, 0f), new Vector3(HX * 2f + 6f, 0.1f, HZ * 2f + 6f), floorMat);
             if (floor >= BossFloor) BuildArena(); else BuildMaze();
             // 벽: 열린 칸 둘레의 막힌 칸마다 울퉁불퉁한 바위
@@ -87,8 +90,16 @@ namespace CoastRun.Village
                 for (int di = -1; di <= 1 && !edge; di++) for (int dj = -1; dj <= 1 && !edge; dj++) { int a = i + di, b = j + dj; if (a >= 0 && b >= 0 && a < N && b < N && _open[a, b]) edge = true; }
                 if (!edge) continue;
                 float h = 1.5f + (float)_rng.NextDouble() * 0.9f;   // 낮은 바위벽 — 위에서 미로가 읽히게
-                Prim(_root, PrimitiveType.Cube, W(i, j) + Vector3.up * (h * 0.5f), new Vector3(Cell, h, Cell), (i + j) % 3 == 0 ? _rockD : _rock, true, (float)_rng.NextDouble() * 8f - 4f);
-                if (_rng.NextDouble() < 0.45) Prim(_root, PrimitiveType.Sphere, W(i, j) + new Vector3(0f, h, 0f), new Vector3(Cell * 1.1f, 0.9f, Cell * 1.1f), _rockD);
+                var wc = Prim(_root, PrimitiveType.Cube, W(i, j) + Vector3.up * (h * 0.5f), new Vector3(Cell, h, Cell), (i + j) % 3 == 0 ? _rockD : _rock, true, (float)_rng.NextDouble() * 8f - 4f);
+                // 206차: 블렌더 동굴 바위(VCaveWall_A/B/C)로 겉모습만 바꾼다(충돌은 상자 그대로)
+                var wm = JejuKit.Spawn("VCaveWall_" + "ABC"[_rng.Next(3)], _root, Vector3.zero, _rng.Next(360));
+                if (wm != null)
+                {
+                    wc.GetComponent<MeshRenderer>().enabled = false; wm.transform.position = W(i, j) + Vector3.down * 0.15f;
+                    foreach (var r in wm.GetComponentsInChildren<MeshRenderer>()) { var ms = r.sharedMaterials; for (int mi = 0; mi < ms.Length; mi++) if (ms[mi] != null && ms[mi].name.StartsWith("Moss")) ms[mi] = ms[0]; r.sharedMaterials = ms; }   // 땅속엔 이끼 없이 바위 한 가지 색
+                    float sxz = Cell * 0.62f * (0.95f + (float)_rng.NextDouble() * 0.2f); wm.transform.localScale = new Vector3(sxz, h * 1.12f, sxz);
+                }
+                else if (_rng.NextDouble() < 0.45) Prim(_root, PrimitiveType.Sphere, W(i, j) + new Vector3(0f, h, 0f), new Vector3(Cell * 1.1f, 0.9f, Cell * 1.1f), _rockD);
             }
             // 바깥 막이(혹시 모를 틈)
             var b0 = new GameObject("Bounds").transform; b0.SetParent(_root, false);
@@ -147,6 +158,25 @@ namespace CoastRun.Village
             StartPos = RoomC(1) + new Vector3(-0.6f, 0f, -0.6f); StairsUp = StartPos + new Vector3(2.4f, 0f, 0f); StairsDown = RoomC(far);
             // 등불(방마다)
             for (int k = 0; k < 9; k++) Lamp(RoomC(k) + new Vector3(rw[k] * 0.9f - 1.2f, 0f, rh[k] * 0.9f - 1.2f), k == far ? new Color(1f, 0.55f, 0.45f) : new Color(1f, 0.78f, 0.45f));
+            // 206차: 장식 — 방마다 석순 1~2, 방 사이 버팀목, 시작 방 광차
+            for (int k = 0; k < 9; k++)
+            {
+                if (k == far) continue;
+                int n = 1 + _rng.Next(2);
+                for (int d = 0; d < n; d++)
+                {
+                    var sp = W(rx[k] + (_rng.Next(2) == 0 ? 0 : rw[k] - 1), rz[k] + (_rng.Next(2) == 0 ? 0 : rh[k] - 1)) + new Vector3((float)_rng.NextDouble() * 0.6f - 0.3f, 0f, (float)_rng.NextDouble() * 0.6f - 0.3f);
+                    if (k == 1 && Vector3.Distance(sp, StartPos) < 3f) continue;
+                    var st = JejuKit.Spawn(_rng.Next(2) == 0 ? "VCaveStalag_A" : "VCaveStalag_B", _root, Vector3.zero, _rng.Next(360), 0.8f + (float)_rng.NextDouble() * 0.5f); if (st != null) st.transform.position = sp;
+                }
+            }
+            foreach (var e in edges)
+            {
+                int ax = e.Item1 % 3 * 8 + 4, az = e.Item1 / 3 * 8 + 4, bx = e.Item2 % 3 * 8 + 4, bz = e.Item2 / 3 * 8 + 4;
+                var mid = (W(ax, az) + W(bx, bz)) * 0.5f + new Vector3(Cell * 0.5f, 0f, Cell * 0.5f);
+                var bm = JejuKit.Spawn("VMineBeam", _root, Vector3.zero, ax == bx ? 0f : 90f, 1.0f); if (bm != null) { bm.transform.position = mid; bm.transform.localScale = new Vector3(1.95f, 1f, 1f); }   // 굴 폭 4 m — 기둥이 양 벽에 붙게
+            }
+            var cart = JejuKit.Spawn("VMineCart", _root, Vector3.zero, 90f, 1.0f); if (cart != null) cart.transform.position = StartPos + new Vector3(-2.2f, 0f, 1.4f);
             // 광맥 2 + 층 수
             int ores = 2 + Floor; var rooms = new List<int>(); for (int k = 0; k < 9; k++) if (k != 1) rooms.Add(k);
             for (int o = 0; o < ores; o++)
@@ -154,8 +184,16 @@ namespace CoastRun.Village
                 int k = rooms[_rng.Next(rooms.Count)]; var p = W(rx[k] + _rng.Next(rw[k]), rz[k] + (_rng.Next(2) == 0 ? 0 : rh[k] - 1));
                 if (Vector3.Distance(p, StairsDown) < 2.6f) continue;
                 int kind = OreKind(); var node = new GameObject("DunOre").transform; node.SetParent(_root, false); node.position = p;
-                Prim(node, PrimitiveType.Sphere, p + Vector3.up * 0.55f, new Vector3(1.5f, 1.1f, 1.3f), _rock, true);
+                var body = Prim(node, PrimitiveType.Sphere, p + Vector3.up * 0.55f, new Vector3(1.5f, 1.1f, 1.3f), _rock, true);
                 var mat = kind == 4 ? Lit(VillageZones.NodeColor(kind)) : CoastMaterials.CreateUnlit(VillageZones.NodeColor(kind));
+                // 206차: 블렌더 광맥(VCaveCrystal_A/B) — 결정 색 = 광석 색
+                var cm = JejuKit.Spawn(_rng.Next(2) == 0 ? "VCaveCrystal_A" : "VCaveCrystal_B", node, Vector3.zero, _rng.Next(360));
+                if (cm != null)
+                {
+                    body.GetComponent<MeshRenderer>().enabled = false; cm.transform.position = p; cm.transform.localScale = Vector3.one * 1.25f;
+                    foreach (var r in cm.GetComponentsInChildren<MeshRenderer>()) { var ms = r.sharedMaterials; for (int mi = 0; mi < ms.Length; mi++) if (ms[mi] != null && ms[mi].name.StartsWith("CaveCrystal")) ms[mi] = mat; r.sharedMaterials = ms; }
+                    Ores.Add(new Ore { t = node, kind = kind }); continue;
+                }
                 for (int c = 0; c < 4; c++) { var cr = Prim(node, PrimitiveType.Cube, p + new Vector3((c % 2 - 0.5f) * 0.6f, 0.95f + (c / 2) * 0.22f, (c / 2 - 0.5f) * 0.5f), new Vector3(0.2f, 0.46f, 0.2f), mat); cr.transform.rotation = Quaternion.Euler(20f + c * 13f, c * 40f, 30f); }
                 Ores.Add(new Ore { t = node, kind = kind });
             }
@@ -172,8 +210,14 @@ namespace CoastRun.Village
         int OreKind() { int r = _rng.Next(100) + Floor * 6; return r < 40 ? 0 : r < 66 ? 1 : r < 84 ? 2 : r < 96 ? 3 : 4; }
         void Lamp(Vector3 at, Color c)
         {
-            Prim(_root, PrimitiveType.Cube, at + new Vector3(0f, 1.1f, 0f), new Vector3(0.14f, 2.2f, 0.14f), _wood);
-            Prim(_root, PrimitiveType.Sphere, at + new Vector3(0f, 2.3f, 0f), Vector3.one * 0.32f, CoastMaterials.CreateUnlit(c));
+            // 206차: 블렌더 갱도 등불(VMineLamp) — 없으면 옛 기둥+구
+            var lm = JejuKit.Spawn("VMineLamp", _root, Vector3.zero, _rng != null ? _rng.Next(360) : 0f);
+            if (lm != null) lm.transform.position = at;
+            else
+            {
+                Prim(_root, PrimitiveType.Cube, at + new Vector3(0f, 1.1f, 0f), new Vector3(0.14f, 2.2f, 0.14f), _wood);
+                Prim(_root, PrimitiveType.Sphere, at + new Vector3(0f, 2.3f, 0f), Vector3.one * 0.32f, CoastMaterials.CreateUnlit(c));
+            }
             var l = new GameObject("DunLamp").AddComponent<Light>(); l.transform.SetParent(_root, false); l.transform.position = at + new Vector3(0f, 2.6f, 0f);
             l.type = LightType.Point; l.color = c; l.range = 11f; l.intensity = 1.6f; l.shadows = LightShadows.None;
         }
@@ -185,8 +229,14 @@ namespace CoastRun.Village
             StartPos = W(12, 4); StairsUp = StartPos + new Vector3(2.4f, 0f, 0f);
             for (int k = 0; k < 6; k++) { float a = k / 6f * Mathf.PI * 2f; Lamp(C + new Vector3(Mathf.Cos(a) * 15.5f, 0f, Mathf.Sin(a) * 15.5f), new Color(1f, 0.55f, 0.5f)); }
             // 바닥 무늬(링) — 보스 방 느낌
-            Prim(_root, PrimitiveType.Cylinder, C + new Vector3(0f, 0.005f, 0f), new Vector3(20f, 0.004f, 20f), Lit(new Color(0.42f, 0.26f, 0.28f)));
-            Prim(_root, PrimitiveType.Cylinder, C + new Vector3(0f, 0.01f, 0f), new Vector3(16f, 0.004f, 16f), floorRing());
+            // 206차: 바닥이 Firefly 흙 타일(붉게 물들임)이 되어 큰 단색 원판은 뺀다 — 가장자리 석순 링으로 보스 방 느낌
+            if (Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_CaveFloor") == null)
+            {
+                Prim(_root, PrimitiveType.Cylinder, C + new Vector3(0f, 0.005f, 0f), new Vector3(20f, 0.004f, 20f), Lit(new Color(0.42f, 0.26f, 0.28f)));
+                Prim(_root, PrimitiveType.Cylinder, C + new Vector3(0f, 0.01f, 0f), new Vector3(16f, 0.004f, 16f), floorRing());
+            }
+            for (int k = 0; k < 12; k++) { if (k == 8 || k == 9) continue;   // 남쪽 입구는 비움
+                float a = (k + 0.5f) / 12f * Mathf.PI * 2f; var st = JejuKit.Spawn(k % 2 == 0 ? "VCaveStalag_A" : "VCaveStalag_B", _root, Vector3.zero, k * 37f, 1.4f); if (st != null) st.transform.position = C + new Vector3(Mathf.Cos(a) * 17.2f, 0f, Mathf.Sin(a) * 17.2f); }
         }
         static Material floorRing() => CoastMaterials.CreateLit(new Color(0.30f, 0.22f, 0.24f), 0.06f);
 

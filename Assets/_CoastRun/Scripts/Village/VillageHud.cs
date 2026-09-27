@@ -41,8 +41,8 @@ namespace CoastRun.Village
             _root = CoastUiCanvas.Root(_canvas);
 
             // ── 위 알약 3개 + ☰ ──
-            float y = -14f, hgt = 66f;
-            var hp = Pill(_root, "Hp", new Color(1f, 0.90f, 0.93f), new Vector2(0f, 1f), new Vector2(12f, y), new Vector2(174f, hgt));   // 187차: 세로로 긴 화면(폭≈577)에서 알약끼리 겹치지 않게 폭 축소
+            float y = -12f, hgt = 62f;   // 202차: 윗줄 알약 높이·간격 정리
+            var hp = Pill(_root, "Hp", new Color(1f, 0.90f, 0.93f), new Vector2(0f, 1f), new Vector2(12f, y), new Vector2(164f, hgt));   // 187차: 세로로 긴 화면(폭≈577)에서 알약끼리 겹치지 않게 폭 축소
             IconIn(hp, "Heart", "♥", new Color(0.98f, 0.40f, 0.50f));
             var bar = CoastUiArt.Panel(hp, "Bar", new Color(1f, 1f, 1f, 0.9f), 8); bar.raycastTarget = false;
             var brt = bar.rectTransform; brt.anchorMin = new Vector2(0f, 0f); brt.anchorMax = new Vector2(1f, 0f); brt.offsetMin = new Vector2(58f, 7f); brt.offsetMax = new Vector2(-10f, 16f);   // 187차: 가는 띠(숫자를 크게)
@@ -52,14 +52,14 @@ namespace CoastRun.Village
             _hpT = CoastHudLayout.MakeText(hp, "V", "", 30, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(56f, 16f), new Vector2(-8f, -2f));
             _hpT.color = new Color(0.50f, 0.20f, 0.32f); _hpT.fontStyle = FontStyle.Bold; _hpT.resizeTextForBestFit = true; _hpT.resizeTextMinSize = 14; _hpT.resizeTextMaxSize = CoastHudLayout.Scaled(30); _hpT.horizontalOverflow = HorizontalWrapMode.Wrap; _hpT.verticalOverflow = VerticalWrapMode.Truncate;
 
-            var coin = Pill(_root, "Coin", new Color(1f, 0.96f, 0.80f), new Vector2(0f, 1f), new Vector2(192f, y), new Vector2(156f, hgt));
+            var coin = Pill(_root, "Coin", new Color(1f, 0.96f, 0.80f), new Vector2(0f, 1f), new Vector2(184f, y), new Vector2(144f, hgt));
             IconIn(coin, "Coin", "●", new Color(0.98f, 0.75f, 0.20f));
             _coinT = CoastHudLayout.MakeText(coin, "V", "", 34, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(56f, 2f), new Vector2(-8f, -2f));
             _coinT.color = new Color(0.45f, 0.32f, 0.12f); _coinT.fontStyle = FontStyle.Bold;
             _coinT.resizeTextForBestFit = true; _coinT.resizeTextMinSize = 14; _coinT.resizeTextMaxSize = CoastHudLayout.Scaled(32);
             _coinT.horizontalOverflow = HorizontalWrapMode.Wrap; _coinT.verticalOverflow = VerticalWrapMode.Truncate;   // 187차: 큰 수(8,069)도 알약 안에 맞게 줄어들도록
 
-            var time = Pill(_root, "Time", new Color(0.88f, 0.95f, 1f), new Vector2(1f, 1f), new Vector2(-76f, y), new Vector2(156f, hgt));
+            var time = Pill(_root, "Time", new Color(0.88f, 0.95f, 1f), new Vector2(1f, 1f), new Vector2(-76f, y), new Vector2(150f, hgt));
             IconIn(time, "Clock", "◔", new Color(0.35f, 0.65f, 0.95f));
             _timeT = CoastHudLayout.MakeText(time, "V", "", 28, TextAnchor.MiddleCenter, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(54f, 2f), new Vector2(-6f, -2f));
             _timeT.color = new Color(0.20f, 0.35f, 0.55f); _timeT.fontStyle = FontStyle.Bold;
@@ -67,7 +67,7 @@ namespace CoastRun.Village
 
             var menu = CoastUiArt.CutePill(_root, "Menu", new Color(0.30f, 0.32f, 0.48f), 16, 3);
             var mrt = menu.rectTransform; mrt.anchorMin = mrt.anchorMax = new Vector2(1f, 1f); mrt.pivot = new Vector2(1f, 1f);
-            mrt.anchoredPosition = new Vector2(-12f, y); mrt.sizeDelta = new Vector2(58f, hgt); menu.raycastTarget = true;
+            mrt.anchoredPosition = new Vector2(-12f, y); mrt.sizeDelta = new Vector2(56f, hgt); menu.raycastTarget = true;
             var mt = CoastHudLayout.MakeText(mrt, "T", "☰", 26, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero); mt.color = Color.white;
             var mb = menu.gameObject.AddComponent<Button>(); mb.transition = Selectable.Transition.None; mb.onClick.AddListener(() => { CoastPrefs.Vibrate(); _onMenu?.Invoke(); });
 
@@ -82,7 +82,7 @@ namespace CoastRun.Village
             // 포켓캠프·쿠키런 킹덤처럼 상태 알약 바로 아래 **가로 한 줄 작은 원** [도구][가방][이동][자동]. 대화 버튼은 없앰(근처 자동 대화·상대 탭).
             var tl = new Vector2(0f, 1f);
             Round(_root, "Tool", "⚒", Loc.T("도구", "Tool"), new Color(0.60f, 0.52f, 0.92f), RowPos(0), RowSize, () => _onTool?.Invoke(), out _toolT, tl); _rowN = 1; Register("Tool");
-            _toolGlyph = _toolT != null ? _toolT.transform.parent.Find("G")?.GetComponent<Text>() : null;
+            _toolGlyph = _root.Find("Tool")?.Find("G")?.GetComponent<Text>();   // 202차: 라벨이 버튼 밖 이름표로 옮겨서 버튼에서 찾는다
             // 162차(사용자: 「좌측 상단의 휘두르기 버튼은 지워줘」): 행동(잡기/휘두르기/들어가기…) 라운드 버튼 삭제 — 오른쪽 반 화면 탭이 행동이다(CameraPad.OnTap)
             _actBtn = null; _actT = null;
             Round(_root, "Bag", "▣", Loc.T("가방", "Bag"), new Color(0.98f, 0.78f, 0.35f), RowPos(1), RowSize, () => _onBag?.Invoke(), out _, tl); _rowN = 2; Register("Bag");
@@ -99,8 +99,9 @@ namespace CoastRun.Village
 
             // ── 160차: 오늘 미션 띠(위 알약 아래, 오른쪽) ──
             var mp = CoastUiArt.CutePill(_root, "Mission", new Color(0.98f, 0.72f, 0.42f, 0.94f), 18, 3); mp.raycastTarget = false;
-            _mission = mp.rectTransform; _mission.anchorMin = _mission.anchorMax = new Vector2(1f, 1f); _mission.pivot = new Vector2(1f, 1f);
-            _mission.anchoredPosition = new Vector2(-12f, -92f); _mission.sizeDelta = new Vector2(330f, 46f);
+            _mission = mp.rectTransform; _mission.anchorMin = new Vector2(0f, 1f); _mission.anchorMax = new Vector2(1f, 1f); _mission.pivot = new Vector2(0.5f, 0.5f);
+            // 202차(사용자: 「이쁘게 다시 정렬」): 버튼 줄(4개) 오른쪽 끝부터 화면 오른쪽까지, 버튼 줄 가운데 높이에 맞춘다(전엔 자동 버튼 위에 겹쳤다)
+            _mission.offsetMin = new Vector2(RowPos(3).x + RowSize * 0.5f + 10f, RowPos(0).y - 22f); _mission.offsetMax = new Vector2(-12f, RowPos(0).y + 22f);
             _missionT = CoastHudLayout.MakeText(_mission, "T", "", 16, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(10f, 2f), new Vector2(-10f, 0f));
             _missionT.color = Color.white; _missionT.fontStyle = FontStyle.Bold;
             _missionT.resizeTextForBestFit = true; _missionT.resizeTextMinSize = 10; _missionT.resizeTextMaxSize = CoastHudLayout.Scaled(16);
@@ -146,20 +147,47 @@ namespace CoastRun.Village
             }
         }
 
+        /// 202차(사용자: 「도구 등 아이콘을 쨍하게 잘 보이게」): 흰 테두리 + 진한 그림자 + 채도 높은 원, 가운데 그림 아이콘(Textures/Village/UI_Hud_*),
+        /// 라벨은 원 안에서 아이콘을 가리지 않게 원 아래 남색 이름표로.
+        static readonly Dictionary<string, string> HudIcon = new Dictionary<string, string> { { "Bag", "UI_Hud_Bag" }, { "AutoMove", "UI_Hud_Go" }, { "AutoHunt", "UI_Hud_Auto" } };
+        public static Sprite HudSprite(string key)
+        {
+            var sp = Resources.Load<Sprite>("CoastRun/Textures/Village/" + key); if (sp != null) return sp;
+            var tex = Resources.Load<Texture2D>("CoastRun/Textures/Village/" + key);
+            return tex != null ? Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f) : null;
+        }
         static Button Round(RectTransform parent, string name, string glyph, string label, Color col, Vector2 pos, float size, Action on, out Text labelT, Vector2? anchor = null)
         {
             var an = anchor ?? new Vector2(1f, 0f);
-            var edge = CoastUiArt.CutePill(parent, name + "E", Color.Lerp(col, Color.black, 0.25f), (int)(size * 0.5f), 0); edge.raycastTarget = false;
+            Color.RGBToHSV(col, out float hh, out float ss, out float vv); col = Color.HSVToRGB(hh, Mathf.Clamp01(ss * 1.25f + 0.05f), Mathf.Clamp01(vv * 1.05f + 0.03f));   // 더 쨍하게
+            var edge = CoastUiArt.CutePill(parent, name + "E", new Color(0.16f, 0.12f, 0.26f, 0.55f), (int)(size * 0.5f + 4), 0); edge.raycastTarget = false;   // 그림자
             var ert = edge.rectTransform; ert.anchorMin = ert.anchorMax = an; ert.pivot = new Vector2(0.5f, 0.5f);
-            ert.anchoredPosition = pos + new Vector2(0f, -4f); ert.sizeDelta = new Vector2(size, size);
+            ert.anchoredPosition = pos + new Vector2(0f, -4f); ert.sizeDelta = new Vector2(size + 8f, size + 8f);
+            var rim = CoastUiArt.CutePill(parent, name + "Rim", Color.white, (int)(size * 0.5f + 4), 0); rim.raycastTarget = false;   // 흰 테
+            var rimT = rim.rectTransform; rimT.anchorMin = rimT.anchorMax = an; rimT.pivot = new Vector2(0.5f, 0.5f); rimT.anchoredPosition = pos; rimT.sizeDelta = new Vector2(size + 8f, size + 8f);
             var b = CoastUiArt.GlossyPill(parent, name, col, (int)(size * 0.5f), 10); b.raycastTarget = true;
             var rt = b.rectTransform; rt.anchorMin = rt.anchorMax = an; rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = pos; rt.sizeDelta = new Vector2(size, size);
-            var g = CoastHudLayout.MakeText(rt, "G", glyph, (int)(size * 0.34f), TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 14f), new Vector2(0f, -2f));
-            g.color = Color.white; g.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(g, new Color(0f, 0f, 0f, 0.35f), 1.5f);
-            labelT = CoastHudLayout.MakeText(rt, "L", label, 14, TextAnchor.LowerCenter, Vector2.zero, Vector2.one, new Vector2(4f, 10f), new Vector2(-4f, 0f));
-            labelT.color = Color.white; labelT.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(labelT, new Color(0f, 0f, 0f, 0.45f), 1.5f);
-            labelT.resizeTextForBestFit = true; labelT.resizeTextMinSize = 10; labelT.resizeTextMaxSize = CoastHudLayout.Scaled(14);
+            var g = CoastHudLayout.MakeText(rt, "G", glyph, (int)(size * 0.46f), TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero);
+            g.color = Color.white; g.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(g, new Color(0.10f, 0.06f, 0.20f, 0.8f), 2f);
+            if (HudIcon.TryGetValue(name, out var key))
+            {
+                var sp = HudSprite(key);
+                if (sp != null)
+                {
+                    var im = new GameObject("I", typeof(RectTransform), typeof(Image)).GetComponent<Image>(); im.transform.SetParent(rt, false);
+                    im.sprite = sp; im.preserveAspect = true; im.raycastTarget = false;
+                    var ir = im.rectTransform; ir.anchorMin = ir.anchorMax = new Vector2(0.5f, 0.5f); ir.anchoredPosition = Vector2.zero; ir.sizeDelta = new Vector2(size * 0.80f, size * 0.80f);
+                    g.gameObject.SetActive(false);
+                }
+            }
+            // 이름표(원 아래)
+            var tag = CoastUiArt.CutePill(parent, name + "Tag", new Color(0.20f, 0.16f, 0.38f, 0.92f), 10, 0); tag.raycastTarget = false;
+            var tgt = tag.rectTransform; tgt.anchorMin = tgt.anchorMax = an; tgt.pivot = new Vector2(0.5f, 0.5f);
+            tgt.anchoredPosition = pos + new Vector2(0f, -size * 0.5f - 12f); tgt.sizeDelta = new Vector2(size + 6f, 24f);
+            labelT = CoastHudLayout.MakeText(tgt, "L", label, 15, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(3f, 1f), new Vector2(-3f, -1f));
+            labelT.color = Color.white; labelT.fontStyle = FontStyle.Bold;
+            labelT.resizeTextForBestFit = true; labelT.resizeTextMinSize = 10; labelT.resizeTextMaxSize = CoastHudLayout.Scaled(15);
             var btn = b.gameObject.AddComponent<Button>(); btn.transition = Selectable.Transition.None;
             btn.onClick.AddListener(() => { CoastPrefs.Vibrate(); on?.Invoke(); });
             return btn;
@@ -172,8 +200,8 @@ namespace CoastRun.Village
             return t;
         }
         // ── 187차: 버튼 줄 · 켜짐 하이라이트 ──
-        const float RowSize = 74f; int _rowN;
-        static Vector2 RowPos(int i) => new Vector2(50f + i * 84f, -126f);
+        const float RowSize = 62f; int _rowN;   // 202차: 74 → 62, 라벨은 버튼 아래 이름표로
+        static Vector2 RowPos(int i) => new Vector2(46f + i * 76f, -114f);
         readonly Dictionary<string, (RectTransform btn, RectTransform edge, Image ring)> _btns = new Dictionary<string, (RectTransform, RectTransform, Image)>();
         readonly HashSet<string> _on = new HashSet<string>();
         void Register(string name)
@@ -240,7 +268,7 @@ namespace CoastRun.Village
                 }
                 if (sp != null)
                 {
-                    if (_toolImg == null) { var go = new GameObject("I", typeof(RectTransform), typeof(Image)); go.transform.SetParent(_toolGlyph.transform.parent, false); _toolImg = go.GetComponent<Image>(); _toolImg.raycastTarget = false; _toolImg.preserveAspect = true; var r = _toolImg.rectTransform; r.anchorMin = new Vector2(0.5f, 0.5f); r.anchorMax = new Vector2(0.5f, 0.5f); r.anchoredPosition = new Vector2(0f, 8f); r.sizeDelta = new Vector2(42f, 42f); }
+                    if (_toolImg == null) { var go = new GameObject("I", typeof(RectTransform), typeof(Image)); go.transform.SetParent(_toolGlyph.transform.parent, false); _toolImg = go.GetComponent<Image>(); _toolImg.raycastTarget = false; _toolImg.preserveAspect = true; var r = _toolImg.rectTransform; r.anchorMin = new Vector2(0.5f, 0.5f); r.anchorMax = new Vector2(0.5f, 0.5f); r.anchoredPosition = Vector2.zero; r.sizeDelta = new Vector2(RowSize * 0.84f, RowSize * 0.84f); /* 202차: 가운데·크게 */ }
                     _toolImg.sprite = sp; _toolImg.gameObject.SetActive(true); _toolGlyph.gameObject.SetActive(false);
                 }
                 else { if (_toolImg != null) _toolImg.gameObject.SetActive(false); _toolGlyph.gameObject.SetActive(true); _toolGlyph.text = toolIdx == 5 ? "▦" : "⚒"; }

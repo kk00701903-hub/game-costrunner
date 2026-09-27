@@ -165,7 +165,7 @@ namespace CoastRun.Village
         public void DevDungeonLog() { Debug.LogWarning("[Dungeon] " + (_dun != null ? _dun.DevState() : "none") + $" in={InDungeon} hp={(Save != null ? Save.stats.stamina : -1)} hole={_dunHole}"); }
         public void DevDunSwing() { if (_dun == null) return; var t = _dun.DevTarget(); if (!t.HasValue) { Debug.LogWarning("[Dungeon] no target"); return; } var d = t.Value - _player.position; d.y = 0f; var at = t.Value - d.normalized * 1.3f; Teleport(new Vector3(at.x, 0f, at.z), Quaternion.LookRotation(d.normalized).eulerAngles.y); _rod = _pick = _axe = _road = false; _bat = true; ApplyTool(); bool ok = DungeonAct(); Debug.LogWarning("[Dungeon] swing ok=" + ok + " " + _dun.DevState() + " money=" + Save.stats.money); }
         public void DevBossHurt() { if (_dun != null) _dun.DevHurtBoss(18); }
-        public void DevBugLog() { Debug.LogWarning("[Bugs] " + (_creatures != null ? _creatures.DevBugLog() : "none")); }
+        public void DevBugLog() { Debug.LogWarning("[Bugs] " + (_creatures != null ? _creatures.DevBugLog() + " | " + _creatures.DevCritLog() : "none")); }
         public void DevManLog() { Debug.LogWarning("[StoryMan] " + (VillageStoryMan.I != null ? VillageStoryMan.I.DevState() : "none")); }
         public void DevManApproach() { if (VillageStoryMan.I != null) VillageStoryMan.I.DevApproach(p => Teleport(p)); }
         public void DevAutoMoveMenu() { AutoMoveMenu(); }

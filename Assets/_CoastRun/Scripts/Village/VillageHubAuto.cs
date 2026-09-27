@@ -32,7 +32,7 @@ namespace CoastRun.Village
                 int pay = VillageLand.CollectRent(Save, out int months);
                 if (pay > 0) { _gm.Persist(); StartCoroutine(LaterToast(1.6f, Loc.T($"🏡 월세가 들어왔다! {months}달치 +{pay:N0}G", $"🏡 Rent received! {months} month(s) +{pay:N0}G"))); }
             }
-            _spots.Add(new Spot { id = "ranch", title = Loc.T("🐴 방목장", "🐴 Ranch"), pos = VillageRanch.Gate, radius = 2.2f, on = () => _hud.Bubble(Loc.T("목장 주인", "Rancher"), Loc.T("우리 말들 예쁘지? …설마 방망이로 치려는 건 아니지? 그랬다간 경찰 부른다!", "Pretty horses, right? …You're not going to hit them, are you? I'll call the police!")) });
+            _spots.Add(new Spot { id = "ranch", title = Loc.T("🐴 방목장", "🐴 Ranch"), pos = VillageRanch.Gate, radius = 2.2f, on = RanchMenu });   // 205차: 말 돌보기·말 타기(목장 주인 대사는 메뉴 안으로)
             if (_world != null && Save != null) _roadRoot = VillageRoad.BuildAll(_world, Save);   // 187차: 깐 도로
             for (int i = 0; i < VillageLand.Lots.Length; i++) _spots.Add(new Spot { id = "lot_" + i, title = LotTitle(i), pos = VillageLand.Front(i), radius = 2.6f, on = LotAct(i) });
         }

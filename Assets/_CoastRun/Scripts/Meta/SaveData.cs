@@ -222,6 +222,19 @@ namespace CoastRun
         public int animalWeek = -1;                          // 소·흑돼지 나이 계산 마지막 주
         public int seasonEventSeen = -1;                     // 마지막으로 연출을 본 계절 이벤트 주차
         public int horseHeat; public int horseHeatWeek = -1; public int ranchHorseDead; public int ranchHorseWeek = -1;
+        // 205차(사용자: 「재미 요소 추가 — 동물 돌보기·농사 확장·하루 정산·주민 하트 이벤트·축제 대회」)
+        public int loveHen, loveRabbit, loveHorse;                        // 가축 애정(0~100, ♥ 20마다 하나)
+        public int carePetWeek = -1, careFeedWeek = -1;                   // 닭·토끼: 이번 날(잠 단위) 쓰다듬기·먹이 비트(1 닭 2 토끼)
+        public int carePetMask, careFeedMask;
+        public int farmGoldEggs;                                          // 줍지 않은 황금 달걀
+        public int horsePetWeek = -1, horseFeedWeek = -1;                 // 말: 이번 날 쓰다듬기·당근
+        public int[] farmFert = new int[0], farmMiss = new int[0];        // 칸별 비료(1)·물 빼먹은 주 수
+        public int farmRows = 3;                                          // 밭 줄 수(3 → 4 → 5)
+        public int farmBestStar, farmStarYear;                            // 올해 최고 품질(★1~3)
+        public int daySnapWeek = -1, daySnapMoney, daySnapItems, daySnapDex, daySnapFriend, daySnapShards;   // 하루 정산 기준점
+        public int[] npcHeartSeen = new int[32];                          // NPC 하트 이벤트 본 단계(비트 1·2·4·8)
+        public int contestMask;                                           // 축제 대회 참가(비트 = 이벤트 id)
+        public int birthdaySeenWeek = -1;
         public string[] yardItems = new string[0];       // 마당 가구 "id|x|z|rot"                // 135차: 육성 자동 진행 — 끌 때까지 유지(대회·이야기 다녀와도)
 
         public ChapterRecord CurrentChapter =>

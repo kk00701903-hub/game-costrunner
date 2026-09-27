@@ -18,13 +18,15 @@ namespace CoastRun
         public static bool SuppressOnce;
 
         public static bool Active { get; private set; }
-        static bool _slow, _feverLesson;
+        static bool _slow, _feverLesson, _energyTaught;
         static KpopTutorial _inst;
 
         /// 설명 중 0.45, 레슨 사이 0.7, 아니면 1.
         public static float SpeedMul => Active ? (_slow ? 0.45f : 0.7f) : 1f;
         /// 피버 제안은 피버 레슨 때만.
         public static bool HoldFever => Active && !_feverLesson;
+        /// 204차(사용자: 튜토리얼 문제): 에너지 설명 전까지는 달리기만으로 에너지가 줄지 않는다.
+        public static bool HoldDrain => Active && !_energyTaught;
 
         /// ArcadeRun.StartKpop 머리에서: 이번 판을 튜토리얼로 돌릴지.
         public static bool ShouldRun()
@@ -40,7 +42,7 @@ namespace CoastRun
             var go = new GameObject("KpopTutorial");
             DontDestroyOnLoad(go);
             _inst = go.AddComponent<KpopTutorial>();
-            Active = true; _slow = false; _feverLesson = false;
+            Active = true; _slow = false; _feverLesson = false; _energyTaught = false;
             Debug.LogWarning("[KpopTutorial] begin");
         }
 
@@ -49,7 +51,7 @@ namespace CoastRun
         {
             if (_inst == null) return;
             _inst.StopAllCoroutines();
-            Active = true; _slow = false; _feverLesson = false;
+            Active = true; _slow = false; _feverLesson = false; _energyTaught = false;
             _inst._running = true;
             _inst.StartCoroutine(_inst.Run());
         }
@@ -59,7 +61,7 @@ namespace CoastRun
 
         void OnDestroy()
         {
-            if (_inst == this) { _inst = null; Active = false; _slow = false; _feverLesson = false; }
+            if (_inst == this) { _inst = null; Active = false; _slow = false; _feverLesson = false; _energyTaught = false; }
         }
 
         void Update()
@@ -111,7 +113,8 @@ namespace CoastRun
 
             // 3) 에너지 + 하트
             var hs = HealthSystem.Instance;
-            if (hs != null && hs.Normalized > 0.6f) hs.SetFraction(0.55f);   // 차오르는 걸 보여 주려고 살짝 비워 둔다
+            if (hs != null && hs.Normalized > 0.6f) hs.SetFraction(0.55f);
+            _energyTaught = true;   // 차오르는 걸 보여 주려고 살짝 비워 둔다
             yield return Say("Obs_Heart", Loc.T("에너지(체력)", "Energy"),
                 Loc.T("왼쪽 위 게이지가 에너지예요.\n달리는 동안 조금씩 줄고, 0이 되면 끝!", "The top-left gauge is your energy.\nIt drains as you run — 0 ends the run!"), 4.5f);
             float hz = Z + 24f;
@@ -177,7 +180,9 @@ namespace CoastRun
             PickupFloat.Banner(Loc.T("튜토리얼 끝!", "Tutorial done!"), new Color(1f, 0.55f, 0.75f), 2.2f);
             PickupFloat.InfoStrip("Obs_Star", Loc.T("이제 진짜 달려 봐요 ♪", "Now run for real ♪"),
                 Loc.T("곡이 끝날 때까지 달리면 챕터 클리어!\n튜토리얼은 챕터 화면에서 다시 볼 수 있어요.", "Run to the end of the song to clear!\nReplay the tutorial from the chapter screen."), new Color(1f, 0.85f, 0.35f), 5f);
-            Debug.LogWarning("[KpopTutorial] done");
+            // 204차: 튜토리얼에서 쓴 에너지는 채워 주고 진짜 달리기를 시작한다.
+            if (HealthSystem.Instance != null) HealthSystem.Instance.SetFraction(1f);
+            Debug.LogWarning($"[KpopTutorial] done hp={(HealthSystem.Instance != null ? HealthSystem.Instance.Normalized : -1f):F2}");
             Active = false; _slow = false;
             Destroy(gameObject, 0.1f);
         }

@@ -103,6 +103,7 @@ namespace CoastRun
                 return;
 
             if (KpopTutorial.Active && _current <= max * 0.2f) return;   // 194차: 튜토리얼 바닥
+            if (KpopTutorial.HoldDrain) return;   // 204차: 에너지 설명 전엔 안 줄어듦
             Apply(-drainPerSecond * (KpopTutorial.Active ? 0.5f : 1f) * Time.deltaTime, silent: true);
         }
 

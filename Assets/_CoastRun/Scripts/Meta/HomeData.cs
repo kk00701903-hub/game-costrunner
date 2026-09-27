@@ -32,6 +32,8 @@ namespace CoastRun
         public Color petal, center;
         public string emoji;              // 텃밭 말풍선·카드 아이콘
         public string growHintKo, growHintEn; // "성장 2-3분" 식 표기
+        public int season = -1;           // 205차: 심을 수 있는 계절(0 봄 1 여름 2 가을 3 겨울, -1 사계절)
+        public int sell;                  // 205차: 계절 작물 판매가(G, 한 개)
         public string Name => Loc.T(ko, en);
         public int waters => weeks;       // 구 코드 호환(성장 단계 수)
         public bool Edible => food > 0 || rice > 0;
@@ -218,7 +220,24 @@ namespace CoastRun
             new SeedDef { id = "rose",     ko = "장미",    en = "Rose",     price = 900, weeks = 2, chance = 0.60f, rose = true, petal = new Color(0.98f, 0.45f, 0.62f), center = new Color(0.35f, 0.60f, 0.30f), emoji = "🌹", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
             new SeedDef { id = "lavender", ko = "라벤더",  en = "Lavender", price = 800, weeks = 2, chance = 0.40f, food = 1, petal = new Color(0.72f, 0.55f, 0.92f), center = new Color(0.40f, 0.68f, 0.40f), emoji = "💜", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
         };
-        public static SeedDef Seed(string id) { foreach (var s in Seeds) if (s.id == id) return s; return null; }
+        // 205차(사용자: 「농사 확장 — 계절 씨앗」): 마을 텃밭 전용 계절 작물(베란다 화분 목록은 그대로). 수확물 = crop_<id>.
+        static Color C(float r, float g, float b) => new Color(r, g, b);
+        public static readonly SeedDef[] SeasonSeeds =
+        {
+            new SeedDef { id = "strawberry", ko = "딸기", en = "Strawberry", price = 700, weeks = 2, chance = 1f, food = 2, season = 0, sell = 140, petal = C(0.95f, 0.22f, 0.30f), center = C(0.40f, 0.70f, 0.35f), emoji = "🍓" },
+            new SeedDef { id = "cabbage", ko = "양배추", en = "Cabbage", price = 500, weeks = 2, chance = 1f, food = 3, season = 0, sell = 90, petal = C(0.70f, 0.90f, 0.55f), center = C(0.45f, 0.72f, 0.35f), emoji = "🥬" },
+            new SeedDef { id = "pea", ko = "완두콩", en = "Pea", price = 400, weeks = 1, chance = 1f, food = 1, season = 0, sell = 55, petal = C(0.55f, 0.85f, 0.40f), center = C(0.40f, 0.70f, 0.35f), emoji = "🫛" },
+            new SeedDef { id = "corn", ko = "옥수수", en = "Corn", price = 600, weeks = 2, chance = 1f, food = 2, season = 1, sell = 110, petal = C(1.00f, 0.85f, 0.25f), center = C(0.45f, 0.70f, 0.30f), emoji = "🌽" },
+            new SeedDef { id = "watermelon", ko = "수박", en = "Watermelon", price = 1100, weeks = 3, chance = 1f, food = 3, season = 1, sell = 260, petal = C(0.25f, 0.60f, 0.25f), center = C(0.45f, 0.72f, 0.35f), emoji = "🍉" },
+            new SeedDef { id = "pepper", ko = "고추", en = "Chili", price = 450, weeks = 1, chance = 1f, food = 1, season = 1, sell = 60, petal = C(0.90f, 0.15f, 0.12f), center = C(0.40f, 0.68f, 0.30f), emoji = "🌶" },
+            new SeedDef { id = "sweetpotato", ko = "고구마", en = "Sweet potato", price = 600, weeks = 2, chance = 1f, food = 3, season = 2, sell = 115, petal = C(0.70f, 0.30f, 0.45f), center = C(0.45f, 0.70f, 0.35f), emoji = "🍠" },
+            new SeedDef { id = "pumpkin", ko = "호박", en = "Pumpkin", price = 1000, weeks = 3, chance = 1f, food = 3, season = 2, sell = 240, petal = C(1.00f, 0.55f, 0.15f), center = C(0.45f, 0.70f, 0.30f), emoji = "🎃" },
+            new SeedDef { id = "carrot", ko = "구좌 당근", en = "Carrot", price = 450, weeks = 1, chance = 1f, food = 1, season = 2, sell = 65, petal = C(1.00f, 0.50f, 0.12f), center = C(0.40f, 0.72f, 0.35f), emoji = "🥕" },
+            new SeedDef { id = "radish", ko = "월동무", en = "Winter radish", price = 450, weeks = 2, chance = 1f, food = 2, season = 3, sell = 85, petal = C(0.95f, 0.96f, 0.92f), center = C(0.45f, 0.72f, 0.35f), emoji = "●" },
+            new SeedDef { id = "broccoli", ko = "브로콜리", en = "Broccoli", price = 650, weeks = 2, chance = 1f, food = 2, season = 3, sell = 120, petal = C(0.25f, 0.55f, 0.25f), center = C(0.40f, 0.68f, 0.30f), emoji = "🥦" },
+            new SeedDef { id = "spinach", ko = "시금치", en = "Spinach", price = 350, weeks = 1, chance = 1f, food = 1, season = 3, sell = 50, petal = C(0.30f, 0.60f, 0.25f), center = C(0.40f, 0.68f, 0.30f), emoji = "●" },
+        };
+        public static SeedDef Seed(string id) { foreach (var s in Seeds) if (s.id == id) return s; foreach (var s in SeasonSeeds) if (s.id == id) return s; return null; }
         public static void EnsurePots(SaveData s)
         {
             if (s == null) return;

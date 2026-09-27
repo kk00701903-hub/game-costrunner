@@ -77,7 +77,7 @@ namespace CoastRun.Village
         }
 
         /// 치비 말 — 앞뒤로 긴 몸통 + 짧고 굵은 목 + 주둥이 · 갈기 · 꼬리 · 네 다리(RanchHorse 가 흔든다)
-        static Transform Horse(Transform parent, Vector3 pos, float yaw, Color coat, Color mane)
+        internal static Transform Horse(Transform parent, Vector3 pos, float yaw, Color coat, Color mane)
         {
             var t = new GameObject("Horse").transform; t.SetParent(parent, false);
             t.position = pos; t.rotation = Quaternion.Euler(0f, yaw, 0f);

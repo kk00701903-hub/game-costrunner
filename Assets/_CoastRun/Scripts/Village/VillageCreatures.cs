@@ -305,7 +305,8 @@ namespace CoastRun.Village
                 int crabs = 0; foreach (var c in _crit) if (c.big && c.kind >= 2) crabs++;
                 int wild = 0; foreach (var c in _crit) if (!c.big && !c.spirit && c.kind >= 4) wild++;
                 int monsters = 0; foreach (var c in _crit) if (c.kind == 6) monsters++;
-                if (Night && monsters == 0 && Random.value < 0.05f) SpawnMonster();   // 175차: 밤에만, 한 마리씩
+                if (NearHome(Player.position)) { }   // 203차: 집 둘레에선 아무것도 안 나온다
+                else if (Night && monsters == 0 && Random.value < 0.05f) SpawnMonster();   // 175차: 밤에만, 한 마리씩
                 else if (sand && crabs < 3 && Random.value < 0.6f) SpawnCrab();
                 // 171차(사용자: 「산 쪽에 돌아다니는 닭·토끼를 잠자리채로 잡으면 농장에서 키운다」): 언덕(z>12)에서 최대 3마리
                 else if (hill && wild < 3 && Random.value < 0.45f) SpawnWild();
@@ -322,7 +323,7 @@ namespace CoastRun.Village
             {
                 var c = _crit[i]; if (c.t == null) { _crit.RemoveAt(i); continue; }
                 c.life -= dt; c.phase += dt;
-                if (IsBug(c) && !InGrass(c.t.position) && c.life > 1.2f) c.life = 1.2f;   // 199차: 초원 밖(집 근처)으로 나온 벌레는 곧 사라진다
+                if (!c.ghost && (IsBug(c) ? !InGrass(c.t.position) : NearHome(c.t.position)) && c.life > 1.2f) c.life = 1.2f;   // 199·203차: 초원 밖 벌레, 집 둘레의 정령·몬스터는 곧 사라진다   // 199차: 초원 밖(집 근처)으로 나온 벌레는 곧 사라진다
                 var p = c.t.position;
                 if (c.ghost)
                 {
@@ -389,7 +390,7 @@ namespace CoastRun.Village
                     var step = dist > 1.3f ? d.normalized * 1.1f * dt : new Vector3(Mathf.Cos(c.phase * 1.4f), 0f, Mathf.Sin(c.phase * 1.4f)) * 0.5f * dt;
                     float g = VillageWorld.Height(p.x + step.x, p.z + step.z) + 1.05f + Mathf.Sin(c.phase * 3f) * 0.28f;
                     c.t.position = new Vector3(p.x + step.x, g, p.z + step.z);
-                    c.t.localScale = Vector3.one * (0.52f + Mathf.Sin(c.phase * 5f) * 0.05f) * (c.rare ? 1.15f : 1f);   // 198차: 0.62 → 0.52(조금 작게)
+                    c.t.localScale = Vector3.one * (0.36f + Mathf.Sin(c.phase * 5f) * 0.035f) * (c.rare ? 1.15f : 1f);   // 203차: 0.52 → 0.36   // 198차: 0.62 → 0.52(조금 작게)
                     if (dist > 0.05f) c.t.rotation = Quaternion.LookRotation(d.normalized, Vector3.up);
                 }
                 else if (c.kind == 6)
@@ -488,13 +489,20 @@ namespace CoastRun.Village
             return new Vector2(p.x - c.x, p.z - c.z).magnitude < HomeYardR;
         }
         /// 199차(사용자: 「벌레는 집 근처에는 없고 초원 쪽에서만」): 초원 = 언덕 풀밭(z>12) 중 우리집에서 20 m 넘게 떨어진 곳
-        public const float GrassHomeR = 20f;
+        public const float GrassHomeR = 26f;   // 203차(사용자: 「집 근처에 벌레가 나타난다」): 20 → 26 m (방목장 초원 중심 31.6 m 는 초원으로 남김)
         public static bool InGrass(Vector3 p)
         {
             if (p.z <= 12f) return false;
             var h = VillageWorld.HeroHouse; var c = h != null ? h.position : new Vector3(0f, 0f, 36f);
             return new Vector2(p.x - c.x, p.z - c.z).magnitude >= GrassHomeR;
         }
+        /// 203차: 우리집 둘레(26 m) — 벌레·정령·밤 몬스터 모두 안 나오고, 들어오면 사라진다(귀신·산적·경찰은 따로)
+        public static bool NearHome(Vector3 p)
+        {
+            var h = VillageWorld.HeroHouse; var c = h != null ? h.position : new Vector3(0f, 0f, 36f);
+            return new Vector2(p.x - c.x, p.z - c.z).magnitude < GrassHomeR;
+        }
+        public string DevCritLog() { var sb = new System.Text.StringBuilder(); foreach (var c in _crit) if (c.t != null) sb.Append($"[{c.t.name} big={c.big} spirit={c.spirit} ghost={c.ghost} kind={c.kind} grass={InGrass(c.t.position)} d={(Player != null ? Vector3.Distance(c.t.position, Player.position) : -1f):F1}] "); return sb.ToString(); }
         public string DevBugLog() { int b = 0, far = 0; foreach (var c in _crit) if (c.t != null && IsBug(c)) { b++; if (!InGrass(c.t.position)) far++; } return $"bugs={b} outsideGrass={far} playerGrass={(Player != null && InGrass(Player.position))} pos={(Player != null ? Player.position.ToString() : "-")}"; }
         static bool IsBug(Critter c) => !c.spirit && !c.ghost && (c.big ? c.kind < 2 : c.kind < 4);
         void SpawnBig()
@@ -530,7 +538,7 @@ namespace CoastRun.Village
                     var w = P(g.transform, PrimitiveType.Sphere, new Vector3(k * 0.4f, 0.16f, 0.18f), new Vector3(0.78f, 0.03f, 0.3f), CoastMaterials.CreateTransparent(new Color(0.9f, 0.95f, 1f, 0.55f))); w.name = "Wing";
                 }
             }
-            g.transform.localScale = Vector3.one * 1.1f;   // 198차: 1.25 → 1.1(조금 작게)
+            g.transform.localScale = Vector3.one * 0.72f;   // 203차(사용자: 「벌레가 너무 크다」): 1.1 → 0.72
             g.AddComponent<LegWiggle>();   // 198차: 다리 움직임
             var bc = new Critter { big = true, kind = kind, life = 40f, phase = Random.value * 6f, anchor = pos, t = g.transform };
             if (kind == 0 && Random.value < 0.06f + 0.02f * BatTier) { bc.rare = true; MakeRare(g.transform, new Color(1f, 0.80f, 0.18f)); }   // 198차: 황금사슴벌레

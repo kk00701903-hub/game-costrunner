@@ -125,6 +125,9 @@ namespace CoastRun.Village
             ("crop_tomato", 100), ("crop_potato", 90), ("crop_rice", 110), ("flower_rose", 130), ("flower_lavender", 110),   // 195차: 돈 밸런스 −25 %
             ("gath_coconut", 35), ("gath_shell", 20), ("gath_mushroom", 30), ("mat_wood", 10), ("mat_stone", 15),
             ("ing_egg", 25), ("ing_meat", 70), ("ing_milk", 30),
+            // 205차: 계절 작물 · 황금 달걀
+            ("crop_strawberry", 140), ("crop_cabbage", 90), ("crop_pea", 55), ("crop_corn", 110), ("crop_watermelon", 260), ("crop_pepper", 60),
+            ("crop_sweetpotato", 115), ("crop_pumpkin", 240), ("crop_carrot", 65), ("crop_radish", 85), ("crop_broccoli", 120), ("crop_spinach", 50), ("ing_egg_gold", 150),
             // 195차: 광산·화석·과수원·양봉
             ("ore_iron", 20), ("ore_silver", 50), ("ore_gold", 120), ("gem_amethyst", 180), ("gem_jade", 280), ("gem_ruby", 550),   // 195차 밸런스: 광산 한 주 ≈ 1,000G
             ("fossil_ammonite", 120), ("fossil_trilobite", 150), ("fossil_fern", 100), ("fossil_shark", 250),

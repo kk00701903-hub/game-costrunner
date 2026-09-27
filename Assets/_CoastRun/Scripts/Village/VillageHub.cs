@@ -111,6 +111,7 @@ namespace CoastRun.Village
             TitleAudio.PlayRaising();
             if (_gm != null && _gm.PendingVillageEvent != null) StartCoroutine(MorningEvent());   // 156차
             InitStory();   // 196차: 송전탑 위 기상 도입 · 이야기 장소
+            InitFun205();   // 205차: 하루 정산 기준점 · 생일 알림
             CoastToast.Show(Loc.T("조이스틱으로 걸어다니고, 가까이 가면 뜨는 분홍 버튼으로 들어가자!", "Walk with the joystick — tap the pink prompt to enter a place!"));
         }
 
@@ -220,6 +221,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             }
             AddEastSpots();   // 194차: 버스 정류장
             AddZoneSpots();   // 195차: 시내·관광지·광산·과수원·벌통·축사·계절 부스
+            AddFunSpots();   // 205차: 축제 대회 접수
             _spots.Add(new Spot { id = "light", title = Loc.T("등대 · 바다 구경", "Lighthouse · Sea view"), pos = VillageWorld.Ground(-9.5f, -58.2f), radius = 4.5f, on = () => _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("등대 불빛이 89.2처럼 깜빡인다. 바다가 오늘은 조용하다.", "The lighthouse blinks like 89.2. The sea is quiet today.")) });
         }
 
@@ -233,6 +235,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             TickRoadGhost(locked);
             TickZones();   // 195차
             TickDungeon();   // 199차
+            TickFun205();   // 205차: 비 오면 텃밭 물 · 말 타기 · 하트 이벤트
             TickStory();   // 196차: 이야기 장소(빛) — 들어가면 컷씬
             TickSea();   // 192차: 바다 10초 → 병원   // 187차: 가까이 가면 자동 대화   // 183차: 직접 조이스틱을 밀면 자동이동·자동사냥을 멈춘다
             Vector2 j = locked ? Vector2.zero : _hud.Joy;
@@ -253,7 +256,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             var camRot = Quaternion.Euler(0f, _stickHeld ? _stickYaw : _camYaw, 0f);
             var dir = camRot * new Vector3(j.x, 0f, j.y);
             // 141차(동물의 숲 느낌): 스틱을 조금 밀면 걷고 끝까지 밀면 달림, 가속·감속은 부드럽게, 몸은 진행 방향으로 스르륵
-            float wantSpeed = mag < 0.05f ? 0f : Mathf.Lerp(2.46f, 5.46f, Mathf.InverseLerp(0.35f, 0.95f, mag));   // 144차: +20% · 159차(사용자): +20% 더
+            float wantSpeed = mag < 0.05f ? 0f : Mathf.Lerp(2.46f, 5.46f, Mathf.InverseLerp(0.35f, 0.95f, mag)) * RideMul;   // 205차: 말 타면 1.7배   // 144차: +20% · 159차(사용자): +20% 더
             var wantVel = mag < 0.05f ? Vector3.zero : dir.normalized * wantSpeed;
             _vel = Vector3.SmoothDamp(_vel, wantVel, ref _acc, mag < 0.05f ? 0.08f : 0.13f, 100f, dt);
             var move = _vel * dt;
@@ -1319,7 +1322,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (_busy || _hud.Locked || Save == null) return;
             int tile = VillageFarm.TileAt(_player.position);
-            if (tile < 0) { CoastToast.Show(Loc.T("밭 칸 위에 서서 눌러 보자.", "Stand on a plot first.")); return; }
+            if (tile < 0) { GardenMenu(); return; }   // 205차: 밭 칸 밖 — 밭 넓히기·제철 안내
             VillageFarm.Ensure(Save);
             if (VillageFarm.HasWeed(Save, tile))
             {
@@ -1334,7 +1337,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 Swing();
                 bool ok = VillageFarm.Harvest(Save, tile, out var seed, out var gk, out var ge);
                 if (ok) { CoastToast.Show(Loc.T($"{seed.Emoji} 수확! {gk} → 가방", $"{seed.Emoji} Harvested! {ge} → bag")); CoastAudioManager.PlayAnywhere(CoastSfx.Coin); StartCoroutine(HarvestPuff(tile, seed.petal)); }
-                else CoastToast.Show(Loc.T($"{seed.Emoji} {seed.Name}이(가) 시들어 버렸다… (성공 {Mathf.RoundToInt(seed.chance * 100)}%)", $"{seed.Emoji} The {seed.Name} withered… ({Mathf.RoundToInt(seed.chance * 100)}%)"));
+                else CoastToast.Show(Loc.T($"{seed.Emoji} {seed.Name}이(가) 시들어 버렸다… 물을 두 주 넘게 못 받았다.", $"{seed.Emoji} The {seed.Name} withered… no water for two weeks."));   // 205차
                 AfterFarm(); return;
             }
             if (VillageFarm.CanWater(Save, tile))
@@ -1344,25 +1347,34 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 CoastToast.Show(g >= sd.weeks ? Loc.T($"💧 물을 줬다 — {sd.Name} 다 자랐다! 수확하자", $"💧 Watered — {sd.Name} is ready!") : Loc.T($"💧 물을 줬다 — {sd.Name} {g}/{sd.weeks}. 페이즈마다 한 번, 주가 바뀌면 더 자란다", $"💧 Watered — {sd.Name} {g}/{sd.weeks}"));
                 AfterFarm(); return;
             }
-            CoastToast.Show(Loc.T("이번 페이즈엔 이미 물을 줬어. 다음 턴에!", "Already watered this phase."));
+            FertilizeAsk(tile);   // 205차: 이미 물 줬으면 비료(★+1)를 묻는다
         }
 
         void SeedMenu(int tile)
         {
             var opts = new List<(string, Color, Action)>();
+            // 205차(사용자: 「계절 씨앗」): 제철 씨앗을 앞에 — 수확은 물만 잘 주면 100 %
+            var season = (int)Timeline.SeasonOf(Save.week); var seasonal = new List<SeedDef>();
+            foreach (var sd in HomeData.SeasonSeeds) if (sd.season == season) seasonal.Add(sd);
+            foreach (var sd in seasonal)
+            {
+                var seed = sd; bool can = Save.stats.money >= seed.price;
+                opts.Add((Loc.T($"{seed.Emoji} 제철 {seed.ko} {seed.price}G · {seed.weeks}주 · 1개 {seed.sell}G", $"{seed.Emoji} {seed.en} {seed.price}G · {seed.weeks}w"), can ? new Color(0.98f, 0.62f, 0.40f) : new Color(0.6f, 0.6f, 0.65f),
+                    () => { if (VillageFarm.Plant(Save, tile, seed)) { CoastToast.Show(Loc.T($"{seed.Emoji} {seed.ko} 씨를 뿌렸다. 물을 주자!", $"{seed.Emoji} Planted {seed.en}. Water it!")); AfterFarm(); } else CoastToast.Show(Loc.T("돈이 모자라.", "Not enough money.")); }));
+            }
             foreach (var sd in HomeData.Seeds)
             {
                 var seed = sd; bool can = Save.stats.money >= seed.price;
-                opts.Add((Loc.T($"{seed.Emoji} {seed.ko} {seed.price}G · {seed.weeks}주 · 성공 {Mathf.RoundToInt(seed.chance * 100)}% · {seed.RewardText}", $"{seed.Emoji} {seed.en} {seed.price}G · {seed.weeks}w · {Mathf.RoundToInt(seed.chance * 100)}% · {seed.RewardText}"),
+                opts.Add((Loc.T($"{seed.Emoji} {seed.ko} {seed.price}G · {seed.weeks}주 · {seed.RewardText}", $"{seed.Emoji} {seed.en} {seed.price}G · {seed.weeks}w · {Mathf.RoundToInt(seed.chance * 100)}% · {seed.RewardText}"),
                     can ? new Color(0.45f, 0.78f, 0.55f) : new Color(0.6f, 0.6f, 0.65f),
                     () => { if (VillageFarm.Plant(Save, tile, seed)) { CoastToast.Show(Loc.T($"{seed.Emoji} {seed.ko} 씨를 뿌렸다. 물을 주자!", $"{seed.Emoji} Planted {seed.en}. Water it!")); AfterFarm(); } else CoastToast.Show(Loc.T("돈이 모자라.", "Not enough money.")); }));
             }
             // 169차: 작물 그림(클링) — 없으면 그림 없이 예전처럼
-            var icons = new Texture2D[HomeData.Seeds.Length];
+            var icons = new Texture2D[seasonal.Count + HomeData.Seeds.Length];
             for (int k = 0; k < HomeData.Seeds.Length; k++)
             {
                 string ck = VillageFarm.CropKey(HomeData.Seeds[k].id);
-                if (ck != null) icons[k] = Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Seed_" + ck);
+                if (ck != null) icons[seasonal.Count + k] = Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Seed_" + ck);
             }
             _hud.Choice(Loc.T("씨 뿌리기", "Plant seeds"), Loc.T($"보유 {Save.stats.money:N0}G · 페이즈마다 물 한 번, 주가 바뀌면 한 단계 더 자란다.", $"{Save.stats.money:N0}G · water once per phase; grows more each week."), opts.ToArray(), icons);
         }
@@ -1375,13 +1387,14 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (eggs > 0) { MissionTick(VillageMission.Kind.Egg, eggs); _gm.Persist(); RefreshStatus(); CoastAudioManager.PlayAnywhere(CoastSfx.Coin); CoastToast.Show(Loc.T($"🥚 달걀 {eggs}개를 주웠다! (가방 달걀 {LifeItems.Count(Save, "ing_egg")})", $"🥚 Collected {eggs} eggs! ({LifeItems.Count(Save, "ing_egg")} in bag)")); return; }
             Texture2D T(string n) => Resources.Load<Texture2D>("CoastRun/Textures/Village/UI_Farm_" + n);
             int grown = VillageLivestock.GrownRabbits(Save);
-            _hud.Choice(Loc.T("🐔 우리 농장", "🐔 Our farm"), Loc.T("산에서 닭·토끼를 잠자리채로 잡아 오면 여기서 키운다. 잠 한 번 = 하루.", "Catch hens and rabbits on the hill with the net. One sleep = one day."), new[]
+            var care205 = CareRows();   // 205차: 돌보기(닭·토끼)·황금 달걀을 맨 위에
+            _hud.Choice(Loc.T("🐔 우리 농장", "🐔 Our farm"), Loc.T("산에서 닭·토끼를 잠자리채로 잡아 오면 여기서 키운다. 잠 한 번 = 하루.", "Catch hens and rabbits on the hill with the net. One sleep = one day."), Join205(care205, new[]
             {
                 (Loc.T($"닭 {Save.farmChickens}/{VillageLivestock.Cap}마리 — 아침마다 달걀 1개씩", $"Hens {Save.farmChickens}/{VillageLivestock.Cap} — 1 egg each every morning"), new Color(0.98f, 0.80f, 0.45f), (Action)null),
                 (Loc.T($"토끼 {VillageLivestock.Rabbits(Save)}/{VillageLivestock.Cap}마리 — 3밤이면 다 큼 (다 큼 {grown})", $"Rabbits {VillageLivestock.Rabbits(Save)}/{VillageLivestock.Cap} — grown after 3 sleeps ({grown} grown)"), new Color(0.75f, 0.72f, 0.80f), (Action)null),
                 (Loc.T("달걀 — 줍기: 농장 문 앞에서 행동 버튼", "Eggs — collect at the gate"), new Color(0.95f, 0.90f, 0.70f), (Action)null),
                 (Loc.T("고기 — 울타리 안에서 다 큰 토끼를 방망이로", "Meat — bat a grown rabbit inside the pen"), new Color(0.92f, 0.55f, 0.50f), (Action)null),
-            }, new[] { T("Chicken"), T("Rabbit"), T("Egg"), T("Meat") });
+            }), Pad205(care205.Length, new[] { T("Chicken"), T("Rabbit"), T("Egg"), T("Meat") }));
         }
 
         void AfterFarm() { MissionTick(VillageMission.Kind.Farm); _gm.Persist(); RefreshStatus(); VillageWorld.BuildCrops(_world, Save); }
@@ -2143,6 +2156,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         IEnumerator SleepWeek()
         {
             _busy = true;
+            EndRide();   // 205차
+            yield return DaySummaryCo();   // 205차(사용자: 「하루 정산 화면」): 잠들기 전 오늘 한 일 한 장
             // 161차: 집 안이면 침대 매트리스 위에 눕는다(머리는 베개 쪽, 몸은 등을 대고) — 몽타주 뒤 마을 아침으로 가므로 되돌릴 필요 없음
             if (_interior != null && _rigT != null)
             {
