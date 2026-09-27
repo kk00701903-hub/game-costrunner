@@ -133,6 +133,8 @@ namespace CoastRun
         public bool prologueSeen;
         public int storyTut;        // 196차: 꼬마와 마을 튜토리얼 단계(0 없음 · 1 가게 · 2 텃밭 · 3 언덕 빈집 · 9 끝)
         public int storyFragMask;
+        public int bond214;                          // 214차: 꼬마와의 인연(챕터 약속을 지킨 만큼) — 기억 조각이 열리는 조건
+        public int cgChapter; public int[] cgKind = new int[3]; public int[] cgProg = new int[3]; public int cgLastDone = -1; public int cgLastChapter;   // 214차: 챕터 약속 3개
         public int storySeenMask; public bool storyMaskInit;
         public int[] toolTier = new int[5];   // 198차: 도구 등급(0 잠자리채 1 방망이 2 도끼 3 곡괭이 4 낚싯대) 0~3   // 196차: 장소 컷씬을 본 것(세이브마다 — 새 게임이면 처음부터). 비트 = VillageStory.Order 순서
         public int[] actStamp = new int[7];   // 196차: 중문 액티비티 마지막 사용(week*4+phase): 0 제트스키 1 요트 2 서핑 3 카트 4 승마 5 포토존 6 테디 관람   // 196차: 오프닝 「그 약속」 기억 조각(비트 1·2·3)

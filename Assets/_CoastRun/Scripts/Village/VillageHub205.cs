@@ -244,6 +244,7 @@ namespace CoastRun.Village
             Color info = new Color(0.78f, 0.70f, 0.60f);
             rows.Add((Loc.T($"● 돈 {(money >= 0 ? "+" : "")}{money:N0}G   ·   ● 가방 {(items >= 0 ? "+" : "")}{items}개", $"● {(money >= 0 ? "+" : "")}{money:N0}G · ● {(items >= 0 ? "+" : "")}{items}"), money >= 0 ? new Color(0.95f, 0.72f, 0.30f) : info, (Action)null));
             if (dex > 0 || shards > 0) rows.Add((Loc.T($"● 도감 새 발견 {dex}   ·   ★ 별조각 +{Mathf.Max(0, shards)}", $"● New {dex} · ★ +{Mathf.Max(0, shards)}"), new Color(0.55f, 0.70f, 0.95f), (Action)null));
+            { var cg = CgSummary(); if (cg != null) rows.Add(("♥ " + cg, new Color(0.98f, 0.62f, 0.72f), (Action)null)); }   // 214차
             if (friend > 0) rows.Add((Loc.T($"♥ 마을 사람 호감 +{friend}", $"♥ Friendship +{friend}"), new Color(0.98f, 0.60f, 0.72f), (Action)null));
             if (planted > 0) rows.Add((Loc.T($"● 텃밭 {planted}칸 — 다 자람 {ripe} · 물 필요 {thirsty}", $"● {planted} planted — ripe {ripe} · thirsty {thirsty}"), thirsty > 0 ? new Color(0.55f, 0.75f, 0.95f) : new Color(0.55f, 0.78f, 0.50f), (Action)null));
             if (Save.farmChickens > 0 || VillageLivestock.Rabbits(Save) > 0)

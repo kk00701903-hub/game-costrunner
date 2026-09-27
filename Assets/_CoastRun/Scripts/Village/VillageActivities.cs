@@ -24,7 +24,7 @@ namespace CoastRun.Village
             _cur._kind = k; _cur._done = onDone; _cur.Build();
         }
         public static string Title(Kind k) => k == Kind.Jetski ? Loc.T("제트스키", "Jet ski") : k == Kind.Yacht ? Loc.T("⛵ 요트 투어", "⛵ Yacht tour")
-            : k == Kind.Surf ? Loc.T("색달해변 서핑", "Surfing") : k == Kind.Kart ? Loc.T("전동카트", "E-kart") : Loc.T("승마 체험", "Horse riding");
+            : k == Kind.Surf ? Loc.T("색동해변 서핑", "Surfing") : k == Kind.Kart ? Loc.T("전동카트", "E-kart") : Loc.T("승마 체험", "Horse riding");
         static string Hint(Kind k) => k == Kind.Jetski ? Loc.T("누른 채 좌우로 — 노란 부표는 줍고, 바위는 피하기", "Hold & slide — grab buoys, dodge rocks")
             : k == Kind.Yacht ? Loc.T("돌고래가 뛰어오르면 톡! 사진을 찍자", "Tap the dolphins to take photos")
             : k == Kind.Surf ? Loc.T("기우는 반대쪽을 눌러 균형 잡기", "Press the opposite side to balance")

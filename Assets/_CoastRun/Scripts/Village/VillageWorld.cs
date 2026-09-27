@@ -38,14 +38,13 @@ namespace CoastRun.Village
         // 여기 반경 GapR 안은 돌길 메시를 그리지 않고 도로망(VillageRoad.Base)에서도 빠진다 → 도로 깔기(한 칸 500G)로 이어야 한다
         public const float GapR = 3.0f;
         public static readonly Vector2[] RoadGaps = {
-            new Vector2(-3.5f, 28f),     // 큰길: 우리집 ↔ 마을(농장·방목장·아래 전부)
-            new Vector2(-1f, 7f),        // 큰길: 병원 갈림길 ↔ 텃밭·정자·엄마 집
-            new Vector2(-2f, -21f),      // 큰길: 엄마 집 ↔ 바닷가·상점·반도 집들
+            // 213차(사용자: 「단점들 커버해줘」 — 212차 평가: 튜토리얼이 「이동 버튼」을 알려 준 직후 다음 목표(낚시)·텃밭·병원이 전부 잠김):
+            //   튜토리얼 목적지(우리집·가게·텃밭·바닷가·병원)로 가는 큰길 끊김 3곳과 병원 갈림길은 처음부터 이어 둔다. 도로 깔기는 아래 곁길(등대·송전탑·방목장·정자)부터.
+            //   (예전 자리: 큰길 (-3.5,28) 우리집↔마을 · (-1,7) 병원 갈림길↔텃밭 · (-2,-21) 엄마 집↔바닷가·상점 · 병원 갈림길 (8,10.5))
             new Vector2(-9.6f, -57.5f),  // 큰길: 반도 ↔ 등대
             new Vector2(5.2f, 35.2f),    // 송전탑 갈림길
             new Vector2(-15.7f, 24.2f),  // 방목장 갈림길
             new Vector2(11f, -1.1f),     // 정자 갈림길
-            new Vector2(8f, 10.5f),      // 병원 갈림길
         };
         public static bool InGap(float x, float z, float pad = 0f) { foreach (var g in RoadGaps) if ((g.x - x) * (g.x - x) + (g.y - z) * (g.y - z) < (GapR + pad) * (GapR + pad)) return true; return false; }
 
@@ -157,19 +156,21 @@ namespace CoastRun.Village
         public static Transform Build(Transform parent, SaveData save)
         {
             VillageRanch.Alive = VillageRanch.AliveFor(save);   // 183차: 이번 주 잡힌 말 수만큼 빼고
+            var sw = System.Diagnostics.Stopwatch.StartNew(); long last = 0; var lg = new System.Text.StringBuilder("[Load213] world:");   // 213차: 단계별 계측
+            void Mark(string n) { long now = sw.ElapsedMilliseconds; lg.Append($" {n}={now - last}"); last = now; }
             var root = new GameObject("VillageWorld").transform;
             root.SetParent(parent, false);
-            BuildLight(root);
-            BuildTerrain(root, save);
-            BuildSea(root);
-            BuildVista(root, save);
-            BuildProps(root);
-            VillageZones.Build(root);        // 195차: 버스로 가는 시내·중문관광단지 + 광산
-            VillageSeason.Build(root, save); // 195차: 계절 이벤트 장식·부스
-            BuildRocks(root, save); ApplyFelledTrees(root, save);   // 154차: 캘 수 있는 바위·쓰러진 나무(8주 뒤 재생)
-            VillageLand.Build(root, save);   // 183차: 임대 땅(매물 푯말 / 산 땅은 임대 주택)
+            BuildLight(root); Mark("BuildLight");
+            BuildTerrain(root, save); Mark("BuildTerrain");
+            BuildSea(root); Mark("BuildSea");
+            BuildVista(root, save); Mark("BuildVista");
+            BuildProps(root); Mark("BuildProps");
+            VillageZones.Build(root); Mark("VillageZones.Build");   // 195차: 버스로 가는 시내·중문관광단지 + 광산
+            VillageSeason.Build(root, save); Mark("VillageSeason.Build");   // 195차: 계절 이벤트 장식·부스
+            BuildRocks(root, save); ApplyFelledTrees(root, save); Mark("BuildRocks");   // 154차: 캘 수 있는 바위·쓰러진 나무(8주 뒤 재생)
+            VillageLand.Build(root, save); Mark("VillageLand.Build");   // 183차: 임대 땅(매물 푯말 / 산 땅은 임대 주택)
             // 147차: 조경 밀도 — 잔디에 꽃·클로버·풀포기 자동 배치(종류별 메시 합침)
-            FloraCount = VillageFlora.Scatter(root);
+            FloraCount = VillageFlora.Scatter(root); Mark("VillageFlora.Scatter");
             // 146차: 곡면 가중치 — 하늘·구름·새·먼 산은 고정(0), 거품·반짝임 등 투명 장식은 지면과 같이 휘게(1)
             foreach (var r in root.GetComponentsInChildren<Renderer>(true))
             {
@@ -177,6 +178,7 @@ namespace CoastRun.Village
                 bool flat = n == "SkyDome" || n == "Vista" || n == "VistaSide" || n == "FarHill" || n == "Cloud" || n == "SunDisc" || n == "Bird" || (t.parent != null && (t.parent.name == "Cloud" || t.parent.name == "Bird")) || t.GetComponentInParent<BirdFly>() != null;   // 193차: 새 윤곽 메시(Body/Wing)
                 foreach (var m in r.sharedMaterials) if (m != null && m.HasProperty("_CurveWeight")) m.SetFloat("_CurveWeight", flat ? 0f : 1f);
             }
+            Mark("curve"); if (sw.ElapsedMilliseconds > 4000) Debug.LogWarning(lg.ToString());   // 213차: 느릴 때만(스플랫을 다시 계산하는 경우 등)
             return root;
         }
 
@@ -199,7 +201,7 @@ namespace CoastRun.Village
             RenderSettings.ambientEquatorColor = new Color(0.90f, 0.88f, 0.86f);
             RenderSettings.ambientGroundColor = new Color(0.66f, 0.68f, 0.56f);
             RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogStartDistance = 45f; RenderSettings.fogEndDistance = 210f;   // 146차: 대기 원근 — 등대(~55 m)부터 하늘색에 섞임
+            RenderSettings.fogStartDistance = 70f; RenderSettings.fogEndDistance = 280f;   // 208차: 뿌연 기운을 줄여 쨍하게(45/210 → 70/280)   // 146차: 대기 원근 — 등대(~55 m)부터 하늘색에 섞임
             RenderSettings.fogColor = VillagePalette.Fog;
         }
 
@@ -229,7 +231,12 @@ namespace CoastRun.Village
             go.transform.SetParent(root, false);
             go.GetComponent<MeshFilter>().sharedMesh = mesh;
             var mr = go.GetComponent<MeshRenderer>();
-            SplatTex = Splat();
+            // 213차(사용자: 「단점들 커버해줘」 — 212차 평가: 마을 진입 약 100초): 2560² 스플랫을 매번 픽셀마다 계산하느라 BuildTerrain 이 에디터에서 53초.
+            // 코드·세이브와 무관한 고정 그림이라 미리 구운 PNG(개발 메뉴 「213 - Bake village splat」)를 읽는다. 없으면 예전처럼 계산.
+            // 지형 높이·길·해변 모양을 바꾸면 다시 구울 것(파일 이름 뒤 번호 = SplatVersion).
+            var baked = Resources.Load<Texture2D>(BakedSplatPath);
+            if (baked != null) { SplatTex = baked; baked.wrapMode = TextureWrapMode.Clamp; baked.filterMode = FilterMode.Trilinear; baked.anisoLevel = 16; baked.mipMapBias = -0.35f; }
+            else SplatTex = Splat();
             mr.sharedMaterial = ArtAssets.CreateTexturedLit(SplatTex, new Color(0.84f, 0.84f, 0.84f, 1f), 0.02f);   // 204차(동물의 숲 느낌): 해 드는 평지가 (253,251,140)처럼 노랗게 하얗게 날아가던 것 — 땅만 16 % 눌러 진한 풀색으로
             // 144차: 디테일 맵(2 m 타일 잔결) — 큰 스플랫 위에 미세 명암을 곱해 가까이서도 표면이 살아 있게
             // 151차: 손그림풍 디테일(R 잔디 결 · G 모래 결, 밑색 초록 정도로 갈라 씀) — 없으면 옛 노이즈
@@ -508,6 +515,9 @@ namespace CoastRun.Village
             w.transform.localPosition = c; w.GetComponent<BoxCollider>().size = size;
         }
 
+        public const int SplatVersion = 213;
+        public const string BakedSplatPath = "CoastRun/Textures/Village/Splat_Village_v213";
+        public static Texture2D SplatForBake() => Splat();   // 213차: 에디터 굽기용
         static Texture2D Splat()
         {
             const int S = 2560;   // 194차: 지도 1.5배(±80 m)라 2048→2560 · 144차: 1024(10 px/m)→2048(20 px/m) — 발밑 잔디가 뭉개지지 않게
@@ -940,7 +950,7 @@ namespace CoastRun.Village
             // 141차: 현무암 텍스처는 마을 조명에서 새카만 상자로 보여서 밝은 돌색으로
             var stoneTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Stone");
             var stoneM = stoneTex != null ? ArtAssets.CreateTexturedLit(stoneTex, new Color(0.92f, 0.90f, 0.86f), 0.02f) : CoastMaterials.CreateLit(new Color(0.66f, 0.63f, 0.58f));   // 151차: 현무암 돌담 텍스처
-            void StoneWall(float x, float z) { var t = Place(root, "Prop_StoneWall", x, z, 0f, 1f, true); /* 154차: 돌담도 막힘 */ if (t == null) return; foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = stoneM; r.sharedMaterials = arr; } }
+            void StoneWall(float x, float z) { var t = Place(root, "Prop_StoneWall", x, z, 0f, 1f, true); /* 154차: 돌담도 막힘 */ if (t == null) return; foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = VillageWorld.BatdamMat; r.sharedMaterials = arr; } }
             // 174차-3(사용자: 「집앞에 길게 뻗은 현무암을 집 둘레 경계로」): 한 줄로 뻗던 돌담을 우리집 마당을 두르는 담으로.
             // 앞 가운데는 길이 지나가게 비우고, 송전탑 자리는 건너뛴다.
             void StoneRing(float x, float z, float yaw)
@@ -954,7 +964,7 @@ namespace CoastRun.Village
                 float hL = Height(x - 1.1f, z), hR = Height(x + 1.1f, z), hB = Height(x, z - 1.1f), hF = Height(x, z + 1.1f);
                 float drop = 0.18f + Mathf.Max(Mathf.Abs(hL - hR), Mathf.Abs(hB - hF)) * 0.9f;
                 t.position -= new Vector3(0f, Mathf.Min(drop, 0.85f), 0f);
-                foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = stoneM; r.sharedMaterials = arr; }
+                foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = VillageWorld.BatdamMat; r.sharedMaterials = arr; }
             }
             // 176차-2: 조각 사이가 벌어져 판때기처럼 보여서 간격을 1.1 m 로 좁혀 겹치게 놓는다
             // 176차-2 재수정: Prop_StoneWall 은 길이가 Z 축이다 — 앞뒤 담(x 방향)은 yaw 90, 옆 담(z 방향)은 yaw 0
@@ -1195,6 +1205,10 @@ namespace CoastRun.Village
         }
 
         /// 렌더러 경계로 박스 콜라이더 한 개(나무는 줄기만 좁게).
+        /// 207차: 둥근 현무암 돌담(Prop_StoneWall 새 모델) 전용 — 사진 돌 타일을 각진 면에 입히면 흑백 얼룩이 져서 단색 현무암 툰으로
+        static Material _batdam;
+        public static Material BatdamMat { get { if (_batdam == null) _batdam = CoastMaterials.CreateToon(new Color(0.46f, 0.45f, 0.47f), (Texture2D)null, 0.06f); return _batdam; } }   // 타일 텍스처는 면마다 얼룩 → 단색 툰
+
         public static void AddCollider(GameObject go)
         {
             var rs = go.GetComponentsInChildren<Renderer>();

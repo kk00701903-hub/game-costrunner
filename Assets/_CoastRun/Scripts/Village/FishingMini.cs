@@ -27,7 +27,7 @@ namespace CoastRun.Village
         GameManager _gm; Action _onDone;
         Canvas _canvas; RectTransform _root, _water, _bobber, _bar, _zone, _fishMk, _prog; Text _msg, _castsT, _btnT; Image _btnImg;
         Button _btn; bool _holding; int _state;   // 0 idle 1 cast 2 bite 3 reel 4 result
-        float _zoneY, _zoneV, _fishY, _fishT, _progress; Fish _cur; Coroutine _co;
+        float _zoneY, _zoneV, _fishY, _fishT, _progress; Fish _cur; Coroutine _co; RectTransform _fishArt;   // 213차
 
         public static FishingMini Open(GameManager gm, Action onDone)
         {
@@ -51,6 +51,26 @@ namespace CoastRun.Village
             sky.raycastTarget = true;
             var sea = CoastUiArt.Panel(_root, "Sea", new Color(0.30f, 0.66f, 0.84f), 40); sea.raycastTarget = false;
             _water = sea.rectTransform; _water.anchorMin = new Vector2(0f, 0f); _water.anchorMax = new Vector2(1f, 0.62f); _water.offsetMin = new Vector2(-300f, -300f); _water.offsetMax = new Vector2(300f, 0f);
+            // 213차(사용자: 「단점들 커버해줘」 — 212차 평가: 낚시 화면이 하늘색·파란 판 두 장뿐인 단색 2D):
+            // Firefly 로 그린 부둣가 바다 그림을 깔고(하늘·바다 판은 투명하게), 잡은 물고기는 결과 때 그림으로 크게 보여 준다.
+            var bgTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_FishingBG");
+            if (bgTex != null)
+            {
+                var bgGo = new GameObject("BG", typeof(RawImage)); var bgRt = bgGo.GetComponent<RectTransform>(); bgRt.SetParent(_root, false); bgRt.SetSiblingIndex(1);
+                bgRt.anchorMin = Vector2.zero; bgRt.anchorMax = Vector2.one; bgRt.offsetMin = Vector2.zero; bgRt.offsetMax = Vector2.zero;
+                var bgRi = bgGo.GetComponent<RawImage>(); bgRi.texture = bgTex; bgRi.raycastTarget = false;
+                var fit = bgGo.AddComponent<AspectRatioFitter>(); fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; fit.aspectRatio = bgTex.width / (float)bgTex.height;
+                sea.color = new Color(0.30f, 0.66f, 0.84f, 0f);
+            }
+            else
+            {
+                // 그림이 없으면(생성 한도 등) 진짜 마을 바다가 비쳐 보이게 — 하늘·바다 판을 반투명으로(카메라는 VillageHub 가 바다 쪽으로 돌린다)
+                sky.color = new Color(0.72f, 0.88f, 0.98f, 0.0f);
+                sea.color = new Color(0.20f, 0.55f, 0.78f, 0.30f);
+            }
+            var fishArt = new GameObject("FishArt", typeof(RawImage)); _fishArt = fishArt.GetComponent<RectTransform>(); _fishArt.SetParent(_root, false);
+            _fishArt.anchorMin = _fishArt.anchorMax = new Vector2(0.5f, 0.62f); _fishArt.sizeDelta = new Vector2(300f, 300f); _fishArt.anchoredPosition = new Vector2(0f, -170f);
+            fishArt.GetComponent<RawImage>().raycastTarget = false; fishArt.SetActive(false);
             for (int i = 0; i < 7; i++)
             {
                 var w = CoastUiArt.Panel(_water, "W" + i, new Color(1f, 1f, 1f, 0.16f), 12); w.raycastTarget = false;
@@ -64,7 +84,7 @@ namespace CoastRun.Village
             var tt = CoastHudLayout.MakeText(trt, "T", Loc.T("🎣 바닷가 낚시", "🎣 Beach fishing"), 28, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 3f), Vector2.zero);
             tt.color = Color.white; tt.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(tt, new Color(0.1f, 0.25f, 0.5f, 0.7f), 1.8f);
             _castsT = CoastHudLayout.MakeText(_root, "Casts", "", 18, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0.5f, 1f), new Vector2(20f, -130f), new Vector2(0f, -92f));
-            _castsT.color = new Color(0.15f, 0.30f, 0.50f); _castsT.fontStyle = FontStyle.Bold;
+            _castsT.color = new Color(0.15f, 0.30f, 0.50f); _castsT.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_castsT, new Color(1f, 1f, 1f, 0.9f), 1.8f);
             // 닫기
             var close = CoastUiArt.CutePill(_root, "Close", new Color(1f, 1f, 1f, 0.92f), 20, 3);
             var crt = close.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(1f, 1f); crt.pivot = new Vector2(1f, 1f); crt.anchoredPosition = new Vector2(-12f, -20f); crt.sizeDelta = new Vector2(110f, 56f); close.raycastTarget = true;
@@ -77,7 +97,7 @@ namespace CoastRun.Village
             _bobber.gameObject.SetActive(false);
             // 메시지
             _msg = CoastHudLayout.MakeText(_root, "Msg", "", 26, TextAnchor.MiddleCenter, new Vector2(0f, 0.62f), new Vector2(1f, 0.62f), new Vector2(30f, 20f), new Vector2(-30f, 110f));
-            _msg.color = new Color(0.12f, 0.25f, 0.45f); _msg.fontStyle = FontStyle.Bold; _msg.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _msg.color = new Color(0.12f, 0.25f, 0.45f); _msg.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_msg, new Color(1f, 1f, 1f, 0.9f), 2.2f);   /* 213차: 그림 위에서도 읽히게 */ _msg.horizontalOverflow = HorizontalWrapMode.Wrap;
             _msg.resizeTextForBestFit = true; _msg.resizeTextMinSize = 14; _msg.resizeTextMaxSize = CoastHudLayout.Scaled(26);
             // 릴 게이지(세로) — 오른쪽
             var barBg = CoastUiArt.CutePill(_root, "Bar", new Color(0.10f, 0.20f, 0.35f, 0.85f), 18, 3); barBg.raycastTarget = false;
@@ -108,7 +128,7 @@ namespace CoastRun.Village
 
         void SetIdle()
         {
-            _state = 0; _bobber.gameObject.SetActive(false); _bar.gameObject.SetActive(false); _progHost.gameObject.SetActive(false);
+            _state = 0; if (_fishArt != null) _fishArt.gameObject.SetActive(false); _bobber.gameObject.SetActive(false); _bar.gameObject.SetActive(false); _progHost.gameObject.SetActive(false);
             int left = CastsLeft;
             _castsT.text = Loc.T($"남은 던지기 {left}/{CastsPerPhase}", $"Casts left {left}/{CastsPerPhase}");
             if (left <= 0) { _msg.text = Loc.T("오늘은 여기까지. 다음 턴에 또 오자!", "That's it for today — come back next turn!"); _btnT.text = Loc.T("돌아가기", "Back"); }
@@ -194,6 +214,8 @@ namespace CoastRun.Village
                 Save.stats.stress = Mathf.Max(0, Save.stats.stress - 2);
                 _gm.Persist();
                 string nm = Loc.T(_cur.ko, _cur.en);
+                var art = Resources.Load<Texture2D>("CoastRun/Items/Item_" + (boot ? "fish_boot" : "fish_" + fidx));   // 213차: 잡은 것 그림
+                if (art != null && _fishArt != null) { _fishArt.GetComponent<RawImage>().texture = art; _fishArt.gameObject.SetActive(true); StartCoroutine(PopArt()); }
                 _msg.text = boot ? Loc.T($"…{nm}?! 그래도 {coins}G", $"…{nm}?! Still {coins}G")
                     : Loc.T($"{nm} 낚았다! 가방에 {nm} +1 · 생선 +{fish} (상점에서 팔 수 있다)", $"Caught {nm}! {nm} +1 · Fish +{fish} (sell at the shop)");
                 CoastAudioManager.PlayAnywhere(CoastSfx.Coin); CoastPrefs.VibrateEvent();
@@ -202,6 +224,12 @@ namespace CoastRun.Village
             else _msg.text = failMsg;
             if (DevAuto) Debug.LogWarning($"[Fish] ok={ok} msg={_msg.text} bag fish_0..4=" + string.Join(",", new[]{0,1,2,3,4}.Select(i => LifeItems.Count(Save, "fish_" + i))) + " ing_fish=" + LifeItems.Count(Save, "ing_fish"));
             _btnT.text = CastsLeft > 0 ? Loc.T("다시 던지기", "Cast again") : Loc.T("돌아가기", "Back");
+        }
+
+        IEnumerator PopArt()
+        {
+            float t = 0f; while (t < 0.35f && _fishArt != null) { t += Time.deltaTime; float k = t / 0.35f; float sc = k < 0.7f ? Mathf.Lerp(0.2f, 1.15f, k / 0.7f) : Mathf.Lerp(1.15f, 1f, (k - 0.7f) / 0.3f); _fishArt.localScale = Vector3.one * sc; _fishArt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(k * 9f) * 8f * (1f - k)); yield return null; }
+            if (_fishArt != null) { _fishArt.localScale = Vector3.one; _fishArt.localRotation = Quaternion.identity; }
         }
 
         void Close()

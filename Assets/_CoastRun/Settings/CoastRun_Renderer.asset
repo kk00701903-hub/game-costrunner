@@ -95,5 +95,5 @@ MonoBehaviour:
   m_Name: CoastSharpen
   m_EditorClassIdentifier: CoastRun.Runtime::CoastRun.CoastSharpenFeature
   m_Active: 1
-  amount: 0.45
+  amount: 0.6
   passEvent: 550

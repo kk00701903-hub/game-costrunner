@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CoastRun.Village
@@ -59,6 +60,49 @@ namespace CoastRun.Village
             }
             return host;
         }
+        /// 211차(사용자: 「보강해줘」 — 가게 실내 소품이 상자): 이름표로 상자를 블렌더 소품(village_shop_kit.py)으로 바꾼다.
+        /// 모델은 실제 크기로 만들었으므로 배율 1 로 상자 바닥 가운데에 세우고, 상자는 충돌만 남긴다(렌더러 끔). 받침만 떠 있는 판(탁자 윗판·선반 판)은 바닥에 세운다.
+        void DressRoom(Transform host, float fy)
+        {
+            var kids = new List<Transform>(); foreach (Transform ch in host) kids.Add(ch);
+            void Hide(Transform t) { var r = t.GetComponent<MeshRenderer>(); if (r != null) r.enabled = false; }
+            GameObject Put(string model, Vector3 at, float yaw) { var g = JejuKit.Spawn(model, host, Vector3.zero, yaw, 1f); if (g != null) g.transform.position = at; return g; }
+            GameObject Swap(Transform t, string model, float yaw, bool onFloor = false)
+            {
+                var r = t.GetComponent<MeshRenderer>(); if (r == null || !r.enabled) return null; var b = r.bounds;
+                var g = Put(model, new Vector3(b.center.x, onFloor ? fy : b.min.y, b.center.z), yaw); if (g != null) Hide(t); return g;
+            }
+            bool shelvesDone = false;
+            foreach (var t in kids)
+            {
+                switch (t.name)
+                {
+                    case "ShopCounter": Swap(t, "VShopCounter", 180f); break;
+                    case "Table": Swap(t, "VDiningTable", 0f, true); break;
+                    case "Grill": break;
+                    case "Kitchen": Swap(t, "VKitchen", 180f); break;
+                    case "Pedestal": Swap(t, "VPedestal", 180f); break;
+                    case "TeddyCase": { var g = Swap(t, "VDisplayCase", 180f); if (g != null) Put("VTeddy", new Vector3(t.position.x, fy + 0.92f, t.position.z), 180f); break; }
+                    case "TeddyB": case "TeddyH": case "GachaDome": case "Capsule": case "AnvilBase": case "ForgeFire": case "Goods": Hide(t); break;
+                    case "GachaBase": Swap(t, "VGacha", 180f); break;
+                    case "Anvil": Swap(t, "VAnvil", 180f, true); break;
+                    case "Forge": Swap(t, "VForge", 180f); break;
+                    case "HayBale": Swap(t, "VHayBale", 0f); break;
+                    case "Pen": Swap(t, "VPenFence", 0f); break;
+                    case "MartShelf":
+                    case "SouvShelf":
+                        Hide(t);
+                        if (!shelvesDone)
+                        {
+                            shelvesDone = true; bool mart = t.name == "MartShelf";
+                            float z = mart ? t.position.z : VillageInterior.OZ + VillageInterior.RD * 0.5f - 0.5f;
+                            for (int k = 0; k < 3; k++) Put("VShelfUnit", new Vector3(VillageInterior.OX - 3f + k * 3f, fy, z), 180f);
+                        }
+                        break;
+                }
+            }
+        }
+
         GameObject RB(Transform host, string n, Vector3 pos, Vector3 size, Color col, bool collide = false)
         {
             var g = GameObject.CreatePrimitive(PrimitiveType.Cube); if (!collide) Destroy(g.GetComponent<Collider>()); g.name = n; g.transform.SetParent(host, false);

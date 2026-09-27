@@ -101,6 +101,7 @@ def bake_ao(ob):
 
 def export(ob, name):
     bpy.ops.object.select_all(action='DESELECT'); ob.select_set(True); bpy.context.view_layer.objects.active = ob
+    bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)   # 207차: join 하면 원점이 첫 조각 자리 → Unity 에서 위치가 밀린다. 원점 = 월드 원점
     path = os.path.join(OUT, name + ".fbx")
     bpy.ops.export_scene.fbx(filepath=path, use_selection=True, apply_unit_scale=True, apply_scale_options='FBX_SCALE_ALL',
         bake_space_transform=True, axis_forward='-Z', axis_up='Y', object_types={'MESH'}, colors_type='SRGB',

@@ -21,6 +21,20 @@ namespace CoastRun.EditorTools
         [MenuItem("Coast Run/Dev/205 - Ripen all")] static void P() { H?.DevRipen(); }
         [MenuItem("Coast Run/Dev/205 - Harvest tile 0")] static void Q() { if (H != null) { H.DevTile = 0; H.DevHarvestHere(); } }
         [MenuItem("Coast Run/Dev/205 - Harvest tile 1")] static void Q1() { if (H != null) { H.DevTile = 1; H.DevHarvestHere(); } }
+        [MenuItem("Coast Run/Dev/209 - Spawn ghost")] static void SG() { H?.DevGhost(); }
+        [MenuItem("Coast Run/Dev/209 - Go near mob")] static void NM() { H?.DevNearMob(); }
+        [MenuItem("Coast Run/Dev/213 - Fishing BG test shot")] static void FB1() { H?.DevCaptureFishingBG(false); }
+        [MenuItem("Coast Run/Dev/213 - Fishing BG save")] static void FB2() { H?.DevCaptureFishingBG(true); }
+        [MenuItem("Coast Run/Dev/214 - Promises done")] static void CG1() { H?.DevCgDone(); }
+        [MenuItem("Coast Run/Dev/214 - Next chapter (promise check)")] static void CG3() { H?.DevCgNextChapter(); }
+        [MenuItem("Coast Run/Dev/214 - Promises log")] static void CG2() { H?.DevCgLog(); }
+        [MenuItem("Coast Run/Dev/212 - Walk (walk.txt)")] static void WK() { H?.DevWalkFile(); }
+        [MenuItem("Coast Run/Dev/212 - Where")] static void WH() { H?.DevWhere(); }
+        [MenuItem("Coast Run/Dev/211 - Palm log")] static void PL() { H?.DevPalmLog(); }
+        [MenuItem("Coast Run/Dev/209 - Perf split")] static void PSP() { H?.DevPerfSplit(); }
+        [MenuItem("Coast Run/Dev/209 - Perf A/B")] static void PAB() { H?.DevPerfAB(); }
+        [MenuItem("Coast Run/Dev/209 - Motion probe 5s")] static void MP() { H?.DevMotionProbe(5f); }
+        [MenuItem("Coast Run/Dev/209 - Motion probe + burst")] static void MPB() { H?.DevMotionProbe(3f, "burst"); }
         [MenuItem("Coast Run/Dev/206 - Go mine mouth")] static void MM() { H?.DevGoMineMouth(); }
         [MenuItem("Coast Run/Dev/205 - Money +10000")] static void N() { H?.DevMoney(); }
         [MenuItem("Coast Run/Dev/205 - Give contest items")] static void M() { H?.DevGiveContestItems(); }

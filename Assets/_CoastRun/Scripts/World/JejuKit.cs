@@ -473,6 +473,28 @@ namespace CoastRun
                 case "MineWood": return CoastMaterials.CreateLit(new Color(0.62f, 0.43f, 0.26f), 0.05f);
                 case "MineMetal": return CoastMaterials.CreateLit(new Color(0.42f, 0.44f, 0.48f), 0.35f);
                 case "LampGlow": return CoastMaterials.CreateUnlit(new Color(1f, 0.84f, 0.50f));
+                // 207차: 관광단지·시내 소품 키트(village_tour_kit.py)
+                case "ParasolRed": return CoastMaterials.CreateToon(new Color(0.96f, 0.42f, 0.42f), (Texture2D)null, 0.15f);
+                case "ParasolBlue": return CoastMaterials.CreateToon(new Color(0.36f, 0.64f, 0.96f), (Texture2D)null, 0.15f);
+                case "ParasolYellow": return CoastMaterials.CreateToon(new Color(1f, 0.80f, 0.30f), (Texture2D)null, 0.15f);
+                case "CanvasWhite": return CoastMaterials.CreateToon(new Color(0.98f, 0.97f, 0.93f), (Texture2D)null, 0.1f);
+                case "PaintWhite": return CoastMaterials.CreateLit(new Color(0.97f, 0.97f, 0.95f), 0.1f);
+                case "GlassTint": return CoastMaterials.CreateTransparent(new Color(0.72f, 0.90f, 1f, 0.38f));
+                case "PosterJeju": { var pt = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_PosterJeju"); return pt != null ? CoastMaterials.CreateToon(Color.white, pt, 0.05f) : CoastMaterials.CreateLit(new Color(0.55f, 0.80f, 0.95f)); }
+                case "FountainStone": return CoastMaterials.CreateLit(new Color(0.90f, 0.86f, 0.78f), 0.05f);
+                case "FountainWater": return CoastMaterials.CreateUnlit(new Color(0.55f, 0.84f, 0.98f));
+                case "HotelWall": return CoastMaterials.CreateLit(new Color(0.98f, 0.96f, 0.91f), 0.05f);
+                case "GhostBody": return CoastMaterials.CreateUnlit(new Color(0.90f, 0.88f, 1f));   // 209차 귀신 — 밤에 은은히 빛나 보이게 무광 밝은 라벤더
+                case "GhostEye": return CoastMaterials.CreateUnlit(new Color(0.14f, 0.11f, 0.24f));
+                case "GhostCheek": return CoastMaterials.CreateUnlit(new Color(1f, 0.62f, 0.75f));
+                case "TeddyFur": return CoastMaterials.CreateLit(new Color(0.72f, 0.50f, 0.32f), 0.05f);   // 211차 가게 소품
+                case "TeddyFurLight": return CoastMaterials.CreateLit(new Color(0.94f, 0.80f, 0.62f), 0.05f);
+                case "Soup": return CoastMaterials.CreateLit(new Color(0.96f, 0.82f, 0.56f), 0.3f);
+                case "Brass": return CoastMaterials.CreateLit(new Color(0.86f, 0.70f, 0.34f), 0.4f);
+                case "SurfTeal": return CoastMaterials.CreateLit(new Color(0.40f, 0.76f, 0.86f), 0.1f);
+                case "BarnRed": return CoastMaterials.CreateLit(new Color(0.80f, 0.30f, 0.26f), 0.05f);   // 207-2차 사일로
+                case "BarnRoof": return CoastMaterials.CreateLit(new Color(0.44f, 0.46f, 0.50f), 0.1f);
+                case "HotelRoof": return CoastMaterials.CreateLit(new Color(0.95f, 0.55f, 0.22f), 0.1f);
                 // 64차: 제주 집 키트(JHouse_*) — 초가·기와·창호지·회벽
                 case "Thatch": return CoastMaterials.CreateLit(new Color(0.74f, 0.60f, 0.36f), 0.02f);
                 case "Tile": return CoastMaterials.CreateLit(new Color(0.34f, 0.36f, 0.40f), 0.08f);

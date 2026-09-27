@@ -57,8 +57,8 @@ namespace CoastRun.Village
 
             // ── 195차(사용자: 「은행은 시내로 옮겨줘」): 은행 자리는 축사(소·흑돼지) + 울타리 우리 ──
             var barn = VillageHouses.Build(root, VillageWorld.Ground(BankX, BankZ), 180f, VillageHouses.Style.Pastel, "축사", "Barn",
-                new Color(0.96f, 0.92f, 0.84f), new Color(0.72f, 0.24f, 0.20f), 0.95f);
-            if (barn != null) { barn.name = "House_Barn"; foreach (Transform ch in barn) if (ch.name == "Attic" || ch.name == "AtticFrame") ch.gameObject.SetActive(false); }
+                new Color(0.80f, 0.30f, 0.26f), new Color(0.44f, 0.46f, 0.50f), 0.95f);   // 207-2차: 크림 벽 → 빨간 헛간 벽 + 회색 지붕
+            if (barn != null) { barn.name = "House_Barn"; foreach (Transform ch in barn) if (ch.name == "Attic" || ch.name == "AtticFrame") ch.gameObject.SetActive(false); BarnLook(barn, host); }
             {
                 var fence = Lit(new Color(0.62f, 0.44f, 0.30f)); float hx = 3.6f, hz = 2.8f;
                 for (float x = -hx; x <= hx + 0.01f; x += 1.2f) for (int s2 = -1; s2 <= 1; s2 += 2) Prim(host, PrimitiveType.Cube, "PenPost", VillageWorld.Ground(PenCenter.x + x, PenCenter.y + s2 * hz) + Vector3.up * 0.5f, new Vector3(0.14f, 1f, 0.14f), fence, true);
@@ -95,7 +95,7 @@ namespace CoastRun.Village
             {
                 var t = VillageWorld.Place(root, "Prop_StoneWall", x, z, yaw, 1f, true); if (t == null) return;
                 t.position -= new Vector3(0f, 0.18f, 0f);
-                foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = stoneM; r.sharedMaterials = arr; }
+                foreach (var r in t.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k = 0; k < arr.Length; k++) arr[k] = VillageWorld.BatdamMat; r.sharedMaterials = arr; }
             }
             const float ox0 = 34.5f, ox1 = 45.5f, oz0 = 22f, oz1 = 32f;
             for (float x = ox0; x <= ox1 + 0.1f; x += 1.6f) { if (Mathf.Abs(x - (ox0 + ox1) * 0.5f) > 1.6f) Stone(x, oz0, 90f); Stone(x, oz1, 90f); }
@@ -269,6 +269,35 @@ namespace CoastRun.Village
             }
         }
 
+        /// 207-2차(사용자: 「계속해줘」 — 축사가 집 모양 그대로): 헛간 얼굴 — 흰 X 버팀 문짝 · 박공 건초창 · 옆에 사일로(블렌더 VSilo).
+        /// 문·간판·콜라이더(입장 로직)는 그대로 두고 앞에 판자만 덧댄다.
+        static void BarnLook(Transform barn, Transform host)
+        {
+            var white = Lit(new Color(0.97f, 0.96f, 0.93f)); var red = Lit(new Color(0.70f, 0.24f, 0.20f)); var hay = Lit(new Color(0.93f, 0.80f, 0.42f));
+            void B(string n, Vector3 lp, Vector3 sc, Material m, float rz = 0f)
+            {
+                var g = GameObject.CreatePrimitive(PrimitiveType.Cube); Object.Destroy(g.GetComponent<Collider>()); g.name = n;
+                g.transform.SetParent(barn, false); g.transform.localPosition = lp; g.transform.localRotation = Quaternion.Euler(0f, 0f, rz); g.transform.localScale = sc;
+                g.GetComponent<MeshRenderer>().sharedMaterial = m;
+            }
+            const float W = 4.6f, H = 2.7f, D = 4.0f; float fz = D * 0.5f;
+            // 문짝: 흰 테두리 + X 버팀(문 크기 1.0 × 1.9)
+            B("BarnDoorTop", new Vector3(0f, 1.93f, fz + 0.13f), new Vector3(1.1f, 0.1f, 0.05f), white);
+            B("BarnDoorBot", new Vector3(0f, 0.1f, fz + 0.13f), new Vector3(1.1f, 0.1f, 0.05f), white);
+            B("BarnDoorMid", new Vector3(0f, 1.0f, fz + 0.13f), new Vector3(1.0f, 0.08f, 0.05f), white);
+            float ang = Mathf.Atan2(0.85f, 0.95f) * Mathf.Rad2Deg;
+            foreach (var y in new[] { 0.55f, 1.46f }) { B("BarnDoorX", new Vector3(0f, y, fz + 0.14f), new Vector3(1.22f, 0.08f, 0.04f), white, ang); B("BarnDoorX", new Vector3(0f, y, fz + 0.14f), new Vector3(1.22f, 0.08f, 0.04f), white, -ang); }
+            // 박공 건초창(다락창 자리)
+            B("LoftFrame", new Vector3(0f, H + 0.85f, fz + 0.47f), new Vector3(1.0f, 0.95f, 0.08f), white);
+            B("LoftDoor", new Vector3(0f, H + 0.85f, fz + 0.5f), new Vector3(0.82f, 0.78f, 0.06f), red);
+            B("LoftHay", new Vector3(0f, H + 0.55f, fz + 0.55f), new Vector3(0.7f, 0.18f, 0.12f), hay);
+            B("LoftX", new Vector3(0f, H + 0.9f, fz + 0.54f), new Vector3(0.95f, 0.06f, 0.03f), white, 45f); B("LoftX", new Vector3(0f, H + 0.9f, fz + 0.54f), new Vector3(0.95f, 0.06f, 0.03f), white, -45f);
+            // 사일로(축사 옆, 사다리는 앞쪽)
+            var sp = barn.TransformPoint(new Vector3(-(W * 0.5f + 1.5f), 0f, -0.6f));
+            var silo = JejuKit.Spawn("VSilo", host, Vector3.zero, barn.eulerAngles.y + 180f, 1f);
+            if (silo != null) { silo.name = "Silo"; silo.transform.position = VillageWorld.Ground(sp.x, sp.z) - Vector3.up * 0.05f; VillageWorld.AddCollider(silo); BuildingOutline.Attach(silo.transform, 0.02f); }
+        }
+
         static Transform BuildBusStop(Transform host)
         {
             var g = VillageWorld.Ground(StopX, StopZ); var t = new GameObject("BusStop").transform; t.SetParent(host, false); t.position = g; t.rotation = Quaternion.Euler(0f, 90f, 0f);   // 차도(동쪽)를 본다
@@ -286,6 +315,7 @@ namespace CoastRun.Village
             Prim(t, PrimitiveType.Cube, "StopSignBus", t.TransformPoint(new Vector3(2.3f, 2.75f, 0.54f)), new Vector3(0.36f, 0.24f, 0.02f), white, false, t.rotation);
             // 시간표 판
             Prim(t, PrimitiveType.Cube, "StopTable", t.TransformPoint(new Vector3(-1.2f, 1.45f, -0.68f)), new Vector3(0.6f, 0.8f, 0.03f), Lit(new Color(1f, 0.97f, 0.85f)), false, t.rotation);
+            VillageZones.ShelterModel(t);   // 207차: 블렌더 정류장 모델(Firefly 포스터)
             return t;
         }
 

@@ -81,6 +81,7 @@ namespace CoastRun
         public static Text MakeText(Transform parent, string name, string content, int size, TextAnchor align,
             Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
         {
+            content = EmojiText.Clean(content);   // 213차: 못 그리는 컬러 이모지 지우기
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();

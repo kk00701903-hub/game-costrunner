@@ -1219,8 +1219,18 @@ namespace CoastRun
             });
             volLabel = volBtn.GetComponentInChildren<Text>();
             if (volLabel != null) volLabel.text = VolumeText();
+            // 210차(사용자: 「설정에 프레임우선 모드를 디폴트로」): 그래픽 — 프레임 우선(기본) ↔ 화질 우선
+            Text gfxLabel = null;
+            var gfxBtn = CreateMenuButton(_settingsPanel.transform, GraphicsMode.Label(Loc.IsKo), 0.62f, () =>
+            {
+                _audio?.PlayClick();
+                CoastPrefs.FramePriority = !CoastPrefs.FramePriority; GraphicsMode.Apply();
+                if (gfxLabel != null) gfxLabel.text = GraphicsMode.Label(Loc.IsKo);
+            });
+            gfxLabel = gfxBtn.GetComponentInChildren<Text>();
+            if (gfxLabel != null) gfxLabel.text = GraphicsMode.Label(Loc.IsKo);
             Text hapLabel = null;
-            var hapBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("진동", "Vibration"), 0.62f, () =>
+            var hapBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("진동", "Vibration"), 0.54f, () =>
             {
                 CoastPrefs.Haptic = !CoastPrefs.Haptic;
                 if (hapLabel != null) hapLabel.text = HapticText();
@@ -1229,7 +1239,7 @@ namespace CoastRun
             if (hapLabel != null) hapLabel.text = HapticText();
 
             Text langLabel = null;
-            var langBtn = CreateMenuButton(_settingsPanel.transform, Loc.LanguageButtonLabel(), 0.54f, () =>
+            var langBtn = CreateMenuButton(_settingsPanel.transform, Loc.LanguageButtonLabel(), 0.46f, () =>
             {
                 _audio?.PlayClick();
                 OpenLanguagePopup(() =>
@@ -1240,21 +1250,21 @@ namespace CoastRun
             langLabel = langBtn.GetComponentInChildren<Text>();
             if (langLabel != null) langLabel.text = Loc.LanguageButtonLabel();
 
-            CreateMenuButton(_settingsPanel.transform, Loc.T("크레딧", "Credits"), 0.46f, () =>
+            CreateMenuButton(_settingsPanel.transform, Loc.T("크레딧", "Credits"), 0.38f, () =>
             {
                 ShowPanel(_settingsPanel, false);
                 ShowPanel(_creditsPanel, true);
             });
             // 37차: 비밀코드(테스트) — 1111 이면 전체 챕터·레코드 해금
             Text codeLabel = null;
-            var codeBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("비밀코드", "Secret code"), 0.38f, () => OpenSecretCode(() =>
+            var codeBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("비밀코드", "Secret code"), 0.30f, () => OpenSecretCode(() =>
             {
                 if (codeLabel != null) codeLabel.text = SecretText();
             }));
             codeLabel = codeBtn.GetComponentInChildren<Text>();
             if (codeLabel != null) codeLabel.text = SecretText();
             CreateLabel(_settingsPanel.transform, "Ver", "v0.9  ·  Coast Run · Jeju", 14, FontStyle.Normal,
-                new Color(1f, 0.95f, 0.85f, 0.55f), new Vector2(0.5f, 0.28f), new Vector2(400f, 24f));
+                new Color(1f, 0.95f, 0.85f, 0.55f), new Vector2(0.5f, 0.235f), new Vector2(400f, 24f));
             CreateMenuButton(_settingsPanel.transform, Loc.T("닫기", "Close"), 0.12f, () =>
             {
                 _audio?.PlayClick();

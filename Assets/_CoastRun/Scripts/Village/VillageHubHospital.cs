@@ -28,7 +28,7 @@ namespace CoastRun.Village
             _heroInside = false; _interiorKind = "hospital";
             _interior = VillageInterior.Create(transform, Loc.T("병원", "Hospital"), HospWall, HospAccent, door + house.forward * 1.7f, house.eulerAngles.y);
             _spots.Add(new Spot { id = "exit", title = Loc.T("문 · 밖으로 나가기", "Door · Go outside"), pos = _interior.ExitSpot, radius = 1.6f, on = ExitHouse });
-            BuildHospitalRoom();
+            BuildHospitalRoom(); DressHospital213();   // 213차
             Teleport(HospitalBedSide(0), 0f);   // 침대 옆에 선다(실내 카메라는 뒤(남쪽)에서 보므로 북쪽을 봐야 침대와 함께 보인다)
             _doorCooldown = Time.time + 3f;
             return true;
@@ -71,8 +71,8 @@ namespace CoastRun.Village
             {
                 var r = ch.GetComponent<MeshRenderer>(); if (r == null) continue;
                 if (ch.name == "Floor") r.sharedMaterial = floorM;
-                else if (ch.name == "WallN") r.sharedMaterial = wallM;
-                else if (ch.name == "WallW" || ch.name == "WallE") r.sharedMaterial = wallSideM;
+                else if (ch.name == "WallN" || ch.name == "WallUpN") r.sharedMaterial = wallM;   // 213차: 위로 올린 벽도 벽지
+                else if (ch.name == "WallW" || ch.name == "WallE" || ch.name == "WallUpW" || ch.name == "WallUpE") r.sharedMaterial = wallSideM;
                 else if (ch.name == "Skirt") r.sharedMaterial = CoastMaterials.CreateLit(new Color(0.55f, 0.78f, 0.72f), 0.1f);
             }
             // 벽을 위로 3 m 더 — 낮은 벽 너머로 하늘·구름이 보여 방이 하늘에 떠 보이던 것

@@ -15,6 +15,13 @@ namespace CoastRun
             set { PlayerPrefs.SetInt(VolKey, Mathf.Clamp(value, 0, 4)); PlayerPrefs.Save(); Apply(); }
         }
 
+        // 210차(사용자: 「설정에 프레임우선 모드를 디폴트로」): 그래픽 모드 — 1 = 프레임 우선(기본), 0 = 화질 우선
+        const string FramePriorityKey = "coast.gfx.framePriority";
+        public static bool FramePriority
+        {
+            get => PlayerPrefs.GetInt(FramePriorityKey, 1) != 0;
+            set { PlayerPrefs.SetInt(FramePriorityKey, value ? 1 : 0); PlayerPrefs.Save(); }
+        }
         public static bool Haptic
         {
             get => PlayerPrefs.GetInt(HapticKey, 1) != 0;

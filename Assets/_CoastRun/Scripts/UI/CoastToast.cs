@@ -15,6 +15,7 @@ namespace CoastRun
         /// 74차(사용자): 러닝 중(HUD 가 있을 때)엔 위 띠 대신 **분홍 팝 텍스트**(「+2」처럼 화면 가운데서 터져 위로 떠오른다)로 뿌린다 — 「포토카드 전부 모았어」 같은 미션 메시지.
         public static void Show(string msg)
         {
+            msg = EmojiText.Clean(msg);   // 213차
             if (RunHudChrome.Instance != null) { Pop(msg); return; }
             // 187차(사용자: 「큰 벌레에게 물렸다 등 캡션은 kpop 러닝의 분홍 큰 글씨처럼」): 마을도 분홍 팝. 같은 문구가 떠 있는 동안엔 겹쳐 띄우지 않는다
             if (CoastRun.Village.VillageHub.I != null) { if (_popping.Contains(msg)) return; Pop(msg); return; }
@@ -72,6 +73,7 @@ namespace CoastRun
         /// 위 띠 토스트(육성·타이틀 등 러닝 밖).
         public static void ShowBar(string msg)
         {
+            msg = EmojiText.Clean(msg);   // 213차
             if (_i == null)
             {
                 var go = new GameObject("CoastToast");

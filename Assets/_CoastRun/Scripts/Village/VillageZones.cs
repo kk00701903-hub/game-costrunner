@@ -21,7 +21,7 @@ namespace CoastRun.Village
             return Zone.None;
         }
         public static Zone At(Vector3 p) => At(p.x, p.z);
-        public static string Name(Zone z) => z == Zone.City ? Loc.T("제주 시내", "Jeju City") : z == Zone.Tour ? Loc.T("중문관광단지", "Jungmun Resort") : z == Zone.Mine ? Loc.T("오름 광산", "Oreum Mine") : Loc.T("하늘 바닷가 마을", "Haneul Seaside");
+        public static string Name(Zone z) => z == Zone.City ? Loc.T("제주 시내", "Jeju City") : z == Zone.Tour ? Loc.T("중몬관광단지", "Jungmon Resort") : z == Zone.Mine ? Loc.T("오름 광산", "Oreum Mine") : Loc.T("하늘 바닷가 마을", "Haneul Seaside");
 
         public static bool TryFloor(float x, float z, out float y)
         {
@@ -192,6 +192,9 @@ namespace CoastRun.Village
             Prim(c, PrimitiveType.Cylinder, "FountainWater", new Vector3(C.x, 0.62f, fz), new Vector3(4.4f, 0.04f, 4.4f), water);
             Prim(c, PrimitiveType.Cylinder, "FountainTop", new Vector3(C.x, 1.3f, fz), new Vector3(0.6f, 0.9f, 0.6f), stone);
             var jet = Prim(c, PrimitiveType.Sphere, "FountainJet", new Vector3(C.x, 2.4f, fz), new Vector3(0.7f, 1.0f, 0.7f), water); jet.AddComponent<Bob>();
+            // 207차: 분수 겉모습 = 블렌더 VFountain(팔각 수반 2단). 원기둥은 충돌만
+            if (JejuKit.Spawn("VFountain", c, new Vector3(C.x, 0f, fz), 22.5f, 1f) != null)
+                foreach (Transform ch in c) if (ch.name == "Fountain" || ch.name == "FountainWater" || ch.name == "FountainTop") { var mr = ch.GetComponent<MeshRenderer>(); if (mr != null) mr.enabled = false; }
             VillageWorld.SpawnScaled("Prop_Hareubang", c, C.x - 4.5f, fz - 3.5f, 200f, 1.8f); VillageWorld.SpawnScaled("Prop_Hareubang", c, C.x + 4.5f, fz - 3.5f, 160f, 1.8f);
             for (int i = -1; i <= 1; i += 2) VillageWorld.SpawnScaled("Prop_Bench", c, C.x + i * 6f, fz, 90f * i, 0.9f);
             // 가로수(야자수 화분)·가로등·신호등
@@ -237,6 +240,18 @@ namespace CoastRun.Village
             Box(t, "StopBack", t.TransformPoint(new Vector3(0f, 1.3f, -0.72f)), new Vector3(3.3f, 1.9f, 0.05f), glass, true, yaw);
             Box(t, "StopBench", t.TransformPoint(new Vector3(0f, 0.45f, -0.45f)), new Vector3(2.6f, 0.08f, 0.4f), Lit(new Color(0.74f, 0.54f, 0.34f)), false, yaw);
             Sign(t, t.TransformPoint(new Vector3(0f, 2.8f, 0.6f)), yaw, "🚌 " + title, "🚌 " + title, new Color(0.22f, 0.50f, 0.85f), 2.6f, 0.5f);
+            ShelterModel(t);
+        }
+
+        /// 207차(사용자: 「건물이나 에셋 부족한 부분 … 파이어플라이 등 활용해서 수정」): 정류장 겉모습 = 블렌더 VBusShelter
+        /// (둥근 지붕 · 유리 · Firefly 제주 포스터 · 나무 벤치). 예전 상자는 충돌만 남기고 숨긴다. 모델 앞 = 로컬 +z(차도 쪽).
+        internal const float ShelterYaw = 0f;
+        internal static void ShelterModel(Transform t)
+        {
+            var m = JejuKit.Spawn("VBusShelter", t, Vector3.zero, ShelterYaw, 1f); if (m == null) return;
+            foreach (Transform ch in t)
+                if (ch.name == "StopPost" || ch.name == "StopRoof" || ch.name == "StopBack" || ch.name == "StopBench" || ch.name == "StopTable")
+                { var mr = ch.GetComponent<MeshRenderer>(); if (mr != null) mr.enabled = false; }
         }
 
         // ───────────────────────── 중문관광단지 ─────────────────────────
@@ -257,7 +272,7 @@ namespace CoastRun.Village
             Box(jet, "JetBody", jet.position, new Vector3(0.9f, 0.45f, 2.3f), Lit(new Color(1f, 0.55f, 0.18f))); Box(jet, "JetSeat", jet.position + new Vector3(0f, 0.32f, -0.3f), new Vector3(0.5f, 0.2f, 0.9f), navy);
             Box(jet, "JetBar", jet.position + new Vector3(0f, 0.55f, 0.5f), new Vector3(0.8f, 0.08f, 0.08f), navy);
             jet.gameObject.AddComponent<SeaFloat>();
-            Sign(t, new Vector3(C.x - 34f, 2.4f, C.z - 12.4f), 180f, "중문 마리나", "Jungmun Marina", new Color(0.20f, 0.45f, 0.75f), 3.2f, 0.7f);
+            Sign(t, new Vector3(C.x - 34f, 2.4f, C.z - 12.4f), 180f, "중몬 마리나", "Jungmon Marina", new Color(0.20f, 0.45f, 0.75f), 3.2f, 0.7f);
             MarinaSpot = new Vector3(C.x - 34f, TourFloor(C.x - 34f, C.z - 11f), C.z - 11f);
             // ② 서핑 숍: 오두막 + 보드 걸이
             Box(t, "SurfShack", new Vector3(C.x + 16f, 1.4f, C.z - 5f), new Vector3(3.6f, 2.2f, 2.6f), Lit(new Color(0.40f, 0.75f, 0.85f)), true);
@@ -265,6 +280,9 @@ namespace CoastRun.Village
             Color[] bc = { new Color(1f, 0.45f, 0.45f), new Color(1f, 0.85f, 0.30f), new Color(0.40f, 0.80f, 0.55f), new Color(0.95f, 0.60f, 0.85f) };
             for (int k = 0; k < 4; k++) { var bd = Prim(t, PrimitiveType.Sphere, "SurfBoard", new Vector3(C.x + 13.2f + k * 0.55f, 1.3f, C.z - 7f), new Vector3(0.45f, 2.2f, 0.12f), Lit(bc[k], 0.4f)); bd.transform.rotation = Quaternion.Euler(0f, 0f, -8f + k * 5f); }
             Sign(t, new Vector3(C.x + 16f, 3.3f, C.z - 6.4f), 180f, "서핑 숍", "Surf Shop", new Color(0.20f, 0.55f, 0.70f), 2.6f, 0.6f);
+            // 211차: 노랑·청록 상자 → 블렌더 야자잎 지붕 해변 오두막(줄무늬 계산대·서핑보드 걸이). 상자는 충돌만
+            if (JejuKit.Spawn("VSurfShack", t, new Vector3(C.x + 16f, TourFloor(C.x + 16f, C.z - 5f), C.z - 5f), TourYaw, 1f) != null)
+                foreach (Transform ch in t) if (ch.name == "SurfShack" || ch.name == "SurfRoof" || ch.name == "SurfBoard") { var mr = ch.GetComponent<MeshRenderer>(); if (mr != null) mr.enabled = false; }
             SurfSpot = new Vector3(C.x + 14f, 0.3f, C.z - 8.6f);
             // ③ 승마·카트 체험장: 타이어 벽 타원 트랙 + 카트 + 조랑말
             var tire = Lit(new Color(0.12f, 0.12f, 0.14f)); var tireR = Lit(new Color(0.90f, 0.20f, 0.22f));
@@ -288,8 +306,8 @@ namespace CoastRun.Village
             Sign(t, new Vector3(C.x + 38f, 2.4f, C.z + 26.2f), 180f, "승마·전동카트 체험장", "Riding & E-kart Park", new Color(0.70f, 0.35f, 0.25f), 4.2f, 0.7f);
             TrackSpot = new Vector3(C.x + 38f, 0.3f, C.z + 25f);
             // ④ 테디베어 박물관 + 포토존(큰 곰)
-            Teddy = VillageHouses.Build(t, new Vector3(C.x - 36f, 0.3f, C.z + 32f), 180f, VillageHouses.Style.Pastel, "테디베어 박물관", "Teddy Bear Museum", new Color(0.98f, 0.90f, 0.82f), new Color(0.62f, 0.40f, 0.26f), 1.0f);
-            if (Teddy != null) VillageWorld.Reg(Teddy, "테디베어 박물관");
+            Teddy = VillageHouses.Build(t, new Vector3(C.x - 36f, 0.3f, C.z + 32f), 180f, VillageHouses.Style.Pastel, "테디곰 박물관", "Teddy Cub Museum", new Color(0.98f, 0.90f, 0.82f), new Color(0.62f, 0.40f, 0.26f), 1.0f);
+            if (Teddy != null) VillageWorld.Reg(Teddy, "테디곰 박물관");
             var bear = new GameObject("GiantTeddy").transform; bear.SetParent(t, false); bear.position = new Vector3(C.x - 28f, 0.3f, C.z + 24f);
             var fur = Lit(new Color(0.72f, 0.50f, 0.32f)); var furL = Lit(new Color(0.92f, 0.78f, 0.60f)); var eye = Lit(new Color(0.08f, 0.06f, 0.06f));
             Prim(bear, PrimitiveType.Sphere, "TeddyBody", bear.position + new Vector3(0f, 1.1f, 0f), new Vector3(1.9f, 2.0f, 1.6f), fur, true);
@@ -298,12 +316,12 @@ namespace CoastRun.Village
             for (int s = -1; s <= 1; s += 2)
             {
                 Prim(bear, PrimitiveType.Sphere, "TeddyEar", bear.position + new Vector3(s * 0.6f, 3.2f, 0f), new Vector3(0.5f, 0.5f, 0.3f), fur);
-                Prim(bear, PrimitiveType.Sphere, "TeddyEye", bear.position + new Vector3(s * 0.28f, 2.7f, -0.62f), new Vector3(0.14f, 0.16f, 0.08f), eye);
+                Prim(bear, PrimitiveType.Sphere, "TeddyEye", bear.position + new Vector3(s * 0.28f, 2.72f, -0.64f), new Vector3(0.16f, 0.19f, 0.10f), eye);   /* 210차: 눈이 머리 공 속에 묻혀 곰이 뒷모습처럼 보였다 → 앞으로 */
                 Prim(bear, PrimitiveType.Sphere, "TeddyArm", bear.position + new Vector3(s * 1.0f, 1.4f, -0.2f), new Vector3(0.55f, 1.1f, 0.55f), fur);
                 Prim(bear, PrimitiveType.Sphere, "TeddyLeg", bear.position + new Vector3(s * 0.55f, 0.35f, -0.35f), new Vector3(0.65f, 0.55f, 0.9f), fur);
             }
-            Prim(bear, PrimitiveType.Sphere, "TeddySnout", bear.position + new Vector3(0f, 2.45f, -0.62f), new Vector3(0.5f, 0.38f, 0.3f), furL);
-            Prim(bear, PrimitiveType.Sphere, "TeddyNose", bear.position + new Vector3(0f, 2.52f, -0.78f), new Vector3(0.16f, 0.11f, 0.08f), eye);
+            Prim(bear, PrimitiveType.Sphere, "TeddySnout", bear.position + new Vector3(0f, 2.42f, -0.66f), new Vector3(0.55f, 0.42f, 0.34f), furL);
+            Prim(bear, PrimitiveType.Sphere, "TeddyNose", bear.position + new Vector3(0f, 2.5f, -0.83f), new Vector3(0.18f, 0.13f, 0.1f), eye);
             var frame = Lit(new Color(1f, 0.55f, 0.70f));
             Box(t, "PhotoFrameTop", new Vector3(C.x - 28f, 4.1f, C.z + 23.2f), new Vector3(3.4f, 0.25f, 0.15f), frame); for (int s = -1; s <= 1; s += 2) Box(t, "PhotoFrameSide", new Vector3(C.x - 28f + s * 1.7f, 2.0f, C.z + 23.2f), new Vector3(0.25f, 4.2f, 0.15f), frame);
             Sign(t, new Vector3(C.x - 28f, 4.6f, C.z + 23.1f), 180f, "포토존", "Photo zone", new Color(0.95f, 0.45f, 0.60f), 2.4f, 0.55f);
@@ -311,6 +329,8 @@ namespace CoastRun.Village
             BuildingOutline.Attach(bear, 0.02f);
         }
 
+        /// 207차: 블렌더 키트 모델의 앞(Blender -Y)을 남쪽(-z)으로 돌리는 각 · 폭포 못 빈 곳(-X)을 폭포 쪽으로
+        internal const float TourYaw = 180f, PoolYaw = 180f;   // Blender -Y → Unity +z 이므로 남쪽을 보게 180°
         static void BuildTour(Transform p, Transform worldRoot)
         {
             var t = new GameObject("Tour").transform; t.SetParent(p, false);
@@ -329,7 +349,13 @@ namespace CoastRun.Village
             var mesh = new Mesh { name = "TourGround", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 }; mesh.SetVertices(verts); mesh.SetColors(cols); mesh.SetTriangles(tris, 0); mesh.RecalculateNormals(); mesh.RecalculateBounds();
             var g = new GameObject("Terrain", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider)); g.transform.SetParent(t, false);
             g.GetComponent<MeshFilter>().sharedMesh = mesh; g.GetComponent<MeshCollider>().sharedMesh = mesh;
+            // 207-2차: 모래 = Firefly 모래 타일(Tex_SandDetail, 6 m 반복) × 기존 정점색(젖은 모래 등). UV 는 월드 x·z
+            var sdTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_SandDetail");
+            if (sdTex != null) { var uvs = new List<Vector2>(verts.Count); foreach (var vv in verts) uvs.Add(new Vector2(vv.x / 6f, vv.z / 6f)); mesh.SetUVs(0, uvs); sand = CoastMaterials.CreateToon(new Color(1.16f, 1.16f, 1.16f), sdTex, 0.02f); }
             g.GetComponent<MeshRenderer>().sharedMaterial = sand;
+            // 207차: 잔디밭이 단색 연두 판 — 마을과 같은 Firefly 잔디 타일(5.5 m 반복)을 입힌다
+            var lawnTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_GrassTile");
+            if (lawnTex != null) { grass = CoastMaterials.CreateToon(new Color(0.78f, 0.90f, 0.74f), lawnTex, 0.02f);   /* 208차: 쨍한 보정 뒤 형광 연두 → 한 톤 낮춤 */ var ls = new Vector2((TourHX * 2f + 20f) / 5.5f, 48f / 5.5f); grass.mainTextureScale = ls; if (grass.HasProperty("_BaseMap")) grass.SetTextureScale("_BaseMap", ls); }
             Grid(t, "TourLawn", new Vector3(C.x, 0f, C.z + 18f), TourHX * 2f + 20f, 48f, 3f, 0.34f, grass);
             // 바다(마을 바다 재질 재사용) — 남쪽
             var seaM = CoastMaterials.CreateUnlit(new Color(0.30f, 0.66f, 0.90f));   // 마을 바다 셰이더는 판 하나로는 안 보여서 단색 반짝 재질
@@ -341,9 +367,9 @@ namespace CoastRun.Village
             Grid(t, "Promenade", new Vector3(C.x, 0f, C.z + 18f), TourHX * 2f - 6f, 4f, 3f, 0.37f, paving);
             Box(t, "Promenade2", new Vector3(C.x, 0.32f, C.z + 8f), new Vector3(4f, 0.04f, 24f), paving);
             // 입구 간판 + 정류장
-            BusShelter(t, TourStop + new Vector3(4f, 0f, 1.5f), 180f, Loc.T("중문관광단지", "Jungmun Resort"));
-            Sign(t, new Vector3(C.x, 3.2f, C.z + 30.08f), 180f, "중문관광단지", "Jungmun Tourist Resort", new Color(0.95f, 0.55f, 0.20f), 6f, 1.1f);
-            Sign(t, new Vector3(C.x, 3.2f, C.z + 29.92f), 0f, "어서 오세요 · 중문관광단지", "Welcome to Jungmun", new Color(0.95f, 0.55f, 0.20f), 6f, 1.1f);
+            BusShelter(t, TourStop + new Vector3(4f, 0f, 1.5f), 180f, Loc.T("중몬관광단지", "Jungmon Resort"));
+            Sign(t, new Vector3(C.x, 3.2f, C.z + 30.08f), 180f, "중몬관광단지", "Jungmon Tourist Resort", new Color(0.95f, 0.55f, 0.20f), 6f, 1.1f);
+            Sign(t, new Vector3(C.x, 3.2f, C.z + 29.92f), 0f, "어서 오세요 · 중몬관광단지", "Welcome to Jungmon", new Color(0.95f, 0.55f, 0.20f), 6f, 1.1f);
             for (int s = -1; s <= 1; s += 2) Box(t, "GatePost", new Vector3(C.x + s * 3.2f, 1.7f, C.z + 30f), new Vector3(0.4f, 3.4f, 0.4f), Lit(new Color(0.35f, 0.30f, 0.28f)), true);
             // 야자수 가로수
             for (float x = -44f; x <= 44f; x += 8f) { VillageHouses.Palm(t, new Vector3(C.x + x, 0.3f, C.z + 21f), x * 11f, 5f); if (Mathf.Abs(x) > 10f) VillageHouses.Palm(t, new Vector3(C.x + x + 3f, 0.3f, C.z - 3f), x * 7f, 4.6f); }
@@ -354,16 +380,24 @@ namespace CoastRun.Village
                 Box(t, "Hotel", new Vector3(hx, h * 0.5f + 0.3f, hz), new Vector3(10f, h, 7f), Lit(new Color(0.97f, 0.96f, 0.92f)), true);
                 Box(t, "HotelRoof", new Vector3(hx, h + 0.6f, hz), new Vector3(10.6f, 0.8f, 7.6f), Lit(new Color(0.95f, 0.55f, 0.22f)));
                 for (int f = 0; f < (int)(h / 2.2f); f++) Box(t, "HotelWin", new Vector3(hx, 1.6f + f * 2.2f, hz - 3.52f), new Vector3(8f, 0.7f, 0.05f), Lit(new Color(0.55f, 0.78f, 0.95f), 0.5f));
+                // 207차: 흰 상자 → 블렌더 VHotel(발코니 · 모임지붕 · 로비 차양). 높이는 세로 배율로
+                var hm = JejuKit.Spawn("VHotel", t, new Vector3(hx, 0.3f, hz), TourYaw, 1f);
+                if (hm != null) { var sc = hm.transform.localScale; hm.transform.localScale = new Vector3(sc.x, sc.y * h / 12f, sc.z); }
             }
+            if (t.Find("VHotel") != null) foreach (Transform ch in t) if (ch.name == "Hotel" || ch.name == "HotelRoof" || ch.name == "HotelWin") { var mr = ch.GetComponent<MeshRenderer>(); if (mr != null) mr.enabled = false; }
             // ① 색달해변 — 파라솔 · 선베드 · 조개
             TourSpots[0] = new Vector3(C.x - 2f, TourFloor(C.x - 2f, C.z - 12f), C.z - 12f);
             var umb = new[] { new Color(1f, 0.45f, 0.45f), new Color(0.35f, 0.65f, 0.95f), new Color(1f, 0.80f, 0.30f), new Color(0.45f, 0.80f, 0.55f) };
             for (int i = 0; i < 6; i++)
             {
                 var up = new Vector3(C.x - 20f + i * 8f, 0f, C.z - 9f - (i % 2) * 3f); up.y = TourFloor(up.x, up.z);
-                Prim(t, PrimitiveType.Cylinder, "UmbPole", up + Vector3.up * 1.2f, new Vector3(0.08f, 1.2f, 0.08f), Lit(Color.white));
-                var top = Prim(t, PrimitiveType.Sphere, "Umbrella", up + Vector3.up * 2.4f, new Vector3(2.8f, 0.5f, 2.8f), Lit(umb[i % umb.Length]));
-                Box(t, "SunBed", up + new Vector3(1.4f, 0.25f, 0f), new Vector3(0.7f, 0.12f, 1.8f), Lit(Color.white));
+                // 207차: 공 모양 파라솔 · 흰 판 선베드 → 블렌더 줄무늬 파라솔(VParasol_A/B/C) · 나무 선베드(VSunbed)
+                if (JejuKit.Spawn("VParasol_" + "ABC"[i % 3], t, up, i * 37f, 1f) == null)
+                {
+                    Prim(t, PrimitiveType.Cylinder, "UmbPole", up + Vector3.up * 1.2f, new Vector3(0.08f, 1.2f, 0.08f), Lit(Color.white));
+                    Prim(t, PrimitiveType.Sphere, "Umbrella", up + Vector3.up * 2.4f, new Vector3(2.8f, 0.5f, 2.8f), Lit(umb[i % umb.Length]));
+                }
+                if (JejuKit.Spawn("VSunbed", t, up + new Vector3(1.4f, 0f, 0f), 180f + TourYaw, 1f) == null) Box(t, "SunBed", up + new Vector3(1.4f, 0.25f, 0f), new Vector3(0.7f, 0.12f, 1.8f), Lit(Color.white));
             }
             var shellM = Lit(new Color(1f, 0.85f, 0.80f), 0.4f);
             for (int i = 0; i < 10; i++)
@@ -392,7 +426,10 @@ namespace CoastRun.Village
             for (int s = -1; s <= 1; s += 2) Box(t, "DeckRail", new Vector3(C.x + 28f + s * 4f, 0.95f, C.z - 12f), new Vector3(0.08f, 0.08f, 6f), deck, true);
             Box(t, "DeckRailS", new Vector3(C.x + 28f, 0.95f, C.z - 15f), new Vector3(8f, 0.08f, 0.08f), deck, true);
             for (int k = 0; k < 7; k++) Box(t, "DeckPost", new Vector3(C.x + 24f + k * 1.33f, 0.8f, C.z - 15f), new Vector3(0.08f, 0.5f, 0.08f), deck);
-            Sign(t, new Vector3(C.x + 28f, 2.2f, C.z - 8.6f), 180f, "주상절리대", "Jusangjeolli Cliffs", new Color(0.30f, 0.32f, 0.36f), 3.2f, 0.7f);
+            // 207차: 판 하나 데크 → 블렌더 널빤지 데크(VDeck, 난간은 동·서·남). 상자는 충돌만
+            if (JejuKit.Spawn("VDeck", t, new Vector3(C.x + 28f, 0.53f, C.z - 12f), TourYaw, 1f) != null)
+                foreach (Transform ch in t) if (ch.name == "Deck" || ch.name == "DeckRail" || ch.name == "DeckRailS" || ch.name == "DeckPost") { var mr = ch.GetComponent<MeshRenderer>(); if (mr != null) mr.enabled = false; }
+            Sign(t, new Vector3(C.x + 28f, 2.2f, C.z - 8.6f), 180f, "주상절벽대", "Jusang Pillar Cliffs", new Color(0.45f, 0.47f, 0.54f), 3.2f, 0.7f);
             TourSpots[1] = new Vector3(C.x + 28f, 0.65f, C.z - 12f);
             // ③ 천제연 폭포(서쪽) — 절벽 · 흐르는 물줄기 · 못 · 선녀 다리
             var rock = Lit(new Color(0.36f, 0.34f, 0.32f)); var moss = Lit(new Color(0.35f, 0.55f, 0.30f));
@@ -413,13 +450,15 @@ namespace CoastRun.Village
             float poolX = fx0 + 5.2f;
             fall.GetComponent<MeshRenderer>().sharedMaterial = fallM; fall.AddComponent<ScrollUV>();
             Prim(t, PrimitiveType.Cylinder, "FallsPool", new Vector3(poolX, 0.32f, C.z + 2f), new Vector3(9f, 0.03f, 9f), Lit(new Color(0.35f, 0.70f, 0.80f), 0.7f));
-            Prim(t, PrimitiveType.Cylinder, "FallsRim", new Vector3(poolX, 0.2f, C.z + 2f), new Vector3(9.6f, 0.2f, 9.6f), rock, true);
+            var rim = Prim(t, PrimitiveType.Cylinder, "FallsRim", new Vector3(poolX, 0.2f, C.z + 2f), new Vector3(9.6f, 0.2f, 9.6f), rock, true);
+            // 207차: 못 둘레 = 이끼 낀 현무암 테(VFallsPool, 폭포 쪽 -X 는 비움). 회색 원판 테는 충돌만
+            if (JejuKit.Spawn("VFallsPool", t, new Vector3(poolX, 0.3f, C.z + 2f), PoolYaw, 1f) != null) rim.GetComponent<MeshRenderer>().enabled = false;
             for (int i = 0; i < 10; i++)
             {
                 float a = i / 9f * Mathf.PI; var bp = new Vector3(poolX + Mathf.Cos(a) * 5.5f, 1.0f + Mathf.Sin(a) * 1.6f, C.z + 9f);
                 Box(t, "Seonimgyo", bp, new Vector3(1.2f, 0.18f, 1.6f), Lit(new Color(0.85f, 0.25f, 0.22f)), false, 0f);
             }
-            Sign(t, new Vector3(poolX + 6.5f, 2.2f, C.z + 2f), -90f, "천제연 폭포", "Cheonjeyeon Falls", new Color(0.25f, 0.50f, 0.45f), 3.2f, 0.7f);
+            Sign(t, new Vector3(poolX + 6.5f, 2.2f, C.z + 2f), -90f, "천재연 폭포", "Cheonjaeyeon Falls", new Color(0.25f, 0.50f, 0.45f), 3.2f, 0.7f);
             TourSpots[2] = new Vector3(poolX + 7f, 0.3f, C.z + 2f);
             // ④ 식물원(유리 온실 돔)
             var glassTex = new Texture2D(2, 2); glassTex.SetPixels(new[] { Color.white, Color.white, Color.white, Color.white }); glassTex.Apply();
@@ -428,8 +467,11 @@ namespace CoastRun.Village
             dome.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateTexturedTransparent(glassTex, new Color(0.75f, 0.92f, 1f, 0.45f));
             for (int i = 0; i < 8; i++) { var rib = Prim(t, PrimitiveType.Cylinder, "DomeRib", dome.transform.position + Vector3.up * 3f, new Vector3(0.12f, 6.2f, 0.12f), Lit(Color.white)); rib.transform.rotation = Quaternion.Euler(0f, i * 22.5f, 90f); }
             Box(t, "GreenhouseCol", new Vector3(C.x - 18f, 3f, C.z + 30f), new Vector3(9f, 6f, 9f), Lit(Color.white), true).GetComponent<MeshRenderer>().enabled = false;
+            // 207차: 거의 안 보이던 투명 공 돔 → 블렌더 온실(흰 뼈대 · 유리 · 현관은 남쪽 간판 쪽)
+            if (JejuKit.Spawn("VGreenhouse", t, new Vector3(C.x - 18f, 0.3f, C.z + 30f), TourYaw, 1f) != null)
+                foreach (Transform ch in t) if (ch.name == "GreenhouseDome" || ch.name == "DomeRib") { var mr = ch.GetComponent<MeshRenderer>(); if (mr != null) mr.enabled = false; }
             for (int i = 0; i < 4; i++) VillageHouses.Palm(t, new Vector3(C.x - 20f + (i % 2) * 4f, 0.3f, C.z + 28f + (i / 2) * 4f), i * 80f, 3.6f);
-            Sign(t, new Vector3(C.x - 18f, 2.2f, C.z + 23.4f), 180f, "여미지 식물원", "Yeomiji Botanical Garden", new Color(0.30f, 0.62f, 0.40f), 3.4f, 0.7f);
+            Sign(t, new Vector3(C.x - 18f, 2.2f, C.z + 22.4f), 180f, "여미니 식물원", "Yeomini Botanical Garden", new Color(0.30f, 0.62f, 0.40f), 3.4f, 0.7f);
             TourSpots[3] = new Vector3(C.x - 18f, 0.3f, C.z + 22f);
             // ⑤ 호텔 정원 벤치(쉬기)
             VillageWorld.SpawnScaled("Prop_Bench", t, C.x + 22f, C.z + 25f, 180f, 0.9f); VillageWorld.SpawnScaled("Prop_Bench", t, C.x + 27f, C.z + 25f, 180f, 0.9f);
@@ -438,7 +480,7 @@ namespace CoastRun.Village
             VillageWorld.SpawnScaled("Prop_Hareubang", t, C.x - 5f, C.z + 30f, 180f, 1.8f); VillageWorld.SpawnScaled("Prop_Hareubang", t, C.x + 5f, C.z + 30f, 180f, 1.8f);
             var stoneTex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_Stone");
             var stoneM = stoneTex != null ? ArtAssets.CreateTexturedLit(stoneTex, new Color(0.92f, 0.90f, 0.86f), 0.02f) : Lit(new Color(0.40f, 0.40f, 0.42f));
-            for (float x = -44f; x <= 44f; x += 1.6f) { if (Mathf.Abs(x) < 4f) continue; var sw = VillageWorld.SpawnScaled("Prop_StoneWall", t, C.x + x, C.z + 15.6f, 90f, 1.0f); if (sw != null) foreach (var r in sw.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k2 = 0; k2 < arr.Length; k2++) arr[k2] = stoneM; r.sharedMaterials = arr; } }
+            for (int wk = 0; wk < 14; wk++) { float x = (wk % 2 == 0 ? 1f : -1f) * (6f + (wk / 2) * 6f); var sw = VillageWorld.SpawnScaled("Prop_StoneWall", t, C.x + x, C.z + 15.6f, 90f, 1.0f); /* 207차: 6 m 담을 1.6 m 마다 겹쳐 놓던 것 → 6 m 간격(가운데 입구 6 m 비움) */ if (sw != null) foreach (var r in sw.GetComponentsInChildren<Renderer>()) { var arr = r.sharedMaterials; for (int k2 = 0; k2 < arr.Length; k2++) arr[k2] = VillageWorld.BatdamMat; r.sharedMaterials = arr; } }
             var rngF = new System.Random(19); var yellowF = Lit(new Color(1f, 0.86f, 0.2f)); var pinkF = Lit(new Color(1f, 0.55f, 0.72f)); var stem = Lit(new Color(0.35f, 0.62f, 0.30f));
             for (int i = 0; i < 160; i++)
             {
@@ -457,7 +499,7 @@ namespace CoastRun.Village
             Wall(t, new Vector3(C.x, 3f, C.z + TourHZ - 4f), new Vector3(TourHX * 2f, 8f, 1f));
             Wall(t, new Vector3(C.x, 3f, C.z - 28f), new Vector3(TourHX * 2f, 8f, 1f));
             Wall(t, new Vector3(C.x + TourHX, 3f, C.z), new Vector3(1f, 8f, TourHZ * 2f)); Wall(t, new Vector3(C.x - TourHX + 6f, 3f, C.z), new Vector3(1f, 8f, TourHZ * 2f));
-            foreach (Transform ch in t) if (ch.name == "Hotel" || ch.name == "Deck" || ch.name == "BusShelter" || ch.name.StartsWith("House_")) BuildingOutline.Attach(ch, 0.02f);
+            foreach (Transform ch in t) if (ch.name == "Hotel" || ch.name == "Deck" || ch.name == "VHotel" || ch.name == "VDeck" || ch.name == "BusShelter" || ch.name.StartsWith("House_")) BuildingOutline.Attach(ch, 0.02f);
         }
 
         /// 육각 기둥(높이 1, 반지름 0.5, 바닥 y 0)
@@ -485,7 +527,7 @@ namespace CoastRun.Village
             var ftex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_CaveFloor");
             if (ftex != null)
             {
-                var fm = CoastMaterials.CreateToon(new Color(0.96f, 0.92f, 0.88f), ftex, 0.04f); var sc = new Vector2((MineHX * 2f + 8f) / 7f, (MineHZ * 2f + 8f) / 7f);
+                var fm = CoastMaterials.CreateToon(new Color(0.78f, 0.78f, 0.88f), ftex, 0.04f);   /* 209차 */ var sc = new Vector2((MineHX * 2f + 8f) / 7f, (MineHZ * 2f + 8f) / 7f);
                 fm.mainTextureScale = sc; if (fm.HasProperty("_BaseMap")) fm.SetTextureScale("_BaseMap", sc);
                 Grid(m, "MineFloorTex", C, MineHX * 2f + 8f, MineHZ * 2f + 8f, 2f, 0.015f, fm);   // 얇은 상자는 흙 격자와 겹쳐 안 보였다 → 같은 격자 한 장을 1.5 cm 위에
             }   // 아래를 보는 천장 — 위(카메라가 천장 위로 갈 때)에서는 안 보인다
@@ -646,14 +688,17 @@ namespace CoastRun.Village
             var w = root.gameObject.AddComponent<Walker>(); w._range = xRange; w._z = z; w._seed = seed; w._target = pos.x; w._wait = seed % 3;
             return w;
         }
+        float _v, _vVel;
         void Update()
         {
-            var p = transform.position;
-            if (_wait > 0f) { _wait -= Time.deltaTime; return; }
-            float d = _target - p.x;
-            if (Mathf.Abs(d) < 0.2f) { _target = Random.Range(_range.x, _range.y); _wait = Random.Range(1f, 4f); return; }
-            float step = Mathf.Sign(d) * 1.1f * Time.deltaTime; p.x += step; p.z = _z; p.y = VillageWorld.Height(p.x, p.z);
-            transform.position = p; transform.rotation = Quaternion.LookRotation(new Vector3(Mathf.Sign(d), 0f, 0f));
+            // 208차(사용자: 「모션 부드러움」): 딱 서고 딱 출발 · 180° 한 번에 돌던 것 → 속도는 SmoothDamp, 몸은 스르륵 회전
+            var p = transform.position; float dt = Time.deltaTime; float want = 0f; float d = _target - p.x;
+            if (_wait > 0f) _wait -= dt;
+            else if (Mathf.Abs(d) < 0.2f) { _target = Random.Range(_range.x, _range.y); _wait = Random.Range(1f, 4f); }
+            else want = Mathf.Sign(d) * 1.1f;
+            _v = Mathf.SmoothDamp(_v, want, ref _vVel, 0.35f, 10f, dt);
+            p.x += _v * dt; p.z = _z; p.y = VillageWorld.Height(p.x, p.z); transform.position = p;
+            if (want != 0f) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(new Vector3(Mathf.Sign(want), 0f, 0f)), 1f - Mathf.Exp(-dt * 7f));
         }
     }
 }

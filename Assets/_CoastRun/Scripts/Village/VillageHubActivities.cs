@@ -9,10 +9,10 @@ namespace CoastRun.Village
     {
         void AddActivitySpots()
         {
-            _spots.Add(new Spot { id = "marina", title = Loc.T("⛵ 중문 마리나 · 요트 / 제트스키", "⛵ Jungmun Marina · Yacht / Jet ski"), pos = VillageZones.MarinaSpot, radius = 3f, on = MarinaMenu });
+            _spots.Add(new Spot { id = "marina", title = Loc.T("⛵ 중몬 마리나 · 요트 / 제트스키", "⛵ Jungmon Marina · Yacht / Jet ski"), pos = VillageZones.MarinaSpot, radius = 3f, on = MarinaMenu });
             _spots.Add(new Spot { id = "surf", title = Loc.T("서핑 숍 · 보드 빌리기", "Surf shop · Rent a board"), pos = VillageZones.SurfSpot, radius = 3f, on = SurfMenu });
             _spots.Add(new Spot { id = "track", title = Loc.T("승마·전동카트 체험장", "Riding & E-kart park"), pos = VillageZones.TrackSpot, radius = 3.2f, on = TrackMenu });
-            _spots.Add(new Spot { id = "photo", title = Loc.T("테디베어 포토존 · 기념사진", "Teddy photo zone"), pos = VillageZones.PhotoSpot, radius = 2.6f, on = PhotoZone });
+            _spots.Add(new Spot { id = "photo", title = Loc.T("테디곰 포토존 · 기념사진", "Teddy photo zone"), pos = VillageZones.PhotoSpot, radius = 2.6f, on = PhotoZone });
         }
 
         int ActStamp => Save.week * 4 + Save.phaseIndex;
@@ -31,13 +31,13 @@ namespace CoastRun.Village
         void MarinaMenu()
         {
             if (Save == null) return;
-            _hud.Choice(Loc.T("⛵ 중문 마리나", "⛵ Jungmun Marina"), Loc.T("요트로 돌고래를 찾거나, 제트스키로 부표 사이를 달리자.", "Look for dolphins on a yacht, or race the buoys on a jet ski."),
+            _hud.Choice(Loc.T("⛵ 중몬 마리나", "⛵ Jungmon Marina"), Loc.T("요트로 돌고래를 찾거나, 제트스키로 부표 사이를 달리자.", "Look for dolphins on a yacht, or race the buoys on a jet ski."),
                 new (string, Color, Action)[] { ActItem(JejuActivity.Kind.Yacht, new Color(0.35f, 0.62f, 0.95f)), ActItem(JejuActivity.Kind.Jetski, new Color(1f, 0.60f, 0.25f)), (Loc.T("다음에", "Later"), new Color(0.6f, 0.6f, 0.66f), null) });
         }
         void SurfMenu()
         {
             if (Save == null) return;
-            _hud.Choice(Loc.T("색달해변 서핑 숍", "Saekdal surf shop"), Loc.T("보드 빌려서 파도 한번 타 볼래?", "Rent a board and catch a wave?"),
+            _hud.Choice(Loc.T("색동해변 서핑 숍", "Saekdong surf shop"), Loc.T("보드 빌려서 파도 한번 타 볼래?", "Rent a board and catch a wave?"),
                 new (string, Color, Action)[] { ActItem(JejuActivity.Kind.Surf, new Color(0.30f, 0.75f, 0.90f)), (Loc.T("다음에", "Later"), new Color(0.6f, 0.6f, 0.66f), null) });
         }
         void TrackMenu()
@@ -82,7 +82,7 @@ namespace CoastRun.Village
                 MissionTick(VillageMission.Kind.TourPhoto); _gm.Persist(); RefreshStatus();
                 StartCoroutine(PhotoFlash(pose));
             }
-            _hud.Choice(Loc.T("테디베어 포토존", "Teddy photo zone"), Loc.T("커다란 곰 인형 옆에서 한 장! 포즈는?", "A shot with the giant teddy! Pose?"),
+            _hud.Choice(Loc.T("테디곰 포토존", "Teddy photo zone"), Loc.T("커다란 곰 인형 옆에서 한 장! 포즈는?", "A shot with the giant teddy! Pose?"),
                 new (string, Color, Action)[] {
                     (Loc.T("✌ 브이", "✌ Peace"), new Color(1f, 0.62f, 0.72f), () => Shoot("✌")),
                     (Loc.T("곰 안기", "Hug the bear"), new Color(0.85f, 0.62f, 0.45f), () => Shoot("♡")),
@@ -107,7 +107,7 @@ namespace CoastRun.Village
             if (Save == null) return;
             if (Save.actStamp == null || Save.actStamp.Length < 7) { var a = new int[7]; if (Save.actStamp != null) Array.Copy(Save.actStamp, a, Mathf.Min(a.Length, Save.actStamp.Length)); Save.actStamp = a; }
             bool seen = Save.actStamp[6] == ActStamp;
-            _hud.Choice(Loc.T("테디베어 박물관", "Teddy Bear Museum"), Loc.T("세계 여러 나라 곰 인형과 제주 해녀 곰이 있어요.", "Bears from around the world — and a haenyeo bear."),
+            _hud.Choice(Loc.T("테디곰 박물관", "Teddy Cub Museum"), Loc.T("세계 여러 나라 곰 인형과 제주 해녀 곰이 있어요.", "Bears from around the world — and a haenyeo bear."),
                 new (string, Color, Action)[] {
                     (seen ? Loc.T("관람 — 이번 턴엔 봤어", "Tour — done this turn") : Loc.T("관람하기 · 80G (스트레스 −10)", "Take the tour · 80G (stress −10)"), seen ? new Color(0.62f, 0.62f, 0.66f) : new Color(0.85f, 0.62f, 0.45f), () =>
                     {

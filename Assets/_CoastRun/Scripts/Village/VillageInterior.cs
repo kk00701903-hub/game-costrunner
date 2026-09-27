@@ -52,12 +52,25 @@ namespace CoastRun.Village
         {
             var floor = new Color(0.86f, 0.70f, 0.50f); var floorD = new Color(0.78f, 0.62f, 0.44f);
             Box("Floor", new Vector3(0f, -0.1f, 0f), new Vector3(RW, 0.2f, RD), floor);
+            // 210차(사용자: 「다른 지역도 가보고 테스트」): 방 앞(카메라 쪽)이 비어 화면 아래 절반이 하늘색 빈 배경이었다 → 같은 바닥을 카메라 쪽으로 9 m 이어 깔고 문턱선
+            Box("Floor", new Vector3(0f, -0.11f, -RD * 0.5f - 9f), new Vector3(RW + 14f, 0.2f, 18f), floor);
+            Box("Threshold", new Vector3(0f, 0.005f, -RD * 0.5f), new Vector3(RW, 0.012f, 0.12f), floorD);
             for (float x = -RW * 0.5f + 0.5f; x < RW * 0.5f; x += 1f) Box("Plank", new Vector3(x, 0.001f, 0f), new Vector3(0.03f, 0.01f, RD), floorD);
             // 벽 3면(남쪽 열림) + 굽도리
             Box("WallN", new Vector3(0f, WallH * 0.5f, RD * 0.5f), new Vector3(RW, WallH, 0.2f), wall, true);
             Box("WallW", new Vector3(-RW * 0.5f, WallH * 0.5f, 0f), new Vector3(0.2f, WallH, RD), wall, true);
             Box("WallE", new Vector3(RW * 0.5f, WallH * 0.5f, 0f), new Vector3(0.2f, WallH, RD), wall, true);
             Box("Skirt", new Vector3(0f, 0.12f, RD * 0.5f - 0.12f), new Vector3(RW, 0.24f, 0.06f), Color.Lerp(wall, Color.black, 0.2f));
+            // 213차(사용자: 「단점들 커버해줘」 — 212차 평가: 가게·병원 실내에서 벽 위로 하늘이 보여 빈 무대 같았다):
+            // 벽을 위로 6 m 더 올려(조금 어두운 같은 색) 하늘을 가리고, 경계에 몰딩 띠. 남쪽(카메라 쪽)은 그대로 열림.
+            var wallUp = Color.Lerp(accent, new Color(0.35f, 0.28f, 0.30f), 0.45f);   // 방 강조색 쪽으로 — 흰 벽이 허공처럼 보이지 않게
+            Box("WallUpN", new Vector3(0f, WallH + 3f, RD * 0.5f + 0.02f), new Vector3(RW + 0.4f, 6f, 0.2f), wallUp);
+            Box("WallUpW", new Vector3(-RW * 0.5f - 0.02f, WallH + 3f, 0f), new Vector3(0.2f, 6f, RD + 0.4f), wallUp);
+            Box("WallUpE", new Vector3(RW * 0.5f + 0.02f, WallH + 3f, 0f), new Vector3(0.2f, 6f, RD + 0.4f), wallUp);
+            var trim = Color.Lerp(wall, Color.white, 0.55f);
+            Box("Molding", new Vector3(0f, WallH, RD * 0.5f - 0.08f), new Vector3(RW, 0.14f, 0.1f), trim);
+            Box("Molding", new Vector3(-RW * 0.5f + 0.08f, WallH, 0f), new Vector3(0.1f, 0.14f, RD), trim);
+            Box("Molding", new Vector3(RW * 0.5f - 0.08f, WallH, 0f), new Vector3(0.1f, 0.14f, RD), trim);
             // 창(북벽) + 햇빛 사각
             Box("WinFrame", new Vector3(1.6f * KX, 1.7f, RD * 0.5f - 0.12f), new Vector3(1.3f, 1.1f, 0.08f), Color.white);
             Box("Win", new Vector3(1.6f * KX, 1.7f, RD * 0.5f - 0.16f), new Vector3(1.1f, 0.9f, 0.06f), new Color(0.72f, 0.88f, 1f));

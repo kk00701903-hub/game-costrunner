@@ -116,7 +116,7 @@ namespace CoastRun.Village
             Cat("🛍 가게 · 일 · 교통", "🛍 Shops · work · travel", new Color(0.98f, 0.62f, 0.72f), new[] {
                 ("🛍 마을상점 (장보기·팔기)", "🛍 Village shop (buy · sell)", "shop", new Color(0.98f, 0.62f, 0.72f)),
                 ("💼 알바나라", "💼 Job center", "job", new Color(0.62f, 0.55f, 0.90f)),
-                ("🚌 버스 정류장 (시내·중문)", "🚌 Bus stop (city · Jungmun)", "bus", new Color(0.40f, 0.62f, 0.92f)) });
+                ("🚌 버스 정류장 (시내·중몬)", "🚌 Bus stop (city · Jungmon)", "bus", new Color(0.40f, 0.62f, 0.92f)) });
             Cat("🌾 농사 · 목장", "🌾 Farming · ranch", new Color(0.45f, 0.78f, 0.45f), new[] {
                 ("🌱 텃밭", "🌱 Garden", "garden", new Color(0.45f, 0.78f, 0.45f)),
                 ("🐔 농장 (닭·토끼)", "🐔 Farm (hens · rabbits)", "farm", new Color(0.95f, 0.80f, 0.45f)),
@@ -257,6 +257,8 @@ namespace CoastRun.Village
             _autoCo = null; _hud.SetButtonOn("AutoMove", false);
             // 도착 — 그 장소의 행동(들어가기·메뉴)을 바로 연다. 마이룸은 곧장 집 안으로
             _doorCooldown = Time.time + 3f;
+            // 213차: 이야기 빛이 이 장소 앞이면 들어가지 않고 멈춘다 — 꼬마 대사(「여기가 가게야」)가 먼저 나오게
+            if (StoryHoldsDoor(sp.pos)) { var sd = _storyPos - _player.position; sd.y = 0f; if (sd.magnitude > 2.8f) _walkTo = _storyPos; yield break; }
             if (sp.id == "hero" && VillageWorld.HeroHouse != null) EnterHouse(VillageWorld.HeroHouse, Loc.T("우리집", "Our home"), VillageWorld.HeroHouse.TransformPoint(new Vector3(0f, 0f, 3.3f)));
             else sp.on?.Invoke();
         }

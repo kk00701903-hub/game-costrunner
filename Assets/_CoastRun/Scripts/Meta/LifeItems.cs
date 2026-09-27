@@ -197,8 +197,8 @@ namespace CoastRun
             D("honey_jar", "꿀 한 병", "Jar of honey", "벌통에서 뜬 꿀. 유채꽃 철엔 더 많이.", "From my hives.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
             D("jam_tangerine", "귤청", "Tangerine syrup", "감귤 3 + 꿀 1 로 담근 귤청. 비싸게 팔린다.", "3 tangerines + 1 honey.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
 
-            D("souv_choco", "귤 초콜릿", "Tangerine chocolate", "중문 기념품. 선물하면 좋아한다.", "Jungmun souvenir — a nice gift.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
-            D("souv_doll", "하르방 인형", "Hareubang doll", "중문 기념품 인형.", "A souvenir doll.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
+            D("souv_choco", "귤 초콜릿", "Tangerine chocolate", "중몬 기념품. 선물하면 좋아한다.", "Jungmon souvenir — a nice gift.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
+            D("souv_doll", "하르방 인형", "Hareubang doll", "중몬 기념품 인형.", "A souvenir doll.", LifeItemCat.Gather, 0, false, "Icon_Book", null, 0, 0, 0, 0, false, false, false),
             D("gift_snack", "선물 과자 세트", "Gift snack box", "시내 마트 선물용. 누구나 조금은 좋아한다.", "Everyone likes it a little.", LifeItemCat.Gather, 0, false, "UI_Goods_Side", null, 0, 0, 0, 0, false, false, false),
 
             // ── 옷 ──
@@ -206,10 +206,27 @@ namespace CoastRun
                 LifeItemCat.Clothes, Survival.ClothesPrice / EconomyScale.Living, true, "UI_Goods_Shirt", null, 0, 0, 0, 0, false, true, true),
         };
 
+        // 213차(사용자: 「단점들 커버해줘」 — 212차 평가: 상점·가방 아이콘이 거의 다 같은 그릇/책 그림):
+        // 아이템마다 Firefly 로 그린 아이콘(Resources/CoastRun/Items/Item_<id>.png). 이미 있던 그림(토마토·감자 씨앗, 달걀·고기)은 그걸 쓴다.
+        static class Tab213   // 정적 초기화 순서: All 배열이 먼저 만들어지므로 따로 둔 클래스(처음 쓸 때 초기화)
+        {
+        public static readonly System.Collections.Generic.HashSet<string> Gen213 = new System.Collections.Generic.HashSet<string> { "bug_bigbeetle","bug_butterfly","bug_crab","bug_dragonfly","bug_hermit","bug_hornet","bug_ladybug","bug_rare_beetle","bug_rare_butterfly","bug_rare_dragonfly","bug_rare_ladybug","care_book","care_lotion","care_perfume","care_soap","crop_broccoli","crop_cabbage","crop_carrot","crop_corn","crop_pea","crop_pepper","crop_pumpkin","crop_radish","crop_rice","crop_spinach","crop_strawberry","crop_sweetpotato","crop_watermelon","dish_bento","dish_cake","dish_egg","dish_fish","dish_meat","dish_milk","dish_premium_stew","dish_rice","dish_soup","dish_veg","fish_0","fish_1","fish_2","fish_3","fish_4","flower_lavender","flower_rose","fossil_ammonite","fossil_fern","fossil_shark","fossil_trilobite","fruit_hallabong","fruit_tangerine","gath_coconut","gath_mushroom","gath_shell","gem_amethyst","gem_jade","gem_ruby","gift_snack","honey_jar","ing_egg_gold","ing_fish","ing_milk","ing_rice","ing_spice","ing_veg","jam_tangerine","mat_stone","mat_wood","med_cold","med_energy","med_stomach","med_vitamin","ore_gold","ore_iron","ore_silver","souv_choco","souv_doll","trophy_ribbon" };
+        public static readonly System.Collections.Generic.Dictionary<string, string> Reuse213 = new System.Collections.Generic.Dictionary<string, string>
+        {
+            { "crop_tomato", "Textures/Village/UI_Seed_Tomato" }, { "crop_potato", "Textures/Village/UI_Seed_Potato" },
+            { "ing_egg", "Textures/Village/UI_Farm_Egg" }, { "ing_meat", "Textures/Village/UI_Farm_Meat" },
+        };
+        }
+        static string Art213(string id, string old)
+        {
+            if (Tab213.Reuse213.TryGetValue(id, out var a)) return a;
+            return Tab213.Gen213.Contains(id) ? "Items/Item_" + id : old;
+        }
         private static LifeItemDef D(string id, string ko, string en, string bk, string be,
             LifeItemCat cat, int price, bool shop, string art, string cookTo,
             int hunger, int condition, int stress, int stamina, bool edible, bool usable, bool clothes)
         {
+            art = Art213(id, art);
             return new LifeItemDef
             {
                 id = id, nameKo = ko, nameEn = en, blurbKo = bk, blurbEn = be,

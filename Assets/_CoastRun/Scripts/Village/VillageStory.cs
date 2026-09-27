@@ -102,6 +102,7 @@ namespace CoastRun.Village
             foreach (var f in Frags)
             {
                 if (Seen(f, save)) continue;
+                if (save.bond214 < VillageHub.FragBond(f.index)) continue;   // 214차: 꼬마와의 약속으로 쌓은 인연이 모자라면 아직 안 보인다
                 var a = System.Array.Find(Order, o => o.id == f.after);
                 if (a != null && Seen(a, save)) return f;
             }

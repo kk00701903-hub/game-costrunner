@@ -79,11 +79,11 @@ namespace CoastRun.Village
             SkyTintR = sky.r; SkyTintG = sky.g; SkyTintB = sky.b;
             if (_ca != null)
             {
-                _ca.postExposure.Override(-0.55f * night + 0.05f * dusk);
+                _ca.postExposure.Override(0.04f * day - 0.55f * night + 0.05f * dusk);
                 _ca.colorFilter.Override(new Color(1f, 0.99f, 0.965f) * (day + dawn) + new Color(1f, 0.90f, 0.82f) * dusk + new Color(0.72f, 0.78f, 1f) * night);
-                _ca.saturation.Override(4f * day + 8f * dusk - 6f * night);
+                _ca.saturation.Override(12f * day + 16f * dusk + 8f * dawn - 6f * night);   // 208차: 낮 채도 4 → 14(쨍하게)
             }
-            if (_vig != null) _vig.intensity.Override(0.13f + 0.22f * night);
+            if (_vig != null) _vig.intensity.Override(0.06f + 0.26f * night);
             float lamp = Mathf.Clamp01(night * 1.2f + dusk * 0.6f);
             for (int i = 0; i < _lamps.Count; i++) _lamps[i].intensity = 2.6f * lamp;
             var lm = lamp > 0.3f ? _lampOn : _lampOff; foreach (var h in _lampHeads) if (h != null && h.sharedMaterial != lm) h.sharedMaterial = lm;

@@ -212,30 +212,32 @@ namespace CoastRun
         }
 
         // ── 베란다 화분 ──
+        // 213차(사용자: 「단점들 커버해줘」 — 212차 평가: 씨값 > 수확 가치라 심을수록 손해): 씨값 ≈ 판매가 × 수확량 × 0.55 로 내림.
+        //   ★1 이면 조금 남고 ★3(비료 + 물 안 빼먹기)이면 씨값의 2.5~3배. 판매가(VillageLand.Prices)는 그대로.
         public static readonly SeedDef[] Seeds =
         {
-            new SeedDef { id = "tomato",   ko = "토마토",  en = "Tomato",   price = 1000, weeks = 2, chance = 0.70f, food = 2, petal = new Color(0.95f, 0.25f, 0.20f), center = new Color(0.40f, 0.70f, 0.35f), emoji = "🍅", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
-            new SeedDef { id = "potato",   ko = "감자",    en = "Potato",   price = 900, weeks = 3, chance = 0.80f, food = 3, petal = new Color(0.82f, 0.66f, 0.38f), center = new Color(0.45f, 0.70f, 0.35f), emoji = "🥔", growHintKo = "성장 3-4분", growHintEn = "grow 3-4m" },
-            new SeedDef { id = "rice",     ko = "벼",      en = "Rice",     price = 1000, weeks = 3, chance = 0.50f, rice = 2, petal = new Color(0.90f, 0.80f, 0.35f), center = new Color(0.55f, 0.75f, 0.30f), emoji = "🌾", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
-            new SeedDef { id = "rose",     ko = "장미",    en = "Rose",     price = 900, weeks = 2, chance = 0.60f, rose = true, petal = new Color(0.98f, 0.45f, 0.62f), center = new Color(0.35f, 0.60f, 0.30f), emoji = "🌹", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
-            new SeedDef { id = "lavender", ko = "라벤더",  en = "Lavender", price = 800, weeks = 2, chance = 0.40f, food = 1, petal = new Color(0.72f, 0.55f, 0.92f), center = new Color(0.40f, 0.68f, 0.40f), emoji = "💜", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
+            new SeedDef { id = "tomato",   ko = "토마토",  en = "Tomato",   price = 170, weeks = 2, chance = 0.70f, food = 2, petal = new Color(0.95f, 0.25f, 0.20f), center = new Color(0.40f, 0.70f, 0.35f), emoji = "🍅", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
+            new SeedDef { id = "potato",   ko = "감자",    en = "Potato",   price = 190, weeks = 3, chance = 0.80f, food = 3, petal = new Color(0.82f, 0.66f, 0.38f), center = new Color(0.45f, 0.70f, 0.35f), emoji = "🥔", growHintKo = "성장 3-4분", growHintEn = "grow 3-4m" },
+            new SeedDef { id = "rice",     ko = "벼",      en = "Rice",     price = 300, weeks = 3, chance = 0.50f, rice = 2, petal = new Color(0.90f, 0.80f, 0.35f), center = new Color(0.55f, 0.75f, 0.30f), emoji = "🌾", growHintKo = "성장 2-3분", growHintEn = "grow 2-3m" },
+            new SeedDef { id = "rose",     ko = "장미",    en = "Rose",     price = 300, weeks = 2, chance = 0.60f, rose = true, petal = new Color(0.98f, 0.45f, 0.62f), center = new Color(0.35f, 0.60f, 0.30f), emoji = "🌹", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
+            new SeedDef { id = "lavender", ko = "라벤더",  en = "Lavender", price = 250, weeks = 2, chance = 0.40f, food = 1, petal = new Color(0.72f, 0.55f, 0.92f), center = new Color(0.40f, 0.68f, 0.40f), emoji = "💜", growHintKo = "성장 1-2분", growHintEn = "grow 1-2m" },
         };
         // 205차(사용자: 「농사 확장 — 계절 씨앗」): 마을 텃밭 전용 계절 작물(베란다 화분 목록은 그대로). 수확물 = crop_<id>.
         static Color C(float r, float g, float b) => new Color(r, g, b);
         public static readonly SeedDef[] SeasonSeeds =
         {
-            new SeedDef { id = "strawberry", ko = "딸기", en = "Strawberry", price = 700, weeks = 2, chance = 1f, food = 2, season = 0, sell = 140, petal = C(0.95f, 0.22f, 0.30f), center = C(0.40f, 0.70f, 0.35f), emoji = "🍓" },
-            new SeedDef { id = "cabbage", ko = "양배추", en = "Cabbage", price = 500, weeks = 2, chance = 1f, food = 3, season = 0, sell = 90, petal = C(0.70f, 0.90f, 0.55f), center = C(0.45f, 0.72f, 0.35f), emoji = "🥬" },
-            new SeedDef { id = "pea", ko = "완두콩", en = "Pea", price = 400, weeks = 1, chance = 1f, food = 1, season = 0, sell = 55, petal = C(0.55f, 0.85f, 0.40f), center = C(0.40f, 0.70f, 0.35f), emoji = "🫛" },
-            new SeedDef { id = "corn", ko = "옥수수", en = "Corn", price = 600, weeks = 2, chance = 1f, food = 2, season = 1, sell = 110, petal = C(1.00f, 0.85f, 0.25f), center = C(0.45f, 0.70f, 0.30f), emoji = "🌽" },
-            new SeedDef { id = "watermelon", ko = "수박", en = "Watermelon", price = 1100, weeks = 3, chance = 1f, food = 3, season = 1, sell = 260, petal = C(0.25f, 0.60f, 0.25f), center = C(0.45f, 0.72f, 0.35f), emoji = "🍉" },
-            new SeedDef { id = "pepper", ko = "고추", en = "Chili", price = 450, weeks = 1, chance = 1f, food = 1, season = 1, sell = 60, petal = C(0.90f, 0.15f, 0.12f), center = C(0.40f, 0.68f, 0.30f), emoji = "🌶" },
-            new SeedDef { id = "sweetpotato", ko = "고구마", en = "Sweet potato", price = 600, weeks = 2, chance = 1f, food = 3, season = 2, sell = 115, petal = C(0.70f, 0.30f, 0.45f), center = C(0.45f, 0.70f, 0.35f), emoji = "🍠" },
-            new SeedDef { id = "pumpkin", ko = "호박", en = "Pumpkin", price = 1000, weeks = 3, chance = 1f, food = 3, season = 2, sell = 240, petal = C(1.00f, 0.55f, 0.15f), center = C(0.45f, 0.70f, 0.30f), emoji = "🎃" },
-            new SeedDef { id = "carrot", ko = "구좌 당근", en = "Carrot", price = 450, weeks = 1, chance = 1f, food = 1, season = 2, sell = 65, petal = C(1.00f, 0.50f, 0.12f), center = C(0.40f, 0.72f, 0.35f), emoji = "🥕" },
-            new SeedDef { id = "radish", ko = "월동무", en = "Winter radish", price = 450, weeks = 2, chance = 1f, food = 2, season = 3, sell = 85, petal = C(0.95f, 0.96f, 0.92f), center = C(0.45f, 0.72f, 0.35f), emoji = "●" },
-            new SeedDef { id = "broccoli", ko = "브로콜리", en = "Broccoli", price = 650, weeks = 2, chance = 1f, food = 2, season = 3, sell = 120, petal = C(0.25f, 0.55f, 0.25f), center = C(0.40f, 0.68f, 0.30f), emoji = "🥦" },
-            new SeedDef { id = "spinach", ko = "시금치", en = "Spinach", price = 350, weeks = 1, chance = 1f, food = 1, season = 3, sell = 50, petal = C(0.30f, 0.60f, 0.25f), center = C(0.40f, 0.68f, 0.30f), emoji = "●" },
+            new SeedDef { id = "strawberry", ko = "딸기", en = "Strawberry", price = 150, weeks = 2, chance = 1f, food = 2, season = 0, sell = 140, petal = C(0.95f, 0.22f, 0.30f), center = C(0.40f, 0.70f, 0.35f), emoji = "🍓" },
+            new SeedDef { id = "cabbage", ko = "양배추", en = "Cabbage", price = 150, weeks = 2, chance = 1f, food = 3, season = 0, sell = 90, petal = C(0.70f, 0.90f, 0.55f), center = C(0.45f, 0.72f, 0.35f), emoji = "🥬" },
+            new SeedDef { id = "pea", ko = "완두콩", en = "Pea", price = 30, weeks = 1, chance = 1f, food = 1, season = 0, sell = 55, petal = C(0.55f, 0.85f, 0.40f), center = C(0.40f, 0.70f, 0.35f), emoji = "🫛" },
+            new SeedDef { id = "corn", ko = "옥수수", en = "Corn", price = 120, weeks = 2, chance = 1f, food = 2, season = 1, sell = 110, petal = C(1.00f, 0.85f, 0.25f), center = C(0.45f, 0.70f, 0.30f), emoji = "🌽" },
+            new SeedDef { id = "watermelon", ko = "수박", en = "Watermelon", price = 400, weeks = 3, chance = 1f, food = 3, season = 1, sell = 260, petal = C(0.25f, 0.60f, 0.25f), center = C(0.45f, 0.72f, 0.35f), emoji = "🍉" },
+            new SeedDef { id = "pepper", ko = "고추", en = "Chili", price = 35, weeks = 1, chance = 1f, food = 1, season = 1, sell = 60, petal = C(0.90f, 0.15f, 0.12f), center = C(0.40f, 0.68f, 0.30f), emoji = "🌶" },
+            new SeedDef { id = "sweetpotato", ko = "고구마", en = "Sweet potato", price = 190, weeks = 2, chance = 1f, food = 3, season = 2, sell = 115, petal = C(0.70f, 0.30f, 0.45f), center = C(0.45f, 0.70f, 0.35f), emoji = "🍠" },
+            new SeedDef { id = "pumpkin", ko = "호박", en = "Pumpkin", price = 380, weeks = 3, chance = 1f, food = 3, season = 2, sell = 240, petal = C(1.00f, 0.55f, 0.15f), center = C(0.45f, 0.70f, 0.30f), emoji = "🎃" },
+            new SeedDef { id = "carrot", ko = "구좌 당근", en = "Carrot", price = 35, weeks = 1, chance = 1f, food = 1, season = 2, sell = 65, petal = C(1.00f, 0.50f, 0.12f), center = C(0.40f, 0.72f, 0.35f), emoji = "🥕" },
+            new SeedDef { id = "radish", ko = "월동무", en = "Winter radish", price = 90, weeks = 2, chance = 1f, food = 2, season = 3, sell = 85, petal = C(0.95f, 0.96f, 0.92f), center = C(0.45f, 0.72f, 0.35f), emoji = "●" },
+            new SeedDef { id = "broccoli", ko = "브로콜리", en = "Broccoli", price = 130, weeks = 2, chance = 1f, food = 2, season = 3, sell = 120, petal = C(0.25f, 0.55f, 0.25f), center = C(0.40f, 0.68f, 0.30f), emoji = "🥦" },
+            new SeedDef { id = "spinach", ko = "시금치", en = "Spinach", price = 30, weeks = 1, chance = 1f, food = 1, season = 3, sell = 50, petal = C(0.30f, 0.60f, 0.25f), center = C(0.40f, 0.68f, 0.30f), emoji = "●" },
         };
         public static SeedDef Seed(string id) { foreach (var s in Seeds) if (s.id == id) return s; foreach (var s in SeasonSeeds) if (s.id == id) return s; return null; }
         public static void EnsurePots(SaveData s)

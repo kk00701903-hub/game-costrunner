@@ -244,9 +244,10 @@ namespace CoastRun.Village
             if (_mission == null) return;
             bool on = !string.IsNullOrEmpty(text);
             if (_mission.gameObject.activeSelf != on) _mission.gameObject.SetActive(on);
+            text = EmojiText.Clean(text);   // 213차
             if (on && _missionT != null && _missionT.text != text) _missionT.text = text;
         }
-        public void SetAction(string label) { if (_actT != null && _actT.text != label) _actT.text = label; }
+        public void SetAction(string label) { label = EmojiText.Clean(label); if (_actT != null && _actT.text != label) _actT.text = label; }
         public void SetTool(string label, int toolIdx = 0)
         {
             if (_toolT != null) _toolT.text = label;
@@ -282,6 +283,7 @@ namespace CoastRun.Village
             if (_prompt == null) return;
             bool show = !string.IsNullOrEmpty(text) && !Locked;
             if (_prompt.gameObject.activeSelf != show) _prompt.gameObject.SetActive(show);
+            text = EmojiText.Clean(text);   // 213차
             if (show && _promptT.text != text) _promptT.text = text;
         }
 

@@ -46,18 +46,18 @@ namespace CoastRun.Village
             // 톤매핑은 끈다 — Neutral 은 채도 높은 하늘·바다를 회색 파스텔로 눌러 버린다(시안은 쨍한 파랑)
             var tone = p.Add<Tonemapping>(true); tone.mode.Override(TonemappingMode.None);
             var ca = p.Add<ColorAdjustments>(true);
-            ca.postExposure.Override(0f); ca.contrast.Override(0f); ca.saturation.Override(4f);
+            ca.postExposure.Override(0.04f); ca.contrast.Override(12f); ca.saturation.Override(14f);   // 208차(사용자: 「목장이야기처럼 쨍하게」): 대비 +12 · 채도 +14
             ca.colorFilter.Override(new Color(1f, 0.99f, 0.965f));          // 아주 살짝 따뜻한 필터
             var wb = p.Add<WhiteBalance>(true); wb.temperature.Override(3f); wb.tint.Override(1f);
             var bloom = p.Add<Bloom>(true); bloom.threshold.Override(1.1f); bloom.intensity.Override(0.35f); bloom.scatter.Override(0.7f);
-            var vig = p.Add<Vignette>(true); vig.intensity.Override(0.13f); vig.smoothness.Override(0.7f); vig.color.Override(new Color(0.62f, 0.55f, 0.72f));
+            var vig = p.Add<Vignette>(true); vig.intensity.Override(0.06f); vig.smoothness.Override(0.7f); vig.color.Override(new Color(0.62f, 0.55f, 0.72f));
             var smh = p.Add<ShadowsMidtonesHighlights>(true);
             smh.shadows.Override(new Vector4(1.02f, 1.0f, 1.05f, 0.02f));    // 그림자 살짝 라벤더로
             smh.midtones.Override(new Vector4(1.02f, 1.0f, 0.99f, 0f));
             smh.highlights.Override(new Vector4(1.03f, 1.01f, 0.97f, 0f));
             // 146차: 피사계 심도(가우시안 — 모바일 부담 적음): 주인공(카메라 11 m) 은 또렷, 등대·반도(45 m~)부터 살짝 뭉갬
             var dof = p.Add<DepthOfField>(true); dof.mode.Override(DepthOfFieldMode.Gaussian);
-            dof.gaussianStart.Override(34f); dof.gaussianEnd.Override(95f); dof.gaussianMaxRadius.Override(0.6f);   // 151차: 소품이 뭉개지지 않게 더 멀리서·약하게 dof.highQualitySampling.Override(false);
+            dof.gaussianStart.Override(34f); dof.gaussianEnd.Override(95f); dof.gaussianMaxRadius.Override(0.6f); dof.active = false;   // 208차: 먼 곳 흐림 끔 — 쨍하게(모바일 부담도 줄어듦)   // 151차: 소품이 뭉개지지 않게 더 멀리서·약하게 dof.highQualitySampling.Override(false);
             var lgg = p.Add<LiftGammaGain>(true); lgg.lift.Override(new Vector4(1f, 1f, 1f, 0.01f)); lgg.gamma.Override(new Vector4(1f, 1f, 1f, 0f));
             return vol;
         }

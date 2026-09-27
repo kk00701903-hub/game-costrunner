@@ -9,7 +9,7 @@ namespace CoastRun.Village
         public class Ev { public int id, from, to; public string ko, en, boothKo, foodKo, outfit; public int foodPrice, foodHp, foodStress; public Vector3 booth; public Color col; }
         public static readonly Ev[] All = {
             new Ev { id = 0, from = 5, to = 7, ko = "유채꽃 축제", en = "Canola Festival", boothKo = "유채꽃 축제 부스", foodKo = "유채꿀 호떡", foodPrice = 90, foodHp = 30, foodStress = 8, outfit = "pin_canola", booth = new Vector3(52.5f, 0f, 40f), col = new Color(1f, 0.85f, 0.2f) },
-            new Ev { id = 1, from = 18, to = 20, ko = "중문 여름밤 축제", en = "Jungmun Summer Night", boothKo = "여름밤 축제 부스", foodKo = "수박 화채", foodPrice = 150, foodHp = 50, foodStress = 10, outfit = "hat_straw", booth = new Vector3(VillageZones.TourC.x + 6f, 0.3f, VillageZones.TourC.z + 12f), col = new Color(0.35f, 0.70f, 0.95f) },
+            new Ev { id = 1, from = 18, to = 20, ko = "중몬 여름밤 축제", en = "Jungmon Summer Night", boothKo = "여름밤 축제 부스", foodKo = "수박 화채", foodPrice = 150, foodHp = 50, foodStress = 10, outfit = "hat_straw", booth = new Vector3(VillageZones.TourC.x + 6f, 0.3f, VillageZones.TourC.z + 12f), col = new Color(0.35f, 0.70f, 0.95f) },
             new Ev { id = 2, from = 31, to = 33, ko = "감귤 따기 체험", en = "Tangerine Picking", boothKo = "감귤 따기 체험 부스", foodKo = "귤 찐빵", foodPrice = 80, foodHp = 25, foodStress = 8, outfit = "scarf_orange", booth = new Vector3(40f, 0f, 19f), col = new Color(1f, 0.55f, 0.15f) },
             new Ev { id = 3, from = 44, to = 46, ko = "눈꽃 축제", en = "Snowflake Festival", boothKo = "붕어빵 수레", foodKo = "붕어빵", foodPrice = 80, foodHp = 25, foodStress = 8, outfit = "hat_knit", booth = new Vector3(21f, 0f, -2.5f), col = new Color(0.80f, 0.90f, 1f) },
         };

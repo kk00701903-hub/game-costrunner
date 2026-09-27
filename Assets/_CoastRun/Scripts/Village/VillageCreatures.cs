@@ -9,6 +9,17 @@ namespace CoastRun.Village
     /// 170차(사용자): 「정령이 잘 안 보인다 → 크게. 정령은 잠자리채로 잡고, 대형 벌레는 방망이로 때린다」 — 정령은 이제 다치게 하지 않고 곁에서 맴돈다.
     public class VillageCreatures : MonoBehaviour
     {
+        /// 208차(사용자: 「모션 부드러움」): 몸 돌리기를 한 프레임에 확 꺾지 않고 스르륵 — 진행 방향으로 지수 감쇠 회전
+        /// 209차: 움직임 점검(DevMotionProbe)용 — 지금 살아 있는 NPC·산적·벌레·귀신·정령·꼬마
+        public void DevTracked(List<KeyValuePair<string, Transform>> l)
+        {
+            foreach (var n in _npcs) if (n.root != null) l.Add(new KeyValuePair<string, Transform>("npc", n.root));
+            foreach (var b in _bandits) if (b.root != null && !b.down) l.Add(new KeyValuePair<string, Transform>(b.police ? "police" : "bandit", b.root));
+            foreach (var c in _crit) if (c.t != null) l.Add(new KeyValuePair<string, Transform>(c.ghost ? "ghost" : c.spirit ? "spirit" : c.big ? "bigbug" : "bug", c.t));
+            if (_kid != null) l.Add(new KeyValuePair<string, Transform>("kid", _kid));
+        }
+        static void BrakeNpc(Npc n, Vector3 p, float dt) { n.vel = Vector3.SmoothDamp(n.vel, Vector3.zero, ref n.acc, 0.15f, 100f, dt); if (n.vel.sqrMagnitude < 1e-6f) { n.vel = Vector3.zero; return; } var bp = p + n.vel * dt; bp.y = VillageWorld.Height(bp.x, bp.z); n.root.position = bp; }
+        static void Face(Transform t, Vector3 dir, float k = 12f) { if (t == null || dir.sqrMagnitude < 1e-8f) return; t.rotation = Quaternion.Slerp(t.rotation, Quaternion.LookRotation(dir, Vector3.up), 1f - Mathf.Exp(-Time.deltaTime * k)); }
         public Transform Player; public System.Func<bool> Locked;
         public System.Action<int> OnSpiritHit;           // HP 깎기 (170차: 큰 벌레 접촉)
         public System.Action<int> OnGhostHit;            // 155차: 밤 귀신(엄청 강함) 접촉
@@ -36,7 +47,7 @@ namespace CoastRun.Village
         public int PoliceAlive { get { int n = 0; foreach (var b in _bandits) if (!b.down && b.root != null && b.police) n++; return n; } }
 
         // ── 정령·나비 ──
-        class Critter { public bool rare; public Transform t; public bool spirit; public bool ghost; public bool big; public float stun; public int kind; public int pet; public float life, phase; public Vector3 anchor; }   // kind: 0 나비 1 잠자리 2 무당벌레 4 닭 5 토끼 6 몬스터 · big: 0 왕사슴벌레 1 왕말벌
+        class Critter { public Vector3 kb; public float v; public bool rare; public Transform t; public bool spirit; public bool ghost; public bool big; public float stun; public int kind; public int pet; public float life, phase; public Vector3 anchor; }   // kind: 0 나비 1 잠자리 2 무당벌레 4 닭 5 토끼 6 몬스터 · big: 0 왕사슴벌레 1 왕말벌
         static bool BatTarget(Critter c) => c.big || c.ghost;   // 170차: 방망이 = 큰 벌레·귀신, 잠자리채 = 정령·작은 벌레
         readonly List<Critter> _crit = new List<Critter>();
         float _spawnT = 4f;
@@ -138,7 +149,7 @@ namespace CoastRun.Village
                 {
                     // 주인공을 보면 멈춰서 쳐다보고, 「누구세요?」「음…」만 — 말은 안 걸어준다
                     var f = pp - p; f.y = 0f; if (f.sqrMagnitude > 0.01f) n.root.rotation = Quaternion.Slerp(n.root.rotation, Quaternion.LookRotation(f, Vector3.up), 1f - Mathf.Exp(-dt * 5f));
-                    n.vel = Vector3.zero;
+                    BrakeNpc(n, p, dt);   // 209차: 딱 멈추던 것 → 0.15 s 에 걸쳐 서서히
                     if (Time.time - n.said > 3.5f) { n.said = Time.time; n.bubble.Show(n.name + ": " + Loc.T(NpcKo[n.line % NpcKo.Length], NpcEn[n.line % NpcEn.Length])); n.line++; if (n.motion != null && n.line % 2 == 0) n.motion.Nod(); }
                 }
                 else
@@ -147,7 +158,7 @@ namespace CoastRun.Village
                     var d = n.target - p; d.y = 0f;
                     if (d.magnitude < 0.35f)
                     {
-                        n.wait -= dt; n.vel = Vector3.zero;
+                        n.wait -= dt; BrakeNpc(n, p, dt);
                         // 서 있을 때 가끔 끄덕·두리번·콩 뛰기
                         n.idleAct -= dt; if (n.idleAct <= 0f) { n.idleAct = Random.Range(3f, 8f); if (n.motion != null) { if (Random.value < 0.5f) n.motion.Nod(); else n.motion.Hop(); } }
                         if (n.wait <= 0f)
@@ -331,15 +342,16 @@ namespace CoastRun.Village
                     c.stun -= dt;
                     var d = Player.position - p; d.y = 0f; float dist = d.magnitude;
                     float sp = c.stun > 0f ? 0f : 2.4f;
-                    var step = dist > 0.05f ? d.normalized * sp * dt : Vector3.zero;
+                    c.v = Mathf.MoveTowards(c.v, sp, dt * 5f);   // 209차: 0 ↔ 2.4 m/s 로 딱 바뀌던 것 → 0.5 s 가속
+                    var step = (dist > 0.05f ? d.normalized * c.v * dt : Vector3.zero) + c.kb * dt; c.kb *= Mathf.Exp(-dt * 6f);   // 튕겨 나가기(미끄러지듯)
                     float g = VillageWorld.Height(p.x + step.x, p.z + step.z) + 1.0f + Mathf.Sin(c.phase * 2.2f) * 0.3f;
                     c.t.position = new Vector3(p.x + step.x, g, p.z + step.z);
-                    if (d.sqrMagnitude > 0.01f) c.t.rotation = Quaternion.LookRotation(d.normalized, Vector3.up);
+                    if (d.sqrMagnitude > 0.01f) Face(c.t, d.normalized);
                     c.t.localScale = Vector3.one * (0.62f + Mathf.Sin(c.phase * 4f) * 0.05f) * (c.stun > 0f && Mathf.Repeat(c.phase * 8f, 1f) < 0.5f ? 0.7f : 1f);
                     if (c.stun <= 0f && dist < 0.95f)
                     {
                         OnGhostHit?.Invoke(25); c.stun = 1.6f; c.anchor = p - d.normalized * 3.5f;
-                        c.t.position = new Vector3(c.anchor.x, VillageWorld.Height(c.anchor.x, c.anchor.z) + 1.0f, c.anchor.z);
+                        c.kb = -d.normalized * 21f; c.v = 0f;   // 209차: 3.5 m 뒤로 순간이동 → 같은 거리를 0.4 s 동안 밀려남
                     }
                     continue;
                 }
@@ -357,7 +369,7 @@ namespace CoastRun.Village
                     if (np.z > -14f || hn > VillageWorld.SeaLevel + 1.7f || hn < VillageWorld.SeaLevel - 0.3f) { c.anchor = -c.anchor; np = p; }
                     c.t.position = new Vector3(np.x, VillageWorld.Height(np.x, np.z) + 0.05f, np.z);
                     // 게는 옆으로 걷는다: 몸의 앞은 진행 방향과 90°
-                    if (dir.sqrMagnitude > 0.01f) c.t.rotation = Quaternion.LookRotation(Quaternion.Euler(0f, 90f, 0f) * dir, Vector3.up);
+                    if (dir.sqrMagnitude > 0.01f) Face(c.t, Quaternion.Euler(0f, 90f, 0f) * dir);
                     c.t.localScale = Vector3.one * (1f + Mathf.Abs(Mathf.Sin(c.phase * (sp > 1f ? 22f : 8f))) * 0.04f);
                     if (c.life <= 0f) { Destroy(c.t.gameObject); _crit.RemoveAt(i); }
                     continue;
@@ -369,16 +381,17 @@ namespace CoastRun.Village
                     var d = Player.position - p; d.y = 0f; float dist = d.magnitude;
                     float sp = c.stun > 0f ? 0f : (c.kind == 1 ? 1.5f : 0.9f);
                     bool yard = InHomeYard(Player.position);   // 197차(사용자: 「집 앞에서는 벌레에 물리지 않게」): 마당이면 물러난다
-                    var step = dist > 0.05f ? d.normalized * (yard ? -sp : sp) * dt : Vector3.zero;
+                    c.v = Mathf.MoveTowards(c.v, yard ? -sp : sp, dt * 4f);   // 209차: 속도 부드럽게
+                    var step = (dist > 0.05f ? d.normalized * c.v * dt : Vector3.zero) + c.kb * dt; c.kb *= Mathf.Exp(-dt * 6f);
                     if (c.kind == 1) step += new Vector3(Mathf.Sin(c.phase * 5f), 0f, Mathf.Cos(c.phase * 4.1f)) * 0.9f * dt;
                     float g = VillageWorld.Height(p.x + step.x, p.z + step.z) + (c.kind == 1 ? 1.0f + Mathf.Sin(c.phase * 6f) * 0.18f : 0.16f);
                     c.t.position = new Vector3(p.x + step.x, g, p.z + step.z);
-                    if (d.sqrMagnitude > 0.01f) c.t.rotation = Quaternion.LookRotation(d.normalized, Vector3.up);
+                    if (d.sqrMagnitude > 0.01f) Face(c.t, d.normalized);
                     if (c.kind == 1) for (int w = 0; w < c.t.childCount; w++) { var ch = c.t.GetChild(w); if (ch.name == "Wing") ch.localRotation = Quaternion.Euler(0f, 0f, (ch.localPosition.x < 0f ? -1f : 1f) * (20f + Mathf.Sin(c.phase * 40f) * 35f)); }
                     if (c.stun <= 0f && dist < 0.9f && !yard)
                     {
-                        OnSpiritHit?.Invoke(5); c.stun = 1.2f; var back = p - d.normalized * 2.2f;
-                        c.t.position = new Vector3(back.x, VillageWorld.Height(back.x, back.z) + (c.kind == 1 ? 1.0f : 0.16f), back.z);
+                        OnSpiritHit?.Invoke(5); c.stun = 1.2f;
+                        c.kb = -d.normalized * 13.2f; c.v = 0f;   // 209차: 2.2 m 순간이동 → 미끄러지듯 물러남
                     }
                     if (c.life <= 0f) { Destroy(c.t.gameObject); _crit.RemoveAt(i); }
                     continue;
@@ -391,7 +404,7 @@ namespace CoastRun.Village
                     float g = VillageWorld.Height(p.x + step.x, p.z + step.z) + 1.05f + Mathf.Sin(c.phase * 3f) * 0.28f;
                     c.t.position = new Vector3(p.x + step.x, g, p.z + step.z);
                     c.t.localScale = Vector3.one * (0.36f + Mathf.Sin(c.phase * 5f) * 0.035f) * (c.rare ? 1.15f : 1f);   // 203차: 0.52 → 0.36   // 198차: 0.62 → 0.52(조금 작게)
-                    if (dist > 0.05f) c.t.rotation = Quaternion.LookRotation(d.normalized, Vector3.up);
+                    if (dist > 0.05f) Face(c.t, d.normalized);
                 }
                 else if (c.kind == 6)
                 {
@@ -429,21 +442,22 @@ namespace CoastRun.Village
                         // 잠자리: 넓고 빠른 8자, 방향은 진행 방향
                         var o = new Vector3(Mathf.Sin(c.phase * 2.2f) * 3.2f, 0f, Mathf.Sin(c.phase * 4.4f) * 1.6f);
                         var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 1.1f + Mathf.Sin(c.phase * 5f) * 0.2f;
-                        var dv = np - p; c.t.position = np; if (dv.sqrMagnitude > 1e-4f) c.t.rotation = Quaternion.LookRotation(dv.normalized, Vector3.up);
+                        var dv = np - p; c.t.position = np; if (dv.sqrMagnitude > 1e-4f) Face(c.t, dv.normalized);
                     }
                     else if (c.kind == 2)
                     {
                         // 무당벌레: 땅 위를 천천히 돌며 기어다님
                         var o = new Vector3(Mathf.Cos(c.phase * 0.5f) * 1.0f, 0f, Mathf.Sin(c.phase * 0.5f) * 1.0f);
                         var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 0.10f;
-                        var dv = np - p; c.t.position = np; if (dv.sqrMagnitude > 1e-5f) c.t.rotation = Quaternion.LookRotation(dv.normalized, Vector3.up);
+                        var dv = np - p; c.t.position = np; if (dv.sqrMagnitude > 1e-5f) Face(c.t, dv.normalized);
                     }
                     else
                     {
                         // 나비: 닻 주변을 8자로 팔랑
                         var o = new Vector3(Mathf.Sin(c.phase * 1.3f) * 2.2f, 0f, Mathf.Sin(c.phase * 2.6f) * 1.2f);
                         var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 0.9f + Mathf.Sin(c.phase * 7f) * 0.15f;
-                        c.t.position = np; c.t.rotation = Quaternion.Euler(0f, c.phase * 90f, Mathf.Sin(c.phase * 14f) * 35f);
+                        var dv = np - p; dv.y = 0f; c.t.position = np;   // 209차: 제자리에서 빙빙 돌던 몸 → 날아가는 쪽을 보고, 날갯짓에 맞춰 살짝 기울기
+                        if (dv.sqrMagnitude > 1e-6f) { var yawQ = Quaternion.Slerp(Quaternion.Euler(0f, c.t.eulerAngles.y, 0f), Quaternion.LookRotation(dv.normalized, Vector3.up), 1f - Mathf.Exp(-dt * 8f)); c.t.rotation = yawQ * Quaternion.Euler(0f, 0f, Mathf.Sin(c.phase * 14f) * 18f); }
                     }
                 }
                 if (c.life <= 0f) { Destroy(c.t.gameObject); _crit.RemoveAt(i); }
@@ -803,6 +817,9 @@ namespace CoastRun.Village
             }
             var mouth = GameObject.CreatePrimitive(PrimitiveType.Sphere); Destroy(mouth.GetComponent<Collider>()); mouth.transform.SetParent(g.transform, false); mouth.transform.localPosition = new Vector3(0f, -0.18f, 0.46f); mouth.transform.localScale = new Vector3(0.28f, 0.16f, 0.1f);
             mouth.GetComponent<MeshRenderer>().sharedMaterial = CoastMaterials.CreateUnlit(new Color(0.9f, 0.2f, 0.3f));
+            // 209차(사용자: 「몬스터 디테일」): 남색 공 두 개 → 블렌더 이불 귀신(VGhost: 둥근 머리·물결 자락·큰 눈·볼터치·짧은 팔). 없으면 예전 모양
+            var gm = JejuKit.Spawn("VGhost", g.transform, new Vector3(0f, -0.15f, 0f), 0f, 1.15f);
+            if (gm != null) { for (int ci = 0; ci < g.transform.childCount; ci++) { var ch = g.transform.GetChild(ci); if (ch.gameObject != gm) { var mr = ch.GetComponent<MeshRenderer>(); if (mr != null) mr.enabled = false; } } gm.AddComponent<GhostSway>(); }
             var glow = new GameObject("GhostLight").AddComponent<Light>(); glow.transform.SetParent(g.transform, false); glow.type = LightType.Point; glow.range = 5f; glow.intensity = 1.6f; glow.color = new Color(0.6f, 0.5f, 1f);
             _crit.Add(new Critter { spirit = true, ghost = true, life = 600f, phase = Random.value * 6f, anchor = pos, t = g.transform });
         }
@@ -887,7 +904,7 @@ namespace CoastRun.Village
             {
                 if (b.life > -0.01f && b.life <= 0f || dist > 40f) { if (Time.time - b.said > 3f) { b.said = Time.time; b.bubble.Show(Loc.T("경찰: 오늘은 봐준다…", "Police: I'll let it go… today.")); } }
                 var np0 = b.root.position - d.normalized * 3.2f * dt; b.root.position = VillageWorld.Ground(np0.x, np0.z);
-                if (d.sqrMagnitude > 0.01f) b.root.rotation = Quaternion.LookRotation(-d.normalized, Vector3.up);
+                if (d.sqrMagnitude > 0.01f) Face(b.root, -d.normalized);
                 if (dist > 30f || b.life < -6f) { Destroy(b.root.gameObject); _bandits.RemoveAt(i); }
                 return;
             }
@@ -1073,6 +1090,8 @@ namespace CoastRun.Village
     }
 
     /// 198차(사용자: 「벌레나 에셋들 다리 움직임 만들어줘」): 자식 중 이름이 "Leg" 인 조각을 번갈아 앞뒤로 흔든다 — 움직일 때 빠르게, 멈추면 천천히.
+    /// 209차: 귀신이 둥실 떠 있을 때 좌우로 살랑·앞뒤로 까딱(모델 자식만 — 이동·회전은 부모가)
+    public class GhostSway : MonoBehaviour { float _p; Vector3 _lp; void Start() { _p = Random.value * 6f; _lp = transform.localPosition; } void Update() { _p += Time.deltaTime; transform.localRotation = Quaternion.Euler(Mathf.Sin(_p * 1.7f) * 6f, 0f, Mathf.Sin(_p * 2.3f) * 9f); transform.localPosition = _lp + new Vector3(Mathf.Sin(_p * 1.1f) * 0.06f, 0f, 0f); } }
     public class LegWiggle : MonoBehaviour
     {
         readonly System.Collections.Generic.List<(Transform t, Quaternion q, int i)> _legs = new System.Collections.Generic.List<(Transform, Quaternion, int)>();

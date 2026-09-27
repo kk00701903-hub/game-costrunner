@@ -36,12 +36,12 @@ namespace CoastRun.Village
         const int N = 25; const float Cell = 2f;   // 2 m 칸 25×25 = 50 m
         bool[,] _open;
 
-        class Mob { public Transform t, vis; public int kind, hp, maxHp; public float hitCd, stun, phase, speed; public Vector3 home, wander; }
+        class Mob { public Vector3 kb; public float v; public Transform t, vis; public int kind, hp, maxHp; public float hitCd, stun, phase, speed; public Vector3 home, wander; }
         readonly List<Mob> _mobs = new List<Mob>();
         public struct Ore { public Transform t; public int kind; }
         public readonly List<Ore> Ores = new List<Ore>();
 
-        class Boss { public Transform t; public BossModel3D model; public int kind, hp, maxHp; public float stateT, ang, radius, radiusTarget, dizzy, hitCd, hover; public int state; public Vector3 prev; public Transform stars; }
+        class Boss { public Vector3 kb; public Transform t; public BossModel3D model; public int kind, hp, maxHp; public float stateT, ang, radius, radiusTarget, dizzy, hitCd, hover; public int state; public Vector3 prev; public Transform stars; }
         Boss _boss;
         class Shot { public Transform t; public Vector3 vel; public float life; public int kind; public float r; public int dmg; public float hitCd; }   // kind 0 미사일 1 바위(떨어짐) 2 회오리
         readonly List<Shot> _shots = new List<Shot>();
@@ -80,7 +80,7 @@ namespace CoastRun.Village
             var floorMat = floor >= BossFloor ? Lit(new Color(0.30f, 0.22f, 0.24f)) : _dirt;
             // 206차(사용자: 「동굴 등 모자란 부분은 파이어플라이·블렌더로」): 바닥 = Firefly 손그림 흙바닥 타일(4 m 반복), 보스 방은 붉게 물들임
             var ftex = Resources.Load<Texture2D>("CoastRun/Textures/Village/Tex_CaveFloor");
-            if (ftex != null) { floorMat = CoastMaterials.CreateToon(floor >= BossFloor ? new Color(0.62f, 0.50f, 0.56f) : new Color(0.96f, 0.92f, 0.88f), ftex, 0.04f); floorMat.mainTextureScale = new Vector2((HX * 2f + 6f) / 7f, (HZ * 2f + 6f) / 7f); if (floorMat.HasProperty("_BaseMap")) floorMat.SetTextureScale("_BaseMap", floorMat.mainTextureScale); }
+            if (ftex != null) { floorMat = CoastMaterials.CreateToon(floor >= BossFloor ? new Color(0.58f, 0.48f, 0.56f) : new Color(0.78f, 0.78f, 0.88f)   /* 209차: 쨍한 보정 뒤 주황으로 타서 푸른 기 틴트 */, ftex, 0.04f); floorMat.mainTextureScale = new Vector2((HX * 2f + 6f) / 7f, (HZ * 2f + 6f) / 7f); if (floorMat.HasProperty("_BaseMap")) floorMat.SetTextureScale("_BaseMap", floorMat.mainTextureScale); }
             Prim(_root, PrimitiveType.Cube, C + new Vector3(0f, -0.06f, 0f), new Vector3(HX * 2f + 6f, 0.1f, HZ * 2f + 6f), floorMat);
             if (floor >= BossFloor) BuildArena(); else BuildMaze();
             // 벽: 열린 칸 둘레의 막힌 칸마다 울퉁불퉁한 바위
@@ -333,23 +333,27 @@ namespace CoastRun.Village
                 var dir = goal - p; dir.y = 0f;
                 float sp = m.stun > 0f ? 0f : (dist < 7f ? m.speed : m.speed * 0.4f);
                 if (m.kind == 1) sp *= Mathf.Clamp01(Mathf.Sin(m.phase * 5f) * 1.4f);   // 슬라임: 뛰었다 멈췄다
-                if (dir.sqrMagnitude > 0.04f && dist > 0.9f)
+                // 209차(사용자: 「몬스터 움직임 디테일」): 속도는 가감속(딱 서고 딱 출발 X), 방향은 초당 최대 540° 로 스르륵, 맞으면 미끄러지듯 밀려남
+                bool go = dir.sqrMagnitude > 0.04f && dist > 0.9f;
+                m.v = Mathf.MoveTowards(m.v, go ? sp : 0f, dt * (m.kind == 1 ? 12f : 5f));
+                if (m.v > 0.001f || m.kb.sqrMagnitude > 0.0004f)
                 {
-                    var np = p + dir.normalized * sp * dt;
-                    if (Walkable(np) || m.kind == 0) { if (Walkable(np)) m.t.position = np; }
-                    m.t.rotation = Quaternion.Slerp(m.t.rotation, Quaternion.LookRotation(dir.normalized, Vector3.up), dt * 8f);
+                    var mv = (go ? dir.normalized * m.v : m.t.forward * m.v) + m.kb; var np = p + mv * dt;
+                    if (Walkable(np)) m.t.position = np; else m.kb = Vector3.zero;
                 }
+                m.kb *= Mathf.Exp(-dt * 7f);
+                if (go) m.t.rotation = Quaternion.RotateTowards(m.t.rotation, Quaternion.Slerp(m.t.rotation, Quaternion.LookRotation(dir.normalized, Vector3.up), 1f - Mathf.Exp(-dt * 8f)), 540f * dt);
                 // 모양 움직임
                 if (m.kind == 0) { m.vis.localPosition = new Vector3(0f, 1.4f + Mathf.Sin(m.phase * 3f) * 0.25f, 0f); for (int c = 0; c < m.vis.childCount; c++) { var ch = m.vis.GetChild(c); if (ch.name == "WingL") ch.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(m.phase * 18f) * 40f); else if (ch.name == "WingR") ch.localRotation = Quaternion.Euler(0f, 0f, -Mathf.Sin(m.phase * 18f) * 40f); } }
                 else if (m.kind == 1) { float s = Mathf.Sin(m.phase * 5f); m.vis.localScale = new Vector3(1f + s * 0.08f, 1f - s * 0.12f, 1f + s * 0.08f); m.vis.localPosition = new Vector3(0f, Mathf.Max(0f, s) * 0.25f, 0f); }
-                else { m.vis.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(m.phase * 8f) * 5f * (sp > 0.1f ? 1f : 0f)); }
+                else { m.vis.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(m.phase * 8f) * 5f * Mathf.Clamp01(m.v / Mathf.Max(0.1f, m.speed))); }   // 209차: 흔들림도 속도에 비례(딱 멈춤 X)
                 if (m.stun > 0f) m.vis.localPosition += new Vector3(Mathf.Sin(m.phase * 50f) * 0.04f, 0f, 0f);
                 // 닿으면 아프다
                 if (dist < 1.0f && m.hitCd <= 0f && m.stun <= 0f)
                 {
                     m.hitCd = 1.3f; int dmg = (m.kind == 0 ? 2 : m.kind == 1 ? 3 : 5) + Floor / 2;
                     OnHurt?.Invoke(dmg, MobKo[m.kind]);
-                    var push = (p - pp); push.y = 0f; if (push.sqrMagnitude > 0.01f) { var bp = p + push.normalized * 1.2f; if (Walkable(bp)) m.t.position = bp; }
+                    var push = (p - pp); push.y = 0f; if (push.sqrMagnitude > 0.01f) { m.kb = push.normalized * 8.4f; m.v = 0f; }   // 209차: 1.2 m 순간이동 → 0.15 s 에 걸쳐 밀려남
                 }
             }
             if (_boss != null) TickBoss(dt, pp);
@@ -391,6 +395,7 @@ namespace CoastRun.Village
             var cur = b.t.position; var flat = new Vector3(cur.x, 0f, cur.z);
             float spd = b.kind == 1 ? 2.4f : b.kind == 0 ? 4.5f : 5.2f;
             var np = Vector3.MoveTowards(flat, new Vector3(target.x, 0f, target.z), spd * dt);
+            if (b.kb.sqrMagnitude > 0.0004f) { var kp = np + b.kb * dt; if (Walkable(kp)) np = kp; b.kb *= Mathf.Exp(-dt * 7f); }   // 209차: 맞고 밀려나기(미끄러지듯)
             b.t.position = new Vector3(np.x, b.hover, np.z);
             if (b.model != null)
             {
@@ -490,8 +495,7 @@ namespace CoastRun.Village
                 {
                     int dd = _boss.state == 2 ? dmg * 2 : dmg; _boss.hp -= dd; _boss.model?.Hurt();
                     VillagePang.Burst(_boss.t.position + Vector3.up * 1.6f, new Color(1f, 0.45f, 0.45f), Color.white, 1.3f);
-                    var push = d.sqrMagnitude > 0.01f ? d.normalized : fwd; var np = _boss.t.position + push * 1.5f; np.y = _boss.t.position.y;
-                    if (Walkable(np)) _boss.t.position = np;
+                    var push = d.sqrMagnitude > 0.01f ? d.normalized : fwd; _boss.kb = push * 10.5f;   // 209차: 1.5 m 순간이동 → 0.15 s 밀려남
                     if (_boss.hp <= 0)
                     {
                         _boss.hp = 0; _boss.state = 3; _boss.stateT = 1.2f; int kind = _boss.kind;
@@ -508,7 +512,7 @@ namespace CoastRun.Village
             foreach (var m in _mobs) { if (m.t == null) continue; var d = m.t.position - pp; d.y = 0f; float dist = d.magnitude; if (dist < bd && (dist < 1.4f || Vector3.Dot(d.normalized, fwd) > 0.2f)) { bd = dist; best = m; } }
             if (best == null) return null;
             best.hp -= dmg; best.stun = 0.6f;
-            var away = best.t.position - pp; away.y = 0f; var bp = best.t.position + (away.sqrMagnitude > 0.01f ? away.normalized : fwd) * 1.4f; if (Walkable(bp)) best.t.position = bp;
+            var away = best.t.position - pp; away.y = 0f; best.kb = (away.sqrMagnitude > 0.01f ? away.normalized : fwd) * 9.8f; best.v = 0f;   /* 209차: 맞으면 1.4 m 순간이동 → 미끄러지듯 날아감 */
             VillagePang.Burst(best.t.position + Vector3.up * 0.7f, new Color(0.85f, 0.75f, 1f), Color.white, 0.8f);
             if (best.hp > 0) return Loc.T($"🏏 {MobKo[best.kind]} −{dmg}", $"🏏 Hit −{dmg}");
             _mobs.Remove(best); Destroy(best.t.gameObject);
@@ -524,6 +528,11 @@ namespace CoastRun.Village
         }
         public int TakeOre(int i) { var o = Ores[i]; Ores.RemoveAt(i); if (o.t != null) { VillagePang.Burst(o.t.position + Vector3.up, VillageZones.NodeColor(o.kind), Color.white, 0.9f); Destroy(o.t.gameObject); } return o.kind; }
         public int MobsLeft => _mobs.Count;
+        public void DevTracked(List<KeyValuePair<string, Transform>> l)   // 209차
+        {
+            foreach (var m in _mobs) if (m.t != null) l.Add(new KeyValuePair<string, Transform>("mob" + m.kind, m.t));
+            if (_boss != null && _boss.t != null) l.Add(new KeyValuePair<string, Transform>("boss", _boss.t));
+        }
         public Vector3? DevTarget() { if (_boss != null && _boss.t != null && _boss.state != 3) return _boss.t.position; foreach (var m in _mobs) if (m.t != null) return m.t.position; return null; }
         public void DevHurtBoss(int n) { if (_boss != null) { _boss.hp = Mathf.Max(1, _boss.hp - n); } }
         public string DevState() => $"floor={Floor} mobs={_mobs.Count} ores={Ores.Count} boss={(_boss != null ? BossModel3D.NameKo(_boss.kind) + " hp=" + _boss.hp + " st=" + _boss.state : "none")} shots={_shots.Count}";

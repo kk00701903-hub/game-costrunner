@@ -264,9 +264,11 @@ namespace CoastRun.Village
         }
 
         /// 149차(사용자: 「나무의 텍스처가 틀리다」): 시안식 야자수 — 마디가 진 줄기(고리 원기둥 쌓기, 살짝 휨) + 코코넛 + 잎 7장.
+        /// 210차(사용자: 「다른 지역도 가보고 테스트」 — 중몬 마리나·서핑 숍에서 야자수가 화면을 막음): 콜라이더 없는 야자수 목록(카메라 가림 숨김용)
+        public static readonly List<Transform> Palms = new List<Transform>();
         public static Transform Palm(Transform root, Vector3 ground, float yaw, float height)
         {
-            var t = new GameObject("Tree_Palm").transform; t.SetParent(root, false);
+            var t = new GameObject("Tree_Palm").transform; t.SetParent(root, false); Palms.Add(t);   // 210차: 카메라 가림 검사용
             t.position = ground; t.rotation = Quaternion.Euler(0f, yaw, 0f);
             var barkA = new Color(0.62f, 0.44f, 0.28f); var barkB = new Color(0.50f, 0.34f, 0.21f); var barkRing = new Color(0.40f, 0.27f, 0.16f);
             int segs = Mathf.Max(8, Mathf.RoundToInt(height / 0.42f)); float segH = height / segs;

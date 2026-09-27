@@ -17,10 +17,10 @@ namespace CoastRun.Village
             VillageDex.Ensure(Save);
             var C = VillageZones.CityC; var T = VillageZones.TourC;
             _spots.Add(new Spot { id = "citybus", title = Loc.T("🚌 시내 정류장 · 버스 타기", "🚌 City stop · Take the bus"), pos = VillageZones.CityStop, radius = 3f, on = () => BusMenu(VillageZones.Zone.City) });
-            _spots.Add(new Spot { id = "tourbus", title = Loc.T("🚌 중문 정류장 · 버스 타기", "🚌 Jungmun stop · Take the bus"), pos = VillageZones.TourStop, radius = 3f, on = () => BusMenu(VillageZones.Zone.Tour) });
+            _spots.Add(new Spot { id = "tourbus", title = Loc.T("🚌 중몬 정류장 · 버스 타기", "🚌 Jungmon stop · Take the bus"), pos = VillageZones.TourStop, radius = 3f, on = () => BusMenu(VillageZones.Zone.Tour) });
             _spots.Add(new Spot { id = "mine", title = Loc.T("⛏ 오름 광산 · 들어가기", "⛏ Oreum Mine · Enter"), pos = VillageWorld.Ground(VillageZones.MineMouth.x, VillageZones.MineMouth.y - 1.6f), radius = 2.8f, on = EnterMine });
             _spots.Add(new Spot { id = "mineexit", title = Loc.T("🪜 사다리 · 마을로 나가기", "🪜 Ladder · Back to village"), pos = VillageZones.MineEntry, radius = 2.4f, on = ExitMine });
-            string[] tk = { "🏖 색달해변 · 산책하기 (스트레스 −15)", "📸 주상절리대 · 전망 보고 사진 찍기 (스트레스 −10)", "💧 천제연 폭포 · 구경하기 (스트레스 −10)", "🌺 여미지 식물원 · 관람하기 (스트레스 −8)", "🪑 호텔 정원 · 벤치에서 쉬기 (스트레스 −6 · HP +20)" };
+            string[] tk = { "🏖 색동해변 · 산책하기 (스트레스 −15)", "📸 주상절벽대 · 전망 보고 사진 찍기 (스트레스 −10)", "💧 천재연 폭포 · 구경하기 (스트레스 −10)", "🌺 여미니 식물원 · 관람하기 (스트레스 −8)", "🪑 호텔 정원 · 벤치에서 쉬기 (스트레스 −6 · HP +20)" };
             AddActivitySpots();   // 196차: 중문 액티비티
             AddDungeonSpots();   // 199차: 광산 던전
             for (int i = 0; i < 5; i++) { int k = i; _spots.Add(new Spot { id = "tour" + i, title = Loc.T(tk[i], tk[i]), pos = VillageZones.TourSpots[i], radius = 3.2f, on = () => TourAct(k) }); }
@@ -41,6 +41,7 @@ namespace CoastRun.Village
             if (_player == null) return;
             var z = VillageZones.At(_player.position);
             if (z != _zoneNow) { _zoneNow = z; if (_map != null) _map.SetHidden(z != VillageZones.Zone.None); }
+            { bool hideMap = z != VillageZones.Zone.None || _interior != null; if (hideMap != _mapHid211) { _mapHid211 = hideMap; if (_map != null) _map.SetHidden(hideMap); } }   // 211차: 집·가게 안에서도 마을 미니맵 숨김
             // 조개 줍기(색달해변) — 가까이 가면 줍는다
             if (z == VillageZones.Zone.Tour && !_busy)
                 for (int i = VillageZones.Shells.Count - 1; i >= 0; i--)
@@ -50,7 +51,7 @@ namespace CoastRun.Village
                     {
                         sh.gameObject.SetActive(false); LifeItems.Add(Save, "gath_shell", 1); MissionTick(VillageMission.Kind.TourShell);
                         VillagePang.Burst(sh.position + Vector3.up * 0.3f, new Color(1f, 0.85f, 0.8f), Color.white, 0.8f); CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.4f);
-                        CoastToast.Show(Loc.T("🐚 색달해변 조개껍데기를 주웠다!", "🐚 Picked up a Saekdal shell!")); _gm.Persist();
+                        CoastToast.Show(Loc.T("🐚 색동해변 조개껍데기를 주웠다!", "🐚 Picked up a Saekdong shell!")); _gm.Persist();
                     }
                 }
             // 청음샵 밖으로 나가면 음악 끄기
@@ -73,7 +74,7 @@ namespace CoastRun.Village
             var list = new List<(string, Color, Action)>();
             if (from != VillageZones.Zone.None) list.Add((Loc.T($"🏡 하늘 바닷가 마을 ({(from == VillageZones.Zone.Tour ? FareTour : FareCity)}G)", $"🏡 Village ({(from == VillageZones.Zone.Tour ? FareTour : FareCity)}G)"), new Color(0.45f, 0.78f, 0.55f), () => Travel(VillageZones.Zone.None, from == VillageZones.Zone.Tour ? FareTour : FareCity)));
             if (from != VillageZones.Zone.City) list.Add((Loc.T($"🏙 제주 시내 — 은행·옷가게·음식점·청음샵·박물관 ({FareCity}G)", $"🏙 Jeju City ({FareCity}G)"), new Color(0.40f, 0.62f, 0.92f), () => Travel(VillageZones.Zone.City, FareCity)));
-            if (from != VillageZones.Zone.Tour) list.Add((Loc.T($"🏝 중문관광단지 — 해변·주상절리·폭포·식물원 ({FareTour}G)", $"🏝 Jungmun Resort ({FareTour}G)"), new Color(1f, 0.62f, 0.28f), () => Travel(VillageZones.Zone.Tour, FareTour)));
+            if (from != VillageZones.Zone.Tour) list.Add((Loc.T($"🏝 중몬관광단지 — 해변·주상절벽·폭포·식물원 ({FareTour}G)", $"🏝 Jungmon Resort ({FareTour}G)"), new Color(1f, 0.62f, 0.28f), () => Travel(VillageZones.Zone.Tour, FareTour)));
             list.Add((Loc.T("안 탈래", "Not now"), new Color(0.6f, 0.6f, 0.66f), () => { }));
             _hud.Choice(Loc.T("🚌 201번 해안 버스", "🚌 Coastal bus No. 201"), Loc.T($"어디로 갈까? 지갑 {Save.stats.money:N0}G", $"Where to? {Save.stats.money:N0}G"), list.ToArray());
         }
@@ -107,7 +108,7 @@ namespace CoastRun.Village
             CoastToast.Pop(Loc.T($"🚌 {VillageZones.Name(to)} 도착!", $"🚌 Arrived: {VillageZones.Name(to)}"));
             CoastAudioManager.PlayAnywhere(CoastSfx.Coin, 0.4f);
             if (to == VillageZones.Zone.City) _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("와, 시내다! 빌딩이 높네. 은행·옷가게·국수집·청음샵·박물관이 다 있어.", "Downtown! Bank, boutique, noodles, records, museum…"));
-            if (to == VillageZones.Zone.Tour) _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("중문이다! 해변·주상절리·폭포·식물원… 오늘은 푹 쉬어야지.", "Jungmun! Beach, cliffs, falls, garden… time to relax."));
+            if (to == VillageZones.Zone.Tour) _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("중몬이다! 해변·주상절벽·폭포·식물원… 오늘은 푹 쉬어야지.", "Jungmon! Beach, cliffs, falls, garden… time to relax."));
             _busy = false;
         }
         IEnumerator BusLeave(Transform bus)
@@ -189,6 +190,7 @@ namespace CoastRun.Village
         }
 
         // ── 가게 실내 ──────────────────────────────────────────────────────
+        bool _mapHid211;
         void BuildZoneRoom(string kind)
         {
             if (_interior == null) return;
@@ -240,7 +242,7 @@ namespace CoastRun.Village
                 case "souv":
                     TintRoom(new Color(0.92f, 0.86f, 0.74f), new Color(1f, 0.96f, 0.88f), new Color(0.98f, 0.58f, 0.18f));
                     for (int k = 0; k < 8; k++) RB(host, "SouvShelf", new Vector3(ox - 3.5f + k * 1f, fy + 1.1f, oz + rd * 0.5f - 0.35f), new Vector3(0.8f, 0.5f, 0.4f), k % 2 == 0 ? new Color(1f, 0.60f, 0.15f) : new Color(0.45f, 0.42f, 0.40f));
-                    model = "Npc_Florist"; npcKey = "souv"; line = Loc.T("중문 오신 기념! 귤 초콜릿 하나 어때요?", "A Jungmun souvenir? Tangerine chocolate!"); menu = SouvenirMenu; title = Loc.T("🎁 기념품 사기", "🎁 Buy souvenirs"); break;
+                    model = "Npc_Florist"; npcKey = "souv"; line = Loc.T("중몬 오신 기념! 귤 초콜릿 하나 어때요?", "A Jungmon souvenir? Tangerine chocolate!"); menu = SouvenirMenu; title = Loc.T("🎁 기념품 사기", "🎁 Buy souvenirs"); break;
                 case "teddy":   // 196차: 테디베어 박물관 — 진열장 곰들
                     TintRoom(new Color(0.90f, 0.80f, 0.68f), new Color(1f, 0.95f, 0.88f), new Color(0.62f, 0.40f, 0.26f));
                     for (int k = 0; k < 7; k++)
@@ -249,7 +251,7 @@ namespace CoastRun.Village
                         RB(host, "TeddyCase", new Vector3(bx, fy + 0.45f, bz), new Vector3(1f, 0.9f, 0.7f), new Color(0.85f, 0.92f, 0.98f));
                         RB(host, "TeddyB", new Vector3(bx, fy + 1.15f, bz), new Vector3(0.45f, 0.5f, 0.4f), tc); RB(host, "TeddyH", new Vector3(bx, fy + 1.55f, bz), new Vector3(0.36f, 0.34f, 0.34f), tc);
                     }
-                    model = "Npc_Cafe"; npcKey = "teddy"; line = Loc.T("테디베어 박물관에 오신 걸 환영해요. 해녀 곰도 있답니다.", "Welcome! We even have a haenyeo bear."); menu = TeddyMenu; title = Loc.T("🧸 테디베어 박물관", "🧸 Teddy Bear Museum"); break;
+                    model = "Npc_Cafe"; npcKey = "teddy"; line = Loc.T("테디곰 박물관에 오신 걸 환영해요. 해녀 곰도 있답니다.", "Welcome! We even have a haenyeo bear."); menu = TeddyMenu; title = Loc.T("🧸 테디곰 박물관", "🧸 Teddy Cub Museum"); break;
                 case "gacha":   // 198차: 럭키 가챠샵 — 캡슐 기계 줄
                     TintRoom(new Color(0.98f, 0.86f, 0.92f), new Color(1f, 0.95f, 0.98f), new Color(0.95f, 0.45f, 0.62f));
                     for (int k = 0; k < 5; k++)
@@ -271,6 +273,7 @@ namespace CoastRun.Village
                 default: return;
             }
             RB(host, "ShopCounter", new Vector3(ox, fy + 0.4f, oz + 1.5f), new Vector3(3.2f, 0.8f, 0.8f), wood, true);
+            DressRoom(host, fy);   // 211차: 상자 소품 → 블렌더 소품
             RoomNpc(host, model, new Vector3(ox, fy, oz + 2.4f), 180f, line);
             int ni = VillageDex.NpcIndex(npcKey); var m = menu;
             _spots.Add(new Spot { id = "in_" + kind, title = title, pos = new Vector3(ox, fy, oz + 0.5f), radius = 2.0f, on = () => { if (ni >= 0) VillageDex.Talk(Save, ni, 1); m(); } });
@@ -303,7 +306,7 @@ namespace CoastRun.Village
             new Outfit { id = "top_canola", ko = "유채 노랑 원피스", price = 600, col = new Color(1f, 0.86f, 0.25f) },
             new Outfit { id = "top_basalt", ko = "현무암 그레이 재킷", price = 800, col = new Color(0.40f, 0.42f, 0.46f) },
             new Outfit { id = "hat_cap", ko = "제주 캡모자", price = 300, col = new Color(0.25f, 0.55f, 0.45f), hat = 1 },
-            new Outfit { id = "hat_tangerine", ko = "감귤 모자 (중문 한정)", price = 500, col = new Color(1f, 0.55f, 0.12f), hat = 4 },
+            new Outfit { id = "hat_tangerine", ko = "감귤 모자 (중몬 한정)", price = 500, col = new Color(1f, 0.55f, 0.12f), hat = 4 },
             new Outfit { id = "pin_canola", ko = "유채꽃 머리핀 (봄 축제 한정)", price = 400, col = new Color(1f, 0.88f, 0.2f), hat = 5 },
             new Outfit { id = "hat_straw", ko = "밀짚모자 (여름 축제 한정)", price = 400, col = new Color(0.95f, 0.85f, 0.55f), hat = 2 },
             new Outfit { id = "scarf_orange", ko = "귤빛 목도리 (가을 축제 한정)", price = 400, col = new Color(1f, 0.55f, 0.15f), hat = 6 },
@@ -472,10 +475,10 @@ namespace CoastRun.Village
         }
         void SouvenirMenu()
         {
-            _hud.Choice(Loc.T("🎁 중문 기념품 가게", "🎁 Souvenir shop"), Loc.T($"기념품을 사면 마을 부탁도 해결! · 지갑 {Save.stats.money:N0}G", $"{Save.stats.money:N0}G"), new (string, Color, Action)[] {
+            _hud.Choice(Loc.T("🎁 중몬 기념품 가게", "🎁 Souvenir shop"), Loc.T($"기념품을 사면 마을 부탁도 해결! · 지갑 {Save.stats.money:N0}G", $"{Save.stats.money:N0}G"), new (string, Color, Action)[] {
                 (Loc.T("🍫 귤 초콜릿 · 120G", "🍫 Tangerine chocolate · 120G"), new Color(1f, 0.62f, 0.25f), () => { BuyItem("souv_choco", 120); MissionTick(VillageMission.Kind.TourSouvenir); }),
                 (Loc.T("🗿 하르방 인형 · 300G", "🗿 Hareubang doll · 300G"), new Color(0.55f, 0.52f, 0.50f), () => { BuyItem("souv_doll", 300); MissionTick(VillageMission.Kind.TourSouvenir); }),
-                (Save.outfits.Contains("hat_tangerine") ? Loc.T("🍊 감귤 모자 쓰기", "🍊 Wear tangerine hat") : Loc.T("🍊 감귤 모자 · 500G (중문 한정 옷)", "🍊 Tangerine hat · 500G"), new Color(1f, 0.55f, 0.12f), () => { BuyWear(OutfitIndex("hat_tangerine")); MissionTick(VillageMission.Kind.TourSouvenir); }),
+                (Save.outfits.Contains("hat_tangerine") ? Loc.T("🍊 감귤 모자 쓰기", "🍊 Wear tangerine hat") : Loc.T("🍊 감귤 모자 · 500G (중몬 한정 옷)", "🍊 Tangerine hat · 500G"), new Color(1f, 0.55f, 0.12f), () => { BuyWear(OutfitIndex("hat_tangerine")); MissionTick(VillageMission.Kind.TourSouvenir); }),
                 (Loc.T("나가기", "Leave"), new Color(0.6f, 0.6f, 0.66f), () => { }),
             });
         }
@@ -695,8 +698,8 @@ namespace CoastRun.Village
             }
             else if (z == VillageZones.Zone.Tour)
             {
-                Go(Loc.T("🚌 중문 정류장", "🚌 Stop"), VillageZones.TourStop, new Color(0.40f, 0.62f, 0.92f));
-                string[] nm = { "🏖 색달해변", "📸 주상절리대", "💧 천제연 폭포", "🌺 여미지 식물원", "🪑 호텔 정원" };
+                Go(Loc.T("🚌 중몬 정류장", "🚌 Stop"), VillageZones.TourStop, new Color(0.40f, 0.62f, 0.92f));
+                string[] nm = { "🏖 색동해변", "📸 주상절벽대", "💧 천재연 폭포", "🌺 여미니 식물원", "🪑 호텔 정원" };
                 for (int i = 0; i < 5; i++) Go(nm[i], VillageZones.TourSpots[i], new Color(1f, 0.62f, 0.28f));
                 Go(Loc.T("🎁 기념품 가게", "🎁 Souvenirs"), Door(VillageZones.Souvenir), new Color(0.98f, 0.62f, 0.72f));
             }

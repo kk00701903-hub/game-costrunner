@@ -23,7 +23,7 @@ namespace CoastRun.Village
             new Mark { ko = "광산", en = "Mine", pos = VillageZones.MineMouth, col = new Color(0.45f, 0.40f, 0.36f) },
             new Mark { ko = "과수원", en = "Orchard", pos = new Vector2(40f, 27f), col = new Color(1f, 0.55f, 0.15f) },
             new Mark { ko = "브런치 카페", en = "Brunch cafe", pos = new Vector2(VillageEast.CafeX, VillageEast.CafeZ), col = new Color(1f, 0.60f, 0.20f) },   // 194차
-            new Mark { ko = "버스(시내·중문)", en = "Bus", pos = new Vector2(VillageEast.StopX, VillageEast.StopZ), col = new Color(0.25f, 0.55f, 0.90f) },   // 194차
+            new Mark { ko = "버스(시내·중몬)", en = "Bus", pos = new Vector2(VillageEast.StopX, VillageEast.StopZ), col = new Color(0.25f, 0.55f, 0.90f) },   // 194차
         };
 
         /// 194차(지도 1.5배): 지도 그림 — 스플랫 색 + 바다(해수면 아래)는 파랑. 예전엔 아래 17 % 를 바다 띠로 덮었는데 지도가 넓어지며 반도·등대가 띠에 묻혔다.

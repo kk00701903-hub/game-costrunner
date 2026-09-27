@@ -62,7 +62,7 @@ namespace CoastRun.Village
             new Npc { key = "mart", ko = "마트 점원", en = "Mart clerk", placeKo = "시내 마트", likes = "gift_snack", likesKo = "선물 과자", lineKo = "계산은 이쪽이에요~ 봉투 필요하세요?", season = 1 },
             new Npc { key = "curator", ko = "박물관 큐레이터", en = "Curator", placeKo = "민속자연사박물관", likes = "fossil_ammonite", likesKo = "암모나이트 화석", lineKo = "빈 진열장이 채워질 때가 제일 설레요.", season = 0 },
             new Npc { key = "market", ko = "축협 아저씨", en = "Market man", placeKo = "축협 가축시장", likes = "ing_milk", likesKo = "우유", lineKo = "소는 느긋하게 키워야 살이 올라.", season = 2 },
-            new Npc { key = "souv", ko = "기념품 가게 언니", en = "Souvenir clerk", placeKo = "중문관광단지", likes = "fruit_hallabong", likesKo = "한라봉", lineKo = "하르방 인형 코를 만지면 아들 낳는대요. 농담~", season = 1 },
+            new Npc { key = "souv", ko = "기념품 가게 언니", en = "Souvenir clerk", placeKo = "중몬관광단지", likes = "fruit_hallabong", likesKo = "한라봉", lineKo = "하르방 인형 코를 만지면 아들 낳는대요. 농담~", season = 1 },
             new Npc { key = "miner", ko = "광부 할아버지", en = "Old miner", placeKo = "오름 광산 입구", likes = "ore_gold", likesKo = "금광석", lineKo = "보라빛 결이 보이면 천천히 두드려.", season = 3 },
         };
         public static int NpcIndex(string key) { for (int i = 0; i < Npcs.Length; i++) if (Npcs[i].key == key) return i; return -1; }
