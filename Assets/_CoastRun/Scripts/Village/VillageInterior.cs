@@ -50,6 +50,8 @@ namespace CoastRun.Village
 
         void Build(Color wall, Color accent)
         {
+            // 215차(212차 평가 후속: 실내 벽이 조명에 하얗게 떠서 빈 무대 같음): 벽을 방 강조색 쪽으로 살짝 물들이고 한 톤 낮춘다
+            { var w2 = Color.Lerp(wall, accent, 0.35f) * 0.78f; w2.a = 1f; wall = w2; }
             var floor = new Color(0.86f, 0.70f, 0.50f); var floorD = new Color(0.78f, 0.62f, 0.44f);
             Box("Floor", new Vector3(0f, -0.1f, 0f), new Vector3(RW, 0.2f, RD), floor);
             // 210차(사용자: 「다른 지역도 가보고 테스트」): 방 앞(카메라 쪽)이 비어 화면 아래 절반이 하늘색 빈 배경이었다 → 같은 바닥을 카메라 쪽으로 9 m 이어 깔고 문턱선
@@ -102,7 +104,7 @@ namespace CoastRun.Village
             Box("DoorMat", new Vector3(0f, 0.01f, -RD * 0.5f + 0.5f), new Vector3(0.9f, 0.02f, 0.5f), new Color(0.75f, 0.55f, 0.40f));
             BuildingOutline.Attach(transform, 0.018f);
             var l = new GameObject("RoomLight").AddComponent<Light>(); l.transform.SetParent(transform, false); l.transform.position = new Vector3(OX - 0.2f * KX, FloorY + 2.2f, OZ + 2.3f * KZ);
-            l.type = LightType.Point; l.range = 10f; l.intensity = 1.3f; l.color = new Color(1f, 0.93f, 0.78f);
+            l.type = LightType.Point; l.range = 10f; l.intensity = 1.0f;   /* 215차: 1.3 → 1.0 (벽이 하얗게 뜸) */ l.color = new Color(1f, 0.93f, 0.78f);
         }
     }
 }

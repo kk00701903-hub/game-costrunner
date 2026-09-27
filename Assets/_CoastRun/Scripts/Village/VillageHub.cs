@@ -734,7 +734,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_interior != null) return;
             Color wall = new Color(0.98f, 0.94f, 0.88f), accent = VillagePalette.UiPink;
             var wr = house != null ? house.Find("Wall") : null;
-            if (wr != null) { var m = wr.GetComponent<Renderer>().sharedMaterial; if (m != null && m.HasProperty("_BaseColor")) wall = Color.Lerp(m.GetColor("_BaseColor"), Color.white, 0.35f); }
+            if (wr != null) { var m = wr.GetComponent<Renderer>().sharedMaterial; if (m != null && m.HasProperty("_BaseColor")) wall = Color.Lerp(m.GetColor("_BaseColor"), Color.white, 0.12f);   /* 215차: 0.35 → 0.12 — 실내 벽이 조명에 하얗게 떠서 */ }
             string[] acc = { "#FEC4DD", "#A9DCC8", "#BFD8F5", "#F7D5A6", "#CDBDDA" }; accent = VillagePalette.Hex(acc[Mathf.Abs(name.GetHashCode()) % acc.Length]);
             var back = door + (house != null ? house.forward * 1.7f : Vector3.zero);   // 154차: 나오면 문에서 1.7 m 앞(자동 입장 문 밖)
             _heroInside = house != null && house == VillageWorld.HeroHouse;
