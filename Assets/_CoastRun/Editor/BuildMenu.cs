@@ -156,6 +156,29 @@ namespace CoastRun.Editor
             Debug.Log($"[Build] Always Included shaders locked (total={keep.Count}, added={added})");
         }
 
+        /// 215차: IL2CPP .dbg/.sym.so 를 만들지 않게 해 C: 디스크 부족으로 빌드가 깨지지 않게 한다.
+        static void DisableAndroidDebugSymbols()
+        {
+            try
+            {
+                var t = System.Type.GetType("UnityEditor.Android.UserBuildSettings, UnityEditor.Android.Extensions");
+                var dbgProp = t?.GetProperty("DebugSymbols", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                var dbg = dbgProp?.GetValue(null);
+                var levelProp = dbg?.GetType().GetProperty("level");
+                if (levelProp != null)
+                {
+                    var none = System.Enum.Parse(levelProp.PropertyType, "None");
+                    levelProp.SetValue(dbg, none);
+                    Debug.Log("[Build] DebugSymbols.level = None");
+                }
+            }
+            catch (System.Exception e) { Debug.LogWarning("[Build] DebugSymbols.level 설정 실패: " + e.Message); }
+#pragma warning disable CS0618
+            EditorUserBuildSettings.androidCreateSymbols = AndroidCreateSymbols.Disabled;
+            EditorUserBuildSettings.androidCreateSymbolsZip = false;
+#pragma warning restore CS0618
+        }
+
         private static void Build(BuildKind kind)
         {
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();
@@ -188,6 +211,7 @@ namespace CoastRun.Editor
             ApplyBranding();
             EditorUserBuildSettings.buildAppBundle = false;
             EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+            DisableAndroidDebugSymbols(); // 215차: 디스크 부족 시 .dbg/.sym.so 복사 실패 방지
 
             string apkName;
             BuildOptions optsFlags = BuildOptions.None;
@@ -225,10 +249,11 @@ namespace CoastRun.Editor
                     break;
                 default:
                     PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
-                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64 | AndroidArchitecture.ARMv7;
+                    // 215차: 디스크 부족으로 듀얼 아키텍처 IL2CPP 링크/심볼 복사 실패 → ARM64만(최신 폰 OK). 공간 여유 생기면 ARMv7 복원.
+                    PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
                     PlayerSettings.SetIl2CppCompilerConfiguration(BuildTargetGroup.Android, Il2CppCompilerConfiguration.Release);
                     apkName = "CoastRun.apk";
-                    kindLabel = "IL2CPP/ARM64+ARMv7";
+                    kindLabel = "IL2CPP/ARM64";
                     break;
             }
 
