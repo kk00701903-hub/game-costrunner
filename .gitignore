@@ -124,3 +124,8 @@ Tools/Telegram/outbox*
 Keystore/
 *.keystore
 *.jks
+
+# 226Â÷: Play Asset Delivery ÄÆÆÑ(ºôµå ½Ã Àç»ý¼º, ¹øµé 151MB > GitHub 100MB)
+Assets/CutImages.androidpack/
+Assets/CutImages.androidpack.meta
+
