@@ -25,6 +25,8 @@ namespace CoastRun
         /// 8차: 레인 이동 시간 배율. 순발력 ↑ → 옆으로 더 빨리.
         public static float LaneMul = 1f;
         public static SeasonKind Season = SeasonKind.Summer;
+        /// 236차(난이도 점검): 체력 스탯이 피격 피해를 줄인다(0 ~ 15%). 장애물 피해가 게이지 비율로 바뀐 뒤(71차) 체력을 키워도 몇 방에 쓰러지는지가 같았던 것.
+        public static float HitReduce = 0f;
 
         public static void Reset()
         {
@@ -41,6 +43,7 @@ namespace CoastRun
             HasSeason = false;
             SunsetGrace = 1.25f;
             LaneMul = 1f;
+            HitReduce = 0f;
         }
 
         public static void Configure(SaveData s)
@@ -59,6 +62,7 @@ namespace CoastRun
             NearMissBonus = 1f + charm01;                           // 최대 ×2
             SunsetGrace = 1.12f + 0.45f * stamina01;                // 1.12 ~ 1.57 (체력이 곧 노을까지의 시간)
             LaneMul = 1f - 0.38f * agility01;                       // 순발력 100 → 레인 이동 38% 빠름
+            HitReduce = 0.15f * stamina01;                          // 236차: 체력 100 → 피해 −15%
             BurnoutStart = st.Burnout;
             Pet = s.equippedPet;
             HasSeason = true;

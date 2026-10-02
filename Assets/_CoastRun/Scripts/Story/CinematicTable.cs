@@ -76,7 +76,7 @@ namespace CoastRun
 
         private static readonly Def Opening = new Def
         {
-            id = "OPEN", title = "그 약속", bgm = "BGM_M5", sat = 1.00f, holdToSeconds = 12f, gameTitleCard = true, cardMain = "너와 나의 주파수", cardSub = "우리의 송전탑  ·  COAST RUN",
+            id = "OPEN", title = "그 약속", bgm = "BGM_M5", sat = 1.00f, holdToSeconds = 12f, gameTitleCard = true, cardMain = "너와 나의 주파수", cardSub = "우리의 송전탑  ·  OUR FREQUENCY",
             cuts = new[]
             {
                 new Cut(null, "Cut_T_V7_OPB_01", "검은 차가 출발했다. 나는 뒷유리를 손바닥으로 두드렸다. 창이 내려갔다.", 6.5f, false, null, "Cut_T_N6_02", 0),

@@ -12,7 +12,7 @@ namespace CoastRun
         public const int DangerWeeksToDie = 2;
         /// 74차: 한 주를 살면 그냥 쌓이는 피로. 다 잘 챙긴 주에만 겨우 -1 이 되고(공짜 회복을 없앤다),
         ///   굶고 못 자고 옷까지 낡으면 +40 까지 오른다.
-        public const int WeeklyStressBase = 8;
+        public const int WeeklyStressBase = 6;   // 237차: 8→6(스트레스 벽 완화)
 
         public class WeekReport
         {
@@ -52,9 +52,10 @@ namespace CoastRun
             }
             else
             {
-                s.hunger -= 40;
+                bool firstMiss = s.starveWeeks == 0;      // 237차: 첫 끼니 거름은 가볍게(배고픔 -25, 컨디션 -2) — 둘째 주부터 원래대로
+                s.hunger -= firstMiss ? 25 : 40;
                 s.starveWeeks++;
-                s.condition -= 5;
+                s.condition -= firstMiss ? 2 : 5;
             }
             s.ateThisWeek = false;
             s.hunger = Mathf.Clamp(s.hunger, 0, 100);

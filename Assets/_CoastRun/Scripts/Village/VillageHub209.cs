@@ -68,7 +68,10 @@ namespace CoastRun.Village
             string[] names = { "PlayerLoop", "Update.ScriptRunBehaviourUpdate", "PreLateUpdate.ScriptRunBehaviourLateUpdate", "FixedUpdate.PhysicsFixedUpdate", "RenderPipelineManager.DoRenderLoop_Internal()", "Inl_Draw Opaque", "Inl_MainLightShadow", "Gfx.WaitForPresentOnGfxThread", "Gfx.WaitForGfxCommandsFromMainThread", "GC.Collect", "Animators.Update", "UIEvents.CanvasManagerRenderOverlays", "Canvas.SendWillRenderCanvases" };
             var recs = new List<UnityEngine.Profiling.Recorder>(); foreach (var n in names) { var r = UnityEngine.Profiling.Recorder.Get(n); r.enabled = true; recs.Add(r); }
             var sum = new double[names.Length]; int f = 0; float t0 = Time.realtimeSinceStartup; yield return null;
-            while (Time.realtimeSinceStartup - t0 < 4f) { for (int i = 0; i < recs.Count; i++) if (recs[i].isValid) sum[i] += recs[i].elapsedNanoseconds / 1e6; f++; yield return null; }
+            // 218차: 프레임당 GC 할당(바이트) — 모바일에서 끊김(GC 스파이크)의 주범
+            var gc = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Memory, "GC Allocated In Frame"); long gcSum = 0, gcMax = 0; int gcN = 0;
+            while (Time.realtimeSinceStartup - t0 < 4f) { for (int i = 0; i < recs.Count; i++) if (recs[i].isValid) sum[i] += recs[i].elapsedNanoseconds / 1e6; if (gc.Valid) { long v = gc.LastValue; gcSum += v; gcN++; if (v > gcMax) gcMax = v; } f++; yield return null; }
+            Debug.LogWarning($"[218] GC alloc/frame avg={(gcN > 0 ? gcSum / gcN : 0) / 1024f:0.0} KB max={gcMax / 1024f:0.0} KB (n={gcN})"); gc.Dispose();
             var sb = new System.Text.StringBuilder($"[209] perf split {f} frames (ms/frame)\n");
             for (int i = 0; i < names.Length; i++) sb.AppendLine($"[209]  {names[i]} = {(recs[i].isValid ? (sum[i] / f).ToString("0.00") : "n/a")}");
             sb.AppendLine($"[209]  scripts: Village objects Update — VillageCreatures etc. / GC alloc per frame n/a");

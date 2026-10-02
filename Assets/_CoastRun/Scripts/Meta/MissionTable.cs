@@ -20,7 +20,7 @@ namespace CoastRun
                     case MissionKind.NoHit: return Loc.T("무피격으로 도착", "Arrive without a hit");
                     case MissionKind.NearMiss: return Loc.T($"니어미스 {value}회", $"{value} near misses");
                     case MissionKind.Coins: return Loc.T($"코인 {value}개", $"{value} coins");
-                    case MissionKind.Combo: return Loc.T($"니어미스 콤보 {value}", $"Near-miss combo {value}");
+                    case MissionKind.Combo: return Loc.T($"아슬아슬 스치기 {value}연속", $"Near-miss combo {value}");   // 228차
                     case MissionKind.Hearts: return Loc.T($"하트 {value}개", $"{value} hearts");
                     case MissionKind.MaxHits: return Loc.T($"피격 {value}회 이하", $"At most {value} hits");
                     default: return Loc.T($"{value}초 안에 도착", $"Arrive within {value}s");

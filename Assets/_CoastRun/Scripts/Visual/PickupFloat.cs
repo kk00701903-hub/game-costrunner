@@ -293,17 +293,33 @@ namespace CoastRun
             if (_goSub != null) _goSub.gameObject.SetActive(false);
             _goCo = null;
         }
+        /// 228차: 한 줄로 폭 안에 들어가는 가장 큰 글자 크기(96부터 4씩, 최소 44). 대체 글꼴(일본어 등)에서도 폭을 직접 잰다.
+        private static void FitBanner(Text t, float maxW)
+        {
+            var gen = t.cachedTextGeneratorForLayout; float ppu = t.pixelsPerUnit > 0f ? t.pixelsPerUnit : 1f;
+            int size = 96;
+            for (; size > 44; size -= 4)
+            {
+                var s = t.GetGenerationSettings(new Vector2(maxW, 130f)); s.fontSize = size; s.resizeTextForBestFit = false; s.horizontalOverflow = HorizontalWrapMode.Overflow;
+                if (gen.GetPreferredWidth(t.text, s) / ppu <= maxW) break;
+            }
+            t.fontSize = size;
+        }
+
         private IEnumerator BannerSeq(string text, Color color, float seconds)
         {
             if (_bannerText == null)
             {
+                // 228차: 보스 이름(「태풍 도깨비」)이 화면 양옆으로 잘림 — 폭을 화면 안(540)으로, 길면 한 줄 그대로 글자만 줄임(96→최소 44, FitBanner)
                 _bannerText = CoastHudLayout.MakeText(_root, "Banner", "", 96, TextAnchor.MiddleCenter,
-                    new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-400f, -330f), new Vector2(400f, -200f));
+                    new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(-270f, -330f), new Vector2(270f, -200f));
                 _bannerText.fontStyle = FontStyle.Bold; _bannerText.raycastTarget = false;
+                _bannerText.horizontalOverflow = HorizontalWrapMode.Overflow; _bannerText.resizeTextForBestFit = false;
                 CoastUiArt.OutlineText(_bannerText, new Color(0.35f, 0.12f, 0.02f, 1f), 4f);
             }
             _bannerText.gameObject.SetActive(true);
             _bannerText.text = text;
+            FitBanner(_bannerText, 540f);
             var rt = _bannerText.rectTransform;
             float t = 0f;
             while (t < seconds)

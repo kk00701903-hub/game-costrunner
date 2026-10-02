@@ -119,3 +119,8 @@ Tools/Telegram/outbox*
 # 구글 드라이브 동기화가 저장소 루트에 만드는 임시 폴더(수백 개 파일)
 .tmp.driveupload/
 .tmp.drivedownload/
+
+# 219차: 플레이 스토어 업로드 키(절대 커밋 금지 — 비밀번호는 .env)
+Keystore/
+*.keystore
+*.jks

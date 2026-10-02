@@ -44,14 +44,28 @@ namespace CoastRun.Editor
             // outline and the chroma test then turns the whole edge dark.
             importer.mipmapEnabled = (world || tile) && !file.StartsWith("GirlSkater_") && !file.StartsWith("Obs_") && !file.StartsWith("Raise_") && !file.StartsWith("Stand_");
             importer.maxTextureSize = 2048;
+            // 219차: 가로세로가 2의 거듭제곱이 아닌(NPOT) 그림에 밉맵을 켜면 ASTC 압축이 거부되고 RGBA32 로 들어간다(실험으로 확인).
+            // 하늘·원경은 화면 크기 가까이 그려져 밉맵 이득이 작다 → NPOT 이면 밉맵을 끈다(크기·비율은 그대로).
+            if (importer.mipmapEnabled)
+            {
+                importer.GetSourceTextureWidthAndHeight(out int sw, out int sh);
+                if (sw > 0 && sh > 0 && (!Mathf.IsPowerOfTwo(sw) || !Mathf.IsPowerOfTwo(sh))) importer.mipmapEnabled = false;
+            }
             // Keyed billboards stay uncompressed: the DXT5 path inflated alpha in the
             // fully transparent regions (readback showed a≈90–140 where the PNG has 0),
             // which drew every cloud/town quad as a pale slab.
             // Raise_ 스탠딩(RGBA 컷아웃)도 비압축: DXT가 완전 투명 텍셀의 RGB를 검게 만들어
             // 육성 화면 초상 주변에 검은 상자가 생겼다.
-            importer.textureCompression = world || file.StartsWith("Raise_") || file.StartsWith("Stand_")
-                ? TextureImporterCompression.Uncompressed
-                : TextureImporterCompression.Compressed;
+            // 219차(플레이 스토어 준비): 기본 압축이 「비압축」이면 안드로이드 ASTC 오버라이드가 무시되고 RGBA32 로 들어갔다
+            // (하늘 배경 73장 = 약 1 GB → APK 832 MB 의 주범). 기본은 압축으로 두고, PC(Standalone)만 비압축(RGBA32) 오버라이드로 예전 그대로.
+            bool keepPcRaw = world || file.StartsWith("Raise_") || file.StartsWith("Stand_");
+            importer.textureCompression = TextureImporterCompression.Compressed;
+            if (keepPcRaw)
+            {
+                var pc = importer.GetPlatformTextureSettings("Standalone");
+                pc.overridden = true; pc.format = TextureImporterFormat.RGBA32; pc.maxTextureSize = 2048;
+                importer.SetPlatformTextureSettings(pc);
+            }
             importer.npotScale = TextureImporterNPOTScale.None;
 
             // ── Android 용량 절감 (플레이 스토어 200MB 목표) ──
@@ -63,7 +77,7 @@ namespace CoastRun.Editor
             android.overridden = true;
             android.maxTextureSize = androidMax;
             android.format = TextureImporterFormat.ASTC_6x6;
-            android.compressionQuality = 100;
+            android.compressionQuality = keepPcRaw ? 50 : 100;   // 219차: 큰 하늘 배경은 보통 품질(최고 품질은 한 장에 수십 초)
             android.allowsAlphaSplitting = false;
             importer.SetPlatformTextureSettings(android);
         }

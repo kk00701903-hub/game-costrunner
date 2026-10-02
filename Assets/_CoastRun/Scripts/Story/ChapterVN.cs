@@ -326,6 +326,8 @@ namespace CoastRun
         {
             _fader.color = Color.black;
             yield return null;   // 씬을 연 그 탭/키가 첫 프레임에서 '진행'으로 읽히지 않게
+            // 226차: 이 장면 그림이 아직 안 받아진 팩에 있으면 받을 때까지 기다림
+            yield return CutPack.EnsureReady(CutPack.IdsOf(_lines, _sceneId));
             _advance = false;
             // 6차: 씬 앞 짧은 영상(Resources/CoastRun/Video/VID_<씬>) — 페이더 위, 타이틀 카드 아래
             var clip = StoryVideo.ClipFor(_sceneId);
@@ -363,7 +365,7 @@ namespace CoastRun
             for (int i = 0; i < _lines.Length && !_skip; i++)
             {
                 var line = _lines[i];
-                string txt = Loc.IsKo ? line.B : Loc.Tr(ChapterScript.TextEn(_sceneId, i) ?? line.B);
+                string txt = Loc.IsKo ? line.B : Loc.Tr(ChapterScript.TextEn(_sceneId, i) ?? StoryEn.En(line.B) ?? line.B);
                 // 6차: 조건 태그 — SAY는 화자 칸, NARR/LETTER는 본문 앞 [조건]
                 string speaker = line.A;
                 bool pass = true;

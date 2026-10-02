@@ -457,6 +457,7 @@ namespace CoastRun.EditorTools
             var p = h.NpcPos(s.reqNpc[0]); h.Teleport(new Vector3(p.x, 0f, p.z - 1.6f), 0f);
         }
         [MenuItem("Coast Run/Dev/Village - Act now (test)")] private static void VActNow() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.SendMessage("OnAct", SendMessageOptions.DontRequireReceiver); }   // 172차: 행동 버튼(오른쪽 반 톡) 대신 바로 실행 — 원격 tap 으로는 CameraPad 를 못 누른다
+        [MenuItem("Coast Run/Dev/218 - Swing film (side, 12 frames)")] private static void VSwingFilm() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.StartCoroutine(h.DevSwingFilm()); }   // 218차: 옆에서 본 휘두르기 12장 → Tools/_shots/p218_film_*.png
         [MenuItem("Coast Run/Dev/Village - Swing now (test)")] private static void VSwingNow() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.SendMessage("Swing", SendMessageOptions.DontRequireReceiver); }   // 171차: 도구 모션 확인용
         [MenuItem("Coast Run/Dev/Village - Tool bat")] private static void VToolBat() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(1); }   // 171차: 방망이(빠져 있었음)
         [MenuItem("Coast Run/Dev/Village - Tool rod")] private static void VToolRod() { var h = CoastRun.Village.VillageHub.I; if (h != null) h.DevTool(4); }

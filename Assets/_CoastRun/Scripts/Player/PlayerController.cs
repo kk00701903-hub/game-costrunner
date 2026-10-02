@@ -334,6 +334,13 @@ namespace CoastRun
             if (_inputFreezeTimer > 0f)
                 return;
 
+            // 228차: 일찍 누른 점프를 잠깐 들고 있다가 맞는 때에 뛴다(EarlyJumpDelay)
+            if (_jumpDelay >= 0f)
+            {
+                if (!IsGrounded || _state == SkateState.SoftHit) _jumpDelay = -1f;
+                else { _jumpDelay -= Time.deltaTime; if (_jumpDelay <= 0f) { _jumpDelay = -1f; GroundJump(); } }
+            }
+
             if (_input.ConsumeJump())
                 TryJump();
             if (_input.ConsumeCrouch())
@@ -399,6 +406,43 @@ namespace CoastRun
                 return;
             }
 
+            // 228차(게임성 테스트: 처음 하는 사람은 장애물이 보이자마자 0.6~0.7초 전에 눌러 장애물 바로 앞에 착지 → 맞음):
+            //   같은 레인의 낮은 장애물이 0.42~0.9초 앞에 있으면 그 점프를 최대 0.25초 늦춰 「0.32초 전」 쯤에 뛴다.
+            //   다시 누르면(두 번째 탭) 기다리지 않고 바로 뛴다.
+            if (_jumpDelay < 0f && IsGrounded)
+            {
+                float d = EarlyJumpDelay();
+                if (d > 0.02f) { _jumpDelay = d; return; }
+            }
+            _jumpDelay = -1f;
+            GroundJump();
+        }
+
+        private float _jumpDelay = -1f;
+        private const float JumpAssistMin = 0.42f, JumpAssistMax = 0.9f, JumpAssistIdeal = 0.32f, JumpAssistMaxDelay = 0.25f;
+
+        /// 같은 레인 바로 앞 「넘을 수 있는(낮은)」 장애물까지 남은 시간으로 점프를 얼마나 늦출지(초). 해당 없으면 0.
+        private float EarlyJumpDelay()
+        {
+            if (_speed < 1f) return 0f;
+            float best = 99f; ObstacleHazard bestH = null;
+            var list = ObstacleHazard.Active;
+            for (int i = 0; i < list.Count; i++)
+            {
+                var h = list[i]; if (h == null) continue;
+                var c = h.GetComponent<Collider>(); if (c == null || !c.enabled) continue;
+                var rel = transform.InverseTransformPoint(c.bounds.center);
+                if (rel.z <= 0.3f || Mathf.Abs(rel.x) > 1.0f) continue;
+                float ttc = rel.z / _speed;
+                if (ttc < best) { best = ttc; bestH = h; }
+            }
+            if (bestH == null || best < JumpAssistMin || best > JumpAssistMax) return 0f;
+            if (bestH.ClassifyHit(this) == HitKind.Bounce) return 0f;   // 높은 장애물은 어차피 못 넘음 — 손대지 않음
+            return Mathf.Min(JumpAssistMaxDelay, best - JumpAssistIdeal);
+        }
+
+        private void GroundJump()
+        {
             // Jumping out of a crouch is allowed — it is the natural way to cancel a duck
             // when the next obstacle is a low one. Stand up first so the capsule and
             // visuals agree.
@@ -474,8 +518,27 @@ namespace CoastRun
             // the player for ~16 m at top speed with no way out — now a jump cancels it
             // (TryJump) and a lane flick still steers through it (HandleInput).
             _state = SkateState.Crouch;
-            _crouchTimer = Mathf.Min(config.crouchDuration, 0.4f);
+            _crouchTimer = Mathf.Min(config.crouchDuration, 0.6f);   // 228차: 0.4 → 0.6초(일찍 숙여도 빨래줄·허들 밑을 지나가게)
+            _crouchAge = 0f;
             _bodyHeight = config.crouchHeight;
+        }
+
+        /// 236차(난이도 점검): 숙인 채 일어나려는 순간 머리 위 장애물(빨랫줄·등불 줄·허들)이 바로 앞이나 몸 위에 있으면
+        ///   그게 지나갈 때까지 조금 더 숙인다(한 번 숙임에 최대 1.2 s). 0.6 s 쯤 일찍 숙였다가 막 일어나며 걸리던 것 — 테스트 피격의 상당수.
+        private float _crouchAge;
+        private const float CrouchAssistMax = 1.2f;
+        private bool DuckAhead()
+        {
+            float fwd = Mathf.Max(1f, _speed) * 0.3f;
+            foreach (var d in FindObjectsByType<DuckHazard>(FindObjectsSortMode.None))
+            {
+                if (d == null) continue;
+                var c = d.GetComponent<Collider>(); if (c == null || !c.enabled) continue;
+                var rel = transform.InverseTransformPoint(c.bounds.center);
+                var e = c.bounds.extents; float half = Mathf.Max(e.x, e.z);
+                if (rel.z > -half - 0.6f && rel.z < half + fwd && Mathf.Abs(rel.x) < half + 1.2f) return true;
+            }
+            return false;
         }
 
         private void UpdateCrouch()
@@ -491,8 +554,10 @@ namespace CoastRun
             }
 
             _crouchTimer -= Time.deltaTime;
+            _crouchAge += Time.deltaTime;
             if (_crouchTimer > 0f)
                 return;
+            if (_crouchAge < CrouchAssistMax && DuckAhead()) { _crouchTimer = 0.05f; return; }   // 236차: 머리 위 장애물이 지나갈 때까지
 
             _bodyHeight = config.standHeight;
             _state = SkateState.Run;
@@ -600,7 +665,61 @@ namespace CoastRun
                 _coyoteTimer = Mathf.Max(0f, _coyoteTimer - Time.deltaTime);
             }
 
+            Vector3 sweepFrom = transform.position;
             ApplyPathPose();
+            SweepHazards(sweepFrom, transform.position);
+        }
+
+        // ── 219차(사용자: 「통과되는 장애물이 있음」, 움직임 QA 재현): 뚫림 방지 ──────────────
+        // 몸은 매 프레임 위치를 옮기는 키네마틱이라, 프레임이 늦어 한 번에 0.5~1.6 m 를 건너뛰면 두께 0.3~0.6 m 장애물의
+        // 트리거를 아예 안 거치고 지나갈 수 있다(연속 충돌 검사는 트리거에 안 먹는다). 지난 위치 → 지금 위치를 몸 캡슐로 훑어,
+        // 「지나오는 중에 닿았는데 지금은 벗어난」 장애물·머리 위 장애물에만 같은 OnTriggerEnter 를 대신 불러 준다.
+        // 시작 때부터 겹쳐 있던 것(지난 프레임에 이미 처리)과 지금도 겹친 것(물리 트리거가 처리)은 건드리지 않는다 — 두 번 맞지 않게.
+        private static readonly RaycastHit[] _sweepHits = new RaycastHit[24];
+        private static readonly Collider[] _sweepOverlap = new Collider[24];
+
+        private void SweepHazards(Vector3 from, Vector3 to)
+        {
+            if (_bodyCollider == null || !_bodyCollider.enabled || !_bodyCollider.gameObject.activeInHierarchy) return;
+            Vector3 d = to - from; float dist = d.magnitude;
+            if (dist > 8f) return;   // 순간이동(재시작·워프)
+            BodyCapsule(to, out var b1, out var b2, out float r);
+            int m = Physics.OverlapCapsuleNonAlloc(b1, b2, r, _sweepOverlap, ~0, QueryTriggerInteraction.Collide);
+            // (1) 지금 겹친 장애물(머리 위 장애물 포함): 물리 트리거가 놓쳐도 여기서 맞는다(QA 20fps 에서 한가운데 콘·빨랫줄이 트리거 없이 지나간 사례).
+            //     머리 위 장애물은 숙인 동안엔 DuckHazard 쪽에서 그냥 넘어간다(기존 규칙 그대로).
+            //     장애물 쪽 _popped 가드로 물리 트리거와 겹쳐 불려도 한 번만 처리된다.
+            for (int j = 0; j < m; j++)
+            {
+                var c = _sweepOverlap[j];
+                if (c == null || !c.enabled || !c.isTrigger) continue;
+                if (c.GetComponent<ObstacleHazard>() != null || c.GetComponent<DuckHazard>() != null) c.SendMessage("OnTriggerEnter", _bodyCollider, SendMessageOptions.DontRequireReceiver);
+            }
+            if (dist < 0.02f) return;
+            // (2) 이번 프레임에 건너뛴 장애물(지나오며 닿았지만 지금은 벗어남) — 머리 위 장애물(숙이기)도 포함
+            BodyCapsule(from, out var a1, out var a2, out _);
+            int n = Physics.CapsuleCastNonAlloc(a1, a2, r, d / dist, _sweepHits, dist, ~0, QueryTriggerInteraction.Collide);
+            if (n <= 0) return;
+            for (int i = 0; i < n; i++)
+            {
+                var c = _sweepHits[i].collider;
+                if (c == null || !c.enabled || !c.isTrigger || _sweepHits[i].distance <= 0f) continue;
+                if (c.GetComponent<ObstacleHazard>() == null && c.GetComponent<DuckHazard>() == null) continue;
+                bool stillInside = false;
+                for (int j = 0; j < m; j++) if (_sweepOverlap[j] == c) { stillInside = true; break; }
+                if (stillInside) continue;
+                c.SendMessage("OnTriggerEnter", _bodyCollider, SendMessageOptions.DontRequireReceiver);
+            }
+        }
+
+        private void BodyCapsule(Vector3 pos, out Vector3 p1, out Vector3 p2, out float radius)
+        {
+            var s = transform.lossyScale;
+            radius = _bodyCollider.radius * Mathf.Max(Mathf.Abs(s.x), Mathf.Abs(s.z));
+            float h = _bodyCollider.height * Mathf.Abs(s.y);
+            Vector3 c = pos + transform.rotation * Vector3.Scale(_bodyCollider.center, s);
+            float half = Mathf.Max(0f, h * 0.5f - radius);
+            Vector3 up = transform.up;
+            p1 = c + up * half; p2 = c - up * half;
         }
 
         private void SnapToPath()

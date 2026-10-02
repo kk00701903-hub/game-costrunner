@@ -330,12 +330,15 @@ namespace CoastRun.Village
                 var btn = b.gameObject.AddComponent<Button>(); btn.transition = Selectable.Transition.None;
                 var cap = it.on;
                 btn.onClick.AddListener(() => { CoastPrefs.Vibrate(); ClosePopup(); cap?.Invoke(); });
+                b.gameObject.AddComponent<PressScale>();   // 218차: 누름 손맛
             }
             var close = CoastUiArt.CutePill(card, "Close", new Color(0.92f, 0.90f, 0.95f), 18, 2);
             var crt = close.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(1f, 1f); crt.pivot = new Vector2(1f, 1f);
             crt.anchoredPosition = new Vector2(-10f, -10f); crt.sizeDelta = new Vector2(44f, 44f); close.raycastTarget = true;
             var ct = CoastHudLayout.MakeText(crt, "T", "✕", 20, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(0f, 2f), Vector2.zero); ct.color = new Color(0.35f, 0.32f, 0.45f);
             var cb = close.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None; cb.onClick.AddListener(() => { CoastPrefs.Vibrate(); ClosePopup(); });
+            close.gameObject.AddComponent<PressScale>();
+            UiPop.Attach(dim.gameObject, 0.24f, Vector2.zero, ert, card);   // 218차: 팝업이 툭 뜨지 않게 페이드 + 살짝 튕김
         }
 
         public void ClosePopup()
@@ -365,7 +368,10 @@ namespace CoastRun.Village
             tx.resizeTextForBestFit = true; tx.resizeTextMinSize = 13; tx.resizeTextMaxSize = CoastHudLayout.Scaled(22);
             var hint = CoastHudLayout.MakeText(brt, "H", Loc.T("탭해서 닫기 ▼", "Tap to close ▼"), 12, TextAnchor.LowerRight, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 6f), new Vector2(-18f, 26f));
             hint.color = new Color(0.6f, 0.55f, 0.6f);
-            var b = dim.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None; b.onClick.AddListener(() => ClosePopup());
+            // 218차: 대사는 글자씩 흘러나오고(최대 0.9 초), 흐르는 중에 탭하면 다 보여 주기 → 다시 탭하면 닫기
+            var tr = TypeReveal.Run(tx, line);
+            var b = dim.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None; b.onClick.AddListener(() => { if (tr != null && !tr.Done) tr.Finish(); else ClosePopup(); });
+            UiPop.Attach(dim.gameObject, 0.2f, Vector2.zero, brt);
         }
 
         void OnDestroy() { if (_canvas != null) Destroy(_canvas.gameObject); }

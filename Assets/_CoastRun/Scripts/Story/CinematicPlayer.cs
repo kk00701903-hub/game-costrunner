@@ -125,12 +125,12 @@ namespace CoastRun
             tgo.transform.SetParent(root, false);
             CoastOrnate.Stretch(tgo.GetComponent<RectTransform>(), 0f, 0f, 0f, 0f);
             _titleCg = tgo.GetComponent<CanvasGroup>(); _titleCg.alpha = 0f; _titleCg.blocksRaycasts = false;
-            var t1 = CoastOrnate.Label(tgo.transform, "Main", _def.cardMain ?? _def.title, _def.gameTitleCard ? 64 : 54, new Color(1f, 0.97f, 0.88f));
+            var t1 = CoastOrnate.Label(tgo.transform, "Main", StoryEn.T(_def.cardMain ?? _def.title), _def.gameTitleCard ? 64 : 54, new Color(1f, 0.97f, 0.88f));
             var r1 = t1.rectTransform; r1.anchorMin = r1.anchorMax = new Vector2(0.5f, 0.70f); r1.sizeDelta = new Vector2(680f, 90f);
             t1.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(t1, new Color(0.55f, 0.22f, 0.08f, 0.9f), 2.5f);
             if (!string.IsNullOrEmpty(_def.cardSub))
             {
-                var t2 = CoastOrnate.Label(tgo.transform, "Sub", _def.cardSub, 24, new Color(1f, 0.93f, 0.78f, 0.95f));
+                var t2 = CoastOrnate.Label(tgo.transform, "Sub", StoryEn.T(_def.cardSub), 24, new Color(1f, 0.93f, 0.78f, 0.95f));
                 bool multi = _def.cardSub.Contains("\n");   // 75차: MV 카드의 세 줄 안내는 제목과 안 겹치게 조금 더 아래(0.625 → 0.585)
                 var r2 = t2.rectTransform; r2.anchorMin = r2.anchorMax = new Vector2(0.5f, multi ? 0.585f : 0.625f); r2.sizeDelta = new Vector2(660f, multi ? 120f : 90f);
                 t2.horizontalOverflow = HorizontalWrapMode.Wrap; t2.verticalOverflow = VerticalWrapMode.Overflow; t2.lineSpacing = 1.25f;   // 75차: MV 카드의 긴 스트리밍 안내도 두 줄로
@@ -224,6 +224,8 @@ namespace CoastRun
 
         private IEnumerator Run()
         {
+            // 226차: 이 컷씬 그림이 아직 안 받아진 팩에 있으면 받을 때까지 기다림(대개 설치 직후 몇 분 안에 끝남)
+            yield return CutPack.EnsureReady(CutPack.IdsOf(_def));
             if (_music.clip != null) _music.Play();
             float started = Time.unscaledTime;
             bool cutShort = false;
@@ -233,6 +235,7 @@ namespace CoastRun
             for (int i = 0; i < cuts.Length && !_skip; i++)
             {
                 var s = cuts[i];
+                string cap = StoryEn.T(s.caption);   // 219차: 영어 모드 자막(→ ja·es 번역표)
                 var tex = ArtAssets.LoadTexture(s.still);
                 if (tex == null && !string.IsNullOrEmpty(s.fallback)) tex = ArtAssets.LoadTexture(s.fallback);
                 cur.sprite = tex != null ? CoastUiArt.AsSprite(tex, 100f) : null;
@@ -242,7 +245,7 @@ namespace CoastRun
                 cur.transform.SetAsLastSibling();
                 if (_band != null)
                 {   // 85차(v4): 자막이 세 문장 넘는 컷은 띠를 높여 세 줄까지
-                    bool longCap = s.caption != null && s.caption.Length > 90;
+                    bool longCap = cap != null && cap.Length > (Loc.IsKo ? 90 : 150);
                     _band.rectTransform.anchorMin = new Vector2(0f, longCap ? 0.05f : 0.06f); _band.rectTransform.anchorMax = new Vector2(1f, longCap ? 0.25f : 0.21f);
                 }
                 cur.rectTransform.localScale = Vector3.one * s.from.x; cur.rectTransform.anchoredPosition = new Vector2(s.from.y * 720f, 0f);
@@ -264,12 +267,12 @@ namespace CoastRun
                 if (_nowPlaying != null) _nowPlaying.SetAsLastSibling();
                 _titleCg.transform.SetAsLastSibling();
                 if (_skipBtn != null) _skipBtn.transform.SetAsLastSibling();
-                _caption.text = ""; _tag.text = s.tag ?? "";
+                _caption.text = ""; _tag.text = StoryEn.T(s.tag) ?? "";
 
                 float t = 0f; bool isLast = i == cuts.Length - 1;
                 float dur = useVideo ? Mathf.Max(3f, (float)_player.length - 0.15f) : s.dur;
                 // 136차(사용자): 자막을 통째로 띄우지 않고 「읽어 주듯」 한 글자씩 — 컷 길이에 맞춰 속도 자동
-                float capShown = 0f, capCps = CoastRun.Story.TextReveal.Cps(s.caption, dur - 0.5f);
+                float capShown = 0f, capCps = CoastRun.Story.TextReveal.Cps(cap, dur - 0.5f);
                 _caption.supportRichText = true;
                 { var cc0 = _caption.color; cc0.a = 1f; _caption.color = cc0; }
                 while (t < dur && !_skip)
@@ -294,10 +297,10 @@ namespace CoastRun
                     UpdateFlashback(s.sepia, dt: Time.unscaledDeltaTime);
                     if (i == 0) { var c = _fader.color; c.a = 1f - Mathf.Clamp01(t / 0.9f); _fader.color = c; }
                     else if (t >= 0.8f && nxt.color.a > 0f) nxt.color = new Color(1f, 1f, 1f, 0f);
-                    if (t > 0.5f && !string.IsNullOrEmpty(s.caption) && capShown < s.caption.Length + 1f)
+                    if (t > 0.5f && !string.IsNullOrEmpty(cap) && capShown < cap.Length + 1f)
                     {
                         capShown += Time.unscaledDeltaTime * capCps;
-                        _caption.text = CoastRun.Story.TextReveal.Build(s.caption, capShown);
+                        _caption.text = CoastRun.Story.TextReveal.Build(cap, capShown);
                     }
                     if (isLast && t > dur - 2.4f) _titleCg.alpha = Mathf.Clamp01((t - (dur - 2.4f)) / 0.9f);
                     if (Tapped()) { cutShort = true; break; }

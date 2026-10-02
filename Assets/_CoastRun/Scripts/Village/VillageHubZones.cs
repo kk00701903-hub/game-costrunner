@@ -263,12 +263,29 @@ namespace CoastRun.Village
                     }
                     model = "Npc_Florist"; npcKey = "gacha"; line = Loc.T("젤리 넣고 돌려 봐! 전설 캡슐이 나올지도?", "Pop in jelly and turn the handle!"); menu = GachaMenu; title = Loc.T("럭키 가챠샵", "Lucky Gacha"); break;
                 case "workshop":   // 198차: 탐라 도구 공방 — 모루·화로·도구 걸이
-                    TintRoom(new Color(0.45f, 0.38f, 0.34f), new Color(0.80f, 0.72f, 0.62f), new Color(0.85f, 0.45f, 0.20f));
+                    // 217차(마감 B11): 벽이 하얗게 떠 밋밋하던 공방 — 나무 바닥·짙은 벽, 진짜 도구 걸이·광석 상자·수레·화로 불빛
+                    TintRoom(new Color(0.45f, 0.38f, 0.34f), new Color(0.46f, 0.35f, 0.28f), new Color(0.40f, 0.28f, 0.20f), "Tex_CaveFloor", "Tex_Wood");
                     RB(host, "Anvil", new Vector3(ox - 2.5f, fy + 0.5f, oz + 0.8f), new Vector3(1.0f, 0.5f, 0.5f), new Color(0.25f, 0.25f, 0.28f), true);
                     RB(host, "AnvilBase", new Vector3(ox - 2.5f, fy + 0.2f, oz + 0.8f), new Vector3(0.5f, 0.4f, 0.4f), new Color(0.35f, 0.30f, 0.26f));
                     RB(host, "Forge", new Vector3(ox + 3.2f, fy + 0.8f, oz + rd * 0.5f - 0.7f), new Vector3(1.6f, 1.6f, 1.0f), new Color(0.40f, 0.36f, 0.34f), true);
                     RB(host, "ForgeFire", new Vector3(ox + 3.2f, fy + 0.8f, oz + rd * 0.5f - 1.22f), new Vector3(0.8f, 0.5f, 0.05f), new Color(1f, 0.55f, 0.15f));
-                    for (int k = 0; k < 5; k++) RB(host, "ToolRack", new Vector3(ox - 3.5f + k * 1.1f, fy + 1.6f, oz + rd * 0.5f - 0.12f), new Vector3(0.12f, 1.0f, 0.05f), k % 2 == 0 ? new Color(0.62f, 0.44f, 0.30f) : new Color(0.75f, 0.76f, 0.80f));
+                    RB(host, "RackBoard", new Vector3(ox - 1.3f, fy + 1.55f, oz + rd * 0.5f - 0.1f), new Vector3(5.8f, 1.3f, 0.06f), wood);
+                    {
+                        string[] tools = { "VTool_Pick", "VTool_Axe", "VTool_Rod", "VTool_Bat", "VTool_Net" };
+                        for (int k = 0; k < tools.Length; k++)
+                        {
+                            var tg = JejuKit.Spawn(tools[k], host, Vector3.zero, 180f, 1f);
+                            if (tg != null) { tg.transform.position = new Vector3(ox - 3.6f + k * 1.15f, fy + 1.0f, oz + rd * 0.5f - 0.22f); tg.transform.rotation = Quaternion.Euler(0f, 180f, k % 2 == 0 ? 8f : -8f); }
+                            else RB(host, "ToolRack", new Vector3(ox - 3.5f + k * 1.1f, fy + 1.6f, oz + rd * 0.5f - 0.12f), new Vector3(0.12f, 1.0f, 0.05f), k % 2 == 0 ? new Color(0.62f, 0.44f, 0.30f) : new Color(0.75f, 0.76f, 0.80f));
+                        }
+                        void Prop(string mdl, Vector3 at, float yaw) { var g = JejuKit.Spawn(mdl, host, Vector3.zero, yaw, 1f); if (g != null) g.transform.position = at; }
+                        Prop("VGoodsBox", new Vector3(ox - rw * 0.5f + 0.9f, fy, oz - 1.6f), 15f);
+                        Prop("VGoodsBox", new Vector3(ox - rw * 0.5f + 0.9f, fy, oz - 0.4f), -10f);
+                        Prop("VMineCart", new Vector3(ox + rw * 0.5f - 1.3f, fy, oz - 1.6f), 90f);
+                        Prop("VMineLamp", new Vector3(ox - rw * 0.5f + 0.7f, fy, oz + rd * 0.5f - 0.8f), 135f);
+                        var lg = new GameObject("ForgeLight").AddComponent<Light>(); lg.transform.SetParent(host, false);
+                        lg.transform.position = new Vector3(ox + 3.2f, fy + 1.2f, oz + rd * 0.5f - 1.8f); lg.type = LightType.Point; lg.color = new Color(1f, 0.55f, 0.2f); lg.intensity = 2.2f; lg.range = 6f; lg.shadows = LightShadows.None;
+                    }
                     model = "Npc_Keeper"; npcKey = "workshop"; line = Loc.T("재료만 있으면 뭐든 벼려 주지. 튼튼한 → 은빛 → 황금!", "Bring materials — Sturdy, Silver, Golden!"); menu = WorkshopMenu; title = Loc.T("탐라 도구 공방", "Tamra Tool Workshop"); break;
                 default: return;
             }

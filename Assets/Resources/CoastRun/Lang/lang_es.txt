@@ -549,3 +549,2342 @@ Your trucks don't wobble anymore. You fixed them?	Tus ejes ya no bailan. ¿Los a
 …Your phone?	…¿Tu móvil?
 Our Frequency	Nuestra Frecuencia
 More	Más
+  (locked)	  (bloqueado)
+  Caught Dodam!	  ¡Atrapaste a Dodam!
+  Caught…	  Te atraparon…
+  again!	  ¡otra vez!
+  ·  all open	  ·  todo abierto
+ (locked)	 (bloqueado)
+ (now)	 (ahora)
+ Once a year.	 Una vez al año.
+ jumps	 saltos
+ photos	 fotos
+ · again!	 · ¡otra vez!
+ · hidden tracks on	 · pistas ocultas activadas
+ · iron +1	 · hierro +1
+ · side unlocked!	 · ¡lado desbloqueado!
+ · stone +1	 · piedra +1
+!! Burnout — spend next week playing	!! Agotamiento: la próxima semana solo juega
+!! Condition 0 — one more week and she collapses	!! Condición 0: una semana más y colapsa
+!! Stress critical — one more week and she collapses	!! Estrés crítico: una semana más y colapsa
+(Collection records kept)	(Se conservan los registros de colección)
+(hold!)	(¡mantén!)
+(off aim)	(fuera de objetivo)
+(too strong)	(demasiado fuerte)
+(too weak)	(demasiado débil)
+(−20% money · continue this week)	(−20% de dinero · continuar esta semana)
++12w clothes	+12 sem. ropa
+1st	1.º
+2,000 coins	2000 monedas
+2nd	2.º
+3 catches = lose · 40 s	3 capturas = derrota · 40 s
+3 in! Tuho master	¡3 dentro! Maestra del tuho
+3 laps first! Victory!	¡3 vueltas primero! ¡Victoria!
+3 of 5 in the jar!	¡3 de 5 en la jarra!
+3 shells at Saekdong Beach	3 conchas en la playa de Saekdong
+3 tries left	Quedan 3 intentos
+3-lap race	Carrera de 3 vueltas
+3rd	3.º
+4 digits	4 dígitos
+400 coins	400 monedas
+8,000 coins	8000 monedas
+<color=#FF5A5A>Looking!</color>	<color=#FF5A5A>¡Está mirando!</color>
+<color=#FFE86A>Hooray!</color>	<color=#FFE86A>¡Hurra!</color>
+<color=#FFE86A>Now! Tap the tagger!</color>	<color=#FFE86A>¡Ahora! ¡Toca al que la lleva!</color>
+? What should I do?	? ¿Qué debería hacer?
+??? · reach this ending	??? · alcanza este final
+A Face I Don't Know	Una cara que no conozco
+A Jungmon souvenir? Tangerine chocolate!	¿Un recuerdo de Jungmon? ¡Chocolate de mandarina!
+A Meal	Una comida
+A coffee's worth — please donate ☕	Lo que cuesta un café: dona, por favor ☕
+A crooked mark. Still — a day passed.	Una marca torcida. Aun así, pasó un día.
+A good meal	Una buena comida
+A good month — next week growth +20%	Un buen mes: próxima semana crecimiento +20%
+A good month! — next week growth +20%	¡Un buen mes! — próxima semana crecimiento +20%
+A haenyeo bear, an astronaut bear… the tangerine-hat bear is the cutest.	Un oso haenyeo, un oso astronauta… el oso con gorro de mandarina es el más lindo.
+A hive kit is 800G.	El kit de colmena cuesta 800G.
+A laminated search card — 'Go Haneul, missing one year'. My name was there.	Una tarjeta de búsqueda plastificada: 'Go Haneul, desaparecida hace un año'. Ahí estaba mi nombre.
+A memory waits near a story place	Un recuerdo espera cerca de un lugar de la historia
+A name I almost know	Un nombre que casi conozco
+A neat X. Fingers steadier.	Una X limpia. Los dedos, más firmes.
+A rough week…	Una semana dura…
+A run-only deco	Decoración solo para carreras
+A shot with the giant teddy! Pose?	¡Una foto con el oso gigante! ¿Pose?
+A silhouette at low tide	Una silueta en la marea baja
+A steady week.	Una semana tranquila.
+A story is waiting — sleep in your bed first.	Una historia te espera: primero duerme en tu cama.
+A tall man lifting nets. Coast guard: "Still looking?"	Un hombre alto levantando redes. Guardacostas: «¿Sigues buscando?»
+A torn raincoat sleeve	Una manga de impermeable rota
+A typhoon wanders across lanes — don't touch it!\nNo coins/obstacles meanwhile · survive for +100 coins	Un tifón vaga por los carriles: ¡no lo toques!\nSin monedas ni obstáculos mientras tanto · sobrevive para +100 monedas
+A village contest, unrelated to the story.	Un concurso del pueblo, sin relación con la historia.
+A week has passed	Pasó una semana
+A week went by!	¡Pasó una semana!
+AGI	AGI
+AM	AM
+AM 08:00	AM 08:00
+AVOID	ESQUIVA
+Acquaintance	Conocida
+Act 1	Acto 1
+Act 1 · The One Who Came Back	Acto 1 · La que regresó
+Act 2	Acto 2
+Act 2 · The Same Frequency	Acto 2 · La misma frecuencia
+Act 3	Acto 3
+Act 3 · The Last Sunset	Acto 3 · El último atardecer
+Actions done — next turn!	Acciones hechas: ¡siguiente turno!
+Added to this chapter	Añadido a este capítulo
+Added to your wallet	Añadido a tu cartera
+Affinity	Afinidad
+Affinity 	Afinidad 
+Aim set!	¡Apuntado!
+All actions done this week — go to bed.	Hiciste todas las acciones de esta semana: ve a la cama.
+All actions done — press Next turn!	Acciones hechas: ¡pulsa Siguiente turno!
+All decos owned — one more pull!	Tienes todas las decoraciones: ¡una tirada más!
+All five! Bonus +20G	¡Los cinco! Bonificación +20G
+All photocards collected — +50 coins	Todas las fotocartas reunidas: +50 monedas
+All stats +6 · Stress −20	Todas las estadísticas +6 · Estrés −20
+All three done! 	¡Las tres hechas! 
+Already ate today. So full~	Ya comí hoy. ¡Qué llena~
+Already commanded this week — next week!	Ya diste órdenes esta semana: ¡la próxima!
+Already did this turn. Try something else!	Ya lo hiciste este turno. ¡Prueba otra cosa!
+Already full	Ya está lleno
+Already napped this turn.	Ya dormiste la siesta este turno.
+Already played today. Work or home!	Ya jugaste hoy. ¡Al trabajo o a casa!
+Already shook this tree this week.	Ya sacudiste este árbol esta semana.
+Already signed — +5,000 coins	Ya firmado: +5000 monedas
+Already watered this phase.	Ya regaste en esta fase.
+Already watered. Fertilizer gives ★+1.	Ya regado. El fertilizante da ★+1.
+Already worked today. Come back tomorrow.	Ya trabajaste hoy. Vuelve mañana.
+An X on the calendar	Una X en el calendario
+An ending you haven't reached yet	Un final que aún no alcanzaste
+Another way.	Otro camino.
+Any plot: seed, water or harvest	Cualquier parcela: sembrar, regar o cosechar
+Argh!	¡Argh!
+Arrived after sunset… hearts −40%   ·   	Llegaste tras el atardecer… corazones −40%   ·   
+At night, sleep in the bed inside. A week passes when you sleep.	De noche, duerme en la cama de adentro. Al dormir pasa una semana.
+Auto	Auto
+Auto OFF	Auto OFF
+Auto ON	Auto ON
+Auto buy off.	Compra automática desactivada.
+Auto follows simple rules. Picking cards yourself is more fun.	El modo auto sigue reglas simples. Elegir las cartas tú misma es más divertido.
+Auto-buys rice at week end when out of food.	Compra arroz automáticamente al final de la semana si no hay comida.
+Auto-move stopped	Movimiento automático detenido
+B this time, maybe	Esta vez quizás B
+BAM!!\nTHROW!!	¡¡BAM!!\n¡¡LANZA!!
+BELL!	¡CAMPANA!
+BOSS CLEARED!	¡JEFE SUPERADO!
+Back	Volver
+Back to raising	Volver a la crianza
+Bada	Bada
+Bag	Bolsa
+Bag empty. Stock up at the shop.	Bolsa vacía. Abastécete en la tienda.
+Bandit: Stop! Hand over your stuff!	Bandido: ¡Alto! ¡Entrega tus cosas!
+Bank	Banco
+Bar · slide	Barra · deslízate
+Bar: slide under	Barra: deslízate por debajo
+Barrier · jump	Barrera · salta
+Basic Meals	Comidas básicas
+Bat on the hill — they travel in packs	Murciélago en la colina: viajan en grupo
+Bat on the sand	Murciélago en la arena
+Beach sand, cast a line	Arena de la playa: lanza el sedal
+Beach · Go fishing	Playa · Ir a pescar
+Bears from around the world — and a haenyeo bear.	Osos de todo el mundo… y un oso haenyeo.
+Beat 2 bandits	Vence a 2 bandidos
+Beat the mini-game to end the week. Try again!	Supera el minijuego para terminar la semana. ¡Inténtalo de nuevo!
+Best crop + best ★ this year + variety.	Mejor cultivo + mejor ★ del año + variedad.
+Best friend	Mejor amiga
+Best gem/ore + variety (mine).	Mejor gema/mineral + variedad (mina).
+Best week!	¡La mejor semana!
+Big Suit	Traje grande
+Bonus stars	Estrellas extra
+Boss	Jefe
+Boss Rush	Ronda de jefes
+Bought 4 weeks of rice.	Compraste arroz para 4 semanas.
+Bought 4 weeks of side dish.	Compraste guarnición para 4 semanas.
+Bought rice.	Compraste arroz.
+Bought side dish.	Compraste guarnición.
+Bounced!	¡Rebotó!
+Box of twenty	Caja de veinte
+Branches, shells, mushrooms	Ramas, conchas, hongos
+Bring a Jungmon souvenir	Trae un recuerdo de Jungmon
+Bring materials and I'll upgrade your tools: Sturdy → Silver → Golden.	Trae materiales y mejoraré tus herramientas: Resistente → Plata → Oro.
+Bring materials — Sturdy, Silver, Golden!	Trae materiales: ¡Resistente, Plata, Oro!
+Bring produce — I pay 20% more.	Trae productos: pago un 20% más.
+Bugs	Insectos
+Burnout!	¡Agotamiento!
+Bus to Jungmon from the east stop	Autobús a Jungmon desde la parada este
+Bus · dodge	Autobús · esquiva
+Buy	Comprar
+Buy a hive kit at the City Mart (800G).	Compra un kit de colmena en el City Mart (800G).
+Buy or sell! I'll buy bugs, fish, crops, meat. I also sell land.	¡Compra o vende! Compro insectos, peces, cultivos y carne. También vendo terreno.
+CAUGHT!	¡ATRAPADO!
+CHA	CAR
+CHORUS! Coins ×2	¡ESTRIBILLO! Monedas ×2
+CINEMA - Our Frequency	CINEMA - Nuestra frecuencia
+CLUE	PISTA
+CLUE?	¿PISTA?
+Calves and piglets in. Raise them, I'll pay well!	Llegaron terneros y lechones. ¡Críalos y te pagaré bien!
+Can't eat that…	Eso no se come…
+Can't fight with a net or rod — use the bat, pick or axe	No puedes pelear con red o caña: usa el bate, el pico o el hacha
+Can't lay road on water.	No se puede poner camino sobre el agua.
+Cancel	Cancelar
+Cancel retry	Cancelar reintento
+Capsules!	¡Cápsulas!
+Care	Cuidar
+Cast again	Lanzar de nuevo
+Cast, then pull the moment you see 「!」	Lanza y tira en cuanto veas 「!」
+Catch	Atrapar
+Catch 2 bugs	Atrapa 2 insectos
+Catch 2 crabs at the beach	Atrapa 2 cangrejos en la playa
+Catch a rabbit on the hill	Atrapa un conejo en la colina
+Catch hens and rabbits on the hill with the net. One sleep = one day.	Atrapa gallinas y conejos en la colina con la red. Una noche = un día.
+Catch!	¡Atrápalo!
+Caught!	¡Atrapado!
+Caught…	Te atraparon…
+Chapter event	Evento de capítulo
+Character	Personaje
+Charm · Agility +3	Encanto · Agilidad +3
+Charm · Charm +3	Encanto · Encanto +3
+Charm · Stamina +3	Encanto · Energía +3
+Choose a tool	Elige una herramienta
+Chop	Talar
+Chop a tree	Tala un árbol
+Chrysanthemums without a name	Crisantemos sin nombre
+Cinema	Cine
+City stop	Parada de la ciudad
+Clang — stand by a glowing vein.	Clang: párate junto a una veta brillante.
+Clang — swing next to a hill rock.	Clang: golpea junto a una roca de la colina.
+Clear glass. The calendar's day 32 looked sharper.	Vidrio transparente. El día 32 del calendario se veía más nítido.
+Clerk	Dependiente
+Click!	¡Clic!
+Close friend	Amiga cercana
+Close ✕	Cerrar ✕
+Closed for today. Open 8 AM – 7 PM.	Cerrado por hoy. Abierto de 8 AM a 7 PM.
+Closed now. Selling is 8 AM – 7 PM.	Cerrado ahora. Se compra de 8 AM a 7 PM.
+Closed. Open 8 AM – 7 PM.	Cerrado. Abierto de 8 AM a 7 PM.
+Closer — he slipped away. Salt in the air.	Más cerca… se escabulló. Sal en el aire.
+Clothes	Ropa
+Clothes worn out	Ropa gastada
+Clothes worn out — buy new	Ropa gastada: compra nueva
+Cloudy	Nublado
+Clues to earn: 	Pistas por conseguir: 
+Coast Road Star	Estrella de la carretera costera
+Coins are yours. Run once more!	Las monedas son tuyas. ¡Corre una vez más!
+Collapse all	Contraer todo
+Collect 3 farm eggs	Recoge 3 huevos de la granja
+Collected	Recogido
+Come back later	Vuelve más tarde
+Come in. There's work today.	Pasa. Hoy hay trabajo.
+Condition	Condición
+Condition 0! Collapses next week	¡Condición 0! Colapsará la próxima semana
+Condition met · good branch	Condición cumplida · rama buena
+Condition missed · other branch	Condición no cumplida · otra rama
+Cone · jump	Cono · salta
+Contest failed…	Concurso fallido…
+Cook	Cocinar
+Cook!!	¡¡A cocinar!!
+Count of tangerines & hallabong.	Cantidad de mandarinas y hallabong.
+Crossed the line but missed the goal.	Cruzaste la línea pero fallaste la meta.
+Crushed it today! Workout done	¡Hoy lo di todo! Entrenamiento hecho
+Curator	Curador
+Curious about the story?  More › Cinema	¿Te intriga la historia?  Más › Cine
+DJ	DJ
+Dad	Papá
+Day	Día
+Day · Clear	Día · Despejado
+Decorate	Decorar
+Decorate ●	Decorar ●
+Deeper = better ore, tougher monsters. Fight with bat/pick/axe; the red lamp marks the way down. A boss waits at the bottom!	Cuanto más hondo, mejor mineral y monstruos más duros. Pelea con bate, pico o hacha; la lámpara roja marca el camino hacia abajo. ¡Un jefe espera en el fondo!
+Default outfit	Atuendo predeterminado
+Didn't sleep	No durmió
+Ding — bell!	Din: ¡campana!
+Direction	Dirección
+Distance	Distancia
+Dodam	Dodam
+Dodam got home first. Next time!	Dodam llegó primero a casa. ¡La próxima vez!
+Dodam's turn…	Turno de Dodam…
+Dodam: 	Dodam: 
+Don't stay in the sea over 10s!	¡No te quedes en el mar más de 10 s!
+Donate?	¿Donar?
+Done for today — the sun is setting. Go to bed at home.	Terminado por hoy: se pone el sol. Ve a la cama en casa.
+Done ✓	Hecho ✓
+Done ✕	Hecho ✕
+Done!	¡Hecho!
+Donor passcode — all games unlocked	Código de donante: todos los juegos desbloqueados
+Door shut. Tomorrow's first bus sounded louder.	La puerta se cerró. El primer autobús de mañana sonó más fuerte.
+Door · Go outside	Puerta · Salir
+Downtown! Bank, boutique, noodles, records, museum…	¡Centro! Banco, boutique, fideos, discos, museo…
+Doyun at the shop. The kid tugged my sleeve. "Don't follow."	Doyun en la tienda. El niño me tiró de la manga. «No lo sigas».
+Drag the white marble to shoot. Shots left: 3	Arrastra la canica blanca para disparar. Tiros restantes: 3
+Draw today's X carefully	Dibuja con cuidado la X de hoy
+Driver	Conductor
+Drop it inside the room.	Suéltalo dentro de la habitación.
+Duplicate — +1,500 coins	Repetido: +1500 monedas
+Dusk	Atardecer
+E-kart	E-kart
+ENG	ENG
+Each stick has a flat pale side and a round dark side	Cada palo tiene un lado plano y claro y un lado redondo y oscuro
+Easy	Fácil
+Eat	Comer
+Eat & Rest	Comer y descansar
+Eat them as you run. Jelly and money\ncarry over to Story mode!	Cómelas mientras corres. ¡La gelatina y el dinero\npasan al modo Historia!
+Eaten weekly. None = starving.	Se come cada semana. Sin nada = hambre.
+Eggs — collect at the gate	Huevos: recógelos en la puerta
+Empty pot\nTap to plant	Maceta vacía\nToca para plantar
+Empty!\nPick a seed below ↓	¡Vacía!\nElige una semilla abajo ↓
+Ending	Final
+Ending A	Final A
+Ending B	Final B
+Ending gallery  	Galería de finales  
+Energy	Energía
+Enter	Entrar
+Enter Job Center	Entrar al Centro de Empleo
+Enter shop	Entrar a la tienda
+Enter!	¡Entra!
+Entered	Entró
+Equip	Equipar
+Equipped	Equipado
+Eve	Víspera
+Event capsule — earned by running, never bought	Cápsula de evento: se gana corriendo, nunca se compra
+Event ·	Evento ·
+Exit	Salir
+Expand all	Expandir todo
+FEVER!	¡FIEBRE!
+FLIP!	¡VOLTEA!
+Face button = FEVER!	Botón de cara = ¡FIEBRE!
+Farm money & items in K-POP for story mode	Consigue dinero y objetos en K-POP para el modo historia
+Feed	Alimentar
+Fences cleared	Vallas superadas
+Fever. Bedridden all week. (medicine -60G, stamina -5, stress -35)	Fiebre. En cama toda la semana. (medicina -60G, energía -5, estrés -35)
+Few/no dishes eaten	Comió pocos platos o ninguno
+Fill 3 schedule slots, then Go!	¡Llena 3 casillas del horario y adelante!
+Fill 3 schedule slots, then Go! Last week of a chapter: run to the tower.	¡Llena 3 casillas del horario y adelante! Última semana del capítulo: corre hasta la torre.
+Find the open lane	Encuentra el carril libre
+Finish	Meta
+Finish the song	Termina la canción
+Finish to win	Llega al final para ganar
+Finish!	¡Meta!
+Fires missiles down the lanes (60% yours) — switch lanes!\nNo coins/obstacles meanwhile · survive for +100 coins	Dispara misiles por los carriles (60% hacia ti): ¡cambia de carril!\nSin monedas ni obstáculos mientras tanto · sobrevive para +100 monedas
+Fish	Peces
+Flip it once in 3 tries!	¡Voltéalo una vez en 3 intentos!
+Flip once in 3 tries	Voltéalo una vez en 3 intentos
+Flipped! It's mine!	¡Volteado! ¡Es mío!
+Floor left	Suelo izquierdo
+Floor right	Suelo derecho
+Flowers for the living — my breath evened out.	Flores para los vivos: mi respiración se calmó.
+Follow Doyun onto the rocks	Sigue a Doyun a las rocas
+Follow him a little anyway	Síguelo un poco de todos modos
+Follow me, sis. I'll show you the village. Just walk to the glow.	Sígueme, hermana. Te enseño el pueblo. Solo camina hacia el brillo.
+Force the cold carton	Forzar el cartón frío
+Fossils	Fósiles
+Freeze!	¡Quieta!
+Freq	Frec.
+Frequency 89.2	Frecuencia 89.2
+Friend	Amiga
+Friends for life. Tell me anything!	Amigas de por vida. ¡Cuéntame lo que sea!
+Full+40 · Cond+18 · Stress-5 · Sta+5	Saciedad+40 · Cond+18 · Estrés-5 · Ene+5
+Fullness	Saciedad
+Fullness/condition ↑. Also from the garden.	Saciedad/condición ↑. También del huerto.
+GIANT!	¡GIGANTE!
+GO!	¡YA!
+GOAL · 	META · 
+Gacha	Gacha
+Garden	Huerto
+Garden (west) · Step onto a plot	Huerto (oeste) · Pisa una parcela
+Garden - Jeju Sea Farm	Huerto - Granja Marina de Jeju
+Garden · Step onto a plot	Huerto · Pisa una parcela
+Gathered	Recolectado
+Get a pet from the shop	Consigue una mascota en la tienda
+Get treated	Recibir tratamiento
+Ginseng Chicken Soup	Sopa de pollo con ginseng
+Go fishing	Ir a pescar
+Go home at night!	¡De noche, a casa!
+Go!	¡Vamos!
+Goal · 	Meta · 
+Gonggi	Gonggi
+Gonna eat and rest!	¡A comer y descansar!
+Gonna rest a bit~	Voy a descansar un poco~
+Google Play billing · voluntary · 0 cups so far — safe and seamless	Pago con Google Play · voluntario · 0 cafés hasta ahora: seguro y sin complicaciones
+Got it! Start ▶	¡Entendido! Empezar ▶
+Great! 	¡Genial! 
+Grip the marble in my pocket	Aprieta la canica en mi bolsillo
+Groceries · Village shop	Comestibles · Tienda del pueblo
+HOW TO PLAY	CÓMO JUGAR
+Hand it over!	¡Dámelo!
+Haneul Seaside	Costa de Haneul
+Haneul and Doyun's voices are AI-produced; art, composition and arrangement were made together by Studio Wooheeheeshi and AI. The events in this story are fiction. This game was made with the pure purpose of sharing K-POP worldwide and introducing Jeju Island.\n\nNo ads, no forced purchases. A coffee-sized donation is entirely optional.	Las voces de Haneul y Doyun fueron producidas con IA; el arte, la composición y los arreglos los hicieron juntos Studio Wooheeheeshi y la IA. Los hechos de esta historia son ficción. Este juego se creó con el único propósito de compartir el K-POP con el mundo y presentar la isla de Jeju.\n\nSin anuncios ni compras obligatorias. Una donación del tamaño de un café es totalmente opcional.
+Haneul collapsed…	Haneul colapsó…
+Haneul, Twenty	Haneul, veinte años
+Hang it far away in the closet	Colgarlo al fondo del armario
+Hard	Difícil
+Hareubang Golem	Gólem Hareubang
+Heart = energy +15	Corazón = energía +15
+Hearts +3	Corazones +3
+Hearts refill your energy!	¡Los corazones recargan tu energía!
+Help	Ayuda
+Help fill our cases — bugs, minerals, fossils.	Ayuda a llenar nuestras vitrinas: insectos, minerales, fósiles.
+Hens	Gallinas
+Hens lay eggs each morning	Las gallinas ponen huevos cada mañana
+Hitting it costs energy.\nDodge sideways or swipe up to jump!	Chocar cuesta energía.\n¡Esquiva a un lado o desliza hacia arriba para saltar!
+Hold & slide — coins yes, cones no	Mantén y deslízate: monedas sí, conos no
+Hold & slide — grab buoys, dodge rocks	Mantén y deslízate: toma boyas, esquiva rocas
+Hold [Run!] — when the chant lights up, the tagger turns! Release early, reach the end and [Tag!]	Mantén [¡Corre!]: ¡cuando se ilumine el canto, el que la lleva se voltea! Suelta a tiempo, llega al final y [¡Toca!]
+Hold to raise the green zone — keep the fish inside!	Mantén para subir la zona verde: ¡deja el pez adentro!
+Hold to run!	¡Mantén para correr!
+Home	Casa
+Horse riding	Equitación
+Hospital	Hospital
+How to play Yut	Cómo jugar al yut
+Hug the bear	Abrazar al oso
+Hungry, exhausted, condition hit zero.	Con hambre, agotada, la condición llegó a cero.
+Hungry… home cooking!	Hambre… ¡comida casera!
+Hungry… use Feed to eat	Hambre… usa Alimentar para comer
+I didn't chase. He said he was looking for a person.	No lo perseguí. Dijo que buscaba a una persona.
+I saw his back, not his face. My heart ran.	Vi su espalda, no su cara. Mi corazón echó a correr.
+I'd pick A!	¡Yo elegiría A!
+I'll remember	Lo recordaré
+I'll take care of myself!	¡Me cuidaré sola!
+I'm fine	Estoy bien
+IN!	¡DENTRO!
+In your bag — cook it	En tu bolsa: cocínalo
+Ingredients	Ingredientes
+Ingredients are cheap — cook in My Room to eat.	Los ingredientes son baratos: cocina en Mi cuarto para comer.
+Ingredients only — cook in My Room	Solo ingredientes: cocina en Mi cuarto
+Ingredients only — cook in My Room first	Solo ingredientes: cocina primero en Mi cuarto
+Ingredients only — cook in My Room first!	Solo ingredientes: ¡cocina primero en Mi cuarto!
+Into the bag	A la bolsa
+Into the story	A la historia
+Inventory	Inventario
+It got away… keep the fish inside the green zone.	Se escapó… mantén el pez dentro de la zona verde.
+It slipped again. Not mine yet.	Se resbaló otra vez. Todavía no es mío.
+It's night… ghosts come out now. Run home! (Shop's closed too)	Es de noche… salen los fantasmas. ¡Corre a casa! (La tienda también cerró)
+It's okay, next time!	¡Está bien, la próxima vez!
+JEJU · Our Frequency	JEJU · Nuestra frecuencia
+Jeju City	Ciudad de Jeju
+Jeju Girl	Chica de Jeju
+Jellies	Gelatinas
+Jelly = score	Gelatina = puntos
+Jelly from K-POP runs. Eat one: stress −3 · stamina +1 (also spent at the pet shop)	Gelatina de las carreras K-POP. Come una: estrés −3 · energía +1 (también se gasta en la tienda de mascotas)
+Jelly! stress −3 · stamina +1	¡Gelatina! estrés −3 · energía +1
+Jet ski	Moto acuática
+Job	Trabajo
+Job Center	Centro de Empleo
+Job clerk	Empleada del centro
+Jump fences on a pony, or a lap in an e-kart!	¡Salta vallas en un poni o da una vuelta en e-kart!
+Jungmon Resort	Complejo de Jungmon
+Jungmon! Beach, cliffs, falls, garden… time to relax.	¡Jungmon! Playa, acantilados, cascadas, jardín… hora de relajarse.
+Just did this. Let's see another spot!	Recién lo hice. ¡Veamos otro lugar!
+Just had fun! Later.	Recién me divertí. Más tarde.
+Just took one here!	¡Acabo de sacar una aquí!
+K-POP RUN MODE  ♪	K-POP RUN MODE  ♪
+Keep it only in my mouth	Guardarlo solo en mi boca
+Kept skipping sleep.	Seguía sin dormir.
+Kid	Niño
+Kids	Niños
+Lady	Señora
+Late… keep running.	Tarde… sigue corriendo.
+Leave both for the unknown	Dejar ambos para alguien desconocido
+Leave it	Dejarlo
+Leave the coat right there	Dejar el abrigo justo ahí
+Leave them	Dejarlos
+Leaving fails this contest — redo this week	Salir hace fallar este concurso: repite esta semana
+Left wall	Pared izquierda
+Let's do it together.	Hagámoslo juntos.
+Let's do our best today!	¡Demos lo mejor hoy!
+Let's earn!	¡A ganar!
+Let's enter!	¡Entremos!
+Let's go to the glow.	Vamos hacia el brillo.
+Let's head outside first!	¡Primero salgamos afuera!
+Let's play!	¡A jugar!
+Let's run!	¡A correr!
+Life	Vida
+Lift the lukewarm milk by the tower	Levantar la leche tibia junto a la torre
+Lighthouse · Sea view	Faro · Vista al mar
+Listen on YouTube Music · "Full album" below	Escucha en YouTube Music · «Álbum completo» abajo
+Locked	Bloqueado
+Locked · 	Bloqueado · 
+Locked · photocard items while running	Bloqueado · objetos de fotocarta durante la carrera
+Locked · reach this ending	Bloqueado · alcanza este final
+Locked — 	Bloqueado — 
+Locked — beat it in the story mission first	Bloqueado: primero supéralo en la misión de la historia
+Locked — pick the "Unlock the OST" gift when donating	Bloqueado: elige el regalo «Desbloquear la OST» al donar
+Locked — see one ending to unlock.\nSpeed ×1.3 · Coins ×1.3 (advanced)	Bloqueado: mira un final para desbloquear.\nVelocidad ×1,3 · Monedas ×1,3 (avanzado)
+Look at this!	¡Mira esto!
+Look for dolphins on a yacht, or race the buoys on a jet ski.	Busca delfines en un yate o corre entre las boyas en moto acuática.
+Lost, but the week moves on.	Perdiste, pero la semana sigue.
+Lost…	Perdiste…
+Lucky Gacha	Gacha de la suerte
+Lucky capsule! Ticket +1	¡Cápsula de la suerte! Boleto +1
+Lucky charm	Amuleto
+MAX	MAX
+MINI-GAMES	MINIJUEGOS
+MISSION CLEAR!	¡MISIÓN CUMPLIDA!
+Made it before sunset! hearts +10%   ·   	¡Llegaste antes del atardecer! Corazones +10%   ·   
+Main menu	Menú principal
+Marbles	Canicas
+Market man	Señor del mercado
+Master of Frequency	Maestra de la frecuencia
+Max 3 hives.	Máximo 3 colmenas.
+Maybe later	Quizás luego
+Me	Yo
+Me: 	Yo: 
+Meal / side dish effect applied	Efecto de comida / guarnición aplicado
+Meat — bat a grown rabbit inside the pen	Carne: golpea a un conejo adulto dentro del corral
+Medicine	Medicina
+Medicine/care — use from your bag.	Medicina/cuidados: úsalos desde tu bolsa.
+Memory fragment	Fragmento de recuerdo
+Mine	Mío
+Mine 3 ores	Extrae 3 minerales
+Mine a rock	Pica una roca
+Minerals	Minerales
+Mini-games	Minijuegos
+Minimap	Minimapa
+Miss the goal and the week doesn't advance!	¡Si no alcanzas la meta, la semana no avanza!
+Miss, I'm right here today too.	Señorita, hoy también estoy aquí.
+Miss, your body remembers. Tap Feed, Play or Work and pick a card.	Señorita, tu cuerpo lo recuerda. Toca Comer, Jugar o Trabajar y elige una carta.
+Missed…	Se escapó…
+Missed… pull right when 「!」 shows.	Se escapó… tira justo cuando aparezca «!».
+Mission · Ddakji	Misión · Ddakji
+Mission · Marbles	Misión · Canicas
+Mission · Red Light, Green Light	Misión · Luz roja, luz verde
+Mission · Tuho	Misión · Tuho
+Mission · Yut Nori	Misión · Yut Nori
+Mist	Niebla
+Model missing.	Falta el modelo.
+Mom	Mamá
+Mom's	De mamá
+Mom's house	Casa de mamá
+Mom's house · Pets / Sleep	Casa de mamá · Mascotas / Dormir
+Move as many cells as flat sides up — 1·2·3·4, none = 5. 4 or 5: throw again!	Avanza tantas casillas como caras planas arriba: 1·2·3·4, ninguna = 5. ¡Con 4 o 5, tira otra vez!
+My Room	Mi cuarto
+My day brightens when you come by.	Mi día se ilumina cuando vienes.
+N 58% (coins 300–800 50%·ingredients 30%·rest 20%) · R 30% (charm 40%·hearts 35%·deco 25%) · SR 10% (card 45%·rare deco 30%·lucky 25%) · SSR 2% (signed 40%·blessing 35%·jackpot 10k+ 25%) — SR+ on the 10th	N 58% (monedas 300–800 50%·ingredientes 30%·resto 20%) · R 30% (amuleto 40%·corazones 35%·deco 25%) · SR 10% (carta 45%·deco rara 30%·suerte 25%) · SSR 2% (firmado 40%·bendición 35%·premio mayor 10k+ 25%) — SR+ en el 10.º
+Nailed it! Song done	¡Lo lograste! Canción terminada
+Nameless flowers. I knew — and pretended not to.	Flores sin nombre. Lo sabía, y fingí no saberlo.
+Nap	Siesta
+Need 18G.	Necesitas 18G.
+Need 3 tangerines + 1 honey.	Necesitas 3 mandarinas + 1 miel.
+Need 80G…	Necesitas 80G…
+Net on the hill — rabbits are quick	Red en la colina: los conejos son rápidos
+Net: catch butterflies and spirits (shards, coins) · Bat: bop big bugs (shards). Bumping a big bug costs HP!	Red: atrapa mariposas y espíritus (fragmentos, monedas) · Bate: golpea bichos grandes (fragmentos). ¡Chocar con un bicho grande te quita HP!
+New card! See Collection	¡Carta nueva! Mira la Colección
+New clothes (12 wk)	Ropa nueva (12 sem.)
+New clothes! Good for 12 weeks.	¡Ropa nueva! Dura 12 semanas.
+New decor! Place it in [Decorate].	¡Decoración nueva! Colócala en [Decorar].
+Newcomer	Novata
+Next	Siguiente
+Next  ▶	Siguiente  ▶
+Next chapter	Siguiente capítulo
+Next content · coming	Próximo contenido · pronto
+Next episode ▶	Siguiente episodio ▶
+Next run: coins ×2!	¡Próxima carrera: monedas ×2!
+Next time!	¡La próxima vez!
+Next time!!	¡¡La próxima vez!!
+Next turn	Siguiente turno
+Next, the empty house up the hill. Tap 'Move' and you'll walk there.	Ahora, la casa vacía de la colina. Toca «Mover» y caminarás hasta allí.
+Next: all SIDE open	Siguiente: todo SIDE abierto
+Nice!	¡Bien!
+Night	Noche
+No affinity change this week	Sin cambios de afinidad esta semana
+No cash on hand. Withdraw or earn on a run.	No tienes efectivo. Retira dinero o gana en una carrera.
+No change	Sin cambios
+No damage!	¡Sin daño!
+No deposit to withdraw.	No hay depósito para retirar.
+No firewood. Chop a tree or pick up branches.	No hay leña. Corta un árbol o recoge ramas.
+No hits	Sin golpes
+No ingredients to cook — shop first.	No hay ingredientes para cocinar: ve a la tienda primero.
+No ingredients. Buy rice/veg/meat at the shop.	No hay ingredientes. Compra arroz/verdura/carne en la tienda.
+No item nearby — stand next to one.	No hay objetos cerca: ponte junto a uno.
+No jelly — grab some in a K-POP run.	No hay gomitas: consigue algunas en una carrera K-POP.
+No jobs available right now…	No hay trabajos disponibles ahora…
+No loan to repay. Great!	No hay préstamo que pagar. ¡Genial!
+No meals — buy ingredients or dishes!	Sin comida: ¡compra ingredientes o platos!
+No meals — buy some at the beach shop!	Sin comida: ¡compra algo en la tienda de la playa!
+No meals — shop & cook	Sin comida: compra y cocina
+No meal… eat with Feed	Sin comida… come con Comer
+No pet yet\nGet one at the shop →	Aún no tienes mascota\nConsigue una en la tienda →
+No pet.	Sin mascota.
+No photos collected yet.\nCollect them in runs and contests.	Aún no tienes fotos.\nConsíguelas en carreras y concursos.
+No rice for weeks.	Semanas sin arroz.
+No run income yet. Settle K-POP earnings here for a 5% bonus!	Aún no hay ingresos de carreras. ¡Liquida aquí tus ganancias K-POP con un 5% extra!
+No save	Sin partida
+No stories in this season yet	Aún no hay historias en esta temporada
+No tracks unlocked yet	Aún no hay canciones desbloqueadas
+Nobody lives here. You can use it, sis.	Aquí no vive nadie. Puedes usarla, hermana.
+None are grown yet.	Todavía no ha crecido nada.
+Nope	Nop
+Norm	Normal
+Not enough G or pot not empty.	No tienes G suficiente o la maceta no está vacía.
+Not enough G.	No tienes G suficiente.
+Not enough coins — retry or raise this week again	Monedas insuficientes: reintenta o vuelve a entrenar esta semana
+Not enough coins — try again!	Monedas insuficientes: ¡inténtalo otra vez!
+Not enough jelly… collect some in a K-POP run.	No tienes gomitas suficientes… consigue algunas en una carrera K-POP.
+Not enough materials	Materiales insuficientes
+Not enough money — work or race	Falta dinero: trabaja o corre
+Not enough money.	No tienes dinero suficiente.
+Not enough money… work first!	No tienes dinero suficiente… ¡trabaja primero!
+Not enough shards — go run!	Faltan fragmentos: ¡ve a correr!
+Not now	Ahora no
+Not right now	Ahora mismo no
+Not this time. Run farther next time!	Esta vez no. ¡La próxima corre más lejos!
+Not yet	Todavía no
+Not yet — one more week	Todavía no: una semana más
+Not yet, I guess	Parece que todavía no
+Not yet. Something's missing.\n	Todavía no. Falta algo.\n
+Not yet… wait	Todavía no… espera
+Nothing new. Try the mine, hills, beach!	Nada nuevo. ¡Prueba la mina, las colinas, la playa!
+Nothing to do right now…	No hay nada que hacer ahora…
+Nothing to enter	Nada en qué participar
+Nothing to give.	No tienes nada que dar.
+Nothing to remove.	No hay nada que quitar.
+Nothing to sell. Bring bugs, fish, crops, meat, shells!	No hay nada que vender. ¡Trae bichos, peces, cultivos, carne, conchas!
+Now I Know Everything	Ahora lo sé todo
+Now run for real ♪	Ahora corre de verdad ♪
+Nurse	Enfermera
+Nurse: How are you feeling?	Enfermera: ¿Cómo te sientes?
+OK	OK
+OUCH!	¡AY!
+OUT!	¡FUERA!
+Obstacle! (cone)	¡Obstáculo! (cono)
+Obstacles vanish and big jellies\ncover the road. Feast!	Los obstáculos desaparecen y gomitas gigantes\ncubren el camino. ¡Festín!
+Odds	Probabilidades
+Okay… ask me again if you change your mind.	Vale… pregúntame otra vez si cambias de idea.
+Old miner	Viejo minero
+One is me. The other — eyes without a name yet.	Una soy yo. La otra: unos ojos que aún no tienen nombre.
+One year to my 20th birthday. It starts today.	Un año para mis 20. Empieza hoy.
+One-Song Run · 	Carrera de una canción · 
+Only ingredients — cook at the desk first!	Solo tienes ingredientes: ¡cocina primero en el escritorio!
+Only inside the yard (lawn in front of the house).	Solo dentro del patio (el césped frente a la casa).
+Only the marble stays. I reach again.	Solo queda la canica. Vuelvo a estirar la mano.
+Oops, that record's out.	Uy, ese récord no vale.
+Open "Our frequency" on YouTube Music	Abrir «Our frequency» en YouTube Music
+Open the next one	Abrir el siguiente
+Opening store…	Abriendo la tienda…
+Opening the album on YouTube Music	Abriendo el álbum en YouTube Music
+Operating Policy	Política de operación
+Orange nearby — sleep less scary.	Orange está cerca: dormir da menos miedo.
+Orange star = GIANT!	¡Estrella naranja = GIGANTE!
+Oreum Mine	Mina de la oreum
+Other tools	Otras herramientas
+Our Frequency  ·  JEJU	Nuestra frecuencia  ·  JEJU
+Our Hideout	Nuestro escondite
+Our home	Nuestra casa
+Our home · Enter	Nuestra casa · Entrar
+Our house on the hilltop. Go in and plan the week.	Nuestra casa en lo alto de la colina. Entra y planea la semana.
+Out of stamina	Sin energía
+Owned	Tienes
+Owner	Dueño
+Owner: Welcome! Grab a Jeju brunch and recharge!	Dueño: ¡Bienvenida! ¡Toma un brunch de Jeju y recarga energía!
+PM	p. m.
+PULL!!	¡¡TIRA!!
+Participation	Participación
+Passing by	De paso
+Paused	En pausa
+Pavilion · Play / Practice	Pabellón · Jugar / Practicar
+Payment cancelled or failed — that's okay!	Pago cancelado o fallido. ¡No pasa nada!
+People	Gente
+Pet Shop	Tienda de mascotas
+Pet shop locked	Tienda de mascotas bloqueada
+Pet shop unlocked!	¡Tienda de mascotas desbloqueada!
+Petting won't cut it… I need to play or rest.	Con caricias no basta… necesito jugar o descansar.
+Photo of the Jusang pillar cliffs	Foto de los acantilados de Jusang
+Photo saved · stress −5	Foto guardada · estrés −5
+Photos	Fotos
+Pick	Elegir
+Pick an item above	Elige un objeto arriba
+Pick an item from the tray first.	Primero elige un objeto de la bandeja.
+Pick the axe, stand by a tree	Elige el hacha y ponte junto a un árbol
+Pick the pickaxe, hill rocks	Elige el pico, rocas de la colina
+Pick up 3 things	Recoge 3 cosas
+Pickaxe in the north-hill mine	Pico en la mina de la colina norte
+Pink dot is you. Walk close and tap the pink prompt to enter.	El punto rosa eres tú. Acércate y toca el aviso rosa para entrar.
+Place	Colocar
+Place it in My Room	Colócalo en Mi cuarto
+Plan → fill 3 slots → Go	Planear → llena 3 espacios → Ir
+Plant seeds	Planta semillas
+Play	Jugar
+Play - Festival of Games	Jugar - Festival de juegos
+Please support our OST (Our frequency) on YouTube Music, Spotify & iTunes	Apoya nuestra OST (Our frequency) en YouTube Music, Spotify y iTunes
+Police: Horse thief! Freeze!	Policía: ¡Ladrón de caballos! ¡Alto!
+Police: I'll let it go… today.	Policía: Lo dejaré pasar… por hoy.
+Police: You're under arrest, horse thief!	Policía: ¡Quedas arrestada, ladrona de caballos!
+Poor condition — medicine / stew	Mala condición: medicina / guiso
+Pop in jelly and turn the handle!	¡Mete una gomita y gira la manivela!
+Pork noodles? The broth's amazing.	¿Fideos de cerdo? El caldo es increíble.
+Potion = energy +30	Poción = energía +30
+Potions	Pociones
+Potions refill twice as much.	Las pociones recargan el doble.
+Power	Fuerza
+Power swings — tap [Shoot!] at the strength you want	La fuerza oscila: toca [¡Tira!] con la fuerza que quieras
+Power — tap [Throw!] inside the white band	Fuerza: toca [¡Lanza!] dentro de la franja blanca
+Practice (no reward)	Práctica (sin premio)
+Practice — no reward.	Práctica: sin premio.
+Premium	Premium
+Press [Throw] to start	Pulsa [Lanzar] para empezar
+Press the opposite side to balance	Pulsa el lado opuesto para equilibrarte
+Pretty horses, right? …You're not going to hit them, are you? I'll call the police!	Bonitos caballos, ¿no? …No les vas a pegar, ¿verdad? ¡Llamaré a la policía!
+Privacy Policy	Política de privacidad
+Progress	Progreso
+Prologue film	Película del prólogo
+Prologue · Our Frequency	Prólogo · Nuestra frecuencia
+Pull again	Tirar otra vez
+Pull the lever or tap a button\nto draw a capsule!	¡Tira de la palanca o toca un botón\npara sacar una cápsula!
+Purse is light. Pick a Work card for shopping and lessons.	El monedero está flaco. Elige una carta de Trabajar para compras y clases.
+Push the stick and walk to the glow	Mueve el stick y camina hacia el brillo
+Push the stick to walk — all the way to run	Mueve el stick para caminar; a fondo para correr
+Put on the headphones. Music stops when you leave.	Ponte los auriculares. La música se detiene al salir.
+Quiet	Tranquilo
+Quit	Salir
+REPLAY	REPETIR
+RUN!	¡CORRE!
+Rabbits	Conejos
+Radio	Radio
+Radio 89.2	Radio 89.2
+Rain	Lluvia
+Rain — walking tires you faster.	Lluvia: caminar te cansa más rápido.
+Raise this week again, or\nretry right now!	¡Vuelve a entrenar esta semana o\nreintenta ahora mismo!
+Rancher	Ranchero
+Random event	Evento aleatorio
+Rank S — nothing left to retry.	Rango S: no queda nada por reintentar.
+Rarest fish + count.	Pez más raro + cantidad.
+Reach the tower	Llega a la torre
+Read	Leer
+Read a few, close the box	Leer algunas y cerrar la caja
+Read all twenty	Leer las veinte
+Read how to play first	Lee primero cómo jugar
+Ready for Twenty	Lista para los veinte
+Ready meals — Feed button consumes them.	Comidas listas: el botón Comer las consume.
+Ready — Go!	Listos… ¡ya!
+Rent a board and catch a wave?	¿Alquilas una tabla y agarras una ola?
+Replay the games you have beaten in missions	Vuelve a jugar los juegos que ganaste en misiones
+Rest this week	Descansar esta semana
+Rest well too!	¡Descansa bien también!
+Restart	Reiniciar
+Rested without eating…	Descansaste sin comer…
+Result	Resultado
+Retry for the reward — or pay coins to skip.	Reintenta por el premio o paga monedas para saltarlo.
+Retry now	Reintentar ahora
+Retrying	Reintentando
+Return to the tower	Volver a la torre
+Reward	Premio
+Rice · 1 week	Arroz · 1 semana
+Ride the board. Speed ×1.3 · Coins ×1.3\nShorter reaction time — advanced.	Súbete a la tabla. Velocidad ×1,3 · Monedas ×1,3\nMenos tiempo de reacción: avanzado.
+Riding & E-kart park	Parque de equitación y karts eléctricos
+Riding the wave!	¡Surfeando la ola!
+Right wall	Pared derecha
+Road	Camino
+Rocks keep falling — watch the ground shadows!\nNo coins/obstacles meanwhile · survive for +100 coins	¡Siguen cayendo rocas: mira las sombras en el suelo!\nMientras, sin monedas/obstáculos · sobrevive y gana +100 monedas
+Rolling…	Rodando…
+Rookie Runner	Corredora novata
+Room	Cuarto
+Run proud!	¡Corre con orgullo!
+Run to the end of the song to clear!\nReplay the tutorial from the chapter screen.	¡Corre hasta el final de la canción para superarlo!\nRepite el tutorial desde la pantalla de capítulos.
+Run to the tower.\nSpeed ×1.0 · Coins ×1.0\nStart here.	Corre hasta la torre.\nVelocidad ×1,0 · Monedas ×1,0\nEmpieza aquí.
+Run!	¡Corre!
+Running	Corriendo
+SEN	SEN
+SONG COMPLETE! ♪	¡CANCIÓN COMPLETA! ♪
+SPEED UP!	¡MÁS VELOCIDAD!
+STA	ENE
+START!	¡YA!
+STR	EST
+SUCCESS!	¡ÉXITO!
+SUN DOWN	ATARDECER
+Saekdong surf shop	Tienda de surf de Saekdong
+Saying it, my chest knew first.	Al decirlo, mi pecho lo supo primero.
+Score	Puntuación
+Sea	Mar
+Seagull Pirate	Pirata Gaviota
+Secret code	Código secreto
+Secret code — chapters, records & pets unlocked	Código secreto: capítulos, discos y mascotas desbloqueados
+Seeds: My Room pots · veggies become side dishes	Semillas: macetas de Mi cuarto · las verduras se vuelven guarniciones
+Set aim	Apuntar
+Set one bunch for "me"	Aparta un ramo para «mí»
+Shake	Agitar
+Shoot!	¡Tira!
+Shopkeeper	Tendero
+Side dish · 1 week	Guarnición · 1 semana
+Side scene unlocked	Escena secundaria desbloqueada
+Side story	Historia secundaria
+Signed! See Collection	¡Firmado! Mira la Colección
+Sill left	Alféizar izq.
+Sill right	Alféizar der.
+Sis, the tour isn't over yet!	¡Hermana, el recorrido aún no termina!
+Sis… you forgot, huh. 	Hermana… lo olvidaste, ¿eh? 
+Skateboard	Monopatín
+Skip	Saltar
+Skip ›	Saltar ›
+Skip ▶	Saltar ▶
+Slam!	¡Pum!
+Slash it in a hurry	Córtalo rápido
+Slept	Dormiste
+Slept well	Dormiste bien
+Slept well. 8 AM next day — HP +40 · condition +5	Dormiste bien. 8 a. m. del día siguiente: HP +40 · condición +5
+Slept well. Energy +12 · Condition +8	Dormiste bien. Energía +12 · Condición +8
+Smash!	¡Golpe!
+Smith	Herrero
+Snack OFF	Merienda OFF
+Snack ON · 15G/week · stress ×0.8	Merienda ON · 15G/semana · estrés ×0,8
+Snack: OFF	Merienda: OFF
+Snack: ON	Merienda: ON
+SnackOFF	MeriendaOFF
+SnackON	MeriendaON
+Snow	Nieve
+Snow — walking tires you faster.	Nieve: caminar te cansa más rápido.
+Snow. Run toward the last sunset.\nRank S everywhere, and the tower answers.	Nieve. Corre hacia el último atardecer.\nRango S en todo, y la torre responde.
+So close	Casi
+So close…	Casi…
+Something's in the way.	Algo está en medio.
+Song complete! ♪	¡Canción completa! ♪
+Sound	Sonido
+Splash! Get back up	¡Splash! Levántate
+Splashing	Chapoteando
+Spring, 19. Ride the rapeseed road to the tower.\nAt the bus stop, the boy is back.	Primavera, 19. Recorre el camino de colza hasta la torre.\nEn la parada del autobús, el chico ha vuelto.
+Stack the stones again	Apila las piedras otra vez
+Staff	Equipo
+Stamina → HP · Agility → lanes · Charm → near-miss	Energía → HP · Agilidad → carriles · Encanto → roce
+Stand on a plot to plant / water / harvest. Two weeks without water = withered. Rain waters for you.	Párate en una parcela para plantar / regar / cosechar. Dos semanas sin agua = marchita. La lluvia riega por ti.
+Star blessing	Bendición estelar
+Starlight rain — straight to your wallet!	Lluvia de estrellas: ¡directo a tu cartera!
+Start over	Empezar de nuevo
+Start over?	¿Empezar de nuevo?
+Stat raised now	Estadística subida
+Stats	Estadísticas
+Stay put, like the kid said	Quédate quieta, como dijo el niño
+Stop inside the band!	¡Detente dentro de la franja!
+Stop to set power!	¡Detén para fijar la fuerza!
+Story Mode	Modo historia
+Stress -25	Estrés -25
+Stress −10	Estrés −10
+Stress −8	Estrés −8
+Stuck! Wiggled free.	¡Atascada! Te zafaste.
+Studio Woohee-Heesi v	Studio Woohee-Heesi v
+Summer festival, autumn orchards. Two people on one frequency.\nSome voices only reach you before sunset.	Festival de verano, huertos de otoño. Dos personas en una frecuencia.\nAlgunas voces solo te llegan antes del atardecer.
+Summer · Autumn	Verano · Otoño
+Sunny	Soleado
+Sure, I'll do it!	¡Claro, lo haré!
+Surf shop · Rent a board	Tienda de surf · Alquilar tabla
+Surfing	Surf
+Sweeping left/right…\nstop it on time	Se mueve de izquierda a derecha…\ndetenlo a tiempo
+Sweeping…\nstop it on the jar!	Se mueve…\n¡detenlo sobre el jarrón!
+Sweet rest	Dulce descanso
+Swing	Blandir
+Swipe down to slide	Desliza abajo para barrerte
+Swipe down to slide under,\nor change lanes.	Desliza abajo para barrerte por debajo,\no cambia de carril.
+Swipe left / right to change lane	Desliza a izquierda / derecha para cambiar de carril
+Swipe left/right to change lanes.\nSwipe up to jump, down to slide!	Desliza a izquierda/derecha para cambiar de carril.\n¡Desliza arriba para saltar y abajo para barrerte!
+Swipe up to jump	Desliza arriba para saltar
+Swish — nothing to catch nearby.	Fiu… no hay nada que atrapar cerca.
+Swish — the dragonfly got away!	Fiu… ¡la libélula se escapó!
+Swish — the rabbit hopped away!	Fiu… ¡el conejo se escapó saltando!
+TAG! WIN!	¡TE TOQUÉ! ¡GANASTE!
+TRU	CON
+Taewak	Taewak
+Tag before the bell!! Freeze when it turns	¡¡Toca antes de la campana!! Quieta cuando se voltee
+Tag!	¡Te toqué!
+Tagged! You win!	¡Lo tocaste! ¡Ganaste!
+Tagger is LOOKING!	¡El que la lleva está MIRANDO!
+Tagger turned away!	¡El que la lleva se volteó!
+Take the net to the hill	Lleva la red a la colina
+Take the tour · 80G (stress −10)	Hacer el recorrido · 80G (estrés −10)
+Talk to 2 villagers	Habla con 2 vecinos
+Tamra Tool Workshop	Taller de herramientas Tamra
+Tangerine Brunch	Brunch de mandarina
+Tap THROW to toss the four sticks.	Toca LANZAR para tirar los cuatro palos.
+Tap [Catch!] while the hand is in the yellow zone	Toca [¡Atrapa!] mientras la mano esté en la zona amarilla
+Tap an empty pot first.	Primero toca una maceta vacía.
+Tap here!	¡Toca aquí!
+Tap in the yellow zone!	¡Toca en la zona amarilla!
+Tap the dolphins to take photos	Toca los delfines para tomar fotos
+Tap the face on the right.\n6 seconds of invincibility + jelly magnet!	Toca la cara de la derecha.\n¡6 segundos de invencibilidad + imán de gomitas!
+Tap to close	Toca para cerrar
+Tap to close ▼	Toca para cerrar ▼
+Tap to continue	Toca para continuar
+Tap to skip	Toca para saltar
+Tap when it points at the jar!	¡Toca cuando apunte al jarrón!
+Tap when it points at the marbles!	¡Toca cuando apunte a las canicas!
+Tap when the marker hits green to jump	Toca cuando el marcador llegue al verde para saltar
+Teddy Cub Museum	Museo del Osito
+Teddy photo zone	Zona de fotos del osito
+Teller	Cajero
+Teller: Welcome! Deposits, loans and run income here.	Cajero: ¡Bienvenida! Aquí, depósitos, préstamos e ingresos de carreras.
+Tenant	Inquilina
+Tend the garden	Cuidar el huerto
+Terms & Policies	Términos y políticas
+Terms of Service	Términos del servicio
+Thank him and wrap the sleeve	Dale las gracias y envuelve la manga
+Thank you! ♥ That means a lot	¡Gracias! ♥ Significa mucho
+Thank you! ♪ 2 hidden tracks unlocked in Records and the K-POP run	¡Gracias! ♪ 2 canciones ocultas desbloqueadas en Discos y en la carrera K-POP
+Thank you! ♫ The whole OST is unlocked in Records	¡Gracias! ♫ Toda la OST está desbloqueada en Discos
+Thanks for earlier. Maybe another favor next week!	Gracias por lo de antes. ¡Quizá otro favor la semana que viene!
+Thanks! Come back when it's done.	¡Gracias! Vuelve cuando esté listo.
+That brown one comes to the fence when it sees you. Never for me.	Ese marrón viene a la cerca cuando te ve. A mí nunca.
+That feels nice~	Qué rico~
+That's enough, thanks!	¡Ya basta, gracias!
+That's it for today — come back next turn!	Eso es todo por hoy: ¡vuelve el próximo turno!
+That's what blocked the shaft! Dodge, then hit hard while it's dizzy!	¡Eso bloqueaba el túnel! Esquiva y golpea fuerte mientras está mareado.
+The Blue Headband	La diadema azul
+The Board	La tabla
+The Face in the Photo	La cara de la foto
+The Handcart	La carretilla
+The House on the Hill	La casa de la colina
+The White Shirt	La camisa blanca
+The Year	El año
+The barn is full.	El granero está lleno.
+The bees are busy. Next week!	Las abejas están ocupadas. ¡La semana que viene!
+The blue gem headband inside the waterproof case. What Dad kept to the end.	La diadema de gema azul dentro del estuche impermeable. Lo que papá guardó hasta el final.
+The broken radio works again. The dial rests at 89.2.	La radio rota vuelve a funcionar. El dial se queda en 89.2.
+The bus is here! No. 201 to Jeju City. I'll stay and explore today.	¡Llegó el autobús! El 201 a Jeju City. Hoy me quedo a explorar.
+The crooked heart on the buoy — the same paint mark Dad used to make.	El corazón torcido en la boya: la misma marca de pintura que hacía papá.
+The current playthrough is erased.\nCollection, records and stats stay.	Se borrará la partida actual.\nLa colección, los récords y las estadísticas se conservan.
+The divers said 'Haneul'. Blue was me. Ocean unnie.	Las haenyeo dijeron «Haneul». La azul era yo. La unnie del mar.
+The farm is full. Let it go.	La granja está llena. Déjalo ir.
+The garden. Step on a plot and plant seeds.	El huerto. Párate en una parcela y planta semillas.
+The gem headband	La diadema de gema
+The heart mark	La marca del corazón
+The hens	Las gallinas
+The kid	El niño
+The kid in the raincoat	El niño del impermeable
+The kid let go, relieved. "Good."	El niño soltó aliviado. «Bien».
+The lady who cooks	La señora que cocina
+The lighthouse blinks like 89.2. The sea is quiet today.	El faro parpadea como 89.2. El mar está en calma hoy.
+The line snapped…	Se rompió el sedal…
+The marble stays. It was mine once.	La canica se queda. Una vez fue mía.
+The name	El nombre
+The name on every envelope — "Haneul".\nOnly the last one is still unsealed.	El nombre en cada sobre: «Haneul».\nSolo el último sigue sin cerrar.
+The name was still heavy. Enough for today.	El nombre todavía pesaba. Suficiente por hoy.
+The needle won't stay. The kid bit the thread.	La aguja no se queda quieta. El niño mordió el hilo.
+The pencil holds. Fewer blank days — a bigger promise.	El lápiz aguanta. Menos días en blanco: una promesa más grande.
+The pets play in the yard. One nap per turn.	Las mascotas juegan en el patio. Una siesta por turno.
+The rabbits	Los conejos
+The radio: "Tomorrow you may listen." The coat sits by the bed.	La radio: «Mañana puedes escuchar». El abrigo está junto a la cama.
+The raincoat on the eve	El impermeable de la víspera
+The rancher lets you care for the horses. At ♥3 you can ride one.	El ranchero te deja cuidar los caballos. Con ♥3 puedes montar uno.
+The road there is broken. Fill the gap between the orange cones with the Road tool (500G a tile) to auto-move!	El camino hasta allí está roto. ¡Rellena el hueco entre los conos naranjas con la herramienta Camino (500G por casilla) para moverte solo!
+The sun set…	Se puso el sol…
+The three stones under the tower have fallen. Stack them again — or leave them.	Las tres piedras bajo la torre se han caído. Apílalas otra vez, o déjalas.
+The top-left gauge is your energy.\nIt drains as you run — 0 ends the run!	El indicador de arriba a la izquierda es tu energía.\nBaja mientras corres: ¡a 0 termina la carrera!
+The tower is still out the window. I'll count the days to the promised birthday.	La torre sigue ahí, tras la ventana. Contaré los días hasta el cumpleaños prometido.
+The warm bottle held. Someone leaves it every day.	La botella tibia seguía allí. Alguien la deja cada día.
+The woodpile is full (8 weeks).	La leñera está llena (8 semanas).
+There's already a road here.	Ya hay un camino aquí.
+There's somewhere to go before bed.	Hay un sitio adonde ir antes de dormir.
+They buy bugs, ores and tangerines too. Save up and you can buy anything.	También compran bichos, minerales y mandarinas. Ahorra y podrás comprar lo que sea.
+Thick-cut black pork!	¡Cerdo negro en corte grueso!
+Thin Suit	Traje ligero
+This is the shop. Food and seeds.	Esta es la tienda. Comida y semillas.
+This photocard is not released yet	Esta fotocarta aún no está disponible
+This weekend!	¡Este fin de semana!
+Three stones	Tres piedras
+Throw	Lanzar
+Throw again!	¡Lanza otra vez!
+Throw!	¡Lanza!
+Throwing…	Lanzando…
+Ticket +1 · 500 coins	Boleto +1 · 500 monedas
+Tilting…!	¡Se inclina…!
+Time on the wave	Tiempo sobre la ola
+Time's up.	Se acabó el tiempo.
+Time's up… faster next time!	Se acabó el tiempo… ¡más rápido la próxima!
+Timing	Ritmo
+Tip: side stories are folded	Consejo: las historias secundarias están plegadas
+To story	A la historia
+To the race!	¡A la carrera!
+Too Far to Hold	Demasiado lejos para sostener
+Too close to another item.	Demasiado cerca de otro objeto.
+Too tired. Rest first.	Demasiado cansada. Descansa primero.
+Too weak!	¡Muy débil!
+Tool	Herramienta
+Tour — done this turn	Paseo — hecho este turno
+Tower Runner	Corredora de la torre
+Tower hill · View of the village	Colina de la torre · Vista del pueblo
+Trace both faces clearer	Trazar ambas caras con más claridad
+Trembling — missed again. But I didn't quit.	Temblando, fallé otra vez. Pero no me rendí.
+True ending	Final verdadero
+Try again	Reintentar
+Try again right here!	¡Inténtalo de nuevo aquí mismo!
+Try the needle one more time	Intentar enhebrar la aguja una vez más
+Tutorial done!	¡Tutorial completado!
+Tutorial · How to run	Tutorial · Cómo correr
+Twentieth Birthday	Vigésimo cumpleaños
+Twenty letters	Veinte cartas
+Twenty letters. Reading them all will take the night, but I don't want to leave one unread.	Veinte cartas. Leerlas todas me llevará la noche, pero no quiero dejar ninguna sin leer.
+Two Bottles of Milk	Dos botellas de leche
+Two bottles at dusk	Dos botellas al atardecer
+Two bunches. The kid: "That person doesn't know yet."	Dos ramos. El niño: "Esa persona aún no lo sabe."
+Two done. One left. 	Dos listas. Falta una. 
+Two faces in the frost	Dos caras en la escarcha
+Two faces on the glass. On the snow path the kid watched my back.	Dos caras en el cristal. En el camino nevado, el niño miraba mi espalda.
+Typhoon Dokkaebi	Tifón Dokkaebi
+Ugh!	¡Uf!
+Ugh… 	Uf… 
+Under the Tower	Bajo la torre
+Unlock: lower trouble	Desbloqueo: menos problemas
+Unlocked — chapters, records & pets	Desbloqueado: capítulos, registros y mascotas
+Unlocked — donor passcode ☕	Desbloqueado: código de donante ☕
+Unlocks in NG+	Se desbloquea en NG+
+Unreleased	Inédito
+Use	Usar
+Use Expand all to open them at once	Usa Expandir todo para abrirlas a la vez
+Use Fever in the chorus	Usa la Fiebre en el estribillo
+Use it outside — head out the door!	Úsalo afuera: ¡sal por la puerta!
+Use the bat for big bugs!	¡Usa el bate con los bichos grandes!
+Use the net for spirits and bugs!	¡Usa la red con espíritus y bichos!
+Vibration	Vibración
+Victory!	¡Victoria!
+Village grandma	Abuela del pueblo
+Village menu	Menú del pueblo
+Village shop	Tienda del pueblo
+Village shop · Enter	Tienda del pueblo · Entrar
+Villagers in the lane	Vecinos en el callejón
+Visit Cheonjaeyeon Falls	Visitar la cascada Cheonjaeyeon
+WIN!	¡GANASTE!
+Waiting…	Esperando…
+Wake up in hospital	Despertar en el hospital
+Walk on your own in the shaft	Camina por tu cuenta en el pozo
+Walk with the joystick — tap the pink prompt to enter a place!	Camina con el joystick: ¡toca el aviso rosa para entrar a un lugar!
+Walks there and enters on its own.	Camina hasta allí y entra sola.
+Watch from afar and leave	Mirar de lejos y marcharse
+Watch your HP in the shaft.	Cuida tus PS en el pozo.
+We have everything!	¡Tenemos de todo!
+Wear	Vestir
+Wears out in 3 months. Worn = condition/charm ↓	Se desgasta en 3 meses. Desgastado = condición/encanto ↓
+Week's over	Fin de semana
+Weekend mini-game	Minijuego de fin de semana
+Weekend mini-game win!	¡Victoria en el minijuego de fin de semana!
+Welcome to Islesound. Hear the island OST.	Bienvenida a Islesound. Escucha la banda sonora de la isla.
+Welcome! Looking for something?	¡Bienvenida! ¿Buscas algo?
+Welcome! Try some Jeju style?	¡Bienvenida! ¿Probamos el estilo de Jeju?
+Welcome! We even have a haenyeo bear.	¡Bienvenida! Hasta tenemos un oso haenyeo.
+Whack — squashed a bug (+2G). Use the net to keep it.	¡Zas! Aplastaste un bicho (+2G). Usa la red para quedártelo.
+What shall we eat?	¿Qué comemos?
+What still fits in my hand	Lo que aún cabe en mi mano
+What to do this weekend?	¿Qué hacemos este fin de semana?
+What'll you do?	¿Qué harás?
+When a place starts glowing, I'll take you there. Maybe… you'll remember something.	Cuando un lugar empiece a brillar, te llevaré. Quizás… recuerdes algo.
+When two lanes are blocked,\nmove to the open one.	Si dos carriles están bloqueados,\npásate al libre.
+Where to? Pick a category first. Push the stick to stop.	¿Adónde? Elige primero una categoría. Mueve el stick para detenerte.
+Which job this weekend?	¿Qué trabajo este fin de semana?
+Whisper "Haneul" aloud	Susurrar "Haneul" en voz alta
+Whoosh — face the water at the shore.	¡Fiu! Mira hacia el agua en la orilla.
+Whoosh — get closer to a monster.	¡Fiu! Acércate más a un monstruo.
+Whoosh — no big bug. They show up now and then.	¡Fiu! No hay bichos grandes. Aparecen de vez en cuando.
+Whoosh — swing next to a tree.	¡Fiu! Golpea junto a un árbol.
+Win + stat = 1st · one of them = 2nd/3rd	Victoria + estadística = 1.º · solo una = 2.º/3.º
+Windy	Ventoso
+Wipe the frost with my hand	Limpiar la escarcha con la mano
+Wk 1	Sem 1
+Woke up in hospital. Buy rice first.	Desperté en el hospital. Primero compra arroz.
+Won again! 500G · 5 jelly · silver ore ×2. The big prize resets next week.	¡Ganaste otra vez! 500G · 5 gelatinas · mineral de plata ×2. El gran premio se reinicia la próxima semana.
+Work	Trabajo
+Worn!	¡Desgastado!
+Wow, thank you! Take this.	¡Vaya, gracias! Toma esto.
+Yellow star = Bonus Time	Estrella amarilla = Tiempo extra
+You already entered this year. See you next year!	Ya participaste este año. ¡Hasta el próximo!
+You can see the whole village from here. Let's plan the week at home.	Desde aquí se ve todo el pueblo. Planeemos la semana en casa.
+You did it!	¡Lo lograste!
+You don't have this card yet	Aún no tienes esta carta
+You don't own that pet.	No tienes esa mascota.
+You grow 2× for 10 seconds\nand smash through obstacles!	¡Creces al doble durante 10 segundos\ny atraviesas los obstáculos!
+You hop off. The horse trots back to the ranch.	Te bajas. El caballo vuelve trotando al rancho.
+You must win to move on to next week.	Debes ganar para pasar a la próxima semana.
+You passed the clue by	Pasaste de largo la pista
+You passed the clue — letters left unread	Pasaste de largo la pista: las cartas quedaron sin leer
+You win!	¡Ganaste!
+You win! 60G	¡Ganaste! 60G
+You're full — HP is maxed. Come again!	Estás llena: PS al máximo. ¡Vuelve pronto!
+You're perfectly healthy!	¡Estás perfectamente sana!
+Your choice is saved	Tu elección se ha guardado
+Your turn — [THROW!!]	Tu turno: [¡¡LANZA!!]
+Your turn.	Tu turno.
+Your turn. Land on a fork → X shortcut!	Tu turno. Cae en un cruce → ¡atajo con X!
+Your wallet is empty. Earn some on a run!	Tu cartera está vacía. ¡Gana algo corriendo!
+Youth Protection	Protección de menores
+Yut Nori	Yut Nori
+"It's fine." He smiled. Guilt stayed.	"Está bien." Sonrió. La culpa se quedó.
+"Two bottles of milk. One for today, one for tomorrow."\nThe same line, shifted a little each year.	"Dos botellas de leche. Una para hoy, otra para mañana."\nLa misma línea, un poco desplazada cada año.
+"…20th birthday, under the tower. Whether you come or not, I'll go."\nThe ink runs at the edge.	"…Mi vigésimo cumpleaños, bajo la torre. Vengas o no, yo iré."\nLa tinta se corre en el borde.
+agility	agilidad
+burnout	agotamiento
+calm	tranquila
+camera · tap=swing	cámara · toque=golpe
+charm	encanto
+claimed	reclamado
+close their eyes and stay still	cierran los ojos y se quedan quietos
+critical	crítico
+done	hecho
+flat	normal
+flatten their ears and push into your palm	aplastan las orejas y empujan contra tu palma
+free today	gratis hoy
+later	luego
+nibble from the tip	mordisquean desde la punta
+now	ahora
+offer	ofrecer
+peck and follow your feet	picotean y siguen tus pies
+round	redondo
+s	s
+seen before	ya visto
+stamina	energía
+story	historia
+story·contest	historia·concurso
+sun is down	se ha puesto el sol
+sun is down…	se ha puesto el sol…
+sun is setting…	el sol se está poniendo…
+sunset in 	atardecer en 
+this week	esta semana
+tired	cansada
+until sunset	hasta el atardecer
+worn out	desgastado
+— Our Frequency —	— Nuestra frecuencia —
+— end of chapter —	— fin del capítulo —
+…Haneul can't get up.	…Haneul no puede levantarse.
+…The villager doesn't talk to a stranger.	…El vecino no habla con desconocidos.
+…Woke up in hospital. Shop first.	…Desperté en el hospital. Primero, a la tienda.
+…Woke up in the hospital. No fee for newcomers. 	…Desperté en el hospital. Gratis para los recién llegados. 
+↩  Close	↩  Cerrar
+↩ Back	↩ Volver
+↩ Back to categories	↩ Volver a categorías
+↩ Repay	↩ Pagar
+↩ Repay loan	↩ Pagar préstamo
+↻ Rotate	↻ Girar
+⏹ Stop	⏹ Detener
+■  Stop playlist	■  Detener lista
+■ Max size (15 plots)	■ Tamaño máx. (15 parcelas)
+▲ Hold to raise	▲ Mantén para subir
+▲ Upgrade	▲ Mejorar
+▶  Full album	▶  Álbum completo
+▶  Music video "Our frequency" · Studio Woohee&Heesi	▶  Videoclip "Nuestra frecuencia" · Studio Woohee&Heesi
+▶ Jump to this chapter	▶ Ir a este capítulo
+▶ Replay tutorial	▶ Repetir tutorial
+▶ Ride (90 s, faster)	▶ Montar (90 s, más rápido)
+▶ Riding! Push the stick all the way to gallop (90 s)	▶ ¡Montando! Empuja el stick a fondo para galopar (90 s)
+▶ Run again (retry)	▶ Correr otra vez (reintentar)
+▶ Take me there	▶ Llévame allí
+▶ contest  ★ cutscene  · story  ♪ festival  ▣ now	▶ concurso  ★ escena  · historia  ♪ festival  ▣ ahora
+▼ Open	▼ Abrir
+◀ Back	◀ Volver
+◀ Village	◀ Pueblo
+◆ Work	◆ Trabajo
+○ OK	○ OK
+● Brush the mane (+6)	● Cepillar la crin (+6)
+● Brush — done today	● Cepillado: hecho hoy
+● Carrot — done today	● Zanahoria: hecho hoy
+● Feed — done today	● Comida: hecho hoy
+● Fertilize	● Abonar
+● Fertilized	● Abonado
+● Give a carrot (+12)	● Dar una zanahoria (+12)
+● Give a carrot / veg (+10)	● Dar zanahoria / verdura (+10)
+● Good night	● Buenas noches
+● Pet (+6)	● Acariciar (+6)
+● Pet — done today	● Caricias: hecho hoy
+● Talk to the rancher	● Hablar con el ranchero
+☀ Heal	☀ Curar
+★ 2 hidden tracks (donor gift)  ▶	★ 2 pistas ocultas (regalo de donante)  ▶
+★ = 1 + fertilizer + never missed water	★ = 1 + abono + nunca faltó el riego
+★ GREAT	★ GENIAL
+★ Golden dragonfly!	★ ¡Libélula dorada!
+★ Golden stag beetle! Legendary — into the bag	★ ¡Ciervo volante dorado! Legendario, a la bolsa
+★ Got it! ★	★ ¡Conseguido! ★
+★ Jewel ladybug!	★ ¡Mariquita joya!
+★ MISSION ★	★ MISIÓN ★
+★ New best score!	★ ¡Nueva mejor puntuación!
+★ Pick your gift	★ Elige tu regalo
+★ Rainbow butterfly!	★ ¡Mariposa arcoíris!
+★ Result ★	★ Resultado ★
+★ Star Capsule ★	★ Cápsula estelar ★
+★ The boss is dizzy — hits deal double!	★ ¡El jefe está mareado: los golpes hacen el doble!
+★ Tutorial done — glowing places continue the story	★ Tutorial completado: los lugares que brillan continúan la historia
+★ WIN! ★	★ ¡GANASTE! ★
+★★★ GREAT SUCCESS ★★★	★★★ GRAN ÉXITO ★★★
+☾ Heal	☾ Curar
+☾ Rest	☾ Descansar
+♥ Heart	♥ Corazón
+♥ Rest	♥ Descansar
+♥3 golden eggs sometimes · ♥5 +1 egg daily	♥3 huevos de oro a veces · ♥5 +1 huevo al día
+♥5: a clover (★ shard) every morning	♥5: un trébol (fragmento ★) cada mañana
+♪ One more song	♪ Otra canción
+♪ One more ♪	♪ ¡Otra más! ♪
+♪ Song done — already stamped today	♪ Canción terminada: ya sellada hoy
+⚔ Auto-hunt OFF	⚔ Caza auto OFF
+⚔ Auto-hunt ON	⚔ Caza auto ON
+⚔ Auto-hunt off	⚔ Caza auto desactivada
+⚔ Auto-hunt off (manual move)	⚔ Caza auto desactivada (movimiento manual)
+⚔ Auto-hunt on	⚔ Caza auto activada
+⚔ Looking for prey…	⚔ Buscando presa…
+⚠ Release = freeze = safe	⚠ Soltar = congelar = a salvo
+⚠ Weekend job (random)	⚠ Trabajo de fin de semana (al azar)
+⚠ Weekend play (random)	⚠ Diversión de fin de semana (al azar)
+⚠ Weekend rest (random)	⚠ Descanso de fin de semana (al azar)
+⛏ Oreum Mine	⛏ Mina del oreum
+⛏ Oreum Mine · Enter	⛏ Mina del oreum · Entrar
+⛏ Pickaxe — mine hill rocks (gone after 3, regrows in 8w)	⛏ Pico: extrae rocas de la colina (desaparece tras 3, vuelve en 8 sem)
+⛵ Jungmon Marina	⛵ Marina de Jungmun
+⛵ Jungmon Marina · Yacht / Jet ski	⛵ Marina de Jungmun · Yate / Moto acuática
+⛵ Yacht tour	⛵ Paseo en yate
+✅ Buy	✅ Comprar
+✌ Peace	✌ Paz
+✓ Same cell = catch!	✓ ¡Misma casilla = captura!
+✔ Done	✔ Hecho
+✕ Close	✕ Cerrar
+✕ FAIL	✕ FALLO
+✦ AI-generated image · virtual	✦ Imagen generada por IA · ficticia
+✦ Caught… back to lap start	✦ Atrapada… de vuelta al inicio de la vuelta
+✦ Me	✦ Yo
+✦ Story event	✦ Evento de historia
+✦♥ ★ 3-lap race — your turn! ★ ♥✦	✦♥ ★ Carrera de 3 vueltas: ¡tu turno! ★ ♥✦
+✨ Caught a spirit! Shards +2 · 30G	✨ ¡Atrapaste un espíritu! Fragmentos +2 · 30G
+✨ Walk to the glowing blanket	✨ Camina hasta la manta que brilla
+❀  Bought items go to your bag  ❀	❀  Los objetos comprados van a tu bolsa  ❀
+❀  It's sad, but you can get back up · Try again  ❀	❀  Es triste, pero puedes levantarte · Inténtalo de nuevo  ❀
+❀ Play	❀ Jugar
+❗ Event — 	❗ Evento: 
+⬇ Climb down	⬇ Bajar
+⬇ Deep shaft (dungeon) · Go down	⬇ Pozo profundo (mazmorra) · Bajar
+🌊 Big waves! Get out in 3 seconds!	🌊 ¡Olas grandes! ¡Sal en 3 segundos!
+🌊 Swept away by the waves…	🌊 Arrastrada por las olas…
+🌱 Grow · pick  (choose a seed to plant!)	🌱 Cultivar · cosechar (¡elige una semilla para plantar!)
+🌱 Plant seeds	🌱 Plantar semillas
+🌿 Pull weeds	🌿 Quitar maleza
+🌿 Weeds pulled. Ready to plant.	🌿 Maleza quitada. Listo para plantar.
+🍄 Pick mushroom	🍄 Recoger hongo
+🍄 Picked a mushroom → ingredient	🍄 Recogiste un hongo → ingrediente
+🍊 My orchard	🍊 Mi huerto
+🍊 Orchard	🍊 Huerto
+🍊 Order · Jeju brunch (restore HP)	🍊 Pedir · Brunch de Jeju (recupera PS)
+🍊 Sell produce (+20%)	🍊 Vender productos (+20%)
+🍊 Stone-wall orchard	🍊 Huerto de muro de piedra
+🍊 Tangerine Brunch menu	🍊 Menú de Tangerine Brunch
+🍊 Tangerine Brunch · Enter	🍊 Tangerine Brunch · Entrar
+🍊 Tangerine hat · 500G	🍊 Gorro de mandarina · 500G
+🍊 The orchard is yours!	🍊 ¡El huerto es tuyo!
+🍊 Wear tangerine hat	🍊 Ponerse el gorro de mandarina
+🍖 Got a horse! Meat +3 … the rancher is watching. Do it again and he'll call the police!	🍖 ¡Cazaste un caballo! Carne +3… el ranchero te está mirando. ¡Si lo repites, llamará a la policía!
+🍚 Table · Eat	🍚 Mesa · Comer
+🍜 Noodles	🍜 Fideos
+🍜 Olle Noodles	🍜 Fideos Olle
+🍫 Tangerine chocolate · 120G	🍫 Chocolate de mandarina · 120G
+🍳 Cook — ingredients → meals	🍳 Cocinar: ingredientes → platos
+🍽 Order (restore HP)	🍽 Pedir (recupera PS)
+🎁 All done? Thank you!	🎁 ¿Todo listo? ¡Gracias!
+🎁 Buy souvenirs	🎁 Comprar recuerdos
+🎁 Donate everything new	🎁 Donar todo lo nuevo
+🎁 Gift	🎁 Regalo
+🎁 Gift snack box · 120G	🎁 Caja de dulces para regalo · 120G
+🎁 Souvenir shop	🎁 Tienda de recuerdos
+🎁 Souvenirs	🎁 Recuerdos
+🎆 Enjoy the festival (stress −12)	🎆 Disfrutar del festival (estrés −12)
+🎉 Bandit gang cleared! Bonus +120G	🎉 ¡Banda de ladrones derrotada! Bonus +120G
+🎉 Loan paid off!	🎉 ¡Préstamo saldado!
+🎒 Bag	🎒 Bolsa
+🎣 Beach fishing	🎣 Pesca en la playa
+🎣 Cast	🎣 Lanzar
+🎣 Rod — fish at the beach	🎣 Caña: pesca en la playa
+🎧 Islesound · OST	🎧 Islesound · OST
+🎧 Listen · OST	🎧 Escuchar · OST
+🎧 Records	🎧 Discos
+🎮 Play · Practice	🎮 Jugar · Practicar
+🎯 Mission done!	🎯 ¡Misión cumplida!
+🎯 Today's mission	🎯 Misión de hoy
+🎵 Settle K-POP run income (nothing yet)	🎵 Liquidar ingresos de carreras K-POP (aún nada)
+🏏 Bat	🏏 Bate
+🏏 Beat the bandits! They dropped 40G each	🏏 ¡Venciste a los ladrones! Soltaron 40G cada uno
+🏏 Hit a bandit!	🏏 ¡Golpeaste a un ladrón!
+🏏 Hit the police! Still standing	🏏 ¡Golpeaste a la policía! Sigue en pie
+🏛 Curator · Donate / Encyclopedia	🏛 Curador · Donar / Enciclopedia
+🏛 Museum	🏛 Museo
+🏠 Go in	🏠 Entrar
+🏠 Our home	🏠 Nuestra casa
+🏠 To title	🏠 Al título
+🏠 Warp home	🏠 Teletransporte a casa
+🏠 Warped home.	🏠 Te teletransportaste a casa.
+🏡 Land (for sale · my rentals) …	🏡 Terrenos (en venta · mis alquileres)…
+🏡 Land · rent	🏡 Terrenos · alquiler
+🏥 Hospital · Enter	🏥 Hospital · Entrar
+🏦 Bank	🏦 Banco
+🏦 Bank teller	🏦 Cajero del banco
+🏦 Bank · Enter	🏦 Banco · Entrar
+🏦 How much to borrow?	🏦 ¿Cuánto quieres pedir prestado?
+🏦 Teller · Deposit / Loan / Run income	🏦 Cajero · Depósito / Préstamo / Ingresos de carreras
+🐄 Barn	🐄 Establo
+🐄 Barn · cows & pigs	🐄 Establo · vacas y cerdos
+🐄 Livestock Market	🐄 Mercado de ganado
+🐄 Market	🐄 Mercado
+🐄 Market · Livestock / Produce	🐄 Mercado · Ganado / Productos
+🐔 Farm	🐔 Granja
+🐔 Our farm	🐔 Nuestra granja
+🐚 A pretty shell! Into the bag	🐚 ¡Una concha bonita! A la bolsa
+🐚 Caught a hermit crab! Shard +1 · 8G	🐚 ¡Atrapaste un cangrejo ermitaño! Fragmento +1 · 8G
+🐚 Pick up shell	🐚 Recoger concha
+🐚 Picked up a Saekdong shell!	🐚 ¡Recogiste una concha saekdong!
+🐝 Beehive kit · 800G	🐝 Kit de colmena · 800G
+🐝 Canola beehives	🐝 Colmenas de colza
+🐝 Smacked a giant hornet! Shards +2 · 15G	🐝 ¡Aplastaste un avispón gigante! Fragmentos +2 · 15G
+🐞 Caught a ladybug! Shard +1	🐞 ¡Atrapaste una mariquita! Fragmento +1
+🐮 A calf went to the barn!	🐮 ¡Un becerro llegó al establo!
+🐮 Calf · 700G	🐮 Becerro · 700G
+🐴 Ranch	🐴 Rancho
+🐷 A piglet went to the barn!	🐷 ¡Un cerdito llegó al establo!
+🐷 Piglet · 350G	🐷 Cerdito · 350G
+🐾 Care for pets	🐾 Cuidar mascotas
+👑 Boss defeated!	👑 ¡Jefe derrotado!
+👗 Boutique	👗 Boutique
+👗 Clerk · Buy / wear	👗 Dependienta · Comprar / vestir
+👗 Tamra Boutique	👗 Boutique Tamra
+👻 Pushed the ghost back! Can't catch it — run home!	👻 ¡Hiciste retroceder al fantasma! No se puede atrapar: ¡corre a casa!
+💊 Treatment	💊 Tratamiento
+💤 (Already napped)	💤 (Ya dormiste la siesta)
+💤 Low HP — auto-hunt stopped. Eat and rest!	💤 PS bajos: caza auto detenida. ¡Come y descansa!
+💤 Sleep anyway — the week passes	💤 Dormir de todos modos: pasa la semana
+💤 Sleep — Energy +12 · Condition +8	💤 Dormir: energía +12 · condición +8
+💥 Scattered the spirit with the bat… (use the net to catch it!)	💥 Dispersaste al espíritu con el bate… (¡usa la red para atraparlo!)
+💰 Deposit	💰 Depositar
+💰 How much to deposit?	💰 ¿Cuánto quieres depositar?
+💰 Sell	💰 Vender
+💰 Sell items	💰 Vender objetos
+💵 How much to withdraw?	💵 ¿Cuánto quieres retirar?
+💵 Withdraw	💵 Retirar
+💸 Not enough	💸 No alcanza
+💼 Job Center	💼 Bolsa de trabajo
+💼 Job Center · Enter	💼 Bolsa de trabajo · Entrar
+📖 Encyclopedia	📖 Enciclopedia
+📖 Encyclopedia · friendships	📖 Enciclopedia · amistades
+📖 Jeju Life Encyclopedia	📖 Enciclopedia de la vida en Jeju
+📜 Um, I have a favor…	📜 Eh, tengo un favor que pedirte…
+📻 Desk · My room / Cook	📻 Escritorio · Mi cuarto / Cocinar
+🔒 Locked · unlock with the donor gift "OST"	🔒 Bloqueado · se desbloquea con el regalo de donante "OST"
+🗑 Remove	🗑 Quitar
+🗺 Haneul Seaside map	🗺 Mapa de la costa de Haneul
+🗿 Hareubang doll · 300G	🗿 Muñeco dol hareubang · 300G
+🚌 Bus stop · Timetable	🚌 Parada de autobús · Horario
+🚌 City stop · Take the bus	🚌 Parada de la ciudad · Tomar el autobús
+🚌 Coastal bus No. 201	🚌 Autobús costero n.º 201
+🚌 Coastal bus No. 201 — every 10 min. A Hallasan photo hangs by the timetable.	🚌 Autobús costero n.º 201: cada 10 min. Junto al horario cuelga una foto del Hallasan.
+🚌 Jungmon stop · Take the bus	🚌 Parada de Jungmun · Tomar el autobús
+🚌 Stop	🚌 Parada
+🚓 Arrested… paid the fine and got released. Wanted level cleared.	🚓 Arrestada… pagaste la multa y te soltaron. Nivel de búsqueda borrado.
+🚓 Beat all the police… wanted level cleared	🚓 Venciste a toda la policía… nivel de búsqueda borrado
+🚪 Look inside	🚪 Mirar adentro
+🛋 My room	🛋 Mi cuarto
+🛍 Shopkeeper	🛍 Tendero
+🛍 Village shop	🛍 Tienda del pueblo
+🛏 Bed	🛏 Cama
+🛏 Bed · Sleep (week passes)	🛏 Cama · Dormir (pasa la semana)
+🛒 Buy	🛒 Comprar
+🛒 Checkout · Shop	🛒 Caja · Tienda
+🛒 City Mart	🛒 City Mart
+🛒 Mart	🛒 Súper
+🛣 The road is broken — fill the gap between the orange cones.	🛣 El camino está roto: rellena el hueco entre los conos naranjas.
+🛣 You're too far from any road. Walk to a road or lay one.	🛣 Estás muy lejos de cualquier camino. Camina hasta uno o construye uno.
+🥛 Milk the cows	🥛 Ordeñar las vacas
+🥛 Milk: grown cows, weekly	🥛 Leche: vacas adultas, cada semana
+🥩 Dombe Black Pork	🥩 Cerdo negro Dombe
+🥩 Pork	🥩 Cerdo
+🥬 Groceries · medicine · care	🥬 Comestibles · medicinas · cuidado
+🥶 No firewood for the stove. Chop or gather some.	🥶 No hay leña para la estufa. Corta o recoge un poco.
+🦀 Caught a crab! Shard +1 · 12G	🦀 ¡Atrapaste un cangrejo! Fragmento +1 · 12G
+🦋 Caught a butterfly! Shard +1	🦋 ¡Atrapaste una mariposa! Fragmento +1
+🦋 Net	🦋 Red
+🧥 Clothes set (12 weeks)	🧥 Conjunto de ropa (12 semanas)
+🧭 Auto-move	🧭 Movimiento auto
+🧭 Auto-move — pick a place	🧭 Movimiento auto: elige un lugar
+🧭 Auto-moving… (push the stick to stop)	🧭 Moviéndose sola… (mueve el stick para detenerte)
+🧭 Go to land	🧭 Ir al terreno
+🧭 Move	🧭 Moverse
+🧭 Walk to a lot	🧭 Caminar a un lote
+🧭 Walking…	🧭 Caminando…
+🧸 Teddy Cub Museum	🧸 Museo Teddy Cub
+🧺 Harvest this week	🧺 Cosechar esta semana
+🧺 Harvested (next week)	🧺 Cosechado (la próxima semana)
+🪑 Yard furniture	🪑 Muebles del patio
+🪑 Yard — pick an item, walk, then 「Place」. Removing refunds half.	🪑 Patio: elige un objeto, camina y luego 「Colocar」. Quitarlo reembolsa la mitad.
+🪓 Axe — chop trees (falls after 3, regrows in 8w)	🪓 Hacha: tala árboles (caen tras 3 golpes, vuelven en 8 sem)
+🪜 Exit	🪜 Salir
+🪜 Ladder · Back to village	🪜 Escalera · Volver al pueblo
+🪜 Up to the mine	🪜 Subir a la mina
+🪨 Stone	🪨 Piedra
+🪰 Caught a dragonfly! Shards +2	🪰 ¡Atrapaste una libélula! Fragmentos +2
+🪲 Smacked a giant beetle! Shards +2 · 15G	🪲 ¡Aplastaste un escarabajo gigante! Fragmentos +2 · 15G
+🪵 Firewood	🪵 Leña
+🪵 Pick up branch	🪵 Recoger rama
+🪵 Picked a branch → Firewood +1	🪵 Recogiste una rama → Leña +1
+🫙 Make syrup (3 tangerines + 1 honey)	🫙 Hacer jarabe (3 mandarinas + 1 miel)
+🫳 Pet them (stress −3)	🫳 Acariciar (estrés −3)
+That Promise	Aquella promesa
+Our Tower  ·  OUR FREQUENCY	Nuestra torre  ·  OUR FREQUENCY
+The black car pulled away. I pounded the rear window with my palm. The window rolled down.	El coche negro arrancó. Golpeé la luna trasera con la palma. La ventanilla bajó.
+“On your 20th birthday, under the tower! Promise!” The car faded into the dust.	«¡En tu cumpleaños veinte, bajo la torre! ¡Sin falta!» El coche se alejó entre el polvo.
+That night I circled my birthday on the calendar and wrote, “Under the tower.” The pencil dug into the paper.	Esa noche rodeé mi cumpleaños en el calendario y escribí: «Bajo la torre». El lápiz se hundió en el papel.
+The calendar changed seven times. The circle was on the same day every year.	El calendario cambió siete veces. El círculo estaba cada año en el mismo día.
+The seventh spring. The edge of a blanket lifted in the wind. Overhead, the steel hummed.	La séptima primavera. El borde de una manta se levantaba con el viento. Arriba, el acero zumbaba.
+I opened my eyes. I was on an old blanket. The wind kept lifting its edge.	Abrí los ojos. Estaba sobre una manta vieja. El viento no dejaba de levantarle el borde.
+A rusty steel tower rose over my head into the sky, humming in the wind. The sky was gray.	Sobre mi cabeza, una torre de hierro oxidado subía hasta el cielo y zumbaba con el viento. El cielo era gris.
+Waves broke white over the seawall. Far off, the village speaker's typhoon warning kept cutting out in the wind.	Las olas rompían blancas sobre el rompeolas. A lo lejos, el aviso de tifón de los altavoces del pueblo se cortaba con el viento.
+I tried to remember my name. Nothing came. Not Mom's face, not home, not yesterday. Nothing.	Intenté recordar mi nombre. No salió. Ni la cara de mamá, ni mi casa, ni ayer. Nada.
+I pushed up against the post. My legs shook. My face showed in a rock pool.	Me levanté apoyándome en el poste. Me temblaban las piernas. Mi cara se reflejó en una poza entre las rocas.
+I looked at the girl in the pool for a long time. No name came.	Miré un buen rato a la chica de la poza. El nombre no salía.
+I sank down on the blanket and cried. Out loud. I didn't even know why. I was scared. Just scared.	Me dejé caer sobre la manta y lloré. Lloré en voz alta. Ni sabía por qué. Tenía miedo. Solo miedo.
+By three stones sat a kid, orange raincoat hood pulled low. About six. He'd watched me cry the whole time.	Junto a tres piedras había un niño con la capucha de un impermeable naranja bien calada. Unos seis años. Me había visto llorar todo el rato.
+“Sis, you don't know your name?” I nodded. The kid wasn't surprised. “Then Sister Bada. Your eyes are blue like the sea.”	«Hermana, ¿no sabes tu nombre?» Asentí. El niño no se sorprendió. «Entonces, hermana Bada. Tus ojos son azules como el mar.»
+I held the kid's hand and went down to the village. The wind pushed at my back.	Bajé al pueblo de la mano del niño. El viento me empujaba la espalda.
+In every alley, people were taping newspaper to windows and hauling boats up onto land.	En cada callejón la gente pegaba periódicos en las ventanas y subía las barcas a tierra.
+I said hello to a grandma. She didn't answer. The radio just repeated the typhoon warning.	Saludé a una abuela. No contestó. La radio solo repetía el aviso de tifón.
+The shop front, the bus stop, the seawall. Everyone was busy. Not one face knew me.	La tienda, la parada, el rompeolas. Todos estaban ocupados. Ninguna cara me conocía.
+Nobody was looking for me. That scared me most.	Nadie me buscaba. Eso era lo que más miedo me daba.
+“I know you, Sis,” the kid said. “How?” “I just do.”	«Yo te conozco, hermana», dijo el niño. «¿Cómo?» «Porque sí.»
+The kid said the same thing twice. Still, at those words my legs loosened a little.	El niño dijo lo mismo dos veces. Aun así, con esas palabras se me aflojaron un poco las piernas.
+A stop where the buses had stopped running. The kid pointed at the rusty tower on the hill we'd come down.	Una parada donde ya no pasaban autobuses. El niño señaló la torre oxidada de la colina de la que bajamos.
+“If you get from here to there before sunset, you win.” I asked what game it was. “Just a game.”	«Si llegas de aquí hasta allí antes del atardecer, ganas tú.» Le pregunté qué juego era. «Un juego y ya.»
+The kid dragged an old skateboard out from behind the bus stop.	El niño sacó un monopatín viejo de detrás de la parada.
+I stepped on and my body found the balance first. My head didn't know, but my feet did.	Puse el pie encima y el cuerpo encontró el equilibrio antes que yo. La cabeza no sabía, pero los pies sí.
+I reached the blanket under the tower before the sun set. The kid clapped. “You won!” I laughed. My first laugh today.	Llegué a la manta bajo la torre antes de que se pusiera el sol. El niño aplaudió. «¡Ganaste!» Me reí. Por primera vez en el día.
+That night the wind got stronger. The kid spread his raincoat over my shoulders too. We slept under it together.	Esa noche el viento arreció. El niño abrió su impermeable y me tapó hasta los hombros. Dormimos los dos debajo.
+Story · Episode 2	Historia · Episodio 2
+The next day I ran from the stop to the tower again. I put the kid on the front of the board.	Al día siguiente volví a correr de la parada a la torre. Llevé al niño delante en la tabla.
+His raincoat hood puffed up in the wind. “Faster!” “Tell me if you get scared.” “Faster!”	La capucha del impermeable se inflaba con el viento. «¡Más rápido!» «Avísame si te da miedo.» «¡Más rápido!»
+We fell on a bend between stone walls. We both scraped our knees.	Nos caímos en una curva entre muros de piedra. Los dos nos raspamos las rodillas.
+The kid put spit on my knee. “Now it won't hurt.” It still hurt. I laughed anyway.	El niño me puso saliva en la rodilla. «Así no duele.» Sí dolía. Aun así me reí.
+Two bottles of milk sat under the tower.	Bajo la torre había dos botellas de leche.
+The kid took a pink shell from his pocket. He drew a heart on it in red crayon. It was crooked.	El niño sacó del bolsillo una concha rosada. Le dibujó un corazón con una cera roja. Quedó torcido.
+The kid pressed the shell into my hand. “Don't lose it.”	El niño me cerró la mano sobre la concha. «No la pierdas.»
+On the way back, the kid took my hand. Small, cold hand. “Let's go tomorrow too.” “Yeah. Tomorrow too.”	De vuelta, el niño me dio la mano. Una mano pequeña y fría. «Mañana también vamos.» «Sí. Mañana también.»
+I picked up milk at the shop. The old owner was only listening to the radio. “Excuse me.”	Cogí leche en la tienda. La abuela de la tienda solo escuchaba la radio. «Perdone.»
+I called twice. She didn't look up.	La llamé dos veces. No levantó la cabeza.
+Outside I bumped into a man. He just walked past me. Not even “sorry.” I stepped aside to the roadside.	Fuera choqué con un hombre. Pasó a mi lado sin más. Ni un «perdón». Me aparté a la orilla del camino.
+I asked the kid, “Why doesn't anyone look at me?” Instead of answering, he kicked a pebble with his toe.	Le pregunté al niño: «¿Por qué nadie me mira?». En vez de contestar, pateó una piedrita con la punta del pie.
+“Sis, I'm hungry.” “Answer me.” “I'm hungry.” He said the same thing twice. I couldn't ask again.	«Hermana, tengo hambre.» «Contéstame.» «Tengo hambre.» Dijo lo mismo dos veces. No pude preguntar más.
+In front of the guard post, a woman was handing out flyers. One to everyone who passed.	Frente a la caseta, una señora repartía folletos. Uno a cada persona que pasaba.
+Few took one. Instead of words, she bowed her head. There was no sound at all.	Pocos lo cogían. En lugar de hablar, ella inclinaba la cabeza. No había ni un sonido.
+She stopped in front of me too. She looked at me a moment, then held out a flyer. I took it.	Se paró también delante de mí. Me miró un momento y me tendió un folleto. Lo cogí.
+A face I'd seen somewhere. She looked sad. She bowed her head and moved on to the next person.	Era una cara que había visto en algún sitio. Parecía triste. Inclinó la cabeza y fue hacia la siguiente persona.
+I looked at the flyer. A girl's photo. “Ko Haneul, 19, missing.” I looked at it a long time. A face that wasn't smiling.	Miré el folleto. La foto de una chica. «Ko Haneul, 19 años, desaparecida.» La miré un buen rato. Era una cara que no sonreía.
+The kid folded the flyer into his raincoat pocket. “I'll keep it.” He pulled his hood lower.	El niño dobló el folleto y lo guardó en el bolsillo de su impermeable. «Lo guardo yo.» Se caló más la capucha.
+A tall man at the bus stop. White shirt. Two bottles of milk. He saw me and gave a small bow. “Hello.”	En la parada había un hombre alto. Camisa blanca. Dos botellas de leche. Me vio e inclinó un poco la cabeza. «Hola.»
+I said “Hello” too. He just stood at a stop where no bus came. I didn't know what he was waiting for.	Yo también dije «hola». Él se quedó de pie en una parada donde no venía ningún autobús. No sé qué esperaba.
+The man covered his mouth and coughed a long time. His lips were blue. When it stopped, he stood at the stop again.	El hombre se tapó la boca y tosió mucho rato. Tenía los labios azules. Cuando acabó, volvió a quedarse en la parada.
+At night I looked at my face in the shop window. The face on the flyer came back to me.	Por la noche me miré la cara en el cristal de la tienda. Me vino a la mente la cara del folleto.
+The kid came, looked, and wiped the fog off with his palm. “Sis, let's sleep.” “Okay.” Back to the blanket under the tower.	El niño se acercó, miró el cristal y limpió el vaho con la palma. «Hermana, a dormir.» «Vale.» Volvimos a la manta bajo la torre.
+Story · Episode 4	Historia · Episodio 4
+Summer. I sat on the seawall and just looked at the sea. I'd been doing it for days.	Verano. Me sentaba en el rompeolas y solo miraba el mar. Llevaba días así.
+Right in front of me the kid splashed into the shallows. Raincoat and all. “Sis, look!”	El niño se metió de un salto en el agua poco profunda, delante de mí. Con el impermeable puesto. «¡Hermana, mira!»
+He splashed, fell, splashed again. The orange floating in the water laughed. I took off my shoes and went in too.	Salpicaba, se caía y volvía a salpicar. El naranja que flotaba en el agua se reía. Me quité los zapatos y entré yo también.
+“Not taking off your raincoat?” “Mom said not to.” “Where's your mom?” “On the mainland.” He splashed me.	«¿No te quitas el impermeable?» «Mamá dijo que no.» «¿Y dónde está tu mamá?» «En tierra firme.» Me echó agua.
+We lay on the sand catching our breath. The kid laughed with his left eye scrunched shut. I laughed too.	Nos tumbamos en la arena a recuperar el aliento. El niño se rió arrugando el ojo izquierdo. Yo también me reí.
+We played till sunset. I got hungry. I was sitting soaked on the seawall when a woman in a diving suit walked by and stopped.	Jugamos hasta que se puso el sol. Tenía hambre. Estaba sentada, empapada, en el rompeolas, cuando una señora con traje de haenyeo pasó y se detuvo.
+The woman from the guard post. She looked at me a long time, then took my hand. And pointed up the hill.	Era la señora de la caseta. Me miró un buen rato y me tomó de la mano. Luego señaló hacia la colina.
+The kid took my other hand. The three of us climbed the hill.	El niño me tomó la otra mano. Los tres subimos la colina.
+A lone house on the hill. Diving suits hung in the yard. She sat me on the porch and handed me a towel.	Una casa sola en la colina. En el patio colgaban trajes de buceo. Me sentó en el porche y me dio una toalla.
+She wrote on paper. “Have you eaten?” I shook my head.	Escribió en un papel: «¿Has comido?». Negué con la cabeza.
+“You can't speak?” I asked, shaping the words big. She nodded. “Or hear?” She nodded again.	«¿No puede hablar?», pregunté moviendo mucho los labios. Asintió. «¿Ni oír?» Volvió a asentir.
+She wrote on the paper. “What's your name?”	Escribió en el papel: «¿Cómo te llamas?».
+I picked up the pen. There was nothing to write. “I don't know.” She looked at my writing a long time. And asked no more.	Tomé el bolígrafo. No había nada que escribir. «No lo sé.» Miró mi letra un buen rato. Y no preguntó más.
+Seaweed soup smelled from the kitchen. She set the table. Rice, seaweed soup, rolled omelet. The omelet was heart-shaped.	De la cocina llegaba olor a sopa de algas. Puso la mesa. Arroz, sopa de algas, tortilla enrollada. La tortilla tenía forma de corazón.
+I ate two bowls of rice. It had been a long time since I'd had warm food. I couldn't remember when.	Me comí dos cuencos de arroz. Hacía mucho que no comía algo caliente. No recordaba cuándo.
+She wrote on the paper. “My daughter left home. I'm looking for her.”	Escribió en el papel: «Mi hija se fue de casa. La estoy buscando».
+“When?” “In spring.” “Where to?” She put the pen down.	«¿Cuándo?» «En primavera.» «¿Adónde?» Dejó el bolígrafo.
+“Is that why you go to the guard post every day?” A nod. “How old is she?” She held up her fingers. Nineteen.	«¿Por eso va cada día a la caseta?» Asintió. «¿Cuántos años tiene su hija?» Levantó los dedos. Diecinueve.
+She stroked my hair once. Then wrote, “You're like my daughter.” Tears came. I cried while eating.	Me acarició el pelo una vez. Luego escribió: «Te pareces a mi hija». Se me saltaron las lágrimas. Lloré mientras comía.
+She ladled me more soup. “Eat plenty.” The writing was crooked. I ate it all.	Me sirvió más sopa. «Come mucho.» La letra estaba torcida. Me lo comí todo.
+The kid didn't come up onto the porch. He stood in the yard, watching me through the window.	El niño no subió al porche. Se quedó de pie en el patio, mirándome por la ventana.
+I waved him in. He shook his head. He seemed to be smiling. But he looked sad.	Le hice señas para que entrara. Negó con la cabeza. Parecía sonreír. Pero se le veía triste.
+Story · Episode 6	Historia · Episodio 6
+Dawn. She put on her diving suit and went to the sea. I followed with the taewak. She gestured: “Sit here.”	Madrugada. Se puso el traje de haenyeo y fue al mar. La seguí con el taewak. Me hizo un gesto: «Siéntate aquí».
+From a rock I counted her dives. Seventeen. Each time she surfaced, there was a long breath.	Desde una roca conté cuántas veces se sumergía. Diecisiete. Cada vez que salía se oía una respiración larga.
+The sumbisori of a woman with no voice was louder than the sea. But the taewak net was empty. She wasn't picking conch.	El sumbisori de una mujer sin voz sonaba más fuerte que el mar. Pero la red del taewak estaba vacía. No cogía caracolas.
+She looked into the rock crevices one by one. Lifted piles of old net, went back down, lifted them again.	Miraba las grietas de las rocas una por una. Levantaba montones de redes viejas, volvía a bajar, volvía a levantarlas.
+Every time she came up, her hands were empty. I couldn't ask what she was looking for.	Cada vez que salía, tenía las manos vacías. No pude preguntarle qué buscaba.
+At the end she came out and set one conch on my knee. “Yours.”	Al final salió del agua y me dejó una caracola sobre la rodilla. «Tuya.»
+It was a gesture. Her hand was cold. I wrapped both my hands around it. She smiled.	Fue con un gesto. Tenía la mano fría. Se la envolví con las dos mías. Sonrió.
+In the evening she braided my hair. The kid sat at the end of the porch, watching.	Por la tarde me trenzó el pelo. El niño estaba sentado al borde del porche, mirando.
+He seemed to be smiling. But he looked sad.	Parecía sonreír. Pero se le veía triste.
+I went to her house every day. She cooked every day. I washed the dishes. The water was cold enough to sting. I liked it.	Iba a su casa cada día. Ella cocinaba cada día. Yo fregaba. El agua estaba tan fría que dolían las manos. Me gustaba.
+She took in the laundry. Two diving suits, different sizes.	Recogió la ropa tendida. Dos trajes de buceo de tallas distintas.
+Nobody wore the small one. She took it in every day and hung it out again every day.	Nadie se ponía el pequeño. Ella lo recogía cada día y cada día lo volvía a tender.
+In the evening she took out a photo to show me. A nineteen-year-old girl.	Por la tarde sacó una foto para enseñármela. Una chica de diecinueve años.
+I looked at the photo. “She's pretty.” She smiled. Then tucked the photo back inside her shirt.	Miré la foto. «Es guapa.» Sonrió. Y volvió a guardarse la foto en el pecho.
+She took my hand and led me to the little vegetable patch in the yard. She showed me with gestures.	Me llevó de la mano al pequeño huerto del patio. Me lo explicó con gestos.
+This is green onion, this is lettuce. I copied her. Dirt got on my hands.	Esto es cebolleta, esto es lechuga. La imité. Se me mancharon las manos de tierra.
+On a rainy day we sat side by side on the porch.	Un día de lluvia estábamos sentadas una junto a la otra en el porche.
+She put a blanket over my shoulders. No words. The sound of the rain was enough.	Me puso una manta sobre los hombros. No dijo nada. Bastaba con el sonido de la lluvia.
+On the kitchen calendar there was one circle. A day next spring. I pointed at it and asked.	En el calendario de la cocina había un círculo. Un día de la primavera siguiente. Lo señalé y pregunté.
+She wrote, “Daughter's birthday.” Then, “I'll make seaweed soup.” I looked at that circle a long time.	Escribió: «Cumpleaños de mi hija». Y luego: «Tengo que hacer sopa de algas». Miré ese círculo mucho rato.
+That night I first slept off the blanket. Her small room. An old orange raincoat hung on the wall. An adult's.	Esa noche, por primera vez, no dormí en la manta. El cuarto pequeño de aquella casa. En la pared colgaba un impermeable naranja viejo. De adulto.
+Outside the window the kid was looking up at the raincoat. Our eyes met. He quickly turned away. His shoulders shook a little.	Al otro lado de la ventana, el niño miraba el impermeable. Nuestros ojos se cruzaron. Apartó la cara enseguida. Le temblaron un poco los hombros.
+In the morning I ran into that man on the hill road. He looked up at the house on the hill.	Por la mañana me crucé con aquel hombre en el camino de la colina. Levantó la vista hacia la casa de arriba.
+He looked a long time. Then said “Hello” and walked past.	La miró mucho rato. Luego dijo «hola» y siguió de largo.
+I watched his back. From the porch, she watched it too.	Miré su espalda. Desde el porche, ella también la miraba.
+She started to take out the photo, then stopped. He just left. I went back into the room too.	Ella empezó a sacar la foto y se detuvo. Él se fue sin más. Yo también entré en el cuarto.
+Story · Episode 8	Historia · Episodio 8
+In front of the shop, that man bought two bottles of milk. Clink, clink. The old owner asked, “Two again today?” “Yes.”	Frente a la tienda, aquel hombre compró dos botellas de leche. Clic, clic. La abuela de la tienda preguntó: «¿Hoy también dos?». «Sí.»
+“Come here to get well, ya gotta eat meat too. How ya gonna live on milk?” He only smiled.	«Si viniste a curarte, tienes que comer carne también. ¿Cómo vas a vivir solo de leche?» Él solo sonrió.
+He saw me and said “Hello” again. I said “Hello” too. Same spot, same time, every day.	Me vio y volvió a decir «hola». Yo también dije «hola». Cada día en el mismo sitio, a la misma hora.
+Our eyes met. For no reason, I retied my shoelaces.	Nuestras miradas se cruzaron. Sin motivo, me volví a atar los cordones.
+She was coming down the hill road. I started toward her, then stopped.	Ella bajaba por el camino de la colina. Fui hacia ella y me detuve.
+She didn't even look my way. She passed by, staring hard at the photo in her hand.	Ni siquiera miró hacia mí. Pasó de largo con la vista clavada en la foto que llevaba en la mano.
+The face that set out warm food for me every day was blank as it looked at the photo.	Era la cara que cada día me ponía comida caliente, pero al mirar la foto no tenía ninguna expresión.
+That terrible sadness made her seem like someone I'd never met.	Por esa tristeza tan honda parecía alguien a quien no había visto nunca.
+The man took his two bottles of milk toward the tower. She went toward the guard post.	El hombre se fue hacia la torre con sus dos botellas de leche. Ella se fue hacia la caseta.
+Their backs moved away in opposite directions. I stood between them. The kid was gripping my sleeve tight.	Sus espaldas se alejaron en direcciones opuestas. Yo me quedé en medio. El niño me apretaba la manga con fuerza.
+Story · Episode 9	Historia · Episodio 9
+First snow. The kid and I drew faces in the window frost. One kid, one me. He drew one more. “Who's that?” “Dunno.”	Primera nevada. El niño y yo dibujamos caras en la escarcha de la ventana. Una suya, una mía. Él dibujó otra. «¿Quién es?» «No sé.»
+We built a snowman. The kid wrapped my scarf around it. “'Cause it's cold.” “What about me?”	Hicimos un muñeco de nieve. El niño le puso mi bufanda. «Porque hace frío.» «¿Y yo?»
+“You get half my raincoat.” He put one side over my shoulder. We both got half wet.	«A ti te doy la mitad de mi impermeable.» Me echó un lado sobre el hombro. Los dos nos mojamos solo a medias.
+On the way back the kid kept looking behind him. “What are you looking at?” “Nothing.” Asked twice, still nothing.	De vuelta, el niño no paraba de mirar atrás. «¿Qué miras?» «Nada.» Se lo pregunté dos veces: nada.
+The kid fell asleep on my lap. Under his hood, the corner of his left eye was crinkled.	El niño se durmió con la cabeza en mis rodillas. Bajo la capucha tenía arrugado el rabillo del ojo izquierdo.
+He was a kid who smiled in his sleep. I touched his head once through the hood. My palm was warm.	Era un niño que sonreía dormido. Le toqué la cabeza una vez por encima de la capucha. Tenía la palma caliente.
+Spring. Deep in her wardrobe I found a yellow tin. A red heart on the lid. She wasn't home.	Primavera. En el fondo del armario de su casa apareció una lata amarilla. Un corazón rojo en la tapa. Ella no estaba en casa.
+I opened the lid. A headband with blue jewels. Brand new, never worn.	Abrí la tapa. Una diadema con piedras azules. Nueva, sin estrenar.
+The moment I picked up the headband, my head felt like it would split. Memories pushed in all at once. But it was strange.	En cuanto tomé la diadema, sentí que la cabeza me iba a estallar. Los recuerdos entraron todos de golpe. Pero era extraño.
+Only Mom's face was missing. Only her hands, her diving suit and her breathing came back.	Solo faltaba la cara de mamá. Volvieron sus manos, su traje de buceo y su respiración. Nada más.
+A department store in town, my first time there. Behind glass, a headband with blue jewels. I looked a long time. I never said I wanted it.	Unos grandes almacenes en la ciudad; era la primera vez que iba. Tras el cristal, una diadema con joyas azules. La miré mucho rato. No dije que la quería.
+— Flashback · Age eleven —	— Recuerdo · Once años —
+Even at eleven I knew saying it would be a luxury. I turned away, leaving only handprints on the glass, and Dad was looking at those handprints.	Con once años ya sabía que pedirlo era un lujo. Me di la vuelta dejando solo mis huellas en el cristal, y papá estaba mirando esas huellas.
+— Flashback —	— Recuerdo —
+A sunburnt face, a worn jacket. Dad smiled. His left eye creased. “Haneul's birthday present's all settled, then.”	Cara curtida por el sol, chaqueta gastada. Papá sonrió. Se le cerró el ojo izquierdo. «Ya está decidido el regalo de cumpleaños de Haneul».
+Dad painted a red heart on everything of mine. On my bag, on my shoes. They were crooked.	Papá pintaba un corazón rojo en cada cosa mía. En la mochila, en los zapatos. Le salían torcidos.
+“Don't go losing it.” The sleeve of Dad's orange raincoat had the same heart.	«No lo pierdas, eh». La manga del impermeable naranja de papá tenía el mismo corazón.
+A haenyeo mom, a dad with just one boat. The headband cost a month of Dad's earnings.	Una madre haenyeo, un padre con un solo barco. La diadema costaba lo que papá ganaba en un mes.
+Dad borrowed from a neighbor to buy the headband. To pay it back, he had to go out to sea even on a storm-warning night.	Papá pidió dinero a un vecino para comprar la diadema, y para devolverlo tenía que salir al mar incluso las noches con alerta de temporal.
+Dad pulled on his boots. Mom snatched Dad's raincoat. There was no sound. Mom's hands cut fast through the air.	Papá se puso las botas. Mamá le arrancó el impermeable. No hubo sonido. Las manos de mamá cortaron el aire, rápidas.
+Don't go. I can't recall what Mom's face was like. Only those hands. Dad didn't look at those hands.	No vayas. No recuerdo cómo era la cara de mamá. Solo recuerdo esas manos. Papá no miró esas manos.
+At the doorsill I held Dad's sleeve with both hands. “Dad, I don't need a birthday.” Dad touched my head once.	En el umbral agarré la manga de papá con las dos manos. «Papá, no hace falta cumpleaños». Papá me tocó la cabeza una vez.
+“Just one more catch'll do it, Haneul.” The sleeve with the heart slipped out of my hands.	«Con un pez más ya está, Haneul». La manga con el corazón se me escapó de las manos.
+I can still feel the wet sleeve in my hands.	Todavía tengo en las manos el tacto de la manga mojada.
+It was a morning clear as a lie. People ran to the sea.	Fue una mañana despejada, como una mentira. La gente corrió hacia el mar.
+— Flashback · The next day —	— Recuerdo · Al día siguiente —
+Mom put me in my room and shut the door. Through the crack, orange went by once.	Mamá me metió en la habitación y cerró la puerta. Por la rendija pasó una vez algo naranja.
+In the sea under the tower, Dad's boat lay upside down, and only one buoy floated, painted with a crooked heart.	En el mar bajo la torre, el barco de papá estaba volcado, y solo flotaba una boya con un corazón torcido.
+Dad didn't come back. I didn't cry. If I cried, it felt like it would become real.	Papá no volvió. Yo no lloré. Sentía que, si lloraba, se volvería verdad.
+That day Mom put the yellow box deep in the wardrobe without even opening it. From that day, our house had no birthdays.	Ese día mamá guardó la caja amarilla al fondo del armario sin abrirla siquiera. Desde entonces, en casa no hubo más cumpleaños.
+After Dad died, all sound left our house. At school the same thing happened every day. “You smell like fish.”	Cuando papá murió, en casa desapareció todo sonido. En la escuela pasaba lo mismo cada día. «Hueles a pescado».
+“Mute's daughter.” Kids dumped my lunch in the sink, threw my bag in the ditch, and mouthed silently, mimicking Mom.	«La hija de la muda». Tiraban mi almuerzo al fregadero, lanzaban mi mochila a la zanja y movían la boca sin voz, imitando a mamá.
+Every day I pretended not to hear. Like Mom. At home I didn't say anything to Mom either.	Cada día fingía no oír. Como mamá. En casa tampoco le decía nada a mamá.
+She couldn't hear it anyway. There was no one to tell. That was the loneliest part.	Aunque se lo dijera, no lo oiría. No tenía a nadie con quien hablar. Eso era lo más solitario.
+Story · Episode 11	Historia · Episodio 11
+A transfer student came. From Seoul. They said he'd come to Jeju to recover because he was sick.	Llegó un alumno nuevo. De Seúl. Decían que había venido a Jeju a recuperarse porque estaba enfermo.
+— Flashback · Spring, age twelve —	— Recuerdo · Primavera, doce años —
+His white shirt was dazzling, and his face was as white as the shirt. The kids crowded around him, and I was in the corner as always.	Su camisa blanca deslumbraba, y su cara era tan blanca como la camisa. Todos lo rodearon, y yo estaba en un rincón, como siempre.
+The day my bag got thrown in the ditch again, he climbed into the ditch. He fished my bag out till his white shirt was covered in mud.	El día que volvieron a tirar mi mochila a la zanja, él se metió en la zanja. La sacó, con la camisa blanca llena de barro.
+The kids shoved him too. He fell. He got back up and stood in front of me. Only I saw his hands shaking.	Lo empujaron a él también. Se cayó. Se levantó y se puso delante de mí. Solo yo vi que le temblaban las manos.
+“You can't even fight. Why stand in front?” “Because you're behind me.”	«Si ni sabes pelear, ¿por qué te pones delante?». «Porque tú estás detrás».
+He sat in a corner of the schoolyard, opened his lunchbox, and drew a line down the middle. “Half is yours.” The rolled omelet was warm.	Se sentó en un rincón del patio, abrió su fiambrera y trazó una línea por el medio. «La mitad es tuya». La tortilla enrollada estaba caliente.
+That day I ate at school for the first time. His name was Doyun. I remember Doyun's face. His, at least.	Ese día comí en la escuela por primera vez. Se llamaba Doyun. La cara de Doyun sí la recuerdo. La suya, al menos.
+That spring, Doyun and I played at the sea every day. Doyun was a Seoul kid, so he couldn't swim.	Esa primavera, Doyun y yo jugábamos en el mar todos los días. Doyun era de Seúl, así que no sabía nadar.
+I taught him to swim in the shallows. Doyun swallowed water, coughed, and went back in.	Le enseñé a nadar donde no cubría. Doyun tragaba agua, tosía y volvía a entrar.
+At sunset we sat side by side on the breakwater, drying our wet clothes. Until then I had forgotten how to laugh.	Al caer el sol nos sentábamos juntos en el rompeolas a secar la ropa mojada. Hasta entonces había olvidado cómo reír.
+That spring I laughed out loud. “So you can laugh.” “Shut up.”	Esa primavera me reí en voz alta. «Así que sabes reír». «Cállate».
+Doyun made an abandoned haenyeo bulteok, a stone shelter in the seaside rocks, into our hideout.	Doyun convirtió un bulteok abandonado, el refugio de piedra de las haenyeo entre las rocas de la costa, en nuestra guarida.
+Inside the stone wall we spread a blanket, brought a broken radio, and hid milk, two bottles at a time.	Dentro del muro de piedra pusimos una manta, llevamos una radio rota y escondimos leche, dos botellas cada vez.
+“This is our hideout.” We took the radio apart together, and at 89.2 a song came in faintly.	«Esta es nuestra guarida». Desmontando la radio juntos, en el 89.2 se oyó débilmente una canción.
+Doyun drew a heart next to the dial. “This frequency is ours.”	Doyun dibujó un corazón junto al dial. «Esta frecuencia es nuestra».
+I rode my board along the breakwater to the hideout. Doyun followed behind, panting.	Hasta la guarida iba en mi tabla por el camino del rompeolas. Doyun me seguía detrás, jadeando.
+Inside the hideout, candles were lit. Twelve of them. Doyun jumped out from behind a cake.	Al entrar en la guarida, había velas encendidas. Doce. Doyun saltó de detrás de un pastel.
+— Flashback · Twelfth birthday —	— Recuerdo · Cumpleaños número doce —
+“Surprise!” I laughed. I blew out the candles, and we ate half the cake each.	«¡Sorpresa!». Me reí. Soplé las velas y nos comimos medio pastel cada uno.
+As the sun sank, Doyun tugged my hand. “Let's eat the rest at the tower. The sunset's prettiest there.”	Cuando el sol empezó a bajar, Doyun tiró de mi mano. «Comamos el resto en la torre. Desde allí el atardecer es más bonito».
+I shook off his hand. “Don't ask me to go there.” “Why? Just once.” “I said no!”	Le solté la mano. «No me pidas ir allí». «¿Por qué? Solo una vez». «¡Que no!».
+The cake plate fell on the rock. “You don't know anything, so why do you keep butting in!” Doyun looked at me a long time.	El plato del pastel cayó sobre la roca. «¡No sabes nada, ¿por qué te metes siempre?!». Doyun me miró un largo rato.
+“……Sorry.” And he left. I stayed alone in front of the upturned cake. Candle wax cooled on the rock.	«……Perdón». Y se fue. Me quedé sola delante del pastel volcado. La cera se enfriaba sobre la roca.
+For ten days Doyun didn't come. Instead, a lunchbox was left on the wall every day. The first was warm; the tenth was cold.	Durante diez días Doyun no vino. En cambio, cada día aparecía una fiambrera sobre el muro. La primera estaba caliente; la décima, fría.
+Inside the last lunchbox lid, writing: “Even if we're not friends, half is yours.” That night I passed Doyun's house.	En la tapa de la última fiambrera había algo escrito: «Aunque no seamos amigos, la mitad es tuya». Esa noche pasé por delante de la casa de Doyun.
+Doyun sat at the window, looking toward the tower. For a long time. A drawing was stuck on his wall.	Doyun estaba sentado junto a la ventana, mirando hacia la torre. Mucho rato. En la pared de su cuarto había un dibujo.
+The tower, a sunset, two people beneath it holding a cake. I saw it from below the wall and couldn't go up.	La torre, un atardecer y, debajo, dos personas con un pastel. Lo vi desde el pie del muro y no fui capaz de subir.
+Story · Episode 13	Historia · Episodio 13
+After that, Doyun and I didn't speak. In the school hallway, Doyun came up to me first. “Haneul, that day……”	Después de eso, Doyun y yo no nos hablamos. En el pasillo de la escuela, Doyun se me acercó primero. «Haneul, aquel día……».
+— Flashback · End of summer —	— Recuerdo · Final del verano —
+“Forget it. Don't ever talk to me again.” Doyun shut his mouth. From the next day, no lunchbox was left on the wall.	«Déjalo. No vuelvas a hablarme». Doyun cerró la boca. Desde el día siguiente, ya no apareció ninguna fiambrera sobre el muro.
+I went to the hideout alone. The blanket was soaked with rain, and the radio was off. I came back without turning it on.	Fui sola a la guarida. La manta estaba empapada de lluvia y la radio, apagada. Volví sin encenderla.
+Rain poured so hard I couldn't see ahead. The tin roof rang without stopping. The phone cut out, and the power went too.	Llovía tanto que no se veía nada. El tejado de chapa no dejaba de retumbar. Se cortó el teléfono y también la luz.
+— Flashback · Summer typhoon —	— Recuerdo · Tifón de verano —
+I lit a candle, and there was a sound in the yard. Mom was lying face down. Clutching her chest.	Encendí una vela y se oyó un ruido en el patio. Mamá estaba tirada boca abajo. Agarrándose el pecho.
+It was the heart disease haenyeo get. Again I can't see Mom's face. Only a wet diving suit and a hand gripping her chest.	Era la enfermedad del corazón que sufren las haenyeo. Tampoco esta vez veo la cara de mamá. Solo el traje mojado y la mano apretando el pecho.
+Our house stood alone on the hill. Thirty minutes to the nearest house, 2 km to the hospital. I couldn't see the road in the rain.	Nuestra casa estaba sola en la colina. Treinta minutos hasta la casa más cercana, 2 km hasta el hospital. Con la lluvia no se veía el camino.
+“Mom! Mom!” I screamed. Mom can't hear. I knew, and I called anyway. Calling was all I could do.	«¡Mamá! ¡Mamá!», grité. Mamá no oye. Lo sabía y aun así la llamaba. Llamarla era lo único que podía hacer.
+I ran to the edge of the yard and shouted. “Somebody help!” The rain swallowed my voice. There was no one.	Corrí hasta el borde del patio y grité. «¡Que alguien me ayude!». La lluvia se tragó mi voz. No había nadie.
+Mom's hand grew colder and colder. I held Mom and cried. I was twelve. There was nothing I could do.	La mano de mamá estaba cada vez más fría. Abracé a mamá y lloré. Tenía doce años. No había nada que pudiera hacer.
+Story · Episode 14	Historia · Episodio 14
+A flashlight beam came up through the rain. It was Doyun. Soaked, no raincoat. “I was worried about you.”	Entre la lluvia subía la luz de una linterna. Era Doyun. Empapado, sin impermeable. «Estaba preocupado por ti».
+“How'd you get here?” “I ran.” Doyun saw Mom and his face went stiff. He spoke anyway.	«¿Cómo has venido?». «Corriendo». Doyun vio a mamá y se le quedó la cara rígida. Aun así, habló.
+“She'll live.” He had to say it so I would move. He didn't know either.	«Se va a salvar». Tenía que decirlo para que yo me moviera. Él tampoco lo sabía.
+There was an old handcart by the road. Its wheels were stuck in the mud. We dragged it out together. Our nails split.	Junto al camino había una carretilla vieja. Las ruedas estaban hundidas en el barro. La sacamos entre los dos. Se nos partieron las uñas.
+We laid Mom down and covered her with Doyun's jacket. 2 km to the hospital. Doyun pulled in front, I pushed from behind.	Acostamos a mamá y la tapamos con la chaqueta de Doyun. 2 km hasta el hospital. Doyun tiraba delante y yo empujaba detrás.
+We slipped again and again on the wet road. Doyun's knees buckled. He got back up. “Go on ahead.”	Resbalamos una y otra vez en el camino mojado. A Doyun se le doblaron las rodillas. Se levantó otra vez. «Adelántate».
+“No. The three of us go together.” Doyun said it crying. I pushed, crying too. We saw the hospital lights.	«No. Vamos los tres juntos». Doyun lo dijo llorando. Yo también empujaba llorando. Se vieron las luces del hospital.
+Mom lived. The doctor said so. I sank to the hallway floor.	Mamá se salvó. Lo dijo el médico. Me dejé caer en el suelo del pasillo.
+Doyun sat beside me. “See? I told you she'd live.” His hands were still shaking.	Doyun se sentó a mi lado. «¿Ves? Te dije que se salvaría». Todavía le temblaban las manos.
+Story · Episode 15	Historia · Episodio 15
+When the ER doors closed, Doyun collapsed in the hallway. Only then did I learn why his lips had always been blue.	Cuando se cerraron las puertas de urgencias, Doyun se desplomó en el pasillo. Solo entonces supe por qué siempre tenía los labios azules.
+The next day a black car stood in front of Doyun's house. Bags were being loaded.	Al día siguiente había un coche negro delante de la casa de Doyun. Estaban cargando el equipaje.
+“He has to go to a hospital in Seoul.” Doyun's mom said it crying. “Today.”	«Tiene que ir a un hospital de Seúl». Lo dijo la madre de Doyun, llorando. «Hoy».
+I heard it while I was at the hospital by Mom's side. I ran. From the hospital to Doyun's house without stopping.	Me enteré en el hospital, junto a mamá. Corrí. Del hospital a casa de Doyun, sin parar.
+I was out of breath. I ran anyway. The car was already pulling away. Doyun was pressed to the rear window, looking at me.	Me faltaba el aire. Aun así corrí. El coche ya estaba arrancando. Doyun, pegado a la luna trasera, me miraba.
+He rolled down the window. “Haneul! Let's meet under the tower on your twentieth birthday! Promise!”	Bajó la ventanilla. «¡Haneul! ¡Nos vemos bajo la torre en tu cumpleaños de los veinte! ¡Sin falta!».
+“I'll wait with two bottles of milk! One for today, one for tomorrow!”	«¡Te esperaré con dos botellas de leche! ¡Una para hoy y otra para mañana!».
+“Okay! I won't be late!” I ran after the car and fell. My knee bled. It didn't hurt.	«¡Vale! ¡No llegaré tarde!». Corrí detrás del coche y me caí. Me sangraba la rodilla. No me dolió.
+That night I wrote on the calendar for the first time. “Twentieth birthday, under the tower, Doyun.”	Esa noche escribí en el calendario por primera vez. «Cumpleaños de los veinte, bajo la torre, Doyun».
+I pressed the pencil so hard the paper dented. I lived eight years on that one promise.	Apreté tanto el lápiz que el papel se hundió. Viví ocho años con esa única promesa.
+I sat on the maru floor, still holding the headband. Outside it had gone dark. I was Haneul. Go Haneul. The daughter of this house.	Seguía sentada en el porche con la diadema en la mano. Fuera había oscurecido. Yo era Haneul. Go Haneul. La hija de esta casa.
+A woman came into the yard. Her face filled the blank where Mom's face had been in the flashbacks.	Una señora entró en el patio. Su cara ocupó el hueco donde faltaba la cara de mamá en los recuerdos.
+A face grown very thin. It was Mom. Mom, coming back from the lookout post with a photo held to her chest.	Una cara muy demacrada. Era mamá. Mamá, volviendo del puesto de vigilancia con una foto guardada contra el pecho.
+Mom, who went out looking for me every day for a year. Mom, who fed me because I was like a daughter. With me right in front of her.	Mamá, que salió a buscarme cada día durante un año. Mamá, que me daba de comer porque le recordaba a una hija. Conmigo delante.
+Mom saw me and waved. The kind of wave you give a kid you don't know.	Mamá me vio y me saludó con la mano. Como se saluda a una chica que no conoces.
+I looked at Mom's face. Now I knew. I knew, but Mom didn't know me.	Miré la cara de mamá. Ahora lo sabía. Lo sabía, pero mamá no me conocía.
+I ran to the front of the store. Far off, at the end of the breakwater, a white shirt. Two bottles of milk. It was Doyun.	Corrí hasta la tienda. A lo lejos, al final del rompeolas, se veía una camisa blanca. Dos botellas de leche. Era Doyun.
+The man who said “Hello” to me every day.	El hombre que me decía «Hola» todos los días.
+“Doyun!” I called. The wind swallowed the sound. Doyun didn't look back. The white shirt grew smaller and smaller.	«¡Doyun!», lo llamé. El viento se tragó el sonido. Doyun no se dio la vuelta. La camisa blanca se hacía cada vez más pequeña.
+The kid was standing behind me. Orange raincoat. At the end of the sleeve, a red heart, drawn crooked.	El niño estaba detrás de mí. Impermeable naranja. En el puño de la manga, un corazón rojo dibujado torcido.
+I took the seashell out of my pocket. The same heart.	Saqué la concha del bolsillo. Era el mismo corazón.
+The kid pushed back his hood. He smiled. His left eye creased.	El niño se bajó la capucha. Sonrió. Se le cerró el ojo izquierdo.
+“……Dad?” “Just one more catch'll do it, Haneul.”	«……¿Papá?». «Con un pez más ya está, Haneul».
+I sank down. “Sorry I came so late.”	Me dejé caer. «Perdón por llegar tan tarde».
+The last memory came back. My nineteenth birthday. Mom's chest had been hurting; she was at a hospital on the mainland.	Volvió el último recuerdo. Mi cumpleaños número diecinueve. A mamá le dolía el pecho y estaba en un hospital de la península.
+I put on Mom's diving suit alone and went into the water. The water was cold. An old fishing net wrapped around my ankle.	Me puse sola el traje de buceo de mamá y me metí en el agua. El agua estaba fría. Una red abandonada se me enredó en el tobillo.
+The surface got farther and farther away. No one was there. After that, there's nothing.	La superficie se alejaba cada vez más. No había nadie. Después de eso, no hay nada.
+The dead forget the faces of the living first. I hadn't come back alive.	Los muertos olvidan primero las caras de los vivos. Yo no había vuelto con vida.
+I looked at my hands. My fingertips were fading. The kid took my hand.	Me miré las manos. Las puntas de los dedos se estaban desvaneciendo. El niño me tomó de la mano.
+“Once you found all your memories, my girl would have to leave. So Dad pretended not to know.”	«Si recuperabas todos tus recuerdos, mi niña tendría que irse. Por eso papá hizo como que no sabía nada».
+“Then why didn't you stop me from going to that house?”	«Entonces, ¿por qué no me impediste ir a esa casa?».
+“Even if my girl couldn't recognize her mom, I wanted her to eat her mom's cooking.” The kid cried. Dad cried.	«Aunque mi niña no reconociera a su madre, quería que comiera la comida de su madre». El niño lloró. Papá lloró.
+I looked at the window. The face from the photo was there. Me at nineteen.	Miré el cristal de la ventana. Allí estaba la cara de la foto. Yo, a los diecinueve.
+Only now did it look like me. A face that, to everyone else, would have been someone else to the end.	Solo ahora me parecía yo. Una cara que, para los demás, habría sido la de otra persona hasta el final.
+Story · Episode 19	Historia · Episodio 19
+I ran to the house on the hill. Mom was making seaweed soup in the kitchen.	Corrí a la casa de la colina. Mamá estaba preparando sopa de algas en la cocina.
+The circle on the wall calendar was tomorrow. Her daughter's birthday. My birthday.	El círculo del calendario de la pared era mañana. El cumpleaños de su hija. Mi cumpleaños.
+“Mom.” Mom can't hear. I stood in front of her and shaped the words with my mouth.	«Mamá». Mamá no oye. Me puse delante de ella y le hablé moviendo los labios.
+“Mom, it's me. Haneul.” Mom just stirred with the ladle. She didn't lift her head toward me.	«Mamá, soy yo. Haneul». Mamá solo removía con el cucharón. No levantó la cabeza hacia mí.
+I hugged Mom. My arms passed through her shoulders.	Abracé a mamá. Mis brazos atravesaron sus hombros.
+Only cold air in my arms. I hugged her again. Through again. Mom pulled her collar closed, as if she were cold.	Entre mis brazos solo había aire frío. La abracé otra vez. Otra vez la atravesé. Mamá se cerró el cuello de la ropa, como si tuviera frío.
+Mom ladled out two bowls of soup. She looked around the empty maru, then opened the door to the small room.	Mamá sirvió dos cuencos de sopa. Miró el porche vacío y luego abrió la puerta del cuarto pequeño.
+She wrote “Let's eat” on a piece of paper and set it on the maru.	Escribió «A comer» en un papel y lo dejó en el porche.
+Then she went out the gate and paced, looking down the hill, for a long time. I stood right behind her.	Luego salió por la puerta y estuvo mucho rato dando vueltas, mirando cuesta abajo. Yo estaba justo detrás de ella.
+I sat next to Mom and watched the seaweed soup boil. Knowing I couldn't eat it.	Me senté junto a mamá y miré hervir la sopa de algas. Sabiendo que no podía comerla.
+All this time I had eaten the meals this mom made. I tried to think that was enough. It wasn't. I wanted to hold her.	Todo este tiempo había comido lo que esta madre me preparaba. Intenté pensar que con eso bastaba. No bastó. Quería abrazarla.
+Twentieth birthday. The sunset settled under the tower. Doyun stood holding two bottles of milk. At the promised place, after eight years.	Cumpleaños de los veinte. El atardecer se posó bajo la torre. Doyun estaba allí con dos botellas de leche. En el lugar de la promesa, ocho años después.
+I wasn't late. I stood in front of Doyun. “I'm here.” Doyun only looked past my shoulder, at the hill road.	No llegué tarde. Me puse delante de Doyun. «Ya estoy aquí». Doyun solo miraba el camino de la colina, por encima de mi hombro.
+“If you're five minutes late, I'll be mad.” Doyun forced a smile and said it to himself.	«Si pasan cinco minutos, me enfado». Doyun se esforzó por sonreír y lo dijo para sí.
+“If it's ten minutes, I'll wait even longer. So hurry up.” I was right in front of him.	«Si pasan diez, esperaré todavía más. Así que date prisa». Yo estaba justo delante de él.
+Then Mom came up the hill. She held white chrysanthemums in her arms. Her steps wobbled.	Entonces mamá subió la colina. Llevaba crisantemos blancos en brazos. Sus pasos se tambaleaban.
+Mom held out to Doyun the fax she'd gotten at the guard post. ‘Early this morning. Under the ghost nets south of the tower. Body recovered.’	Mamá le tendió a Doyun el fax que le habían dado en el puesto de guardia. “Esta madrugada. Bajo las redes abandonadas al sur de la torre. Cuerpo recuperado”.
+Doyun read the paper and crumpled to the ground, clutching the two bottles of milk.	Doyun leyó el papel y se desplomó en el suelo, abrazado a las dos botellas de leche.
+“You said one for today, one for tomorrow…… Who drinks tomorrow's?”	«Dijiste una para hoy y otra para mañana…… ¿Quién se bebe la de mañana?»
+Mom couldn't cry out loud. She held the collapsed Doyun's back, gasping like an animal, only tears pouring.	Mamá no podía llorar en voz alta. Abrazó la espalda de Doyun, jadeando como un animal, derramando solo lágrimas.
+The moment I saw that paper, my toes began to turn clear. My body, held under the sea, had finally come ashore.	En cuanto vi ese papel, las puntas de mis pies empezaron a volverse transparentes. Mi cuerpo, atado bajo el mar, por fin había llegado a tierra.
+When the last thing holding me to this world came loose, my time to stay ran out too.	Cuando se soltó lo último que me ataba a este mundo, también se acabó el tiempo que podía quedarme.
+The kid stood beside me. He took off the orange raincoat and laid it on the ground. “Dad.” “Yeah.”	El niño se puso a mi lado. Se quitó el impermeable naranja y lo dejó en el suelo. «Papá». «Sí».
+“I guess I'm going now.” “Yeah. The seawater was cold. Go somewhere that isn't cold now, my girl.”	«Creo que ya me voy». «Sí. El agua del mar estaba fría. Ahora ve a donde no haga frío, hija mía».
+“Dad, I'm scared.” “It's okay. Dad will be watching from here. Glad I didn't leave Haneul alone for that year.”	«Papá, tengo miedo». «Tranquila. Papá te mirará desde aquí. Qué bien no haber dejado sola a Haneul ese año».
+From far off came a call: “Minjae!” A mainland accent. A woman was running through the canola field.	A lo lejos se oyó: «¡Minjae!». Acento de tierra firme. Una mujer venía corriendo entre los campos de colza.
+In her hand, a worn-out flyer. ‘Looking for Minjae.’ The phone number had a mainland area code. The date: last spring.	En su mano, un folleto gastado. “Buscamos a Minjae”. El prefijo del teléfono era de tierra firme. La fecha: la primavera pasada.
+Dad looked at me and smiled. His left eye creased — the face I loved most.	Papá me miró y sonrió. Se le cerraba el ojo izquierdo: la cara que yo más quería.
+In a blink, that smile was gone. Dad was no longer in the kid's eyes looking at me.	En un parpadeo, esa sonrisa desapareció. En los ojos del niño que me miraba ya no estaba papá.
+His eyes had lost me completely. They just stared blankly toward the canola field.	Su mirada me había perdido del todo y se quedó fija, vacía, hacia los campos de colza.
+“Go to your mom.” At my words the kid ran into the canola field without looking back.	«Ve con tu mamá». Al oírme, el niño corrió hacia la colza sin mirar atrás.
+I'd let Dad go twice. This time was really the last.	Había despedido a papá dos veces. Esta vez era de verdad la última.
+I knelt and hugged Doyun and Mom. My arms held nothing. More than half of me was already breaking into light.	Me arrodillé y abracé a Doyun y a mamá. Mis brazos estaban vacíos. Más de la mitad de mí ya se deshacía en luz.
+“Don't cry. I'm here. I kept my promise.” My hands went through Doyun's cheek, through Mom's wet shoulder.	«No llores. Estoy aquí. Cumplí la promesa». Mis manos atravesaron la mejilla de Doyun, el hombro mojado de mamá.
+An old radio sat at Doyun's feet. A crooked heart beside the dial.	A los pies de Doyun había una radio vieja. Un corazón torcido junto al dial.
+Just before I vanished, I turned the radio dial with all I had left. 89.2. A crackle of static.	Justo antes de desaparecer, giré el dial con las fuerzas que me quedaban. 89.2. Un chisporroteo de estática.
+Tears ran down from Doyun's eyes.	A Doyun le corrieron las lágrimas.
+Chrysanthemums and Milk	Crisantemos y leche
+A few days later. A small grave appeared on a hill that looks out on the sea. One name on the stone. Go Haneul.	Unos días después. En una colina que mira al mar apareció una tumba pequeña. Un nombre en la lápida. Go Haneul.
+Doyun laid white chrysanthemums before the grave. Beside them he set two bottles of milk, side by side.	Doyun dejó crisantemos blancos ante la tumba. A su lado puso dos botellas de leche, una junto a otra.
+Doyun looked at the stone for a long time. The wind shook the chrysanthemums.	Doyun miró la lápida largo rato. El viento movía los crisantemos.
+Doyun stood there a long while, then turned away.	Doyun se quedó allí un buen rato y luego se dio la vuelta.
+The chrysanthemums and the two bottles of milk stayed in front of the grave.	Ante la tumba quedaron los crisantemos y las dos botellas de leche.
+And then……	Y entonces……
+Seaweed Soup	Sopa de algas
+The traces of a soul that left this world were erased from it.	Las huellas de un alma que dejó este mundo se borraron de él.
+The villagers all forgot the 'strange girl' who'd gone up and down the hill for the past year.	La gente del pueblo olvidó a la 'chica desconocida' que había subido y bajado la colina durante el último año.
+Grandma at the store, the man at the guard post. “Was there a girl like that in our village?”	La abuela de la tienda, el hombre del puesto de guardia. «¿Había una chica así en el pueblo?»
+Only Mom remembered. On the maru, the paper that said “Let's eat” was still there.	Solo mamá se acordaba. En el porche seguía el papel que decía «Vamos a comer».
+Mom made seaweed soup. She set the table on the empty maru.	Mamá hizo sopa de algas. Puso la mesa en el porche vacío.
+Mom sat at the edge of the maru and looked at the far sea. Until the sun went down.	Mamá se sentó al borde del porche y miró el mar a lo lejos. Hasta que se puso el sol.
+Someone called from behind her. “Mom.”	Alguien la llamó a su espalda. «Mamá».
+Mom slowly turned around. Then, her face bright, she waved her in.	Mamá se dio la vuelta despacio. Y, con la cara iluminada, le hizo señas para que se acercara.
+True Ending	Final verdadero
+The town bus stop. The bus to the airport pulled in. Doyun, bag on his shoulder, put a foot on the step.	La parada del pueblo. Llegó el autobús al aeropuerto. Doyun, con la mochila al hombro, puso el pie en el escalón.
+At that moment, someone called from behind. “Doyun?”	En ese momento, alguien lo llamó por detrás. «¿Doyun?»
+Doyun turned around. The world blurred white. Everything shone bright.	Doyun se giró. El mundo se volvió blanco y borroso. Todo brillaba.
+Studio Woohee&Heesi\nYouTube Music · Spotify · iTunes · TIDAL\nSearch “Our frequency”	Estudio Woohee&Heesi\nYouTube Music · Spotify · iTunes · TIDAL\nBusca «Our frequency»
+Our frequency  —  Studio Woohee&Heesi	Our frequency  —  Estudio Woohee&Heesi
+Our Frequency, 89.2	Nuestra frecuencia, 89.2
+One for today, one for tomorrow	Una para hoy, otra para mañana
+If I get there before sunset, I win — that game	El juego: si llego antes del atardecer, gano yo
+Our Tower	Nuestra torre
+— Flashback · Age eleven — My first time at a department store in the city. Behind the glass, a blue jeweled headband. I looked a long time. I didn't say I wanted it.	— Recuerdo · Once años — La primera vez en unos grandes almacenes del centro. Tras el cristal, una diadema con piedras azules. La miré mucho rato. No dije que la quería.
+— Flashback — Even at eleven I knew saying it was a luxury. I turned away, leaving only a handprint on the glass, and Dad was looking at that handprint.	— Recuerdo — Hasta con once años sabía que decirlo era un lujo. Me di la vuelta dejando solo la marca de mi mano en el cristal, y papá estaba mirando esa marca.
+— Flashback — A sunburnt face, a worn jacket. Dad smiled. His left eye creased. “Haneul's birthday present is decided, then.”	— Recuerdo — La cara curtida por el sol, una chaqueta vieja. Papá sonrió. Se le cerró el ojo izquierdo. «Ya está decidido el regalo de cumple de Haneul, pues».
+— Flashback — Dad painted a heart in red paint on all my things. On my bag, on my shoes. Crooked.	— Recuerdo — Papá pintaba un corazón rojo en todas mis cosas. En la mochila, en los zapatos. Torcido.
+— Flashback — “Don't lose 'em, now.” Dad's orange raincoat sleeve had the same heart.	— Recuerdo — «No los pierdas, ¿eh?». En la manga del impermeable naranja de papá había el mismo corazón.
+— Flashback — A haenyeo mom, a dad with just one boat. The headband cost a month of Dad's earnings.	— Recuerdo — Una mamá haenyeo, un papá con un solo barco. La diadema costaba un mes de lo que ganaba papá.
+— Flashback — Dad borrowed money from a neighbor to buy the headband, and to pay it back he had to go to sea even on a night with a storm warning.	— Recuerdo — Papá pidió dinero prestado a un vecino para comprar la diadema, y para devolverlo tuvo que salir al mar incluso una noche con alerta de temporal.
+— Flashback — Dad put on his boots. Mom snatched Dad's raincoat. There was no sound. Mom's hands cut fast through the air.	— Recuerdo — Papá se puso las botas. Mamá le arrebató el impermeable. No hubo sonido. Las manos de mamá cortaron el aire, rápidas.
+— Flashback — Don't go. I can't bring back what Mom's face looked like. Only those hands. Dad didn't look at those hands.	— Recuerdo — No te vayas. No me viene cómo era la cara de mamá. Solo esas manos. Papá no miró esas manos.
+— Flashback — At the gate sill I grabbed Dad's sleeve with both hands. “Dad, I don't need a birthday.” Dad touched my head once.	— Recuerdo — En el umbral del portón agarré la manga de papá con las dos manos. «Papá, no hace falta cumpleaños». Papá me tocó la cabeza una vez.
+— Flashback — “Just one more fish and that'll do, Haneul.” The sleeve with the heart slipped out of my hands.	— Recuerdo — «Solo un pez más y ya está, Haneul». La manga con el corazón se me escapó de las manos.
+— Flashback — I can still feel the wet sleeve in my hand.	— Recuerdo — Todavía siento en la mano la manga mojada.
+— Flashback · The next day — A morning clear like a lie. People ran to the sea.	— Recuerdo · Al día siguiente — Una mañana despejada, como si nada. La gente corrió al mar.
+— Flashback — Mom put me in my room and shut the door. Through the gap, a flash of orange went by once.	— Recuerdo — Mamá me metió en el cuarto y cerró la puerta. Por la rendija pasó una vez algo naranja.
+— Flashback — In the sea below the tower, Dad's boat lay upside down, and only one buoy floated, with a crooked heart painted on it.	— Recuerdo — En el mar bajo la torre, el barco de papá estaba volcado, y solo flotaba una boya con un corazón torcido pintado.
+— Flashback — Dad didn't come back. I didn't cry. It felt like crying would make it real.	— Recuerdo — Papá no volvió. Yo no lloré. Me parecía que si lloraba se haría verdad.
+— Flashback — That day Mom put the yellow case deep in the wardrobe without even opening it. From that day on, our house had no birthdays.	— Recuerdo — Ese día mamá guardó la caja amarilla al fondo del armario sin abrirla siquiera. Desde entonces, en casa no hubo más cumpleaños.
+— Flashback — After Dad died, all sound went out of our house. At school the same thing happened every day. “You smell like fish.”	— Recuerdo — Después de que papá muriera, en casa desapareció todo sonido. En la escuela pasaba lo mismo cada día. «Hueles a pescado».
+— Flashback — “The mute's daughter.” Kids dumped my lunch in the sink, threw my bag in the ditch, and mimicked Mom by moving their mouths without sound.	— Recuerdo — «La hija de la muda». Los niños tiraban mi almuerzo al fregadero, echaban mi mochila a la zanja y abrían y cerraban la boca sin voz, imitando a mamá.
+— Flashback — Every day I pretended not to hear. Like Mom. At home I didn't say anything to Mom either.	— Recuerdo — Cada día hacía como que no oía. Como mamá. En casa tampoco le decía nada a mamá.
+— Flashback — Even if I said it, she couldn't hear. There was no one to talk to. That was the loneliest part.	— Recuerdo — Aunque lo dijera, no me oía. No tenía a quién hablarle. Eso era lo más solitario.
+— Flashback · Spring, age twelve — A transfer student came. From Seoul. They said he'd come to Jeju to rest because he was sick.	— Recuerdo · Primavera, doce años — Llegó un alumno nuevo. De Seúl. Decían que había venido a Jeju a reponerse porque estaba enfermo.
+— Flashback — His white shirt was dazzling, and his face was as white as the shirt. The kids crowded around him, and I stayed in the corner as always.	— Recuerdo — Su camisa blanca deslumbraba, y su cara era tan blanca como la camisa. Los niños lo rodearon y yo me quedé en el rincón, como siempre.
+— Flashback — The day my bag got thrown in the ditch again, he climbed into the ditch. He fished the bag out till his white shirt was covered in mud.	— Recuerdo — El día que volvieron a tirar mi mochila a la zanja, él se metió en la zanja. La sacó aunque su camisa blanca quedó cubierta de barro.
+— Flashback — The kids shoved him too. He fell. He got back up and stood in front of me. Only I saw his hands shaking.	— Recuerdo — Los niños también lo empujaron. Se cayó. Se levantó y se puso delante de mí. Solo yo vi que le temblaban las manos.
+— Flashback — “You can't even fight. Why stand in front?” “Because you're behind me.”	— Recuerdo — «Si ni sabes pelear, ¿por qué te pones delante?». «Porque tú estás detrás».
+— Flashback — He sat in a corner of the schoolyard, opened his lunch box and drew a line down the middle. “Half is yours.” The rolled omelet was warm.	— Recuerdo — Se sentó en un rincón del patio, abrió su fiambrera y trazó una línea por el medio. «La mitad es tuya». La tortilla enrollada estaba caliente.
+— Flashback — That day I ate at school for the first time. His name was Doyun. I remember Doyun's face. His, at least.	— Recuerdo — Ese día comí en la escuela por primera vez. Se llamaba Doyun. La cara de Doyun sí la recuerdo. La suya, sí.
+— Flashback — That spring, Doyun and I played at the sea every day. Doyun was a Seoul kid, so he couldn't swim.	— Recuerdo — Esa primavera, Doyun y yo jugábamos en el mar todos los días. Doyun era de Seúl, así que no sabía nadar.
+— Flashback — I taught him to swim in the shallows. Doyun swallowed water, coughed, and went back in.	— Recuerdo — Le enseñé a nadar en la parte baja. Doyun tragaba agua, tosía y volvía a entrar.
+— Flashback — When the sun went down, we sat side by side on the breakwater and dried our wet clothes. Until then I'd forgotten how to laugh.	— Recuerdo — Al ponerse el sol, nos sentábamos juntos en el rompeolas a secar la ropa mojada. Hasta entonces había olvidado cómo reír.
+— Flashback — That spring I laughed out loud. “So you do know how to laugh.” “Shut up.”	— Recuerdo — Esa primavera me reí en voz alta. «Así que sabes reír». «Cállate».
+— Flashback — Doyun turned an abandoned haenyeo bulteok in the rocks by the shore into a hideout.	— Recuerdo — Doyun convirtió un bulteok de haenyeo abandonado, entre las rocas de la orilla, en un escondite.
+— Flashback — He spread a blanket inside the stone wall, brought a broken radio, and hid milk there, two bottles at a time.	— Recuerdo — Extendió una manta dentro del muro de piedra, trajo una radio rota y escondía la leche de dos en dos botellas.
+— Flashback — “This is our hideout.” Taking the radio apart together, we caught a faint song at 89.2.	— Recuerdo — «Este es nuestro escondite». Mientras desmontábamos la radio juntos, a 89.2 se coló una canción, muy débil.
+— Flashback — Doyun drew a heart beside the dial. “This frequency is ours.”	— Recuerdo — Doyun dibujó un corazón junto al dial. «Esta frecuencia es nuestra».
+— Flashback — I rode my board down the breakwater road to the hideout. Doyun followed behind, panting.	— Recuerdo — Hasta el escondite iba en tabla por el camino del rompeolas. Doyun me seguía detrás, jadeando.
+— Flashback · Twelfth birthday — When I went into the hideout, candles were lit. Twelve of them. Doyun jumped out from behind a cake.	— Recuerdo · Cumpleaños número doce — Al entrar en el escondite, había velas encendidas. Doce velas. Doyun saltó de detrás de un pastel.
+— Flashback — “Surprise!” I laughed. I blew out the candles, and we ate half the cake each.	— Recuerdo — «¡Sorpresa!». Me reí. Soplé las velas y nos comimos medio pastel cada uno.
+— Flashback — As the sun sank, Doyun pulled my hand. “Let's eat the rest at the tower. The sunset's prettiest there.”	— Recuerdo — Cuando el sol empezó a bajar, Doyun me tiró de la mano. «Vamos a comernos el resto en la torre. Allí el atardecer es el más bonito».
+— Flashback — I shook off his hand. “Don't ask me to go there.” “Why? Just once.” “I said no!”	— Recuerdo — Le solté la mano de un tirón. «No me pidas ir allí». «¿Por qué? Solo una vez». «¡Que no!»
+— Flashback — The cake plate fell on the rock. “You don't know anything, so why do you keep butting in!” Doyun looked at me a long time.	— Recuerdo — El plato del pastel cayó sobre la roca. «¡No sabes nada, ¿por qué te metes siempre?!». Doyun me miró largo rato.
+— Flashback — “……Sorry.” And he left. I was left alone in front of the overturned cake. Candle wax cooled on the rock.	— Recuerdo — «……Perdón». Y se fue. Me quedé sola ante el pastel volcado. La cera se enfriaba sobre la roca.
+— Flashback — For ten days Doyun didn't come. Instead, a lunch box sat on the wall every day. The first day it was warm; by the tenth it was cold.	— Recuerdo — Durante diez días Doyun no vino. En cambio, cada día aparecía una fiambrera sobre el muro. El primer día estaba caliente; el décimo, fría.
+— Flashback — Inside the lid of the last lunch box was writing. “Even if we're not friends, half is yours.” That night I walked past Doyun's house.	— Recuerdo — Dentro de la tapa de la última fiambrera había algo escrito. «Aunque no seamos amigos, la mitad es tuya». Esa noche pasé por delante de la casa de Doyun.
+— Flashback — Doyun sat at the window, looking toward the tower. For a long time. A drawing was stuck on his wall.	— Recuerdo — Doyun estaba sentado junto a la ventana, mirando hacia la torre. Mucho rato. En la pared de su cuarto había un dibujo pegado.
+— Flashback — The tower, a sunset, and two people under it holding a cake. I saw it from below the wall and couldn't go up.	— Recuerdo — La torre, un atardecer y dos personas debajo con un pastel. Lo vi desde el pie del muro y no fui capaz de subir.
+— Flashback · End of summer — After that, Doyun and I didn't talk. In the school hallway, Doyun came up to me first. “Haneul, that day……”	— Recuerdo · Final del verano — Después de eso, Doyun y yo no nos hablamos. En el pasillo de la escuela, Doyun se acercó primero. «Haneul, aquel día……»
+— Flashback — “Forget it. Don't ever talk to me again.” Doyun closed his mouth. From the next day, no lunch box sat on the wall.	— Recuerdo — «Déjalo. No vuelvas a hablarme». Doyun cerró la boca. Desde el día siguiente, ya no apareció la fiambrera sobre el muro.
+— Flashback — I went to the hideout alone. The blanket was soaked with rain, and the radio was off. I came back without turning it on.	— Recuerdo — Fui sola al escondite. La manta estaba empapada de lluvia y la radio, apagada. Volví sin encenderla.
+— Flashback · Summer typhoon — Rain poured so hard you couldn't see. The tin roof rang without stopping. The phone went dead, and the power went out.	— Recuerdo · Tifón de verano — Llovía tanto que no se veía nada. El techo de chapa no paraba de sonar. Se cortó el teléfono y se fue la luz.
+— Flashback — I lit a candle, and there was a sound in the yard. Mom was lying face down. Clutching her chest.	— Recuerdo — Encendí una vela y se oyó algo en el patio. Mamá estaba tirada boca abajo. Agarrándose el pecho.
+— Flashback — The heart illness haenyeo get. Again I can't see Mom's face. Only the wet diving suit and the hand gripping her chest.	— Recuerdo — Era la enfermedad del corazón que les da a las haenyeo. Tampoco esta vez veo la cara de mamá. Solo el traje de buceo mojado y la mano apretándose el pecho.
+— Flashback — Our house was alone on top of the hill. Thirty minutes to the nearest house, 2 km to the hospital. In the rain I couldn't see the road.	— Recuerdo — Nuestra casa estaba sola en lo alto de la colina. Treinta minutos hasta la casa más cercana, dos kilómetros hasta el hospital. Con la lluvia no se veía el camino.
+— Flashback — “Mom! Mom!” I screamed. Mom can't hear. I knew, and I called anyway. Calling was all I could do.	— Recuerdo — «¡Mamá! ¡Mamá!», grité. Mamá no oye. Lo sabía y aun así la llamaba. Llamarla era lo único que podía hacer.
+— Flashback — I ran to the edge of the yard and shouted. “Somebody help!” The rain swallowed my voice. No one was there.	— Recuerdo — Corrí hasta el borde del patio y grité. «¡Que alguien me ayude!». La lluvia se tragó mi voz. No había nadie.
+— Flashback — Mom's hand got colder and colder. I held her and cried. I was twelve. There was nothing I could do.	— Recuerdo — La mano de mamá se enfriaba cada vez más. La abracé y lloré. Tenía doce años. No podía hacer nada.
+— Flashback — Through the rain, a flashlight beam came up the hill. It was Doyun. No raincoat, soaked through. “I was worried about you.”	— Recuerdo — Entre la lluvia subía la luz de una linterna. Era Doyun. Sin impermeable, empapado. «Estaba preocupado por ti».
+— Flashback — “How did you get here?” “I ran.” Doyun saw Mom and his face went stiff. He said it anyway.	— Recuerdo — «¿Cómo has llegado?». «Corriendo». Doyun vio a mamá y se le endureció la cara. Aun así, lo dijo.
+— Flashback — “She can make it.” He had to say that for me to move. He didn't know either.	— Recuerdo — «Se puede salvar». Tenía que decirlo para que yo me moviera. Él tampoco lo sabía.
+— Flashback — There was an old handcart by the road. Its wheel was stuck in the mud. The two of us dragged it out. My nails split.	— Recuerdo — Junto al camino había una carretilla vieja. La rueda estaba hundida en el barro. La sacamos entre los dos. Se me partieron las uñas.
+— Flashback — We laid Mom in it and covered her with Doyun's jacket. 2 km to the hospital. Doyun pulled from the front, I pushed from behind.	— Recuerdo — Tumbamos a mamá y la tapamos con la chaqueta de Doyun. Dos kilómetros hasta el hospital. Doyun tiraba delante y yo empujaba detrás.
+— Flashback — We slipped again and again on the wet road. Doyun's knees buckled. He got back up. “Go on ahead.”	— Recuerdo — Resbalamos una y otra vez en el camino mojado. A Doyun se le doblaron las rodillas. Se levantó. «Ve tú delante».
+— Flashback — “No. The three of us go together.” Doyun said it crying. I pushed, crying too. The hospital lights came into view.	— Recuerdo — «No. Vamos los tres juntos». Doyun lo dijo llorando. Yo también empujaba llorando. Se vieron las luces del hospital.
+— Flashback — Mom lived. The doctor said so. I sank down onto the hallway floor.	— Recuerdo — Mamá se salvó. El médico lo dijo. Me dejé caer en el suelo del pasillo.
+— Flashback — Doyun sat next to me. “See? I told you she could make it.” His hands were still shaking.	— Recuerdo — Doyun se sentó a mi lado. «¿Ves? Te dije que se salvaría». Todavía le temblaban las manos.
+— Flashback — When the ER doors closed, Doyun collapsed in the hallway. Only then did I first learn why his lips were always blue.	— Recuerdo — Cuando se cerraron las puertas de urgencias, Doyun se desplomó en el pasillo. Solo entonces supe por qué siempre tenía los labios azules.
+— Flashback — The next day a black car stood in front of Doyun's house. Bags were being loaded.	— Recuerdo — Al día siguiente había un coche negro frente a la casa de Doyun. Estaban cargando el equipaje.
+— Flashback — “He has to go to a hospital in Seoul.” Doyun's mom said it crying. “Today.”	— Recuerdo — «Tiene que ir a un hospital de Seúl». La madre de Doyun lo dijo llorando. «Hoy».
+— Flashback — I heard it while I was with Mom at the hospital. I ran. From the hospital to Doyun's house without stopping.	— Recuerdo — Me enteré mientras estaba con mamá en el hospital. Corrí. Del hospital a casa de Doyun sin parar.
+— Flashback — I was out of breath. I ran anyway. The car was already pulling away. Doyun pressed against the rear window and looked at me.	— Recuerdo — Me faltaba el aire. Aun así corrí. El coche ya arrancaba. Doyun se pegó a la luna trasera y me miró.
+— Flashback — He rolled down the window. “Haneul! On your 20th birthday, let's meet under the tower! Promise!”	— Recuerdo — Bajó la ventanilla. «¡Haneul! ¡En tu cumpleaños veinte, nos vemos bajo la torre! ¡Seguro!»
+— Flashback — “I'll wait with two bottles of milk! One for today, one for tomorrow!”	— Recuerdo — «¡Te esperaré con dos botellas de leche! ¡Una para hoy, otra para mañana!»
+— Flashback — “Okay! I won't be late!” I ran after the car and fell. My knee bled. It didn't hurt.	— Recuerdo — «¡Vale! ¡No llegaré tarde!». Corrí detrás del coche y me caí. Me sangraba la rodilla. No me dolía.
+— Flashback — That night I wrote on the calendar for the first time. “20th birthday, under the tower, Doyun.”	— Recuerdo — Esa noche escribí en el calendario por primera vez. «Cumpleaños veinte, bajo la torre, Doyun».
+— Flashback — I pressed the pencil so hard the paper dented. I lived eight years on that one promise.	— Recuerdo — Apreté tanto el lápiz que el papel se hundió. Viví ocho años con esa sola promesa.
+   (+{0}★, total {1}/60)	   (+{0}★, total {1}/60)
+   ·   {0} more for S	   ·   {0} más para S
+ (need {0} +{1})	 (necesitas {0} +{1})
+ Horse {0}	 Caballo {0}
+ Ranch  {0}	 Rancho  {0}
+ STA {0}	 ENE {0}
+ STA{0}	 ENE{0}
+ stress {0}	 estrés {0}
+ stress{0}	 estrés{0}
+ · have {0}	 · tienes {0}
+ · passcode {0}	 · código {0}
+ — +{0}G · replay it from More › Mini-games	 — +{0}G · juega de nuevo en Más › Minijuegos
++{0} coins	+{0} monedas
++{0}G · stress -{1}!	¡+{0}G · estrés -{1}!
+1st {0}G ♥3 prize · 2nd {1}G ♥2 · 3rd {2}G ♥1	1.º {0}G ♥3 · 2.º {1}G ♥2 · 3.º {2}G ♥1
+9 trees. Weekly harvest. {0}G	9 árboles. Cosecha semanal. {0}G
+A week goes by — week {0} → {1}	Pasa una semana — semana {0} → {1}
+Achievements {0}/{1}  ·  Stars {2}/60  ·  Daily stamps {3}  ·  Endings {4}/7	Logros {0}/{1}  ·  Estrellas {2}/60  ·  Sellos diarios {3}  ·  Finales {4}/7
+Affinity {0} · Lv{1} reward	Afinidad {0} · recompensa Nv{1}
+Agility {0}!	¡Agilidad {0}!
+All ({0}G)	Todo ({0}G)
+All 3 by chapter end: ♥ +2 · 2: +1 · now ♥ {0}	Los 3 antes del fin del capítulo: ♥ +2 · 2: +1 · ahora ♥ {0}
+Arrive within {0}s	Llega en {0} s
+Arrows {0} · in {1}/{2} — tap [Set aim] on the jar	Flechas {0} · dentro {1}/{2} — toca [Apuntar] en la vasija
+As much as I can ({0}G)	Todo lo que pueda ({0}G)
+At most {0} hits	Máximo {0} golpes
+Ate this week · dishes {0} · ingredients {1}	Comido esta semana · platos {0} · ingredientes {1}
+Ate {0}!	¡Comiste {0}!
+Auto grocery: {0}	Compra automática: {0}
+Auto-filled {0} · tap a slot to change	Autocompletado {0} · toca una ranura para cambiar
+Beat the chapter {0} mission to unlock	Supera la misión del capítulo {0} para desbloquear
+Best combo {0}	Mejor combo {0}
+Best combo ×{0}	Mejor combo ×{0}
+Best {0}	Mejor {0}
+Best {0} m	Mejor {0} m
+Best {0} m · {1} pts · {2} runs	Mejor {0} m · {1} pts · {2} carreras
+Binder {0}/{1}  ·  {2}/{3} released  ·  found as items while running	Álbum {0}/{1}  ·  {2}/{3} publicadas  ·  se encuentran como objetos al correr
+Bond ♥ +{0} (♥ {1})	Vínculo ♥ +{0} (♥ {1})
+Boss Rush · {0} bosses cleared!	¡Jefes en serie · {0} jefes superados!
+Bought {0} ×1!	¡Compraste {0} ×1!
+Bought {0} ×{1}!	¡Compraste {0} ×{1}!
+Bought {0}!	¡Compraste {0}!
+Burnout (stress {0}/{1}). Spend this week playing — a walk or a swim.	Agotamiento (estrés {0}/{1}). Dedica esta semana a jugar: un paseo o un baño.
+Burnout {0}/{1} — spend this week playing	Agotamiento {0}/{1} — dedica esta semana a jugar
+Buy once, wear anytime · {0}G	Compra una vez, úsalo siempre · {0}G
+B{0} · 👑 Boss	B{0} · 👑 Jefe
+CHAPTER {0}	CAPÍTULO {0}
+Casts left {0}/{1}	Lanzamientos restantes {0}/{1}
+Catch {0} bugs	Atrapa {0} insectos
+Catch {0} crabs	Atrapa {0} cangrejos
+Caught {0}! {1} +1 · Fish +{2} (sell at the shop)	¡Atrapaste {0}! {1} +1 · Peces +{2} (véndelos en la tienda)
+Caught! Back to start ({0}/3)	¡Atrapado! Vuelves al inicio ({0}/3)
+Ch. {0}	Cap. {0}
+Ch. {0} · {1}	Cap. {0} · {1}
+Ch. {0} · {1} · {2}:{3}	Cap. {0} · {1} · {2}:{3}
+Ch.{0} {1} : {2} ({3})	Cap.{0} {1} : {2} ({3})
+Challenge Chapter {0}!	¡Desafía el capítulo {0}!
+Chapter {0} complete	Capítulo {0} completado
+Chapter {0} is done. Now chapter {1} — week {2}.	Capítulo {0} terminado. Ahora, capítulo {1} — semana {2}.
+Chapter {0} mission · replay	Misión del capítulo {0} · repetir
+Chapter {0} story\n{1}  ·  {2}	Historia del capítulo {0}\n{1}  ·  {2}
+Chapter {0} · {1}	Capítulo {0} · {1}
+Chapter {0} — farm money & items for story mode!	Capítulo {0} — ¡consigue dinero y objetos para el modo historia!
+Characters {0}/2	Personajes {0}/2
+Charm {0}!	¡Encanto {0}!
+Chop wood {0}×	Cortar leña {0}×
+Cinematic · {0}:{1}	Cinemática · {0}:{1}
+Cleared · Rank {0} · hearts {1}/{2}	Superado · Rango {0} · corazones {1}/{2}
+Clothes {0} wk left	Ropa: quedan {0} sem
+Clothes {0}w left	Ropa {0} sem
+Clue on hold — {0}	Pista en espera — {0}
+Clue — {0} ({1}/6)	Pista — {0} ({1}/6)
+Clues {0}/6	Pistas {0}/6
+Coin jackpot {0}!	¡Premio gordo de monedas {0}!
+Coins {0}	Monedas {0}
+Coins {0}   ·   Jelly {1}	Monedas {0}   ·   Gelatinas {1}
+Coins {0} · Near miss {1} · Best combo {2} · Hearts {3}	Monedas {0} · Roces {1} · Mejor combo {2} · Corazones {3}
+Collect {0} coins	Reúne {0} monedas
+Combo {0}	Combo {0}
+Condition {0} · Stress {1} / Stamina {2}	Condición {0} · Estrés {1} / Energía {2}
+Cond{0}	Cond{0}
+Contest "{0}"\n{1}  ·  {2}	Concurso «{0}»\n{1}  ·  {2}
+Contest in {0}w: {1} · {2}	Concurso en {0} sem: {1} · {2}
+Contest reward — {0}	Premio del concurso — {0}
+Cooked → {0}	Cocinado → {0}
+Cook→{0}	Cocinar→{0}
+Cows {0} · Pigs {1}	Vacas {0} · Cerdos {1}
+Cows {0}/3 · Pigs {1}/4	Vacas {0}/3 · Cerdos {1}/4
+Cutscene {0} / {1}	Escena {0} / {1}
+Cutscene {0} at end of ch.{1} (week {2})	Escena {0} al final del cap.{1} (semana {2})
+Cutscene {0} — story time.	Escena {0} — hora de la historia.
+Daily Run  {0}	Carrera diaria  {0}
+Deco · {0}	Deco · {0}
+Defeat {0} bosses	Derrota a {0} jefes
+Delivery/market {0}/2	Reparto/mercado {0}/2
+Done! {0} knocked out → {1}G	¡Listo! {0} fuera → {1}G
+Done! {0} out	¡Listo! {0} fuera
+Done. {0}/{1} today.	Hecho. {0}/{1} hoy.
+Drank remaining stock {0}	Bebiste las existencias restantes: {0}
+Effective {0} · {1}	Efectivo {0} · {1}
+Endless  best {0} m · {1} pts\nDaily  best {2} · streak {3} (best {4})\nTotal  {5} runs · {6} km · {7} coins · {8} near misses · {9} flawless	Infinito  mejor {0} m · {1} pts\nDiaria  mejor {2} · racha {3} (mejor {4})\nTotal  {5} carreras · {6} km · {7} monedas · {8} roces · {9} perfectas
+Energy {0}	Energía {0}
+Enter — {0}	Entrar — {0}
+Entry: {0}	Inscripción: {0}
+Exhausted (stress {0}). One more week and you'll fall ill. (Condition -10)	Agotamiento (estrés {0}). Una semana más y enfermarás. (Condición -10)
+Fan art #{0}	Fan art #{0}
+Fan art gallery — one piece per {0} mission stars. (stars {1}/60 → {2} open)	Galería de fan art — una obra cada {0} estrellas de misión. (estrellas {1}/60 → {2} abiertas)
+Fertilize {0}G	Abonar {0}G
+Festival in {0}w: {1} · {2} {3}/{4}	Festival en {0} sem: {1} · {2} {3}/{4}
+Festival prize — "{0}"!	Premio del festival — ¡«{0}»!
+Fullness {0} → {1}  ·  Condition {2} → {3}	Saciedad {0} → {1}  ·  Condición {2} → {3}
+Full{0}	Sac{0}
+Game · {0}	Juego · {0}
+Garden ready: {0} — harvest in My Room	Huerto listo: {0} — cosecha en Mi cuarto
+Gate week. Stamina {0}/{1} — Feed/Play to raise it or you can't run.	Semana de control. Energía {0}/{1}: súbela con Comer/Jugar o no podrás correr.
+Gate {0}/{1} (−{2})	Control {0}/{1} (−{2})
+Gate {0}/{1} ✓	Control {0}/{1} ✓
+Go back to CH {0}?	¿Volver al CAP {0}?
+Go fishing {0}×	Ir a pescar {0}×
+Go inside? (eat · sleep · desk) — {0}/{1}	¿Entrar? (comer · dormir · escritorio) — {0}/{1}
+Goal {0} m	Meta {0} m
+Google Play billing · voluntary · {0} cup(s) so far ☕ thank you{1}	Pago por Google Play · voluntario · {0} taza(s) hasta ahora ☕ gracias{1}
+Great {0} · Fail {1}	Genial {0} · Fallo {1}
+HP {0} · {1}G	HP {0} · {1}G
+HP {0}/{1} · {2}G	HP {0}/{1} · {2}G
+HP {0}/{1} → {2}  ·  {3}G	HP {0}/{1} → {2}  ·  {3}G
+Harvest {0}%!	¡Cosecha {0}%!
+Harvest! {0} → {1}	¡Cosecha! {0} → {1}
+Have {0}	Tienes {0}
+Have {0}w	Tienes {0} sem
+Hearts +{0}	Corazones +{0}
+Hearts {0}	Corazones {0}
+Hearts {0} / {1}  (run +{2})	Corazones {0} / {1}  (carrera +{2})
+Hens {0}/{1} — 1 egg each every morning	Gallinas {0}/{1} — 1 huevo cada una por la mañana
+Here — {0}!	¡Aquí tienes — {0}!
+In season: {0}	De temporada: {0}
+In! {0}/{1} · arrows {2}	¡Dentro! {0}/{1} · flechas {2}
+Items {0}	Objetos {0}
+Kept a promise ({0}/3)	Promesa cumplida ({0}/3)
+Kid's promises ({0}/3) · ♥ {1}	Promesas al niño ({0}/3) · ♥ {1}
+Knock {0} marbles out in 3 shots!	¡Saca {0} canicas en 3 tiros!
+LEVEL UP! Lv {0}	¡SUBES DE NIVEL! Nv {0}
+Land on {0} to catch them back to the lap start — and throw again!	¡Cae en {0} para mandarlos al inicio de la vuelta y vuelve a lanzar!
+Lap {0}!	¡Vuelta {0}!
+Letter · {0}/{1}	Carta · {0}/{1}
+Locked · Fan art #{0} — opens at {1} stars	Bloqueado · Fan art #{0} — se abre con {1} estrellas
+Locked · [{0}] {1}% from photocard items	Bloqueado · [{0}] {1}% de objetos fotocarta
+Love the place! {0}G rent coming in {1} week(s).	¡Me encanta el lugar! Recibirás {0}G de alquiler en {1} semana(s).
+Lv {0}  Haneul · {1}	Nv {0}  Haneul · {1}
+Main story {0}	Historia principal {0}
+Main story {0} · {1}	Historia principal {0} · {1}
+Mastery {0} — {1}	Maestría {0} — {1}
+Me {0}/{1}  ·  {2} {3}/{4}	Yo {0}/{1}  ·  {2} {3}/{4}
+Meals {0}  ·  Ing {1}  ·  Med {2}  ·  Clothes {3}  ·  {4}  ·  {5}	Comidas {0}  ·  Ingr {1}  ·  Med {2}  ·  Ropa {3}  ·  {4}  ·  {5}
+Meals {0} · Ing {1} · Clothes {2}w · Full {3} · Cond {4}	Comidas {0} · Ingr {1} · Ropa {2} sem · Sac {3} · Cond {4}
+Mine rocks {0}×	Picar rocas {0}×
+Mini-game "{0}"{1}\n{2}  ·  {3}	Minijuego «{0}»{1}\n{2}  ·  {3}
+Miss {0} · {1}/{2} · arrows {3}	Fallo {0} · {1}/{2} · flechas {3}
+Money {0}	Dinero {0}
+Money {0}G	Dinero {0}G
+More than the village shop · {0}G	Más que en la tienda del pueblo · {0}G
+My Room bonus — "{0}"!	Bono de Mi cuarto — ¡«{0}»!
+Napped with {0} — stamina +3	Siesta con {0} — energía +3
+Near-miss combo {0}	Combo de roces {0}
+Need {0} more stamina. Use the goal ribbon when picking Feed/Play.	Necesitas {0} de energía más. Usa la cinta de meta al elegir Comer/Jugar.
+Need {0} more {1}.	Necesitas {0} más de {1}.
+Need {0}G	Necesitas {0}G
+Need {0}G.	Necesitas {0}G.
+Need {0}G…	Necesitas {0}G…
+Needs: {0}	Requiere: {0}
+New card: {0}	Nueva carta: {0}
+Next story in chapter {0} — its place will glow	Siguiente historia en el capítulo {0}: su lugar brillará
+Next turn: chapter {0} story	Próximo turno: historia del capítulo {0}
+Next turn: chapter {0} story → contest "{1}"	Próximo turno: historia del capítulo {0} → concurso «{1}»
+Next — Shots {0} · {1} left	Siguiente — Tiros {0} · quedan {1}
+Next: {0} SIDE {1} needs {2}	Siguiente: {0} SIDE {1} requiere {2}
+No meal… dishes {0} · ingredients {1} (cook then Feed)	Sin comida… platos {0} · ingredientes {1} (cocina y luego Comer)
+No run this chapter — the story opens on week {0}	Sin carrera este capítulo: la historia empieza en la semana {0}
+No sleep ({0} wk)	Sin dormir ({0} sem)
+Not enough coins or level (Lv{0}) — run more!	Faltan monedas o nivel (Nv{0}) — ¡corre más!
+Not enough coins — need {0}G.	Faltan monedas: necesitas {0}G.
+Not enough {0}	Falta {0}
+Not ready to run yet.\nStamina {0} / need {1} — {2} more.\nThis chapter gets one more week of training.	Aún no puedes correr.\nEnergía {0} / necesitas {1} — faltan {2}.\nEste capítulo suma una semana más de entrenamiento.
+Off to {0}!	¡Rumbo a {0}!
+One record per long cut · bonus tracks at 90% Rank S (now {0}/20)	Un disco por toma larga · pistas extra con 90% de Rango S (ahora {0}/20)
+Only {0} HP — too weak to auto-hunt. Eat and sleep first!	Solo {0} PV — demasiado débil para cazar sola. ¡Come y duerme primero!
+Opened by the secret code.\nJump to week {0} with your current stats.	Desbloqueado con el código secreto.\nSalta a la semana {0} con tus estadísticas actuales.
+Our Frequency — {0}:{1}	Nuestra frecuencia — {0}:{1}
+Paid {0} coins to pass (no reward)	Pagaste {0} monedas para pasar (sin recompensa)
+Paid {0}G to skip	Pagaste {0}G para saltar
+Pay {0} coins to pass	Paga {0} monedas para pasar
+Pay {0}G to skip	Paga {0}G para saltar
+Pets unlock at week {0} or after {1} contests\n(now week {2} · {3} contests)\n\nBuy with coins from runs (level required).	Las mascotas se desbloquean en la semana {0} o tras {1} concursos\n(ahora semana {2} · {3} concursos)\n\nCómpralas con monedas de las carreras (requiere nivel).
+Pets unlock at week {0} or {1} contests (now wk {2} · {3} contests)	Mascotas: semana {0} o {1} concursos (ahora sem. {2} · {3} concursos)
+Photo {0} / {1}	Foto {0} / {1}
+Photocard [{0}] {1}	Fotocarta [{0}] {1}
+Photocard — [{0}] {1}	Fotocarta — [{0}] {1}
+Photos collected {0} / {1}	Fotos reunidas {0} / {1}
+Pick up {0} things	Recoge {0} objetos
+Pickaxe by a glowing vein. {0} veins left this week.	Un pico junto a una veta brillante. Quedan {0} vetas esta semana.
+Placed {0}! (−{1}G)	¡Colocaste {0}! (−{1}G)
+Plant · {0}%	Planta · {0}%
+Planted {0}. Harvest in {1}w!	Plantaste {0}. ¡Cosecha en {1} sem.!
+Playthrough {0} — inherited 10% stats & half mastery	Partida {0} — heredas 10% de estadísticas y la mitad de maestría
+Police: Useless! ({0} left)	Policía: ¡Inútil! (quedan {0})
+Prize: {0}G	Premio: {0}G
+Prologue · Our Frequency : Opening ({0})	Prólogo · Nuestra frecuencia : Apertura ({0})
+Promise · {0} {1}/{2}	Promesa · {0} {1}/{2}
+Promises {0}/3 · bond ♥ {1}	Promesas {0}/3 · vínculo ♥ {1}
+Promises · chapter {0}	Promesas · capítulo {0}
+Pull 10+1\n(★{0})	Tirar 10+1\n(★{0})
+Pull capsules with jelly. Legend 1% · Epic 5% · Rare 12% · Uncommon 27% · Common 55%\nJelly {0}	Saca cápsulas con gelatina. Legendaria 1% · Épica 5% · Rara 12% · Poco común 27% · Común 55%\nGelatina {0}
+Pull ×1 ({0})	Tirar ×1 ({0})
+Rabbits {0}/{1} — grown after 3 sleeps ({2} grown)	Conejos {0}/{1} — crecen tras 3 noches ({2} adultos)
+Radio/ham/DJ cards {0}/3	Cartas de radio/radioaficionado/DJ {0}/3
+Rank S {0} / {1}	Rango S {0} / {1}
+Rank {0}	Rango {0}
+Rare deco · {0}	Deco rara · {0}
+Reach chapter {0} to unlock	Llega al capítulo {0} para desbloquear
+Record unlocked — {0}	Disco desbloqueado — {0}
+Removed {0}.	Quitaste {0}.
+Removed. +{0}G refunded	Quitado. +{0}G reembolsados
+Rent {0}G / 4 weeks · next in {1}w · {2}G	Renta {0}G / 4 semanas · próxima en {1} sem. · {2}G
+Retry from week {0}. Only better results are kept.	Reintenta desde la semana {0}. Solo se guardan los mejores resultados.
+Retrying · CH {0}	Reintentando · CAP {0}
+Rice ×{0}w	Arroz ×{0} sem.
+Room {0}/{1}	Cuarto {0}/{1}
+Room {0}G · {1}%/wk (costlier than deposit interest!)	Cuarto {0}G · {1}%/sem. (¡más caro que el interés del depósito!)
+Run jelly ×{0}	Gelatina de carrera ×{0}
+Run {0} m	Carrera {0} m
+Running again rewinds to week {0}; only better results are kept.	Correr de nuevo te regresa a la semana {0}; solo se guardan los mejores resultados.
+STA {0} · AGI {1} · CHA {2} · SEN {3}	ENE {0} · AGI {1} · CAR {2} · SEN {3}
+STA {0} → HP {1} · AGI {2} → lanes {3}% faster · CHA {4} → near-miss +{5}%	ENE {0} → PV {1} · AGI {2} → carriles {3}% más rápido · CAR {4} → casi choque +{5}%
+Score {0}	Puntos {0}
+Sea cards {0}/2	Cartas del mar {0}/2
+Season: {0}	Estación: {0}
+Season: {0} (locked)	Estación: {0} (bloqueada)
+Sell bugs, fish, crops to buy land — then rent every 4 weeks! {0}G	¡Vende bichos, peces y cosechas para comprar terreno y cobrar renta cada 4 semanas! {0}G
+Sellable — {0}G in all. Save up for land and earn monthly rent!	Vendible — {0}G en total. ¡Ahorra para un terreno y cobra renta mensual!
+Sense {0} = radio/photo/spirit events (60+) · sense-based jobs	Sensibilidad {0} = eventos de radio/foto/espíritus (60+) · trabajos de sensibilidad
+Sense {0}!	¡Sensibilidad {0}!
+Sense {0}/40	Sensibilidad {0}/40
+Settled {0} K-POP runs ({1}G). Bonus +{2}G added!	Liquidaste {0} carreras K-POP ({1}G). ¡Bono de +{2}G añadido!
+Shards: {0} · tickets {1} · SR+ in {2}	Fragmentos: {0} · boletos {1} · SR+ en {2}
+Shared with {0} — 1 dish cooked, stress −5%	Compartido con {0} — 1 platillo cocinado, estrés −5%
+Shared with {0} — stress −5% (no ingredients)	Compartido con {0} — estrés −5% (sin ingredientes)
+Shot at {0}%!	¡Tiro al {0}%!
+Shots 3 · leave ≤2 inside ({0} of 8 out) — [Set aim]	Tiros 3 · deja ≤2 dentro ({0} de 8 fuera) — [Apuntar]
+Shots left: {0}  ·  knocked out: {1}	Tiros restantes: {0}  ·  fuera: {1}
+Shots {0} · {1} left (≤2 wins)	Tiros {0} · quedan {1} (≤2 gana)
+Side story · {0}	Historia paralela · {0}
+Side story · {0} : {1} ({2})	Historia paralela · {0} : {1} ({2})
+Side ×{0}w	Guarnición ×{0} sem.
+Signed card ✦ {0}	Carta firmada ✦ {0}
+Sis! The {0} booth is open — limited goods!	¡Hermana! Abrió el puesto de {0} — ¡artículos limitados!
+Slam in the yellow zone! Tries {0}	¡Golpea en la zona amarilla! Intentos {0}
+So close! Reach {0} m next time!	¡Casi! ¡Llega a {0} m la próxima vez!
+Stacked {0} logs. Fuel for {1} weeks — one burns per week, +3 condition.	Apilaste {0} leños. Combustible para {1} semanas — se quema uno por semana, +3 condición.
+Stamina {0}	Energía {0}
+Stamina {0} / need {1} — ready.\nTo the tower.	Energía {0} / necesitas {1} — lista.\nA la torre.
+Stamina {0}!	¡Energía {0}!
+Stamina {0}/{1} — not ready.	Energía {0}/{1} — aún no.
+Stamp earned!  Streak {0}	¡Sello obtenido!  Racha {0}
+Stamped ✓  {0}-day streak  +{1}G	Sellado ✓  racha de {0} días  +{1}G
+Star shards +{0} — try the Star Capsule	Fragmentos de estrella +{0} — prueba la Cápsula Estelar
+Sta{0}	Ene{0}
+Still daytime. {0}/{1} done · {2} action(s) left — sleeping ends the week.	Aún es de día. {0}/{1} hechas · quedan {2} acción(es) — dormir termina la semana.
+Still growing — {0}w left.	Aún crece — faltan {0} sem.
+Story — '{0}'	Historia — «{0}»
+Stress (limit {0})	Estrés (límite {0})
+Stress is at {0}. Play or pet Haneul to recover.	El estrés está en {0}. Juega o acaricia a Haneul para recuperarte.
+Stress {0}	Estrés {0}
+Stress {0} — wearing down (success ↓).	Estrés {0} — desgastándose (éxito ↓).
+Stress {0} — worn out, spend a slot playing	Estrés {0} — agotada, usa un turno para jugar
+Stress {0} → {1} / limit {2} ({3})	Estrés {0} → {1} / límite {2} ({3})
+Stress {0}! Collapses next week — play & rest	¡Estrés {0}! Colapsará la próxima semana — juega y descansa
+Stress{0}	Estrés{0}
+Take {0} photos	Toma {0} fotos
+Talk to {0} villagers	Habla con {0} vecinos
+Tend the garden {0}×	Cuida el huerto {0}×
+Thank you! ★ Everything unlocked\nHidden passcode {0} — enter it in Settings › Secret code on another device	¡Gracias! ★ Todo desbloqueado\nCódigo oculto {0} — ingrésalo en Ajustes › Código secreto en otro dispositivo
+That's {0}G — not enough coins.	Son {0}G — no te alcanzan las monedas.
+That's {0}G.	Son {0}G.
+The fare is {0}G.	El pasaje cuesta {0}G.
+The horse lifts a hoof with every stroke. {0}	El caballo levanta un casco con cada caricia. {0}
+The horse takes the carrot and nudges your palm. {0}	El caballo toma la zanahoria y te empuja la palma. {0}
+This time, let's do these: {0}	Esta vez, hagamos esto: {0}
+Time limit · {0}:{1}	Tiempo límite · {0}:{1}
+To the {0}! Where it glows.	¡Hacia {0}! Donde brilla.
+To {0}~	Rumbo a {0}~
+Too hard, it bounced! Tries {0}	¡Muy fuerte, rebotó! Intentos {0}
+Too weak! Tries {0}	¡Muy débil! Intentos {0}
+Tower jobs {0}/2 or stamina {1}/60	Trabajos en la torre {0}/2 o energía {1}/60
+Trust {0} = 15 salon · 50 job stress -4 · fail -1	Confianza {0} = 15 salón · 50 estrés de trabajo -4 · fallo -1
+Um… could you {0}?	Eh… ¿podrías {0}?
+Unlock: agility {0}	Desbloqueo: agilidad {0}
+Unlock: stamina {0}	Desbloqueo: energía {0}
+Unlock: trust ≥ {0}	Desbloqueo: confianza ≥ {0}
+Unlock: tuition {0}G	Desbloqueo: matrícula {0}G
+Used {0}!	¡Usaste {0}!
+Walked the coast with {0} — stress −{1} · stamina +1	Paseaste por la costa con {0} — estrés −{1} · energía +1
+Wallet {0}G · Deposit {1}G ({2}%/wk) · Loan {3}G ({4}%/wk)	Cartera {0}G · Depósito {1}G ({2}%/sem.) · Préstamo {3}G ({4}%/sem.)
+Week {0} morning.	Mañana de la semana {0}.
+Week {0} or {1} contests cleared (now wk {2} · {3} contests)	Semana {0} o {1} concursos superados (ahora sem. {2} · {3} concursos)
+Week {0} {1}  ·  Lv.{2}  ·  {3}/{4} {5}	Semana {0} {1}  ·  Nv.{2}  ·  {3}/{4} {5}
+Week {0} · Lv {1} · {2}G	Semana {0} · Nv {1} · {2}G
+Week {0} · {1}	Semana {0} · {1}
+Week {0} · {1} · Ch.{2}	Semana {0} · {1} · Cap.{2}
+Week {0} · {1} · Lv.{2}	Semana {0} · {1} · Nv.{2}
+Week {0} · {1}G · stress {2}	Semana {0} · {1}G · estrés {2}
+Week {0} → Week {1} · {2}	Semana {0} → Semana {1} · {2}
+Week {0} → {1} · {2} (last)	Semana {0} → {1} · {2} (última)
+Week {0}, night — falling asleep…	Semana {0}, noche — quedándose dormida…
+Week {0}. Last week of this chapter.	Semana {0}. Última semana de este capítulo.
+Weekend mini-game — {0}! Win for {1}G.	Minijuego de fin de semana — ¡{0}! Gana y obtén {1}G.
+Weekend rest  |  Heal {0}:{1}	Descanso de fin de semana  |  Curación {0}:{1}
+Weeks {0}-{1} only!	¡Solo semanas {0}-{1}!
+Where to? {0}G	¿A dónde? {0}G
+Win for {0}G · lose and skipping costs {1}G	Gana {0}G · si pierdes, saltar cuesta {1}G
+Wk {0}	Sem {0}
+Won! +{0}G	¡Ganaste! +{0}G
+You again! I love {0}.	¡Tú otra vez! Me encanta {0}.
+You did it! First clear this week — 2,000G · 40 jelly · gold ore ×2 · {0}. Take the ladder up.	¡Lo lograste! Primera victoria de la semana — 2,000G · 40 gelatinas · mineral de oro ×2 · {0}. Sube por la escalera.
+You need {0}G.	Necesitas {0}G.
+You've hit the {0}G limit. Repay some first.	Llegaste al límite de {0}G. Paga una parte primero.
+Your turn — [THROW!!] 3 laps before {0}	Tu turno — [¡¡LANZA!!] 3 vueltas antes que {0}
+"{0}" OST · {1} tracks	«{0}» OST · {1} pistas
+\n+{0}G · jelly +{1} (×2 with all 3 missions)	\n+{0}G · gelatina +{1} (×2 con las 3 misiones)
+\nAll clear! +{0}G	\n¡Todo completado! +{0}G
+\nneed {0} +{1}	\nfalta {0} +{1}
+\n★ 3 missions — money & jelly ×2!  +{0}G · jelly +{1}	\n★ 3 misiones — ¡dinero y gelatina ×2!  +{0}G · gelatina +{1}
+fail {0}%	fallo {0}%
+gate {0}	puerta {0}
+gate {0} ✓	puerta {0} ✓
+in {0}w	en {0} sem.
+limit {0}	límite {0}
+next {0}	siguiente {0}
+ticket ×{0}	boleto ×{0}
+{0}  ({1}/{2})\n{3}\nReward: {4}G · {5} shards · 1 activity	{0}  ({1}/{2})\n{3}\nRecompensa: {4}G · {5} fragmentos · 1 actividad
+{0}  ·  HP +{1}  ·  {2}G	{0}  ·  PV +{1}  ·  {2}G
+{0} / gate {1}	{0} / puerta {1}
+{0} / gate {1} ✓	{0} / puerta {1} ✓
+{0} Harvest {1}	{0} Cosecha {1}
+{0} Harvested! {1} → bag	{0} ¡Cosechado! {1} → bolsa
+{0} Planted {1}. Water it!	{0} Plantaste {1}. ¡Riégalo!
+{0} The {1} withered… no water for two weeks.	{0} {1} se marchitó… dos semanas sin agua.
+{0} action(s) left. Press again to skip them.	Quedan {0} acción(es). Pulsa otra vez para saltarlas.
+{0} brought a bag of rice! (−18G)	¡{0} trajo un saco de arroz! (−18G)
+{0} brought ingredients — {1} dishes cooked!	{0} trajo ingredientes — ¡{1} platillos cocinados!
+{0} capsules → bag	{0} cápsulas → bolsa
+{0} cheered me up — stress −{1}	{0} me animó — estrés −{1}
+{0} coins	{0} monedas
+{0} command · 1/week	Orden {0} · 1/semana
+{0} course · same for everyone today. Clear all three for a stamp.	Recorrido {0} · hoy es igual para todos. Supera los tres para un sello.
+{0} cuts · {1}s · {2}	{0} tomas · {1} s · {2}
+{0} donated	Donado: {0}
+{0} festival · week {1}	Festival {0} · semana {1}
+{0} fetched a letter — hearts +1	{0} trajo una carta — corazones +1
+{0} finished 3 laps first…	{0} completó 3 vueltas primero…
+{0} first…	{0} primero…
+{0} hearts	{0} corazones
+{0} hearts to S-cut. Contests and great successes help.	Faltan {0} corazones para el corte S. Los concursos y los grandes éxitos ayudan.
+{0} is lowest. If a Lesson card appears under Play, take it.	{0} es la más baja. Si aparece una carta de Lección en Jugar, tómala.
+{0} joined!	¡{0} se unió!
+{0} km to the tower	{0} km hasta la torre
+{0} left…	Quedan {0}…
+{0} left… need ≤2	Quedan {0}… se necesita ≤2
+{0} main stories + {1} side stories · {2} seen{3}	{0} historias principales + {1} secundarias · {2} vistas{3}
+{0} matters — 	{0} importa — 
+{0} more ♥ to the next memory	Faltan {0} ♥ para el próximo recuerdo
+{0} near misses	{0} roces
+{0} selected — joins runs.	{0} seleccionado — se une a las carreras.
+{0} stamps · streak {1} (best {2})	{0} sellos · racha {1} (mejor {2})
+{0} tries left	Quedan {0} intentos
+{0} weeks to the tower · stamina {1} gate ▼{2} OK! · energy {3}	{0} semanas para la torre · energía {1} puerta ▼{2} ¡OK! · energía {3}
+{0} weeks to the tower · {1} more to gate ▼{2} · energy {3}	{0} semanas para la torre · faltan {1} para la puerta ▼{2} · energía {3}
+{0} wins…	{0} victorias…
+{0} withered… ({1}%)	{0} se marchitó… ({1}%)
+{0} {1} / target {2}	{0} {1} / meta {2}
+{0} {1} growing {2}/{3} (watered)	{0} {1} creciendo {2}/{3} (regado)
+{0} {1} {2}G · {3}w	{0} {1} {2}G · {3} sem
+{0} {1} {2}G · {3}w · {4}% · {5}	{0} {1} {2}G · {3} sem · {4}% · {5}
+{0} {1}G — walk to a spot, then 「Place」	{0} {1}G — camina hasta un lugar y luego 「Colocar」
+{0} · done this week	{0} · hecho esta semana
+{0} · wear	{0} · ponerse
+{0} · {1}G (stress −{2})	{0} · {1}G (estrés −{2})
+{0} ×{1} · {2}G each  (+{3}G)	{0} ×{1} · {2}G c/u  (+{3}G)
+{0} — done this turn	{0} — hecho este turno
+{0} — win to move on!	{0} — ¡gana para avanzar!
+{0} — {1}. Reward {2}G · 3 shards. This week.	{0} — {1}. Recompensa {2}G · 3 fragmentos. Esta semana.
+{0} — {1}/{2} so far. Please!	{0} — {1}/{2} por ahora. ¡Por favor!
+{0}! HP {1} → {2} (−{3}G)	¡{0}! PV {1} → {2} (−{3}G)
+{0}% of the song — one more?	{0}% de la canción — ¿otra más?
+{0}'s turn!	¡Turno de {0}!
+{0}'s turn… throwing	Turno de {0}… lanzando
+{0}/{1} · now {2}	{0}/{1} · ahora {2}
+{0}:{1} — Cinematic — always available	{0}:{1} — Cinemática — siempre disponible
+{0}G · a rental goes up and pays {1}G every 4 weeks. You have {2}G	{0}G · se construye un alquiler que paga {1}G cada 4 semanas. Tienes {2}G
+{0}G · stress {1}	{0}G · estrés {1}
+{0}G · water once per phase; grows more each week.	{0}G · riega una vez por fase; crece más cada semana.
+{0}\n{1} {2} almost ready~	{0}\n{1} {2} ¡casi lista~
+{0}\n{1} {2} growing... {3}w left	{0}\n{1} {2} creciendo... quedan {3} sem
+{0}\n{1} {2} just sprouted!	{0}\n{1} {2} ¡acaba de brotar!
+{0}\n{1} {2} ready! ⭐	{0}\n{1} {2} ¡lista! ⭐
+{0}\n{1} {2} sprout!	{0}\n{1} {2} ¡brote!
+{0}w left	Quedan {0} sem
+{0}… need {1}	{0}… se necesita {1}
+…Woke up in the hospital. Paid {0}G ({1}%). 	…Despertaste en el hospital. Pagaste {0}G ({1}%). 
+…{0}?! Still {1}G	…¡¿{0}?! Aún {1}G
+↩ Repaid {0}G — {1}G left	↩ Pagaste {0}G — quedan {1}G
+≤{0} hits	≤{0} golpes
+≤{0} hits in first 500 m	≤{0} golpes en los primeros 500 m
+■  Hidden track {0} playing	■  Pista oculta {0} sonando
+■ Expand — one more row (3) {0}G	■ Ampliar — una fila más (3) {0}G
+■ Garden expanded to {0} plots (west)	■ Huerto ampliado a {0} parcelas (oeste)
+■ Week {0} — today	■ Semana {0} — hoy
+▶ Chapter {0}	▶ Capítulo {0}
+▶ Follow the kid ({0}/3) · {1}	▶ Sigue al niño ({0}/3) · {1}
+▶ More ({0}/{1})	▶ Más ({0}/{1})
+▶ Ride — needs ♥3 (now ♥{0})	▶ Montar — requiere ♥3 (ahora ♥{0})
+◆ {0} grade	◆ Rango {0}
+● 1 pull · {0} jelly	● 1 tirada · {0} gominolas
+● Buy & give a carrot {0}G (+10)	● Comprar y dar zanahoria {0}G (+10)
+● Feed {0}G (+6)	● Alimentar {0}G (+6)
+● Feed {0}G (+8)	● Alimentar {0}G (+8)
+● Garden ({0})	● Huerto ({0})
+● Hens {0} · Rabbits {1}	● Gallinas {0} · Conejos {1}
+● New {0} · ★ +{1}	● Nuevos {0} · ★ +{1}
+● The rain watered {0} plot(s)	● La lluvia regó {0} parcela(s)
+● {0} planted — ripe {1} · thirsty {2}	● {0} plantado — madura {1} · sed {2}
+●● 10 pulls · {0} jelly	●● 10 tiradas · {0} gominolas
+★ 3 laps before {0}!	★ ¡3 vueltas antes de {0}!
+★ Coins {0}  ·  Lv {1} ★	★ Monedas {0}  ·  Nv {1} ★
+★ Collect {0} golden egg(s)	★ Recoge {0} huevo(s) de oro
+★ Points {0}  ·  Lv {1} ★	★ Puntos {0}  ·  Nv {1} ★
+★ Stamped ✓  {0}-day streak  +{1}G	★ Sellado ✓  racha de {0} días  +{1}G
+★ Today's missions {0}/3	★ Misiones de hoy {0}/3
+★ {0} entry	★ Entrada {0}
+★ {0} golden egg(s)!	★ ¡{0} huevo(s) de oro!
+★ {0} — max	★ {0} — máx.
+★ {0}G  ·  Lv {1} ★	★ {0}G  ·  Nv {1} ★
+☕ Buy me a coffee · {0}	☕ Invítame un café · {0}
+☕ Thank you! {0} cup(s)	☕ ¡Gracias! {0} taza(s)
+♥ Care for hens {0}	♥ Cuidar gallinas {0}
+♥ Care for rabbits {0}	♥ Cuidar conejos {0}
+♥ Friendship +{0}	♥ Amistad +{0}
+♥ Horse ♥{0}!	♥ ¡Caballo ♥{0}!
+♥ Love ♥{0}!	♥ ¡Amor ♥{0}!
+♥ Next week: {0}'s birthday	♥ La próxima semana: cumpleaños de {0}
+♥ {0}'s birthday this week! Gifts count triple.	♥ ¡Esta semana es el cumpleaños de {0}! Los regalos cuentan triple.
+♥ {0}/{1} for S	♥ {0}/{1} para S
+⚠ BURNOUT — stress {0}/{1}. Rest now.	⚠ AGOTAMIENTO — estrés {0}/{1}. Descansa ya.
+⛏ Deep shaft B{0}	⛏ Pozo profundo B{0}
+⛏ Rock cleared! {0} stones dropped — regrows in {1}w	⛏ ¡Roca despejada! Cayeron {0} piedras — reaparece en {1} sem
+⛏ {0} stones dropped · {1}/3	⛏ Cayeron {0} piedras · {1}/3
+✅ Buy (−{0}G)	✅ Comprar (−{0}G)
+✔ {0} (wearing)	✔ {0} (puesto)
+✦ Caught {0}! Again	✦ ¡Atrapaste {0}! Otra vez
+✦ {0}'s turn… ✦	✦ Turno de {0}… ✦
+✨ Caught a monster! Already own {0} — shards +3 · 150G	✨ ¡Atrapaste un monstruo! Ya tienes {0} — fragmentos +3 · 150G
+✨ Found {0}!	✨ ¡Encontraste {0}!
+✨ Story '{0}' · {1}	✨ Historia '{0}' · {1}
+✨ The story continues — {0}	✨ La historia continúa — {0}
+⬇ B{0} Boss room	⬇ B{0} Sala del jefe
+⬇ Down to B{0}	⬇ Bajar a B{0}
+🌊 In the sea! Over {0}s is dangerous	🌊 ¡En el mar! Más de {0} s es peligroso
+🌱 Pick a seed for pot {0}!	🌱 ¡Elige una semilla para la maceta {0}!
+🌳 Timber! {0} logs dropped — walk over to collect · regrows in {1}w	🌳 ¡Árbol va! Cayeron {0} troncos — camina para recogerlos · reaparece en {1} sem
+🍊 {0} oranges fell → {1}G	🍊 Cayeron {0} naranjas → {1}G
+🍊 {0} oranges → {1}G · Veg +1	🍊 {0} naranjas → {1}G · Verdura +1
+🍊 {0} tangerines!	🍊 ¡{0} mandarinas!
+🍖 Butchered a rabbit — meat ×2 ({0} left)	🍖 Conejo despiezado — carne ×2 (quedan {0})
+🍖 Meat +3 — 🚨 Police! (wanted Lv {0}) Run or fight!	🍖 Carne +3 — 🚨 ¡Policía! (búsqueda Nv {0}) ¡Huye o pelea!
+🍯 {0} jars of honey!	🍯 ¡{0} frascos de miel!
+🎁 Gift to {0}	🎁 Regalo para {0}
+🎁 Reward +{0}G · shards +3{1}	🎁 Recompensa +{0}G · fragmentos +3{1}
+🎁 Sent to {0} (+{1})	🎁 Enviado a {0} (+{1})
+🎉 Bought {0}! Rent {1}G every 4 weeks	🎉 ¡Compraste {0}! Renta de {1}G cada 4 semanas
+🎉 Caught a monster! Got the pet 「{0}」 — equip it at the pet shop	🎉 ¡Atrapaste un monstruo! Conseguiste la mascota 「{0}」 — equípala en la tienda de mascotas
+🎉 {0} begins!	🎉 ¡Comienza {0}!
+🎮 Play · Practice ({0}/{1})	🎮 Jugar · Práctica ({0}/{1})
+🎯 Mission complete! +{0}G · shards +{1}	🎯 ¡Misión cumplida! +{0}G · fragmentos +{1}
+🎯 Today's mission — {0}	🎯 Misión de hoy — {0}
+🎵 Settle K-POP run income ({0} runs · {1}G → +{2}G)	🎵 Cobrar ingresos de carreras K-POP ({0} carreras · {1}G → +{2}G)
+🏏 Boss −{0} (HP {1})	🏏 Jefe −{0} (PV {1})
+🏏 Hit −{0}	🏏 Golpe −{0}
+🏙 Jeju City ({0}G)	🏙 Ciudad de Jeju ({0}G)
+🏛 Donated {0}! +{1}G	🏛 ¡Donaste {0}! +{1}G
+🏝 Jungmon Resort ({0}G)	🏝 Resort Jungmun ({0}G)
+🏠 Go inside (eat · sleep · desk) — {0}/{1}	🏠 Entrar (comer · dormir · escritorio) — {0}/{1}
+🏡 Land · rent ({0} lots · {1}G/mo)	🏡 Terrenos · alquiler ({0} lotes · {1}G/mes)
+🏡 Land · rent ({0} lots)	🏡 Terrenos · alquiler ({0} lotes)
+🏡 My rental · {0}G/mo (next in {1}w)	🏡 Mi alquiler · {0}G/mes (próximo en {1} sem)
+🏡 Rent received! {0} month(s) +{1}G	🏡 ¡Renta recibida! {0} mes(es) +{1}G
+🏡 Village ({0}G)	🏡 Pueblo ({0}G)
+🏡 {0} — owned · {1}G/mo	🏡 {0} — tuyo · {1}G/mes
+🏦 Borrowed {0}G — {1}% a week	🏦 Préstamo de {0}G — {1}% semanal
+🏦 Take a loan (limit {0}G)	🏦 Pedir préstamo (límite {0}G)
+🏷 Buy {0} · {1}G ({2}G/mo)	🏷 Comprar {0} · {1}G ({2}G/mes)
+🏷 For sale · {0} ({1}G)	🏷 En venta · {0} ({1}G)
+🏷 {0} — {1}G ({2}G/mo)	🏷 {0} — {1}G ({2}G/mes)
+🐔 Caught a chicken! Sent to the farm ({0}/{1})	🐔 ¡Atrapaste una gallina! Enviada a la granja ({0}/{1})
+🐔 Farm · {0} hens · {1} rabbits ({2} grown)	🐔 Granja · {0} gallinas · {1} conejos ({2} adultos)
+🐝 Hive set up! ({0}/3)	🐝 ¡Colmena instalada! ({0}/3)
+🐰 Caught a rabbit! Sent to the farm ({0}/{1})	🐰 ¡Atrapaste un conejo! Enviado a la granja ({0}/{1})
+🐴 The horse bolts! ({0} left)	🐴 ¡El caballo se desboca! (quedan {0})
+👻 The ghost got you! HP −{0} — run home!	👻 ¡El fantasma te atrapó! PV −{0} — ¡corre a casa!
+💊 Nurse · Treatment (full HP, {0}G)	💊 Enfermera · Tratamiento (PV completos, {0}G)
+💊 Treated! Full HP (−{0}G)	💊 ¡Curada! PV completos (−{0}G)
+💢 Grabbed by a bandit! HP −{0} · lost {1}G — bat them twice!	💢 ¡Te atrapó un bandido! PV −{0} · perdiste {1}G — ¡golpéalo dos veces con el bate!
+💢 Hit by {0}! HP −{1} (HP {2})	💢 ¡Te golpeó {0}! PV −{1} (PV {2})
+💥 Bitten by a big bug! HP −{0} — bop it with the bat first!	💥 ¡Te mordió un bicho grande! PV −{0} — ¡golpéalo primero con el bate!
+💥 Critical! −{0} (HP {1})	💥 ¡Crítico! −{0} (PV {1})
+💥 Defeated! +{0}G{1} ({2} left)	💥 ¡Derrotado! +{0}G{1} (quedan {2})
+💧 Water · {0} {1}/{2}	💧 Regar · {0} {1}/{2}
+💧 Watered — {0} is ready!	💧 Regado — ¡{0} está listo!
+💧 Watered — {0} {1}/{2}	💧 Regado — {0} {1}/{2}
+💰 Deposited {0}G — {1}% interest a week	💰 Depositaste {0}G — {1}% de interés semanal
+💰 Sell all  +{0}G	💰 Vender todo  +{0}G
+💰 Sell cows ({0})	💰 Vender vacas ({0})
+💰 Sell pigs ({0})	💰 Vender cerdos ({0})
+💰 Sold {0}! +{1}G	💰 ¡Vendiste {0}! +{1}G
+💰 Sold! +{0}G (now {1}G)	💰 ¡Vendido! +{0}G (ahora {1}G)
+💵 Withdrew {0}G	💵 Retiraste {0}G
+💸 Not enough ({0}G short)	💸 No alcanza (faltan {0}G)
+📖 New entry! {0}	📖 ¡Nueva entrada! {0}
+📜 {0}'s request	📜 Pedido de {0}
+📜 {0}'s request done! Go talk — {1}	📜 ¡Pedido de {0} completado! Ve a hablar — {1}
+🔥 Stove burned a log — cozy home, condition +3 ({0} left)	🔥 La estufa quemó un tronco — casa acogedora, condición +3 (quedan {0})
+🔥 Stove firewood (wood {0} · fuel {1}w)	🔥 Leña para la estufa (madera {0} · combustible {1} sem)
+😌 Stress −{0}	😌 Estrés −{0}
+🚌 Arrived: {0}	🚌 Llegaste: {0}
+🚓 Caught by the police! HP −{0} · fine {1}G — run to lose them	🚓 ¡Te atrapó la policía! PV −{0} · multa {1}G — corre para perderlos
+🛍 Bought (−{0}G)	🛍 Comprado (−{0}G)
+🛣 Lay road — {0}G a tile, auto-move follows roads	🛣 Construir camino — {0}G por casilla, el auto-movimiento sigue los caminos
+🛣 No road reaches {0}. Lay tiles ({1}G each) with the Road tool.	🛣 Ningún camino llega a {0}. Coloca casillas ({1}G c/u) con la herramienta Camino.
+🛣 Not enough money ({0}G a tile)	🛣 No alcanza el dinero ({0}G por casilla)
+🛣 Road tile −{0}G ({1} tiles · {2}G left)	🛣 Casilla de camino −{0}G ({1} casillas · quedan {2}G)
+🛣 Road: press action on the green tile → {0}G	🛣 Camino: pulsa acción en la casilla verde → {0}G
+🥚 Collect {0} eggs	🥚 Recoge {0} huevos
+🥚 Collected {0} eggs! ({1} in bag)	🥚 ¡Recogiste {0} huevos! ({1} en la bolsa)
+🥛 {0} milk!	🥛 ¡{0} de leche!
+🥥 {0} coconut(s) fell → bag	🥥 Cayeron {0} coco(s) → bolsa
+🪓 {0} logs dropped · stamina +1 · {1}/3	🪓 Cayeron {0} troncos · energía +1 · {1}/3
+🪜 Up to B{0}	🪜 Subir a B{0}
+🫙 {0} jars of syrup!	🫙 ¡{0} frascos de jarabe!
+Scraped knees	Rodillas raspadas
+We both fell on the bend by the stone wall.	Nos caímos los dos en la curva del muro de piedra.
+Brush off the kid's knees first	Primero le sacudo las rodillas al niño
+Pick up the board first	Levanto primero la tabla
+Sit there and catch my breath	Me siento a recobrar el aliento
+The kid said “Doesn't hurt” twice.	El niño dijo «no duele» dos veces.
+One wheel spun loose. It still rolled.	Una rueda giraba suelta. Aun así rodaba.
+The top of the tower looked red in the sunset.	La punta de la torre se veía roja con el atardecer.
+The hill road	El camino de la colina
+The lady held my hand up the hill. The kid held the other.	La señora me llevó de la mano cuesta arriba. El niño me tomó la otra.
+Hold the lady's hand tight	Aprieto la mano de la señora
+Look back at the kid	Me vuelvo hacia el niño
+Her palm was rough. It smelled of seawater.	Tenía la palma áspera. Olía a mar.
+The kid pulled his hood down and watched his feet.	El niño se bajó la capucha y caminó mirándose los pies.
+The white shirt went toward the tower, the lady toward the post. The kid holds my sleeve.	La camisa blanca fue hacia la torre; la señora, hacia el puesto. El niño me agarra la manga.
+Take a few steps after the white shirt	Doy unos pasos tras la camisa blanca
+Stay beside the kid	Me quedo junto al niño
+Only his back. The two bottles clinked.	Solo vi su espalda. Las dos botellas tintinearon.
+Only then did the kid let go. “Good.”	Solo entonces el niño me soltó. —Bien hecho.
+The calendar	El calendario
+Every day I drew an X. Only the circled day stayed blank.	Cada día tachaba con una X. Solo dejaba en blanco el día del círculo.
+Draw today's X	Tacho el día de hoy
+Count the days left	Cuento los días que quedan
+The pencil tip went blunt.	La punta del lápiz se desgastó.
+I lost count and started over.	Me perdí y volví a empezar.
+The empty net bag	La red vacía
+Instead of conches, the lady searched rock cracks and old nets.	En vez de caracolas, la señora solo revolvía grietas y redes viejas.
+Look into the rock cracks too	Yo también miro entre las rocas
+Hold the conch to my ear	Me acerco la caracola al oído
+A small crab hid in a drained crack.	En una grieta sin agua se escondía un cangrejo.
+It sounded like the sea. The lady laughed when she saw.	Sonó como el mar. La señora se rió al verme.
+Three faces in the frost	Tres caras en la escarcha
+One for the kid, one for me. The kid drew one more.	Una para el niño, otra para mí. El niño dibujó una más.
+Draw a smile on the third face	Le dibujo una sonrisa a la tercera cara
+Beside me, the kid folded one eye shut.	A mi lado, el niño cerró un ojo.
+The glass cleared. The snowman stood outside.	El cristal se aclaró. Afuera estaba el muñeco de nieve.
+“Let's eat”	«Vamos a comer»
+A note on the porch: “Let's eat.” Steam rose from two bowls of soup.	Una nota en el porche: «Vamos a comer». De los dos cuencos subía vapor.
+Sit beside Mom	Me siento junto a mamá
+Trace the note with my finger	Repaso la nota con el dedo
+Mom set out two spoons.	Mamá puso dos cucharas.
+My finger went through the paper. The words stayed.	El dedo atravesó el papel. Las letras siguieron allí.
+A crooked red heart on the shell. “Don't lose it.”	Un corazón rojo torcido en la concha. —No la pierdas.
+A radio with a heart drawn by the dial. The needle rests at 89.2.	Una radio con un corazón junto al dial. La aguja se detiene en 89.2.
+The blue gem headband in the yellow tin. Never worn.	La diadema de piedras azules en la lata amarilla. Sin estrenar.
+💡 A K-POP run (title screen) pays about 700G — same wallet. Jobs and fishing pay 100–350G a day.	💡 Una carrera K-POP (pantalla de inicio) da unos 700G — va a la misma cartera. Trabajos y pesca dan 100–350G al día.
+Sis, you don't smile lately. Let's walk the oreum or swim in the sea. Café brunch works too.	Hermana, ya no sonríes. ¿Vamos al oreum o a nadar al mar? El brunch también vale.
+🍚 Kid	🍚 Niño
+Sis, did you eat? There's food on the table. Skip it and you'll be hungry all week.	Hermana, ¿has comido? Hay comida en la mesa. Si te la saltas, tendrás hambre toda la semana.
+🍚 Eat first	🍚 Comer primero
+💤 Just sleep	💤 Dormir ya
+Sis, there's no food at home. Buy some at the shop or have café brunch. Skip it and you'll be hungry all week.	Hermana, no hay comida en casa. Compra algo en la tienda o toma el brunch del café. Si no comes, tendrás hambre toda la semana.
+Okay	Vale
+East meadow lot	Terreno del prado este
+Pavilion lot	Terreno junto al pabellón
+West field lot	Terreno del campo oeste
+Hill-view lot	Terreno con vista a la colina
+Finish {0} m	hasta {0} m

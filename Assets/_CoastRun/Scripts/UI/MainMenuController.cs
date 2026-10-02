@@ -1195,7 +1195,7 @@ namespace CoastRun
             _creditsPanel = CreateOverlayPanel(root, "Credits");
             CreateLabel(_creditsPanel.transform, "T", "크레딧", 28, FontStyle.Bold,
                 Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
-            CreateLabel(_creditsPanel.transform, "B", "Coast Run\n우리의 송전탑", 20, FontStyle.Normal,
+            CreateLabel(_creditsPanel.transform, "B", "Our Frequency\n너와 나의 주파수", 20, FontStyle.Normal,
                 new Color(0.85f, 0.9f, 0.95f), new Vector2(0.5f, 0.5f), new Vector2(480f, 120f));
             CreateMenuButton(_creditsPanel.transform, "닫기", 0.12f, () =>
             {
@@ -1263,7 +1263,7 @@ namespace CoastRun
             }));
             codeLabel = codeBtn.GetComponentInChildren<Text>();
             if (codeLabel != null) codeLabel.text = SecretText();
-            CreateLabel(_settingsPanel.transform, "Ver", "v0.9  ·  Coast Run · Jeju", 14, FontStyle.Normal,
+            CreateLabel(_settingsPanel.transform, "Ver", "v1.0  ·  Our Frequency · Jeju", 14, FontStyle.Normal,
                 new Color(1f, 0.95f, 0.85f, 0.55f), new Vector2(0.5f, 0.235f), new Vector2(400f, 24f));
             CreateMenuButton(_settingsPanel.transform, Loc.T("닫기", "Close"), 0.12f, () =>
             {
@@ -1283,7 +1283,7 @@ namespace CoastRun
         private string SecretText() => (Loc.IsKo ? "비밀코드" : "Secret code") + (_gm != null && _gm.DevUnlockAll ? Loc.T("  ·  전부 열림", "  ·  all open") : "");
 
         // ── 언어 팝업 + 비밀코드 ──
-        public const string SecretCode = "1111";
+        public const string SecretCode = "69467713";   // 219차: 출시용 — 테스트 1111 대신 8자리(구글 심사자 전달용). 유료·기부 선물까지 전부 연다
         private GameObject _codeModal;
         private GameObject _langModal;
 
@@ -1345,7 +1345,8 @@ namespace CoastRun
             System.Action refresh = () =>
             {
                 var sb = new System.Text.StringBuilder();
-                for (int i = 0; i < 4; i++) { sb.Append(i < entered.Length ? entered[i].ToString() : "_"); if (i < 3) sb.Append(' '); }
+                int slots = Mathf.Max(4, entered.Length);   // 219차: 4칸 기본, 더 치면 늘어남
+                for (int i = 0; i < slots; i++) { sb.Append(i < entered.Length ? entered[i].ToString() : "_"); if (i < slots - 1) sb.Append(' '); }
                 shown.text = sb.ToString();
             };
             System.Action<string> press = key =>
@@ -1357,6 +1358,7 @@ namespace CoastRun
                     if (entered == SecretCode && _gm != null)
                     {
                         RecordTable.UnlockAll(_gm.Profile);
+                        _gm.Profile.donateGiftMask |= (int)Donation.Gift.HiddenTrack | (int)Donation.Gift.UnlockAll | (int)Donation.Gift.Ost;   // 219차: 심사용 — 기부 선물(히든 트랙·OST)까지
                         _gm.WriteProfileNow();
                         var save = _gm.PeekSave();
                         if (save != null)
@@ -1382,7 +1384,7 @@ namespace CoastRun
                     else { hint.text = Loc.T("아니야", "Nope"); hint.color = new Color(0.8f, 0.2f, 0.2f); entered = ""; refresh(); }
                     return;
                 }
-                if (entered.Length >= 4) return;
+                if (entered.Length >= 8) return;   // 219차: 심사용 8자리 코드 (기부 패스코드는 4자리)
                 entered += key; refresh();
             };
             string[] keys = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "←", "0", "OK" };

@@ -12,6 +12,11 @@ namespace CoastRun.Village
     public class FishingMini : MonoBehaviour
     {
         public static int RodTier;
+        // 217차(마감 B4): 낚시 화면에 주인공(뒷모습·낚싯대)과 낚싯줄 — VillageHub 가 열기 전에 채운다
+        public static Transform Player, Rod; public static Action OnCast;
+        float _castT = -1f;
+        const int ViewLayer = 30;
+        Camera _vCam; RenderTexture _vRt; RawImage _view; RectTransform _line; readonly System.Collections.Generic.List<(GameObject go, int layer)> _vLayers = new System.Collections.Generic.List<(GameObject, int)>();
         public static bool DevAuto;   // 198차 테스트용: 입질·릴 자동   // 198차: 낚싯대 등급 — 귀한 물고기 확률↑
         public const int CastsPerPhase = 5;
         struct Fish { public string ko, en; public int coins; public float weight, hard; public Color col; }
@@ -122,9 +127,65 @@ namespace CoastRun.Village
             _btnT.resizeTextForBestFit = true; _btnT.resizeTextMinSize = 16; _btnT.resizeTextMaxSize = CoastHudLayout.Scaled(34);
             _btn = _btnImg.gameObject.AddComponent<Button>(); _btn.transition = Selectable.Transition.None; _btn.onClick.AddListener(OnBtn);
             var hold = _btnImg.gameObject.AddComponent<HoldRelay>(); hold.Down = () => _holding = true; hold.Up = () => _holding = false;
+            BuildView();
             SetIdle();
         }
         RectTransform _progHost;
+
+        void BuildView()
+        {
+            if (Player == null) return;
+            foreach (var tr in Player.GetComponentsInChildren<Transform>(true)) { _vLayers.Add((tr.gameObject, tr.gameObject.layer)); tr.gameObject.layer = ViewLayer; }
+            var cg = new GameObject("FishViewCam"); cg.transform.SetParent(transform, false);
+            _vCam = cg.AddComponent<Camera>(); _vCam.clearFlags = CameraClearFlags.SolidColor; _vCam.backgroundColor = new Color(0f, 0f, 0f, 0f);
+            _vCam.cullingMask = 1 << ViewLayer; _vCam.fieldOfView = 44f; _vCam.nearClipPlane = 0.1f; _vCam.farClipPlane = 30f; _vCam.allowHDR = false; _vCam.depth = -5;
+            var cd = cg.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>(); cd.renderPostProcessing = false; cd.renderShadows = false;
+            _vRt = new RenderTexture(480, 600, 16, RenderTextureFormat.ARGB32); _vCam.targetTexture = _vRt;
+            var vg = new GameObject("PlayerView", typeof(RawImage)); _view = vg.GetComponent<RawImage>(); _view.texture = _vRt; _view.raycastTarget = false;
+            var vrt = _view.rectTransform; vrt.SetParent(_root, false); vrt.SetSiblingIndex(3);
+            vrt.anchorMin = vrt.anchorMax = new Vector2(0f, 0f); vrt.pivot = new Vector2(0f, 0f); vrt.anchoredPosition = new Vector2(-6f, 150f); vrt.sizeDelta = new Vector2(360f, 450f);
+            var lg = CoastUiArt.Panel(_root, "Line", new Color(1f, 1f, 1f, 0.85f), 1); lg.raycastTarget = false;
+            _line = lg.rectTransform; _line.anchorMin = _line.anchorMax = new Vector2(0.5f, 0.5f); _line.pivot = new Vector2(0f, 0.5f); _line.SetSiblingIndex(4);
+            _line.gameObject.SetActive(false);
+        }
+
+        void LateUpdate()
+        {
+            if (_vCam == null || Player == null) return;
+            // 주인공 오른쪽 뒤 위에서 바다 쪽을 내려다본다
+            var f = Player.forward; f.y = 0f; f = f.sqrMagnitude > 0.001f ? f.normalized : Vector3.forward; var r = Vector3.Cross(Vector3.up, f);
+            _vCam.transform.position = Player.position + Vector3.up * 1.45f - f * 1.9f + r * 0.7f;
+            _vCam.transform.LookAt(Player.position + Vector3.up * 0.75f + f * 0.5f);
+            // 낚싯대: 손에 쥔 끝에서 바다 쪽 위로(던질 때 뒤로 젖혔다 앞으로) — 모형은 원점이 대 가운데, 길이 약 1.06 m
+            Vector3? tip = null;
+            if (Rod != null && Rod.parent != null)
+            {
+                float pitch = 0f;
+                if (_castT >= 0f) { _castT += Time.deltaTime; float t = _castT; pitch = t < 0.22f ? -Mathf.SmoothStep(0f, 1f, t / 0.22f) : t < 0.36f ? Mathf.Lerp(-1f, 0.6f, (t - 0.22f) / 0.14f) : Mathf.Lerp(0.6f, 0f, Mathf.Clamp01((t - 0.36f) / 0.3f)); if (t > 0.7f) _castT = -1f; }
+                var dir = Quaternion.AngleAxis(pitch * 45f, r) * (f * 0.62f + Vector3.up * 0.72f + r * 0.18f).normalized;
+                Rod.rotation = Quaternion.FromToRotation(Vector3.up, dir);
+                Rod.position = Rod.parent.position + dir * 0.5f;
+                tip = Rod.position + dir * 0.53f;
+            }
+            if (_bobber == null || !_bobber.gameObject.activeSelf) tip = null;
+            if (tip.HasValue)
+            {
+                var vp = _vCam.WorldToViewportPoint(tip.Value); var vr = _view.rectTransform; var rc = vr.rect;
+                var a = (Vector2)_root.InverseTransformPoint(vr.TransformPoint(new Vector3(rc.xMin + vp.x * rc.width, rc.yMin + vp.y * rc.height, 0f)));
+                var b = (Vector2)_root.InverseTransformPoint(_bobber.TransformPoint(Vector3.zero));
+                var d = b - a; _line.anchoredPosition = a - (Vector2)_root.rect.center; _line.sizeDelta = new Vector2(d.magnitude, 3f);
+                _line.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg);
+            }
+            if (_line.gameObject.activeSelf != tip.HasValue) _line.gameObject.SetActive(tip.HasValue);
+        }
+
+        void OnDestroy()
+        {
+            foreach (var (go, layer) in _vLayers) if (go != null) go.layer = layer;
+            _vLayers.Clear();
+            if (_vCam != null) _vCam.targetTexture = null;
+            if (_vRt != null) { _vRt.Release(); Destroy(_vRt); }
+        }
 
         void SetIdle()
         {
@@ -149,6 +210,7 @@ namespace CoastRun.Village
         {
             _state = 1; Save.villageFishCasts++; _gm.Persist();
             _castsT.text = Loc.T($"남은 던지기 {CastsLeft}/{CastsPerPhase}", $"Casts left {CastsLeft}/{CastsPerPhase}");
+            OnCast?.Invoke(); _castT = 0f;   // 217차: 주인공 던지기 동작 + 대 휘두르기
             _bobber.gameObject.SetActive(true); _btnT.text = Loc.T("기다리는 중…", "Waiting…"); _msg.text = "";
             // 찌 날아가기
             float t = 0f; var from = new Vector2(0f, 420f); var to = new Vector2(UnityEngine.Random.Range(-160f, 160f), UnityEngine.Random.Range(-40f, 60f));

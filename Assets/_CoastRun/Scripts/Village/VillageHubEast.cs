@@ -339,6 +339,7 @@ namespace CoastRun.Village
             if (Save.stats.money < item.price) { _hud.Bubble(Loc.T("사장님", "Owner"), Loc.T($"{item.price}G 가 필요해요. 돈이 모자라네~", $"That's {item.price}G — not enough coins.")); return; }
             if (Save.stats.stamina >= max) { _hud.Bubble(Loc.T("사장님", "Owner"), Loc.T("배가 꽉 찼네! 체력이 가득해요. 다음에 또 와요.", "You're full — HP is maxed. Come again!")); return; }
             int before = Save.stats.stamina;
+            Save.ateThisWeek = true;   // 221차: 브런치도 이번 주 식사로 친다(안 치면 주말에 「식사를 안 했다」)
             Save.stats.money -= item.price; Save.stats.stamina = Mathf.Min(max, Save.stats.stamina + item.hp); Save.stats.stress = Mathf.Max(0, Save.stats.stress - item.stress); Save.stats.Clamp();
             _gm.Persist(); RefreshStatus();
             VillagePang.Burst(_player.position + Vector3.up * 1.0f, new Color(1f, 0.70f, 0.30f), Color.white, 1.0f);

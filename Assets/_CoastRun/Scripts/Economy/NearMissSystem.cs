@@ -11,11 +11,13 @@ namespace CoastRun
         [SerializeField] private CoinWallet wallet;
         [SerializeField] private UpgradeManager upgrades;
         [SerializeField] private UI_FeedbackController feedback;
-        [SerializeField] private int comboWindowFrames = 90;
+        [SerializeField] private int comboWindowFrames = 90;   // (안 씀 — 228차부터 초 단위 comboWindowSeconds)
+        // 228차: 콤보 창을 프레임(60fps 1.5초 · 30fps 3초 — 폰마다 달랐음) → 초 단위로
+        private const float comboWindowSeconds = 3f;
         [SerializeField] private float comboBonusPerStack = 0.15f;
 
         private int _combo;
-        private int _comboExpireFrame;
+        private float _comboExpireTime = -1f;
 
         public int Combo => _combo;
         public event Action<int, int, Vector3> OnNearMissRewarded; // reward, combo, worldPos
@@ -50,12 +52,12 @@ namespace CoastRun
 
         public void CompletePass(NearMissZone zone, int baseReward)
         {
-            if (Time.frameCount <= _comboExpireFrame)
+            if (Time.time <= _comboExpireTime)
                 _combo++;
             else
                 _combo = 1;
 
-            _comboExpireFrame = Time.frameCount + comboWindowFrames;
+            _comboExpireTime = Time.time + comboWindowSeconds;
 
             float mult = upgrades != null ? upgrades.GetCoinMultiplier() : 1f;
             float comboMult = 1f + (_combo - 1) * comboBonusPerStack;

@@ -18,7 +18,7 @@ namespace CoastRun.Village
         GameManager _gm; RaisingSceneDriver _driver;
         Transform _world, _player, _rigT, _yardHost; CharacterController _cc; SkaterRig _rig; Animator _anim; Camera _cam; CharacterMotion _motion; Vector3 _vel, _acc;
         VillageHud _hud; readonly List<Spot> _spots = new List<Spot>(); Spot _near; Transform _nearTree; int _nearTreeIdx = -1;
-        bool _moving; float _idleT; Vector3 _camVel; bool _busy; bool _yard; string _yardPick; float _yardRot; Transform _ghost; Canvas _yardCanvas; RectTransform _yardTray; Text _yardHint;
+        bool _moving; float _idleT, _idleFaceT; Vector3 _camVel; bool _busy; bool _yard; string _yardPick; float _yardRot; Transform _ghost; Canvas _yardCanvas; RectTransform _yardTray; Text _yardHint;
         VillageCreatures _creatures; VillageMap _map; bool _bat, _axe, _pick, _rod, _road; /* 150차: 도끼(장작) · 154차: 곡괭이(돌) · 168차: 낚싯대 */ Transform _nearRock; int _nearRockIdx = -1; float _doorCooldown; Transform _toolVis;
 
         SaveData Save => _gm != null ? _gm.Save : null;
@@ -114,7 +114,9 @@ namespace CoastRun.Village
             InitStory();   // 196차: 송전탑 위 기상 도입 · 이야기 장소
             InitFun205();   // 205차: 하루 정산 기준점 · 생일 알림
             InitBond214(); if (_cgAnnounce) StartCoroutine(CgAnnounceCo());   // 214차: 꼬마와의 약속(챕터)
-            CoastToast.Show(Loc.T("조이스틱으로 걸어다니고, 가까이 가면 뜨는 분홍 버튼으로 들어가자!", "Walk with the joystick — tap the pink prompt to enter a place!"));
+            // 220차(연결 점검): 러닝·잠에서 돌아올 때마다 뜨던 조작 안내 — 처음 세 번만
+            { int seen = PlayerPrefs.GetInt("CoastRun.VillageHint220", 0); if (seen < 3 && Save != null && Save.prologueSeen) { PlayerPrefs.SetInt("CoastRun.VillageHint220", seen + 1); CoastToast.Show(Loc.T("조이스틱으로 걸어다니고, 가까이 가면 뜨는 분홍 버튼으로 들어가자!", "Walk with the joystick — tap the pink prompt to enter a place!")); } }
+            StartCoroutine(ClearRoadsSoon());   // 220차: 길 위 소품 비키기
             Debug.LogWarning($"[Load213] VillageHub.Start total {sw213.ElapsedMilliseconds} ms (since scene start {Time.realtimeSinceStartup:0.0}s)");
         }
 
@@ -139,7 +141,7 @@ namespace CoastRun.Village
             _cc.center = new Vector3(0f, 0.62f, 0f); _cc.slopeLimit = 50f; _cc.stepOffset = 0.28f;
             go.AddComponent<CcHitLog>();   // 149차 진단: 마지막으로 부딪힌 콜라이더
             var rigHost = new GameObject("Rig").transform; rigHost.SetParent(_player, false); _rigT = rigHost;
-            _rig = SkaterRig.Spawn(rigHost, 1.25f, true);
+            _rig = SkaterRig.Spawn(rigHost, 1.19f, true);   // 230차(사용자: 「크기 1.06배」): 1.12 → 1.19   // 219차(사용자: 「스토리 모드 캐릭터 조금 더 작게」): 1.25 → 1.12(약 10%)
             // 141차: 절차 모션(바운스·기울기·스쿼시·발먼지·고개)
             _motion = rigHost.gameObject.AddComponent<CharacterMotion>(); _motion.WalkSpeed = 2.46f; _motion.RunSpeed = 5.46f;   // 159차: +20%
             if (_rig != null)
@@ -148,7 +150,8 @@ namespace CoastRun.Village
                 foreach (var smr in _rig.GetComponentsInChildren<SkinnedMeshRenderer>()) if (smr.GetComponent<CelOutlineHint>() == null) smr.gameObject.AddComponent<CelOutlineHint>();   // 138차: 잉크 윤곽
                 StartCoroutine(AttachFace());   // 155차: 클링 생성 얼굴 데칼(큰 눈·홍조·미소)
             }
-            else CoastFigureMesh.BuildHaneul(rigHost, 1.25f);
+            else CoastFigureMesh.BuildHaneul(rigHost, 1.19f);
+            rigHost.gameObject.AddComponent<HeroCrisp>();   // 229차: 마을 소프트 룩 속에서도 주인공만 또렷하게(셀 명암·테두리빛·윤곽)
             // 발밑 그림자
 GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         }
@@ -157,7 +160,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             _cam = Camera.main;
             if (_cam == null) { var go = new GameObject("Main Camera"); go.tag = "MainCamera"; _cam = go.AddComponent<Camera>(); go.AddComponent<AudioListener>(); }
-            _cam.orthographic = false; _cam.fieldOfView = 50f; _cam.nearClipPlane = 0.2f; _cam.farClipPlane = 420f;   // 161차: FOV 46→50(배경 넓게), 근평면 0.2(벽 안으로 당겨질 때 잘림 최소) · 146차: 피치 ≈20° + 방사형 곡면(CurveK)으로 디오라마
+            _cam.orthographic = false; _cam.fieldOfView = 53f; _cam.nearClipPlane = 0.2f; _cam.farClipPlane = 420f;   // 161차: FOV 46→50(배경 넓게), 근평면 0.2(벽 안으로 당겨질 때 잘림 최소) · 146차: 피치 ≈20° + 방사형 곡면(CurveK)으로 디오라마
             _cam.clearFlags = CameraClearFlags.SolidColor; _cam.backgroundColor = new Color(0.68f, 0.85f, 0.98f);
             if (_cam.GetComponent<CoastPortraitViewport>() == null) _cam.gameObject.AddComponent<CoastPortraitViewport>();
             var camData = _cam.GetComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>() ?? _cam.gameObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
@@ -172,7 +175,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         public const float CurveK = 0.0018f;   // 방사형 곡률(m/m²): 40 m 에서 2.9 m, 60 m 에서 6.5 m 아래로 — 피치 20°·FOV 46 에서 수평선이 화면 31% 에 온다   // 141차: 크게 방향을 바꿀 때 카메라가 바깥 큰 원을 돌지 않게 — 가까이·높게 붙었다가 다시 멀어진다
         // 161차(사용자: 「캐릭터가 화면을 너무 차지 — 배경 넓게, 주인공 작게」): 뒤 8.8→12.6 m · 높이 4.5→6.4 m(피치 ≈ 같음) · 시선 1.6→2.4 m 앞.
         // 주인공은 화면 높이의 ≈14%(전엔 ≈20%), 폰 세로 화면에서 앞길이 2.4 배 더 보인다. FOV 는 BuildCamera 에서 46→50.
-        public static float CamBack = 12.6f, CamHeight = 6.4f, CamAhead = 2.4f;
+        // 219차(사용자: 「지도 조금 더 넓게」): 뒤 12.6→14.0 m · 높이 6.4→7.1 m(피치 거의 같음) · FOV 50→53(BuildCamera).
+        // 230차(사용자: 「목장이야기처럼 — 카메라 위에서 비스듬히, 얼굴·옷 앞이 보이게」): 뒤 14.0→13.2 m · 높이 7.1→9.0 m → 내려다보는 각 ≈21°→28°.
+        //   주인공까지 거리(≈15.5 m)는 거의 같고, 수평선은 화면 위 ≈25% 에 남는다(예전 ≈35%).
+        public static float CamBack = 13.2f, CamHeight = 9.0f, CamAhead = 2.4f;
         Vector3 CamTarget => CamTargetAt(_camYaw + _camDodge);
         Vector3 CamTargetAt(float yaw)
         {
@@ -180,7 +186,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             float back = Mathf.Lerp(Mathf.Lerp(-CamBack, -5.2f, _swingK), -7.2f, _camLowK);
             // 172차: 벽에 바짝 붙어 어느 각도도 못 쓰면(집 문 앞 등) 위에서 내려다본다 — 벽 텍스처가 화면을 덮는 것보다 낫다
             hgt = Mathf.Lerp(hgt, 9.5f, _camHighK); back = Mathf.Lerp(back, -4.5f, _camHighK);
-            if (_dun != null && _dun.Active && VillageDungeon.Contains(_player.position)) { hgt = 11f; back = -8.5f; }   // 199차: 갱도에선 비스듬히 내려다본다(벽 너머 하늘·벽에 가리지 않게)
+            if (_dun != null && _dun.Active && VillageDungeon.Contains(_player.position)) { hgt = 12.5f; back = -7.2f; }   // 217차: 11/8.5 → 12.5/7.2 더 내려다봐 벽 너머 검은 빈 공간을 줄임 · 199차: 갱도에선 비스듬히 내려다본다(벽 너머 하늘·벽에 가리지 않게)
             return _player.position + Quaternion.Euler(0f, yaw, 0f) * new Vector3(0f, hgt, back);
         }
         Vector3 CamLook => CamLookAt(_camYaw + _camDodge);
@@ -277,6 +283,15 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (!locked && _picks != null && Time.frameCount % 5 == 0) { foreach (var pk in _picks) { if (pk.go == null) continue; if (Vector3.Distance(new Vector3(_player.position.x, 0f, _player.position.z), new Vector3(pk.pos.x, 0f, pk.pos.z)) < 1.2f) { TakePick(pk); break; } } }
             bool moving = _vel.magnitude > 0.15f;
             _moving = moving;
+            // 230차: 멈춰 선 지 1.6초 지나면 카메라 쪽으로 비스듬히(3/4) 돌아서 얼굴·옷 앞이 보이게(목장이야기처럼).
+            //   걷기·자동이동·대화·도구·이야기·실내 중엔 하지 않는다. 다시 걸으면 진행 방향으로 바로 돌아선다.
+            if (moving || locked || _storyPlaying || _interior != null || _walkTo.HasValue || _autoCo != null || _swingEnv > 0.001f || mag > 0.05f) _idleFaceT = 0f;
+            else _idleFaceT += dt;
+            if (_idleFaceT > 1.6f)
+            {
+                var want = Quaternion.Euler(0f, _camYaw + 180f + 32f, 0f);
+                _player.rotation = Quaternion.RotateTowards(_player.rotation, want, dt * 170f);
+            }
             // 155차: 밤낮 — 팝업·이벤트 중엔 시계 멈춤, 밤이면 귀신(시간 지날수록 1→3), 20:00 에 한 번 경고
             if (_dayNight != null)
             {
@@ -287,9 +302,16 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                     float h = _dayNight.Hour < 6f ? _dayNight.Hour + 24f : _dayNight.Hour;
                     int want = h < 20.5f ? 0 : h < 22f ? 1 : h < 23.5f ? 2 : 3;
                     if (_creatures.GhostCount < want && Time.time > _ghostSpawnAt) { _creatures.SpawnGhost(); _ghostSpawnAt = Time.time + 6f; }
-                    if (!_nightWarned) { _nightWarned = true; _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("밤이다… 귀신이 나올 시간이야. 빨리 우리집으로 돌아가자! (상점도 닫혔어)", "It's night… ghosts come out now. Run home! (Shop's closed too)")); }
+                    if (!_nightWarned && !_busy && !locked) { _nightWarned = true; _hud.Bubble(Loc.T("하늘", "Haneul"), Loc.T("밤이다… 귀신이 나올 시간이야. 빨리 우리집으로 돌아가자! (상점도 닫혔어)", "It's night… ghosts come out now. Run home! (Shop's closed too)")); }
                 }
                 else if (!_dayNight.IsNight) _nightWarned = false;
+            }
+            // 221차: 스트레스가 지침(55) 바로 앞 50 을 넘으면 푸는 곳을 알려 준다 — 한 주에 한 번, 처음 세 번만
+            if (!locked && !_busy && Save != null && Save.stats.stress >= 50 && _stressHintWeek != Save.week && !_hud.PopupOpen)
+            {
+                _stressHintWeek = Save.week;
+                int sh = PlayerPrefs.GetInt("CoastRun.StressHint221", 0);
+                if (sh < 3) { PlayerPrefs.SetInt("CoastRun.StressHint221", sh + 1); _hud.Bubble(Loc.T("꼬마", "Kid"), Loc.T("누나, 요즘 안 웃어. 오름 산책이나 바다 수영 가자. 카페 브런치도 좋아.", "Sis, you don't smile lately. Let's walk the oreum or swim in the sea. Café brunch works too.")); }
             }
             // 지나치는 풀·덤불 흔들기
             if (moving && Time.frameCount % 6 == 0) WindSway.NudgeNear(_player.position, 1.1f);
@@ -304,34 +326,10 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (_cam == null || _player == null) return;
             if (_storyCam) { StoryCamTick(); return; }   // 196차: 도입 연출 카메라
-            // 154차: 휘두르는 동안 오른팔을 캐릭터 기준 앞/위로 들어 올림(애니메이터 위에 덧씌움)
-            if (_swingArm != 0f && _anim != null && _anim.avatar != null && _anim.avatar.isHuman)
-            {
-                var ua = _anim.GetBoneTransform(HumanBodyBones.RightUpperArm); var la = _anim.GetBoneTransform(HumanBodyBones.RightLowerArm); var sp = _anim.GetBoneTransform(HumanBodyBones.Spine);
-                if (_swingStyle == 1)
-                {
-                    // 171차 잠자리채: 팔을 어깨 높이로 들고(앞으로 70°) 오른쪽 바깥(−75°)에서 왼쪽(+60°)으로 수평으로 쓸어 온다. 몸통도 같이 20° 돈다
-                    float sweep = _swingArm;   // −1(오른쪽 뒤) → +1(왼쪽 앞)
-                    if (sp != null) sp.rotation = Quaternion.AngleAxis(sweep * 22f, Vector3.up) * sp.rotation;
-                    if (ua != null) ua.rotation = Quaternion.AngleAxis(sweep * 68f, Vector3.up) * Quaternion.AngleAxis(-75f, _player.right) * ua.rotation;
-                    if (la != null) la.rotation = Quaternion.AngleAxis(-15f + Mathf.Max(0f, sweep) * 20f, _player.right) * la.rotation;
-                }
-                else if (_swingStyle == 2)
-                {
-                    // 171차 낚싯대: 뒤로 젖혔다가(어깨 뒤 +40°) 앞으로 던진다(−100°). 몸통은 살짝 앞으로
-                    float cast = _swingArm;   // −1 뒤로 젖힘 → +1 던짐
-                    if (sp != null) sp.rotation = Quaternion.AngleAxis(Mathf.Max(0f, cast) * 12f, _player.right) * sp.rotation;
-                    if (ua != null) ua.rotation = Quaternion.AngleAxis(-40f - cast * 70f, _player.right) * ua.rotation;
-                    if (la != null) la.rotation = Quaternion.AngleAxis(-Mathf.Max(0f, -cast) * 45f, _player.right) * la.rotation;
-                }
-                else
-                {
-                    float lift = Mathf.Clamp(-_swingArm, -0.6f, 1f);   // 위로 들 때 양수
-                    if (sp != null) sp.rotation = Quaternion.AngleAxis(Mathf.Max(0f, _swingArm) * 18f, _player.right) * sp.rotation;   // 171차: 내리찍을 때 상체도 숙인다
-                    if (ua != null) ua.rotation = Quaternion.AngleAxis(-lift * 120f - 20f, _player.right) * ua.rotation;
-                    if (la != null) la.rotation = Quaternion.AngleAxis(-Mathf.Max(0f, lift) * 30f, _player.right) * la.rotation;
-                }
-            }
+            // 154차 → 218차(사용자: 「휘두르는 움직임이 부자연스럽다」): 애니메이터 자세 위에 온몸 동작을 덧씌운다.
+            // 예전엔 팔만 돌렸고, 시작 순간 팔이 -20~-75° 로 「툭」 튀었다(고정 오프셋). 이제 _swingEnv(0→1→0)로 스며들고 빠지며,
+            // 골반·허리·가슴이 나눠 비틀고(허리 60 %·가슴 40 %), 반대팔이 균형을 잡고, 머리는 시선을 유지하려 반쯤 되돌린다.
+            if (_swingEnv > 0.001f && _anim != null && _anim.avatar != null && _anim.avatar.isHuman) ApplySwingPose();
             // 144차(사용자: 「좌우로 움직이면 획획 넘어감」): 카메라 방향은 좌우 이동에 따라 돌지 않는다(동물의 숲처럼 고정).
             // 카메라 쪽(뒤)으로 1.2 초 이상 계속 걸을 때만 목표 방향을 바꿔 천천히 돌아붙고, 그 외엔 진행 방향으로 살짝 기울기만.
             float dtc = Time.deltaTime; float pyaw = _player.eulerAngles.y;
@@ -390,6 +388,28 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             _camHighK = Mathf.MoveTowards(_camHighK, _camHighWant, Time.deltaTime * 2.0f);
             _camDodge = Mathf.MoveTowardsAngle(_camDodge, _camDodgeTarget, Time.deltaTime * 90f);
             var look = CamLook; var ct = CamTarget;
+            // 217차(마감 B1): 갱도 전투 — 보스·가까운 몹이 화면 위로 벗어나지 않게 시선을 둘 사이로 옮기고, 멀수록 조금 물러난다
+            {
+                Vector3 want = Vector3.zero; float wantBack = 0f;
+                if (_dun != null && _dun.Active && VillageDungeon.Contains(_player.position))
+                {
+                    var th = _dun.FrameTarget(_player.position, 13f);
+                    if (th.HasValue)
+                    {
+                        // 218차: 멀리(20 m) 있거나 카메라 쪽(뒤)에 있을 때도 둘 다 들어오게 — 거리만큼 물러나고, 뒤쪽이면 더 물러난다
+                        var d = th.Value - _player.position; d.y = 0f; float m = d.magnitude;
+                        var cf = Quaternion.Euler(0f, _camYaw + _camDodge, 0f) * Vector3.forward; float dep = Vector3.Dot(d, cf);
+                        want = d * (m > 10f ? 0.4f : 0.3f);
+                        wantBack = Mathf.Min(12f, Mathf.Max(0f, m - 3f) * 0.6f + Mathf.Max(0f, -dep) * 0.8f);
+                    }
+                }
+                float kk = 1f - Mathf.Exp(-Time.unscaledDeltaTime * 3f);   // 대화창 등으로 시간이 멈춰도 틀잡기는 진행
+                _dunFrame = Vector3.Lerp(_dunFrame, want, kk); _dunFrameBack = Mathf.Lerp(_dunFrameBack, wantBack, kk);
+                if (_dunFrame.sqrMagnitude > 0.0001f || _dunFrameBack > 0.01f)
+                {
+                    var away = ct - look; look += _dunFrame; ct = look + away * (1f + _dunFrameBack / Mathf.Max(1f, away.magnitude));
+                }
+            }
             // 140차: 카메라가 멀어진 만큼 지형·바다·건물 안으로 파고들지 않게 — 땅/바다 높이 클램프 + 구체 캐스트로 당기기
             float gy = VillageWorld.Height(ct.x, ct.z) + 1.6f; if (ct.y < gy) ct.y = gy;
             if (ct.y < VillageWorld.SeaLevel + 1.8f) ct.y = VillageWorld.SeaLevel + 1.8f;
@@ -459,7 +479,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             // 겹치기만 해도(거리 0) 숨겨졌다 → 주인공 머리에서 카메라로 쏘고, 시작부터 겹친 것(바로 옆에 닿은 것)은 가림이 아니므로 뺀다.
             var head = _player.position + new Vector3(0f, 1.0f, 0f);
             var d = cam - head; float len = d.magnitude; if (len < 0.5f) return;
-            var hits = Physics.SphereCastAll(head, 0.4f, d / len, len, ~0, QueryTriggerInteraction.Ignore);
+            int nHit = Physics.SphereCastNonAlloc(head, 0.4f, d / len, _occHits, len, ~0, QueryTriggerInteraction.Ignore);   // 218차: 할당 없는 버전(GC 끊김 방지)
             // 210차: 콜라이더 없는 야자수(관광단지·해변)가 주인공~카메라 사이에 있거나 카메라가 잎 속에 들어가면 숨긴다
             { var h2 = new Vector2(head.x, head.z); var c2 = new Vector2(cam.x, cam.z); var seg = c2 - h2; float sl = seg.magnitude;
               for (int pi = VillageHouses.Palms.Count - 1; pi >= 0; pi--)
@@ -471,8 +491,72 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                   if (!block) continue;
                   foreach (var r in pt.GetComponentsInChildren<Renderer>()) if (r != null && r.enabled) { r.enabled = false; _camHidden.Add(r); }
               } }
-            foreach (var hit in hits)
+            // 220차(연결 점검: 송전탑 담요 자리에서 돌아오면 옆집 빨간 지붕이 주인공을 덮음 · 가게 바로 뒤에서 가게가 화면을 가림):
+            //   지붕은 콜라이더가 없어 구체 캐스트에 안 걸린다 → 집·가게 경계 상자(지붕 높이 포함)가 시선을 가로막아도 그 집을 숨긴다.
+            if (_fades.Count > 0)
             {
+                var ray = new Ray(head, d / len);
+                foreach (var f in _fades)
+                {
+                    if (f.root == null || _occHouses.Contains(f.root)) continue;
+                    var bb = f.b; if (bb.Contains(head)) continue;
+                    if (bb.IntersectRay(ray, out float hd) && hd >= 0f && hd < len - 0.3f) _occHouses.Add(f.root);
+                }
+            }
+            // 220차: 큰 나무(소나무·귤나무) 잎이 시선을 막거나 카메라가 잎 속이면 그동안만 숨긴다(야자수와 같은 방식)
+            if (_treeOcc == null) ExtraOccluders();
+            { var h2 = new Vector2(head.x, head.z); var c2 = new Vector2(cam.x, cam.z); var seg = c2 - h2; float sl = seg.magnitude;
+              for (int ti = _treeOcc.Count - 1; ti >= 0; ti--)
+              {
+                  var tr = _treeOcc[ti]; if (tr == null) { _treeOcc.RemoveAt(ti); continue; }
+                  var p2 = new Vector2(tr.position.x, tr.position.z); if ((p2 - h2).sqrMagnitude > 900f) continue;
+                  float tt = sl > 0.01f ? Mathf.Clamp01(Vector2.Dot(p2 - h2, seg) / (sl * sl)) : 0f; float dd = (h2 + seg * tt - p2).magnitude;
+                  bool block = (tt > 0.08f && dd < 2.2f) || (p2 - c2).magnitude < 3.0f;
+                  if (!block) continue;
+                  foreach (var r in tr.GetComponentsInChildren<Renderer>()) if (r != null && r.enabled) { r.enabled = false; _camHidden.Add(r); }
+              } }
+            // 224차(통합 테스트: 버스 정류장에 서면 지붕이 주인공을 덮음): 카메라 → 머리 줄이 정류장 상자를 지나면 그동안 숨긴다(머리가 상자 안이어도)
+            if (_shelterOcc != null)
+            {
+                var ray2 = new Ray(cam, -d / len);
+                for (int si = _shelterOcc.Count - 1; si >= 0; si--)
+                {
+                    var st = _shelterOcc[si]; if (st == null) { _shelterOcc.RemoveAt(si); continue; }
+                    var sr = st.GetComponentsInChildren<Renderer>(); if (sr.Length == 0) continue;
+                    var sb2 = sr[0].bounds; foreach (var r in sr) if (r != null) sb2.Encapsulate(r.bounds);
+                    if ((new Vector2(sb2.center.x, sb2.center.z) - new Vector2(head.x, head.z)).sqrMagnitude > 100f) continue;
+                    if (!sb2.IntersectRay(ray2, out float sh) || sh > len - 0.3f) continue;
+                    foreach (var r in sr) if (r != null && r.enabled) { r.enabled = false; _camHidden.Add(r); }
+                }
+            }
+            // 225차(가림 점검에 남던 7곳): 엄마 집 마루 위(머리가 집 상자 안이라 집 페이드가 건너뜀)·송전탑 바로 밑에 서면
+            //   판자·철골이 주인공을 가렸다 → 집 전체가 아니라 카메라→머리 줄을 지나는 조각만 그동안 숨긴다.
+            {
+                var ray3 = new Ray(cam, -d / len);
+                // 230차: 카메라가 높아져(내려다보는 각 ≈28°) 머리 위 지붕·처마가 시선을 막는 곳이 생김 → 시선이 지나는 집은 모두 조각 단위로(지붕은 머리를 감싸도) 숨김
+                foreach (var f in _fades) if (f.root != null && (f.b.Contains(head) || (f.b.IntersectRay(ray3, out float fh) && fh < len))) HidePiecesOnRay(f.root, ray3, head, len);
+                if (_pavilions == null && _world != null) { _pavilions = new List<Transform>(); foreach (var tp in _world.GetComponentsInChildren<Transform>()) if ((tp.name.StartsWith("Prop_Jeongja") || tp.name.StartsWith("House_")) && (tp.parent == null || !tp.parent.name.StartsWith("House_"))) _pavilions.Add(tp); }   // 집(House_*) 지붕도 — 일부 집은 페이드 목록에 없음
+                if (_pavilions != null) foreach (var pv in _pavilions) if (pv != null && (new Vector2(pv.position.x, pv.position.z) - new Vector2(head.x, head.z)).sqrMagnitude < 225f) HidePiecesOnRay(pv, ray3, head, len);
+                if (_towerT == null && _world != null) foreach (var tt0 in _world.GetComponentsInChildren<Transform>()) if (tt0.name == "Tower") { _towerT = tt0; break; }
+                if (_towerT != null && (new Vector2(_towerT.position.x, _towerT.position.z) - new Vector2(head.x, head.z)).sqrMagnitude < 400f) HidePiecesOnRay(_towerT, ray3, head, len);
+            }
+            // 224차(통합 테스트: 집 뒤 언덕 농장 위에 카메라가 오면 울타리·여물통이 화면 아래를 크게 덮음): 카메라 코앞 6.5 m 안(카메라~주인공 사이 앞쪽 60%)의 작은 소품은 그동안 숨긴다.
+            //   주인공 근처(5 m 안)·집 몸체(위 페이드가 처리)·지형·길은 건드리지 않는다.
+            if (_nearCand == null || Time.time > _nearCandT) BuildNearCand();
+            for (int ni = _nearCand.Count - 1; ni >= 0; ni--)
+            {
+                var r = _nearCand[ni]; if (r == null) { _nearCand.RemoveAt(ni); continue; }
+                if (!r.enabled || !r.gameObject.activeInHierarchy) continue;
+                var bb = r.bounds; if (bb.SqrDistance(cam) > 42.25f) continue;   // 6.5 m
+                if (bb.SqrDistance(head) < 25f) continue;
+                { var c2 = new Vector2(cam.x, cam.z); var seg = new Vector2(head.x, head.z) - c2; float sl2 = seg.sqrMagnitude;
+                  float tt = sl2 > 0.01f ? Vector2.Dot(new Vector2(bb.center.x, bb.center.z) - c2, seg) / sl2 : 0f;
+                  if (tt < -0.05f || tt > 0.6f) continue; }   // 카메라와 주인공 사이 앞쪽(화면 아래쪽)에 놓인 것만
+                r.enabled = false; _camHidden.Add(r);
+            }
+            for (int hi = 0; hi < nHit; hi++)
+            {
+                var hit = _occHits[hi];
                 var c = hit.collider; if (c == null) continue;
                 if (hit.distance <= 0f) continue;   // 시작부터 겹침 = 주인공 곁에 닿은 것(문 앞에 선 집 포함) — 가림이 아니다
                 // 187차(사용자: 「여전히 작은 장애물 근처에 가면 사라진다」): 주인공 바로 뒤 2.5 m 안(발치 바위·울타리)은 카메라가 24° 내려다봐서
@@ -563,6 +647,62 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             }
             foreach (var hs in VillageWorld.Houses) Add(hs.house);
             Add(VillageWorld.Shop);
+            foreach (var t in ExtraOccluders()) Add(t);   // 220차: 축사·광산 입구 등 문 없는 큰 건물도 가리면 숨긴다
+        }
+
+        // 220차(사용자: 「건물이나 장애물 투명도 점검」): 가림 점검에서 축사(House_Barn)·광산 입구(MineMouth)가 카메라 앞을 통째로 막았고,
+        //   소나무·귤나무 같은 큰 나무의 잎(콜라이더 없음)이 주인공을 덮었다 → 한 번 찾아 두고 집처럼(건물) / 야자수처럼(나무) 처리한다.
+        List<Transform> _extraOcc, _treeOcc;
+        List<Renderer> _nearCand; float _nearCandT;   // 224차
+        Transform _towerT;   // 225차
+        List<Transform> _pavilions;   // 230차: 정자 처마
+        static bool IsRoofPiece(Transform t)
+        {
+            for (int i = 0; i < 2 && t != null; i++, t = t.parent)
+            { var n = t.name; if (n.Contains("Thatch") || n.Contains("Tile") || n.Contains("Eave") || n.Contains("Roof")) return true; }
+            return false;
+        }
+        void HidePiecesOnRay(Transform root, Ray ray, Vector3 head, float len)
+        {
+            foreach (var r in root.GetComponentsInChildren<Renderer>())
+            {
+                if (r == null || !r.enabled) continue;
+                var rb = r.bounds; if ((rb.Contains(head) && !IsRoofPiece(r.transform)) || rb.size.x > 14f || rb.size.z > 14f) continue;   // 주인공을 감싼 벽·바닥은 그대로(230차: 지붕·처마는 머리 위를 덮어도 숨김)
+                if (rb.IntersectRay(ray, out float ph) && ph > 0.2f && ph < len - 0.3f) { r.enabled = false; _camHidden.Add(r); }
+            }
+        }
+        List<Transform> _shelterOcc;   // 224차: 버스 정류장 지붕 — 주인공이 지붕 아래 서면(머리가 정류장 상자 안) 집 페이드는 건너뛰므로 따로
+        void BuildNearCand()
+        {
+            _nearCandT = Time.time + 10f;   // 가축·작물처럼 새로 생기는 것도 따라가게 10초마다 다시
+            if (_nearCand == null) _nearCand = new List<Renderer>(); else _nearCand.Clear();
+            foreach (var r in FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            {
+                if (r == null || r is ParticleSystemRenderer || r is LineRenderer || r is TrailRenderer) continue;
+                var t = r.transform; var p = t.position;
+                if (p.x < -60f || p.x > 90f || p.z < -80f || p.z > 70f) continue;   // 마을 밖 구역 제외
+                var b = r.bounds; if (b.size.x > 6f || b.size.z > 6f || b.size.y > 8f) continue;
+                string n = r.name; if (n.Contains("Path") || n.Contains("Terrain") || n.Contains("Sea") || n.Contains("Sky") || n.Contains("Shadow") || n.Contains("Blob") || n.Contains("Water")) continue;
+                if (t.IsChildOf(_player) || r.GetComponentInParent<Canvas>() != null || r.GetComponentInParent<VillageHub>() == null) continue;
+                if (t.parent != null && (t.parent.name.StartsWith("PathMesh") || t.parent.name.Contains("Weather"))) continue;
+                if (FadeRootOf(t) != null) continue;   // 집·가게 몸체는 집 페이드가 맡는다
+                _nearCand.Add(r);
+            }
+        }
+        List<Transform> ExtraOccluders()
+        {
+            if (_extraOcc != null) { _extraOcc.RemoveAll(t => t == null); return _extraOcc; }
+            _extraOcc = new List<Transform>(); _treeOcc = new List<Transform>(); _shelterOcc = new List<Transform>();
+            var known = new HashSet<Transform>(); foreach (var hs in VillageWorld.Houses) if (hs.house != null) known.Add(hs.house);
+            foreach (var t in FindObjectsByType<Transform>(FindObjectsSortMode.None))
+            {
+                if (t == null) continue; string n = t.name; var p = t.position;
+                if (p.x < -60f || p.x > 90f || p.z < -80f || p.z > 70f) continue;   // 마을 밖 구역(시내·관광지)은 제외
+                if ((n.StartsWith("House_") || n == "MineMouth") && !known.Contains(t) && t != VillageWorld.Shop && t.GetComponentInParent<VillageHub>() != null || n == "House_Barn" || n == "MineMouth") { if (!_extraOcc.Contains(t)) _extraOcc.Add(t); }
+                else if (n.StartsWith("Tree_Pine") || n.StartsWith("Tree_Orange")) _treeOcc.Add(t);
+                else if (n == "VBusShelter") _shelterOcc.Add(t);   // 224차
+            }
+            return _extraOcc;
         }
 
         Transform FadeRootOf(Transform t)
@@ -571,6 +711,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             return null;
         }
 
+        readonly RaycastHit[] _occHits = new RaycastHit[64]; Renderer[] _doorGlowRs; GameObject _doorGlowRsOf;
         void UpdateHouseFades(Vector3 cam)
         {
             if (Time.time > _fadeScanT) ScanHouseFades();
@@ -596,7 +737,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             {
                 bool show = true;
                 foreach (var f in _fades) if (f.root != null && _doorGlow.transform.IsChildOf(f.root)) { show = f.a > 0.5f; break; }
-                foreach (var r in _doorGlow.GetComponentsInChildren<Renderer>()) r.enabled = show;
+                if (_doorGlowRs == null || _doorGlowRsOf != _doorGlow) { _doorGlowRs = _doorGlow.GetComponentsInChildren<Renderer>(); _doorGlowRsOf = _doorGlow; }   // 218차: 매 프레임 배열 할당 → 캐시
+                foreach (var r in _doorGlowRs) if (r != null) r.enabled = show;
             }
         }
 
@@ -901,7 +1043,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
                 if (d < bestR) { bestR = d; _nearRock = rk.t; _nearRockIdx = rk.idx; }
             }
             // 154차(사용자: 「각 건물 문에서 안으로」): 문 앞 0.9 m 에 닿으면 자동으로 들어간다(나온 뒤 2.5 s 는 쉼)
-            if (!_busy && !_hud.Locked && _interior == null && Time.time > _doorCooldown)
+            if (!_busy && !_hud.Locked && _interior == null && Time.time > _doorCooldown && _autoCo == null)   // 220차: 자동이동(꼬마 안내) 중엔 지나가는 집 문으로 빨려 들어가지 않게
             {
                 foreach (var hs in VillageWorld.Houses)
                 {
@@ -1080,6 +1222,7 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         }
 
         bool _swinging; float _swingArm; int _swingStyle;   // 171차: 0 내리찍기(방망이·도끼·곡괭이) 1 옆으로 쓸기(잠자리채) 2 던지기(낚싯대)
+        int _stressHintWeek = -1; bool _mealAsked;   // 221차
         VillageDayNight _dayNight; bool _nightWarned; float _ghostSpawnAt;   // 155차   // 154차: 팔을 머리 위로 드는 정도(-1 위 … 0.55 내리침)
         /// 153차(사용자: 「잠자리 잡는 모션 부드럽게」): 도구를 살짝 뒤로 당겼다가(0.12 s) 앞으로 호를 그리며 휘두르고(0.2 s) 천천히 제자리(0.3 s),
         /// 몸은 CharacterMotion 으로 앞으로 기울었다 돌아옴. 애니는 Collect 트리거 뒤 Play 로 뚝 끊지 않고 CrossFade 로 되돌린다.
@@ -1090,52 +1233,144 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             CoastPrefs.Vibrate();
         }
         static float EaseInOut(float x) { x = Mathf.Clamp01(x); return x * x * (3f - 2f * x); }
+        float _swingEnv; Quaternion _toolRestRot = Quaternion.identity;
+        static float EaseOutCubic(float x) { x = Mathf.Clamp01(x); float u = 1f - x; return 1f - u * u * u; }
+        static float EaseInQuad(float x) { x = Mathf.Clamp01(x); return x * x; }
+        /// 218차: 도구별 타이밍 곡선 — 준비(천천히) → 타격(빠르게 가속) → 지나침(오버슈트) → 잠깐 멈춤 → 되돌아옴(감속).
+        /// k: −1 준비 자세, 0 기본, +1 타격 자세(1 넘으면 지나침)
+        static float SwingPhase(int style, float t, out float dur)
+        {
+            if (style == 1)
+            {   // 잠자리채 쓸기 0.56 s
+                dur = 0.56f;
+                if (t < 0.12f) return -EaseInOut(t / 0.12f);
+                if (t < 0.30f) return Mathf.Lerp(-1f, 1.15f, EaseInOut((t - 0.30f + 0.18f) / 0.18f));
+                if (t < 0.36f) return Mathf.Lerp(1.15f, 1f, EaseInOut((t - 0.30f) / 0.06f));
+                return Mathf.Lerp(1f, 0f, EaseOutCubic((t - 0.36f) / 0.20f));
+            }
+            if (style == 2)
+            {   // 낚싯대 던지기 0.74 s
+                dur = 0.74f;
+                if (t < 0.26f) return -EaseInOut(t / 0.26f);
+                if (t < 0.38f) return Mathf.Lerp(-1f, 1.1f, EaseInQuad((t - 0.26f) / 0.12f));
+                if (t < 0.52f) return Mathf.Lerp(1.1f, 1f, EaseInOut((t - 0.38f) / 0.14f));
+                return Mathf.Lerp(1f, 0f, EaseOutCubic((t - 0.52f) / 0.22f));
+            }
+            // 방망이·도끼·곡괭이 내리찍기 0.66 s
+            dur = 0.66f;
+            if (t < 0.20f) return -EaseInOut(t / 0.20f);
+            if (t < 0.27f) return Mathf.Lerp(-1f, 1.12f, EaseInQuad((t - 0.20f) / 0.07f));
+            if (t < 0.32f) return Mathf.Lerp(1.12f, 1f, EaseInOut((t - 0.27f) / 0.05f));
+            if (t < 0.40f) return 1f;
+            return Mathf.Lerp(1f, 0f, EaseOutCubic((t - 0.40f) / 0.26f));
+        }
         IEnumerator SwingCo()
         {
             _swinging = true;
-            // 171차(사용자: 「잠자리채·방망이 등 모션이 이상하다」): 도구마다 다른 동작 — 방망이·도끼·곡괭이 = 내리찍기(Collect 클립 + 상체 숙임),
-            // 잠자리채 = 옆으로 쓸기(클립 없이 팔·몸통만, 0.5 s), 낚싯대 = 뒤로 젖혔다 던지기(0.7 s). 도구 회전도 스타일에 맞춘다.
+            // 171차: 도구마다 다른 동작 — 방망이·도끼·곡괭이 = 내리찍기, 잠자리채 = 옆으로 쓸기, 낚싯대 = 뒤로 젖혔다 던지기.
+            // 218차: 줍기(Collect) 클립은 쓰지 않는다 — 허리를 숙여 줍는 동작이 팔 들기와 겹쳐 어색했다. 온몸 동작은 ApplySwingPose 가 한다.
             _swingStyle = _rod ? 2 : (!_bat && !_axe && !_pick) ? 1 : 0;
-            if (_anim != null && _swingStyle == 0) { _anim.speed = 1f; _anim.SetTrigger("Collect"); }
-            var tv = _toolVis; var rest = tv != null ? tv.localRotation : Quaternion.identity;
-            float t = 0f; float dur = _swingStyle == 1 ? 0.50f : _swingStyle == 2 ? 0.72f : 0.62f;
+            var tv = _toolVis; var rest = tv != null ? tv.localRotation : Quaternion.identity; _toolRestRot = rest;
+            float t = 0f; SwingPhase(_swingStyle, 0f, out float dur);
             while (t < dur)
             {
-                t += Time.deltaTime; float k;
-                if (_swingStyle == 1)
+                t += Time.deltaTime;
+                float k = SwingPhase(_swingStyle, t, out _);
+                // 몸 전체 가중치: 앞 0.08 s 스며들고 끝 0.14 s 빠진다(시작·끝에 자세가 튀지 않게)
+                _swingEnv = Mathf.Min(EaseInOut(t / 0.08f), EaseInOut((dur - t) / 0.14f));
+                _swingArm = k;
+                if (tv != null)
                 {
-                    // 쓸기: 오른쪽 바깥으로 빠르게 젖혔다(0.10 s) 왼쪽 앞으로 크게 쓸고(0.22 s) 되돌아온다
-                    if (t < 0.10f) k = -1f * EaseInOut(t / 0.10f);
-                    else if (t < 0.32f) k = Mathf.Lerp(-1f, 1f, EaseInOut((t - 0.10f) / 0.22f));
-                    else k = Mathf.Lerp(1f, 0f, EaseInOut((t - 0.32f) / 0.18f));
-                    _swingArm = k;
-                    if (tv != null) tv.localRotation = rest * Quaternion.Euler(-35f * Mathf.Abs(k), 0f, k * 40f);
-                }
-                else if (_swingStyle == 2)
-                {
-                    // 던지기: 뒤로 젖힘(0.22 s) → 앞으로 휙(0.14 s) → 멈춤(0.16) → 복귀
-                    if (t < 0.22f) k = -1f * EaseInOut(t / 0.22f);
-                    else if (t < 0.36f) k = Mathf.Lerp(-1f, 1f, EaseInOut((t - 0.22f) / 0.14f));
-                    else if (t < 0.52f) k = 1f;
-                    else k = Mathf.Lerp(1f, 0f, EaseInOut((t - 0.52f) / 0.20f));
-                    _swingArm = k;
-                    if (tv != null) tv.localRotation = rest * Quaternion.Euler(k * -75f, 0f, 0f);
-                }
-                else
-                {
-                    // 154차(사용자: 「위에서 아래로 잡는 모션」): 머리 위로 크게 들었다가(0.18 s) 앞으로 내리찍고(0.12 s) 잠깐 멈춘 뒤 복귀
-                    if (t < 0.18f) k = -1f * EaseInOut(t / 0.18f);
-                    else if (t < 0.30f) k = Mathf.Lerp(-1f, 0.55f, EaseInOut((t - 0.18f) / 0.12f));
-                    else if (t < 0.40f) k = 0.55f;
-                    else k = Mathf.Lerp(0.55f, 0f, EaseInOut((t - 0.40f) / 0.22f));
-                    _swingArm = k;
-                    if (tv != null) tv.localRotation = rest * Quaternion.Euler(k * -110f, k * 10f, 0f);
+                    if (_swingStyle == 1) tv.localRotation = rest * Quaternion.Euler(-35f * Mathf.Abs(k) * _swingEnv, 0f, k * 40f);
+                    else if (_swingStyle == 2) tv.localRotation = rest * Quaternion.Euler(k * -75f, 0f, 0f);
+                    // 내리찍기 도구 방향은 ApplySwingPose 가 월드 기준으로 맞춘다
                 }
                 yield return null;
             }
-            if (tv != null) tv.localRotation = rest; _swingArm = 0f;
-            if (_anim != null && !_moving && _swingStyle == 0) { _anim.CrossFade("Run", 0.3f, 0, 0.12f); yield return new WaitForSeconds(0.3f); if (!_moving && _anim != null) _anim.speed = 0f; }
+            if (tv != null) tv.localRotation = rest; _swingArm = 0f; _swingEnv = 0f;
             _swinging = false;
+        }
+
+        /// 218차 개발용: 주인공만 옆(오른쪽 앞 45°)에서 찍는 카메라로 휘두르기 12장을 저장(Tools/_shots/p218_film_00~11.png)
+        public IEnumerator DevSwingFilm()
+        {
+            const int L = 30; var saved = new List<(GameObject, int)>();
+            foreach (var tr in _player.GetComponentsInChildren<Transform>(true)) { saved.Add((tr.gameObject, tr.gameObject.layer)); tr.gameObject.layer = L; }
+            var cg = new GameObject("FilmCam"); var cam = cg.AddComponent<Camera>(); cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0.82f, 0.86f, 0.9f, 1f);
+            cam.cullingMask = 1 << L; cam.fieldOfView = 40f; cam.enabled = false;
+            var f = _player.forward; f.y = 0f; f.Normalize(); var r = Vector3.Cross(Vector3.up, f);
+            cam.transform.position = _player.position + Vector3.up * 1.3f + r * 3.2f + f * 1.6f; cam.transform.LookAt(_player.position + Vector3.up * 1.0f);
+            var rt = new RenderTexture(360, 480, 24); cam.targetTexture = rt; var tex = new Texture2D(360, 480, TextureFormat.RGB24, false);
+            string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath, "..", "Tools", "_shots")); System.IO.Directory.CreateDirectory(dir);
+            Time.timeScale = 0.1f; Swing(); SwingPhase(_swingStyle, 0f, out float dur);
+            for (int i = 0; i < 12; i++)
+            {
+                yield return new WaitForEndOfFrame();
+                cam.Render(); RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 360, 480), 0, 0); tex.Apply(); RenderTexture.active = null;
+                System.IO.File.WriteAllBytes(System.IO.Path.Combine(dir, $"p218_film_{i:00}.png"), tex.EncodeToPNG());
+                float tt = Time.time; while (Time.time - tt < dur / 11f) yield return null;
+            }
+            Time.timeScale = 1f;
+            foreach (var (go, l) in saved) if (go != null) go.layer = l;
+            cam.targetTexture = null; rt.Release(); Destroy(rt); Destroy(cg); Destroy(tex);
+            Debug.LogWarning("[218] swing film saved → " + dir);
+        }
+
+        /// 218차: 휘두르기 온몸 자세(LateUpdate, 애니메이터 뒤). 모든 각도 × _swingEnv.
+        void ApplySwingPose()
+        {
+            float e = _swingEnv, k = _swingArm;
+            Transform B(HumanBodyBones b) => _anim.GetBoneTransform(b);
+            var hips = B(HumanBodyBones.Hips); var sp = B(HumanBodyBones.Spine); var ch = B(HumanBodyBones.Chest); var hd = B(HumanBodyBones.Head);
+            var ua = B(HumanBodyBones.RightUpperArm); var la = B(HumanBodyBones.RightLowerArm); var hand = B(HumanBodyBones.RightHand);
+            var lua = B(HumanBodyBones.LeftUpperArm); var lla = B(HumanBodyBones.LeftLowerArm);
+            Vector3 R = _player.right, U = Vector3.up;
+            void Rot(Transform t, float deg, Vector3 axis) { if (t != null && Mathf.Abs(deg) > 0.01f) t.rotation = Quaternion.AngleAxis(deg * e, axis) * t.rotation; }
+            float lean = 0f, twist = 0f;
+            if (_swingStyle == 1)
+            {   // 잠자리채: 어깨 높이로 들고 오른쪽 뒤 → 왼쪽 앞으로 수평 쓸기. 골반이 먼저, 가슴·팔이 뒤따른다
+                float sw = k;
+                twist = sw * 26f;
+                Rot(hips, sw * 8f, U);
+                Rot(sp, twist * 0.6f, U); Rot(ch != null ? ch : sp, twist * 0.4f, U);
+                Rot(ua, sw * 52f, U); Rot(ua, -72f, R);
+                Rot(la, -18f + Mathf.Max(0f, sw) * 22f, R);
+                Rot(hand, sw * 18f, U);
+                Rot(lua, -sw * 22f, U); Rot(lua, -18f, R);
+            }
+            else if (_swingStyle == 2)
+            {   // 낚싯대: 뒤로 젖혔다 앞으로 채며 던진다 — 몸이 뒤로 기울었다가 앞으로 실린다
+                float c = k, back = Mathf.Max(0f, -c), fwd = Mathf.Max(0f, c);
+                lean = -back * 10f + fwd * 16f; twist = back * 14f - fwd * 8f;
+                Rot(hips, twist * 0.3f, U);
+                Rot(sp, lean * 0.6f, R); Rot(sp, twist * 0.6f, U); Rot(ch != null ? ch : sp, lean * 0.4f, R); Rot(ch != null ? ch : sp, twist * 0.4f, U);
+                Rot(ua, -40f - c * 70f, R);
+                Rot(la, -back * 50f + fwd * 8f, R);
+                Rot(hand, c * 20f, R);
+                Rot(lua, back * 25f - fwd * 15f, R);
+            }
+            else
+            {   // 내리찍기: 도구를 머리 위 뒤로 크게 들고(허리 젖힘·몸 오른쪽으로 비틈) → 앞으로 내리찍으며 허리를 숙인다
+                float lift = Mathf.Max(0f, -k), hit = Mathf.Max(0f, k);
+                lean = -lift * 12f + hit * 24f; twist = lift * 16f - hit * 10f;
+                Rot(hips, twist * 0.35f, U);
+                Rot(sp, lean * 0.6f, R); Rot(sp, twist * 0.6f, U); Rot(ch != null ? ch : sp, lean * 0.4f, R); Rot(ch != null ? ch : sp, twist * 0.4f, U);
+                // 각도 부호: R 축 음수 = 팔이 앞·위로(218차 옆모습 필름으로 확인 — 예전 식은 타격 때 팔이 뒤로 빠졌다)
+                Rot(ua, -lift * 150f - hit * 55f, R); Rot(ua, -lift * 25f, _player.forward);   // 준비 때 오른쪽 옆으로 살짝 벌려 머리에 가리지 않게
+                Rot(la, -lift * 50f, R);
+                Rot(hand, lift * 15f - hit * 15f, R);
+                Rot(lua, -lift * 120f - hit * 45f, R);   // 두 손으로 쥐는 느낌 — 왼팔도 같이 들었다 내린다
+                Rot(lla, -lift * 40f, R);
+                // 도구: 준비 때 머리 위 뒤로, 타격 때 앞 아래로 — 손 뼈 기준 로컬 회전은 방향이 뒤집혀 월드 방향으로 맞춘다
+                if (_toolVis != null)
+                {
+                    _toolVis.localRotation = _toolRestRot;   // 매 프레임 쉬는 자세에서 다시 계산(누적 방지)
+                    var f = _player.forward; f.y = 0f; f.Normalize();
+                    var cur = _toolVis.up; var want = k < 0f ? Vector3.Slerp(cur, (U * 0.75f - f * 0.4f + R * 0.5f).normalized, lift) : Vector3.Slerp(cur, (f * 0.8f - U * 0.6f).normalized, Mathf.Min(1f, hit));
+                    _toolVis.rotation = Quaternion.Slerp(Quaternion.identity, Quaternion.FromToRotation(cur, want), e) * _toolVis.rotation;
+                }
+            }
+            Rot(hd, -lean * 0.5f, R); Rot(hd, -twist * 0.4f, U);   // 시선은 앞을 유지
         }
 
         /// 155차: 귀신에게 맞음 — HP 0 이면 병원(돈 20%, 다음 날 아침 집 앞)
@@ -1159,8 +1394,21 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (Save.stats.stamina <= 0) { StartCoroutine(Hospital()); return; }
             CoastToast.Show(Loc.T($"👻 귀신에게 잡혔다! HP −{dmg} — 집으로 도망쳐!", $"👻 The ghost got you! HP −{dmg} — run home!"));
         }
+        /// 220차(사용자: 「도로에는 장애물 없음」): 마을이 다 지어진 다음 프레임에 길 위 소품을 비킨다(VillageRoadNet)
+        IEnumerator ClearRoadsSoon()
+        {
+            yield return null; yield return null;
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            VillageRoadNet.ClearProps(_player);
+            Debug.Log($"[Road220] 길 위 소품 옮김 {VillageRoadNet.Moved} · 치움 {VillageRoadNet.Removed} ({sw.ElapsedMilliseconds} ms)");
+            _houseBoundsT = 0f;
+        }
+
         IEnumerator Hospital()
         {
+            // 220차(연결 점검): 꼬마가 데려다주는 길에 쓰러지면 병원(집 안 상태)에서 깨어난 뒤에도 자동 이동이 이어져
+            //   이야기 장소에 도착해도 컷씬이 안 열렸다 — 쓰러지는 순간 자동 이동을 끊는다.
+            CancelAuto(false);
             _busy = true;
             yield return FadeScreen(true, 0.6f);
             int feePct = HospitalFeePct(); int lost = Mathf.RoundToInt(Save.stats.money * feePct / 100f); Save.stats.money -= lost;   // 213차: 첫 2주 무료 · 바다 10 %
@@ -1323,7 +1571,17 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
             if (_hud != null && _hud.Root != null) _hud.Root.gameObject.SetActive(false);
             if (_player != null) _player.rotation = Quaternion.Euler(0f, 180f, 0f);
             _camYaw = _camYawTarget = 180f; SnapCamera();
-            FishingMini.Open(_gm, () => { if (_hud != null && _hud.Root != null) _hud.Root.gameObject.SetActive(true); _busy = false; MissionTick(VillageMission.Kind.Fish); RefreshStatus(); });
+            // 217차(마감 B4): 낚시 화면에 주인공 뒷모습·낚싯대·줄 — 낚싯대를 안 들었으면 잠깐 들려 주고 끝나면 원래 도구로
+            bool pr = _rod, pb = _bat, pa = _axe, pk = _pick, pd = _road; bool swapped = !_rod;
+            if (swapped) { _rod = true; _bat = _axe = _pick = _road = false; ApplyTool(); }
+            FishingMini.Player = _player; FishingMini.OnCast = Swing;
+            FishingMini.Rod = _toolVis;   // 낚시 동안 FishingMini 가 대를 바다 쪽 위로 세워 쥐게 한다(모형 원점이 대 가운데라 평소엔 가운데를 쥔다)
+            FishingMini.Open(_gm, () =>
+            {
+                FishingMini.Player = null; FishingMini.OnCast = null; FishingMini.Rod = null;
+                if (swapped) { _rod = pr; _bat = pb; _axe = pa; _pick = pk; _road = pd; } ApplyTool();   // 세운 대를 원래대로
+                if (_hud != null && _hud.Root != null) _hud.Root.gameObject.SetActive(true); _busy = false; MissionTick(VillageMission.Kind.Fish); RefreshStatus();
+            });
         }
 
         // ── 150차: 텃밭(스타듀식 9칸) ─────────────────────────────────────
@@ -2163,6 +2421,29 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         {
             if (_busy || Save == null) return;
             if (StorySleepGate()) return;   // 196차: 안 본 이야기(장소)가 있으면 꼬마가 붙잡는다
+            // 221차: 이번 주 밥을 안 먹었고 먹을 게 있으면 자기 전에 한 번 묻는다(굶은 채 한 주가 지나면 배부름·컨디션이 깎인다)
+            if (!_mealAsked && !Save.ateThisWeek && !ActDone(ActEat) && CanSchedule(out _))
+            {
+                LifeItems.Ensure(Save);
+                if (LifeItems.HasEdible(Save))
+                {
+                    _mealAsked = true;
+                    _hud.Choice(Loc.T("🍚 꼬마", "🍚 Kid"), Loc.T("누나, 밥은? 식탁에 먹을 거 있어. 안 먹고 자면 한 주 내내 배고파.", "Sis, did you eat? There's food on the table. Skip it and you'll be hungry all week."),
+                        new (string, Color, Action)[] {
+                            (Loc.T("🍚 밥 먹을래", "🍚 Eat first"), new Color(0.95f, 0.70f, 0.30f), EatHome),
+                            (Loc.T("💤 그냥 잘래", "💤 Just sleep"), new Color(0.60f, 0.52f, 0.92f), SleepBed),
+                        });
+                    return;
+                }
+                // 먹을 게 하나도 없으면 — 사 올 곳을 알려 주고 그대로 잘 수 있게
+                _mealAsked = true;
+                _hud.Choice(Loc.T("🍚 꼬마", "🍚 Kid"), Loc.T("누나, 집에 먹을 게 없어. 가게에서 밥거리를 사 오거나 카페 브런치를 먹자. 안 먹고 자면 한 주 내내 배고파.", "Sis, there's no food at home. Buy some at the shop or have café brunch. Skip it and you'll be hungry all week."),
+                    new (string, Color, Action)[] {
+                        (Loc.T("알았어", "Okay"), new Color(0.95f, 0.70f, 0.30f), null),
+                        (Loc.T("💤 그냥 잘래", "💤 Just sleep"), new Color(0.60f, 0.52f, 0.92f), SleepBed),
+                    });
+                return;
+            }
             bool allDone = Save.phaseIndex >= Timeline.PhasesPerWeek || Save.boundaryPending || ActCount >= ActsPerDay;
             bool late = _dayNight != null && (_dayNight.IsNight || _dayNight.IsDusk);
             if (!allDone && !late)
@@ -2181,6 +2462,8 @@ GroundBlob.Attach(_player, 0.5f, 0.36f, rigHost);   // 146차: 접지 블롭
         IEnumerator SleepWeek()
         {
             _busy = true;
+            _mealAsked = false;
+            Survival.OnRestAction(Save);   // 221차: 내 침대에서 잠 = 이번 주 잠 잤음(전엔 마을 잠이 안 쳐져 주말 결산에 늘 「잠을 못 잤다」)
             EndRide();   // 205차
             yield return DaySummaryCo();   // 205차(사용자: 「하루 정산 화면」): 잠들기 전 오늘 한 일 한 장
             // 161차: 집 안이면 침대 매트리스 위에 눕는다(머리는 베개 쪽, 몸은 등을 대고) — 몽타주 뒤 마을 아침으로 가므로 되돌릴 필요 없음

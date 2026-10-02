@@ -217,7 +217,8 @@ namespace CoastRun
                 var pb = Pill(crt, "Pay", Loc.T($"{cost}G 내고 넘어가기", $"Pay {cost}G to skip"), canPay ? new Color(0.95f, 0.72f, 0.20f) : new Color(0.55f, 0.55f, 0.62f), new Vector2(0.76f, 0f), new Vector2(0f, 22f), new Vector2(230f, 70f),
                     () =>
                     {
-                        if (!canPay) { CoastToast.Show(Loc.T("코인이 모자라 — 다시 해 보자!", "Not enough coins — try again!")); return; }
+                        // 221차: 카드가 뜬 뒤에 돈이 바뀌어도 누를 때 다시 본다
+                        if (!(GameManager.Active && GameManager.I.Save != null && GameManager.I.Save.stats.money >= cost)) { CoastToast.Show(Loc.T("코인이 모자라 — 다시 해 보자!", "Not enough coins — try again!")); return; }
                         GameManager.I.Save.stats.money -= cost; GameManager.I.Persist();
                         ChapterMission.MarkAttempted(GameManager.I, _kind);
                         CoastToast.Show(Loc.T($"{cost}G 를 내고 넘어갔어", $"Paid {cost}G to skip"));

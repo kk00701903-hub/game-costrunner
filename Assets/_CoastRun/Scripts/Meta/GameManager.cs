@@ -526,6 +526,16 @@ namespace CoastRun
         // ── 엔딩 / 타임라인 ────────────────────────────────────────────────
 
         private bool _epilogueShown, _creditsShown;
+        /// 220차(연결 점검): 마을 장소 모드에서 마지막 장면(CS8 「송전탑 아래」)을 보면 마을로 돌아가지 않고 곧장 엔딩으로.
+        ///   (예전: CS8 뒤 평소 마을 → 잠 → 마지막 대회 러닝 → 엔딩. 하늘이 사라지는 장면 뒤에 대회가 끼었다)
+        public void FinishFromVillageStory()
+        {
+            if (Save == null) return;
+            Save.boundaryPending = false;
+            WriteMain();
+            ResolveEnding();
+        }
+
         public void ResolveEnding()
         {
             if (Save == null) return;
@@ -686,7 +696,7 @@ namespace CoastRun
         // ── 109차(사용자): 코인·돈 일원화 — 스토리 모드의 돈(stats.money)은 K-POP 러닝 코인 지갑(CoinWallet) 하나다. ──
         //   스토리에서 번/쓴 만큼을 지갑에 흘리고, 러닝에서 모은 코인은 다음 동기화 때 스토리 돈으로 들어온다. 재도전 샌드박스는 건드리지 않는다.
         private int _walletSynced = int.MinValue;
-        public const int StartCoins = 300;
+        public const int StartCoins = 500;   // 237차: 300→500(초반 3주차 0G 완화)
         public void SyncWallet()
         {
             if (Save == null || IsRetry) return;

@@ -214,7 +214,7 @@ namespace CoastRun
             for (int i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
-                string txt = Loc.IsKo ? line.B : Loc.Tr(ChapterScript.TextEn(sceneId, i) ?? line.B);
+                string txt = Loc.IsKo ? line.B : Loc.Tr(ChapterScript.TextEn(sceneId, i) ?? StoryEn.En(line.B) ?? line.B);
                 string speaker = line.A; bool pass = true; bool gate = false;
                 if (line.Kind == "SAY") speaker = StoryCond.Strip(line.A, out pass);
                 else if (line.Kind == "NARR" || line.Kind == "LETTER")

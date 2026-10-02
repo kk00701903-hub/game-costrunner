@@ -493,7 +493,7 @@ namespace CoastRun
                     var def = CinematicTable.Event(ev);
                     list.Add(new Entry
                     {
-                        Label = Loc.T("서브스토리", "Side story"), Title = def.title,   // 109차: 번호 없음
+                        Label = Loc.T("서브스토리", "Side story"), Title = StoryEn.T(def.title),   // 109차: 번호 없음
                         Sub = Loc.T($"{def.cuts.Length}컷 · {Mathf.RoundToInt(def.Length)}초 · {ChapterLocation.Get(ch).Name}", $"{def.cuts.Length} cuts · {Mathf.RoundToInt(def.Length)}s · {ChapterLocation.Get(ch).Name}"),
                         Event = ev, Chapter = ch, Unlocked = all || reached >= ch || StoryProgress.EventSeen(ev),
                         Cover = def.cuts.Length > 0 ? ArtAssets.LoadTexture(def.cuts[0].still) ?? ArtAssets.LoadTexture(def.cuts[0].fallback) : null,
@@ -515,7 +515,7 @@ namespace CoastRun
         private static Entry EndingEntry(string id, int n, bool unlocked)
         {
             var def = CinematicTable.Get(id);
-            string title = def != null ? def.title : id;
+            string title = def != null ? StoryEn.T(def.title) : id;
             float len = def != null ? def.Length : 0f;
             return new Entry
             {

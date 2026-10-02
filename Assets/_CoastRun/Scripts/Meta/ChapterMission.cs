@@ -60,7 +60,8 @@ namespace CoastRun
             return 150 + week * 5;
         }
         /// 135차(사용자): 미니게임을 못 깼을 때 넘어가는 값 — 보상의 4배(최소 600).
-        public static int SkipCost(GameManager gm) => Mathf.Max(600, Reward(gm) * 4);
+        /// 221차(사용자: 3일 플레이 개선): 첫 챕터 미션만 보상의 2배(최소 300) — 2주차 소지금(약 500G)으로도 넘어갈 수 있게. 코인을 내야 넘어가는 규칙은 그대로.
+        public static int SkipCost(GameManager gm) => gm != null && gm.Save != null && gm.Save.chapter <= 1 ? Mathf.Max(300, Reward(gm) * 2) : Mathf.Max(600, Reward(gm) * 4);
 
         /// 이 챕터를 막 클리어했고 **이번 회차**에서 아직 미션을 안 깼으면 true(SaveData.missionDoneMask — 회차마다 다시 한다).
         /// 프로필 비트(missionClearMask)는 더보기 › 미니게임 다시하기 해금용.

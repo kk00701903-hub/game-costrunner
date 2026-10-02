@@ -19,7 +19,8 @@ namespace CoastRun.Village
 
         // 정자 앞 → 동쪽 새 동네 → 버스 정류장
         public static readonly Vector2[] EastPath = {
-            new Vector2(23.8f, -6.2f), new Vector2(30f, -4.5f), new Vector2(37f, -1f), new Vector2(44f, 2.5f),
+            // 220차(도로 정비): 정자 몸체(콜라이더)를 관통하던 첫 구간((30,−4.5)·(37,−1))을 정자 북쪽으로 돌림
+            new Vector2(23.8f, -6.2f), new Vector2(25.2f, -2.6f), new Vector2(27.2f, 1.2f), new Vector2(31.5f, 0.2f), new Vector2(36.2f, -0.8f), new Vector2(44f, 2.5f),
             new Vector2(51f, 5f), new Vector2(58f, 6.5f), new Vector2(64f, 7.5f), new Vector2(67.2f, 8f) };
         public static readonly Vector2[] BankPath = { new Vector2(44f, 2.5f), new Vector2(47f, 8f), new Vector2(49.5f, 12.5f), new Vector2(50f, 15.6f) };
         public static readonly Vector2[] CafePath = { new Vector2(58f, 6.5f), new Vector2(57.6f, 0f), new Vector2(57.1f, -8.6f) };

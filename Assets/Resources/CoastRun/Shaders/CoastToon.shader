@@ -23,6 +23,9 @@ Shader "CoastRun/ToonLit"
         // 151차: 블렌더에서 AO 를 구운 정점색(없는 메시는 흰색 = 무시) · 디테일 맵 R=잔디 G=모래(초록 정도로 섞음, _DetailSplit 1)
         _VertexColor ("Vertex color (baked AO)", Range(0,1)) = 1
         _DetailSplit ("Detail R/G split by hue", Range(0,1)) = 0
+        // 229차(사용자: 「마을 주인공이 수채화처럼 흐릿 — 게임 캐릭터답게 또렷하게」): 캐릭터만 마을 소프트 룩을 덜 받게(0 = 그대로)
+        _CharCrisp ("Character crisp (village)", Range(0,1)) = 0
+        _CharRim ("Character rim (always)", Range(0,1)) = 0
     }
     SubShader
     {
@@ -50,6 +53,8 @@ Shader "CoastRun/ToonLit"
             half _DetailStrength;
             half _VertexColor;
             half _DetailSplit;
+            half _CharCrisp;
+            half _CharRim;
         CBUFFER_END
         // 전역(코드에서 Shader.SetGlobal*): 마을에서만 1
         half _CoastSoft;            // 0 = 기존 러닝 룩, 1 = 소프트 룩
@@ -123,7 +128,7 @@ Shader "CoastRun/ToonLit"
                 }
                 float3 n = normalize(IN.normalWS);
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(IN.positionWS));
-                half soft = saturate(_CoastSoft);
+                half soft = saturate(_CoastSoft) * (1.0 - _CharCrisp);
                 // 기존(러닝): 램버트 × 그림자, 좁은 램프
                 half ndl = dot(n, mainLight.direction) * mainLight.shadowAttenuation;
                 half shadeHard = smoothstep(_ShadowThreshold - _ShadowSoftness, _ShadowThreshold + _ShadowSoftness, ndl);
@@ -159,6 +164,8 @@ Shader "CoastRun/ToonLit"
                 float3 v = normalize(_WorldSpaceCameraPos.xyz - IN.positionWS);
                 half fres = pow(1.0 - saturate(dot(n, v)), 3.0);
                 lit += _RimColor.rgb * fres * (_CoastSoftRim * soft) * (0.4 + 0.6 * shade);
+                // 229차: 캐릭터 테두리빛 — 배경에서 몸 윤곽이 떨어져 보이게(_CharRim 0 이면 없음)
+                lit += _RimColor.rgb * pow(1.0 - saturate(dot(n, v)), 2.5) * _CharRim;
                 lit = MixFog(lit, IN.fogFactor);
                 return half4(lit, albedo.a);
             }

@@ -45,6 +45,8 @@ namespace CoastRun
         private int _laneDir;
         private float _jumpStamp = -1f;
         private float _crouchStamp = -1f;
+        // 235차: 입력이 들어온 프레임 — 그 뒤 한 프레임도 못 돌았으면(로딩 멈칫 등) 시간이 지나도 버리지 않는다
+        private int _laneFrame, _jumpFrame, _crouchFrame;
 
         private bool _crouchHeld;
         private bool _tuckHeld;
@@ -115,9 +117,10 @@ namespace CoastRun
         public void Inject(int laneDir, bool jump, bool crouch)
         {
             float now = Time.unscaledTime;
-            if (laneDir != 0) { _laneDir = laneDir; _laneStamp = now; }
-            if (jump) _jumpStamp = now;
-            if (crouch) _crouchStamp = now;
+            int fc = Time.frameCount;
+            if (laneDir != 0) { _laneDir = laneDir; _laneStamp = now; _laneFrame = fc; }
+            if (jump) { _jumpStamp = now; _jumpFrame = fc; }
+            if (crouch) { _crouchStamp = now; _crouchFrame = fc; }
         }
 
         public int ConsumeLaneDelta()
@@ -153,19 +156,20 @@ namespace CoastRun
         private void ExpireBuffers()
         {
             float now = Time.unscaledTime;
-            if (_laneStamp >= 0f && now - _laneStamp > bufferSeconds) _laneStamp = -1f;
-            if (_jumpStamp >= 0f && now - _jumpStamp > bufferSeconds) _jumpStamp = -1f;
-            if (_crouchStamp >= 0f && now - _crouchStamp > bufferSeconds) _crouchStamp = -1f;
+            int fc = Time.frameCount;   // 235차: 들어온 뒤 최소 한 프레임은 쓰일 기회를 준다(첫 스와이프가 로딩 멈칫에 묻혀 사라지던 것)
+            if (_laneStamp >= 0f && now - _laneStamp > bufferSeconds && fc - _laneFrame > 1) _laneStamp = -1f;
+            if (_jumpStamp >= 0f && now - _jumpStamp > bufferSeconds && fc - _jumpFrame > 1) _jumpStamp = -1f;
+            if (_crouchStamp >= 0f && now - _crouchStamp > bufferSeconds && fc - _crouchFrame > 1) _crouchStamp = -1f;
         }
 
         private void IssueLane(int dir)
         {
             _laneDir = dir;
-            _laneStamp = Time.unscaledTime;
+            _laneStamp = Time.unscaledTime; _laneFrame = Time.frameCount;
         }
 
-        private void IssueJump() => _jumpStamp = Time.unscaledTime;
-        private void IssueCrouch() => _crouchStamp = Time.unscaledTime;
+        private void IssueJump() { _jumpStamp = Time.unscaledTime; _jumpFrame = Time.frameCount; }
+        private void IssueCrouch() { _crouchStamp = Time.unscaledTime; _crouchFrame = Time.frameCount; }
 
         // 25차-3: 키보드/게임패드 입력 보강 — 모바일에 블루투스 키보드를 붙이면 화살표가 KeyCode 로 안 오고
         // 축(Horizontal/Vertical, D-Pad)으로만 오는 기기가 있다. 키 + 축(엣지 검출) + 키패드까지 전부 받는다.

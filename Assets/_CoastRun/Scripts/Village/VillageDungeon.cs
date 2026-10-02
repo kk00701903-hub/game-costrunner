@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -532,6 +532,14 @@ namespace CoastRun.Village
         {
             foreach (var m in _mobs) if (m.t != null) l.Add(new KeyValuePair<string, Transform>("mob" + m.kind, m.t));
             if (_boss != null && _boss.t != null) l.Add(new KeyValuePair<string, Transform>("boss", _boss.t));
+        }
+        /// 217차: 카메라가 같이 잡을 상대 — 살아 있는 보스(거리 무관) 또는 range 안 가장 가까운 몹
+        public Vector3? FrameTarget(Vector3 pp, float range)
+        {
+            if (_boss != null && _boss.t != null && _boss.state != 3) return _boss.t.position + Vector3.up * 1.2f;
+            Vector3? best = null; float bd = range * range;
+            foreach (var m in _mobs) { if (m.t == null) continue; var d = m.t.position - pp; d.y = 0f; float q = d.sqrMagnitude; if (q < bd) { bd = q; best = m.t.position; } }
+            return best;
         }
         public Vector3? DevTarget() { if (_boss != null && _boss.t != null && _boss.state != 3) return _boss.t.position; foreach (var m in _mobs) if (m.t != null) return m.t.position; return null; }
         public void DevHurtBoss(int n) { if (_boss != null) { _boss.hp = Mathf.Max(1, _boss.hp - n); } }

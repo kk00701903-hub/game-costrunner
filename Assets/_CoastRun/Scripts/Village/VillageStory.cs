@@ -38,7 +38,7 @@ namespace CoastRun.Village
             S("CS6", Kind.Cut, 6, 12, "등대 아래 바위 불턱", "Stone shelter by the lighthouse", "light", new Vector2(-9.5f, -58.2f), "등대 밑 바위 틈에 뭐가 있어. 가 볼래?", "Something's in the rocks under the lighthouse. Go look?"),
             S("EV8", Kind.Ev, 8, 13, "언덕 위 외딴집 (우리집)", "Lone house on the hill", "hero", new Vector2(0f, 32f), "비 온다… 언덕 위 집으로 가자.", "Rain's coming… to the house on the hill."),
             S("EV9", Kind.Ev, 9, 14, "병원 가는 길 (리어카)", "Road to the hospital (cart)", "hospital", new Vector2(23f, 13.5f), "병원 쪽 길… 누나, 거기 가 봐.", "The road to the hospital… go there, sis."),
-            S("EV2", Kind.Ev, 2, 15, "버스 정류장 (검은 차)", "Bus stop (black car)", "bus", Vector2.zero, "정류장… 누나, 차 떠나기 전에!", "The stop… sis, before the car leaves!"),
+            S("EV2", Kind.Ev, 2, 15, "버스 정류장 (배웅)", "Bus stop (farewell)", "bus", Vector2.zero, "정류장… 누나, 거기 가 봐.", "The stop… go there, sis."),   // 220차: 장면(도윤이네 집 앞 검은 차·회상)과 안 맞던 장소 이름·「차 떠나기 전에!」
             S("CS7", Kind.Cut, 7, 17, "엄마 집 마루", "Mom's porch", "mom", new Vector2(1.2f, -18.4f), "누나, 머리띠 들고… 그 집으로 가.", "Sis, take the headband… go to that house."),
             S("EV10", Kind.Ev, 10, 19, "엄마 집 부엌", "Mom's kitchen", "mom", new Vector2(1.2f, -18.4f), "……엄마한테 가.", "……Go to Mom."),
             S("CS8", Kind.Cut, 8, 20, "송전탑 아래", "Under the tower", null, Blanket, "스무 살 생일이야. 탑으로 가자.", "It's your 20th birthday. To the tower."),

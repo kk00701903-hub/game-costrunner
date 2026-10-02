@@ -76,7 +76,7 @@ namespace CoastRun
             PlayerPrefs.SetInt("CoastRun_VN_" + ChapterScript.OpenId(CutsceneChapter(index)), 1);
             PlayerPrefs.Save();
         }
-        public static string CutsceneTitle(int index) { var d = CinematicTable.Cutscene(index); return d != null ? d.title : ChapterScript.Title(CutsceneChapter(index)); }
+        public static string CutsceneTitle(int index) { var d = CinematicTable.Cutscene(index); return d != null ? StoryEn.T(d.title) : ChapterScript.Title(CutsceneChapter(index)); }
 
         // ── 85차: 보조 컷씬 EV1~10 ──
         public static int EventCount => EventChapters.Length;
@@ -90,6 +90,6 @@ namespace CoastRun
             PlayerPrefs.SetInt("CoastRun_VN_" + ChapterScript.OpenId(EventChapter(index)), 1);
             PlayerPrefs.Save();
         }
-        public static string EventTitle(int index) { var d = CinematicTable.Event(index); return d != null ? d.title : ChapterScript.Title(EventChapter(index)); }
+        public static string EventTitle(int index) { var d = CinematicTable.Event(index); return d != null ? StoryEn.T(d.title) : ChapterScript.Title(EventChapter(index)); }
     }
 }

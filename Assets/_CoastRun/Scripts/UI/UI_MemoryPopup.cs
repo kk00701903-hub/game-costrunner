@@ -126,7 +126,7 @@ namespace CoastRun
             {
                 StartMemoryBgm(def);
                 BindStills(def);
-                _title.text = def.title;
+                _title.text = StoryEn.T(def.title);
                 _body.text = string.IsNullOrEmpty(def.body) || def.body.Contains("새 대본")
                     ? Loc.T("화면을 탭하면 닫혀요", "Tap to close")
                     : def.body;

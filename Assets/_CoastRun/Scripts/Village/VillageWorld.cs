@@ -22,8 +22,10 @@ namespace CoastRun.Village
         // 길(언덕 집 → 마을 → 해변) — 그림용·안내용 폴리라인
         public static readonly Vector2[] Path = {
             new Vector2(0f, 31f), new Vector2(-7f, 25f), new Vector2(3f, 18f), new Vector2(-2f, 11f),
-            new Vector2(0f, 3f), new Vector2(-5.6f, -4f), new Vector2(-3.4f, -12f), new Vector2(-1.5f, -18f), new Vector2(-2.5f, -24f), new Vector2(-8f, -30f), new Vector2(-11f, -37f), new Vector2(-12f, -47f), new Vector2(-9f, -60f)
+            new Vector2(0f, 3f), new Vector2(-7.0f, -3.2f), new Vector2(-7.2f, -12.0f), new Vector2(-1.5f, -18f), new Vector2(-2.5f, -24f), new Vector2(-9.4f, -29.4f), new Vector2(-11f, -37f), new Vector2(-12f, -47f), new Vector2(-9f, -60f)
         };
+        // 220차(도로 정비): 큰길이 텃밭 서쪽 울타리 위(−5.6,−4 → −3.4,−12)와 마을상점 북서쪽 모서리(−8,−30)를 스쳐 지나가 자동이동이 걸렸다 → 울타리·가게에서 1.2 m 이상 떨어지게 옮김
+        //   (예전 점: (−5.6,−4) · (−3.4,−12) · (−8,−30))
         // 178차: 큰길 굽이(−7, 25)에서 언덕 서쪽 방목장 문(−23, 30)까지 갈림길 — 우리집 현무암 담 남서 모서리 아래로 돈다
         public static readonly Vector2[] RanchPath = {
             new Vector2(-7f, 25f), new Vector2(-13f, 23.2f), new Vector2(-18.5f, 25.2f), new Vector2(-21.6f, 28.6f), new Vector2(-23.4f, 30f)
@@ -33,7 +35,20 @@ namespace CoastRun.Village
         public static readonly Vector2[] TowerPath = { new Vector2(4.5f, 30.8f), new Vector2(4.8f, 33.5f), new Vector2(5.5f, 36.6f), new Vector2(8.2f, 37.6f), new Vector2(11f, 38f) };   // 우리집 담과 알바나라 사이 → 송전탑 언덕
         public static readonly Vector2[] PlayPath = { new Vector2(-1.5f, 0.5f), new Vector2(8f, -0.6f), new Vector2(14.3f, -1.6f), new Vector2(16.8f, -5.2f), new Vector2(23.8f, -6.2f) };  // 하르방 사이 큰길 → 동쪽 정자
         public static readonly Vector2[] HospitalPath = { new Vector2(-1.5f, 10.5f), new Vector2(10f, 10.5f), new Vector2(16f, 12.6f), new Vector2(20f, 13.5f) };   // 189차: 큰길 → 병원 문(서쪽)
-        public static readonly Vector2[][] Branches = { JobPath, TowerPath, PlayPath, HospitalPath, VillageEast.EastPath, VillageEast.BankPath, VillageEast.CafePath };   // 194차: 동쪽 새 동네(은행·브런치 카페·버스 정류장)
+        // 220차(사용자: 「자동이동을 위해 도로 정비 — 도로 따라 자동이동 장소」): 길이 닿지 않던 자동이동 목적지(텃밭 입구·바닷가·농장·과수원·벌통·광산·땅 4곳)까지
+        //   막힘 지도(0.5 m 칸, 건물·담·울타리에서 1.1 m 이상 떨어지게)로 그은 갈림길. 끊긴 길(RoadGaps) 너머에서 갈라지는 길은 그 끊김을 이어야 열린다(기존 규칙 그대로).
+        public static readonly Vector2[] GardenPath = { new Vector2(0.8f, 0.3f), new Vector2(0.4f, -1.8f) };                                                        // 큰길 → 텃밭 입구(윗면 열린 곳)
+        public static readonly Vector2[] BeachPath = { new Vector2(-5.8f, -26.6f), new Vector2(-3.8f, -30.8f), new Vector2(-1.6f, -31.4f) };                        // 큰길 → 바닷가 낚시 자리
+        public static readonly Vector2[] FarmPath = { new Vector2(-5.2f, 26.8f), new Vector2(-9.2f, 30.2f) };                                                       // 큰길 → 농장(닭·토끼)
+        public static readonly Vector2[] Lot2Path = { new Vector2(-7.2f, -12.0f), new Vector2(-26.8f, -5.2f), new Vector2(-29.2f, -7.2f) };                          // 큰길 → 서쪽 땅
+        public static readonly Vector2[] MinePath = { new Vector2(11f, 38.2f), new Vector2(11.8f, 42.8f), new Vector2(7.8f, 46.2f), new Vector2(-23.8f, 52.8f) };   // 송전탑 → 오름 광산
+        public static readonly Vector2[] Lot3Path = { new Vector2(11f, 38.2f), new Vector2(14.8f, 44.8f), new Vector2(26.2f, 40.2f), new Vector2(31.8f, 35.2f), new Vector2(32.8f, 33.8f) };   // 송전탑 → 북동쪽 땅
+        public static readonly Vector2[] HivePath = { new Vector2(31.8f, 35.2f), new Vector2(35f, 36.9f), new Vector2(42.2f, 37.6f), new Vector2(47.5f, 35.9f), new Vector2(51.2f, 32.2f) };                             // 북동쪽 땅 → 유채꽃 벌통
+        public static readonly Vector2[] Lot0Path = { new Vector2(17.8f, -5.2f), new Vector2(16.8f, -16.8f) };                                                      // 정자길 → 남쪽 땅
+        public static readonly Vector2[] Lot1Path = { new Vector2(32.8f, 0.0f), new Vector2(32.4f, -6f), new Vector2(31.2f, -13.2f) };                                                      // 동쪽길 → 남동쪽 땅
+        public static readonly Vector2[] OrchardPath = { new Vector2(49.8f, 13.8f), new Vector2(40.8f, 19.8f) };                                                    // 은행길(축사 앞) → 귤 과수원
+        public static readonly Vector2[][] Branches = { JobPath, TowerPath, PlayPath, HospitalPath, VillageEast.EastPath, VillageEast.BankPath, VillageEast.CafePath,   // 194차: 동쪽 새 동네(은행·브런치 카페·버스 정류장)
+            GardenPath, BeachPath, FarmPath, Lot2Path, MinePath, Lot3Path, HivePath, Lot0Path, Lot1Path, OrchardPath };   // 220차
         // 190차(사용자: 「처음엔 자동이동 우리집·알바나라만. 가는 길 중간을 끊어서, 끊어진 길을 이어야 자동이동」): 돌길이 끊긴 곳(주황 고깔 2개).
         // 여기 반경 GapR 안은 돌길 메시를 그리지 않고 도로망(VillageRoad.Base)에서도 빠진다 → 도로 깔기(한 칸 500G)로 이어야 한다
         public const float GapR = 3.0f;
@@ -254,7 +269,7 @@ namespace CoastRun.Village
             mr.receiveShadows = true; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             BuildPathMesh(root);   // 157차: 돌길
             BuildPathMesh(root, RanchPath, "PathMesh_Ranch", 0.085f);
-            for (int bi = 0; bi < Branches.Length; bi++) BuildPathMesh(root, Branches[bi], "PathMesh_Branch" + bi, 0.08f - bi * 0.004f);
+            for (int bi = 0; bi < Branches.Length; bi++) BuildPathMesh(root, Branches[bi], "PathMesh_Branch" + bi, 0.08f - bi * 0.0025f);   // 220차: 갈림길 17개 — 간격을 줄여 가장 낮은 것도 땅 위 4 cm
             BuildGapCones(root);   // 190차   // 187차   // 178차: 방목장 갈림길(큰길보다 살짝 낮게 — 만나는 곳 깜빡임 방지)
 
             // 바깥 울타리(보이지 않는 벽) — 마을 밖으로 못 나가게
@@ -872,8 +887,9 @@ namespace CoastRun.Village
             }
             var sun = new GameObject("SunDisc").transform; sun.SetParent(root, false);
             sun.localPosition = new Vector3(150f, 62f, -270f);   // 남동쪽 하늘, 고도 ≈11°(마을 카메라는 24° 내려다봐서 지평선 위 조금만 보인다)
-            var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Object.Destroy(q.GetComponent<Collider>()); q.transform.SetParent(sun, false); q.transform.localScale = new Vector3(70f, 70f, 1f);
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad); Object.Destroy(q.GetComponent<Collider>()); q.transform.SetParent(sun, false); q.transform.localScale = new Vector3(30f, 30f, 1f);   // 217차(마감 B7): 70 → 30 — 세로 화면에서 70 m 원반이 화면 폭 절반을 덮던 흰 원
             var m = CoastMaterials.CreateTexturedTransparent(_sunTex, new Color(1f, 1f, 1f, 0.95f)); CoastMaterials.SetNoFog(m, 0f);
+            m.renderQueue = 2450;   // 217차: 반투명 잎·물보다 먼저 그려 나무 뒤로 숨게
             var mr = q.GetComponent<MeshRenderer>(); mr.sharedMaterial = CoastMaterials.SetFlat(m); mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; mr.receiveShadows = false;
             sun.gameObject.AddComponent<SkyBillboard>(); q.AddComponent<SunDisc>();
         }

@@ -60,12 +60,12 @@ namespace CoastRun
         {
             _rng = new System.Random(500 + stageIndex * 4271);
             _nextTrailZ = startZ + 48f;   // Gold Run: first beat is coins/obstacles, not jelly carpet
-            _nextPotionZ = startZ + 90f + (float)_rng.NextDouble() * 60f;
+            _nextPotionZ = startZ + 70f + (float)_rng.NextDouble() * 30f;   // 228차: 90~150 → 70~100 m(초반 한 번 맞으면 회복 없이 쓰러졌음)
             _nextStarZ = startZ + 320f + (float)_rng.NextDouble() * 120f;
             _nextCardZ = startZ + (StoryContest.Active && StoryContest.Current.goal == StoryContest.Goal.Photos ? 200f : 380f) + (float)_rng.NextDouble() * 180f;
             _nextGiantZ = startZ + 140f + (float)_rng.NextDouble() * 80f;
             _nextCapsuleZ = startZ + 120f + (float)_rng.NextDouble() * 100f;
-            _nextHeartZ = Mathf.Max(startZ + 40f, startZ + _heartSpacing * 0.6f);
+            _nextHeartZ = startZ + 40f;   // 228차: 첫 하트는 늘 40 m 쯤(긴 코스는 간격×0.6 = 60 m 넘게 밀렸음)
             _heartsLeft = RunTuning.HeartsPerStage;
             ClearAll();
         }

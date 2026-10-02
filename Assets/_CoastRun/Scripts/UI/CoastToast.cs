@@ -16,10 +16,44 @@ namespace CoastRun
         public static void Show(string msg)
         {
             msg = EmojiText.Clean(msg);   // 213차
+            // 220차(사용자: 연결 점검 — 컷씬 위로 「비가 온다」 같은 마을 알림이 뜨고, 단서·대회 카드 제목을 알림 글씨가 가림):
+            //   컷씬이 흐르거나 이야기 카드가 떠 있는 동안 알림은 모아 두었다가, 끝나고 0.6초 뒤에 차례로 띄운다.
+            if (Held()) { Hold(msg); return; }
             if (RunHudChrome.Instance != null) { Pop(msg); return; }
             // 187차(사용자: 「큰 벌레에게 물렸다 등 캡션은 kpop 러닝의 분홍 큰 글씨처럼」): 마을도 분홍 팝. 같은 문구가 떠 있는 동안엔 겹쳐 띄우지 않는다
             if (CoastRun.Village.VillageHub.I != null) { if (_popping.Contains(msg)) return; Pop(msg); return; }
             ShowBar(msg);
+        }
+
+
+        static readonly List<string> _held = new List<string>();
+        static readonly List<float> _heldAt = new List<float>();   // 모은 시각 — 컷씬 도중 모인 오래된 알림(날씨·「자동 이동 중」 등)은 끝나고 띄우지 않는다
+        static bool Held() => CinematicPlayer.IsPlaying || ChapterVN.IsPlaying || OpeningCinematic.IsPlaying
+                              || StoryEventBeat.IsOpen || ClueSystem.IsOpen || ContestIntroUI.IsOpen;
+        static void Hold(string msg)
+        {
+            if (_held.Contains(msg)) return;
+            if (_held.Count >= 4) { _held.RemoveAt(0); _heldAt.RemoveAt(0); }
+            _held.Add(msg); _heldAt.Add(CinematicPlayer.IsPlaying || ChapterVN.IsPlaying || OpeningCinematic.IsPlaying ? Time.unscaledTime : float.MaxValue);   // 카드가 떠 있는 동안 모인 것(단서 획득 등)은 오래 걸려도 띄운다
+            if (_i == null) { var go = new GameObject("CoastToast"); DontDestroyOnLoad(go); _i = go.AddComponent<CoastToast>(); }
+            if (!_i._flushing) _i.StartCoroutine(_i.FlushHeld());
+        }
+        bool _flushing;
+        IEnumerator FlushHeld()
+        {
+            _flushing = true;
+            float free = 0f;
+            while (free < 0.6f) { free = Held() ? 0f : free + Time.unscaledDeltaTime; yield return null; }
+            _flushing = false;
+            var list = new List<string>();
+            for (int i = 0; i < _held.Count; i++) if (_heldAt[i] == float.MaxValue || Time.unscaledTime - _heldAt[i] < 15f) list.Add(_held[i]);   // 컷씬 도중 15초 넘게 묵은 알림은 버린다
+            _held.Clear(); _heldAt.Clear();
+            foreach (var m in list)
+            {
+                if (Held()) { Hold(m); continue; }
+                Show(m);
+                yield return new WaitForSecondsRealtime(CoastRun.Village.VillageHub.I != null ? 1.4f : 0.2f);   // 마을 팝은 한 번에 하나라 앞 글씨를 다 읽을 틈
+            }
         }
 
         /// 분홍 팝 텍스트 — 가운데 위(0.62)에서 0.6 → 1.15 → 1.0 배로 터지고 1.6초 뒤 위로 떠오르며 사라진다. 여러 개면 살짝 아래로 겹쳐 쌓인다.
@@ -63,7 +97,13 @@ namespace CoastRun
             }
             rt.localScale = Vector3.one;
             float hold = 0f;
-            while (hold < 1.6f) { hold += Time.unscaledDeltaTime; rt.anchoredPosition = new Vector2(Mathf.Sin(hold * 6f) * 2f, yOff + Mathf.Sin(hold * 2.5f) * 4f); yield return null; if (go == null) { _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg); yield break; } }
+            while (hold < 1.6f)
+            {
+                hold += Time.unscaledDeltaTime; rt.anchoredPosition = new Vector2(Mathf.Sin(hold * 6f) * 2f, yOff + Mathf.Sin(hold * 2.5f) * 4f); yield return null;
+                if (go == null) { _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg); yield break; }
+                // 236차(그래픽 점검): 떠 있는 동안 단서·이야기·대회 카드가 열리면 카드 제목을 가리던 것(「레벨 업!」 등) — 지우고 카드가 닫힌 뒤 다시 띄운다
+                if (Held() && hold < 1.2f) { Destroy(go); _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg); Hold(msg); yield break; }
+            }
             k = 0f;
             while (k < 0.5f) { k += Time.unscaledDeltaTime; float u = k / 0.5f; rt.anchoredPosition = new Vector2(0f, yOff + u * 90f); cg.alpha = 1f - u; yield return null; if (go == null) { _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg); yield break; } }
             _popStack = Mathf.Max(0, _popStack - 1); _popping.Remove(msg);

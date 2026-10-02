@@ -25,6 +25,7 @@ namespace CoastRun
                 var res = frameData.Get<UniversalResourceData>();
                 var cam = frameData.Get<UniversalCameraData>();
                 if (cam.cameraType != CameraType.Game) return;
+                if (cam.camera != null && cam.camera.clearFlags == CameraClearFlags.SolidColor && cam.camera.backgroundColor.a < 0.01f) return;   // 217차: 투명 배경 RT 카메라(낚시 주인공 뷰)는 알파를 지키려고 건너뜀
                 var src = res.activeColorTexture;
                 var desc = rg.GetTextureDesc(src); desc.name = "_CoastSharpenTmp"; desc.clearBuffer = false; desc.depthBufferBits = 0;
                 var tmp = rg.CreateTexture(desc);

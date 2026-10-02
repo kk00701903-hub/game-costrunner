@@ -42,6 +42,7 @@ namespace CoastRun
 
         private void OnTriggerEnter(Collider other)
         {
+            if (_popped) return;   // 219차: 몸 판정 보강(PlayerController.SweepHazards)과 물리 트리거가 같은 프레임에 겹쳐 불려도 한 번만
             if (!other.CompareTag("Player") && other.GetComponentInParent<PlayerController>() == null)
                 return;
 

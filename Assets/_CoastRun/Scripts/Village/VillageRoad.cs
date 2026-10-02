@@ -59,8 +59,17 @@ namespace CoastRun.Village
             return best;
         }
 
-        /// 도로망 위 경로(칸 중심 경유점). 못 이으면 null, why 에 이유(「start」 = 내가 도로 밖, 「goal」 = 목적지가 도로 밖, 「gap」 = 끊김)
+        /// 도로망 위 경로. 못 이으면 null, why 에 이유(「start」 = 내가 도로 밖, 「goal」 = 목적지가 도로 밖, 「gap」 = 끊김)
+        /// 220차: 열림/잠김은 이 격자(끊긴 길·내가 깐 칸 포함)로 정하고, 걷는 모양은 길 가운데선(VillageRoadNet)을 따른다 — 격자 경로는 모서리를 가로질러 담·가로등에 걸렸다.
+        ///   가운데선으로 못 이으면(내가 깐 도로로만 이어진 곳 등) 예전 격자 경로 그대로.
         public static List<Vector3> Route(SaveData s, Vector3 from, Vector3 to, out string why)
+        {
+            var grid = GridRoute(s, from, to, out why);
+            if (grid == null) return null;
+            return VillageRoadNet.Route(from, to, SnapM) ?? grid;
+        }
+
+        static List<Vector3> GridRoute(SaveData s, Vector3 from, Vector3 to, out string why)
         {
             why = null; var net = Net(s);
             int a = Nearest(net, from, SnapM), b = Nearest(net, to, SnapM);

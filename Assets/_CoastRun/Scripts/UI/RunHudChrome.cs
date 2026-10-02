@@ -726,10 +726,10 @@ namespace CoastRun
                           : newBestKpop ? Loc.T("★ 최고 점수 갱신!", "★ New best score!") : Loc.T("♪ 한 곡 완주 — 오늘 도장은 이미 찍었어", "♪ Song done — already stamped today");
             var sbW = new System.Text.StringBuilder();
             for (int i = 0; i < 3 && i < ArcadeRun.Conditions.Length; i++) { if (i > 0) sbW.Append("   "); sbW.Append(ArcadeRun.ConditionDone[i] ? "☑ " : "☐ ").Append(ArcadeRun.Conditions[i].Text); }
-            if (ArcadeRun.LastAllClearCoins > 0) sbW.Append(Loc.T($"   미션 올클리어! +{ArcadeRun.LastAllClearCoins}G", $"   All clear! +{ArcadeRun.LastAllClearCoins}G"));
+            if (ArcadeRun.LastAllClearCoins > 0) sbW.Append(Loc.T($"\n미션 올클리어! +{ArcadeRun.LastAllClearCoins}G", $"\nAll clear! +{ArcadeRun.LastAllClearCoins}G"));
             // 86차(사용자): 미션 3개 달성 = 이번 판 돈·젤리 ×2
-            if (ArcadeRun.LastDoubled) sbW.Append(Loc.T($"   ★ 미션 3개 달성 — 돈·젤리 ×2!  돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly}", $"   ★ 3 missions — money & jelly ×2!  +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly}"));
-            else if (ArcadeRun.LastMoney > 0 || ArcadeRun.LastJelly > 0) sbW.Append(Loc.T($"   돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly} (미션 3개면 ×2)", $"   +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly} (×2 with all 3 missions)"));
+            if (ArcadeRun.LastDoubled) sbW.Append(Loc.T($"\n★ 미션 3개 달성 — 돈·젤리 ×2!  돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly}", $"\n★ 3 missions — money & jelly ×2!  +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly}"));
+            else if (ArcadeRun.LastMoney > 0 || ArcadeRun.LastJelly > 0) sbW.Append(Loc.T($"\n돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly} (미션 3개면 ×2)", $"\n+{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly} (×2 with all 3 missions)"));
             var warn = CoastUiArt.GlossyPill(prt, "Warn", new Color(1f, 0.70f, 0.20f), 20, 8); warn.raycastTarget = false;
             warn.rectTransform.anchorMin = new Vector2(0f, 1f); warn.rectTransform.anchorMax = new Vector2(1f, 1f); warn.rectTransform.offsetMin = new Vector2(30f, -502f); warn.rectTransform.offsetMax = new Vector2(-30f, -408f);
             var w1 = CoastHudLayout.MakeText(warn.transform, "W1", reason, 26, TextAnchor.MiddleCenter, new Vector2(0f, 0.48f), new Vector2(1f, 1f), new Vector2(12f, 0f), new Vector2(-12f, -8f));
@@ -1016,10 +1016,10 @@ namespace CoastRun
                 else reason = Loc.T($"곡의 {Mathf.RoundToInt(ArcadeRun.KpopProgress01 * 100f)}%까지 — 한 곡 더?", $"{Mathf.RoundToInt(ArcadeRun.KpopProgress01 * 100f)}% of the song — one more?");
                 var sbW = new System.Text.StringBuilder();
                 for (int i = 0; i < 3 && i < ArcadeRun.Conditions.Length; i++) { if (i > 0) sbW.Append("   "); sbW.Append(ArcadeRun.ConditionDone[i] ? "☑ " : "☐ ").Append(ArcadeRun.Conditions[i].Text); }
-                if (ArcadeRun.LastAllClearCoins > 0) sbW.Append(Loc.T($"   미션 올클리어! +{ArcadeRun.LastAllClearCoins}G", $"   All clear! +{ArcadeRun.LastAllClearCoins}G"));
+                if (ArcadeRun.LastAllClearCoins > 0) sbW.Append(Loc.T($"\n미션 올클리어! +{ArcadeRun.LastAllClearCoins}G", $"\nAll clear! +{ArcadeRun.LastAllClearCoins}G"));
                 // 86차(사용자): 미션 3개 달성 = 이번 판 돈·젤리 ×2
-                if (ArcadeRun.LastDoubled) sbW.Append(Loc.T($"   ★ 미션 3개 달성 — 돈·젤리 ×2!  돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly}", $"   ★ 3 missions — money & jelly ×2!  +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly}"));
-                else if (ArcadeRun.LastMoney > 0 || ArcadeRun.LastJelly > 0) sbW.Append(Loc.T($"   돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly} (미션 3개면 ×2)", $"   +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly} (×2 with all 3 missions)"));
+                if (ArcadeRun.LastDoubled) sbW.Append(Loc.T($"\n★ 미션 3개 달성 — 돈·젤리 ×2!  돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly}", $"\n★ 3 missions — money & jelly ×2!  +{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly}"));
+                else if (ArcadeRun.LastMoney > 0 || ArcadeRun.LastJelly > 0) sbW.Append(Loc.T($"\n돈 +{ArcadeRun.LastMoney}G · 젤리 +{ArcadeRun.LastJelly} (미션 3개면 ×2)", $"\n+{ArcadeRun.LastMoney}G · jelly +{ArcadeRun.LastJelly} (×2 with all 3 missions)"));
                 encourage = sbW.ToString();
             }
             var w1 = CoastHudLayout.MakeText(warn.transform, "W1", reason, 25, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0.5f, 1f), new Vector2(16f, -60f), new Vector2(0f, -12f));

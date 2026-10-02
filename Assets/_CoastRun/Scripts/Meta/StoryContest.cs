@@ -244,7 +244,9 @@ namespace CoastRun
 
             const float rowH = 70f, gap = 22f;
             float y = 224f;
-            EventCardKit.IconRow(crt, icon, new Color(1f, 0.85f, 0.45f), Loc.T("조건 · ", "Goal · ") + d.GoalText, y, rowH, 27, null, null, 46f, 40f);
+            // 228차: 조건을 채워도 결승선(1,500 m)까지 못 가면 실패 — 카드에 같이 적는다
+            string fin = d.goal == StoryContest.Goal.Finish ? "" : (Loc.IsKo ? $" + {StoryProgress.MaxRunMeters:N0} m 완주" : " + " + Loc.Tr($"Finish {StoryProgress.MaxRunMeters:N0} m"));
+            EventCardKit.IconRow(crt, icon, new Color(1f, 0.85f, 0.45f), Loc.T("조건 · ", "Goal · ") + d.GoalText + fin, y, rowH, 27, null, null, 46f, 40f);
             DotLine(crt, y + rowH + 9f); y += rowH + gap;
             EventCardKit.IconRow(crt, "Icon_Speed", new Color(0.62f, 0.90f, 0.72f), Loc.T($"제한시간 · {m}:{sec:00}", $"Time limit · {m}:{sec:00}"), y, rowH, 27, null, null, 46f, 40f);
             DotLine(crt, y + rowH + 9f); y += rowH + gap;

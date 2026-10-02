@@ -1137,7 +1137,7 @@ namespace CoastRun
             var prt = panel.rectTransform; prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 0.5f); prt.pivot = new Vector2(0.5f, 0.5f);
             prt.anchoredPosition = Vector2.zero; prt.sizeDelta = new Vector2(560f, 620f + shift); panel.raycastTarget = true;
 
-            EventCardKit.HellsumTag(prt, Loc.T("✨ 헬섬 이벤트", "✦ Story event"), 20f);
+            EventCardKit.HellsumTag(prt, Loc.T("✨ 이벤트", "✦ Story event"), 20f);   // 220차: 시안 이름 노출 수정
             if (evTex != null)
             {
                 var frame = CoastUiArt.CutePill(prt, "ArtFrame", new Color(0.92f, 0.86f, 0.80f), 18, 0); frame.raycastTarget = false;

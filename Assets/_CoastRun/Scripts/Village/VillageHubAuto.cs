@@ -216,7 +216,9 @@ namespace CoastRun.Village
 
         IEnumerator AutoMoveCo(Spot sp, List<Vector3> route)
         {
-            CoastToast.Show(Loc.T("🧭 자동 이동 중… (조이스틱을 밀면 멈춤)", "🧭 Auto-moving… (push the stick to stop)"));
+            // 221차: 화면 가운데 큰 글자가 주인공·길을 가림 — 처음 세 번만 알려 주고, 그 뒤엔 「이동」 버튼 노란 고리로만 표시
+            int autoHint = PlayerPrefs.GetInt("CoastRun.AutoHint221", 0);
+            if (autoHint < 3) { PlayerPrefs.SetInt("CoastRun.AutoHint221", autoHint + 1); CoastToast.Show(Loc.T("🧭 자동 이동 중… (조이스틱을 밀면 멈춤)", "🧭 Auto-moving… (push the stick to stop)")); }
             int stuck = 0; float side = 1f;
             for (int w = 0; w < route.Count; w++)
             {
@@ -446,6 +448,8 @@ namespace CoastRun.Village
             string sub = VillageLand.OwnedCount(Save) > 0
                 ? Loc.T($"한 달(4주) 월세 {VillageLand.MonthlyRent(Save):N0}G · 다음 입금 {VillageLand.WeeksToRent(Save)}주 뒤 · 지금 {Save.stats.money:N0}G", $"Rent {VillageLand.MonthlyRent(Save):N0}G / 4 weeks · next in {VillageLand.WeeksToRent(Save)}w · {Save.stats.money:N0}G")
                 : Loc.T($"벌레·물고기·작물을 팔아 돈을 모아 땅을 사자. 사면 4주마다 월세! 지금 {Save.stats.money:N0}G", $"Sell bugs, fish, crops to buy land — then rent every 4 weeks! {Save.stats.money:N0}G");
+            // 221차: 땅값이 멀게만 느껴지지 않게 — 큰돈이 어디서 나오는지 한 줄
+            if (VillageLand.OwnedCount(Save) == 0) sub += "\n" + Loc.T("💡 첫 화면 「K-POP 러닝」 한 판이 보통 700G 쯤 — 같은 지갑으로 들어와. 알바·낚시는 하루 100~350G.", "💡 A K-POP run (title screen) pays about 700G — same wallet. Jobs and fishing pay 100–350G a day.");
             _hud.Choice(Loc.T("🏡 땅 · 월세", "🏡 Land · rent"), sub, rows.ToArray());
         }
     }

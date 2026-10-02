@@ -30,35 +30,35 @@ namespace CoastRun
             if (ev == 0) { onDone?.Invoke(); return; }
             switch (ev)
             {
-                case 1: Choice(save, Loc.T("지금 잡을 수 있는 건", "What still fits in my hand"),
-                    Loc.T("유리구슬만 잡히고 우유는 미끄러졌다. 한 번 더 손을 뻗어 본다.", "Only the marble stays. I reach again."),
-                    "Icon_Star", Loc.T("주머니 속 구슬을 꽉 쥔다", "Grip the marble in my pocket"),
-                    "Icon_Coin", Loc.T("탑 아래 미지근한 우유를 든다", "Lift the lukewarm milk by the tower"),
-                    "Icon_Refresh", Loc.T("차가운 팩을 억지로 집는다", "Force the cold carton"),
-                    () => Apply(save, 0, 0, 1, -4, Loc.T("구슬이 손바닥에 남았다. 이건 내 거였던 것.", "The marble stays. It was mine once.")),
-                    () => Apply(save, 0, 0, 1, -2, Loc.T("미지근한 병은 잡혔다. 누군가 매일 두고 가는 것.", "The warm bottle held. Someone leaves it every day.")),
-                    () => Apply(save, 0, 0, 0, 3, Loc.T("또 미끄러졌다. 아직 내 것이 아닌 모양이다.", "It slipped again. Not mine yet.")),
+                case 1: Choice(save, Loc.T("까진 무릎", "Scraped knees"),
+                    Loc.T("돌담 굽은 길에서 둘 다 넘어졌다.", "We both fell on the bend by the stone wall."),
+                    "Icon_Star", Loc.T("꼬마 무릎부터 털어 준다", "Brush off the kid's knees first"),
+                    "Icon_Coin", Loc.T("보드를 먼저 일으켜 세운다", "Pick up the board first"),
+                    "Icon_Refresh", Loc.T("그 자리에 앉아 숨을 고른다", "Sit there and catch my breath"),
+                    () => Apply(save, 0, 0, 1, -4, Loc.T("꼬마가 「안 아파」 하고 두 번 말했다.", "The kid said “Doesn't hurt” twice.")),
+                    () => Apply(save, 0, 0, 1, -2, Loc.T("바퀴 하나가 헛돌았다. 그래도 굴러갔다.", "One wheel spun loose. It still rolled.")),
+                    () => Apply(save, 0, 0, 0, 3, Loc.T("탑 꼭대기가 노을에 빨갛게 보였다.", "The top of the tower looked red in the sunset.")),
                     onDone); break;
-                case 2: Choice2(save, Loc.T("처음 듣는 이름", "A name I almost know"),
-                    Loc.T("해녀들이 「하늘이」라고 했다. 파란 건 나였다. 바다누나.", "The divers said 'Haneul'. Blue was me. Ocean unnie."),
-                    "Icon_Bulb", Loc.T("「하늘」이라고 작게 말해 본다", "Whisper \"Haneul\" aloud"),
-                    "Icon_Refresh", Loc.T("입 안에만 굴려 본다", "Keep it only in my mouth"),
-                    () => Apply(save, 0, 0, 1, -3, Loc.T("발음하니 가슴이 먼저 알아챈 것 같았다.", "Saying it, my chest knew first.")),
-                    () => Apply(save, 0, 0, 0, -1, Loc.T("이름은 아직 무거웠다. 오늘은 여기까지.", "The name was still heavy. Enough for today.")),
+                case 2: Choice2(save, Loc.T("언덕길", "The hill road"),
+                    Loc.T("아줌마가 내 손을 잡고 언덕을 올랐다. 다른 손은 꼬마가 잡았다.", "The lady held my hand up the hill. The kid held the other."),
+                    "Icon_Bulb", Loc.T("아줌마 손을 꼭 잡는다", "Hold the lady's hand tight"),
+                    "Icon_Refresh", Loc.T("꼬마 쪽을 돌아본다", "Look back at the kid"),
+                    () => Apply(save, 0, 0, 1, -3, Loc.T("손바닥이 거칠었다. 바닷물 냄새가 났다.", "Her palm was rough. It smelled of seawater.")),
+                    () => Apply(save, 0, 0, 0, -1, Loc.T("꼬마는 후드를 눌러쓰고 발끝만 보며 걸었다.", "The kid pulled his hood down and watched his feet.")),
                     onDone); break;
                 case 3: Choice2(save, Loc.T("저녁 우유 두 병", "Two bottles at dusk"),
-                    Loc.T("가게 앞 도윤. 꼬마가 소매를 잡았다. 「따라가지 마.」", "Doyun at the shop. The kid tugged my sleeve. \"Don't follow.\""),
-                    "Icon_Arrow", Loc.T("그래도 조금 따라가 본다", "Follow him a little anyway"),
-                    "Icon_Home", Loc.T("꼬마 말대로 자리를 지킨다", "Stay put, like the kid said"),
-                    () => Apply(save, -1, 0, 1, 2, Loc.T("등은 보였지만 얼굴은 안 보였다. 심장이 달렸다.", "I saw his back, not his face. My heart ran.")),
-                    () => Apply(save, 0, 0, 1, -2, Loc.T("꼬마가 안심한 듯 손을 놓았다. 「잘했어.」", "The kid let go, relieved. \"Good.\"")),
+                    Loc.T("흰 셔츠는 탑 쪽으로, 아줌마는 초소 쪽으로. 꼬마가 내 소매를 잡고 있다.", "The white shirt went toward the tower, the lady toward the post. The kid holds my sleeve."),
+                    "Icon_Arrow", Loc.T("흰 셔츠 쪽으로 몇 걸음 가 본다", "Take a few steps after the white shirt"),
+                    "Icon_Home", Loc.T("꼬마 옆에 그대로 선다", "Stay beside the kid"),
+                    () => Apply(save, -1, 0, 1, 2, Loc.T("등만 보였다. 우유병 두 개가 부딪히는 소리가 났다.", "Only his back. The two bottles clinked.")),
+                    () => Apply(save, 0, 0, 1, -2, Loc.T("꼬마가 그제야 소매를 놓았다. 「잘했어.」", "Only then did the kid let go. “Good.”")),
                     onDone); break;
-                case 4: Choice2(save, Loc.T("달력의 X", "An X on the calendar"),
-                    Loc.T("연필은 잘 잡힌다. 빈 칸이 줄어들수록 약속이 커진다.", "The pencil holds. Fewer blank days — a bigger promise."),
-                    "Icon_Book", Loc.T("오늘도 단정히 X를 긋는다", "Draw today's X carefully"),
-                    "Icon_Speed", Loc.T("급하게 줄만 그어 둔다", "Slash it in a hurry"),
-                    () => Apply(save, 0, 0, 0, -3, Loc.T("단정한 X. 손끝이 덜 저렸다.", "A neat X. Fingers steadier.")),
-                    () => Apply(save, 0, 0, 0, 1, Loc.T("삐뚤어진 줄. 그래도 하루는 지나갔다.", "A crooked mark. Still — a day passed.")),
+                case 4: Choice2(save, Loc.T("달력", "The calendar"),
+                    Loc.T("날마다 X를 그었다. 동그라미 칸만 비워 두었다.", "Every day I drew an X. Only the circled day stayed blank."),
+                    "Icon_Book", Loc.T("오늘 칸에 X를 긋는다", "Draw today's X"),
+                    "Icon_Speed", Loc.T("남은 칸을 세어 본다", "Count the days left"),
+                    () => Apply(save, 0, 0, 0, -3, Loc.T("연필 끝이 뭉툭해졌다.", "The pencil tip went blunt.")),
+                    () => Apply(save, 0, 0, 0, 1, Loc.T("세다가 잊어버려서 처음부터 다시 셌다.", "I lost count and started over.")),
                     onDone); break;
                 case 5: Choice2(save, Loc.T("찢어진 우비 소매", "A torn raincoat sleeve"),
                     Loc.T("바늘이 안 잡힌다. 꼬마가 실을 이로 끊었다.", "The needle won't stay. The kid bit the thread."),
@@ -67,19 +67,19 @@ namespace CoastRun
                     () => Apply(save, 0, 0, 1, -3, Loc.T("「괜찮아.」 꼬마가 웃었다. 미안함은 남았다.", "\"It's fine.\" He smiled. Guilt stayed.")),
                     () => Apply(save, 0, 0, 0, 2, Loc.T("손이 떨려 또 놓쳤다. 그래도 포기하진 않았다.", "Trembling — missed again. But I didn't quit.")),
                     onDone); break;
-                case 6: Choice2(save, Loc.T("물때의 뒷모습", "A silhouette at low tide"),
-                    Loc.T("갯바위에서 폐그물을 넘기는 키 큰 남자. 해경이 「아직요?」 물었다.", "A tall man lifting nets. Coast guard: \"Still looking?\""),
-                    "Icon_Arrow", Loc.T("도윤을 따라 갯바위로 간다", "Follow Doyun onto the rocks"),
-                    "Icon_Home", Loc.T("멀리서만 보고 돌아온다", "Watch from afar and leave"),
-                    () => Apply(save, -1, 0, 1, 3, Loc.T("가까이 가자 사라지듯 멀어졌다. 물 냄새가 짰다.", "Closer — he slipped away. Salt in the air.")),
-                    () => Apply(save, 0, 0, 0, -1, Loc.T("오늘은 쫓지 않았다. 찾는 건 사람이라고 했다.", "I didn't chase. He said he was looking for a person.")),
+                case 6: Choice2(save, Loc.T("빈 태왁 망", "The empty net bag"),
+                    Loc.T("아줌마는 소라 대신 바위 틈과 폐그물만 들췄다.", "Instead of conches, the lady searched rock cracks and old nets."),
+                    "Icon_Arrow", Loc.T("나도 바위 틈을 들여다본다", "Look into the rock cracks too"),
+                    "Icon_Home", Loc.T("받은 소라를 귀에 대 본다", "Hold the conch to my ear"),
+                    () => Apply(save, -1, 0, 1, 3, Loc.T("물이 빠진 틈에 작은 게 한 마리가 숨어 있었다.", "A small crab hid in a drained crack.")),
+                    () => Apply(save, 0, 0, 0, -1, Loc.T("바닷소리가 났다. 아줌마가 그걸 보고 웃었다.", "It sounded like the sea. The lady laughed when she saw.")),
                     onDone); break;
-                case 7: Choice2(save, Loc.T("성에 창의 두 얼굴", "Two faces in the frost"),
-                    Loc.T("성에에 얼굴이 둘. 꼬마는 눈길에서 내 뒤만 봤다.", "Two faces on the glass. On the snow path the kid watched my back."),
-                    "Icon_Camera", Loc.T("두 얼굴을 더 또렷이 그린다", "Trace both faces clearer"),
+                case 7: Choice2(save, Loc.T("성에 창의 세 얼굴", "Three faces in the frost"),
+                    Loc.T("꼬마 하나, 나 하나. 꼬마가 하나 더 그렸다.", "One for the kid, one for me. The kid drew one more."),
+                    "Icon_Camera", Loc.T("세 번째 얼굴에 웃는 입을 그린다", "Draw a smile on the third face"),
                     "Icon_Refresh", Loc.T("손등으로 성에를 지운다", "Wipe the frost with my hand"),
-                    () => Apply(save, 0, 0, 1, -2, Loc.T("한쪽은 나, 한쪽은… 아직 이름 없는 눈매.", "One is me. The other — eyes without a name yet.")),
-                    () => Apply(save, 0, 0, 0, 1, Loc.T("창이 맑아졌다. 달력의 32일이 더 선명해 보였다.", "Clear glass. The calendar's day 32 looked sharper.")),
+                    () => Apply(save, 0, 0, 1, -2, Loc.T("꼬마가 옆에서 한쪽 눈을 접어 보였다.", "Beside me, the kid folded one eye shut.")),
+                    () => Apply(save, 0, 0, 0, 1, Loc.T("창이 맑아졌다. 밖에 눈사람이 서 있었다.", "The glass cleared. The snowman stood outside.")),
                     onDone); break;
                 case 8: Choice2(save, Loc.T("이름 없는 국화", "Chrysanthemums without a name"),
                     Loc.T("두 다발. 꼬마가 「저 사람은 아직 몰라」라고 했다.", "Two bunches. The kid: \"That person doesn't know yet.\""),
@@ -88,12 +88,12 @@ namespace CoastRun
                     () => Apply(save, 0, 0, 1, -2, Loc.T("살아 있는 쪽에 꽃을 두니 숨이 고르게 쉬어졌다.", "Flowers for the living — my breath evened out.")),
                     () => Apply(save, 0, 0, 0, 2, Loc.T("이름 없는 꽃. 내가 나인 줄 알면서도 모른 척했다.", "Nameless flowers. I knew — and pretended not to.")),
                     onDone); break;
-                case 10: Choice2(save, Loc.T("전날 밤의 우비", "The raincoat on the eve"),
-                    Loc.T("라디오가 「내일은 들어도 돼」라고 했다. 우비가 침대 옆에 있다.", "The radio: \"Tomorrow you may listen.\" The coat sits by the bed."),
-                    "Icon_Home", Loc.T("우비를 그대로 옆에 둔다", "Leave the coat right there"),
-                    "Icon_Card", Loc.T("멀리 걸어 장롱에 넣는다", "Hang it far away in the closet"),
-                    () => Apply(save, 0, 0, 1, -3, Loc.T("주황이 가까이 있어 잠이 덜 무서웠다.", "Orange nearby — sleep less scary.")),
-                    () => Apply(save, 0, 0, 0, 2, Loc.T("문을 닫았다. 내일의 첫차가 더 크게 들렸다.", "Door shut. Tomorrow's first bus sounded louder.")),
+                case 10: Choice2(save, Loc.T("밥 먹자", "“Let's eat”"),
+                    Loc.T("마루에 종이 한 장, 「밥 먹자」. 국 두 그릇에서 김이 올랐다.", "A note on the porch: “Let's eat.” Steam rose from two bowls of soup."),
+                    "Icon_Home", Loc.T("엄마 옆에 앉는다", "Sit beside Mom"),
+                    "Icon_Card", Loc.T("종이 글씨를 손가락으로 따라 쓴다", "Trace the note with my finger"),
+                    () => Apply(save, 0, 0, 1, -3, Loc.T("엄마가 숟가락을 두 개 놓았다.", "Mom set out two spoons.")),
+                    () => Apply(save, 0, 0, 0, 2, Loc.T("손가락이 종이를 지나갔다. 글씨는 그대로였다.", "My finger went through the paper. The words stayed.")),
                     onDone); break;
                 default:
                     onDone?.Invoke();
@@ -128,10 +128,10 @@ namespace CoastRun
         {
             Close();
             bool three = !string.IsNullOrEmpty(c) && onC != null;
-            // 시안 「헬섬 이벤트」: 크림 카드 + 분홍 태그 + A/B 본문 블록 + 나란히 버튼
+            // 시안(크림 카드) + 분홍 태그 + A/B 본문 블록 + 나란히 버튼
             float h = three ? 680f : 620f;
             var card = EventCardKit.Card("StoryEventBeat", 345, new Vector2(560f, h), out _canvas, 16f);
-            EventCardKit.HellsumTag(card, Loc.T("✨ 헬섬 이벤트", "✦ Story event"), 18f);
+            EventCardKit.HellsumTag(card, Loc.T("✨ 이야기", "✦ Story event"), 18f);   // 220차: 시안 이름(헬섬 이벤트)이 그대로 보이던 것
             var titleT = CoastHudLayout.MakeText(card, "Title", title, 26, TextAnchor.UpperCenter,
                 Vector2.zero, Vector2.one, new Vector2(24f, -72f), new Vector2(-24f, -32f));
             titleT.color = EventCardKit.BrownInk; titleT.fontStyle = FontStyle.Bold;

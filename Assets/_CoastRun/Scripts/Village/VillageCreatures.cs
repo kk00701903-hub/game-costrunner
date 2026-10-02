@@ -19,6 +19,13 @@ namespace CoastRun.Village
             if (_kid != null) l.Add(new KeyValuePair<string, Transform>("kid", _kid));
         }
         static void BrakeNpc(Npc n, Vector3 p, float dt) { n.vel = Vector3.SmoothDamp(n.vel, Vector3.zero, ref n.acc, 0.15f, 100f, dt); if (n.vel.sqrMagnitude < 1e-6f) { n.vel = Vector3.zero; return; } var bp = p + n.vel * dt; bp.y = VillageWorld.Height(bp.x, bp.z); n.root.position = bp; }
+        /// 218차(부드러움): 방향 전환 — 지수 감쇠로 따라가되 초당 최대 각속도를 넘지 않게(뒤로 홱 돌 때 한 프레임 25°+ 튀던 것)
+        static Quaternion Turn(Quaternion cur, Vector3 dir, float k, float dt, float maxDegPerSec = 300f)
+        {
+            if (dir.sqrMagnitude < 1e-8f) return cur;
+            var want = Quaternion.LookRotation(dir, Vector3.up); var s = Quaternion.Slerp(cur, want, 1f - Mathf.Exp(-dt * k));
+            return Quaternion.RotateTowards(cur, s, maxDegPerSec * dt);
+        }
         static void Face(Transform t, Vector3 dir, float k = 12f) { if (t == null || dir.sqrMagnitude < 1e-8f) return; t.rotation = Quaternion.Slerp(t.rotation, Quaternion.LookRotation(dir, Vector3.up), 1f - Mathf.Exp(-Time.deltaTime * k)); }
         public Transform Player; public System.Func<bool> Locked;
         public System.Action<int> OnSpiritHit;           // HP 깎기 (170차: 큰 벌레 접촉)
@@ -281,7 +288,7 @@ namespace CoastRun.Village
             _kid.position = new Vector3(next.x, g, next.z);
             // 걷는 방향으로 몸을 돌리고, 멈추면 주인공 쪽을 본다
             Vector3 face = moving ? _kidVel : (Player.position - _kid.position); face.y = 0f;
-            if (face.sqrMagnitude > 0.001f) _kid.rotation = Quaternion.Slerp(_kid.rotation, Quaternion.LookRotation(face, Vector3.up), dt * 9f);
+            if (face.sqrMagnitude > 0.001f) _kid.rotation = Turn(_kid.rotation, face, 9f, dt);
             // 141차: 애니는 CharacterMotion 이 맡고, 따라 뛸 때 가끔 콩콩 뛴다
             if (_kidMotion == null && _kidAnim != null)
             {
@@ -432,7 +439,7 @@ namespace CoastRun.Village
                     if (np.z < 12f || Mathf.Abs(np.x) > 42f || np.z > 44f || VillageLivestock.Inside(np) || (Mathf.Abs(np.x) < 5f && np.z > 31f)) { c.anchor = -c.anchor; np = p; }
                     float hop = c.kind == 5 && dir.sqrMagnitude > 0.01f ? Mathf.Abs(Mathf.Sin(c.phase * (flee ? 12f : 7f))) * 0.18f : 0f;
                     c.t.position = new Vector3(np.x, VillageWorld.Height(np.x, np.z) + hop, np.z);
-                    if (dir.sqrMagnitude > 0.01f) c.t.rotation = Quaternion.Slerp(c.t.rotation, Quaternion.LookRotation(dir, Vector3.up), dt * 8f);
+                    if (dir.sqrMagnitude > 0.01f) c.t.rotation = Turn(c.t.rotation, dir, 8f, dt);
                     if (c.kind == 4 && dir.sqrMagnitude < 0.01f && c.t.childCount > 0) c.t.GetChild(0).localRotation = Quaternion.Euler(Mathf.Max(0f, Mathf.Sin(c.phase * 5f)) * 18f, 0f, 0f);   // 닭 쪼기
                 }
                 else
@@ -457,7 +464,7 @@ namespace CoastRun.Village
                         var o = new Vector3(Mathf.Sin(c.phase * 1.3f) * 2.2f, 0f, Mathf.Sin(c.phase * 2.6f) * 1.2f);
                         var np = c.anchor + o; np.y = VillageWorld.Height(np.x, np.z) + 0.9f + Mathf.Sin(c.phase * 7f) * 0.15f;
                         var dv = np - p; dv.y = 0f; c.t.position = np;   // 209차: 제자리에서 빙빙 돌던 몸 → 날아가는 쪽을 보고, 날갯짓에 맞춰 살짝 기울기
-                        if (dv.sqrMagnitude > 1e-6f) { var yawQ = Quaternion.Slerp(Quaternion.Euler(0f, c.t.eulerAngles.y, 0f), Quaternion.LookRotation(dv.normalized, Vector3.up), 1f - Mathf.Exp(-dt * 8f)); c.t.rotation = yawQ * Quaternion.Euler(0f, 0f, Mathf.Sin(c.phase * 14f) * 18f); }
+                        if (dv.sqrMagnitude > 1e-6f) { var yawQ = Turn(Quaternion.Euler(0f, c.t.eulerAngles.y, 0f), dv.normalized, 8f, dt); c.t.rotation = yawQ * Quaternion.Euler(0f, 0f, Mathf.Sin(c.phase * 14f) * 18f); }
                     }
                 }
                 if (c.life <= 0f) { Destroy(c.t.gameObject); _crit.RemoveAt(i); }
@@ -870,7 +877,7 @@ namespace CoastRun.Village
                 {
                     // 언덕 밖·밤: 뒤돌아 도망치다 사라짐
                     var away = b.root.position - Player.position; away.y = 0f; var np = b.root.position + away.normalized * 2.8f * dt;
-                    b.root.position = VillageWorld.Ground(np.x, np.z); b.root.rotation = Quaternion.LookRotation(away.normalized, Vector3.up);
+                    b.root.position = VillageWorld.Ground(np.x, np.z); b.root.rotation = Turn(b.root.rotation, away.normalized, 10f, dt, 360f);
                     if (away.magnitude > 26f) { Destroy(b.root.gameObject); _bandits.RemoveAt(i); }
                     continue;
                 }
@@ -880,7 +887,7 @@ namespace CoastRun.Village
                 var sep = Vector3.zero; foreach (var o in _bandits) if (o != b && o.root != null && !o.down) { var v = b.root.position - o.root.position; v.y = 0f; if (v.magnitude < 1.2f) sep += v.normalized * (1.2f - v.magnitude); }
                 var step = (dist > 1.0f ? d.normalized * 1.7f : Vector3.zero) + sep * 2f;
                 var pos = b.root.position + step * dt; b.root.position = VillageWorld.Ground(pos.x, pos.z);
-                if (d.sqrMagnitude > 0.01f) b.root.rotation = Quaternion.Slerp(b.root.rotation, Quaternion.LookRotation(d.normalized, Vector3.up), dt * 8f);
+                if (d.sqrMagnitude > 0.01f) b.root.rotation = Turn(b.root.rotation, d.normalized, 8f, dt);
                 if (dist < 0.95f)
                 {
                     OnBanditHit?.Invoke(8); b.stun = 1.4f;
@@ -912,7 +919,7 @@ namespace CoastRun.Village
             var sep = Vector3.zero; foreach (var o in _bandits) if (o != b && o.root != null && !o.down) { var v = b.root.position - o.root.position; v.y = 0f; if (v.magnitude < 1.3f) sep += v.normalized * (1.3f - v.magnitude); }
             var step = (dist > 1.1f ? d.normalized * 3.6f : Vector3.zero) + sep * 2f;
             var pos = b.root.position + step * dt; b.root.position = VillageWorld.Ground(pos.x, pos.z);
-            if (d.sqrMagnitude > 0.01f) b.root.rotation = Quaternion.Slerp(b.root.rotation, Quaternion.LookRotation(d.normalized, Vector3.up), dt * 10f);
+            if (d.sqrMagnitude > 0.01f) b.root.rotation = Turn(b.root.rotation, d.normalized, 10f, dt);
             if (dist < 1.1f)
             {
                 OnPoliceHit?.Invoke(22); b.stun = 1.2f; if (_clearPolice) return;

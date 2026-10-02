@@ -24,6 +24,8 @@ namespace CoastRun
         /// 피해·회복·드레인 모두 HUD 게이지(0~100 = 최대 체력 %) 기준. K-POP·스토리 동일.
         public const float DamageScale = 1f;
         public const float MinHitFrac = 0.30f, MaxHitFrac = 0.60f;
+        public const float ComboHitWindow = 0.8f, ComboHitMul = 0.5f;   // 236차: 연달아 맞을 때 피해 절반
+        private float _lastHitT = -10f;
         public const float MinHitHp = 30f, MaxHitHp = 60f;
         public const float PotionHealFrac = 0.30f;     // 물약 +30 게이지
         public const float HeartHealFrac = 0.15f;      // 194차(사용자: 「하트 먹으면 채워지는 것」): 하트 +15 게이지(예전엔 말랑이와 같은 +0.4 라 거의 안 찼다)
@@ -123,7 +125,12 @@ namespace CoastRun
             }
             // 장애물 표 = 게이지 그대로(콘 −30 · … · 버스 −60). 체력 스탯은 MaxHp 만 키운다.
             frac = Mathf.Clamp(frac, MinHitFrac, MaxHitFrac);
-            float dmg = max * frac;
+            float dmg = max * frac * (1f - RunTuning.HitReduce);   // 236차: 체력 스탯 → 피해 최대 −15%
+            // 236차(난이도 점검): 맞은 직후(0.8 s) 또 맞으면 피해 절반 — 바위에 맞고 0.5 s 안에 장애물을 또 맞아 100 %→0 이 되던 것.
+            //   76차 원칙(경직 중 충돌도 피해는 난다)은 그대로, 연달아 맞을 때만 덜 아프게.
+            float nowT = Time.unscaledTime;
+            if (nowT - _lastHitT < ComboHitWindow) dmg *= ComboHitMul;
+            _lastHitT = nowT;
             // 194차: 튜토리얼에선 아프기만 하고 끝나지 않게 — 10 % 만 깎고 20 % 밑으로는 안 내려간다.
             if (KpopTutorial.Active) dmg = Mathf.Min(max * 0.10f, Mathf.Max(0f, _current - max * 0.20f));
             Apply(-dmg, silent: false);

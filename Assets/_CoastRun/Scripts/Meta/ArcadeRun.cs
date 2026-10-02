@@ -22,7 +22,7 @@ namespace CoastRun
                 {
                     case MissionKind.NearMiss: return Loc.T($"니어미스 {value}회", $"{value} near misses");
                     case MissionKind.Coins: return Loc.T($"코인 {value}개", $"{value} coins");
-                    case MissionKind.Combo: return Loc.T($"콤보 {value}", $"Combo {value}");
+                    case MissionKind.Combo: return Loc.T($"아슬아슬 스치기 {value}연속", $"Near-miss combo {value}");   // 228차: 「콤보」만으론 뭘 하는지 몰랐음
                     case MissionKind.Hearts: return Loc.T($"하트 {value}개", $"{value} hearts");
                     case MissionKind.MaxHits:
                         return ArcadeRun.KpopMode ? Loc.T($"부딪히기 {value}번까지", $"≤{value} hits") : Loc.T($"첫 500m 피격 {value}회 이하", $"≤{value} hits in first 500 m");
@@ -201,7 +201,7 @@ namespace CoastRun
             {
                 new DailyCondition(MissionKind.Coins, 50 + rng.Next(0, 4) * 20),       // 50~110
                 new DailyCondition(MissionKind.NearMiss, 6 + rng.Next(0, 5) * 2),      // 6~14
-                new DailyCondition(MissionKind.Combo, 3 + rng.Next(0, 4)),             // 3~6
+                new DailyCondition(MissionKind.Combo, 2 + rng.Next(0, 3)),             // 228차: 3~6 → 2~4(15판 테스트에서 최고 2)
                 new DailyCondition(MissionKind.Hearts, 6 + rng.Next(0, 5) * 2),        // 6~14
                 new DailyCondition(MissionKind.MaxHits, rng.Next(0, 3)),               // 0~2
                 new DailyCondition(MissionKind.Fever, 1),
@@ -365,6 +365,8 @@ namespace CoastRun
             chapter = Mathf.Clamp(chapter, 1, Timeline.Chapters);
             Season = (SeasonKind)((chapter - 1) / 5);
             Conditions = MakeKpopConditions(Seed);
+            // 228차: 1~3챕터(장애물이 드문 곳)에선 「스치기 연속」 목표를 2로
+            if (chapter <= 3) for (int ci = 0; ci < Conditions.Length; ci++) if (Conditions[ci].kind == MissionKind.Combo && Conditions[ci].value > 2) Conditions[ci] = new DailyCondition(MissionKind.Combo, 2);
             ConditionDone = new bool[3];
             StageIndex = chapter;
             Distance = 0f; HitsFirst500 = 0; LastScore = 0; LastStamped = false;

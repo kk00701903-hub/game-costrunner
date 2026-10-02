@@ -20,14 +20,16 @@ namespace CoastRun
         /// 씬 id("CS2", "EV9" …) 가 끝났을 때 주는 단서. 없으면 None.
         public static Clue ClueFor(string sceneId)
         {
+            // 220차(연결 점검): 단서를 그 물건이 나오는 장면 뒤로 옮김 — 하트 EV1(조개껍데기) · 돌 세 개 CS2(담요 자리로 돌아감) · 머리띠 CS5 · 라디오 CS6 · 이름 CS7 · 편지 EV2(약속 뒤).
+            //   (예전: CS2 하트 · CS3 라디오 · CS4 돌 · CS8 머리띠 · EV9 편지 — 장면에 없는 물건이 나오거나 마지막 장면 뒤에 카드가 떴다)
             switch (sceneId)
             {
-                case "CS2": return Clue.Heart;
-                case "CS3": return Clue.Radio;
-                case "CS4": return Clue.Stones;
+                case "EV1": return Clue.Heart;
+                case "CS2": return Clue.Stones;
+                case "CS5": return Clue.Headband;
+                case "CS6": return Clue.Radio;
                 case "CS7": return Clue.Name;
-                case "CS8": return Clue.Headband;
-                case "EV9": return Clue.Letters;
+                case "EV2": return Clue.Letters;
                 default: return Clue.None;
             }
         }
@@ -67,11 +69,11 @@ namespace CoastRun
         {
             switch (c)
             {
-                case Clue.Heart: return Loc.T("부표의 삐뚤어진 하트 — 아빠 손으로 그린 것과 같은 페인트 자국을 기억해 두었다.", "The crooked heart on the buoy — the same paint mark Dad used to make.");
-                case Clue.Radio: return Loc.T("고장 난 라디오를 고쳤다. 다이얼은 89.2에 멈춰 있었다.", "The broken radio works again. The dial rests at 89.2.");
+                case Clue.Heart: return Loc.T("조개껍데기 위 삐뚤어진 빨간 하트. 「잃어버리지 마.」", "A crooked red heart on the shell. “Don't lose it.”");
+                case Clue.Radio: return Loc.T("다이얼 옆에 하트가 그려진 라디오. 바늘이 89.2에 멈춰 있다.", "A radio with a heart drawn by the dial. The needle rests at 89.2.");
                 case Clue.Stones: return Loc.T("탑 아래 돌 세 개가 무너져 있다. 다시 쌓을까, 그냥 둘까.", "The three stones under the tower have fallen. Stack them again — or leave them.");
                 case Clue.Name: return Loc.T("코팅된 수색 카드 — 「고하늘 실종 1년」. 내 이름이 거기 있었다.", "A laminated search card — 'Go Haneul, missing one year'. My name was there.");
-                case Clue.Headband: return Loc.T("방수 통 속 푸른 보석 머리띠. 아빠가 끝까지 지킨 것.", "The blue gem headband inside the waterproof case. What Dad kept to the end.");
+                case Clue.Headband: return Loc.T("노란 통 속 파란 보석 머리띠. 한 번도 안 쓴 새것.", "The blue gem headband in the yellow tin. Never worn.");
                 case Clue.Letters: return Loc.T("편지 스무 통. 전부 읽으면 밤이 새겠지만, 한 통도 남기고 싶지 않다.", "Twenty letters. Reading them all will take the night, but I don't want to leave one unread.");
                 default: return "";
             }
@@ -237,8 +239,8 @@ namespace CoastRun
         {
             Close();
             CoastPrefs.VibrateEvent();   // 109차: 단서 획득 — 특정 이벤트 진동
-            var card = EventCardKit.Card("ClueCard", 340, new Vector2(560f, choice ? 520f : 440f), out _canvas, 20f);
-            EventCardKit.Kid(card, choice ? Loc.T("누나, 어떡할래?", "What'll you do?") : Loc.T("누나, 이거 봐!", "Look at this!"), true);   // 109차: 꼬마 동행
+            var card = EventCardKit.Card("ClueCard", 340, new Vector2(560f, choice ? 620f : 500f), out _canvas, 20f);   // 235차: 버튼이 설명 상자 아래 줄을 덮던 것 — 카드 높이 520/440 → 620/500
+            if (c != Clue.Name) EventCardKit.Kid(card, choice ? Loc.T("누나, 어떡할래?", "What'll you do?") : Loc.T("누나, 이거 봐!", "Look at this!"), true);   // 109차: 꼬마 동행 · 220차: 꼬마의 정체가 드러난 CS7 뒤(이름)엔 꼬마 말풍선 없음
             EventCardKit.JellyTitle(card, Loc.T("단서", "CLUE"), new Color(1f, 0.85f, 0.30f), new Color(0.35f, 0.16f, 0.02f), 26f, 70f, 46);
             EventCardKit.Divider(card, 104f);
             var prof = GameManager.I != null ? GameManager.I.Profile : null;

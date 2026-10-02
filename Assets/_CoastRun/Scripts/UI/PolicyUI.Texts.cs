@@ -9,7 +9,7 @@ namespace CoastRun
         public const string CompanyEn = "Studio Woohee-Heesi";
         public const string Contact = "sbs71656@gmail.com";      // 52차(사용자)
         public const string YouthOfficer = "청소년보호책임자 (성명·직위 기재)";   // TODO
-        public const string Game = "너와 나의 주파수 (Coast Run)";
+        public const string Game = "너와 나의 주파수 (Our Frequency)";
 
         public static string TermsKo => $@"이용약관
 시행일 {Effective}
@@ -119,7 +119,7 @@ Contact: {Contact}";
 
 1. 수집하는 정보와 방법
 ① 회원가입 없음: 서비스는 별도의 회원가입·로그인 없이 이용할 수 있으며, 이름·이메일·전화번호 등을 직접 입력받지 않습니다.
-② 게임 진행 데이터(세이브, 설정, 컬렉션, 기록): 이용자의 기기 안에만 저장됩니다. 회사 서버로 전송되지 않습니다.
+② 게임 진행 데이터(세이브, 설정, 컬렉션, 기록): 이용자의 기기 안에만 저장됩니다. 회사 서버로 전송되지 않습니다. 다만 이용자가 기기의 백업 기능(Google 백업)을 켜 두었다면, 운영체제가 이 데이터를 이용자의 Google 계정에 백업할 수 있으며, 이 백업은 Google의 개인정보처리방침에 따라 처리됩니다.
 ③ 결제 정보: 유료 재화 구매 시 결제는 앱 마켓(Google Play, App Store)이 처리하며, 회사는 카드번호 등 결제 수단 정보를 받지 않습니다. 회사는 마켓이 제공하는 구매 확인 정보(주문 번호, 상품, 구매 시각)만 확인합니다.
 ④ 자동으로 생성되는 정보: 앱이 비정상 종료되면 앱 마켓·운영체제가 제공하는 오류 보고(기기 모델, OS 버전, 앱 버전, 오류 내용)가 수집될 수 있습니다. 이 정보로 개인을 알아볼 수 없습니다.
 ⑤ 접근 권한: 사진 저장(포토카드 저장·공유), 진동 등은 이용자가 해당 기능을 쓸 때만 요청하며, 허용하지 않아도 게임의 기본 기능은 이용할 수 있습니다.
@@ -145,7 +145,7 @@ Contact: {Contact}";
 회사는 결제 기록 등 보유 정보에 대한 접근을 최소 인원으로 제한하고, 전송 시 암호화된 통신을 사용합니다.
 
 8. 개인정보 보호책임자
-성명·직위: (기재)   연락처: {Contact}
+담당: {Company} 개인정보 담당   연락처: {Contact}
 개인정보 침해 신고·상담: 개인정보침해신고센터 (privacy.kisa.or.kr, 118) · 개인정보분쟁조정위원회 (kopico.go.kr, 1833-6972)
 
 9. 지침의 변경
@@ -158,7 +158,7 @@ Effective {Effective}
 
 1. What we collect and how
 (1) No account: the Service works without sign-up or login and does not ask for your name, e-mail or phone number.
-(2) Game progress (saves, settings, collection, records) is stored only on your device and is not sent to the Company's servers.
+(2) Game progress (saves, settings, collection, records) is stored only on your device and is not sent to the Company's servers. If you have turned on device backup (Google backup), the operating system may back up this data to your Google Account, where it is handled under Google's privacy policy.
 (3) Payments are processed by the app store (Google Play / App Store); the Company never receives card numbers or other payment credentials, only the store's purchase confirmation (order number, item, time).
 (4) Automatically generated data: if the app crashes, the OS or app store may collect a crash report (device model, OS version, app version, error). It cannot identify you.
 (5) Permissions (saving photos for photocards, vibration) are requested only when you use that feature; the core game works without them.
@@ -182,7 +182,7 @@ You may delete game data on your device at any time (delete the app / New Game) 
 Access to retained records is limited to the minimum staff and transmissions use encrypted connections.
 
 8. Privacy officer
-Name/title: (to be filled)   Contact: {Contact}
+Contact point: {CompanyEn}, Privacy Team   Contact: {Contact}
 
 9. Changes
 Changes are announced in the Service 7 days before they take effect.";

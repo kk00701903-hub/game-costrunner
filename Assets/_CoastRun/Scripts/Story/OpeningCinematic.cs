@@ -133,7 +133,7 @@ namespace CoastRun
             var r1 = t1.rectTransform; r1.anchorMin = r1.anchorMax = new Vector2(0.5f, 0.70f); r1.sizeDelta = new Vector2(680f, 90f);
             t1.fontStyle = FontStyle.Bold;
             CoastUiArt.OutlineText(t1, new Color(0.55f, 0.22f, 0.08f, 0.9f), 2.5f);
-            var t2 = CoastOrnate.Label(tgo.transform, "Sub", "우리의 송전탑  ·  COAST RUN", 24, new Color(1f, 0.93f, 0.78f, 0.95f));
+            var t2 = CoastOrnate.Label(tgo.transform, "Sub", "우리의 송전탑  ·  OUR FREQUENCY", 24, new Color(1f, 0.93f, 0.78f, 0.95f));
             var r2 = t2.rectTransform; r2.anchorMin = r2.anchorMax = new Vector2(0.5f, 0.635f); r2.sizeDelta = new Vector2(600f, 40f);
             CoastUiArt.OutlineText(t2, new Color(0f, 0f, 0f, 0.6f), 1.5f);
 

@@ -11,7 +11,7 @@ namespace CoastRun.Editor
     /// Android APK 원클릭 빌드 — Builds/CoastRun.apk. 세로 고정, IL2CPP ARM64(+ARMv7), 디버그 키스토어.
     public static class BuildMenu
     {
-        private const string Bundle = "com.jette.coastrun";
+        private const string Bundle = "com.ourfrequency.game";
 
         // 82차: GraphicsSettings Always Included — GUID 로 고정해 빌드마다 되돌아가는 회귀 방지.
         private static readonly string[] AlwaysIncludedGuids =

@@ -162,6 +162,14 @@ namespace CoastRun.Village
                 bool c = false; ClueSystem.ShowAfterScene(Save, id, () => c = true); while (!c) yield return null;
             }
             _gm.Persist();
+            // 220차(연결 점검: 하늘이 사라지는 마지막 장면 뒤 밝은 마을로 돌아오던 것): CS8 뒤엔 마을로 돌아오지 않고 검은 화면 그대로 엔딩으로
+            if (s.id == "CS8" && _gm != null)
+            {
+                TitleAudio.StopMenuGlobal();
+                _storyPlaying = true;   // 엔딩이 이어지는 동안 마을 입력·이야기 점검 멈춤
+                _gm.FinishFromVillageStory();
+                yield break;
+            }
             TitleAudio.PlayRaising();
             SnapCamera();
             yield return FadeScreen(false, 0.5f);
@@ -169,13 +177,20 @@ namespace CoastRun.Village
             if (s.id == "CS1") { yield return TutStart(); yield break; }
             // 다음 이야기 예고(한 줄) — 다음 장면이 이미 열려 있으면 그쪽을 알려 준다
             var next = VillageStory.Pending(Save);
-            if (next != null) CoastToast.Show(Loc.T($"✨ 이야기가 이어진다 — {next.placeKo}", $"✨ The story continues — {next.placeEn}"));
+            var frag = next == null ? VillageStory.PendingFrag(Save) : null;   // 220차: 기억 조각이 빛나는데 「다음 이야기는 N장에서」만 뜨던 것
+            // 220차: 방금 고른 카드의 결과 한 줄(토스트)을 읽을 틈을 두고 다음 예고를 띄운다(마을 알림은 한 번에 하나라 바로 덮였다)
+            string nextMsg = null;
+            if (next != null) nextMsg = Loc.T($"✨ 이야기가 이어진다 — {next.placeKo}", $"✨ The story continues — {next.placeEn}");
+            else if (frag != null) nextMsg = Loc.T($"✨ 기억 조각이 빛난다 — {frag.placeKo.Replace("기억 조각 · ", "")}", $"✨ A memory glows — {frag.placeEn.Replace("Memory · ", "")}");
             else
             {
                 int nc = 0; foreach (var o in VillageStory.Order) if (!VillageStory.Seen(o, Save)) { nc = o.chapter; break; }
-                if (nc > 0) CoastToast.Show(Loc.T($"다음 이야기는 {nc}장에서 — 그때 장소가 빛난다", $"Next story in chapter {nc} — its place will glow"));
+                if (nc > 0) nextMsg = Loc.T($"다음 이야기는 {nc}장에서 — 그때 장소가 빛난다", $"Next story in chapter {nc} — its place will glow");
             }
+            if (nextMsg != null) StartCoroutine(ToastLater(nextMsg, 2.2f));
         }
+
+        IEnumerator ToastLater(string msg, float wait) { yield return new WaitForSeconds(wait); CoastToast.Show(msg); }
 
         // ── 튜토리얼(꼬마와 함께) ─────────────────────────────────────────
         IEnumerator TutStart()
@@ -256,7 +271,8 @@ namespace CoastRun.Village
             if (k == TKind.None) return;
             if (_interior != null) { CoastToast.Show(Loc.T("밖으로 나가서 가자!", "Let's head outside first!")); return; }
             var flat = pos - _player.position; flat.y = 0f;
-            List<Vector3> route = flat.magnitude < 8f ? new List<Vector3> { pos } : (VillageRoad.Route(Save, _player.position, pos, out var _) ?? Route(_player.position, pos));
+            // 220차: 꼬마는 끊긴 길 너머도 안다 — 이야기 안내는 끊김과 상관없이 길 가운데선을 따라 걷는다(없으면 예전 경로)
+            List<Vector3> route = flat.magnitude < 8f ? new List<Vector3> { pos } : (VillageRoadNet.Route(_player.position, pos, 12f) ?? VillageRoad.Route(Save, _player.position, pos, out var _) ?? Route(_player.position, pos));
             if (_autoCo != null) StopCoroutine(_autoCo);
             if (_autoHunt) SetAutoHunt(false);
             var sp = new Spot { id = "story", title = label, pos = pos, radius = 2.6f, on = null };
@@ -335,6 +351,9 @@ namespace CoastRun.Village
             var toBlanket = VillageWorld.Ground(VillageStory.Blanket.x, VillageStory.Blanket.y) - land; toBlanket.y = 0f;
             _player.position = land; _player.rotation = Quaternion.LookRotation(toBlanket.normalized, Vector3.up);
             _cc.enabled = true; _storyCam = false; SnapCamera();
+            // 217차(마감 B9): 첫 화면이 송전탑 철골로 반쯤 가리던 것 — 담요(빛) 방향에서 탑 반대쪽(남)으로 28° 비켜 본다: 빛은 화면 안, 탑 다리는 밖
+            { float by = Mathf.Atan2(toBlanket.x, toBlanket.z) * Mathf.Rad2Deg, ty = Mathf.Atan2(15f - land.x, 41f - land.z) * Mathf.Rad2Deg;
+              float vy = by + (Mathf.DeltaAngle(ty, by) >= 0f ? 28f : -28f); _camYaw = _camYawTarget = vy; _cam.transform.position = CamTarget; _cam.transform.LookAt(CamLook); _camVel = Vector3.zero; _snapCam = true; }
             Save.prologueSeen = true; Save.villageX = land.x; Save.villageZ = land.z; _gm.Persist();
             if (_hud != null && _hud.Root != null) _hud.Root.gameObject.SetActive(true);
             if (_map != null) _map.SetHidden(false);

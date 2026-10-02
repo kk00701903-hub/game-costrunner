@@ -162,7 +162,15 @@ namespace CoastRun.Village
                 var card = CoastUiArt.CutePill(root, "Cap", Color.Lerp(Color.white, RarCol[(int)g.r], 0.35f), 18, 4); card.raycastTarget = false;
                 var rt = card.rectTransform; rt.anchorMin = new Vector2(x0, y1 - ch); rt.anchorMax = new Vector2(x0 + cw, y1); rt.offsetMin = rt.offsetMax = Vector2.zero;
                 var d = LifeItems.Get(g.id);
-                var tx = CoastHudLayout.MakeText(rt, "N", $"<b>{RarKo[(int)g.r]}</b>\n{(d.HasValue ? LifeItems.Name(d.Value) : g.id)}", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 6f), new Vector2(-8f, -6f));
+                // 217차(마감 B3): 결과 카드에 아이템 그림 — 위 58 % 그림, 아래 등급·이름
+                var itex = d.HasValue ? ArtAssets.LoadTexture(d.Value.art) : null;
+                if (itex != null)
+                {
+                    var im = new GameObject("I", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                    im.transform.SetParent(rt, false); im.sprite = CoastUiArt.AsSprite(itex); im.preserveAspect = true; im.raycastTarget = false;
+                    var irt = im.rectTransform; irt.anchorMin = new Vector2(0.12f, 0.40f); irt.anchorMax = new Vector2(0.88f, 0.96f); irt.offsetMin = irt.offsetMax = Vector2.zero;
+                }
+                var tx = CoastHudLayout.MakeText(rt, "N", $"<b>{RarKo[(int)g.r]}</b>\n{(d.HasValue ? LifeItems.Name(d.Value) : g.id)}", 22, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(1f, itex != null ? 0.42f : 1f), new Vector2(8f, 6f), new Vector2(-8f, -2f));
                 tx.color = EventCardKit.BrownInk; tx.supportRichText = true; tx.horizontalOverflow = HorizontalWrapMode.Wrap; tx.resizeTextForBestFit = true; tx.resizeTextMinSize = 12; tx.resizeTextMaxSize = CoastHudLayout.Scaled(22);
                 rt.localScale = Vector3.zero;
                 for (float t = 0f; t < 1f; t += Time.deltaTime / 0.18f) { rt.localScale = Vector3.one * Mathf.SmoothStep(0f, 1f, t) * (1f + 0.15f * Mathf.Sin(t * Mathf.PI)); yield return null; }

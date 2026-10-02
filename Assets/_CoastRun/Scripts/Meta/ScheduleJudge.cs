@@ -33,6 +33,7 @@ namespace CoastRun
         public const float GreatBase = 0.06f;
         public const float GreatCharmCoef = 0.0012f;
         public const float FailStressMult = 1.5f;
+        public const float JobStressMul = 0.85f;   // 237차: 알바 스트레스 ×0.85(스트레스 벽 완화)
         public const float GreatGainMult = 1.5f;
         public const float MinChance = 0.05f;
         public const float MaxChance = 0.97f;
@@ -116,7 +117,7 @@ namespace CoastRun
                 //   실패 배율(×1.5)이나 간식 배율(×0.8)을 그대로 곱하면 실패가 더 시원해지는 역전이 생긴다.
                 after.stress += Mathf.RoundToInt(d.dStress * (o == Outcome.Fail ? 0.5f : 1f) * seasonMul);
             else
-                after.stress += Mathf.RoundToInt(d.dStress * (o == Outcome.Fail ? FailStressMult : 1f) * RhythmStressMul);
+                after.stress += Mathf.RoundToInt(d.dStress * (o == Outcome.Fail ? FailStressMult : 1f) * RhythmStressMul * (d.category == ScheduleCategory.Job ? JobStressMul : 1f));
 
             int hearts = o == Outcome.GreatSuccess ? d.heartsOnGreat : 0;
             after.hearts += hearts;

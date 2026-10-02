@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace CoastRun.Village
@@ -6,7 +6,7 @@ namespace CoastRun.Village
     /// 199차: 광산 던전(깊은 갱도 B1~B5) 연결 — 입구(광산 안 구멍)·계단·싸움(행동 버튼)·광맥·보스 보상·쓰러지면 병원.
     public partial class VillageHub
     {
-        VillageDungeon _dun; Vector3 _dunHole; bool _hospDun; bool _dunIntroSeen;
+        VillageDungeon _dun; Vector3 _dunFrame; float _dunFrameBack; Vector3 _dunHole; bool _hospDun; bool _dunIntroSeen;
 
         void AddDungeonSpots()
         {

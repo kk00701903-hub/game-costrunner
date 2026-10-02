@@ -512,8 +512,8 @@ namespace CoastRun
             {
                 _creditsText.gameObject.SetActive(true);
                 _creditsText.text =
-                    "Coast Run\n\n" +
-                    "우리의 송전탑\n\n\n" +
+                    "Our Frequency\n\n" +
+                    "너와 나의 주파수\n\n\n" +
                     "—\n\n\n";
             }
 

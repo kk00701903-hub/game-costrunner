@@ -13,7 +13,7 @@ namespace CoastRun.Village
     public class VillageSky : MonoBehaviour
     {
         const float RingR = 130f;                   // 구름 링 반지름(안개 밖·far 420 안)
-        const float CamH = 6.4f;                    // VillageHub.CamHeight 와 같은 값
+        const float CamH = 9.0f;                    // VillageHub.CamHeight 와 같은 값(219차 6.4→7.1 · 230차 → 9.0)
         static float SkyY(float d, float apparentDeg) => CamH + d * Mathf.Tan(apparentDeg * Mathf.Deg2Rad) + VillageHub.CurveK * d * d;
         static Material Curved(Material m) { if (m != null && m.HasProperty("_CurveWeight")) m.SetFloat("_CurveWeight", 1f); return m; }
         /// 셰이더가 _BaseColor/_Color 어느 쪽이든 틴트를 먹인다(Material.color 는 [MainColor] 가 없는 셰이더에서 빗나간다)

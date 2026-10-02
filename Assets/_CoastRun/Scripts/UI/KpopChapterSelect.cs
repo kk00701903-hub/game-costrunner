@@ -77,7 +77,7 @@ namespace CoastRun
                 var trt = ti.rectTransform; trt.anchorMin = trt.anchorMax = new Vector2(0.5f, 1f); trt.pivot = new Vector2(0.5f, 1f);
                 trt.anchoredPosition = new Vector2(0f, -22f); trt.sizeDelta = new Vector2(420f, 105f);
             }
-            var sub = CoastHudLayout.MakeText(root, "Sub", Loc.T("너와 나의 주파수  COAST RUN · JEJU", "You & My Frequency  COAST RUN · JEJU"), 14, TextAnchor.MiddleCenter,
+            var sub = CoastHudLayout.MakeText(root, "Sub", Loc.T("너와 나의 주파수  ·  JEJU", "Our Frequency  ·  JEJU"), 14, TextAnchor.MiddleCenter,
                 new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -158f), new Vector2(0f, -128f));
             sub.color = Navy; sub.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(sub, new Color(1f, 1f, 1f, 0.85f), 1.5f);
             _hint = CoastHudLayout.MakeText(root, "Hint", "", 11, TextAnchor.MiddleCenter,

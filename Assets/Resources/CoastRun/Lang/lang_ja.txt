@@ -548,3 +548,2343 @@ Your trucks don't wobble anymore. You fixed them?	トラック、もうぐらつ
 …Your phone?	…スマホは？
 Our Frequency	僕らの周波数
 More	もっと見る
+  (locked)	  （ロック中）
+  Caught Dodam!	  ドダムをつかまえた！
+  Caught…	  つかまった…
+  again!	  もう一回！
+  ·  all open	  ·  全部オープン
+ (locked)	 （ロック中）
+ (now)	 （いま）
+ Once a year.	 年に一度。
+ jumps	 回ジャンプ
+ photos	 枚
+ · again!	 · もう一回！
+ · hidden tracks on	 · 隠しトラック解放
+ · iron +1	 · 鉄 +1
+ · side unlocked!	 · サイド解放！
+ · stone +1	 · 石 +1
+!! Burnout — spend next week playing	!! バーンアウト — 来週は遊んで過ごす
+!! Condition 0 — one more week and she collapses	!! コンディション0 — あと1週で倒れる
+!! Stress critical — one more week and she collapses	!! ストレス限界 — あと1週で倒れる
+(Collection records kept)	（コレクション記録は保持）
+(hold!)	（長押し！）
+(off aim)	（狙いがずれた）
+(too strong)	（強すぎ）
+(too weak)	（弱すぎ）
+(−20% money · continue this week)	（所持金−20% · 今週を続行）
++12w clothes	+12週 服
+1st	1位
+2,000 coins	2,000コイン
+2nd	2位
+3 catches = lose · 40 s	3回つかまると負け · 40秒
+3 in! Tuho master	3本イン！投壺マスター
+3 laps first! Victory!	3周先取！勝利！
+3 of 5 in the jar!	5本中3本、壺にイン！
+3 shells at Saekdong Beach	セッドン海岸で貝がら3つ
+3 tries left	残り3回
+3-lap race	3周レース
+3rd	3位
+4 digits	4桁
+400 coins	400コイン
+8,000 coins	8,000コイン
+<color=#FF5A5A>Looking!</color>	<color=#FF5A5A>見てる！</color>
+<color=#FFE86A>Hooray!</color>	<color=#FFE86A>やった！</color>
+<color=#FFE86A>Now! Tap the tagger!</color>	<color=#FFE86A>今だ！鬼をタップ！</color>
+? What should I do?	？ どうしよう？
+??? · reach this ending	??? · このエンディングに到達
+A Face I Don't Know	知らない顔
+A Jungmon souvenir? Tangerine chocolate!	チュンムンのおみやげ？みかんチョコ！
+A Meal	ごはん
+A coffee's worth — please donate ☕	コーヒー1杯分 — 寄付をお願いします ☕
+A crooked mark. Still — a day passed.	いびつな印。それでも、一日が過ぎた。
+A good meal	いいごはん
+A good month — next week growth +20%	いい月だった — 来週の成長+20%
+A good month! — next week growth +20%	いい月だった！ — 来週の成長+20%
+A haenyeo bear, an astronaut bear… the tangerine-hat bear is the cutest.	海女のクマ、宇宙飛行士のクマ… みかん帽子のクマがいちばんかわいい。
+A hive kit is 800G.	ミツバチの巣箱キットは800G。
+A laminated search card — 'Go Haneul, missing one year'. My name was there.	ラミネートされた捜索カード — 「コ・ハヌル、行方不明1年」。私の名前だった。
+A memory waits near a story place	ストーリーの場所の近くで思い出が待っている
+A name I almost know	思い出せそうな名前
+A neat X. Fingers steadier.	きれいなX。指が落ち着いてきた。
+A rough week…	きつい一週間…
+A run-only deco	ラン専用デコ
+A shot with the giant teddy! Pose?	巨大テディベアと一枚！ポーズは？
+A silhouette at low tide	干潮の人影
+A steady week.	穏やかな一週間。
+A story is waiting — sleep in your bed first.	ストーリーが待っている — まずベッドで眠ろう。
+A tall man lifting nets. Coast guard: "Still looking?"	網を上げる背の高い男。海洋警察：「まだ探してるのか？」
+A torn raincoat sleeve	破れた雨合羽の袖
+A typhoon wanders across lanes — don't touch it!\nNo coins/obstacles meanwhile · survive for +100 coins	台風がレーンをさまよう — 触れるな！\nその間コイン・障害物なし · 生き残れば+100コイン
+A village contest, unrelated to the story.	ストーリーとは関係ない村の大会。
+A week has passed	一週間が過ぎた
+A week went by!	一週間たった！
+AGI	敏捷
+AM	午前
+AM 08:00	午前 08:00
+AVOID	よけろ
+Acquaintance	知り合い
+Act 1	第1幕
+Act 1 · The One Who Came Back	第1幕 · 帰ってきた人
+Act 2	第2幕
+Act 2 · The Same Frequency	第2幕 · 同じ周波数
+Act 3	第3幕
+Act 3 · The Last Sunset	第3幕 · 最後の夕焼け
+Actions done — next turn!	行動終了 — 次のターンへ！
+Added to this chapter	このチャプターに追加
+Added to your wallet	お財布に追加
+Affinity	好感度
+Affinity 	好感度 
+Aim set!	狙い完了！
+All actions done this week — go to bed.	今週の行動は全部終わり — ベッドへ。
+All actions done — press Next turn!	行動終了 — 「次のターン」を押して！
+All decos owned — one more pull!	デコは全部そろった — もう一回引こう！
+All five! Bonus +20G	5つ全部！ボーナス+20G
+All photocards collected — +50 coins	フォトカードコンプリート — +50コイン
+All stats +6 · Stress −20	全ステータス+6 · ストレス−20
+All three done! 	3つとも完了！ 
+Already ate today. So full~	今日はもう食べた。おなかいっぱい～
+Already commanded this week — next week!	今週はもう指示した — また来週！
+Already did this turn. Try something else!	このターンはもうやった。ほかのことを！
+Already full	もういっぱい
+Already napped this turn.	このターンはもう昼寝した。
+Already played today. Work or home!	今日はもう遊んだ。仕事か家へ！
+Already shook this tree this week.	今週はもうこの木をゆすった。
+Already signed — +5,000 coins	署名済み — +5,000コイン
+Already watered this phase.	この期間はもう水やりした。
+Already watered. Fertilizer gives ★+1.	水やり済み。肥料で★+1。
+Already worked today. Come back tomorrow.	今日はもう働いた。また明日。
+An X on the calendar	カレンダーのX
+An ending you haven't reached yet	まだ見ていないエンディング
+Another way.	別の道。
+Any plot: seed, water or harvest	どの畑でも：種まき・水やり・収穫
+Argh!	うわっ！
+Arrived after sunset… hearts −40%   ·   	日没後に到着… ハート−40%   ·   
+At night, sleep in the bed inside. A week passes when you sleep.	夜は家の中のベッドで眠ろう。眠ると一週間が過ぎる。
+Auto	オート
+Auto OFF	オートOFF
+Auto ON	オートON
+Auto buy off.	自動購入オフ。
+Auto follows simple rules. Picking cards yourself is more fun.	オートは単純なルールで動く。カードは自分で選ぶほうが楽しい。
+Auto-buys rice at week end when out of food.	食料が尽きたら週末にお米を自動購入。
+Auto-move stopped	自動移動を停止
+B this time, maybe	今回はBかも
+BAM!!\nTHROW!!	バン!!\n投げろ!!
+BELL!	ベル！
+BOSS CLEARED!	ボス撃破！
+Back	戻る
+Back to raising	育成へ戻る
+Bada	バダ
+Bag	バッグ
+Bag empty. Stock up at the shop.	バッグが空っぽ。お店で買いそろえよう。
+Bandit: Stop! Hand over your stuff!	山賊：止まれ！荷物を置いていけ！
+Bank	銀行
+Bar · slide	バー · スライド
+Bar: slide under	バー：下をスライド
+Barrier · jump	柵 · ジャンプ
+Basic Meals	基本の食事
+Bat on the hill — they travel in packs	丘のコウモリ — 群れで動く
+Bat on the sand	砂浜のコウモリ
+Beach sand, cast a line	浜辺の砂地で釣り糸を垂らそう
+Beach · Go fishing	海辺 · 釣りに行く
+Bears from around the world — and a haenyeo bear.	世界中のクマたち — そして海女のクマ。
+Beat 2 bandits	山賊を2人倒す
+Beat the mini-game to end the week. Try again!	ミニゲームをクリアして週を終えよう。もう一回！
+Best crop + best ★ this year + variety.	最高の作物 + 今年の最高★ + 種類数。
+Best friend	親友
+Best gem/ore + variety (mine).	最高の宝石・鉱石 + 種類数（鉱山）。
+Best week!	最高の一週間！
+Big Suit	ビッグスーツ
+Bonus stars	ボーナススター
+Boss	ボス
+Boss Rush	ボスラッシュ
+Bought 4 weeks of rice.	お米を4週分買った。
+Bought 4 weeks of side dish.	おかずを4週分買った。
+Bought rice.	お米を買った。
+Bought side dish.	おかずを買った。
+Bounced!	はね返った！
+Box of twenty	20個入りの箱
+Branches, shells, mushrooms	枝、貝がら、キノコ
+Bring a Jungmon souvenir	チュンムンのおみやげを持ってくる
+Bring materials and I'll upgrade your tools: Sturdy → Silver → Golden.	材料を持ってくれば道具を強化するよ：頑丈 → シルバー → ゴールド。
+Bring materials — Sturdy, Silver, Golden!	材料を持ってきて — 頑丈、シルバー、ゴールド！
+Bring produce — I pay 20% more.	作物を持ってきて — 2割増しで買うよ。
+Bugs	虫
+Burnout!	バーンアウト！
+Bus to Jungmon from the east stop	東の停留所からチュンムン行きバス
+Bus · dodge	バス · よけろ
+Buy	買う
+Buy a hive kit at the City Mart (800G).	シティマートでミツバチの巣箱キットを買おう（800G）。
+Buy or sell! I'll buy bugs, fish, crops, meat. I also sell land.	買うも売るも！虫、魚、作物、肉を買い取るよ。土地も売ってる。
+CAUGHT!	つかまえた！
+CHA	魅力
+CHORUS! Coins ×2	サビ！コイン×2
+CINEMA - Our Frequency	CINEMA - 君と僕の周波数
+CLUE	手がかり
+CLUE?	手がかり？
+Calves and piglets in. Raise them, I'll pay well!	子牛と子豚が入ったよ。育ててくれたら高く買う！
+Can't eat that…	それは食べられない…
+Can't fight with a net or rod — use the bat, pick or axe	網や釣り竿では戦えない — バット、ツルハシ、斧を使って
+Can't lay road on water.	水の上に道は敷けない。
+Cancel	キャンセル
+Cancel retry	リトライを取り消す
+Capsules!	カプセル！
+Care	お世話
+Cast again	もう一度投げる
+Cast, then pull the moment you see 「!」	投げて、「!」が見えた瞬間に引く
+Catch	つかまえる
+Catch 2 bugs	虫を2匹つかまえる
+Catch 2 crabs at the beach	海辺でカニを2匹つかまえる
+Catch a rabbit on the hill	丘でウサギをつかまえる
+Catch hens and rabbits on the hill with the net. One sleep = one day.	丘のニワトリとウサギを網でつかまえよう。一眠り＝一日。
+Catch!	つかまえろ！
+Caught!	つかまえた！
+Caught…	つかまった…
+Chapter event	チャプターイベント
+Chapter mission stars\n	チャプターミッションスター\n
+Character	キャラクター
+Charm · Agility +3	魅力 · 敏捷+3
+Charm · Charm +3	魅力 · 魅力+3
+Charm · Stamina +3	魅力 · 体力+3
+Choose a tool	道具を選ぶ
+Chop	伐る
+Chop a tree	木を伐る
+Chrysanthemums without a name	名前のない菊
+Cinema	シネマ
+City stop	シティ停留所
+Clang — stand by a glowing vein.	カキーン — 光る鉱脈のそばに立って。
+Clang — swing next to a hill rock.	カキーン — 丘の岩の横で振って。
+Clear glass. The calendar's day 32 looked sharper.	透きとおったガラス。カレンダーの32日目がくっきり見えた。
+Clerk	店員
+Click!	カシャ！
+Close friend	仲良し
+Close ✕	閉じる ✕
+Closed for today. Open 8 AM – 7 PM.	今日は閉店。営業は午前8時～午後7時。
+Closed now. Selling is 8 AM – 7 PM.	今は閉店中。買い取りは午前8時～午後7時。
+Closed. Open 8 AM – 7 PM.	閉店中。営業は午前8時～午後7時。
+Closer — he slipped away. Salt in the air.	もう少しで — 彼はするりと消えた。潮の香り。
+Clothes	服
+Clothes worn out	服がボロボロ
+Clothes worn out — buy new	服がボロボロ — 新しいのを買おう
+Cloudy	くもり
+Clues to earn: 	獲得できる手がかり： 
+Coast Road Star	海岸道路のスター
+Coins are yours. Run once more!	コインはあなたのもの。もう一回走ろう！
+Collapse all	すべて閉じる
+Collect 3 farm eggs	農場の卵を3個集める
+Collected	収集済み
+Come back later	また後で来て
+Come in. There's work today.	入って。今日は仕事があるよ。
+Condition	コンディション
+Condition 0! Collapses next week	コンディション0！来週倒れる
+Condition met · good branch	条件達成 · いい分岐
+Condition missed · other branch	条件未達 · 別の分岐
+Cone · jump	コーン · ジャンプ
+Contest failed…	大会失敗…
+Cook	料理
+Cook!!	料理だ!!
+Count of tangerines & hallabong.	みかんと漢拏峰（ハルラボン）の数。
+Crossed the line but missed the goal.	ラインは越えたけどゴールを外した。
+Crushed it today! Workout done	今日はやりきった！トレーニング完了
+Curator	学芸員
+Curious about the story?  More › Cinema	ストーリーが気になる？  その他 › シネマ
+DJ	DJ
+Dad	パパ
+Day	昼
+Day · Clear	昼 · 晴れ
+Decorate	飾る
+Decorate ●	飾る ●
+Deeper = better ore, tougher monsters. Fight with bat/pick/axe; the red lamp marks the way down. A boss waits at the bottom!	深いほど良い鉱石、強いモンスター。バット・ツルハシ・斧で戦おう。赤いランプが下への道しるべ。最下層にはボスが待っている！
+Default outfit	いつもの服
+Didn't sleep	眠らなかった
+Ding — bell!	チーン — ベル！
+Direction	方向
+Distance	距離
+Dodam	ドダム
+Dodam got home first. Next time!	ドダムが先にホームイン。また今度！
+Dodam's turn…	ドダムの番…
+Dodam: 	ドダム： 
+Don't stay in the sea over 10s!	海に10秒以上いちゃダメ！
+Donate?	寄付する？
+Done for today — the sun is setting. Go to bed at home.	今日はおしまい — 日が沈む。家に帰って寝よう。
+Done ✓	完了 ✓
+Done ✕	完了 ✕
+Done!	完了！
+Donor passcode — all games unlocked	寄付者パスコード — 全ゲーム解放
+Door shut. Tomorrow's first bus sounded louder.	扉が閉まった。明日の始発バスの音が大きく聞こえた。
+Door · Go outside	扉 · 外に出る
+Downtown! Bank, boutique, noodles, records, museum…	ダウンタウン！銀行、ブティック、麺屋、レコード店、博物館…
+Doyun at the shop. The kid tugged my sleeve. "Don't follow."	お店にドユン。子どもが私の袖を引いた。「ついてこないで」
+Drag the white marble to shoot. Shots left: 3	白いビー玉をドラッグして弾こう。残り：3
+Draw today's X carefully	今日のXを丁寧に描く
+Driver	運転手
+Drop it inside the room.	部屋の中に置いて。
+Duplicate — +1,500 coins	ダブり — +1,500コイン
+Dusk	夕方
+E-kart	電動カート
+ENG	ENG
+Each stick has a flat pale side and a round dark side	どの棒も、平たい白い面と丸い黒い面がある
+Easy	やさしい
+Eat	食べる
+Eat & Rest	食事と休息
+Eat them as you run. Jelly and money\ncarry over to Story mode!	走りながら食べよう。ゼリーとお金は\nストーリーモードに持ち越し！
+Eaten weekly. None = starving.	毎週食べる。なければ飢える。
+Eggs — collect at the gate	卵 — 門のところで集める
+Empty pot\nTap to plant	空の鉢\nタップで植える
+Empty!\nPick a seed below ↓	空っぽ！\n下から種を選んで ↓
+Ending	エンディング
+Ending A	エンディングA
+Ending B	エンディングB
+Ending gallery  	エンディングギャラリー  
+Energy	エネルギー
+Enter	入る
+Enter Job Center	職業安定所に入る
+Enter shop	お店に入る
+Enter!	入れ！
+Entered	入場済み
+Equip	装備
+Equipped	装備中
+Eve	前夜
+Event capsule — earned by running, never bought	イベントカプセル — 走って手に入れるもの、購入不可
+Event ·	イベント ·
+Exit	出る
+Expand all	すべて開く
+FEVER!	フィーバー！
+FLIP!	ひっくり返せ！
+Face button = FEVER!	顔ボタン = フィーバー！
+Farm money & items in K-POP for story mode	K-POPでお金とアイテムを稼いでストーリーモードへ
+Feed	えさやり
+Fences cleared	柵クリア
+Fever. Bedridden all week. (medicine -60G, stamina -5, stress -35)	熱。一週間寝込んだ。（薬 -60G、体力 -5、ストレス -35）
+Few/no dishes eaten	ほとんど・まったく食べていない
+Fill 3 schedule slots, then Go!	予定を3つ埋めて、GO！
+Fill 3 schedule slots, then Go! Last week of a chapter: run to the tower.	予定を3つ埋めて、GO！チャプター最後の週：鉄塔まで走れ。
+Find the open lane	空いているレーンを探せ
+Finish	ゴール
+Finish the song	曲を最後まで
+Finish to win	ゴールで勝利
+Finish!	ゴール！
+Fires missiles down the lanes (60% yours) — switch lanes!\nNo coins/obstacles meanwhile · survive for +100 coins	レーンにミサイルを発射（60%はあなた狙い） — レーンを変えて！\nその間コイン・障害物なし · 生き残れば+100コイン
+Fish	魚
+Flip it once in 3 tries!	3回のうち1回ひっくり返せ！
+Flip once in 3 tries	3回で1回ひっくり返す
+Flipped! It's mine!	ひっくり返した！私のもの！
+Floor left	床・左
+Floor right	床・右
+Flowers for the living — my breath evened out.	生きている人への花 — 息が落ち着いた。
+Follow Doyun onto the rocks	ドユンについて岩場へ
+Follow him a little anyway	それでも少しついていく
+Follow me, sis. I'll show you the village. Just walk to the glow.	ついてきて、お姉ちゃん。村を案内するよ。光のほうへ歩いて。
+Force the cold carton	冷たいパックを無理やり
+Fossils	化石
+Freeze!	ストップ！
+Freq	周波数
+Frequency 89.2	周波数 89.2
+Friend	友だち
+Friends for life. Tell me anything!	一生の友だち。なんでも話して！
+Full+40 · Cond+18 · Stress-5 · Sta+5	満腹+40 · 調子+18 · ストレス-5 · 体力+5
+Fullness	満腹度
+Fullness/condition ↑. Also from the garden.	満腹度・コンディション↑。菜園でも手に入る。
+GIANT!	巨大化！
+GO!	GO！
+GOAL · 	ゴール · 
+Gacha	ガチャ
+Garden	菜園
+Garden (west) · Step onto a plot	菜園（西） · 畑に乗る
+Garden - Jeju Sea Farm	菜園 - 済州シーファーム
+Garden · Step onto a plot	菜園 · 畑に乗る
+Gathered	採集済み
+Get a pet from the shop	お店でペットを手に入れよう
+Get treated	治療を受ける
+Ginseng Chicken Soup	参鶏湯
+Go fishing	釣りに行く
+Go home at night!	夜は家に帰ろう！
+Go!	GO！
+Goal · 	ゴール · 
+Gonggi	コンギ
+Gonna eat and rest!	食べて休もう！
+Gonna rest a bit~	ちょっと休もう～
+Google Play billing · voluntary · 0 cups so far — safe and seamless	Google Play決済 · 任意 · これまで0杯 — 安全でスムーズ
+Got it! Start ▶	わかった！スタート ▶
+Great! 	いいね！ 
+Grip the marble in my pocket	ポケットのビー玉を握る
+Groceries · Village shop	食料品 · 村の商店
+HOW TO PLAY	遊び方
+Hand it over!	よこせ！
+Haneul Seaside	ハヌル海辺
+Haneul and Doyun's voices are AI-produced; art, composition and arrangement were made together by Studio Wooheeheeshi and AI. The events in this story are fiction. This game was made with the pure purpose of sharing K-POP worldwide and introducing Jeju Island.\n\nNo ads, no forced purchases. A coffee-sized donation is entirely optional.	ハヌルとドユンの声はAIで制作されています。イラスト・作曲・編曲はStudio WooheeheeshiとAIが共に作りました。この物語の出来事はフィクションです。このゲームは、K-POPを世界に届け、済州島を紹介するという純粋な目的で作られました。\n\n広告なし、購入の強制なし。コーヒー1杯分の寄付は完全に任意です。
+Haneul collapsed…	ハヌルが倒れた…
+Haneul, Twenty	ハヌル、二十歳
+Hang it far away in the closet	クローゼットの奥に掛けておく
+Hard	むずかしい
+Hareubang Golem	トルハルバンゴーレム
+Heart = energy +15	ハート = エネルギー+15
+Hearts +3	ハート+3
+Hearts refill your energy!	ハートでエネルギー回復！
+Help	ヘルプ
+Help fill our cases — bugs, minerals, fossils.	展示ケースを埋めるのを手伝って — 虫、鉱物、化石。
+Hens	ニワトリ
+Hens lay eggs each morning	ニワトリは毎朝卵を産む
+Hitting it costs energy.\nDodge sideways or swipe up to jump!	ぶつかるとエネルギーが減る。\n横によけるか、上スワイプでジャンプ！
+Hold & slide — coins yes, cones no	長押しでスライド — コインはOK、コーンはNG
+Hold & slide — grab buoys, dodge rocks	長押しでスライド — ブイを取って岩をよけろ
+Hold [Run!] — when the chant lights up, the tagger turns! Release early, reach the end and [Tag!]	[走る！]を長押し — かけ声が光ったら鬼が振り向く！早めに離して、端までたどり着いたら[タッチ！]
+Hold to raise the green zone — keep the fish inside!	長押しで緑ゾーンを上げる — 魚を中に入れておこう！
+Hold to run!	長押しで走る！
+Home	家
+Horse riding	乗馬
+Hospital	病院
+How to play Yut	ユンノリの遊び方
+Hug the bear	クマを抱きしめる
+Hungry, exhausted, condition hit zero.	空腹で、へとへとで、コンディションがゼロになった。
+Hungry… home cooking!	おなかすいた… 家でごはん！
+Hungry… use Feed to eat	おなかすいた… 「えさやり」で食べよう
+I didn't chase. He said he was looking for a person.	追いかけなかった。彼は人を探していると言った。
+I saw his back, not his face. My heart ran.	顔じゃなく、背中を見た。胸が駆けだした。
+I'd pick A!	私ならAかな！
+I'll remember	覚えておく
+I'll take care of myself!	自分のことは自分でする！
+I'm fine	大丈夫
+IN!	イン！
+In your bag — cook it	バッグの中 — 料理しよう
+Ingredients	材料
+Ingredients are cheap — cook in My Room to eat.	材料は安い — マイルームで料理して食べよう。
+Ingredients only — cook in My Room	材料のみ — マイルームで料理
+Ingredients only — cook in My Room first	材料のみ — 先にマイルームで料理
+Ingredients only — cook in My Room first!	材料のみ — 先にマイルームで料理して！
+Into the bag	バッグへ
+Into the story	ストーリーへ
+Inventory	持ち物
+It got away… keep the fish inside the green zone.	逃げられた… 魚を緑ゾーンの中に入れておこう。
+It slipped again. Not mine yet.	また滑った。まだ私のものじゃない。
+It's night… ghosts come out now. Run home! (Shop's closed too)	夜だ… おばけが出る時間。家まで走れ！（お店も閉まってる）
+It's okay, next time!	大丈夫、また今度！
+JEJU · Our Frequency	JEJU · 君と僕の周波数
+Jeju City	済州市
+Jeju Girl	済州の女の子
+Jellies	ゼリー
+Jelly = score	ゼリー = スコア
+Jelly from K-POP runs. Eat one: stress −3 · stamina +1 (also spent at the pet shop)	K-POPランで手に入るゼリー。1つ食べると：ストレス−3 · 体力+1（ペットショップでも使える）
+Jelly! stress −3 · stamina +1	ゼリー！ストレス−3 · 体力+1
+Jet ski	水上バイク
+Job	仕事
+Job Center	職業安定所
+Job clerk	職安の職員
+Jump fences on a pony, or a lap in an e-kart!	ポニーで柵を跳ぶか、電動カートで一周！
+Jungmon Resort	チュンムンリゾート
+Jungmon! Beach, cliffs, falls, garden… time to relax.	チュンムン！ビーチ、崖、滝、庭園… のんびりしよう。
+Just did this. Let's see another spot!	今やったばかり。ほかの場所も見よう！
+Just had fun! Later.	今遊んだばかり。また後で。
+Just took one here!	ここで一枚撮ったばかり！
+K-POP RUN MODE  ♪	K-POP RUN MODE  ♪
+Keep it only in my mouth	口の中だけにしまっておく
+Kept skipping sleep.	眠らない日が続いた。
+Kid	子ども
+Kids	子どもたち
+Lady	おばさん
+Late… keep running.	遅れた… 走り続けろ。
+Leave both for the unknown	両方とも、知らない誰かのために置いていく
+Leave it	そのままにする
+Leave the coat right there	コートをそこに置いていく
+Leave them	そのままにする
+Leaving fails this contest — redo this week	やめるとこの大会は失敗 — 今週をやり直し
+Left wall	左の壁
+Let's do it together.	一緒にやろう。
+Let's do our best today!	今日もがんばろう！
+Let's earn!	稼ぐぞ！
+Let's enter!	入ろう！
+Let's go to the glow.	光のほうへ行こう。
+Let's head outside first!	まずは外に出よう！
+Let's play!	遊ぼう！
+Let's run!	走ろう！
+Life	ライフ
+Lift the lukewarm milk by the tower	鉄塔のそばのぬるい牛乳を持ち上げる
+Lighthouse · Sea view	灯台 · 海の眺め
+Listen on YouTube Music · "Full album" below	YouTube Musicで聴く · 下の「フルアルバム」
+Locked	ロック中
+Locked · 	ロック中 · 
+Locked · photocard items while running	ロック中 · 走行中のフォトカードアイテム
+Locked · reach this ending	ロック中 · このエンディングに到達
+Locked — 	ロック中 — 
+Locked — beat it in the story mission first	ロック中 — まずストーリーミッションでクリア
+Locked — pick the "Unlock the OST" gift when donating	ロック中 — 寄付時に「OSTを解放」の特典を選んで
+Locked — see one ending to unlock.\nSpeed ×1.3 · Coins ×1.3 (advanced)	ロック中 — エンディングを1つ見ると解放。\nスピード×1.3 · コイン×1.3（上級）
+Look at this!	見て見て！
+Look for dolphins on a yacht, or race the buoys on a jet ski.	ヨットでイルカを探すか、ジェットスキーでブイを回ろう。
+Lost, but the week moves on.	負けても、週は進む。
+Lost…	負けた…
+Lucky Gacha	ラッキーガチャ
+Lucky capsule! Ticket +1	ラッキーカプセル！チケット+1
+Lucky charm	お守り
+MAX	MAX
+MINI-GAMES	ミニゲーム
+MISSION CLEAR!	ミッションクリア！
+Made it before sunset! hearts +10%   ·   	日没前に到着！ハート+10%   ·   
+Main menu	メインメニュー
+Marbles	ビー玉
+Market man	市場のおじさん
+Master of Frequency	周波数マスター
+Max 3 hives.	巣箱は最大3つまで。
+Maybe later	またあとで
+Me	わたし
+Me: 	わたし： 
+Meal / side dish effect applied	食事・おかずの効果が適用されました
+Meat — bat a grown rabbit inside the pen	肉 — 柵の中で大人のウサギを叩く
+Medicine	薬
+Medicine/care — use from your bag.	薬・ケア — バッグから使う。
+Memory fragment	記憶のかけら
+Mine	わたしの
+Mine 3 ores	鉱石を3つ掘る
+Mine a rock	岩を掘る
+Minerals	鉱物
+Mini-games	ミニゲーム
+Minimap	ミニマップ
+Miss the goal and the week doesn't advance!	目標に届かないと週が進まない！
+Miss, I'm right here today too.	お姉さん、今日もここにいるよ。
+Miss, your body remembers. Tap Feed, Play or Work and pick a card.	お姉さん、体が覚えてる。食べる・遊ぶ・働くをタップしてカードを選んで。
+Missed…	逃した…
+Missed… pull right when 「!」 shows.	逃した…「!」が出た瞬間に引いて。
+Mission · Ddakji	ミッション · ッタクチ
+Mission · Marbles	ミッション · ビー玉
+Mission · Red Light, Green Light	ミッション · だるまさんがころんだ
+Mission · Tuho	ミッション · 投壺
+Mission · Yut Nori	ミッション · ユンノリ
+Mist	霧
+Model missing.	モデルがありません。
+Mom	お母さん
+Mom's	お母さんの
+Mom's house	お母さんの家
+Mom's house · Pets / Sleep	お母さんの家 · ペット／睡眠
+Move as many cells as flat sides up — 1·2·3·4, none = 5. 4 or 5: throw again!	平らな面が上の数だけ進む — 1·2·3·4、ゼロなら5。4か5でもう一回！
+My Room	マイルーム
+My day brightens when you come by.	あなたが来ると、一日が明るくなる。
+N 58% (coins 300–800 50%·ingredients 30%·rest 20%) · R 30% (charm 40%·hearts 35%·deco 25%) · SR 10% (card 45%·rare deco 30%·lucky 25%) · SSR 2% (signed 40%·blessing 35%·jackpot 10k+ 25%) — SR+ on the 10th	N 58%（コイン300–800 50%・材料30%・その他20%） · R 30%（お守り40%・ハート35%・デコ25%） · SR 10%（カード45%・レアデコ30%・ラッキー25%） · SSR 2%（サイン40%・祝福35%・大当たり1万+ 25%） — 10回目はSR以上確定
+Nailed it! Song done	完璧！曲クリア
+Nameless flowers. I knew — and pretended not to.	名もない花。知っていて、知らないふりをした。
+Nap	昼寝
+Need 18G.	18G必要です。
+Need 3 tangerines + 1 honey.	みかん3個＋はちみつ1個が必要。
+Need 80G…	80G必要…
+Net on the hill — rabbits are quick	丘で網を — ウサギはすばしっこい
+Net: catch butterflies and spirits (shards, coins) · Bat: bop big bugs (shards). Bumping a big bug costs HP!	網：チョウと精霊をつかまえる（かけら、コイン） · バット：大きな虫を叩く（かけら）。大きな虫にぶつかるとHPが減る！
+New card! See Collection	新しいカード！コレクションを見て
+New clothes (12 wk)	新しい服（12週）
+New clothes! Good for 12 weeks.	新しい服！12週間有効。
+New decor! Place it in [Decorate].	新しいインテリア！［飾る］で置こう。
+Newcomer	新入り
+Next	次へ
+Next  ▶	次へ  ▶
+Next chapter	次の章
+Next content · coming	次のコンテンツ · 準備中
+Next episode ▶	次のエピソード ▶
+Next run: coins ×2!	次のランはコイン×2！
+Next time!	また今度！
+Next time!!	また今度！！
+Next turn	次のターン
+Next, the empty house up the hill. Tap 'Move' and you'll walk there.	次は丘の上の空き家。「移動」をタップすると歩いていくよ。
+Next: all SIDE open	次：SIDEがすべて解放
+Nice!	ナイス！
+Night	夜
+No affinity change this week	今週は好感度の変化なし
+No cash on hand. Withdraw or earn on a run.	手持ちの現金がありません。引き出すかランで稼いで。
+No change	変化なし
+No damage!	ノーダメージ！
+No deposit to withdraw.	引き出せる預金がありません。
+No firewood. Chop a tree or pick up branches.	薪がない。木を切るか枝を拾って。
+No hits	ヒットなし
+No ingredients to cook — shop first.	料理する材料がない — 先にお店へ。
+No ingredients. Buy rice/veg/meat at the shop.	材料がない。お店で米・野菜・肉を買って。
+No item nearby — stand next to one.	近くにアイテムがない — すぐそばに立って。
+No jelly — grab some in a K-POP run.	ゼリーがない — K-POPランで集めて。
+No jobs available right now…	今はできる仕事がない…
+No loan to repay. Great!	返す借金はありません。えらい！
+No meals — buy ingredients or dishes!	ごはんがない — 材料か料理を買って！
+No meals — buy some at the beach shop!	ごはんがない — 海辺のお店で買って！
+No meals — shop & cook	ごはんなし — 買って料理
+No meal… eat with Feed	ごはんがない…「食べる」で食事を
+No pet yet\nGet one at the shop →	まだペットがいない\nお店で迎えよう →
+No pet.	ペットなし。
+No photos collected yet.\nCollect them in runs and contests.	まだ写真がありません。\nランやコンテストで集めよう。
+No rice for weeks.	何週間もお米がない。
+No run income yet. Settle K-POP earnings here for a 5% bonus!	まだランの収入がない。K-POPの稼ぎをここで精算すると5%ボーナス！
+No save	セーブなし
+No stories in this season yet	このシーズンにはまだストーリーがありません
+No tracks unlocked yet	まだ解放された曲がありません
+Nobody lives here. You can use it, sis.	誰も住んでないよ。お姉さんが使っていい。
+None are grown yet.	まだ育ったものはない。
+Nope	やだ
+Norm	ふつう
+Not enough G or pot not empty.	Gが足りないか、鉢が空いていない。
+Not enough G.	Gが足りない。
+Not enough coins — retry or raise this week again	コインが足りない — リトライするか、今週をもう一度育成して
+Not enough coins — try again!	コインが足りない — もう一回！
+Not enough jelly… collect some in a K-POP run.	ゼリーが足りない…K-POPランで集めて。
+Not enough materials	材料が足りない
+Not enough money — work or race	お金が足りない — 働くか走って
+Not enough money.	お金が足りない。
+Not enough money… work first!	お金が足りない…まず働こう！
+Not enough shards — go run!	かけらが足りない — 走ってこよう！
+Not now	今はいい
+Not right now	今はちょっと
+Not this time. Run farther next time!	今回はダメ。次はもっと遠くまで走ろう！
+Not yet	まだ
+Not yet — one more week	まだ — あと1週
+Not yet, I guess	まだかな
+Not yet. Something's missing.\n	まだ。何かが足りない。\n
+Not yet… wait	まだ…待って
+Nothing new. Try the mine, hills, beach!	新しいものはない。鉱山、丘、浜辺を探してみて！
+Nothing to do right now…	今はすることがない…
+Nothing to enter	参加できるものがない
+Nothing to give.	あげるものがない。
+Nothing to remove.	外すものがない。
+Nothing to sell. Bring bugs, fish, crops, meat, shells!	売るものがない。虫、魚、作物、肉、貝を持ってきて！
+Now I Know Everything	今は全部知っている
+Now run for real ♪	さあ、本番だよ ♪
+Nurse	看護師
+Nurse: How are you feeling?	看護師：具合はどう？
+OK	OK
+OUCH!	いたっ！
+OUT!	アウト！
+Obstacle! (cone)	障害物！（コーン）
+Obstacles vanish and big jellies\ncover the road. Feast!	障害物が消えて、大きなゼリーが\n道いっぱいに。食べ放題！
+Odds	確率
+Okay… ask me again if you change your mind.	そっか…気が変わったらまた聞いて。
+Old miner	年老いた鉱夫
+One is me. The other — eyes without a name yet.	ひとりはわたし。もうひとりは — まだ名前のない目。
+One year to my 20th birthday. It starts today.	20歳の誕生日まで1年。今日から始まる。
+One-Song Run · 	一曲ラン · 
+Only ingredients — cook at the desk first!	材料しかない — 先に机で料理して！
+Only inside the yard (lawn in front of the house).	庭の中だけ（家の前の芝生）。
+Only the marble stays. I reach again.	残ったのはビー玉だけ。もう一度手を伸ばす。
+Oops, that record's out.	あっ、その記録はアウト。
+Open "Our frequency" on YouTube Music	YouTube Musicで「Our frequency」を開く
+Open the next one	次を開ける
+Opening store…	ストアを開いています…
+Opening the album on YouTube Music	YouTube Musicでアルバムを開いています
+Operating Policy	運営ポリシー
+Orange nearby — sleep less scary.	オレンジがそばにいる — 眠るのがこわくない。
+Orange star = GIANT!	オレンジの星＝巨大化！
+Oreum Mine	オルム鉱山
+Other tools	その他の道具
+Our Frequency  ·  JEJU	君と僕の周波数  ·  JEJU
+Our Hideout	わたしたちの隠れ家
+Our home	わたしたちの家
+Our home · Enter	わたしたちの家 · 入る
+Our house on the hilltop. Go in and plan the week.	丘の上のわたしたちの家。中に入って一週間の計画を立てよう。
+Out of stamina	体力切れ
+Owned	所持
+Owner	店主
+Owner: Welcome! Grab a Jeju brunch and recharge!	店主：いらっしゃい！済州ブランチで元気チャージして！
+PM	午後
+PULL!!	引いて！！
+Participation	参加
+Passing by	通りすがり
+Paused	一時停止
+Pavilion · Play / Practice	東屋 · 遊ぶ／練習
+Payment cancelled or failed — that's okay!	決済がキャンセルまたは失敗しました — 大丈夫です！
+People	人
+Pet Shop	ペットショップ
+Pet shop locked	ペットショップ未解放
+Pet shop unlocked!	ペットショップ解放！
+Petting won't cut it… I need to play or rest.	なでるだけじゃダメ…遊ぶか休まないと。
+Photo of the Jusang pillar cliffs	柱状節理の崖の写真
+Photo saved · stress −5	写真を保存 · ストレス−5
+Photos	写真
+Pick	選ぶ
+Pick an item above	上のアイテムを選んで
+Pick an item from the tray first.	先にトレイからアイテムを選んで。
+Pick the axe, stand by a tree	斧を選んで木のそばに立つ
+Pick the pickaxe, hill rocks	つるはしを選んで丘の岩へ
+Pick up 3 things	3つ拾う
+Pickaxe in the north-hill mine	北の丘の鉱山でつるはし
+Pink dot is you. Walk close and tap the pink prompt to enter.	ピンクの点があなた。近づいてピンクの表示をタップすると入れるよ。
+Place	置く
+Place it in My Room	マイルームに置く
+Plan → fill 3 slots → Go	計画 → 3枠を埋める → GO
+Plant seeds	種をまく
+Play	遊ぶ
+Play - Festival of Games	遊ぶ - 遊びの祭り
+Please support our OST (Our frequency) on YouTube Music, Spotify & iTunes	YouTube Music、Spotify、iTunesでOST（Our frequency）を応援してください
+Police: Horse thief! Freeze!	警察：馬泥棒！動くな！
+Police: I'll let it go… today.	警察：今日のところは見逃してやる…
+Police: You're under arrest, horse thief!	警察：馬泥棒、逮捕する！
+Poor condition — medicine / stew	体調不良 — 薬／スープ
+Pop in jelly and turn the handle!	ゼリーを入れてハンドルを回そう！
+Pork noodles? The broth's amazing.	豚骨麺？スープが最高だよ。
+Potion = energy +30	ポーション＝エネルギー+30
+Potions	ポーション
+Potions refill twice as much.	ポーションの回復量が2倍。
+Power	パワー
+Power swings — tap [Shoot!] at the strength you want	パワーが揺れる — 好きな強さで［シュート！］をタップ
+Power — tap [Throw!] inside the white band	パワー — 白い帯の中で［投げる！］をタップ
+Practice (no reward)	練習（報酬なし）
+Practice — no reward.	練習 — 報酬なし。
+Premium	プレミアム
+Press [Throw] to start	［投げる］を押してスタート
+Press the opposite side to balance	反対側を押してバランスを取る
+Pretty horses, right? …You're not going to hit them, are you? I'll call the police!	きれいな馬でしょ？…叩いたりしないよね？警察呼ぶよ！
+Privacy Policy	プライバシーポリシー
+Progress	進行度
+Prologue film	プロローグ映像
+Prologue · Our Frequency	プロローグ · 君と僕の周波数
+Pull again	もう一回引く
+Pull the lever or tap a button\nto draw a capsule!	レバーを引くかボタンをタップして\nカプセルを引こう！
+Purse is light. Pick a Work card for shopping and lessons.	財布が軽い。買い物やレッスンのために「働く」カードを選んで。
+Push the stick and walk to the glow	スティックを倒して光まで歩こう
+Push the stick to walk — all the way to run	スティックを倒すと歩く — 最後まで倒すと走る
+Put on the headphones. Music stops when you leave.	ヘッドホンをつけて。離れると音楽が止まるよ。
+Quiet	静か
+Quit	やめる
+REPLAY	リプレイ
+RUN!	走れ！
+Rabbits	ウサギ
+Radio	ラジオ
+Radio 89.2	ラジオ 89.2
+Rain	雨
+Rain — walking tires you faster.	雨 — 歩くと疲れやすい。
+Raise this week again, or\nretry right now!	今週をもう一度育成するか、\n今すぐリトライ！
+Rancher	牧場主
+Random event	ランダムイベント
+Rank S — nothing left to retry.	ランクS — もうリトライするものはない。
+Rarest fish + count.	いちばん珍しい魚＋数。
+Reach the tower	鉄塔にたどり着く
+Read	読む
+Read a few, close the box	何通か読んで、箱を閉じる
+Read all twenty	20通すべて読む
+Read how to play first	先に遊び方を読んで
+Ready for Twenty	二十歳への準備
+Ready meals — Feed button consumes them.	できあいの料理 — 「食べる」ボタンで消費。
+Ready — Go!	よーい — スタート！
+Rent a board and catch a wave?	ボードを借りて波に乗る？
+Replay the games you have beaten in missions	ミッションでクリアしたゲームをもう一度遊ぶ
+Rest this week	今週は休む
+Rest well too!	しっかり休んでね！
+Restart	リスタート
+Rested without eating…	食べずに休んだ…
+Result	結果
+Retry for the reward — or pay coins to skip.	報酬のためにリトライ — またはコインを払ってスキップ。
+Retry now	今すぐリトライ
+Retrying	リトライ中
+Return to the tower	鉄塔に戻る
+Reward	報酬
+Rice · 1 week	お米 · 1週
+Ride the board. Speed ×1.3 · Coins ×1.3\nShorter reaction time — advanced.	ボードに乗る。速度×1.3 · コイン×1.3\n反応時間が短い — 上級者向け。
+Riding & E-kart park	乗馬＆Eカートパーク
+Riding the wave!	波に乗ってる！
+Right wall	右の壁
+Road	道
+Rocks keep falling — watch the ground shadows!\nNo coins/obstacles meanwhile · survive for +100 coins	岩が落ち続ける — 地面の影に注意！\nその間はコイン・障害物なし · 生き残ればコイン+100
+Rolling…	転がってる…
+Rookie Runner	新人ランナー
+Room	部屋
+Run proud!	胸を張って走れ！
+Run to the end of the song to clear!\nReplay the tutorial from the chapter screen.	曲の最後まで走ればクリア！\nチュートリアルは章画面からもう一度見られるよ。
+Run to the tower.\nSpeed ×1.0 · Coins ×1.0\nStart here.	鉄塔まで走ろう。\n速度×1.0 · コイン×1.0\nまずはここから。
+Run!	走れ！
+Running	ランニング
+SEN	感性
+SONG COMPLETE! ♪	曲クリア！♪
+SPEED UP!	スピードアップ！
+STA	体力
+START!	スタート！
+STR	ストレス
+SUCCESS!	成功！
+SUN DOWN	日没
+Saekdong surf shop	セクドンのサーフショップ
+Saying it, my chest knew first.	口にした瞬間、胸が先にわかった。
+Score	スコア
+Sea	海
+Seagull Pirate	カモメ海賊
+Secret code	シークレットコード
+Secret code — chapters, records & pets unlocked	シークレットコード — 章・レコード・ペットを解放
+Seeds: My Room pots · veggies become side dishes	種：マイルームの鉢へ · 野菜はおかずになる
+Set aim	狙いを定める
+Set one bunch for "me"	「わたし」の分をひと束取っておく
+Shake	振る
+Shoot!	シュート！
+Shopkeeper	店員
+Side dish · 1 week	おかず · 1週
+Side scene unlocked	サイドシーン解放
+Side story	サイドストーリー
+Signed! See Collection	サイン入り！コレクションを見て
+Sill left	窓台・左
+Sill right	窓台・右
+Sis, the tour isn't over yet!	お姉さん、ツアーはまだ終わってないよ！
+Sis… you forgot, huh. 	お姉さん…忘れちゃったんだね。 
+Skateboard	スケートボード
+Skip	スキップ
+Skip ›	スキップ ›
+Skip ▶	スキップ ▶
+Slam!	ドン！
+Slash it in a hurry	急いで斬れ
+Slept	眠った
+Slept well	ぐっすり眠った
+Slept well. 8 AM next day — HP +40 · condition +5	ぐっすり眠った。翌朝8時 — HP+40 · コンディション+5
+Slept well. Energy +12 · Condition +8	ぐっすり眠った。エネルギー+12 · コンディション+8
+Smash!	スマッシュ！
+Smith	鍛冶屋
+Snack OFF	おやつOFF
+Snack ON · 15G/week · stress ×0.8	おやつON · 15G/週 · ストレス×0.8
+Snack: OFF	おやつ：OFF
+Snack: ON	おやつ：ON
+SnackOFF	おやつOFF
+SnackON	おやつON
+Snow	雪
+Snow — walking tires you faster.	雪 — 歩くと疲れやすい。
+Snow. Run toward the last sunset.\nRank S everywhere, and the tower answers.	雪。最後の夕日に向かって走れ。\nすべてでランクSを取れば、鉄塔が応える。
+So close	惜しい
+So close…	惜しい…
+Something's in the way.	何かが邪魔してる。
+Song complete! ♪	曲クリア！♪
+Sound	サウンド
+Splash! Get back up	バシャッ！立ち上がって
+Splashing	水遊び
+Spring, 19. Ride the rapeseed road to the tower.\nAt the bus stop, the boy is back.	春、19歳。菜の花の道を走って鉄塔へ。\nバス停に、あの男の子がまた来ている。
+Stack the stones again	石をもう一度積む
+Staff	スタッフ
+Stamina → HP · Agility → lanes · Charm → near-miss	体力→HP · 敏捷→レーン · 魅力→ニアミス
+Stand on a plot to plant / water / harvest. Two weeks without water = withered. Rain waters for you.	畑に立って植える／水やり／収穫。2週間水をやらないと枯れる。雨が降ると代わりに水をくれる。
+Star blessing	星の祝福
+Starlight rain — straight to your wallet!	星明かりの雨 — そのまま財布へ！
+Start over	最初から
+Start over?	最初からやり直す？
+Stat raised now	能力が上がった
+Stats	ステータス
+Stay put, like the kid said	あの子の言うとおり、ここで待つ
+Stop inside the band!	帯の中で止めて！
+Stop to set power!	止めてパワーを決めよう！
+Story Mode	ストーリーモード
+Stress -25	ストレス-25
+Stress −10	ストレス−10
+Stress −8	ストレス−8
+Stuck! Wiggled free.	はまった！もがいて抜け出した。
+Studio Woohee-Heesi v	Studio Woohee-Heesi v
+Summer festival, autumn orchards. Two people on one frequency.\nSome voices only reach you before sunset.	夏祭り、秋の果樹園。ひとつの周波数にふたり。\n日が沈む前にしか届かない声がある。
+Summer · Autumn	夏 · 秋
+Sunny	晴れ
+Sure, I'll do it!	いいよ、やる！
+Surf shop · Rent a board	サーフショップ · ボードを借りる
+Surfing	サーフィン
+Sweeping left/right…\nstop it on time	左右に動いてる…\nタイミングよく止めて
+Sweeping…\nstop it on the jar!	動いてる…\nつぼの上で止めて！
+Sweet rest	やすらぎの休息
+Swing	スイング
+Swipe down to slide	下にスワイプでスライディング
+Swipe down to slide under,\nor change lanes.	下にスワイプでくぐるか、\nレーンを変えよう。
+Swipe left / right to change lane	左右にスワイプでレーン変更
+Swipe left/right to change lanes.\nSwipe up to jump, down to slide!	左右スワイプでレーン変更。\n上でジャンプ、下でスライディング！
+Swipe up to jump	上にスワイプでジャンプ
+Swish — nothing to catch nearby.	シュッ — 近くに捕まえるものがない。
+Swish — the dragonfly got away!	シュッ — トンボに逃げられた！
+Swish — the rabbit hopped away!	シュッ — ウサギが跳ねて逃げた！
+TAG! WIN!	タッチ！勝ち！
+TRU	信頼
+Taewak	テワク
+Tag before the bell!! Freeze when it turns	鐘が鳴る前にタッチ！！振り向いたら止まって
+Tag!	タッチ！
+Tagged! You win!	タッチした！あなたの勝ち！
+Tagger is LOOKING!	鬼が見てる！
+Tagger turned away!	鬼が後ろを向いた！
+Take the net to the hill	網を持って丘へ
+Take the tour · 80G (stress −10)	ツアーに参加 · 80G（ストレス−10）
+Talk to 2 villagers	村人2人と話す
+Tamra Tool Workshop	耽羅道具工房
+Tangerine Brunch	みかんブランチ
+Tap THROW to toss the four sticks.	「投げる」をタップして4本の棒を投げよう。
+Tap [Catch!] while the hand is in the yellow zone	手が黄色いゾーンにある間に［キャッチ！］をタップ
+Tap an empty pot first.	まず空いている鉢をタップして。
+Tap here!	ここをタップ！
+Tap in the yellow zone!	黄色いゾーンでタップ！
+Tap the dolphins to take photos	イルカをタップして写真を撮ろう
+Tap the face on the right.\n6 seconds of invincibility + jelly magnet!	右の顔をタップ。\n6秒間無敵＋ゼリー吸い寄せ！
+Tap to close	タップで閉じる
+Tap to close ▼	タップで閉じる ▼
+Tap to continue	タップで続ける
+Tap to skip	タップでスキップ
+Tap when it points at the jar!	つぼを指したらタップ！
+Tap when it points at the marbles!	ビー玉を指したらタップ！
+Tap when the marker hits green to jump	マーカーが緑に来たらタップでジャンプ
+Teddy Cub Museum	テディベア博物館
+Teddy photo zone	テディのフォトゾーン
+Teller	窓口係
+Teller: Welcome! Deposits, loans and run income here.	窓口係：いらっしゃいませ！預金、ローン、ランの収入はこちらです。
+Tenant	入居者
+Tend the garden	畑の手入れ
+Terms & Policies	利用規約とポリシー
+Terms of Service	利用規約
+Thank him and wrap the sleeve	お礼を言って袖を巻く
+Thank you! ♥ That means a lot	ありがとう！♥ すごくうれしい
+Thank you! ♪ 2 hidden tracks unlocked in Records and the K-POP run	ありがとう！♪ レコードとK-POPランに隠し曲2曲が解放されました
+Thank you! ♫ The whole OST is unlocked in Records	ありがとう！♫ レコードでOSTがすべて解放されました
+Thanks for earlier. Maybe another favor next week!	さっきはありがとう。来週もまたお願いするかも！
+Thanks! Come back when it's done.	ありがとう！できたらまた来てね。
+That brown one comes to the fence when it sees you. Never for me.	あの茶色い子、あなたを見ると柵まで来るの。わたしには来ないのに。
+That feels nice~	気持ちいい〜
+That's enough, thanks!	もう十分、ありがとう！
+That's it for today — come back next turn!	今日はここまで — 次のターンにまた来て！
+That's what blocked the shaft! Dodge, then hit hard while it's dizzy!	あれが坑道をふさいでたんだ！よけて、目を回してる間に思いきり叩け！
+The Blue Headband	青いヘアバンド
+The Board	ボード
+The Face in the Photo	写真の中の顔
+The Handcart	手押し車
+The House on the Hill	丘の上の家
+The White Shirt	白いシャツ
+The Year	一年
+The barn is full.	納屋がいっぱい。
+The bees are busy. Next week!	ハチは忙しい。また来週！
+The blue gem headband inside the waterproof case. What Dad kept to the end.	防水ケースの中の青い宝石のヘアバンド。お父さんが最後まで持っていたもの。
+The broken radio works again. The dial rests at 89.2.	壊れたラジオがまた鳴る。ダイヤルは89.2で止まっている。
+The bus is here! No. 201 to Jeju City. I'll stay and explore today.	バスが来た！済州市行き201番。わたしは今日は残って探検する。
+The crooked heart on the buoy — the same paint mark Dad used to make.	ブイの歪んだハート — お父さんがつけていたのと同じペンキの印。
+The current playthrough is erased.\nCollection, records and stats stay.	現在のプレイデータが消去されます。\nコレクション、記録、ステータスは残ります。
+The divers said 'Haneul'. Blue was me. Ocean unnie.	海女たちは「ハヌル」と言った。青はわたしだった。海のお姉さん。
+The farm is full. Let it go.	牧場がいっぱい。手放そう。
+The garden. Step on a plot and plant seeds.	畑。区画に乗って種をまこう。
+The gem headband	宝石のヘアバンド
+The heart mark	ハートの印
+The hens	ニワトリたち
+The kid	あの子
+The kid in the raincoat	レインコートの子
+The kid let go, relieved. "Good."	あの子はほっとして手を放した。「よかった」
+The lady who cooks	料理をするおばさん
+The lighthouse blinks like 89.2. The sea is quiet today.	灯台が89.2みたいに瞬く。今日の海は静か。
+The line snapped…	糸が切れた…
+The marble stays. It was mine once.	ビー玉は残る。昔はわたしのものだった。
+The name	名前
+The name on every envelope — "Haneul".\nOnly the last one is still unsealed.	どの封筒にも同じ名前 — 「ハヌル」。\n最後の一通だけ、まだ封がされていない。
+The name was still heavy. Enough for today.	名前はまだ重かった。今日はここまで。
+The needle won't stay. The kid bit the thread.	針が定まらない。あの子が糸を噛み切った。
+The pencil holds. Fewer blank days — a bigger promise.	鉛筆は持ちこたえる。空白の日が減るほど、約束は大きくなる。
+The pets play in the yard. One nap per turn.	ペットたちが庭で遊んでいる。昼寝は1ターンに1回。
+The rabbits	ウサギたち
+The radio: "Tomorrow you may listen." The coat sits by the bed.	ラジオ：「明日なら聴いてもいい」 コートはベッドのそばにある。
+The raincoat on the eve	前夜のレインコート
+The rancher lets you care for the horses. At ♥3 you can ride one.	牧場主が馬の世話をさせてくれる。♥3になると乗れる。
+The road there is broken. Fill the gap between the orange cones with the Road tool (500G a tile) to auto-move!	そこへの道は壊れている。オレンジのコーンの間を道ツール（1マス500G）で埋めると自動で移動！
+The sun set…	日が沈んだ…
+The three stones under the tower have fallen. Stack them again — or leave them.	鉄塔の下の三つの石が崩れている。もう一度積むか — そのままにするか。
+The top-left gauge is your energy.\nIt drains as you run — 0 ends the run!	左上のゲージがエネルギー。\n走ると減っていく — 0でラン終了！
+The tower is still out the window. I'll count the days to the promised birthday.	鉄塔はまだ窓の外にある。約束の誕生日まで日数を数えよう。
+The warm bottle held. Someone leaves it every day.	温かい瓶はそのままだった。誰かが毎日置いていく。
+The woodpile is full (8 weeks).	薪置き場がいっぱい（8週）。
+There's already a road here.	ここにはもう道がある。
+There's somewhere to go before bed.	寝る前に行くところがある。
+They buy bugs, ores and tangerines too. Save up and you can buy anything.	虫や鉱石、みかんも買い取ってくれるよ。貯めれば何でも買えるよ。
+Thick-cut black pork!	厚切り黒豚！
+Thin Suit	薄手のスーツ
+This is the shop. Food and seeds.	ここはお店。食べ物と種があるよ。
+This photocard is not released yet	このフォトカードはまだ未公開です
+This weekend!	今週末！
+Three stones	石が三つ
+Throw	投げる
+Throw again!	もう一回投げて！
+Throw!	投げろ！
+Throwing…	投げてる…
+Ticket +1 · 500 coins	チケット+1 · 500コイン
+Tilting…!	傾いてる…！
+Time on the wave	波に乗った時間
+Time's up.	時間切れ。
+Time's up… faster next time!	時間切れ… 次はもっと速く！
+Timing	タイミング
+Tip: side stories are folded	ヒント：サイドストーリーは折りたたまれています
+To story	ストーリーへ
+To the race!	レースへ！
+Too Far to Hold	遠すぎて届かない
+Too close to another item.	他のアイテムに近すぎます。
+Too tired. Rest first.	疲れすぎてる。まず休もう。
+Too weak!	弱すぎる！
+Tool	道具
+Tour — done this turn	観光 — このターンは済み
+Tower Runner	タワーランナー
+Tower hill · View of the village	鉄塔の丘 · 村を見渡す
+Trace both faces clearer	二つの顔をもっとはっきりなぞる
+Trembling — missed again. But I didn't quit.	震えて — また外した。でもやめなかった。
+True ending	トゥルーエンド
+Try again	もう一度
+Try again right here!	ここでもう一度！
+Try the needle one more time	もう一度針に糸を通してみる
+Tutorial done!	チュートリアル完了！
+Tutorial · How to run	チュートリアル · 走り方
+Twentieth Birthday	二十歳の誕生日
+Twenty letters	二十通の手紙
+Twenty letters. Reading them all will take the night, but I don't want to leave one unread.	二十通の手紙。全部読むには一晩かかるけど、一通も読み残したくない。
+Two Bottles of Milk	牛乳二本
+Two bottles at dusk	夕暮れの二本
+Two bunches. The kid: "That person doesn't know yet."	花束が二つ。子ども：「あの人はまだ知らないの」
+Two done. One left. 	二つ終わり。あと一つ。 
+Two faces in the frost	霜の中の二つの顔
+Two faces on the glass. On the snow path the kid watched my back.	ガラスに二つの顔。雪道で、その子は私の背中を見ていた。
+Typhoon Dokkaebi	台風トッケビ
+Ugh!	うっ！
+Ugh… 	うう… 
+Under the Tower	鉄塔の下で
+Unlock: lower trouble	解放：トラブル減少
+Unlocked — chapters, records & pets	解放 — チャプター・記録・ペット
+Unlocked — donor passcode ☕	解放 — 支援者パスコード ☕
+Unlocks in NG+	NG+で解放
+Unreleased	未公開
+Use	使う
+Use Expand all to open them at once	「すべて開く」で一度に開けます
+Use Fever in the chorus	サビでフィーバーを使おう
+Use it outside — head out the door!	外で使おう — ドアから出て！
+Use the bat for big bugs!	大きな虫にはバットを使おう！
+Use the net for spirits and bugs!	精霊と虫には網を使おう！
+Vibration	振動
+Victory!	勝利！
+Village grandma	村のおばあちゃん
+Village menu	村メニュー
+Village shop	村のお店
+Village shop · Enter	村のお店 · 入る
+Villagers in the lane	路地の村人たち
+Visit Cheonjaeyeon Falls	天帝淵の滝へ行く
+WIN!	WIN!
+Waiting…	待機中…
+Wake up in hospital	病院で目覚める
+Walk on your own in the shaft	坑道を自力で歩く
+Walk with the joystick — tap the pink prompt to enter a place!	ジョイスティックで歩こう — ピンクの表示をタップすると入れるよ！
+Walks there and enters on its own.	自動で歩いて入ります。
+Watch from afar and leave	遠くから見て立ち去る
+Watch your HP in the shaft.	坑道ではHPに注意。
+We have everything!	何でもあるよ！
+Wear	着る
+Wears out in 3 months. Worn = condition/charm ↓	3か月で傷みます。傷むと体調/魅力↓
+Week's over	週の終わり
+Weekend mini-game	週末ミニゲーム
+Weekend mini-game win!	週末ミニゲーム勝利！
+Welcome to Islesound. Hear the island OST.	アイルサウンドへようこそ。島のOSTを聴いてね。
+Welcome! Looking for something?	いらっしゃい！何かお探し？
+Welcome! Try some Jeju style?	いらっしゃい！済州スタイルはいかが？
+Welcome! We even have a haenyeo bear.	いらっしゃい！海女のクマもいるよ。
+Whack — squashed a bug (+2G). Use the net to keep it.	バシッ — 虫をつぶした（+2G）。捕まえるなら網を使おう。
+What shall we eat?	何食べよう？
+What still fits in my hand	まだ手に収まるもの
+What to do this weekend?	今週末は何しよう？
+What'll you do?	どうする？
+When a place starts glowing, I'll take you there. Maybe… you'll remember something.	どこかが光り始めたら、連れて行くね。もしかしたら… 何か思い出すかも。
+When two lanes are blocked,\nmove to the open one.	2レーンがふさがったら、\n空いているレーンへ！
+Where to? Pick a category first. Push the stick to stop.	どこへ？まずカテゴリーを選んで。スティックを倒すと止まるよ。
+Which job this weekend?	今週末はどのバイト？
+Whisper "Haneul" aloud	「ハヌル」と声に出してささやく
+Whoosh — face the water at the shore.	ブンッ — 岸辺で水の方を向こう。
+Whoosh — get closer to a monster.	ブンッ — モンスターにもっと近づこう。
+Whoosh — no big bug. They show up now and then.	ブンッ — 大きな虫はいない。ときどき出てくるよ。
+Whoosh — swing next to a tree.	ブンッ — 木の横で振ろう。
+Win + stat = 1st · one of them = 2nd/3rd	勝利＋ステータス＝1位 · どちらか一方＝2位/3位
+Windy	風が強い
+Wipe the frost with my hand	手で霜をぬぐう
+Wk 1	1週
+Woke up in hospital. Buy rice first.	病院で目覚めた。まずお米を買おう。
+Won again! 500G · 5 jelly · silver ore ×2. The big prize resets next week.	また勝った！500G · ゼリー5個 · 銀鉱石×2。大賞は来週リセットされます。
+Work	仕事
+Worn!	ボロボロ！
+Wow, thank you! Take this.	わあ、ありがとう！これどうぞ。
+Yellow star = Bonus Time	黄色い星＝ボーナスタイム
+You already entered this year. See you next year!	今年はもう参加済み。また来年！
+You can see the whole village from here. Let's plan the week at home.	ここから村が全部見えるね。家で一週間の計画を立てよう。
+You did it!	やったね！
+You don't have this card yet	このカードはまだ持っていません
+You don't own that pet.	そのペットは持っていません。
+You grow 2× for 10 seconds\nand smash through obstacles!	10秒間2倍に大きくなって\n障害物を壊して進める！
+You hop off. The horse trots back to the ranch.	馬から降りた。馬は牧場へ駆け戻っていく。
+You must win to move on to next week.	次の週へ進むには勝つ必要があります。
+You passed the clue by	手がかりを見過ごした
+You passed the clue — letters left unread	手がかりを見過ごした — 手紙は読まれないまま
+You win!	あなたの勝ち！
+You win! 60G	あなたの勝ち！60G
+You're full — HP is maxed. Come again!	お腹いっぱい — HPは満タン。また来てね！
+You're perfectly healthy!	まったくの健康です！
+Your choice is saved	選択が保存されました
+Your turn — [THROW!!]	あなたの番 — [投げる!!]
+Your turn.	あなたの番。
+Your turn. Land on a fork → X shortcut!	あなたの番。分かれ道に止まる → Xでショートカット！
+Your wallet is empty. Earn some on a run!	財布が空っぽ。ランで稼ごう！
+Youth Protection	青少年保護
+Yut Nori	ユンノリ
+"It's fine." He smiled. Guilt stayed.	「大丈夫」彼は笑った。罪悪感は残った。
+"Two bottles of milk. One for today, one for tomorrow."\nThe same line, shifted a little each year.	「牛乳二本。一本は今日の、一本は明日の」\n同じ一行が、年ごとに少しずつずれていく。
+"…20th birthday, under the tower. Whether you come or not, I'll go."\nThe ink runs at the edge.	「…二十歳の誕生日、鉄塔の下で。君が来ても来なくても、僕は行く」\n端のインクがにじんでいる。
+agility	敏捷
+burnout	燃え尽き
+calm	穏やか
+camera · tap=swing	カメラ · タップ＝振る
+charm	魅力
+claimed	受取済み
+close their eyes and stay still	目を閉じてじっとしている
+critical	クリティカル
+done	完了
+flat	平凡
+flatten their ears and push into your palm	耳を伏せて手のひらに頭を押しつける
+free today	今日は無料
+later	あとで
+nibble from the tip	先っぽからかじる
+now	今
+offer	あげる
+peck and follow your feet	つついて足元についてくる
+round	丸
+s	秒
+seen before	既読
+stamina	体力
+story	ストーリー
+story·contest	ストーリー·コンテスト
+sun is down	日が沈んだ
+sun is down…	日が沈んだ…
+sun is setting…	日が沈んでいく…
+sunset in 	日没まで 
+this week	今週
+tired	疲れ
+until sunset	日没まで
+worn out	ボロボロ
+— Our Frequency —	— 君と僕の周波数 —
+— end of chapter —	— 章の終わり —
+…Haneul can't get up.	…ハヌルは起き上がれない。
+…The villager doesn't talk to a stranger.	…村人はよそ者とは話さない。
+…Woke up in hospital. Shop first.	…病院で目覚めた。まずお店へ。
+…Woke up in the hospital. No fee for newcomers. 	…病院で目覚めた。新入りは無料です。 
+↩  Close	↩  閉じる
+↩ Back	↩ 戻る
+↩ Back to categories	↩ カテゴリーへ戻る
+↩ Repay	↩ 返済
+↩ Repay loan	↩ ローン返済
+↻ Rotate	↻ 回転
+⏹ Stop	⏹ 停止
+■  Stop playlist	■  プレイリスト停止
+■ Max size (15 plots)	■ 最大サイズ（15区画）
+▲ Hold to raise	▲ 長押しで上げる
+▲ Upgrade	▲ 強化
+▶  Full album	▶  フルアルバム
+▶  Music video "Our frequency" · Studio Woohee&Heesi	▶  ミュージックビデオ「君と僕の周波数」 · Studio Woohee&Heesi
+▶ Jump to this chapter	▶ この章へジャンプ
+▶ Replay tutorial	▶ チュートリアルを再生
+▶ Ride (90 s, faster)	▶ 乗る（90秒、速い）
+▶ Riding! Push the stick all the way to gallop (90 s)	▶ 乗馬中！スティックを最後まで倒すとギャロップ（90秒）
+▶ Run again (retry)	▶ もう一度走る（リトライ）
+▶ Take me there	▶ 連れて行って
+▶ contest  ★ cutscene  · story  ♪ festival  ▣ now	▶ コンテスト  ★ カットシーン  · ストーリー  ♪ フェスティバル  ▣ 現在
+▼ Open	▼ 開く
+◀ Back	◀ 戻る
+◀ Village	◀ 村
+◆ Work	◆ 仕事
+○ OK	○ OK
+● Brush the mane (+6)	● たてがみをブラッシング（+6）
+● Brush — done today	● ブラッシング — 今日は済み
+● Carrot — done today	● ニンジン — 今日は済み
+● Feed — done today	● エサ — 今日は済み
+● Fertilize	● 肥料をまく
+● Fertilized	● 肥料済み
+● Give a carrot (+12)	● ニンジンをあげる（+12）
+● Give a carrot / veg (+10)	● ニンジン/野菜をあげる（+10）
+● Good night	● おやすみ
+● Pet (+6)	● なでる（+6）
+● Pet — done today	● なでる — 今日は済み
+● Talk to the rancher	● 牧場主と話す
+☀ Heal	☀ 回復
+★ 2 hidden tracks (donor gift)  ▶	★ 隠しトラック2曲（支援者特典）  ▶
+★ = 1 + fertilizer + never missed water	★ ＝ 1 ＋ 肥料 ＋ 水やりを欠かさない
+★ GREAT	★ GREAT
+★ Golden dragonfly!	★ 金のトンボ！
+★ Golden stag beetle! Legendary — into the bag	★ 金のクワガタ！伝説級 — バッグへ
+★ Got it! ★	★ ゲット！ ★
+★ Jewel ladybug!	★ 宝石テントウムシ！
+★ MISSION ★	★ ミッション ★
+★ New best score!	★ ベストスコア更新！
+★ Pick your gift	★ ギフトを選ぼう
+★ Rainbow butterfly!	★ 虹色の蝶！
+★ Result ★	★ 結果 ★
+★ Star Capsule ★	★ スターカプセル ★
+★ The boss is dizzy — hits deal double!	★ ボスがふらふら — ダメージ2倍！
+★ Tutorial done — glowing places continue the story	★ チュートリアル完了 — 光る場所でストーリーが続きます
+★ WIN! ★	★ WIN! ★
+★★★ GREAT SUCCESS ★★★	★★★ 大成功 ★★★
+☾ Heal	☾ 回復
+☾ Rest	☾ 休む
+♥ Heart	♥ ハート
+♥ Rest	♥ 休む
+♥3 golden eggs sometimes · ♥5 +1 egg daily	♥3で時々金の卵 · ♥5で毎日卵+1
+♥5: a clover (★ shard) every morning	♥5：毎朝クローバー（★かけら）
+♪ One more song	♪ もう一曲
+♪ One more ♪	♪ もう一回 ♪
+♪ Song done — already stamped today	♪ 曲完了 — 今日はスタンプ済み
+⚔ Auto-hunt OFF	⚔ 自動狩り OFF
+⚔ Auto-hunt ON	⚔ 自動狩り ON
+⚔ Auto-hunt off	⚔ 自動狩りオフ
+⚔ Auto-hunt off (manual move)	⚔ 自動狩りオフ（手動移動）
+⚔ Auto-hunt on	⚔ 自動狩りオン
+⚔ Looking for prey…	⚔ 獲物を探しています…
+⚠ Release = freeze = safe	⚠ 離す＝停止＝安全
+⚠ Weekend job (random)	⚠ 週末バイト（ランダム）
+⚠ Weekend play (random)	⚠ 週末の遊び（ランダム）
+⚠ Weekend rest (random)	⚠ 週末の休息（ランダム）
+⛏ Oreum Mine	⛏ オルム鉱山
+⛏ Oreum Mine · Enter	⛏ オルム鉱山 · 入る
+⛏ Pickaxe — mine hill rocks (gone after 3, regrows in 8w)	⛏ ツルハシ — 丘の岩を掘る（3回で消え、8週で復活）
+⛵ Jungmon Marina	⛵ 中文マリーナ
+⛵ Jungmon Marina · Yacht / Jet ski	⛵ 中文マリーナ · ヨット / 水上バイク
+⛵ Yacht tour	⛵ ヨットツアー
+✅ Buy	✅ 買う
+✌ Peace	✌ ピース
+✓ Same cell = catch!	✓ 同じマス＝キャッチ！
+✔ Done	✔ 完了
+✕ Close	✕ 閉じる
+✕ FAIL	✕ FAIL
+✦ AI-generated image · virtual	✦ AI生成画像 · フィクション
+✦ Caught… back to lap start	✦ 捕まった… 周回のスタートへ戻る
+✦ Me	✦ 私
+✦ Story event	✦ ストーリーイベント
+✦♥ ★ 3-lap race — your turn! ★ ♥✦	✦♥ ★ 3周レース — あなたの番！ ★ ♥✦
+✨ Caught a spirit! Shards +2 · 30G	✨ 精霊を捕まえた！かけら+2 · 30G
+✨ Walk to the glowing blanket	✨ 光る毛布まで歩こう
+❀  Bought items go to your bag  ❀	❀  買ったアイテムはバッグに入ります  ❀
+❀  It's sad, but you can get back up · Try again  ❀	❀  悲しいけど、また立ち上がれる · もう一度  ❀
+❀ Play	❀ 遊ぶ
+❗ Event — 	❗ イベント — 
+⬇ Climb down	⬇ 下りる
+⬇ Deep shaft (dungeon) · Go down	⬇ 深い坑道（ダンジョン） · 下りる
+🌊 Big waves! Get out in 3 seconds!	🌊 大波！3秒以内に上がって！
+🌊 Swept away by the waves…	🌊 波にさらわれた…
+🌱 Grow · pick  (choose a seed to plant!)	🌱 育てる · 収穫（植える種を選んで！）
+🌱 Plant seeds	🌱 種をまく
+🌿 Pull weeds	🌿 草むしり
+🌿 Weeds pulled. Ready to plant.	🌿 草むしり完了。植える準備OK。
+🍄 Pick mushroom	🍄 キノコを採る
+🍄 Picked a mushroom → ingredient	🍄 キノコを採った → 食材
+🍊 My orchard	🍊 私のみかん畑
+🍊 Orchard	🍊 みかん畑
+🍊 Order · Jeju brunch (restore HP)	🍊 注文 · 済州ブランチ（HP回復）
+🍊 Sell produce (+20%)	🍊 農産物を売る（+20%）
+🍊 Stone-wall orchard	🍊 石垣のみかん畑
+🍊 Tangerine Brunch menu	🍊 みかんブランチ メニュー
+🍊 Tangerine Brunch · Enter	🍊 みかんブランチ · 入る
+🍊 Tangerine hat · 500G	🍊 みかん帽子 · 500G
+🍊 The orchard is yours!	🍊 みかん畑はあなたのもの！
+🍊 Wear tangerine hat	🍊 みかん帽子をかぶる
+🍖 Got a horse! Meat +3 … the rancher is watching. Do it again and he'll call the police!	🍖 馬を仕留めた！肉+3 … 牧場主が見てる。またやったら警察を呼ばれるよ！
+🍚 Table · Eat	🍚 食卓 · 食べる
+🍜 Noodles	🍜 麺
+🍜 Olle Noodles	🍜 オルレ麺
+🍫 Tangerine chocolate · 120G	🍫 みかんチョコ · 120G
+🍳 Cook — ingredients → meals	🍳 料理 — 食材 → 料理
+🍽 Order (restore HP)	🍽 注文（HP回復）
+🎁 All done? Thank you!	🎁 全部終わった？ありがとう！
+🎁 Buy souvenirs	🎁 おみやげを買う
+🎁 Donate everything new	🎁 新しいものを全部寄贈
+🎁 Gift	🎁 プレゼント
+🎁 Gift snack box · 120G	🎁 お菓子ギフトボックス · 120G
+🎁 Souvenir shop	🎁 おみやげ店
+🎁 Souvenirs	🎁 おみやげ
+🎆 Enjoy the festival (stress −12)	🎆 お祭りを楽しむ（ストレス−12）
+🎉 Bandit gang cleared! Bonus +120G	🎉 盗賊団を撃退！ボーナス+120G
+🎉 Loan paid off!	🎉 ローン完済！
+🎒 Bag	🎒 バッグ
+🎣 Beach fishing	🎣 海辺の釣り
+🎣 Cast	🎣 投げる
+🎣 Rod — fish at the beach	🎣 釣り竿 — 海辺で釣り
+🎧 Islesound · OST	🎧 アイルサウンド · OST
+🎧 Listen · OST	🎧 聴く · OST
+🎧 Records	🎧 レコード
+🎮 Play · Practice	🎮 プレイ · 練習
+🎯 Mission done!	🎯 ミッション達成！
+🎯 Today's mission	🎯 今日のミッション
+🎵 Settle K-POP run income (nothing yet)	🎵 K-POPラン収益を精算（まだなし）
+🏏 Bat	🏏 バット
+🏏 Beat the bandits! They dropped 40G each	🏏 盗賊をやっつけた！一人40Gずつ落とした
+🏏 Hit a bandit!	🏏 盗賊を叩いた！
+🏏 Hit the police! Still standing	🏏 警察を叩いた！まだ立っている
+🏛 Curator · Donate / Encyclopedia	🏛 学芸員 · 寄贈 / 図鑑
+🏛 Museum	🏛 博物館
+🏠 Go in	🏠 入る
+🏠 Our home	🏠 私たちの家
+🏠 To title	🏠 タイトルへ
+🏠 Warp home	🏠 家へワープ
+🏠 Warped home.	🏠 家へワープした。
+🏡 Land (for sale · my rentals) …	🏡 土地（売り出し中 · 貸している土地）…
+🏡 Land · rent	🏡 土地 · 賃貸
+🏥 Hospital · Enter	🏥 病院 · 入る
+🏦 Bank	🏦 銀行
+🏦 Bank teller	🏦 銀行窓口
+🏦 Bank · Enter	🏦 銀行 · 入る
+🏦 How much to borrow?	🏦 いくら借りる？
+🏦 Teller · Deposit / Loan / Run income	🏦 窓口 · 預金 / ローン / ラン収益
+🐄 Barn	🐄 牛舎
+🐄 Barn · cows & pigs	🐄 牛舎 · 牛と豚
+🐄 Livestock Market	🐄 家畜市場
+🐄 Market	🐄 市場
+🐄 Market · Livestock / Produce	🐄 市場 · 家畜 / 農産物
+🐔 Farm	🐔 農場
+🐔 Our farm	🐔 私たちの農場
+🐚 A pretty shell! Into the bag	🐚 きれいな貝殻！バッグへ
+🐚 Caught a hermit crab! Shard +1 · 8G	🐚 ヤドカリを捕まえた！かけら+1 · 8G
+🐚 Pick up shell	🐚 貝殻を拾う
+🐚 Picked up a Saekdong shell!	🐚 セクトン貝を拾った！
+🐝 Beehive kit · 800G	🐝 養蜂キット · 800G
+🐝 Canola beehives	🐝 菜の花の養蜂箱
+🐝 Smacked a giant hornet! Shards +2 · 15G	🐝 オオスズメバチを叩いた！かけら+2 · 15G
+🐞 Caught a ladybug! Shard +1	🐞 テントウムシを捕まえた！かけら+1
+🐮 A calf went to the barn!	🐮 子牛が牛舎に入った！
+🐮 Calf · 700G	🐮 子牛 · 700G
+🐴 Ranch	🐴 牧場
+🐷 A piglet went to the barn!	🐷 子豚が牛舎に入った！
+🐷 Piglet · 350G	🐷 子豚 · 350G
+🐾 Care for pets	🐾 ペットのお世話
+👑 Boss defeated!	👑 ボス撃破！
+👗 Boutique	👗 ブティック
+👗 Clerk · Buy / wear	👗 店員 · 購入 / 着る
+👗 Tamra Boutique	👗 タムラ・ブティック
+👻 Pushed the ghost back! Can't catch it — run home!	👻 幽霊を追い払った！捕まえられない — 家まで走って！
+💊 Treatment	💊 治療
+💤 (Already napped)	💤 （昼寝済み）
+💤 Low HP — auto-hunt stopped. Eat and rest!	💤 HP低下 — 自動狩り停止。食べて休もう！
+💤 Sleep anyway — the week passes	💤 それでも寝る — 一週間が過ぎる
+💤 Sleep — Energy +12 · Condition +8	💤 寝る — 体力+12 · 体調+8
+💥 Scattered the spirit with the bat… (use the net to catch it!)	💥 バットで精霊を散らした…（網を使えば捕まえられる！）
+💰 Deposit	💰 預ける
+💰 How much to deposit?	💰 いくら預ける？
+💰 Sell	💰 売る
+💰 Sell items	💰 アイテムを売る
+💵 How much to withdraw?	💵 いくら引き出す？
+💵 Withdraw	💵 引き出す
+💸 Not enough	💸 足りない
+💼 Job Center	💼 求人センター
+💼 Job Center · Enter	💼 求人センター · 入る
+📖 Encyclopedia	📖 図鑑
+📖 Encyclopedia · friendships	📖 図鑑 · 友好度
+📖 Jeju Life Encyclopedia	📖 済州ライフ図鑑
+📜 Um, I have a favor…	📜 あの、お願いがあるんだけど…
+📻 Desk · My room / Cook	📻 机 · 私の部屋 / 料理
+🔒 Locked · unlock with the donor gift "OST"	🔒 ロック中 · 支援者特典「OST」で解放
+🗑 Remove	🗑 撤去
+🗺 Haneul Seaside map	🗺 ハヌル海辺マップ
+🗿 Hareubang doll · 300G	🗿 トルハルバン人形 · 300G
+🚌 Bus stop · Timetable	🚌 バス停 · 時刻表
+🚌 City stop · Take the bus	🚌 市内バス停 · バスに乗る
+🚌 Coastal bus No. 201	🚌 海岸バス201番
+🚌 Coastal bus No. 201 — every 10 min. A Hallasan photo hangs by the timetable.	🚌 海岸バス201番 — 10分間隔。時刻表の横に漢拏山の写真が掛かっている。
+🚌 Jungmon stop · Take the bus	🚌 中文バス停 · バスに乗る
+🚌 Stop	🚌 バス停
+🚓 Arrested… paid the fine and got released. Wanted level cleared.	🚓 逮捕された… 罰金を払って釈放。手配度クリア。
+🚓 Beat all the police… wanted level cleared	🚓 警察を全員倒した… 手配度クリア
+🚪 Look inside	🚪 中をのぞく
+🛋 My room	🛋 私の部屋
+🛍 Shopkeeper	🛍 店主
+🛍 Village shop	🛍 村のお店
+🛏 Bed	🛏 ベッド
+🛏 Bed · Sleep (week passes)	🛏 ベッド · 寝る（一週間が過ぎる）
+🛒 Buy	🛒 買う
+🛒 Checkout · Shop	🛒 レジ · お店
+🛒 City Mart	🛒 シティマート
+🛒 Mart	🛒 マート
+🛣 The road is broken — fill the gap between the orange cones.	🛣 道が壊れている — オレンジのコーンの間を埋めよう。
+🛣 You're too far from any road. Walk to a road or lay one.	🛣 道から遠すぎます。道まで歩くか、道を敷こう。
+🥛 Milk the cows	🥛 牛の乳しぼり
+🥛 Milk: grown cows, weekly	🥛 牛乳：成牛から毎週
+🥩 Dombe Black Pork	🥩 トンベ黒豚
+🥩 Pork	🥩 豚肉
+🥬 Groceries · medicine · care	🥬 食料品 · 薬 · ケア用品
+🥶 No firewood for the stove. Chop or gather some.	🥶 ストーブの薪がない。木を切るか拾ってこよう。
+🦀 Caught a crab! Shard +1 · 12G	🦀 カニを捕まえた！かけら+1 · 12G
+🦋 Caught a butterfly! Shard +1	🦋 蝶を捕まえた！かけら+1
+🦋 Net	🦋 網
+🧥 Clothes set (12 weeks)	🧥 服セット（12週）
+🧭 Auto-move	🧭 自動移動
+🧭 Auto-move — pick a place	🧭 自動移動 — 場所を選ぶ
+🧭 Auto-moving… (push the stick to stop)	🧭 自動移動中…（スティックを倒すと停止）
+🧭 Go to land	🧭 土地へ行く
+🧭 Move	🧭 移動
+🧭 Walk to a lot	🧭 区画まで歩く
+🧭 Walking…	🧭 歩いてる…
+🧸 Teddy Cub Museum	🧸 テディベアミュージアム
+🧺 Harvest this week	🧺 今週収穫
+🧺 Harvested (next week)	🧺 収穫済み（次は来週）
+🪑 Yard furniture	🪑 庭の家具
+🪑 Yard — pick an item, walk, then 「Place」. Removing refunds half.	🪑 庭 — アイテムを選んで歩き、「置く」。撤去すると半額返金。
+🪓 Axe — chop trees (falls after 3, regrows in 8w)	🪓 斧 — 木を切る（3回で倒れ、8週で復活）
+🪜 Exit	🪜 出口
+🪜 Ladder · Back to village	🪜 はしご · 村へ戻る
+🪜 Up to the mine	🪜 鉱山へ上がる
+🪨 Stone	🪨 石
+🪰 Caught a dragonfly! Shards +2	🪰 トンボを捕まえた！かけら+2
+🪲 Smacked a giant beetle! Shards +2 · 15G	🪲 巨大カブトムシを叩いた！かけら+2 · 15G
+🪵 Firewood	🪵 薪
+🪵 Pick up branch	🪵 枝を拾う
+🪵 Picked a branch → Firewood +1	🪵 枝を拾った → 薪+1
+🫙 Make syrup (3 tangerines + 1 honey)	🫙 シロップを作る（みかん3個＋はちみつ1）
+🫳 Pet them (stress −3)	🫳 なでる（ストレス−3）
+That Promise	あの約束
+Our Tower  ·  OUR FREQUENCY	僕らの送電塔  ·  OUR FREQUENCY
+The black car pulled away. I pounded the rear window with my palm. The window rolled down.	黒い車が走り出した。私は後ろの窓を手のひらで叩いた。窓が下りた。
+“On your 20th birthday, under the tower! Promise!” The car faded into the dust.	「二十歳の誕生日に、送電塔の下で会おう! 絶対!」 車は土ぼこりの中へ遠ざかった。
+That night I circled my birthday on the calendar and wrote, “Under the tower.” The pencil dug into the paper.	その夜。カレンダーの私の誕生日に丸をつけて書いた。「送電塔の下。」 鉛筆が紙に食い込んだ。
+The calendar changed seven times. The circle was on the same day every year.	カレンダーが七回替わった。丸は毎年同じ日にあった。
+The seventh spring. The edge of a blanket lifted in the wind. Overhead, the steel hummed.	七回目の春。毛布の端が風にめくれた。頭の上で鉄がうなっていた。
+I opened my eyes. I was on an old blanket. The wind kept lifting its edge.	目を開けた。古い毛布の上だった。風が毛布の端を何度もめくった。
+A rusty steel tower rose over my head into the sky, humming in the wind. The sky was gray.	頭の上に錆びた鉄の柱が空まで伸びていて、風に鉄がうなっていた。空は灰色だった。
+Waves broke white over the seawall. Far off, the village speaker's typhoon warning kept cutting out in the wind.	波が防波堤を越えて白く砕けた。遠くで村のスピーカーの台風警報が、風に途切れそうになりながら続いていた。
+I tried to remember my name. Nothing came. Not Mom's face, not home, not yesterday. Nothing.	名前を思い出そうとした。出てこなかった。ママの顔も、家も、昨日も。何も。
+I pushed up against the post. My legs shook. My face showed in a rock pool.	柱に手をついて立ち上がった。脚が震えた。岩のくぼみの水たまりに顔が映った。
+I looked at the girl in the pool for a long time. No name came.	水たまりの中の女の子を長いこと見た。名前は出てこなかった。
+I sank down on the blanket and cried. Out loud. I didn't even know why. I was scared. Just scared.	毛布の上にへたり込んで泣いた。声を上げて泣いた。なぜ泣くのかもわからなかった。怖かった。ただ怖かった。
+By three stones sat a kid, orange raincoat hood pulled low. About six. He'd watched me cry the whole time.	石三つのそばに、オレンジのレインコートを目深にかぶった男の子が座っていた。六歳くらい。私が泣くのを全部見ていた。
+“Sis, you don't know your name?” I nodded. The kid wasn't surprised. “Then Sister Bada. Your eyes are blue like the sea.”	「お姉ちゃん、名前わかんないの?」 うなずいた。男の子は驚かなかった。「じゃあバダお姉ちゃん。目が海みたいに青い。」
+I held the kid's hand and went down to the village. The wind pushed at my back.	男の子の手を握って村へ下りた。風に背中を押された。
+In every alley, people were taping newspaper to windows and hauling boats up onto land.	どの路地でも、人々が窓に新聞紙を貼り、船を陸に引き上げていた。
+I said hello to a grandma. She didn't answer. The radio just repeated the typhoon warning.	おばあちゃんに挨拶した。おばあちゃんは返事をしなかった。ラジオから台風警報だけが繰り返されていた。
+The shop front, the bus stop, the seawall. Everyone was busy. Not one face knew me.	店の前、停留所、防波堤。みんな忙しかった。私を知っている顔はひとつもなかった。
+Nobody was looking for me. That scared me most.	誰も私を探していなかった。それがいちばん怖かった。
+“I know you, Sis,” the kid said. “How?” “I just do.”	「ぼくはお姉ちゃんのこと知ってる。」男の子が言った。「どうして?」「ただ知ってる。」
+The kid said the same thing twice. Still, at those words my legs loosened a little.	男の子は同じことを二回言った。それでも、その一言で脚が少しほどけた。
+A stop where the buses had stopped running. The kid pointed at the rusty tower on the hill we'd come down.	運行が止まった停留所。男の子が、私たちが下りてきた丘の錆びた塔を指さした。
+“If you get from here to there before sunset, you win.” I asked what game it was. “Just a game.”	「ここからあそこまで夕焼けの前に着いたら、お姉ちゃんの勝ち。」何の遊びか聞いた。「ただの遊び。」
+The kid dragged an old skateboard out from behind the bus stop.	男の子が停留所の裏から古いスケートボードを引っぱり出してきた。
+I stepped on and my body found the balance first. My head didn't know, but my feet did.	足をのせると、体のほうが先にバランスをとった。頭は知らないのに、足が知っていた。
+I reached the blanket under the tower before the sun set. The kid clapped. “You won!” I laughed. My first laugh today.	日が沈む前に塔の下の毛布の場所に着いた。男の子が拍手した。「勝った!」 私は笑った。今日はじめて笑った。
+That night the wind got stronger. The kid spread his raincoat over my shoulders too. We slept under it together.	その夜、風はもっと強くなった。男の子がレインコートの裾を広げて、私の肩までかけてくれた。ふたりでその下で眠った。
+Story · Episode 2	物語 · 第2話
+The next day I ran from the stop to the tower again. I put the kid on the front of the board.	次の日も停留所から塔まで走った。男の子をボードの前に乗せた。
+His raincoat hood puffed up in the wind. “Faster!” “Tell me if you get scared.” “Faster!”	レインコートのフードが風にふくらんだ。「もっと速く!」「怖かったら言ってね。」「もっと速く!」
+We fell on a bend between stone walls. We both scraped our knees.	石垣のあいだの曲がり道で転んだ。ふたりともひざをすりむいた。
+The kid put spit on my knee. “Now it won't hurt.” It still hurt. I laughed anyway.	男の子が私のひざにつばをつけた。「こうすると痛くない。」 痛くなくはなかった。それでも笑った。
+Two bottles of milk sat under the tower.	塔の下に牛乳が二本置いてあった。
+The kid took a pink shell from his pocket. He drew a heart on it in red crayon. It was crooked.	男の子がポケットからピンク色の貝殻を出した。赤いクレヨンでその上にハートを描いた。ゆがんでいた。
+The kid pressed the shell into my hand. “Don't lose it.”	男の子がその貝殻を私の手に握らせた。「なくさないで。」
+On the way back, the kid took my hand. Small, cold hand. “Let's go tomorrow too.” “Yeah. Tomorrow too.”	帰り道、男の子が私の手を握った。小さくて冷たい手。「明日も行こう。」「うん。明日も。」
+I picked up milk at the shop. The old owner was only listening to the radio. “Excuse me.”	店で牛乳を手に取った。店のおばあちゃんはラジオばかり聞いていた。「すみません。」
+I called twice. She didn't look up.	二回呼んだ。おばあちゃんは顔を上げなかった。
+Outside I bumped into a man. He just walked past me. Not even “sorry.” I stepped aside to the roadside.	外でおじさんとぶつかった。おじさんは私の横をそのまま通り過ぎた。「すみません」もなかった。私は道の端によけた。
+I asked the kid, “Why doesn't anyone look at me?” Instead of answering, he kicked a pebble with his toe.	男の子に聞いた。「どうして誰も私を見ないの?」 男の子は答えるかわりに、つま先で小石を蹴った。
+“Sis, I'm hungry.” “Answer me.” “I'm hungry.” He said the same thing twice. I couldn't ask again.	「お姉ちゃん、おなかすいた。」「答えて。」「おなかすいた。」 男の子は同じことを二回言った。私はそれ以上聞けなかった。
+In front of the guard post, a woman was handing out flyers. One to everyone who passed.	詰所の前。おばさんがチラシを配っていた。通る人みんなに一枚ずつ。
+Few took one. Instead of words, she bowed her head. There was no sound at all.	受け取る人は少なかった。おばさんは言葉のかわりに頭を下げた。音がひとつもなかった。
+She stopped in front of me too. She looked at me a moment, then held out a flyer. I took it.	おばさんが私の前にも立った。少し私を見て、チラシを差し出した。私は受け取った。
+A face I'd seen somewhere. She looked sad. She bowed her head and moved on to the next person.	どこかで見た顔だった。悲しそうに見えた。おばさんは頭を下げて、次の人のところへ行った。
+I looked at the flyer. A girl's photo. “Ko Haneul, 19, missing.” I looked at it a long time. A face that wasn't smiling.	チラシを見た。女の子の写真。「コ・ハヌル、19歳、行方不明。」 私は写真を長いこと見た。笑っていない顔だった。
+The kid folded the flyer into his raincoat pocket. “I'll keep it.” He pulled his hood lower.	男の子がチラシをたたんで、自分のレインコートのポケットに入れた。「ぼくが持っとく。」 フードをもっと深くかぶった。
+A tall man at the bus stop. White shirt. Two bottles of milk. He saw me and gave a small bow. “Hello.”	停留所に背の高い男の人がいた。白いシャツ。牛乳二本。男の人は私を見て軽く頭を下げた。「こんにちは。」
+I said “Hello” too. He just stood at a stop where no bus came. I didn't know what he was waiting for.	私も「こんにちは」と言った。男の人はバスの来ない停留所にただ立っていた。何を待っているのかわからなかった。
+The man covered his mouth and coughed a long time. His lips were blue. When it stopped, he stood at the stop again.	男の人が口を押さえて長いあいだ咳をした。唇が青かった。咳がやむと、また停留所に立った。
+At night I looked at my face in the shop window. The face on the flyer came back to me.	夜、店のガラス窓に顔を映してみた。昼間に見たチラシの顔が浮かんだ。
+The kid came, looked, and wiped the fog off with his palm. “Sis, let's sleep.” “Okay.” Back to the blanket under the tower.	男の子が横に来てガラスを見ると、手のひらで曇りをふいた。「お姉ちゃん、寝よう。」「うん。」 塔の下の毛布に戻った。
+Story · Episode 4	物語 · 第4話
+Summer. I sat on the seawall and just looked at the sea. I'd been doing it for days.	夏。私は防波堤に座って海ばかり見ていた。何日もそうしていた。
+Right in front of me the kid splashed into the shallows. Raincoat and all. “Sis, look!”	男の子が私の前で浅い水にざぶんと入った。レインコートを着たまま。「お姉ちゃん、見て。」
+He splashed, fell, splashed again. The orange floating in the water laughed. I took off my shoes and went in too.	水をはね上げて、転んで、またはね上げた。水に浮いたオレンジ色が笑った。私も靴を脱いで入った。
+“Not taking off your raincoat?” “Mom said not to.” “Where's your mom?” “On the mainland.” He splashed me.	「レインコート脱がないの?」「ママが脱ぐなって。」「ママはどこ?」「本土。」 男の子が水をかけてきた。
+We lay on the sand catching our breath. The kid laughed with his left eye scrunched shut. I laughed too.	砂の上にふたりで寝転んで息を整えた。男の子が左目をつぶるようにして笑った。私も笑った。
+We played till sunset. I got hungry. I was sitting soaked on the seawall when a woman in a diving suit walked by and stopped.	日が暮れるまで遊んだ。おなかがすいた。濡れたまま防波堤に座っていると、海女の服を着たおばさんが通りかかって立ち止まった。
+The woman from the guard post. She looked at me a long time, then took my hand. And pointed up the hill.	詰所の前で見たおばさんだった。おばさんは私を長いこと見て、私の手を取った。そして丘のほうを指さした。
+The kid took my other hand. The three of us climbed the hill.	男の子が私のもう片方の手を握った。三人で丘を上った。
+A lone house on the hill. Diving suits hung in the yard. She sat me on the porch and handed me a towel.	丘の上の一軒家。庭に海女の服が干してあった。おばさんが私を縁側に座らせて、タオルを渡してくれた。
+She wrote on paper. “Have you eaten?” I shook my head.	おばさんが紙に字を書いた。「ごはん食べた?」 私は首を振った。
+“You can't speak?” I asked, shaping the words big. She nodded. “Or hear?” She nodded again.	「話せないんですか?」 口を大きく動かして聞いた。おばさんがうなずいた。「聞くのも?」 またうなずいた。
+She wrote on the paper. “What's your name?”	おばさんが紙に書いた。「名前は?」
+I picked up the pen. There was nothing to write. “I don't know.” She looked at my writing a long time. And asked no more.	私はペンを取った。書くことがなかった。「わかりません。」 おばさんは私の字を長いこと見た。そしてそれ以上聞かなかった。
+Seaweed soup smelled from the kitchen. She set the table. Rice, seaweed soup, rolled omelet. The omelet was heart-shaped.	台所からワカメスープのにおいがした。おばさんがお膳を用意した。ごはん、ワカメスープ、卵焼き。卵焼きはハートの形だった。
+I ate two bowls of rice. It had been a long time since I'd had warm food. I couldn't remember when.	私はごはんを二杯食べた。温かいごはんは久しぶりだった。いつ食べたのかは思い出せなかった。
+She wrote on the paper. “My daughter left home. I'm looking for her.”	おばさんが紙に書いた。「娘が家を出たの。探してるところ。」
+“When?” “In spring.” “Where to?” She put the pen down.	「いつですか?」「春に。」「どこへ?」 おばさんはペンを置いた。
+“Is that why you go to the guard post every day?” A nod. “How old is she?” She held up her fingers. Nineteen.	「だから毎日詰所に行くんですか?」 うなずく。「娘さんは何歳ですか?」 おばさんが指を広げた。十九。
+She stroked my hair once. Then wrote, “You're like my daughter.” Tears came. I cried while eating.	おばさんが私の頭を一度なでた。そして書いた。「うちの娘みたいで。」 涙が出た。ごはんを食べながら泣いた。
+She ladled me more soup. “Eat plenty.” The writing was crooked. I ate it all.	おばさんがワカメスープをもっとよそってくれた。「たくさん食べて。」 その字はゆがんでいた。私は全部食べた。
+The kid didn't come up onto the porch. He stood in the yard, watching me through the window.	男の子は縁側に上がってこなかった。庭に立って、窓から私を見ていた。
+I waved him in. He shook his head. He seemed to be smiling. But he looked sad.	入っておいでと手招きした。男の子は首を振った。笑っているように見えた。でも悲しそうに見えた。
+Story · Episode 6	物語 · 第6話
+Dawn. She put on her diving suit and went to the sea. I followed with the taewak. She gestured: “Sit here.”	明け方。おばさんが海女の服を着て海へ行った。私はテワクを持ってついていった。おばさんが手ぶりで示した。「ここに座ってて。」
+From a rock I counted her dives. Seventeen. Each time she surfaced, there was a long breath.	岩の上で、おばさんが潜っては上がってくるのを数えた。十七回。水面に上がるたびに長い息の音がした。
+The sumbisori of a woman with no voice was louder than the sea. But the taewak net was empty. She wasn't picking conch.	声のない人のスムビソリが海より大きかった。でもテワクの網は空っぽだった。おばさんはサザエを採っていなかった。
+She looked into the rock crevices one by one. Lifted piles of old net, went back down, lifted them again.	おばさんは岩のすき間をひとつずつのぞいた。捨てられた網の山をめくり、また潜り、またのぞいた。
+Every time she came up, her hands were empty. I couldn't ask what she was looking for.	水から上がるたびに、手には何もなかった。何を探しているのか、私は聞けなかった。
+At the end she came out and set one conch on my knee. “Yours.”	最後におばさんが水から上がって、私のひざにサザエをひとつ置いた。「あんたの。」
+It was a gesture. Her hand was cold. I wrapped both my hands around it. She smiled.	手ぶりだった。手が冷たかった。私はおばさんの手を両手で包んだ。おばさんが笑った。
+In the evening she braided my hair. The kid sat at the end of the porch, watching.	夕方、おばさんが私の髪を編んでくれた。縁側の端に男の子が座って、それを見ていた。
+He seemed to be smiling. But he looked sad.	笑っているように見えた。でも悲しそうに見えた。
+I went to her house every day. She cooked every day. I washed the dishes. The water was cold enough to sting. I liked it.	毎日おばさんの家に行った。おばさんは毎日ごはんを作った。私は皿を洗った。手がしびれるほど冷たい水だった。うれしかった。
+She took in the laundry. Two diving suits, different sizes.	おばさんが洗濯物を取り込んだ。大きさの違う海女の服が二着。
+Nobody wore the small one. She took it in every day and hung it out again every day.	小さいほうは誰も着なかった。おばさんはそれを毎日取り込んで、毎日また干した。
+In the evening she took out a photo to show me. A nineteen-year-old girl.	夜、おばさんが写真を出して見せてくれた。十九歳の女の子。
+I looked at the photo. “She's pretty.” She smiled. Then tucked the photo back inside her shirt.	私は写真を見た。「きれいですね。」 おばさんが笑った。そして写真をまた胸にしまった。
+She took my hand and led me to the little vegetable patch in the yard. She showed me with gestures.	おばさんが私の手を取って庭の小さな畑へ行った。手ぶりで教えてくれた。
+This is green onion, this is lettuce. I copied her. Dirt got on my hands.	これはネギ、これはサンチュ。私はまねをした。手に土がついた。
+On a rainy day we sat side by side on the porch.	雨の日、縁側にふたり並んで座っていた。
+She put a blanket over my shoulders. No words. The sound of the rain was enough.	おばさんが私の肩に毛布をかけてくれた。何も言わなかった。雨の音だけで十分だった。
+On the kitchen calendar there was one circle. A day next spring. I pointed at it and asked.	台所の壁のカレンダーに丸がひとつあった。来年の春のある日。指さして聞いた。
+She wrote, “Daughter's birthday.” Then, “I'll make seaweed soup.” I looked at that circle a long time.	おばさんが紙に書いた。「娘の誕生日。」 それから「ワカメスープ作らなきゃ」と書いた。私はその丸を長いこと見た。
+That night I first slept off the blanket. Her small room. An old orange raincoat hung on the wall. An adult's.	その夜、はじめて毛布じゃないところで寝た。その家の小さな部屋。壁に古いオレンジのレインコートが掛かっていた。大人のものだった。
+Outside the window the kid was looking up at the raincoat. Our eyes met. He quickly turned away. His shoulders shook a little.	窓の外で男の子がレインコートを見上げていた。私と目が合った。男の子はさっと顔をそむけた。肩が少し揺れた。
+In the morning I ran into that man on the hill road. He looked up at the house on the hill.	朝、丘の道であの男の人と出くわした。男の人が丘の上の家を見上げた。
+He looked a long time. Then said “Hello” and walked past.	長いこと見ていた。そして「こんにちは」と言って通り過ぎた。
+I watched his back. From the porch, she watched it too.	私は男の人の後ろ姿を見た。おばさんも縁側からその後ろ姿を見ていた。
+She started to take out the photo, then stopped. He just left. I went back into the room too.	おばさんは写真を出しかけて、やめた。男の人はそのまま行った。私も部屋に入った。
+Story · Episode 8	物語 · 第8話
+In front of the shop, that man bought two bottles of milk. Clink, clink. The old owner asked, “Two again today?” “Yes.”	店の前。あの男の人が牛乳を二本買った。カチャ、カチャ。店のおばあちゃんが聞いた。「今日も二本かい?」「はい。」
+“Come here to get well, ya gotta eat meat too. How ya gonna live on milk?” He only smiled.	「療養に来たんなら肉も食べんと。牛乳だけでどうやって生きるさ。」 男の人は笑うだけだった。
+He saw me and said “Hello” again. I said “Hello” too. Same spot, same time, every day.	男の人が私を見て、また「こんにちは」と言った。私も「こんにちは」と言った。毎日同じ場所、同じ時間。
+Our eyes met. For no reason, I retied my shoelaces.	男の人と目が合った。私はなんとなく靴ひもを結び直した。
+She was coming down the hill road. I started toward her, then stopped.	丘の道をおばさんが下りてきていた。私は近づこうとして、足を止めた。
+She didn't even look my way. She passed by, staring hard at the photo in her hand.	おばさんは私のほうを見もせず、手に持った写真だけをじっと見つめて通り過ぎた。
+The face that set out warm food for me every day was blank as it looked at the photo.	毎日私に温かいごはんを用意してくれた顔なのに、写真を見るその表情は空っぽだった。
+That terrible sadness made her seem like someone I'd never met.	そのひどい悲しみのせいで、まるで初めて会う人のようだった。
+The man took his two bottles of milk toward the tower. She went toward the guard post.	男の人は牛乳二本を持って塔のほうへ行った。おばさんは詰所のほうへ行った。
+Their backs moved away in opposite directions. I stood between them. The kid was gripping my sleeve tight.	ふたりの背中が互いに反対のほうへ遠ざかった。私はそのあいだに立っていた。男の子が私の袖をぎゅっとつかんでいた。
+Story · Episode 9	物語 · 第9話
+First snow. The kid and I drew faces in the window frost. One kid, one me. He drew one more. “Who's that?” “Dunno.”	初雪。男の子と窓の霜に顔を描いた。男の子ひとつ、私ひとつ。男の子がもうひとつ描いた。「誰?」「知らない。」
+We built a snowman. The kid wrapped my scarf around it. “'Cause it's cold.” “What about me?”	雪だるまを作った。男の子が私のマフラーを雪だるまに巻いた。「寒いから。」「私は?」
+“You get half my raincoat.” He put one side over my shoulder. We both got half wet.	「お姉ちゃんにはぼくのレインコート半分あげる。」 レインコートの片側を私の肩にかけた。ふたりとも半分だけ濡れた。
+On the way back the kid kept looking behind him. “What are you looking at?” “Nothing.” Asked twice, still nothing.	帰り道、男の子が何度も後ろを振り返った。「何見てるの?」「何も。」 二回聞いても、何も。
+The kid fell asleep on my lap. Under his hood, the corner of his left eye was crinkled.	男の子が私のひざを枕にして眠った。フードの下で左の目じりが折れていた。
+He was a kid who smiled in his sleep. I touched his head once through the hood. My palm was warm.	笑いながら眠る子だった。私はフードの上から頭を一度なでた。手のひらが温かかった。
+Spring. Deep in her wardrobe I found a yellow tin. A red heart on the lid. She wasn't home.	春。おばさんの家のたんすの奥から黄色い缶が出てきた。ふたに赤いハート。おばさんは家にいなかった。
+I opened the lid. A headband with blue jewels. Brand new, never worn.	ふたを開けた。青い宝石のカチューシャ。一度も着けていない新品だった。
+The moment I picked up the headband, my head felt like it would split. Memories pushed in all at once. But it was strange.	ヘアバンドを手に取った瞬間、頭が割れそうに痛んだ。記憶が一度に押し寄せてきた。でも、おかしかった。
+Only Mom's face was missing. Only her hands, her diving suit and her breathing came back.	ママの顔だけが見えなかった。手と、海女の服と、息の音だけが戻ってきた。
+A department store in town, my first time there. Behind glass, a headband with blue jewels. I looked a long time. I never said I wanted it.	初めて行った街のデパート。ガラスの中に、青い宝石のヘアバンドがあった。私は長いこと見ていた。欲しいとは言わなかった。
+— Flashback · Age eleven —	— 回想 · 十一歳 —
+Even at eleven I knew saying it would be a luxury. I turned away, leaving only handprints on the glass, and Dad was looking at those handprints.	それを言うのが贅沢だってことは、十一歳でもわかった。ガラスに手の跡だけ残して背を向けたら、パパがその手の跡を見ていた。
+— Flashback —	— 回想 —
+A sunburnt face, a worn jacket. Dad smiled. His left eye creased. “Haneul's birthday present's all settled, then.”	日に焼けた顔、古いジャンパー。パパが笑った。左目が細くなった。「ハヌルの誕生日プレゼント、決まったさ。」
+Dad painted a red heart on everything of mine. On my bag, on my shoes. They were crooked.	パパは私の持ち物に、ひとつずつ赤いペンキでハートを描いてくれた。カバンにも、靴にも。いびつだった。
+“Don't go losing it.” The sleeve of Dad's orange raincoat had the same heart.	「なくすんじゃないよ。」パパのオレンジのレインコートの袖にも、同じハートがあった。
+A haenyeo mom, a dad with just one boat. The headband cost a month of Dad's earnings.	海女のママ、船が一隻だけのパパ。ヘアバンドの値段は、パパのひと月の稼ぎだった。
+Dad borrowed from a neighbor to buy the headband. To pay it back, he had to go out to sea even on a storm-warning night.	パパは隣の家からお金を借りてヘアバンドを買ってきた。借りたお金を返すには、波浪注意報の出た夜でも海に出なければならなかった。
+Dad pulled on his boots. Mom snatched Dad's raincoat. There was no sound. Mom's hands cut fast through the air.	パパが長靴をはいた。ママがパパのレインコートをひったくった。音はなかった。ママの手が、すばやく宙を切った。
+Don't go. I can't recall what Mom's face was like. Only those hands. Dad didn't look at those hands.	行かないで。ママがどんな顔をしていたかは思い出せない。その手だけが浮かぶ。パパはその手を見なかった。
+At the doorsill I held Dad's sleeve with both hands. “Dad, I don't need a birthday.” Dad touched my head once.	私は門の敷居でパパの袖を両手でつかんだ。「パパ、誕生日なんかいらない。」パパが私の頭を一度だけなでた。
+“Just one more catch'll do it, Haneul.” The sleeve with the heart slipped out of my hands.	「あと一匹獲れば、それでいいさ、ハヌル。」ハートの描かれた袖が、手からすり抜けていった。
+I can still feel the wet sleeve in my hands.	濡れた袖の感触が、今も手に残っている。
+It was a morning clear as a lie. People ran to the sea.	嘘みたいに晴れた朝だった。みんなが海へ走っていった。
+— Flashback · The next day —	— 回想 · 翌日 —
+Mom put me in my room and shut the door. Through the crack, orange went by once.	ママが私を部屋に入れて、戸を閉めた。戸のすき間を、オレンジ色が一度だけ通り過ぎた。
+In the sea under the tower, Dad's boat lay upside down, and only one buoy floated, painted with a crooked heart.	送電塔の下の海で、パパの船がひっくり返っていた。いびつなハートの描かれたブイがひとつだけ浮いていた。
+Dad didn't come back. I didn't cry. If I cried, it felt like it would become real.	パパは帰ってこなかった。私は泣かなかった。泣いたら本当になってしまいそうだった。
+That day Mom put the yellow box deep in the wardrobe without even opening it. From that day, our house had no birthdays.	その日ママは、黄色い箱を開けもせずにタンスの奥にしまった。その日から、うちには誕生日がなくなった。
+After Dad died, all sound left our house. At school the same thing happened every day. “You smell like fish.”	パパが死んでから、うちからは音がすっかり消えた。学校では毎日同じことがあった。「魚くさい。」
+“Mute's daughter.” Kids dumped my lunch in the sink, threw my bag in the ditch, and mouthed silently, mimicking Mom.	「おしの娘。」みんなは私の弁当を流しに捨て、カバンをどぶに投げ、口だけパクパクさせてママのまねをした。
+Every day I pretended not to hear. Like Mom. At home I didn't say anything to Mom either.	私は毎日、聞こえないふりをした。ママみたいに。家に帰っても、ママには何も言わなかった。
+She couldn't hear it anyway. There was no one to tell. That was the loneliest part.	言っても聞こえないから。話せる人がいなかった。それがいちばん寂しかった。
+Story · Episode 11	物語 · 第11話
+A transfer student came. From Seoul. They said he'd come to Jeju to recover because he was sick.	転校生が来た。ソウルから。体が悪くて、療養しに済州に来たらしかった。
+— Flashback · Spring, age twelve —	— 回想 · 十二歳の春 —
+His white shirt was dazzling, and his face was as white as the shirt. The kids crowded around him, and I was in the corner as always.	白いシャツがまぶしくて、顔もシャツと同じくらい白かった。みんながその子を取り囲み、私はいつものように隅にいた。
+The day my bag got thrown in the ditch again, he climbed into the ditch. He fished my bag out till his white shirt was covered in mud.	またカバンがどぶに投げられた日、その子がどぶに入った。白いシャツを泥だらけにして、カバンを拾ってきた。
+The kids shoved him too. He fell. He got back up and stood in front of me. Only I saw his hands shaking.	みんなはその子も突き飛ばした。その子は転んだ。また立ち上がって、私の前に立った。手が震えているのを、私だけが見た。
+“You can't even fight. Why stand in front?” “Because you're behind me.”	「ケンカもできないのに、なんで前に立つの?」「君が後ろにいるから。」
+He sat in a corner of the schoolyard, opened his lunchbox, and drew a line down the middle. “Half is yours.” The rolled omelet was warm.	その子は運動場の隅に座って弁当を開け、真ん中に線を引いた。「半分は君の。」卵焼きがあたたかかった。
+That day I ate at school for the first time. His name was Doyun. I remember Doyun's face. His, at least.	その日、私は初めて学校でごはんを食べた。その子の名前はドユンだった。ドユンの顔は覚えている。あの子の顔だけは。
+That spring, Doyun and I played at the sea every day. Doyun was a Seoul kid, so he couldn't swim.	その春、ドユンと私は毎日海で遊んだ。ドユンはソウルの子だから泳げなかった。
+I taught him to swim in the shallows. Doyun swallowed water, coughed, and went back in.	私は浅瀬で泳ぎを教えた。ドユンは水を飲んで、咳きこんで、また入ってきた。
+At sunset we sat side by side on the breakwater, drying our wet clothes. Until then I had forgotten how to laugh.	日が沈むと、防波堤に並んで座って濡れた服を乾かした。それまで私は、笑い方を忘れていた。
+That spring I laughed out loud. “So you can laugh.” “Shut up.”	その春、声を出して笑った。「笑えるんじゃん。」「うるさい。」
+Doyun made an abandoned haenyeo bulteok, a stone shelter in the seaside rocks, into our hideout.	海辺の岩のすき間にある、使われなくなった海女のプルトク(石囲いの焚き火場)を、ドユンが基地にした。
+Inside the stone wall we spread a blanket, brought a broken radio, and hid milk, two bottles at a time.	石垣の中に毛布を敷いて、壊れたラジオを持ってきて、牛乳を二本ずつ隠しておいた。
+“This is our hideout.” We took the radio apart together, and at 89.2 a song came in faintly.	「ここは僕らの基地だ。」一緒にラジオをいじっていたら、89.2でかすかに歌が入った。
+Doyun drew a heart next to the dial. “This frequency is ours.”	ドユンがダイヤルの横にハートを描いた。「この周波数は僕らのものだ。」
+I rode my board along the breakwater to the hideout. Doyun followed behind, panting.	基地までは防波堤の道をボードで走った。ドユンは後ろから息を切らしてついてきた。
+Inside the hideout, candles were lit. Twelve of them. Doyun jumped out from behind a cake.	基地に入ると、ろうそくが灯っていた。十二本。ドユンがケーキの後ろから飛び出してきた。
+— Flashback · Twelfth birthday —	— 回想 · 十二歳の誕生日 —
+“Surprise!” I laughed. I blew out the candles, and we ate half the cake each.	「サプライズ!」私は笑った。ろうそくを吹き消して、ケーキを半分ずつ食べた。
+As the sun sank, Doyun tugged my hand. “Let's eat the rest at the tower. The sunset's prettiest there.”	日が傾くと、ドユンが私の手を引いた。「残りは送電塔で食べよう。あそこの夕焼けがいちばんきれいなんだ。」
+I shook off his hand. “Don't ask me to go there.” “Why? Just once.” “I said no!”	手を振りほどいた。「あそこに行こうって言わないで。」「なんで? 一回だけ。」「いやだって!」
+The cake plate fell on the rock. “You don't know anything, so why do you keep butting in!” Doyun looked at me a long time.	ケーキの皿が岩に落ちた。「何も知らないくせに、なんで口出しするの!」ドユンは長いこと私を見ていた。
+“……Sorry.” And he left. I stayed alone in front of the upturned cake. Candle wax cooled on the rock.	「……ごめん。」そして帰っていった。私はひっくり返ったケーキの前にひとり残った。ろうが岩の上で冷えていった。
+For ten days Doyun didn't come. Instead, a lunchbox was left on the wall every day. The first was warm; the tenth was cold.	十日間、ドユンは来なかった。かわりに毎日、塀の上に弁当が置かれた。一日目はあたたかくて、十日目には冷めていた。
+Inside the last lunchbox lid, writing: “Even if we're not friends, half is yours.” That night I passed Doyun's house.	最後の弁当のふたの裏に、字が書いてあった。「友達じゃなくても、半分は君の。」その夜、ドユンの家の前を通った。
+Doyun sat at the window, looking toward the tower. For a long time. A drawing was stuck on his wall.	窓辺にドユンが座って、送電塔のほうを見ていた。長いこと。部屋の壁に絵が貼ってあった。
+The tower, a sunset, two people beneath it holding a cake. I saw it from below the wall and couldn't go up.	送電塔と、夕焼けと、その下でケーキを持ったふたり。私は塀の下からそれを見て、上がっていけなかった。
+Story · Episode 13	物語 · 第13話
+After that, Doyun and I didn't speak. In the school hallway, Doyun came up to me first. “Haneul, that day……”	それからドユンと私は口をきかなかった。学校の廊下で、ドユンのほうから近づいてきた。「ハヌル、あの日……」
+— Flashback · End of summer —	— 回想 · 夏の終わり —
+“Forget it. Don't ever talk to me again.” Doyun shut his mouth. From the next day, no lunchbox was left on the wall.	「もういい。二度と話しかけないで。」ドユンは口を閉じた。次の日から、塀の上に弁当は置かれなくなった。
+I went to the hideout alone. The blanket was soaked with rain, and the radio was off. I came back without turning it on.	ひとりで基地に行ってみた。毛布は雨に濡れていて、ラジオは消えていた。私はつけずに帰ってきた。
+Rain poured so hard I couldn't see ahead. The tin roof rang without stopping. The phone cut out, and the power went too.	前が見えないほど雨が降った。トタン屋根が休みなく鳴った。電話が切れて、電気も消えた。
+— Flashback · Summer typhoon —	— 回想 · 夏の台風 —
+I lit a candle, and there was a sound in the yard. Mom was lying face down. Clutching her chest.	ろうそくをつけたら、庭で音がした。ママが倒れていた。胸をつかんで。
+It was the heart disease haenyeo get. Again I can't see Mom's face. Only a wet diving suit and a hand gripping her chest.	海女がかかる心臓の病気だった。ママの顔は今度も見えない。濡れた海女の服と、胸をつかんだ手だけが見える。
+Our house stood alone on the hill. Thirty minutes to the nearest house, 2 km to the hospital. I couldn't see the road in the rain.	うちは丘の上の一軒家だった。いちばん近い家まで30分、病院まで2キロ。雨の中で道が見えなかった。
+“Mom! Mom!” I screamed. Mom can't hear. I knew, and I called anyway. Calling was all I could do.	「ママ! ママ!」私は泣き叫んだ。ママには聞こえない。わかっていても呼んだ。呼ぶことしかできなかった。
+I ran to the edge of the yard and shouted. “Somebody help!” The rain swallowed my voice. There was no one.	庭の端まで走って叫んだ。「誰か助けてください!」雨の音が私の声をのみこんだ。誰もいなかった。
+Mom's hand grew colder and colder. I held Mom and cried. I was twelve. There was nothing I could do.	ママの手がどんどん冷たくなった。私はママを抱いて泣いた。十二歳だった。できることは何もなかった。
+Story · Episode 14	物語 · 第14話
+A flashlight beam came up through the rain. It was Doyun. Soaked, no raincoat. “I was worried about you.”	雨の中を懐中電灯の光がのぼってきた。ドユンだった。レインコートも着ずにびしょ濡れで。「君が心配で。」
+“How'd you get here?” “I ran.” Doyun saw Mom and his face went stiff. He spoke anyway.	「どうやって来たの?」「走った。」ドユンはママを見て顔をこわばらせた。それでも言った。
+“She'll live.” He had to say it so I would move. He didn't know either.	「助かるよ。」そう言わないと私が動けないから。あの子だって知らなかったくせに。
+There was an old handcart by the road. Its wheels were stuck in the mud. We dragged it out together. Our nails split.	道ばたに古いリヤカーがあった。車輪が泥にはまっていた。ふたりで引っぱり出した。爪が割れた。
+We laid Mom down and covered her with Doyun's jacket. 2 km to the hospital. Doyun pulled in front, I pushed from behind.	ママを寝かせて、ドユンの上着をかけた。病院まで2キロ。ドユンが前で引いて、私が後ろから押した。
+We slipped again and again on the wet road. Doyun's knees buckled. He got back up. “Go on ahead.”	雨の道で何度も滑った。ドユンの膝が折れた。また立ち上がった。「先に行って。」
+“No. The three of us go together.” Doyun said it crying. I pushed, crying too. We saw the hospital lights.	「いやだ。三人で一緒に行く。」ドユンが泣きながら言った。私も泣きながら押した。病院の明かりが見えた。
+Mom lived. The doctor said so. I sank to the hallway floor.	ママは助かった。お医者さんがそう言った。私は廊下の床に座りこんだ。
+Doyun sat beside me. “See? I told you she'd live.” His hands were still shaking.	ドユンが隣に座った。「ほらね。助かるって言っただろ。」あの子の手はまだ震えていた。
+Story · Episode 15	物語 · 第15話
+When the ER doors closed, Doyun collapsed in the hallway. Only then did I learn why his lips had always been blue.	救急室のドアが閉まると、ドユンが廊下に倒れた。いつも唇が青かったわけを、私はそのとき初めて知った。
+The next day a black car stood in front of Doyun's house. Bags were being loaded.	次の日、ドユンの家の前に黒い車が停まっていた。荷物が積まれていた。
+“He has to go to a hospital in Seoul.” Doyun's mom said it crying. “Today.”	「ソウルの病院に行かなきゃいけないって。」ドユンのお母さんが泣きながら言った。「今日。」
+I heard it while I was at the hospital by Mom's side. I ran. From the hospital to Doyun's house without stopping.	私は病院でママのそばにいて、その話を聞いた。走った。病院からドユンの家まで、休まずに走った。
+I was out of breath. I ran anyway. The car was already pulling away. Doyun was pressed to the rear window, looking at me.	息が切れた。それでも走った。車はもう動き出していた。ドユンが後ろの窓に張りついて私を見ていた。
+He rolled down the window. “Haneul! Let's meet under the tower on your twentieth birthday! Promise!”	窓を下ろした。「ハヌル! 君の二十歳の誕生日に、送電塔の下で会おう! 絶対!」
+“I'll wait with two bottles of milk! One for today, one for tomorrow!”	「牛乳二本持って待ってる! 一本は今日の、一本は明日の!」
+“Okay! I won't be late!” I ran after the car and fell. My knee bled. It didn't hurt.	「わかった! 遅れないから!」私は車を追いかけて走り、転んだ。膝から血が出た。痛くなかった。
+That night I wrote on the calendar for the first time. “Twentieth birthday, under the tower, Doyun.”	その夜、カレンダーに初めて字を書いた。「二十歳の誕生日、送電塔の下、ドユン。」
+I pressed the pencil so hard the paper dented. I lived eight years on that one promise.	鉛筆を強く押しつけたので、紙がへこんだ。私はその約束ひとつで八年を生きた。
+I sat on the maru floor, still holding the headband. Outside it had gone dark. I was Haneul. Go Haneul. The daughter of this house.	ヘアバンドを持ったまま、縁側に座っていた。外は暗くなっていた。私はハヌルだった。コ・ハヌル。この家の娘。
+A woman came into the yard. Her face filled the blank where Mom's face had been in the flashbacks.	庭におばさんが入ってきた。回想の中で空っぽだったママの顔に、その顔が入った。
+A face grown very thin. It was Mom. Mom, coming back from the lookout post with a photo held to her chest.	すっかりやせた顔。ママだった。写真を胸にしまって、見張り小屋から帰ってくるママ。
+Mom, who went out looking for me every day for a year. Mom, who fed me because I was like a daughter. With me right in front of her.	一年間、毎日私を探しに出ていたママ。娘みたいだからとごはんを作ってくれたママ。私を目の前にして。
+Mom saw me and waved. The kind of wave you give a kid you don't know.	ママが私を見て手を振った。知らない子にするような手の振り方。
+I looked at Mom's face. Now I knew. I knew, but Mom didn't know me.	私はママの顔を見た。今はわかった。わかるのに、ママは私を知らなかった。
+I ran to the front of the store. Far off, at the end of the breakwater, a white shirt. Two bottles of milk. It was Doyun.	店の前まで走った。遠く、防波堤の先に白いシャツが見えた。牛乳二本。ドユンだった。
+The man who said “Hello” to me every day.	毎日「こんにちは」と言っていた人。
+“Doyun!” I called. The wind swallowed the sound. Doyun didn't look back. The white shirt grew smaller and smaller.	「ドユン!」と呼んだ。風が声をのみこんだ。ドユンは振り向かなかった。白いシャツがだんだん小さくなった。
+The kid was standing behind me. Orange raincoat. At the end of the sleeve, a red heart, drawn crooked.	男の子が後ろに立っていた。オレンジのレインコート。袖口に、赤いハートがいびつに描かれていた。
+I took the seashell out of my pocket. The same heart.	ポケットの中の貝殻を取り出した。同じハートだった。
+The kid pushed back his hood. He smiled. His left eye creased.	男の子がフードを脱いだ。笑った。左目が細くなった。
+“……Dad?” “Just one more catch'll do it, Haneul.”	「……パパ?」「あと一匹獲れば、それでいいさ、ハヌル。」
+I sank down. “Sorry I came so late.”	私は座りこんだ。「遅くなってごめん。」
+The last memory came back. My nineteenth birthday. Mom's chest had been hurting; she was at a hospital on the mainland.	最後の記憶が戻ってきた。十九歳の誕生日。ママは胸を悪くして、本土の病院に行っていた。
+I put on Mom's diving suit alone and went into the water. The water was cold. An old fishing net wrapped around my ankle.	私はひとりでママの海女の服を着て、水に入った。水が冷たかった。捨てられた網が足首に絡みついた。
+The surface got farther and farther away. No one was there. After that, there's nothing.	水面がどんどん遠くなった。誰もいなかった。その先はない。
+The dead forget the faces of the living first. I hadn't come back alive.	死んだ人は、生きている人の顔から忘れていく。私は生きて帰ってきたのではなかった。
+I looked at my hands. My fingertips were fading. The kid took my hand.	手を見た。指先がぼやけていた。男の子が私の手を握った。
+“Once you found all your memories, my girl would have to leave. So Dad pretended not to know.”	「記憶を全部見つけたら、うちの娘は行かなきゃならない。だからパパは知らないふりをしたんだ。」
+“Then why didn't you stop me from going to that house?”	「じゃあ、なんであの家に行くのを止めなかったの。」
+“Even if my girl couldn't recognize her mom, I wanted her to eat her mom's cooking.” The kid cried. Dad cried.	「うちの娘がママに気づけなくても、ママのごはんは食べてほしくてな。」男の子が泣いた。パパが泣いた。
+I looked at the window. The face from the photo was there. Me at nineteen.	私は窓ガラスを見た。写真の中のあの顔が、そこにあった。十九歳の私。
+Only now did it look like me. A face that, to everyone else, would have been someone else to the end.	やっと私に見えた。ほかの人たちの目には、最後まで別の人だったはずの顔。
+Story · Episode 19	物語 · 第19話
+I ran to the house on the hill. Mom was making seaweed soup in the kitchen.	丘の上の家へ走った。ママが台所でわかめスープを煮ていた。
+The circle on the wall calendar was tomorrow. Her daughter's birthday. My birthday.	壁のカレンダーの丸印は、明日だった。娘の誕生日。私の誕生日。
+“Mom.” Mom can't hear. I stood in front of her and shaped the words with my mouth.	「ママ。」ママには聞こえない。私はママの前に立って、口の形で言った。
+“Mom, it's me. Haneul.” Mom just stirred with the ladle. She didn't lift her head toward me.	「ママ、私だよ。ハヌル。」ママはおたまを回すだけだった。私のほうに顔を上げなかった。
+I hugged Mom. My arms passed through her shoulders.	ママを抱きしめた。両腕がママの肩をすり抜けた。
+Only cold air in my arms. I hugged her again. Through again. Mom pulled her collar closed, as if she were cold.	腕の中には冷たい空気だけだった。もう一度抱きしめた。またすり抜けた。ママは寒そうに襟をかき合わせた。
+Mom ladled out two bowls of soup. She looked around the empty maru, then opened the door to the small room.	ママがスープを二杯よそった。誰もいない縁側を見回してから、小さい部屋の戸を開けてみた。
+She wrote “Let's eat” on a piece of paper and set it on the maru.	紙に「ごはん食べよう」と書いて、縁側に置いた。
+Then she went out the gate and paced, looking down the hill, for a long time. I stood right behind her.	それから門の外に出て、丘の下のほうを長いことうろうろしていた。私はママのすぐ後ろに立っていた。
+I sat next to Mom and watched the seaweed soup boil. Knowing I couldn't eat it.	ママの隣に座って、わかめスープが煮えるのを見ていた。食べられないとわかっていながら。
+All this time I had eaten the meals this mom made. I tried to think that was enough. It wasn't. I wanted to hold her.	今まで、このママが作ってくれたごはんを食べた。それでよかったと、そう思おうとした。だめだった。抱きしめたかった。
+Twentieth birthday. The sunset settled under the tower. Doyun stood holding two bottles of milk. At the promised place, after eight years.	二十歳の誕生日。夕焼けが塔の下に降りてきた。ドユンが牛乳を二本持って立っていた。八年ぶりの約束の場所に。
+I wasn't late. I stood in front of Doyun. “I'm here.” Doyun only looked past my shoulder, at the hill road.	私は遅れなかった。ドユンの前に立った。「来たよ。」ドユンは私の肩越しに、丘の道ばかり見ていた。
+“If you're five minutes late, I'll be mad.” Doyun forced a smile and said it to himself.	「五分過ぎたら怒るからな」ドユンが無理に笑って、ひとりごとを言った。
+“If it's ten minutes, I'll wait even longer. So hurry up.” I was right in front of him.	「十分過ぎたら、もっと長く待つよ。だから早く来て」わたしはすぐ目の前にいた。
+Then Mom came up the hill. She held white chrysanthemums in her arms. Her steps wobbled.	そのとき、ママが丘を上ってきた。白い菊を胸に抱えていた。足もとがふらついていた。
+Mom held out to Doyun the fax she'd gotten at the guard post. ‘Early this morning. Under the ghost nets south of the tower. Body recovered.’	ママは詰所で受け取ったファックスをドユンに差し出した。『本日未明。塔の南、廃網の下。遺体引き揚げ』
+Doyun read the paper and crumpled to the ground, clutching the two bottles of milk.	紙を読んだドユンは、牛乳二本を抱きしめたまま地面に崩れ落ちた。
+“You said one for today, one for tomorrow…… Who drinks tomorrow's?”	「ひとつは今日、ひとつは明日って言ったのに……。明日のは誰が飲むんだよ」
+Mom couldn't cry out loud. She held the collapsed Doyun's back, gasping like an animal, only tears pouring.	ママは声を出して泣けなかった。崩れたドユンの背中を抱いて、獣のようにあえぎながら涙だけを流した。
+The moment I saw that paper, my toes began to turn clear. My body, held under the sea, had finally come ashore.	その紙を見た瞬間、わたしのつま先が透け始めた。海の底につながれていたわたしの体が、やっと陸に上がったのだ。
+When the last thing holding me to this world came loose, my time to stay ran out too.	この世に残していた最後の未練がほどけると、ここにいられる時間も終わった。
+The kid stood beside me. He took off the orange raincoat and laid it on the ground. “Dad.” “Yeah.”	男の子がわたしの隣に立った。オレンジのレインコートを脱いで、地面に置いた。「パパ」「うん」
+“I guess I'm going now.” “Yeah. The seawater was cold. Go somewhere that isn't cold now, my girl.”	「わたし、もう行くみたい」「うん。海の水、冷たかったろう。もう寒くないところへ行きな、うちの娘」
+“Dad, I'm scared.” “It's okay. Dad will be watching from here. Glad I didn't leave Haneul alone for that year.”	「パパ、怖い」「大丈夫。パパがここで見てるから。一年、ハヌルをひとりにしなくてよかった」
+From far off came a call: “Minjae!” A mainland accent. A woman was running through the canola field.	遠くから「ミンジェ!」と呼ぶ声がした。本土の言葉だった。菜の花畑の間を、ひとりの女の人が走ってきていた。
+In her hand, a worn-out flyer. ‘Looking for Minjae.’ The phone number had a mainland area code. The date: last spring.	女の人の手に、すり切れたチラシ。『ミンジェを探しています』電話番号の局番は本土のものだった。日付は去年の春。
+Dad looked at me and smiled. His left eye creased — the face I loved most.	パパがわたしを見て笑った。左目が細くなる、わたしがいちばん好きだった顔。
+In a blink, that smile was gone. Dad was no longer in the kid's eyes looking at me.	まばたきした瞬間、その笑顔が消えた。わたしを見る男の子の目に、もうパパはいなかった。
+His eyes had lost me completely. They just stared blankly toward the canola field.	その目はわたしをすっかり見失ったまま、ぼんやりと菜の花畑のほうだけを向いていた。
+“Go to your mom.” At my words the kid ran into the canola field without looking back.	「ママのところに行きな」わたしの言葉に、男の子は振り返りもせず菜の花畑へ走っていった。
+I'd let Dad go twice. This time was really the last.	パパを二度見送った。今度こそ本当に最後だった。
+I knelt and hugged Doyun and Mom. My arms held nothing. More than half of me was already breaking into light.	わたしはひざをついて、ドユンとママを抱きしめた。腕の中は空っぽだった。わたしの体はもう半分以上、光になって崩れていた。
+“Don't cry. I'm here. I kept my promise.” My hands went through Doyun's cheek, through Mom's wet shoulder.	「泣かないで。わたし来たよ。約束守ったよ」手がドユンの頬を、ママの濡れた肩をすり抜けた。
+An old radio sat at Doyun's feet. A crooked heart beside the dial.	ドユンの足もとに古いラジオが置かれていた。ダイヤルの横に、いびつなハート。
+Just before I vanished, I turned the radio dial with all I had left. 89.2. A crackle of static.	消える直前、わたしは残った力をふりしぼってラジオのダイヤルを回した。89.2。ジジッ、とノイズが鳴った。
+Tears ran down from Doyun's eyes.	ドユンの目から涙がこぼれ落ちた。
+Chrysanthemums and Milk	菊と牛乳
+A few days later. A small grave appeared on a hill that looks out on the sea. One name on the stone. Go Haneul.	数日後。海の見える丘に小さなお墓ができた。墓石に名前がひとつ。コ・ハヌル。
+Doyun laid white chrysanthemums before the grave. Beside them he set two bottles of milk, side by side.	ドユンがお墓の前に白い菊を置いた。その横に牛乳を二本、並べて立てた。
+Doyun looked at the stone for a long time. The wind shook the chrysanthemums.	ドユンは長いあいだ墓石を見ていた。風が菊を揺らした。
+Doyun stood there a long while, then turned away.	ドユンはしばらく立っていて、それから背を向けた。
+The chrysanthemums and the two bottles of milk stayed in front of the grave.	お墓の前に、菊と牛乳二本が残った。
+And then……	そして……
+Seaweed Soup	ワカメスープ
+The traces of a soul that left this world were erased from it.	この世を去った魂の痕跡は、世界から消された。
+The villagers all forgot the 'strange girl' who'd gone up and down the hill for the past year.	村の人たちは、この一年丘を上り下りしていた「知らない女の子」のことを、みんな忘れた。
+Grandma at the store, the man at the guard post. “Was there a girl like that in our village?”	店のおばあちゃんも、詰所のおじさんも。「うちの村に、そんな子いたかね」
+Only Mom remembered. On the maru, the paper that said “Let's eat” was still there.	ママだけが覚えていた。縁側には「ごはん食べよう」と書いた紙がそのまま残っていた。
+Mom made seaweed soup. She set the table on the empty maru.	ママがワカメスープを作った。誰もいない縁側に膳を置いた。
+Mom sat at the edge of the maru and looked at the far sea. Until the sun went down.	ママは縁側の端に座って、遠い海を見ていた。日が沈むまで。
+Someone called from behind her. “Mom.”	背中のほうで、誰かが呼んだ。「ママ」
+Mom slowly turned around. Then, her face bright, she waved her in.	ママがゆっくり振り返った。そして明るい顔で手招きした。
+True Ending	真エンディング
+The town bus stop. The bus to the airport pulled in. Doyun, bag on his shoulder, put a foot on the step.	町のバス停。空港行きのバスが止まった。ドユンがかばんを背負って、ステップに足をかけた。
+At that moment, someone called from behind. “Doyun?”	その瞬間、後ろから誰かが呼んだ。「ドユン?」
+Doyun turned around. The world blurred white. Everything shone bright.	ドユンが振り返った。世界が白くにじんだ。すべてがまぶしく光った。
+Studio Woohee&Heesi\nYouTube Music · Spotify · iTunes · TIDAL\nSearch “Our frequency”	スタジオ ウヒ&ヒシ\nYouTube Music · Spotify · iTunes · TIDAL\n「Our frequency」で検索
+Our frequency  —  Studio Woohee&Heesi	Our frequency  —  スタジオ ウヒ&ヒシ
+Our Frequency, 89.2	君と僕の周波数、89.2
+One for today, one for tomorrow	ひとつは今日、ひとつは明日
+If I get there before sunset, I win — that game	夕焼けの前に着いたら、わたしの勝ちの遊び
+Our Tower	僕らの送電塔
+— Flashback · Age eleven — My first time at a department store in the city. Behind the glass, a blue jeweled headband. I looked a long time. I didn't say I wanted it.	— 回想 · 十一歳 — 初めて行った街のデパート。ガラスの中に青い宝石のカチューシャがあった。わたしは長いこと見ていた。欲しいとは言わなかった。
+— Flashback — Even at eleven I knew saying it was a luxury. I turned away, leaving only a handprint on the glass, and Dad was looking at that handprint.	— 回想 — それがぜいたくな言葉だってことは、十一歳でもわかっていた。ガラスに手の跡だけ残して背を向けたら、パパがその手の跡を見ていた。
+— Flashback — A sunburnt face, a worn jacket. Dad smiled. His left eye creased. “Haneul's birthday present is decided, then.”	— 回想 — 日に焼けた顔、くたびれたジャンパー。パパが笑った。左目が細くなった。「ハヌルの誕生日プレゼント、決まりだな」
+— Flashback — Dad painted a heart in red paint on all my things. On my bag, on my shoes. Crooked.	— 回想 — パパはわたしの持ち物に、赤いペンキでハートを描いてくれた。かばんにも、靴にも。いびつだった。
+— Flashback — “Don't lose 'em, now.” Dad's orange raincoat sleeve had the same heart.	— 回想 — 「なくすなよ」パパのオレンジのレインコートの袖にも、同じハートがあった。
+— Flashback — A haenyeo mom, a dad with just one boat. The headband cost a month of Dad's earnings.	— 回想 — 海女のママ、船が一艘だけのパパ。カチューシャの値段はパパのひと月の稼ぎだった。
+— Flashback — Dad borrowed money from a neighbor to buy the headband, and to pay it back he had to go to sea even on a night with a storm warning.	— 回想 — パパは近所の人にお金を借りてカチューシャを買ってきた。借りたお金を返すには、波浪注意報が出た夜でも海に出なければならなかった。
+— Flashback — Dad put on his boots. Mom snatched Dad's raincoat. There was no sound. Mom's hands cut fast through the air.	— 回想 — パパが長靴をはいた。ママがパパのレインコートをひったくった。声はなかった。ママの手が素早く宙を切った。
+— Flashback — Don't go. I can't bring back what Mom's face looked like. Only those hands. Dad didn't look at those hands.	— 回想 — 行かないで。ママがどんな顔をしていたかは浮かばない。その手だけが浮かぶ。パパはその手を見なかった。
+— Flashback — At the gate sill I grabbed Dad's sleeve with both hands. “Dad, I don't need a birthday.” Dad touched my head once.	— 回想 — わたしは門の敷居でパパの袖を両手でつかんだ。「パパ、誕生日なんてなくていい」パパがわたしの頭を一度なでた。
+— Flashback — “Just one more fish and that'll do, Haneul.” The sleeve with the heart slipped out of my hands.	— 回想 — 「あと一匹だけ獲ったら、それでいいさ、ハヌル」ハートの描かれた袖が、手から抜けていった。
+— Flashback — I can still feel the wet sleeve in my hand.	— 回想 — 濡れた袖の感触が、まだ手に残っている。
+— Flashback · The next day — A morning clear like a lie. People ran to the sea.	— 回想 · 次の日 — うそみたいに晴れた朝だった。人々が海へ走った。
+— Flashback — Mom put me in my room and shut the door. Through the gap, a flash of orange went by once.	— 回想 — ママがわたしを部屋に入れて戸を閉めた。戸のすき間を、オレンジ色が一度通り過ぎた。
+— Flashback — In the sea below the tower, Dad's boat lay upside down, and only one buoy floated, with a crooked heart painted on it.	— 回想 — 送電塔の下の海で、パパの船がひっくり返っていた。いびつなハートの描かれたブイがひとつだけ浮かんでいた。
+— Flashback — Dad didn't come back. I didn't cry. It felt like crying would make it real.	— 回想 — パパは帰ってこなかった。わたしは泣かなかった。泣いたら本当になりそうだった。
+— Flashback — That day Mom put the yellow case deep in the wardrobe without even opening it. From that day on, our house had no birthdays.	— 回想 — ママはその日、黄色いケースを開けもせずにたんすの奥にしまった。その日から、うちには誕生日がなくなった。
+— Flashback — After Dad died, all sound went out of our house. At school the same thing happened every day. “You smell like fish.”	— 回想 — パパが死んでから、うちからは音がすっかり消えた。学校では毎日同じことがあった。「魚くさい」
+— Flashback — “The mute's daughter.” Kids dumped my lunch in the sink, threw my bag in the ditch, and mimicked Mom by moving their mouths without sound.	— 回想 — 「おしの娘」子どもたちは弁当を流しに捨て、かばんをどぶに投げ、口だけぱくぱくさせてママの真似をした。
+— Flashback — Every day I pretended not to hear. Like Mom. At home I didn't say anything to Mom either.	— 回想 — わたしは毎日聞こえないふりをした。ママみたいに。家に帰っても、ママに何も言わなかった。
+— Flashback — Even if I said it, she couldn't hear. There was no one to talk to. That was the loneliest part.	— 回想 — 言っても聞こえないから。話す相手がいなかった。それがいちばんさびしかった。
+— Flashback · Spring, age twelve — A transfer student came. From Seoul. They said he'd come to Jeju to rest because he was sick.	— 回想 · 十二歳の春 — 転校生が来た。ソウルから。体が弱くて、療養のために済州に来たそうだった。
+— Flashback — His white shirt was dazzling, and his face was as white as the shirt. The kids crowded around him, and I stayed in the corner as always.	— 回想 — 白いシャツがまぶしくて、顔もシャツと同じくらい白かった。みんながその子を囲んで、わたしはいつもどおり隅にいた。
+— Flashback — The day my bag got thrown in the ditch again, he climbed into the ditch. He fished the bag out till his white shirt was covered in mud.	— 回想 — またかばんがどぶに投げられた日、その子がどぶに入った。白いシャツが泥だらけになるまでして、かばんを拾ってきた。
+— Flashback — The kids shoved him too. He fell. He got back up and stood in front of me. Only I saw his hands shaking.	— 回想 — みんなはその子も突き飛ばした。その子は転んだ。また立ち上がって、わたしの前に立った。手が震えているのは、わたしだけが見た。
+— Flashback — “You can't even fight. Why stand in front?” “Because you're behind me.”	— 回想 — 「ケンカもできないくせに、なんで前に立つの?」「君が後ろにいるから」
+— Flashback — He sat in a corner of the schoolyard, opened his lunch box and drew a line down the middle. “Half is yours.” The rolled omelet was warm.	— 回想 — その子は校庭の隅に座って弁当を開け、真ん中に線を引いた。「半分は君の」卵焼きがあたたかかった。
+— Flashback — That day I ate at school for the first time. His name was Doyun. I remember Doyun's face. His, at least.	— 回想 — その日、わたしは初めて学校でごはんを食べた。その子の名前はドユンだった。ドユンの顔は覚えている。その子の顔だけは。
+— Flashback — That spring, Doyun and I played at the sea every day. Doyun was a Seoul kid, so he couldn't swim.	— 回想 — その春、ドユンとわたしは毎日海で遊んだ。ドユンはソウルの子だから泳げなかった。
+— Flashback — I taught him to swim in the shallows. Doyun swallowed water, coughed, and went back in.	— 回想 — わたしは浅瀬で泳ぎを教えた。ドユンは水を飲んで、咳きこんで、また入ってきた。
+— Flashback — When the sun went down, we sat side by side on the breakwater and dried our wet clothes. Until then I'd forgotten how to laugh.	— 回想 — 日が沈むと、防波堤に並んで座って濡れた服を乾かした。それまで、わたしは笑い方を忘れていた。
+— Flashback — That spring I laughed out loud. “So you do know how to laugh.” “Shut up.”	— 回想 — その春、声を出して笑った。「笑えるんじゃん」「うるさい」
+— Flashback — Doyun turned an abandoned haenyeo bulteok in the rocks by the shore into a hideout.	— 回想 — ドユンが、海辺の岩のすき間にある使われなくなった海女のプルトク(火場)を基地にした。
+— Flashback — He spread a blanket inside the stone wall, brought a broken radio, and hid milk there, two bottles at a time.	— 回想 — 石垣の中に毛布を敷いて、壊れたラジオを持ってきて、牛乳を二本ずつ隠しておいた。
+— Flashback — “This is our hideout.” Taking the radio apart together, we caught a faint song at 89.2.	— 回想 — 「ここは僕らの基地だ」いっしょにラジオをいじっていたら、89.2でかすかに歌が入った。
+— Flashback — Doyun drew a heart beside the dial. “This frequency is ours.”	— 回想 — ドユンがダイヤルの横にハートを描いた。「この周波数は僕らのものだ」
+— Flashback — I rode my board down the breakwater road to the hideout. Doyun followed behind, panting.	— 回想 — 基地までは防波堤の道をボードで走った。ドユンは後ろからハアハア言いながらついてきた。
+— Flashback · Twelfth birthday — When I went into the hideout, candles were lit. Twelve of them. Doyun jumped out from behind a cake.	— 回想 · 十二歳の誕生日 — 基地に入ると、ろうそくが灯っていた。ろうそく十二本。ドユンがケーキの後ろから飛び出してきた。
+— Flashback — “Surprise!” I laughed. I blew out the candles, and we ate half the cake each.	— 回想 — 「サプライズ!」わたしは笑った。ろうそくを吹き消して、ケーキを半分ずつ食べた。
+— Flashback — As the sun sank, Doyun pulled my hand. “Let's eat the rest at the tower. The sunset's prettiest there.”	— 回想 — 日が傾くと、ドユンがわたしの手を引いた。「残りは送電塔で食べよう。あそこの夕焼けがいちばんきれいなんだ」
+— Flashback — I shook off his hand. “Don't ask me to go there.” “Why? Just once.” “I said no!”	— 回想 — 手を振りほどいた。「あそこに行こうって言わないで」「なんで? 一回だけ」「嫌だってば!」
+— Flashback — The cake plate fell on the rock. “You don't know anything, so why do you keep butting in!” Doyun looked at me a long time.	— 回想 — ケーキの皿が岩に落ちた。「何も知らないくせに、なんでいちいち口出すの!」ドユンは長いことわたしを見ていた。
+— Flashback — “……Sorry.” And he left. I was left alone in front of the overturned cake. Candle wax cooled on the rock.	— 回想 — 「……ごめん」そして行ってしまった。わたしはひっくり返ったケーキの前にひとり残った。ろうが岩の上で冷えていった。
+— Flashback — For ten days Doyun didn't come. Instead, a lunch box sat on the wall every day. The first day it was warm; by the tenth it was cold.	— 回想 — 十日間、ドユンは来なかった。代わりに塀の上に毎日弁当が置かれた。一日目はあたたかくて、十日目には冷めていた。
+— Flashback — Inside the lid of the last lunch box was writing. “Even if we're not friends, half is yours.” That night I walked past Doyun's house.	— 回想 — 最後の弁当のふたの裏に字があった。「友だちじゃなくても、半分は君の」その夜、ドユンの家の前を通った。
+— Flashback — Doyun sat at the window, looking toward the tower. For a long time. A drawing was stuck on his wall.	— 回想 — 窓辺にドユンが座って、送電塔のほうを見ていた。長いこと。部屋の壁に絵が貼ってあった。
+— Flashback — The tower, a sunset, and two people under it holding a cake. I saw it from below the wall and couldn't go up.	— 回想 — 送電塔、夕焼け、その下でケーキを持ったふたり。わたしは塀の下でそれを見て、上がっていけなかった。
+— Flashback · End of summer — After that, Doyun and I didn't talk. In the school hallway, Doyun came up to me first. “Haneul, that day……”	— 回想 · 夏の終わり — それから、ドユンとわたしは口をきかなかった。学校の廊下で、ドユンのほうから近づいてきた。「ハヌル、あの日……」
+— Flashback — “Forget it. Don't ever talk to me again.” Doyun closed his mouth. From the next day, no lunch box sat on the wall.	— 回想 — 「もういい。二度と話しかけないで」ドユンは口を閉じた。次の日から、塀の上に弁当は置かれなくなった。
+— Flashback — I went to the hideout alone. The blanket was soaked with rain, and the radio was off. I came back without turning it on.	— 回想 — ひとりで基地に行ってみた。毛布は雨に濡れていて、ラジオは消えていた。わたしはつけずに帰ってきた。
+— Flashback · Summer typhoon — Rain poured so hard you couldn't see. The tin roof rang without stopping. The phone went dead, and the power went out.	— 回想 · 夏の台風 — 前が見えないほど雨が降った。トタン屋根が休みなく鳴った。電話が切れて、電気も消えた。
+— Flashback — I lit a candle, and there was a sound in the yard. Mom was lying face down. Clutching her chest.	— 回想 — ろうそくをつけたら、庭で音がした。ママがうつぶせに倒れていた。胸をつかんで。
+— Flashback — The heart illness haenyeo get. Again I can't see Mom's face. Only the wet diving suit and the hand gripping her chest.	— 回想 — 海女がかかる心臓の病気だった。ママの顔は今度も見えない。濡れた海女の服と、胸をつかんだ手だけが見える。
+— Flashback — Our house was alone on top of the hill. Thirty minutes to the nearest house, 2 km to the hospital. In the rain I couldn't see the road.	— 回想 — うちは丘の上の一軒家だった。いちばん近い家まで三十分、病院まで二キロ。雨の中で道が見えなかった。
+— Flashback — “Mom! Mom!” I screamed. Mom can't hear. I knew, and I called anyway. Calling was all I could do.	— 回想 — 「ママ! ママ!」わたしは泣き叫んだ。ママには聞こえない。わかっていて呼んだ。呼ぶことしかできなかった。
+— Flashback — I ran to the edge of the yard and shouted. “Somebody help!” The rain swallowed my voice. No one was there.	— 回想 — 庭の端まで走って叫んだ。「誰か助けて!」雨の音がわたしの声を飲みこんだ。誰もいなかった。
+— Flashback — Mom's hand got colder and colder. I held her and cried. I was twelve. There was nothing I could do.	— 回想 — ママの手がどんどん冷たくなった。わたしはママを抱いて泣いた。十二歳だった。できることは何もなかった。
+— Flashback — Through the rain, a flashlight beam came up the hill. It was Doyun. No raincoat, soaked through. “I was worried about you.”	— 回想 — 雨の中を懐中電灯の光が上ってきた。ドユンだった。レインコートも着ずにずぶ濡れで。「心配で」
+— Flashback — “How did you get here?” “I ran.” Doyun saw Mom and his face went stiff. He said it anyway.	— 回想 — 「どうやって来たの?」「走った」ドユンはママを見て顔がこわばった。それでも言った。
+— Flashback — “She can make it.” He had to say that for me to move. He didn't know either.	— 回想 — 「助かるよ」そう言わなきゃ、わたしが動かないから。あの子だってわからなかったくせに。
+— Flashback — There was an old handcart by the road. Its wheel was stuck in the mud. The two of us dragged it out. My nails split.	— 回想 — 道ばたに古いリヤカーがあった。車輪が泥にはまっていた。ふたりで引っぱり出した。爪が割れた。
+— Flashback — We laid Mom in it and covered her with Doyun's jacket. 2 km to the hospital. Doyun pulled from the front, I pushed from behind.	— 回想 — ママを寝かせて、ドユンの上着をかけた。病院まで二キロ。ドユンが前で引いて、わたしが後ろから押した。
+— Flashback — We slipped again and again on the wet road. Doyun's knees buckled. He got back up. “Go on ahead.”	— 回想 — 雨の道で何度も滑った。ドユンのひざが折れた。また立ち上がった。「先に行って」
+— Flashback — “No. The three of us go together.” Doyun said it crying. I pushed, crying too. The hospital lights came into view.	— 回想 — 「嫌だ。三人いっしょに行く」ドユンが泣きながら言った。わたしも泣きながら押した。病院の明かりが見えた。
+— Flashback — Mom lived. The doctor said so. I sank down onto the hallway floor.	— 回想 — ママは助かった。医者がそう言った。わたしは廊下の床にへたりこんだ。
+— Flashback — Doyun sat next to me. “See? I told you she could make it.” His hands were still shaking.	— 回想 — ドユンが隣に座った。「ほらね。助かるって言っただろ」あの子の手はまだ震えていた。
+— Flashback — When the ER doors closed, Doyun collapsed in the hallway. Only then did I first learn why his lips were always blue.	— 回想 — 救急室のドアが閉まると、ドユンが廊下に倒れた。いつも唇が青かったわけを、わたしはそのとき初めて知った。
+— Flashback — The next day a black car stood in front of Doyun's house. Bags were being loaded.	— 回想 — 次の日、ドユンの家の前に黒い車が止まっていた。荷物が積まれていた。
+— Flashback — “He has to go to a hospital in Seoul.” Doyun's mom said it crying. “Today.”	— 回想 — 「ソウルの病院に行かなきゃいけないって」ドユンのお母さんが泣きながら言った。「今日」
+— Flashback — I heard it while I was with Mom at the hospital. I ran. From the hospital to Doyun's house without stopping.	— 回想 — わたしは病院でママのそばにいて、その話を聞いた。走った。病院からドユンの家まで、休まず走った。
+— Flashback — I was out of breath. I ran anyway. The car was already pulling away. Doyun pressed against the rear window and looked at me.	— 回想 — 息が切れた。それでも走った。車はもう動き出していた。ドユンが後ろの窓に張りついて、わたしを見た。
+— Flashback — He rolled down the window. “Haneul! On your 20th birthday, let's meet under the tower! Promise!”	— 回想 — 窓を下ろした。「ハヌル! 二十歳の誕生日に、送電塔の下で会おう! 絶対!」
+— Flashback — “I'll wait with two bottles of milk! One for today, one for tomorrow!”	— 回想 — 「牛乳二本持って待ってる! ひとつは今日、ひとつは明日!」
+— Flashback — “Okay! I won't be late!” I ran after the car and fell. My knee bled. It didn't hurt.	— 回想 — 「わかった! 遅れない!」わたしは車を追いかけて走って、転んだ。ひざから血が出た。痛くなかった。
+— Flashback — That night I wrote on the calendar for the first time. “20th birthday, under the tower, Doyun.”	— 回想 — その夜、カレンダーに初めて字を書いた。「二十歳の誕生日、送電塔の下、ドユン」
+— Flashback — I pressed the pencil so hard the paper dented. I lived eight years on that one promise.	— 回想 — 鉛筆を強く押しつけて、紙がへこんだ。わたしはその約束ひとつで八年を生きた。
+   (+{0}★, total {1}/60)	   (+{0}★、合計 {1}/60)
+   ·   {0} more for S	   ·   Sまであと{0}
+ (need {0} +{1})	 (必要: {0} +{1})
+ Horse {0}	 馬 {0}
+ Ranch  {0}	 牧場  {0}
+ STA {0}	 体力 {0}
+ STA{0}	 体力{0}
+ stress {0}	 ストレス {0}
+ stress{0}	 ストレス{0}
+ · have {0}	 · 所持 {0}
+ · passcode {0}	 · 暗証番号 {0}
+ — +{0}G · replay it from More › Mini-games	 — +{0}G · 「その他 › ミニゲーム」から再プレイできます
++{0} coins	+{0}コイン
++{0}G · stress -{1}!	+{0}G · ストレス-{1}！
+1st {0}G ♥3 prize · 2nd {1}G ♥2 · 3rd {2}G ♥1	1位 {0}G ♥3 · 2位 {1}G ♥2 · 3位 {2}G ♥1
+9 trees. Weekly harvest. {0}G	木9本。毎週収穫。{0}G
+A week goes by — week {0} → {1}	1週間が過ぎた — {0}週目 → {1}週目
+Achievements {0}/{1}  ·  Stars {2}/60  ·  Daily stamps {3}  ·  Endings {4}/7	実績 {0}/{1}  ·  スター {2}/60  ·  デイリースタンプ {3}  ·  エンディング {4}/7
+Affinity {0} · Lv{1} reward	好感度 {0} · Lv{1}報酬
+Agility {0}!	敏捷 {0}！
+All ({0}G)	全部 ({0}G)
+All 3 by chapter end: ♥ +2 · 2: +1 · now ♥ {0}	章末までに3つ全部：♥ +2 · 2つ：+1 · 現在 ♥ {0}
+Arrive within {0}s	{0}秒以内に到着
+Arrows {0} · in {1}/{2} — tap [Set aim] on the jar	矢 {0} · 命中 {1}/{2} — 壺の[狙う]をタップ
+As much as I can ({0}G)	買えるだけ ({0}G)
+At most {0} hits	被弾{0}回以内
+Ate this week · dishes {0} · ingredients {1}	今週の食事 · 料理 {0} · 食材 {1}
+Ate {0}!	{0}を食べた！
+Auto grocery: {0}	自動買い出し：{0}
+Auto-filled {0} · tap a slot to change	{0}を自動セット · スロットをタップで変更
+Beat the chapter {0} mission to unlock	第{0}章のミッションをクリアで解放
+Best combo {0}	最高コンボ {0}
+Best combo ×{0}	最高コンボ ×{0}
+Best {0}	ベスト {0}
+Best {0} m	ベスト {0} m
+Best {0} m · {1} pts · {2} runs	ベスト {0} m · {1}点 · {2}回ラン
+Binder {0}/{1}  ·  {2}/{3} released  ·  found as items while running	バインダー {0}/{1}  ·  公開 {2}/{3}  ·  ラン中にアイテムとして見つかる
+Bond ♥ +{0} (♥ {1})	絆 ♥ +{0} (♥ {1})
+Boss Rush · {0} bosses cleared!	ボスラッシュ · ボス{0}体撃破！
+Bought {0} ×1!	{0} ×1を購入！
+Bought {0} ×{1}!	{0} ×{1}を購入！
+Bought {0}!	{0}を購入！
+Burnout (stress {0}/{1}). Spend this week playing — a walk or a swim.	燃え尽き（ストレス {0}/{1}）。今週は遊んで過ごそう — 散歩か海水浴を。
+Burnout {0}/{1} — spend this week playing	燃え尽き {0}/{1} — 今週は遊んで過ごそう
+Buy once, wear anytime · {0}G	一度買えばいつでも着られる · {0}G
+B{0} · 👑 Boss	B{0} · 👑 ボス
+CHAPTER {0}	第{0}章
+Casts left {0}/{1}	残りキャスト {0}/{1}
+Catch {0} bugs	虫を{0}匹捕まえる
+Catch {0} crabs	カニを{0}匹捕まえる
+Caught {0}! {1} +1 · Fish +{2} (sell at the shop)	{0}を釣った！ {1} +1 · 魚 +{2}（お店で売れる）
+Caught! Back to start ({0}/3)	捕まった！スタートへ戻る ({0}/3)
+Ch. {0}	{0}章
+Ch. {0} · {1}	{0}章 · {1}
+Ch. {0} · {1} · {2}:{3}	{0}章 · {1} · {2}:{3}
+Ch.{0} {1} : {2} ({3})	{0}章 {1} : {2} ({3})
+Challenge Chapter {0}!	第{0}章に挑戦！
+Chapter {0} complete	第{0}章 クリア
+Chapter {0} is done. Now chapter {1} — week {2}.	第{0}章が終わった。次は第{1}章 — {2}週目。
+Chapter {0} mission · replay	第{0}章ミッション · 再プレイ
+Chapter {0} story\n{1}  ·  {2}	第{0}章ストーリー\n{1}  ·  {2}
+Chapter {0} · {1}	第{0}章 · {1}
+Chapter {0} — farm money & items for story mode!	第{0}章 — ストーリーモード用にお金とアイテムを稼ごう！
+Characters {0}/2	キャラクター {0}/2
+Charm {0}!	魅力 {0}！
+Chop wood {0}×	薪割り {0}回
+Cinematic · {0}:{1}	シネマティック · {0}:{1}
+Cleared · Rank {0} · hearts {1}/{2}	クリア · ランク {0} · ハート {1}/{2}
+Clothes {0} wk left	服 残り{0}週
+Clothes {0}w left	服 残り{0}週
+Clue on hold — {0}	手がかり保留中 — {0}
+Clue — {0} ({1}/6)	手がかり — {0} ({1}/6)
+Clues {0}/6	手がかり {0}/6
+Coin jackpot {0}!	コインジャックポット {0}！
+Coins {0}	コイン {0}
+Coins {0}   ·   Jelly {1}	コイン {0}   ·   ゼリー {1}
+Coins {0} · Near miss {1} · Best combo {2} · Hearts {3}	コイン {0} · ニアミス {1} · 最高コンボ {2} · ハート {3}
+Collect {0} coins	コインを{0}枚集める
+Combo {0}	コンボ {0}
+Condition {0} · Stress {1} / Stamina {2}	コンディション {0} · ストレス {1} / 体力 {2}
+Cond{0}	調子{0}
+Contest "{0}"\n{1}  ·  {2}	コンテスト「{0}」\n{1}  ·  {2}
+Contest in {0}w: {1} · {2}	コンテストまで{0}週：{1} · {2}
+Contest reward — {0}	コンテスト報酬 — {0}
+Cooked → {0}	料理した → {0}
+Cook→{0}	料理→{0}
+Cows {0} · Pigs {1}	牛 {0} · 豚 {1}
+Cows {0}/3 · Pigs {1}/4	牛 {0}/3 · 豚 {1}/4
+Cutscene {0} / {1}	カットシーン {0} / {1}
+Cutscene {0} at end of ch.{1} (week {2})	カットシーン{0}は{1}章の終わり（{2}週目）
+Cutscene {0} — story time.	カットシーン{0} — ストーリーの時間。
+Daily Run  {0}	デイリーラン  {0}
+Deco · {0}	デコ · {0}
+Defeat {0} bosses	ボスを{0}体倒す
+Delivery/market {0}/2	配達/市場 {0}/2
+Done! {0} knocked out → {1}G	終了！{0}個はじき出し → {1}G
+Done! {0} out	終了！{0}個アウト
+Done. {0}/{1} today.	完了。今日は{0}/{1}。
+Drank remaining stock {0}	残りのストック{0}を飲んだ
+Effective {0} · {1}	有効 {0} · {1}
+Endless  best {0} m · {1} pts\nDaily  best {2} · streak {3} (best {4})\nTotal  {5} runs · {6} km · {7} coins · {8} near misses · {9} flawless	エンドレス  ベスト {0} m · {1}点\nデイリー  ベスト {2} · 連続 {3} (最高 {4})\n合計  {5}回ラン · {6} km · {7}コイン · ニアミス {8} · ノーミス {9}
+Energy {0}	エネルギー {0}
+Enter — {0}	入る — {0}
+Entry: {0}	参加：{0}
+Exhausted (stress {0}). One more week and you'll fall ill. (Condition -10)	疲労困憊（ストレス {0}）。あと1週間で体調を崩します。（コンディション -10）
+Fan art #{0}	ファンアート #{0}
+Fan art gallery — one piece per {0} mission stars. (stars {1}/60 → {2} open)	ファンアートギャラリー — ミッションスター{0}個ごとに1枚。（スター {1}/60 → {2}枚公開）
+Fertilize {0}G	肥料 {0}G
+Festival in {0}w: {1} · {2} {3}/{4}	祭りまで{0}週：{1} · {2} {3}/{4}
+Festival prize — "{0}"!	祭りの賞 — 「{0}」！
+Fullness {0} → {1}  ·  Condition {2} → {3}	満腹度 {0} → {1}  ·  コンディション {2} → {3}
+Full{0}	満腹{0}
+Game · {0}	ゲーム · {0}
+Garden ready: {0} — harvest in My Room	畑の収穫OK：{0} — マイルームで収穫
+Gate week. Stamina {0}/{1} — Feed/Play to raise it or you can't run.	ゲート週。体力 {0}/{1} — ごはん/あそびで上げないと走れません。
+Gate {0}/{1} (−{2})	ゲート {0}/{1} (−{2})
+Gate {0}/{1} ✓	ゲート {0}/{1} ✓
+Go back to CH {0}?	{0}章に戻る？
+Go fishing {0}×	釣り {0}回
+Go inside? (eat · sleep · desk) — {0}/{1}	中に入る？（食事 · 睡眠 · 机） — {0}/{1}
+Goal {0} m	目標 {0} m
+Google Play billing · voluntary · {0} cup(s) so far ☕ thank you{1}	Google Play決済 · 任意 · これまで{0}杯 ☕ ありがとう{1}
+Great {0} · Fail {1}	グレート {0} · ミス {1}
+HP {0} · {1}G	HP {0} · {1}G
+HP {0}/{1} · {2}G	HP {0}/{1} · {2}G
+HP {0}/{1} → {2}  ·  {3}G	HP {0}/{1} → {2}  ·  {3}G
+Harvest {0}%!	収穫 {0}%！
+Harvest! {0} → {1}	収穫！{0} → {1}
+Have {0}	所持 {0}
+Have {0}w	所持 {0}週分
+Hearts +{0}	ハート +{0}
+Hearts {0}	ハート {0}
+Hearts {0} / {1}  (run +{2})	ハート {0} / {1}  (ラン +{2})
+Hens {0}/{1} — 1 egg each every morning	ニワトリ {0}/{1} — 毎朝1羽につき卵1個
+Here — {0}!	はい — {0}！
+In season: {0}	旬：{0}
+In! {0}/{1} · arrows {2}	入った！{0}/{1} · 矢 {2}
+Items {0}	アイテム {0}
+Kept a promise ({0}/3)	約束を守った ({0}/3)
+Kid's promises ({0}/3) · ♥ {1}	子どもとの約束 ({0}/3) · ♥ {1}
+Knock {0} marbles out in 3 shots!	3回でビー玉を{0}個はじき出せ！
+LEVEL UP! Lv {0}	レベルアップ！Lv {0}
+Land on {0} to catch them back to the lap start — and throw again!	{0}に止まれば相手を周回スタートに戻せる — もう一度投げよう！
+Lap {0}!	{0}周目！
+Letter · {0}/{1}	手紙 · {0}/{1}
+Locked · Fan art #{0} — opens at {1} stars	ロック中 · ファンアート #{0} — スター{1}個で解放
+Locked · [{0}] {1}% from photocard items	ロック中 · [{0}] フォトカードアイテムから{1}%
+Love the place! {0}G rent coming in {1} week(s).	気に入った！{1}週間後に家賃{0}Gが入ります。
+Lv {0}  Haneul · {1}	Lv {0}  ハヌル · {1}
+Main story {0}	メインストーリー {0}
+Main story {0} · {1}	メインストーリー {0} · {1}
+Mastery {0} — {1}	熟練度 {0} — {1}
+Me {0}/{1}  ·  {2} {3}/{4}	わたし {0}/{1}  ·  {2} {3}/{4}
+Meals {0}  ·  Ing {1}  ·  Med {2}  ·  Clothes {3}  ·  {4}  ·  {5}	食事 {0}  ·  食材 {1}  ·  薬 {2}  ·  服 {3}  ·  {4}  ·  {5}
+Meals {0} · Ing {1} · Clothes {2}w · Full {3} · Cond {4}	食事 {0} · 食材 {1} · 服 {2}週 · 満腹 {3} · 調子 {4}
+Mine rocks {0}×	採掘 {0}回
+Mini-game "{0}"{1}\n{2}  ·  {3}	ミニゲーム「{0}」{1}\n{2}  ·  {3}
+Miss {0} · {1}/{2} · arrows {3}	ミス {0} · {1}/{2} · 矢 {3}
+Money {0}	所持金 {0}
+Money {0}G	所持金 {0}G
+More than the village shop · {0}G	村の店以上 · {0}G
+My Room bonus — "{0}"!	マイルームボーナス — 「{0}」！
+Napped with {0} — stamina +3	{0}と昼寝 — 体力 +3
+Near-miss combo {0}	ニアミスコンボ {0}
+Need {0} more stamina. Use the goal ribbon when picking Feed/Play.	体力があと{0}必要です。ごはん/あそびを選ぶときは目標リボンを使ってください。
+Need {0} more {1}.	{1}があと{0}必要です。
+Need {0}G	{0}G必要
+Need {0}G.	{0}G必要です。
+Need {0}G…	{0}G必要…
+Needs: {0}	必要：{0}
+New card: {0}	新しいカード：{0}
+Next story in chapter {0} — its place will glow	次のストーリーは第{0}章 — その場所が光ります
+Next turn: chapter {0} story	次のターン：第{0}章ストーリー
+Next turn: chapter {0} story → contest "{1}"	次のターン：第{0}章ストーリー → コンテスト「{1}」
+Next — Shots {0} · {1} left	次 — ショット {0} · 残り{1}
+Next: {0} SIDE {1} needs {2}	次：{0} SIDE {1} には{2}が必要
+No meal… dishes {0} · ingredients {1} (cook then Feed)	食事なし… 料理 {0} · 食材 {1}（料理してからごはん）
+No run this chapter — the story opens on week {0}	この章はランなし — {0}週目にストーリーが始まります
+No sleep ({0} wk)	睡眠なし（{0}週）
+Not enough coins or level (Lv{0}) — run more!	コインかレベル（Lv{0}）が足りない — もっと走ろう！
+Not enough coins — need {0}G.	コインが足りません — {0}G必要です。
+Not enough {0}	{0}が足りない
+Not ready to run yet.\nStamina {0} / need {1} — {2} more.\nThis chapter gets one more week of training.	まだ走れない。\n体力 {0} / 必要 {1} — あと{2}。\nこの章はもう1週間トレーニングだ。
+Off to {0}!	{0}へ出発！
+One record per long cut · bonus tracks at 90% Rank S (now {0}/20)	ロングカットごとに記録1つ · ランクS 90%でボーナス曲（現在 {0}/20）
+Only {0} HP — too weak to auto-hunt. Eat and sleep first!	HPが{0}しかない — 弱りすぎて自動狩りできない。まず食べて寝よう！
+Opened by the secret code.\nJump to week {0} with your current stats.	秘密コードで解放されました。\n今のステータスのまま{0}週目へ移動します。
+Our Frequency — {0}:{1}	君と僕の周波数 — {0}:{1}
+Paid {0} coins to pass (no reward)	{0}コイン払って通過（報酬なし）
+Paid {0}G to skip	{0}G払ってスキップ
+Pay {0} coins to pass	{0}コイン払って通過
+Pay {0}G to skip	{0}G払ってスキップ
+Pets unlock at week {0} or after {1} contests\n(now week {2} · {3} contests)\n\nBuy with coins from runs (level required).	ペットは{0}週目か大会{1}回で解放\n（現在 {2}週目 · 大会{3}回）\n\nランで貯めたコインで購入（レベル条件あり）。
+Pets unlock at week {0} or {1} contests (now wk {2} · {3} contests)	ペット解放：{0}週目か大会{1}回（現在 {2}週 · {3}回）
+Photo {0} / {1}	写真 {0} / {1}
+Photocard [{0}] {1}	フォトカード [{0}] {1}
+Photocard — [{0}] {1}	フォトカード — [{0}] {1}
+Photos collected {0} / {1}	集めた写真 {0} / {1}
+Pick up {0} things	アイテムを{0}個拾う
+Pickaxe by a glowing vein. {0} veins left this week.	光る鉱脈のそばにツルハシ。今週の鉱脈は残り{0}。
+Placed {0}! (−{1}G)	{0}を置いた！（−{1}G）
+Plant · {0}%	植物 · {0}%
+Planted {0}. Harvest in {1}w!	{0}を植えた。{1}週後に収穫！
+Playthrough {0} — inherited 10% stats & half mastery	{0}周目 — ステータス10%と熟練度の半分を引き継ぎ
+Police: Useless! ({0} left)	警察：役立たず！（残り{0}）
+Prize: {0}G	賞金：{0}G
+Prologue · Our Frequency : Opening ({0})	プロローグ · 君と僕の周波数 : オープニング（{0}）
+Promise · {0} {1}/{2}	約束 · {0} {1}/{2}
+Promises {0}/3 · bond ♥ {1}	約束 {0}/3 · 絆 ♥ {1}
+Promises · chapter {0}	約束 · 第{0}章
+Pull 10+1\n(★{0})	10+1回引く\n(★{0})
+Pull capsules with jelly. Legend 1% · Epic 5% · Rare 12% · Uncommon 27% · Common 55%\nJelly {0}	ゼリーでカプセルを引こう。レジェンド1% · エピック5% · レア12% · アンコモン27% · コモン55%\nゼリー {0}
+Pull ×1 ({0})	引く ×1（{0}）
+Rabbits {0}/{1} — grown after 3 sleeps ({2} grown)	ウサギ {0}/{1} — 3回寝ると成長（成長済み {2}）
+Radio/ham/DJ cards {0}/3	ラジオ/無線/DJカード {0}/3
+Rank S {0} / {1}	ランクS {0} / {1}
+Rank {0}	ランク {0}
+Rare deco · {0}	レアデコ · {0}
+Reach chapter {0} to unlock	第{0}章で解放
+Record unlocked — {0}	レコード解放 — {0}
+Removed {0}.	{0}を撤去した。
+Removed. +{0}G refunded	撤去した。+{0}G返金
+Rent {0}G / 4 weeks · next in {1}w · {2}G	家賃 {0}G / 4週 · 次は{1}週後 · {2}G
+Retry from week {0}. Only better results are kept.	{0}週目からやり直し。より良い結果だけが残ります。
+Retrying · CH {0}	再挑戦中 · 第{0}章
+Rice ×{0}w	米 ×{0}週
+Room {0}/{1}	部屋 {0}/{1}
+Room {0}G · {1}%/wk (costlier than deposit interest!)	部屋 {0}G · {1}%/週（預金利息より高い！）
+Run jelly ×{0}	ランのゼリー ×{0}
+Run {0} m	ラン {0} m
+Running again rewinds to week {0}; only better results are kept.	もう一度走ると{0}週目に戻ります。より良い結果だけが残ります。
+STA {0} · AGI {1} · CHA {2} · SEN {3}	体力 {0} · 敏捷 {1} · 魅力 {2} · 感性 {3}
+STA {0} → HP {1} · AGI {2} → lanes {3}% faster · CHA {4} → near-miss +{5}%	体力 {0} → HP {1} · 敏捷 {2} → レーン移動{3}%速く · 魅力 {4} → ニアミス +{5}%
+Score {0}	スコア {0}
+Sea cards {0}/2	海カード {0}/2
+Season: {0}	季節：{0}
+Season: {0} (locked)	季節：{0}（ロック中）
+Sell bugs, fish, crops to buy land — then rent every 4 weeks! {0}G	虫・魚・作物を売って土地を買おう — 4週ごとに家賃収入！{0}G
+Sellable — {0}G in all. Save up for land and earn monthly rent!	売却可能 — 合計{0}G。貯めて土地を買い、毎月家賃を稼ごう！
+Sense {0} = radio/photo/spirit events (60+) · sense-based jobs	感性 {0} = ラジオ/写真/精霊イベント（60+） · 感性系バイト
+Sense {0}!	感性 {0}！
+Sense {0}/40	感性 {0}/40
+Settled {0} K-POP runs ({1}G). Bonus +{2}G added!	K-POPラン{0}回を精算（{1}G）。ボーナス +{2}G 追加！
+Shards: {0} · tickets {1} · SR+ in {2}	かけら：{0} · チケット {1} · SR+まで {2}
+Shared with {0} — 1 dish cooked, stress −5%	{0}とおすそ分け — 料理1品、ストレス −5%
+Shared with {0} — stress −5% (no ingredients)	{0}とおすそ分け — ストレス −5%（材料なし）
+Shot at {0}%!	{0}%でシュート！
+Shots 3 · leave ≤2 inside ({0} of 8 out) — [Set aim]	3投 · 中に2個以下を残す（8個中{0}個アウト） — [狙いを定める]
+Shots left: {0}  ·  knocked out: {1}	残り投数：{0}  ·  はじき出し：{1}
+Shots {0} · {1} left (≤2 wins)	投数 {0} · 残り{1}（2個以下で勝ち）
+Side story · {0}	サイドストーリー · {0}
+Side story · {0} : {1} ({2})	サイドストーリー · {0} : {1}（{2}）
+Side ×{0}w	おかず ×{0}週
+Signed card ✦ {0}	サイン入りカード ✦ {0}
+Sis! The {0} booth is open — limited goods!	お姉ちゃん！{0}のブースが開いたよ — 限定グッズ！
+Slam in the yellow zone! Tries {0}	黄色いゾーンで叩きつけて！挑戦 {0}
+So close! Reach {0} m next time!	惜しい！次は{0} mまで！
+Stacked {0} logs. Fuel for {1} weeks — one burns per week, +3 condition.	薪を{0}本積んだ。{1}週分の燃料 — 毎週1本燃えて、コンディション+3。
+Stamina {0}	体力 {0}
+Stamina {0} / need {1} — ready.\nTo the tower.	体力 {0} / 必要 {1} — 準備OK。\n送電塔へ。
+Stamina {0}!	体力 {0}！
+Stamina {0}/{1} — not ready.	体力 {0}/{1} — まだ足りない。
+Stamp earned!  Streak {0}	スタンプ獲得！  連続 {0}
+Stamped ✓  {0}-day streak  +{1}G	スタンプ済み ✓  {0}日連続  +{1}G
+Star shards +{0} — try the Star Capsule	星のかけら +{0} — スターカプセルを引いてみよう
+Sta{0}	体力{0}
+Still daytime. {0}/{1} done · {2} action(s) left — sleeping ends the week.	まだ昼間。{0}/{1}完了 · 残り行動{2} — 寝ると週が終わります。
+Still growing — {0}w left.	まだ育ち中 — あと{0}週。
+Story — '{0}'	ストーリー — 「{0}」
+Stress (limit {0})	ストレス（上限 {0}）
+Stress is at {0}. Play or pet Haneul to recover.	ストレスが{0}。遊ぶかハヌルをなでて回復しよう。
+Stress {0}	ストレス {0}
+Stress {0} — wearing down (success ↓).	ストレス {0} — 疲れがたまってる（成功率↓）。
+Stress {0} — worn out, spend a slot playing	ストレス {0} — ヘトヘト、1枠を遊びに使おう
+Stress {0} → {1} / limit {2} ({3})	ストレス {0} → {1} / 上限 {2}（{3}）
+Stress {0}! Collapses next week — play & rest	ストレス {0}！来週倒れる — 遊んで休もう
+Stress{0}	ストレス{0}
+Take {0} photos	写真を{0}枚撮る
+Talk to {0} villagers	村人{0}人と話す
+Tend the garden {0}×	畑の手入れ {0}×
+Thank you! ★ Everything unlocked\nHidden passcode {0} — enter it in Settings › Secret code on another device	ありがとう！★ すべて解放\n隠しパスコード {0} — 別の端末で 設定 › 秘密コード に入力してください
+That's {0}G — not enough coins.	{0}Gだよ — コインが足りない。
+That's {0}G.	{0}Gです。
+The fare is {0}G.	運賃は{0}Gです。
+The horse lifts a hoof with every stroke. {0}	なでるたびに馬がひづめを上げる。{0}
+The horse takes the carrot and nudges your palm. {0}	馬がニンジンを受け取って、手のひらを鼻でつつく。{0}
+This time, let's do these: {0}	今回はこれをやろう：{0}
+Time limit · {0}:{1}	制限時間 · {0}:{1}
+To the {0}! Where it glows.	{0}へ！光ってるところ。
+To {0}~	{0}へ〜
+Too hard, it bounced! Tries {0}	強すぎて跳ね返った！挑戦 {0}
+Too weak! Tries {0}	弱すぎる！挑戦 {0}
+Tower jobs {0}/2 or stamina {1}/60	送電塔の仕事 {0}/2 または体力 {1}/60
+Trust {0} = 15 salon · 50 job stress -4 · fail -1	信頼 {0} = 15でサロン · 50でバイトのストレス -4 · 失敗 -1
+Um… could you {0}?	あの…{0}、お願いできる？
+Unlock: agility {0}	解放：敏捷 {0}
+Unlock: stamina {0}	解放：体力 {0}
+Unlock: trust ≥ {0}	解放：信頼 ≥ {0}
+Unlock: tuition {0}G	解放：授業料 {0}G
+Used {0}!	{0}を使った！
+Walked the coast with {0} — stress −{1} · stamina +1	{0}と海岸を散歩 — ストレス −{1} · 体力 +1
+Wallet {0}G · Deposit {1}G ({2}%/wk) · Loan {3}G ({4}%/wk)	財布 {0}G · 預金 {1}G（{2}%/週） · ローン {3}G（{4}%/週）
+Week {0} morning.	{0}週目の朝。
+Week {0} or {1} contests cleared (now wk {2} · {3} contests)	{0}週目か大会{1}回クリア（現在 {2}週 · {3}回）
+Week {0} {1}  ·  Lv.{2}  ·  {3}/{4} {5}	{0}週目 {1}  ·  Lv.{2}  ·  {3}/{4} {5}
+Week {0} · Lv {1} · {2}G	{0}週目 · Lv {1} · {2}G
+Week {0} · {1}	{0}週目 · {1}
+Week {0} · {1} · Ch.{2}	{0}週目 · {1} · 第{2}章
+Week {0} · {1} · Lv.{2}	{0}週目 · {1} · Lv.{2}
+Week {0} · {1}G · stress {2}	{0}週目 · {1}G · ストレス {2}
+Week {0} → Week {1} · {2}	{0}週目 → {1}週目 · {2}
+Week {0} → {1} · {2} (last)	{0}週目 → {1} · {2}（最後）
+Week {0}, night — falling asleep…	{0}週目、夜 — うとうと…
+Week {0}. Last week of this chapter.	{0}週目。この章の最後の週。
+Weekend mini-game — {0}! Win for {1}G.	週末ミニゲーム — {0}！勝てば{1}G。
+Weekend rest  |  Heal {0}:{1}	週末の休息  |  回復 {0}:{1}
+Weeks {0}-{1} only!	{0}〜{1}週目限定！
+Where to? {0}G	どこへ行く？{0}G
+Win for {0}G · lose and skipping costs {1}G	勝てば{0}G · 負けたらスキップに{1}G
+Wk {0}	{0}週
+Won! +{0}G	勝ち！+{0}G
+You again! I love {0}.	また君か！{0}、大好き。
+You did it! First clear this week — 2,000G · 40 jelly · gold ore ×2 · {0}. Take the ladder up.	やった！今週初クリア — 2,000G · ゼリー40 · 金鉱石 ×2 · {0}。はしごで上がろう。
+You need {0}G.	{0}G必要です。
+You've hit the {0}G limit. Repay some first.	上限{0}Gに達しました。まず一部を返済してください。
+Your turn — [THROW!!] 3 laps before {0}	君の番 — [投げろ!!] {0}より先に3周
+"{0}" OST · {1} tracks	「{0}」OST · {1}曲
+\n+{0}G · jelly +{1} (×2 with all 3 missions)	\n+{0}G · ゼリー +{1}（ミッション3つ全部で×2）
+\nAll clear! +{0}G	\nオールクリア！+{0}G
+\nneed {0} +{1}	\n{0}があと+{1}必要
+\n★ 3 missions — money & jelly ×2!  +{0}G · jelly +{1}	\n★ ミッション3つ — お金とゼリー×2！  +{0}G · ゼリー +{1}
+fail {0}%	失敗 {0}%
+gate {0}	ゲート {0}
+gate {0} ✓	ゲート {0} ✓
+in {0}w	{0}週後
+limit {0}	上限 {0}
+next {0}	次 {0}
+ticket ×{0}	チケット ×{0}
+{0}  ({1}/{2})\n{3}\nReward: {4}G · {5} shards · 1 activity	{0}  ({1}/{2})\n{3}\n報酬：{4}G · かけら{5} · 活動1回
+{0}  ·  HP +{1}  ·  {2}G	{0}  ·  HP +{1}  ·  {2}G
+{0} / gate {1}	{0} / ゲート {1}
+{0} / gate {1} ✓	{0} / ゲート {1} ✓
+{0} Harvest {1}	{0} 収穫 {1}
+{0} Harvested! {1} → bag	{0} 収穫した！{1} → バッグ
+{0} Planted {1}. Water it!	{0} {1}を植えた。水をあげよう！
+{0} The {1} withered… no water for two weeks.	{0} {1}が枯れた…2週間水をあげなかった。
+{0} action(s) left. Press again to skip them.	行動が{0}回残っています。もう一度押すとスキップします。
+{0} brought a bag of rice! (−18G)	{0}が米を一袋持ってきた！（−18G）
+{0} brought ingredients — {1} dishes cooked!	{0}が材料を持ってきた — 料理{1}品完成！
+{0} capsules → bag	カプセル{0}個 → バッグ
+{0} cheered me up — stress −{1}	{0}が元気づけてくれた — ストレス −{1}
+{0} coins	{0}コイン
+{0} command · 1/week	{0}コマンド · 週1回
+{0} course · same for everyone today. Clear all three for a stamp.	{0}コース · 今日は全員共通。3つすべてクリアでスタンプ。
+{0} cuts · {1}s · {2}	{0}カット · {1}秒 · {2}
+{0} donated	寄付：{0}
+{0} festival · week {1}	{0}祭り · {1}週目
+{0} fetched a letter — hearts +1	{0}が手紙を持ってきた — ハート +1
+{0} finished 3 laps first…	{0}が先に3周した…
+{0} first…	{0}が先に…
+{0} hearts	ハート{0}
+{0} hearts to S-cut. Contests and great successes help.	Sカットまでハートあと{0}。大会と大成功が近道。
+{0} is lowest. If a Lesson card appears under Play, take it.	{0}が一番低い。「遊ぶ」の下にレッスンカードが出たら選ぼう。
+{0} joined!	{0}が仲間になった！
+{0} km to the tower	鉄塔まで{0}km
+{0} left…	残り{0}…
+{0} left… need ≤2	残り{0}… 2以下が必要
+{0} main stories + {1} side stories · {2} seen{3}	メイン{0}話 + サイド{1}話 · {2}視聴済み{3}
+{0} matters — 	{0}が大事 — 
+{0} more ♥ to the next memory	次の思い出まであと♥{0}
+{0} near misses	ニアミス{0}回
+{0} selected — joins runs.	{0}を選択 — ランに同行。
+{0} stamps · streak {1} (best {2})	スタンプ{0}個 · 連続{1}日(最高{2})
+{0} tries left	残り{0}回
+{0} weeks to the tower · stamina {1} gate ▼{2} OK! · energy {3}	鉄塔まで{0}週 · 体力{1} ゲート▼{2} OK! · エネルギー{3}
+{0} weeks to the tower · {1} more to gate ▼{2} · energy {3}	鉄塔まで{0}週 · ゲート▼{2}まであと{1} · エネルギー{3}
+{0} wins…	{0}勝…
+{0} withered… ({1}%)	{0}が枯れた…({1}%)
+{0} {1} / target {2}	{0} {1} / 目標{2}
+{0} {1} growing {2}/{3} (watered)	{0} {1} 成長中 {2}/{3}(水やり済み)
+{0} {1} {2}G · {3}w	{0} {1} {2}G · {3}週
+{0} {1} {2}G · {3}w · {4}% · {5}	{0} {1} {2}G · {3}週 · {4}% · {5}
+{0} {1}G — walk to a spot, then 「Place」	{0} {1}G — 場所まで歩いて「設置」
+{0} · done this week	{0} · 今週は済み
+{0} · wear	{0} · 着る
+{0} · {1}G (stress −{2})	{0} · {1}G(ストレス−{2})
+{0} ×{1} · {2}G each  (+{3}G)	{0} ×{1} · 1個{2}G  (+{3}G)
+{0} — done this turn	{0} — このターンは済み
+{0} — win to move on!	{0} — 勝って先へ!
+{0} — {1}. Reward {2}G · 3 shards. This week.	{0} — {1}。報酬{2}G · かけら3個。今週中。
+{0} — {1}/{2} so far. Please!	{0} — いま{1}/{2}。お願い!
+{0}! HP {1} → {2} (−{3}G)	{0}! HP {1} → {2}(−{3}G)
+{0}% of the song — one more?	曲の{0}% — もう一回?
+{0}'s turn!	{0}の番!
+{0}'s turn… throwing	{0}の番… 投げてる
+{0}/{1} · now {2}	{0}/{1} · 現在{2}
+{0}:{1} — Cinematic — always available	{0}:{1} — シネマティック — いつでも視聴可
+{0}G · a rental goes up and pays {1}G every 4 weeks. You have {2}G	{0}G · 賃貸物件が建ち、4週ごとに{1}Gの収入。所持{2}G
+{0}G · stress {1}	{0}G · ストレス{1}
+{0}G · water once per phase; grows more each week.	{0}G · 水やりはフェーズごとに1回。毎週さらに育つ。
+{0}\n{1} {2} almost ready~	{0}\n{1} {2} もうすぐ収穫~
+{0}\n{1} {2} growing... {3}w left	{0}\n{1} {2} 成長中... 残り{3}週
+{0}\n{1} {2} just sprouted!	{0}\n{1} {2} 芽が出た!
+{0}\n{1} {2} ready! ⭐	{0}\n{1} {2} 収穫OK! ⭐
+{0}\n{1} {2} sprout!	{0}\n{1} {2} 発芽!
+{0}w left	残り{0}週
+{0}… need {1}	{0}… {1}が必要
+…Woke up in the hospital. Paid {0}G ({1}%). 	…病院で目が覚めた。{0}G支払った({1}%)。 
+…{0}?! Still {1}G	…{0}?! まだ{1}G
+↩ Repaid {0}G — {1}G left	↩ {0}G返済 — 残り{1}G
+≤{0} hits	被弾{0}回以下
+≤{0} hits in first 500 m	最初の500mで被弾{0}回以下
+■  Hidden track {0} playing	■  隠しトラック{0}再生中
+■ Expand — one more row (3) {0}G	■ 拡張 — もう1列(3) {0}G
+■ Garden expanded to {0} plots (west)	■ 畑を{0}区画に拡張(西)
+■ Week {0} — today	■ 第{0}週 — 今日
+▶ Chapter {0}	▶ 第{0}章
+▶ Follow the kid ({0}/3) · {1}	▶ 子どもを追う({0}/3) · {1}
+▶ More ({0}/{1})	▶ もっと({0}/{1})
+▶ Ride — needs ♥3 (now ♥{0})	▶ 乗る — ♥3必要(現在♥{0})
+◆ {0} grade	◆ {0}ランク
+● 1 pull · {0} jelly	● 1回引く · ゼリー{0}
+● Buy & give a carrot {0}G (+10)	● ニンジンを買ってあげる {0}G(+10)
+● Feed {0}G (+6)	● エサ {0}G(+6)
+● Feed {0}G (+8)	● エサ {0}G(+8)
+● Garden ({0})	● 畑({0})
+● Hens {0} · Rabbits {1}	● ニワトリ{0} · ウサギ{1}
+● New {0} · ★ +{1}	● 新規{0} · ★ +{1}
+● The rain watered {0} plot(s)	● 雨が{0}区画に水をやった
+● {0} planted — ripe {1} · thirsty {2}	● {0}を植えた — 収穫{1} · 水切れ{2}
+●● 10 pulls · {0} jelly	●● 10回引く · ゼリー{0}
+★ 3 laps before {0}!	★ {0}までに3周!
+★ Coins {0}  ·  Lv {1} ★	★ コイン{0}  ·  Lv {1} ★
+★ Collect {0} golden egg(s)	★ 金の卵を{0}個集める
+★ Points {0}  ·  Lv {1} ★	★ ポイント{0}  ·  Lv {1} ★
+★ Stamped ✓  {0}-day streak  +{1}G	★ スタンプ済み ✓  {0}日連続  +{1}G
+★ Today's missions {0}/3	★ 今日のミッション {0}/3
+★ {0} entry	★ {0}エントリー
+★ {0} golden egg(s)!	★ 金の卵{0}個!
+★ {0} — max	★ {0} — 最大
+★ {0}G  ·  Lv {1} ★	★ {0}G  ·  Lv {1} ★
+☕ Buy me a coffee · {0}	☕ コーヒーをおごる · {0}
+☕ Thank you! {0} cup(s)	☕ ありがとう! {0}杯
+♥ Care for hens {0}	♥ ニワトリの世話 {0}
+♥ Care for rabbits {0}	♥ ウサギの世話 {0}
+♥ Friendship +{0}	♥ 友情 +{0}
+♥ Horse ♥{0}!	♥ 馬 ♥{0}!
+♥ Love ♥{0}!	♥ 愛情 ♥{0}!
+♥ Next week: {0}'s birthday	♥ 来週: {0}の誕生日
+♥ {0}'s birthday this week! Gifts count triple.	♥ 今週は{0}の誕生日! プレゼント効果3倍。
+♥ {0}/{1} for S	♥ Sまで{0}/{1}
+⚠ BURNOUT — stress {0}/{1}. Rest now.	⚠ バーンアウト — ストレス{0}/{1}。今すぐ休んで。
+⛏ Deep shaft B{0}	⛏ 深層坑道 B{0}
+⛏ Rock cleared! {0} stones dropped — regrows in {1}w	⛏ 岩を砕いた! 石が{0}個 — {1}週で復活
+⛏ {0} stones dropped · {1}/3	⛏ 石が{0}個落ちた · {1}/3
+✅ Buy (−{0}G)	✅ 購入(−{0}G)
+✔ {0} (wearing)	✔ {0}(着用中)
+✦ Caught {0}! Again	✦ {0}をゲット! もう一回
+✦ {0}'s turn… ✦	✦ {0}の番… ✦
+✨ Caught a monster! Already own {0} — shards +3 · 150G	✨ モンスターを捕まえた! {0}は所持済み — かけら+3 · 150G
+✨ Found {0}!	✨ {0}を見つけた!
+✨ Story '{0}' · {1}	✨ ストーリー「{0}」 · {1}
+✨ The story continues — {0}	✨ 物語は続く — {0}
+⬇ B{0} Boss room	⬇ B{0} ボス部屋
+⬇ Down to B{0}	⬇ B{0}へ下りる
+🌊 In the sea! Over {0}s is dangerous	🌊 海の中! {0}秒以上は危険
+🌱 Pick a seed for pot {0}!	🌱 鉢{0}の種を選んで!
+🌳 Timber! {0} logs dropped — walk over to collect · regrows in {1}w	🌳 倒れるぞ! 丸太が{0}本 — 歩いて拾おう · {1}週で復活
+🍊 {0} oranges fell → {1}G	🍊 オレンジが{0}個落ちた → {1}G
+🍊 {0} oranges → {1}G · Veg +1	🍊 オレンジ{0}個 → {1}G · 野菜+1
+🍊 {0} tangerines!	🍊 みかん{0}個!
+🍖 Butchered a rabbit — meat ×2 ({0} left)	🍖 ウサギを解体 — 肉×2(残り{0})
+🍖 Meat +3 — 🚨 Police! (wanted Lv {0}) Run or fight!	🍖 肉+3 — 🚨 警察だ!(手配Lv {0}) 逃げるか戦うか!
+🍯 {0} jars of honey!	🍯 ハチミツ{0}瓶!
+🎁 Gift to {0}	🎁 {0}へプレゼント
+🎁 Reward +{0}G · shards +3{1}	🎁 報酬 +{0}G · かけら+3{1}
+🎁 Sent to {0} (+{1})	🎁 {0}に送った(+{1})
+🎉 Bought {0}! Rent {1}G every 4 weeks	🎉 {0}を購入! 4週ごとに家賃{1}G
+🎉 Caught a monster! Got the pet 「{0}」 — equip it at the pet shop	🎉 モンスターを捕まえた! ペット「{0}」を入手 — ペットショップで装備しよう
+🎉 {0} begins!	🎉 {0}スタート!
+🎮 Play · Practice ({0}/{1})	🎮 プレイ · 練習({0}/{1})
+🎯 Mission complete! +{0}G · shards +{1}	🎯 ミッション達成! +{0}G · かけら+{1}
+🎯 Today's mission — {0}	🎯 今日のミッション — {0}
+🎵 Settle K-POP run income ({0} runs · {1}G → +{2}G)	🎵 K-POPラン収益を精算({0}回 · {1}G → +{2}G)
+🏏 Boss −{0} (HP {1})	🏏 ボス −{0}(HP {1})
+🏏 Hit −{0}	🏏 ヒット −{0}
+🏙 Jeju City ({0}G)	🏙 済州市({0}G)
+🏛 Donated {0}! +{1}G	🏛 {0}を寄贈! +{1}G
+🏝 Jungmon Resort ({0}G)	🏝 中文リゾート({0}G)
+🏠 Go inside (eat · sleep · desk) — {0}/{1}	🏠 家に入る(食事 · 睡眠 · 机) — {0}/{1}
+🏡 Land · rent ({0} lots · {1}G/mo)	🏡 土地 · 賃貸({0}区画 · 月{1}G)
+🏡 Land · rent ({0} lots)	🏡 土地 · 賃貸({0}区画)
+🏡 My rental · {0}G/mo (next in {1}w)	🏡 わたしの賃貸 · 月{0}G(次は{1}週後)
+🏡 Rent received! {0} month(s) +{1}G	🏡 家賃を受け取った! {0}か月分 +{1}G
+🏡 Village ({0}G)	🏡 村({0}G)
+🏡 {0} — owned · {1}G/mo	🏡 {0} — 所有中 · 月{1}G
+🏦 Borrowed {0}G — {1}% a week	🏦 {0}G借りた — 週{1}%
+🏦 Take a loan (limit {0}G)	🏦 借りる(上限{0}G)
+🏷 Buy {0} · {1}G ({2}G/mo)	🏷 {0}を購入 · {1}G(月{2}G)
+🏷 For sale · {0} ({1}G)	🏷 売り出し中 · {0}({1}G)
+🏷 {0} — {1}G ({2}G/mo)	🏷 {0} — {1}G(月{2}G)
+🐔 Caught a chicken! Sent to the farm ({0}/{1})	🐔 ニワトリを捕まえた! 牧場へ送った({0}/{1})
+🐔 Farm · {0} hens · {1} rabbits ({2} grown)	🐔 牧場 · ニワトリ{0} · ウサギ{1}(成体{2})
+🐝 Hive set up! ({0}/3)	🐝 巣箱を設置! ({0}/3)
+🐰 Caught a rabbit! Sent to the farm ({0}/{1})	🐰 ウサギを捕まえた! 牧場へ送った({0}/{1})
+🐴 The horse bolts! ({0} left)	🐴 馬が逃げ出した!(残り{0})
+👻 The ghost got you! HP −{0} — run home!	👻 おばけに捕まった! HP −{0} — 家へ走れ!
+💊 Nurse · Treatment (full HP, {0}G)	💊 看護師 · 治療(HP全回復、{0}G)
+💊 Treated! Full HP (−{0}G)	💊 治療完了! HP全回復(−{0}G)
+💢 Grabbed by a bandit! HP −{0} · lost {1}G — bat them twice!	💢 盗賊に捕まった! HP −{0} · {1}G失った — バットで2回叩け!
+💢 Hit by {0}! HP −{1} (HP {2})	💢 {0}にやられた! HP −{1}(HP {2})
+💥 Bitten by a big bug! HP −{0} — bop it with the bat first!	💥 大きな虫にかまれた! HP −{0} — 先にバットで叩け!
+💥 Critical! −{0} (HP {1})	💥 クリティカル! −{0}(HP {1})
+💥 Defeated! +{0}G{1} ({2} left)	💥 撃破! +{0}G{1}(残り{2})
+💧 Water · {0} {1}/{2}	💧 水やり · {0} {1}/{2}
+💧 Watered — {0} is ready!	💧 水やり完了 — {0}が収穫OK!
+💧 Watered — {0} {1}/{2}	💧 水やり完了 — {0} {1}/{2}
+💰 Deposited {0}G — {1}% interest a week	💰 {0}G預けた — 週{1}%の利子
+💰 Sell all  +{0}G	💰 全部売る  +{0}G
+💰 Sell cows ({0})	💰 牛を売る({0})
+💰 Sell pigs ({0})	💰 豚を売る({0})
+💰 Sold {0}! +{1}G	💰 {0}を売った! +{1}G
+💰 Sold! +{0}G (now {1}G)	💰 売れた! +{0}G(所持{1}G)
+💵 Withdrew {0}G	💵 {0}G引き出した
+💸 Not enough ({0}G short)	💸 お金が足りない({0}G不足)
+📖 New entry! {0}	📖 新しい記録! {0}
+📜 {0}'s request	📜 {0}の依頼
+📜 {0}'s request done! Go talk — {1}	📜 {0}の依頼完了! 話しかけよう — {1}
+🔥 Stove burned a log — cozy home, condition +3 ({0} left)	🔥 ストーブで薪を燃やした — 家がぽかぽか、コンディション+3(残り{0})
+🔥 Stove firewood (wood {0} · fuel {1}w)	🔥 ストーブの薪(木材{0} · 燃料{1}週)
+😌 Stress −{0}	😌 ストレス −{0}
+🚌 Arrived: {0}	🚌 到着: {0}
+🚓 Caught by the police! HP −{0} · fine {1}G — run to lose them	🚓 警察に捕まった! HP −{0} · 罰金{1}G — 走ってまこう
+🛍 Bought (−{0}G)	🛍 購入(−{0}G)
+🛣 Lay road — {0}G a tile, auto-move follows roads	🛣 道を敷く — 1マス{0}G、自動移動は道に沿う
+🛣 No road reaches {0}. Lay tiles ({1}G each) with the Road tool.	🛣 {0}に通じる道がない。道ツールでマスを敷こう(1マス{1}G)。
+🛣 Not enough money ({0}G a tile)	🛣 お金が足りない(1マス{0}G)
+🛣 Road tile −{0}G ({1} tiles · {2}G left)	🛣 道マス −{0}G({1}マス · 残り{2}G)
+🛣 Road: press action on the green tile → {0}G	🛣 道: 緑のマスでアクション → {0}G
+🥚 Collect {0} eggs	🥚 卵を{0}個集める
+🥚 Collected {0} eggs! ({1} in bag)	🥚 卵を{0}個集めた!(バッグに{1}個)
+🥛 {0} milk!	🥛 ミルク{0}本!
+🥥 {0} coconut(s) fell → bag	🥥 ココナッツが{0}個落ちた → バッグへ
+🪓 {0} logs dropped · stamina +1 · {1}/3	🪓 丸太が{0}本落ちた · 体力+1 · {1}/3
+🪜 Up to B{0}	🪜 B{0}へ上る
+🫙 {0} jars of syrup!	🫙 シロップ{0}瓶!
+Scraped knees	すりむいた膝
+We both fell on the bend by the stone wall.	石垣の曲がり角で二人とも転んだ。
+Brush off the kid's knees first	先に坊やの膝をはたいてあげる
+Pick up the board first	先にボードを起こす
+Sit there and catch my breath	その場に座って息を整える
+The kid said “Doesn't hurt” twice.	坊やは「痛くない」と二回言った。
+One wheel spun loose. It still rolled.	車輪が一つ空回りした。それでも転がった。
+The top of the tower looked red in the sunset.	塔のてっぺんが夕焼けで赤く見えた。
+The hill road	坂道
+The lady held my hand up the hill. The kid held the other.	おばさんが私の手を引いて坂を上った。もう片方の手は坊やが握った。
+Hold the lady's hand tight	おばさんの手をぎゅっと握る
+Look back at the kid	坊やの方を振り返る
+Her palm was rough. It smelled of seawater.	手のひらがざらざらしていた。海の匂いがした。
+The kid pulled his hood down and watched his feet.	坊やはフードを深くかぶって、足元だけ見て歩いた。
+The white shirt went toward the tower, the lady toward the post. The kid holds my sleeve.	白いシャツは塔の方へ、おばさんは詰所の方へ。坊やが私の袖をつかんでいる。
+Take a few steps after the white shirt	白いシャツの方へ数歩行ってみる
+Stay beside the kid	坊やの隣にそのまま立つ
+Only his back. The two bottles clinked.	背中しか見えなかった。牛乳瓶が二本ぶつかる音がした。
+Only then did the kid let go. “Good.”	坊やはやっと袖を離した。「えらいね。」
+The calendar	カレンダー
+Every day I drew an X. Only the circled day stayed blank.	毎日Xをつけた。丸をつけた日だけは空けておいた。
+Draw today's X	今日のマスにXをつける
+Count the days left	残りのマスを数える
+The pencil tip went blunt.	鉛筆の先が丸くなった。
+I lost count and started over.	途中で分からなくなって、最初から数え直した。
+The empty net bag	空の網袋
+Instead of conches, the lady searched rock cracks and old nets.	おばさんはサザエの代わりに、岩の隙間と捨てられた網ばかりめくっていた。
+Look into the rock cracks too	私も岩の隙間をのぞく
+Hold the conch to my ear	もらったサザエを耳に当てる
+A small crab hid in a drained crack.	水の引いた隙間に小さなカニが一匹隠れていた。
+It sounded like the sea. The lady laughed when she saw.	海の音がした。それを見て、おばさんが笑った。
+Three faces in the frost	霜の窓の三つの顔
+One for the kid, one for me. The kid drew one more.	坊やの顔、私の顔。坊やがもう一つ描いた。
+Draw a smile on the third face	三つ目の顔に笑った口を描く
+Beside me, the kid folded one eye shut.	隣で坊やが片目をつむってみせた。
+The glass cleared. The snowman stood outside.	窓が澄んだ。外に雪だるまが立っていた。
+“Let's eat”	「ごはん食べよう」
+A note on the porch: “Let's eat.” Steam rose from two bowls of soup.	縁側に紙が一枚、「ごはん食べよう」。スープ二杯から湯気が立っていた。
+Sit beside Mom	ママの隣に座る
+Trace the note with my finger	紙の文字を指でなぞる
+Mom set out two spoons.	ママがスプーンを二本並べた。
+My finger went through the paper. The words stayed.	指が紙を通り抜けた。文字はそのままだった。
+A crooked red heart on the shell. “Don't lose it.”	貝殻の上の歪んだ赤いハート。「なくさないで。」
+A radio with a heart drawn by the dial. The needle rests at 89.2.	ダイヤルの横にハートが描かれたラジオ。針が89.2で止まっている。
+The blue gem headband in the yellow tin. Never worn.	黄色い缶の中の青い宝石のカチューシャ。一度も使っていない新品。
+💡 A K-POP run (title screen) pays about 700G — same wallet. Jobs and fishing pay 100–350G a day.	💡 タイトル画面の「K-POPラン」は1回およそ700G — 同じ財布に入るよ。バイト・釣りは1日100〜350G。
+Sis, you don't smile lately. Let's walk the oreum or swim in the sea. Café brunch works too.	お姉ちゃん、最近笑わないね。オルム散歩か海で泳ごう。カフェのブランチもいいよ。
+🍚 Kid	🍚 子ども
+Sis, did you eat? There's food on the table. Skip it and you'll be hungry all week.	お姉ちゃん、ごはんは？ テーブルに食べるものあるよ。食べずに寝たら一週間ずっとお腹ぺこぺこ。
+🍚 Eat first	🍚 ごはん食べる
+💤 Just sleep	💤 このまま寝る
+Sis, there's no food at home. Buy some at the shop or have café brunch. Skip it and you'll be hungry all week.	お姉ちゃん、家に食べるものがないよ。お店でごはんの材料を買うか、カフェでブランチを食べよう。食べずに寝たら一週間ずっとお腹ぺこぺこ。
+Okay	わかった
+East meadow lot	東の草原の土地
+Pavilion lot	東屋そばの土地
+West field lot	西の野原の土地
+Hill-view lot	丘の見晴らし土地
+Finish {0} m	{0} m 完走
