@@ -1,0 +1,546 @@
+   (+{0}★, total {1}/60)	   (+{0}★、合計 {1}/60)
+   ·   {0} more for S	   ·   Sまであと{0}
+ (need {0} +{1})	 (必要: {0} +{1})
+ Horse {0}	 馬 {0}
+ Ranch  {0}	 牧場  {0}
+ STA {0}	 体力 {0}
+ STA{0}	 体力{0}
+ stress {0}	 ストレス {0}
+ stress{0}	 ストレス{0}
+ · have {0}	 · 所持 {0}
+ · passcode {0}	 · 暗証番号 {0}
+ — +{0}G · replay it from More › Mini-games	 — +{0}G · 「その他 › ミニゲーム」から再プレイできます
++{0} coins	+{0}コイン
++{0}G · stress -{1}!	+{0}G · ストレス-{1}！
+1st {0}G ♥3 prize · 2nd {1}G ♥2 · 3rd {2}G ♥1	1位 {0}G ♥3 · 2位 {1}G ♥2 · 3位 {2}G ♥1
+9 trees. Weekly harvest. {0}G	木9本。毎週収穫。{0}G
+A week goes by — week {0} → {1}	1週間が過ぎた — {0}週目 → {1}週目
+Achievements {0}/{1}  ·  Stars {2}/60  ·  Daily stamps {3}  ·  Endings {4}/7	実績 {0}/{1}  ·  スター {2}/60  ·  デイリースタンプ {3}  ·  エンディング {4}/7
+Affinity {0} · Lv{1} reward	好感度 {0} · Lv{1}報酬
+Agility {0}!	敏捷 {0}！
+All ({0}G)	全部 ({0}G)
+All 3 by chapter end: ♥ +2 · 2: +1 · now ♥ {0}	章末までに3つ全部：♥ +2 · 2つ：+1 · 現在 ♥ {0}
+Arrive within {0}s	{0}秒以内に到着
+Arrows {0} · in {1}/{2} — tap [Set aim] on the jar	矢 {0} · 命中 {1}/{2} — 壺の[狙う]をタップ
+As much as I can ({0}G)	買えるだけ ({0}G)
+At most {0} hits	被弾{0}回以内
+Ate this week · dishes {0} · ingredients {1}	今週の食事 · 料理 {0} · 食材 {1}
+Ate {0}!	{0}を食べた！
+Auto grocery: {0}	自動買い出し：{0}
+Auto-filled {0} · tap a slot to change	{0}を自動セット · スロットをタップで変更
+Beat the chapter {0} mission to unlock	第{0}章のミッションをクリアで解放
+Best combo {0}	最高コンボ {0}
+Best combo ×{0}	最高コンボ ×{0}
+Best {0}	ベスト {0}
+Best {0} m	ベスト {0} m
+Best {0} m · {1} pts · {2} runs	ベスト {0} m · {1}点 · {2}回ラン
+Binder {0}/{1}  ·  {2}/{3} released  ·  found as items while running	バインダー {0}/{1}  ·  公開 {2}/{3}  ·  ラン中にアイテムとして見つかる
+Bond ♥ +{0} (♥ {1})	絆 ♥ +{0} (♥ {1})
+Boss Rush · {0} bosses cleared!	ボスラッシュ · ボス{0}体撃破！
+Bought {0} ×1!	{0} ×1を購入！
+Bought {0} ×{1}!	{0} ×{1}を購入！
+Bought {0}!	{0}を購入！
+Burnout (stress {0}/{1}). Spend this week playing — a walk or a swim.	燃え尽き（ストレス {0}/{1}）。今週は遊んで過ごそう — 散歩か海水浴を。
+Burnout {0}/{1} — spend this week playing	燃え尽き {0}/{1} — 今週は遊んで過ごそう
+Buy once, wear anytime · {0}G	一度買えばいつでも着られる · {0}G
+B{0} · 👑 Boss	B{0} · 👑 ボス
+CHAPTER {0}	第{0}章
+Casts left {0}/{1}	残りキャスト {0}/{1}
+Catch {0} bugs	虫を{0}匹捕まえる
+Catch {0} crabs	カニを{0}匹捕まえる
+Caught {0}! {1} +1 · Fish +{2} (sell at the shop)	{0}を釣った！ {1} +1 · 魚 +{2}（お店で売れる）
+Caught! Back to start ({0}/3)	捕まった！スタートへ戻る ({0}/3)
+Ch. {0}	{0}章
+Ch. {0} · {1}	{0}章 · {1}
+Ch. {0} · {1} · {2}:{3}	{0}章 · {1} · {2}:{3}
+Ch.{0} {1} : {2} ({3})	{0}章 {1} : {2} ({3})
+Challenge Chapter {0}!	第{0}章に挑戦！
+Chapter {0} complete	第{0}章 クリア
+Chapter {0} is done. Now chapter {1} — week {2}.	第{0}章が終わった。次は第{1}章 — {2}週目。
+Chapter {0} mission · replay	第{0}章ミッション · 再プレイ
+Chapter {0} story\n{1}  ·  {2}	第{0}章ストーリー\n{1}  ·  {2}
+Chapter {0} · {1}	第{0}章 · {1}
+Chapter {0} — farm money & items for story mode!	第{0}章 — ストーリーモード用にお金とアイテムを稼ごう！
+Characters {0}/2	キャラクター {0}/2
+Charm {0}!	魅力 {0}！
+Chop wood {0}×	薪割り {0}回
+Cinematic · {0}:{1}	シネマティック · {0}:{1}
+Cleared · Rank {0} · hearts {1}/{2}	クリア · ランク {0} · ハート {1}/{2}
+Clothes {0} wk left	服 残り{0}週
+Clothes {0}w left	服 残り{0}週
+Clue on hold — {0}	手がかり保留中 — {0}
+Clue — {0} ({1}/6)	手がかり — {0} ({1}/6)
+Clues {0}/6	手がかり {0}/6
+Coin jackpot {0}!	コインジャックポット {0}！
+Coins {0}	コイン {0}
+Coins {0}   ·   Jelly {1}	コイン {0}   ·   ゼリー {1}
+Coins {0} · Near miss {1} · Best combo {2} · Hearts {3}	コイン {0} · ニアミス {1} · 最高コンボ {2} · ハート {3}
+Collect {0} coins	コインを{0}枚集める
+Combo {0}	コンボ {0}
+Condition {0} · Stress {1} / Stamina {2}	コンディション {0} · ストレス {1} / 体力 {2}
+Cond{0}	調子{0}
+Contest "{0}"\n{1}  ·  {2}	コンテスト「{0}」\n{1}  ·  {2}
+Contest in {0}w: {1} · {2}	コンテストまで{0}週：{1} · {2}
+Contest reward — {0}	コンテスト報酬 — {0}
+Cooked → {0}	料理した → {0}
+Cook→{0}	料理→{0}
+Cows {0} · Pigs {1}	牛 {0} · 豚 {1}
+Cows {0}/3 · Pigs {1}/4	牛 {0}/3 · 豚 {1}/4
+Cutscene {0} / {1}	カットシーン {0} / {1}
+Cutscene {0} at end of ch.{1} (week {2})	カットシーン{0}は{1}章の終わり（{2}週目）
+Cutscene {0} — story time.	カットシーン{0} — ストーリーの時間。
+Daily Run  {0}	デイリーラン  {0}
+Deco · {0}	デコ · {0}
+Defeat {0} bosses	ボスを{0}体倒す
+Delivery/market {0}/2	配達/市場 {0}/2
+Done! {0} knocked out → {1}G	終了！{0}個はじき出し → {1}G
+Done! {0} out	終了！{0}個アウト
+Done. {0}/{1} today.	完了。今日は{0}/{1}。
+Drank remaining stock {0}	残りのストック{0}を飲んだ
+Effective {0} · {1}	有効 {0} · {1}
+Endless  best {0} m · {1} pts\nDaily  best {2} · streak {3} (best {4})\nTotal  {5} runs · {6} km · {7} coins · {8} near misses · {9} flawless	エンドレス  ベスト {0} m · {1}点\nデイリー  ベスト {2} · 連続 {3} (最高 {4})\n合計  {5}回ラン · {6} km · {7}コイン · ニアミス {8} · ノーミス {9}
+Energy {0}	エネルギー {0}
+Enter — {0}	入る — {0}
+Entry: {0}	参加：{0}
+Exhausted (stress {0}). One more week and you'll fall ill. (Condition -10)	疲労困憊（ストレス {0}）。あと1週間で体調を崩します。（コンディション -10）
+Fan art #{0}	ファンアート #{0}
+Fan art gallery — one piece per {0} mission stars. (stars {1}/60 → {2} open)	ファンアートギャラリー — ミッションスター{0}個ごとに1枚。（スター {1}/60 → {2}枚公開）
+Fertilize {0}G	肥料 {0}G
+Festival in {0}w: {1} · {2} {3}/{4}	祭りまで{0}週：{1} · {2} {3}/{4}
+Festival prize — "{0}"!	祭りの賞 — 「{0}」！
+Fullness {0} → {1}  ·  Condition {2} → {3}	満腹度 {0} → {1}  ·  コンディション {2} → {3}
+Full{0}	満腹{0}
+Game · {0}	ゲーム · {0}
+Garden ready: {0} — harvest in My Room	畑の収穫OK：{0} — マイルームで収穫
+Gate week. Stamina {0}/{1} — Feed/Play to raise it or you can't run.	ゲート週。体力 {0}/{1} — ごはん/あそびで上げないと走れません。
+Gate {0}/{1} (−{2})	ゲート {0}/{1} (−{2})
+Gate {0}/{1} ✓	ゲート {0}/{1} ✓
+Go back to CH {0}?	{0}章に戻る？
+Go fishing {0}×	釣り {0}回
+Go inside? (eat · sleep · desk) — {0}/{1}	中に入る？（食事 · 睡眠 · 机） — {0}/{1}
+Goal {0} m	目標 {0} m
+Google Play billing · voluntary · {0} cup(s) so far ☕ thank you{1}	Google Play決済 · 任意 · これまで{0}杯 ☕ ありがとう{1}
+Great {0} · Fail {1}	グレート {0} · ミス {1}
+HP {0} · {1}G	HP {0} · {1}G
+HP {0}/{1} · {2}G	HP {0}/{1} · {2}G
+HP {0}/{1} → {2}  ·  {3}G	HP {0}/{1} → {2}  ·  {3}G
+Harvest {0}%!	収穫 {0}%！
+Harvest! {0} → {1}	収穫！{0} → {1}
+Have {0}	所持 {0}
+Have {0}w	所持 {0}週分
+Hearts +{0}	ハート +{0}
+Hearts {0}	ハート {0}
+Hearts {0} / {1}  (run +{2})	ハート {0} / {1}  (ラン +{2})
+Hens {0}/{1} — 1 egg each every morning	ニワトリ {0}/{1} — 毎朝1羽につき卵1個
+Here — {0}!	はい — {0}！
+In season: {0}	旬：{0}
+In! {0}/{1} · arrows {2}	入った！{0}/{1} · 矢 {2}
+Items {0}	アイテム {0}
+Kept a promise ({0}/3)	約束を守った ({0}/3)
+Kid's promises ({0}/3) · ♥ {1}	子どもとの約束 ({0}/3) · ♥ {1}
+Knock {0} marbles out in 3 shots!	3回でビー玉を{0}個はじき出せ！
+LEVEL UP! Lv {0}	レベルアップ！Lv {0}
+Land on {0} to catch them back to the lap start — and throw again!	{0}に止まれば相手を周回スタートに戻せる — もう一度投げよう！
+Lap {0}!	{0}周目！
+Letter · {0}/{1}	手紙 · {0}/{1}
+Locked · Fan art #{0} — opens at {1} stars	ロック中 · ファンアート #{0} — スター{1}個で解放
+Locked · [{0}] {1}% from photocard items	ロック中 · [{0}] フォトカードアイテムから{1}%
+Love the place! {0}G rent coming in {1} week(s).	気に入った！{1}週間後に家賃{0}Gが入ります。
+Lv {0}  Haneul · {1}	Lv {0}  ハヌル · {1}
+Main story {0}	メインストーリー {0}
+Main story {0} · {1}	メインストーリー {0} · {1}
+Mastery {0} — {1}	熟練度 {0} — {1}
+Me {0}/{1}  ·  {2} {3}/{4}	わたし {0}/{1}  ·  {2} {3}/{4}
+Meals {0}  ·  Ing {1}  ·  Med {2}  ·  Clothes {3}  ·  {4}  ·  {5}	食事 {0}  ·  食材 {1}  ·  薬 {2}  ·  服 {3}  ·  {4}  ·  {5}
+Meals {0} · Ing {1} · Clothes {2}w · Full {3} · Cond {4}	食事 {0} · 食材 {1} · 服 {2}週 · 満腹 {3} · 調子 {4}
+Mine rocks {0}×	採掘 {0}回
+Mini-game "{0}"{1}\n{2}  ·  {3}	ミニゲーム「{0}」{1}\n{2}  ·  {3}
+Miss {0} · {1}/{2} · arrows {3}	ミス {0} · {1}/{2} · 矢 {3}
+Money {0}	所持金 {0}
+Money {0}G	所持金 {0}G
+More than the village shop · {0}G	村の店以上 · {0}G
+My Room bonus — "{0}"!	マイルームボーナス — 「{0}」！
+Napped with {0} — stamina +3	{0}と昼寝 — 体力 +3
+Near-miss combo {0}	ニアミスコンボ {0}
+Need {0} more stamina. Use the goal ribbon when picking Feed/Play.	体力があと{0}必要です。ごはん/あそびを選ぶときは目標リボンを使ってください。
+Need {0} more {1}.	{1}があと{0}必要です。
+Need {0}G	{0}G必要
+Need {0}G.	{0}G必要です。
+Need {0}G…	{0}G必要…
+Needs: {0}	必要：{0}
+New card: {0}	新しいカード：{0}
+Next story in chapter {0} — its place will glow	次のストーリーは第{0}章 — その場所が光ります
+Next turn: chapter {0} story	次のターン：第{0}章ストーリー
+Next turn: chapter {0} story → contest "{1}"	次のターン：第{0}章ストーリー → コンテスト「{1}」
+Next — Shots {0} · {1} left	次 — ショット {0} · 残り{1}
+Next: {0} SIDE {1} needs {2}	次：{0} SIDE {1} には{2}が必要
+No meal… dishes {0} · ingredients {1} (cook then Feed)	食事なし… 料理 {0} · 食材 {1}（料理してからごはん）
+No run this chapter — the story opens on week {0}	この章はランなし — {0}週目にストーリーが始まります
+No sleep ({0} wk)	睡眠なし（{0}週）
+Not enough coins or level (Lv{0}) — run more!	コインかレベル（Lv{0}）が足りない — もっと走ろう！
+Not enough coins — need {0}G.	コインが足りません — {0}G必要です。
+Not enough {0}	{0}が足りない
+Not ready to run yet.\nStamina {0} / need {1} — {2} more.\nThis chapter gets one more week of training.	まだ走れない。\n体力 {0} / 必要 {1} — あと{2}。\nこの章はもう1週間トレーニングだ。
+Off to {0}!	{0}へ出発！
+One record per long cut · bonus tracks at 90% Rank S (now {0}/20)	ロングカットごとに記録1つ · ランクS 90%でボーナス曲（現在 {0}/20）
+Only {0} HP — too weak to auto-hunt. Eat and sleep first!	HPが{0}しかない — 弱りすぎて自動狩りできない。まず食べて寝よう！
+Opened by the secret code.\nJump to week {0} with your current stats.	秘密コードで解放されました。\n今のステータスのまま{0}週目へ移動します。
+Our Frequency — {0}:{1}	君と僕の周波数 — {0}:{1}
+Paid {0} coins to pass (no reward)	{0}コイン払って通過（報酬なし）
+Paid {0}G to skip	{0}G払ってスキップ
+Pay {0} coins to pass	{0}コイン払って通過
+Pay {0}G to skip	{0}G払ってスキップ
+Pets unlock at week {0} or after {1} contests\n(now week {2} · {3} contests)\n\nBuy with coins from runs (level required).	ペットは{0}週目か大会{1}回で解放\n（現在 {2}週目 · 大会{3}回）\n\nランで貯めたコインで購入（レベル条件あり）。
+Pets unlock at week {0} or {1} contests (now wk {2} · {3} contests)	ペット解放：{0}週目か大会{1}回（現在 {2}週 · {3}回）
+Photo {0} / {1}	写真 {0} / {1}
+Photocard [{0}] {1}	フォトカード [{0}] {1}
+Photocard — [{0}] {1}	フォトカード — [{0}] {1}
+Photos collected {0} / {1}	集めた写真 {0} / {1}
+Pick up {0} things	アイテムを{0}個拾う
+Pickaxe by a glowing vein. {0} veins left this week.	光る鉱脈のそばにツルハシ。今週の鉱脈は残り{0}。
+Placed {0}! (−{1}G)	{0}を置いた！（−{1}G）
+Plant · {0}%	植物 · {0}%
+Planted {0}. Harvest in {1}w!	{0}を植えた。{1}週後に収穫！
+Playthrough {0} — inherited 10% stats & half mastery	{0}周目 — ステータス10%と熟練度の半分を引き継ぎ
+Police: Useless! ({0} left)	警察：役立たず！（残り{0}）
+Prize: {0}G	賞金：{0}G
+Prologue · Our Frequency : Opening ({0})	プロローグ · 君と僕の周波数 : オープニング（{0}）
+Promise · {0} {1}/{2}	約束 · {0} {1}/{2}
+Promises {0}/3 · bond ♥ {1}	約束 {0}/3 · 絆 ♥ {1}
+Promises · chapter {0}	約束 · 第{0}章
+Pull 10+1\n(★{0})	10+1回引く\n(★{0})
+Pull capsules with jelly. Legend 1% · Epic 5% · Rare 12% · Uncommon 27% · Common 55%\nJelly {0}	ゼリーでカプセルを引こう。レジェンド1% · エピック5% · レア12% · アンコモン27% · コモン55%\nゼリー {0}
+Pull ×1 ({0})	引く ×1（{0}）
+Rabbits {0}/{1} — grown after 3 sleeps ({2} grown)	ウサギ {0}/{1} — 3回寝ると成長（成長済み {2}）
+Radio/ham/DJ cards {0}/3	ラジオ/無線/DJカード {0}/3
+Rank S {0} / {1}	ランクS {0} / {1}
+Rank {0}	ランク {0}
+Rare deco · {0}	レアデコ · {0}
+Reach chapter {0} to unlock	第{0}章で解放
+Record unlocked — {0}	レコード解放 — {0}
+Removed {0}.	{0}を撤去した。
+Removed. +{0}G refunded	撤去した。+{0}G返金
+Rent {0}G / 4 weeks · next in {1}w · {2}G	家賃 {0}G / 4週 · 次は{1}週後 · {2}G
+Retry from week {0}. Only better results are kept.	{0}週目からやり直し。より良い結果だけが残ります。
+Retrying · CH {0}	再挑戦中 · 第{0}章
+Rice ×{0}w	米 ×{0}週
+Room {0}/{1}	部屋 {0}/{1}
+Room {0}G · {1}%/wk (costlier than deposit interest!)	部屋 {0}G · {1}%/週（預金利息より高い！）
+Run jelly ×{0}	ランのゼリー ×{0}
+Run {0} m	ラン {0} m
+Running again rewinds to week {0}; only better results are kept.	もう一度走ると{0}週目に戻ります。より良い結果だけが残ります。
+STA {0} · AGI {1} · CHA {2} · SEN {3}	体力 {0} · 敏捷 {1} · 魅力 {2} · 感性 {3}
+STA {0} → HP {1} · AGI {2} → lanes {3}% faster · CHA {4} → near-miss +{5}%	体力 {0} → HP {1} · 敏捷 {2} → レーン移動{3}%速く · 魅力 {4} → ニアミス +{5}%
+Score {0}	スコア {0}
+Sea cards {0}/2	海カード {0}/2
+Season: {0}	季節：{0}
+Season: {0} (locked)	季節：{0}（ロック中）
+Sell bugs, fish, crops to buy land — then rent every 4 weeks! {0}G	虫・魚・作物を売って土地を買おう — 4週ごとに家賃収入！{0}G
+Sellable — {0}G in all. Save up for land and earn monthly rent!	売却可能 — 合計{0}G。貯めて土地を買い、毎月家賃を稼ごう！
+Sense {0} = radio/photo/spirit events (60+) · sense-based jobs	感性 {0} = ラジオ/写真/精霊イベント（60+） · 感性系バイト
+Sense {0}!	感性 {0}！
+Sense {0}/40	感性 {0}/40
+Settled {0} K-POP runs ({1}G). Bonus +{2}G added!	K-POPラン{0}回を精算（{1}G）。ボーナス +{2}G 追加！
+Shards: {0} · tickets {1} · SR+ in {2}	かけら：{0} · チケット {1} · SR+まで {2}
+Shared with {0} — 1 dish cooked, stress −5%	{0}とおすそ分け — 料理1品、ストレス −5%
+Shared with {0} — stress −5% (no ingredients)	{0}とおすそ分け — ストレス −5%（材料なし）
+Shot at {0}%!	{0}%でシュート！
+Shots 3 · leave ≤2 inside ({0} of 8 out) — [Set aim]	3投 · 中に2個以下を残す（8個中{0}個アウト） — [狙いを定める]
+Shots left: {0}  ·  knocked out: {1}	残り投数：{0}  ·  はじき出し：{1}
+Shots {0} · {1} left (≤2 wins)	投数 {0} · 残り{1}（2個以下で勝ち）
+Side story · {0}	サイドストーリー · {0}
+Side story · {0} : {1} ({2})	サイドストーリー · {0} : {1}（{2}）
+Side ×{0}w	おかず ×{0}週
+Signed card ✦ {0}	サイン入りカード ✦ {0}
+Sis! The {0} booth is open — limited goods!	お姉ちゃん！{0}のブースが開いたよ — 限定グッズ！
+Slam in the yellow zone! Tries {0}	黄色いゾーンで叩きつけて！挑戦 {0}
+So close! Reach {0} m next time!	惜しい！次は{0} mまで！
+Stacked {0} logs. Fuel for {1} weeks — one burns per week, +3 condition.	薪を{0}本積んだ。{1}週分の燃料 — 毎週1本燃えて、コンディション+3。
+Stamina {0}	体力 {0}
+Stamina {0} / need {1} — ready.\nTo the tower.	体力 {0} / 必要 {1} — 準備OK。\n送電塔へ。
+Stamina {0}!	体力 {0}！
+Stamina {0}/{1} — not ready.	体力 {0}/{1} — まだ足りない。
+Stamp earned!  Streak {0}	スタンプ獲得！  連続 {0}
+Stamped ✓  {0}-day streak  +{1}G	スタンプ済み ✓  {0}日連続  +{1}G
+Star shards +{0} — try the Star Capsule	星のかけら +{0} — スターカプセルを引いてみよう
+Sta{0}	体力{0}
+Still daytime. {0}/{1} done · {2} action(s) left — sleeping ends the week.	まだ昼間。{0}/{1}完了 · 残り行動{2} — 寝ると週が終わります。
+Still growing — {0}w left.	まだ育ち中 — あと{0}週。
+Story — '{0}'	ストーリー — 「{0}」
+Stress (limit {0})	ストレス（上限 {0}）
+Stress is at {0}. Play or pet Haneul to recover.	ストレスが{0}。遊ぶかハヌルをなでて回復しよう。
+Stress {0}	ストレス {0}
+Stress {0} — wearing down (success ↓).	ストレス {0} — 疲れがたまってる（成功率↓）。
+Stress {0} — worn out, spend a slot playing	ストレス {0} — ヘトヘト、1枠を遊びに使おう
+Stress {0} → {1} / limit {2} ({3})	ストレス {0} → {1} / 上限 {2}（{3}）
+Stress {0}! Collapses next week — play & rest	ストレス {0}！来週倒れる — 遊んで休もう
+Stress{0}	ストレス{0}
+Take {0} photos	写真を{0}枚撮る
+Talk to {0} villagers	村人{0}人と話す
+Tend the garden {0}×	畑の手入れ {0}×
+Thank you! ★ Everything unlocked\nHidden passcode {0} — enter it in Settings › Secret code on another device	ありがとう！★ すべて解放\n隠しパスコード {0} — 別の端末で 設定 › 秘密コード に入力してください
+That's {0}G — not enough coins.	{0}Gだよ — コインが足りない。
+That's {0}G.	{0}Gです。
+The fare is {0}G.	運賃は{0}Gです。
+The horse lifts a hoof with every stroke. {0}	なでるたびに馬がひづめを上げる。{0}
+The horse takes the carrot and nudges your palm. {0}	馬がニンジンを受け取って、手のひらを鼻でつつく。{0}
+This time, let's do these: {0}	今回はこれをやろう：{0}
+Time limit · {0}:{1}	制限時間 · {0}:{1}
+To the {0}! Where it glows.	{0}へ！光ってるところ。
+To {0}~	{0}へ〜
+Too hard, it bounced! Tries {0}	強すぎて跳ね返った！挑戦 {0}
+Too weak! Tries {0}	弱すぎる！挑戦 {0}
+Tower jobs {0}/2 or stamina {1}/60	送電塔の仕事 {0}/2 または体力 {1}/60
+Trust {0} = 15 salon · 50 job stress -4 · fail -1	信頼 {0} = 15でサロン · 50でバイトのストレス -4 · 失敗 -1
+Um… could you {0}?	あの…{0}、お願いできる？
+Unlock: agility {0}	解放：敏捷 {0}
+Unlock: stamina {0}	解放：体力 {0}
+Unlock: trust ≥ {0}	解放：信頼 ≥ {0}
+Unlock: tuition {0}G	解放：授業料 {0}G
+Used {0}!	{0}を使った！
+Walked the coast with {0} — stress −{1} · stamina +1	{0}と海岸を散歩 — ストレス −{1} · 体力 +1
+Wallet {0}G · Deposit {1}G ({2}%/wk) · Loan {3}G ({4}%/wk)	財布 {0}G · 預金 {1}G（{2}%/週） · ローン {3}G（{4}%/週）
+Week {0} morning.	{0}週目の朝。
+Week {0} or {1} contests cleared (now wk {2} · {3} contests)	{0}週目か大会{1}回クリア（現在 {2}週 · {3}回）
+Week {0} {1}  ·  Lv.{2}  ·  {3}/{4} {5}	{0}週目 {1}  ·  Lv.{2}  ·  {3}/{4} {5}
+Week {0} · Lv {1} · {2}G	{0}週目 · Lv {1} · {2}G
+Week {0} · {1}	{0}週目 · {1}
+Week {0} · {1} · Ch.{2}	{0}週目 · {1} · 第{2}章
+Week {0} · {1} · Lv.{2}	{0}週目 · {1} · Lv.{2}
+Week {0} · {1}G · stress {2}	{0}週目 · {1}G · ストレス {2}
+Week {0} → Week {1} · {2}	{0}週目 → {1}週目 · {2}
+Week {0} → {1} · {2} (last)	{0}週目 → {1} · {2}（最後）
+Week {0}, night — falling asleep…	{0}週目、夜 — うとうと…
+Week {0}. Last week of this chapter.	{0}週目。この章の最後の週。
+Weekend mini-game — {0}! Win for {1}G.	週末ミニゲーム — {0}！勝てば{1}G。
+Weekend rest  |  Heal {0}:{1}	週末の休息  |  回復 {0}:{1}
+Weeks {0}-{1} only!	{0}〜{1}週目限定！
+Where to? {0}G	どこへ行く？{0}G
+Win for {0}G · lose and skipping costs {1}G	勝てば{0}G · 負けたらスキップに{1}G
+Wk {0}	{0}週
+Won! +{0}G	勝ち！+{0}G
+You again! I love {0}.	また君か！{0}、大好き。
+You did it! First clear this week — 2,000G · 40 jelly · gold ore ×2 · {0}. Take the ladder up.	やった！今週初クリア — 2,000G · ゼリー40 · 金鉱石 ×2 · {0}。はしごで上がろう。
+You need {0}G.	{0}G必要です。
+You've hit the {0}G limit. Repay some first.	上限{0}Gに達しました。まず一部を返済してください。
+Your turn — [THROW!!] 3 laps before {0}	君の番 — [投げろ!!] {0}より先に3周
+"{0}" OST · {1} tracks	「{0}」OST · {1}曲
+\n+{0}G · jelly +{1} (×2 with all 3 missions)	\n+{0}G · ゼリー +{1}（ミッション3つ全部で×2）
+\nAll clear! +{0}G	\nオールクリア！+{0}G
+\nneed {0} +{1}	\n{0}があと+{1}必要
+\n★ 3 missions — money & jelly ×2!  +{0}G · jelly +{1}	\n★ ミッション3つ — お金とゼリー×2！  +{0}G · ゼリー +{1}
+fail {0}%	失敗 {0}%
+gate {0}	ゲート {0}
+gate {0} ✓	ゲート {0} ✓
+in {0}w	{0}週後
+limit {0}	上限 {0}
+next {0}	次 {0}
+ticket ×{0}	チケット ×{0}
+{0}  ({1}/{2})\n{3}\nReward: {4}G · {5} shards · 1 activity	{0}  ({1}/{2})\n{3}\n報酬：{4}G · かけら{5} · 活動1回
+{0}  ·  HP +{1}  ·  {2}G	{0}  ·  HP +{1}  ·  {2}G
+{0} / gate {1}	{0} / ゲート {1}
+{0} / gate {1} ✓	{0} / ゲート {1} ✓
+{0} Harvest {1}	{0} 収穫 {1}
+{0} Harvested! {1} → bag	{0} 収穫した！{1} → バッグ
+{0} Planted {1}. Water it!	{0} {1}を植えた。水をあげよう！
+{0} The {1} withered… no water for two weeks.	{0} {1}が枯れた…2週間水をあげなかった。
+{0} action(s) left. Press again to skip them.	行動が{0}回残っています。もう一度押すとスキップします。
+{0} brought a bag of rice! (−18G)	{0}が米を一袋持ってきた！（−18G）
+{0} brought ingredients — {1} dishes cooked!	{0}が材料を持ってきた — 料理{1}品完成！
+{0} capsules → bag	カプセル{0}個 → バッグ
+{0} cheered me up — stress −{1}	{0}が元気づけてくれた — ストレス −{1}
+{0} coins	{0}コイン
+{0} command · 1/week	{0}コマンド · 週1回
+{0} course · same for everyone today. Clear all three for a stamp.	{0}コース · 今日は全員共通。3つすべてクリアでスタンプ。
+{0} cuts · {1}s · {2}	{0}カット · {1}秒 · {2}
+{0} donated	寄付：{0}
+{0} festival · week {1}	{0}祭り · {1}週目
+{0} fetched a letter — hearts +1	{0}が手紙を持ってきた — ハート +1
+{0} finished 3 laps first…	{0}が先に3周した…
+{0} first…	{0}が先に…
+{0} hearts	ハート{0}
+{0} hearts to S-cut. Contests and great successes help.	Sカットまでハートあと{0}。大会と大成功が近道。
+{0} is lowest. If a Lesson card appears under Play, take it.	{0}が一番低い。「遊ぶ」の下にレッスンカードが出たら選ぼう。
+{0} joined!	{0}が仲間になった！
+{0} km to the tower	鉄塔まで{0}km
+{0} left…	残り{0}…
+{0} left… need ≤2	残り{0}… 2以下が必要
+{0} main stories + {1} side stories · {2} seen{3}	メイン{0}話 + サイド{1}話 · {2}視聴済み{3}
+{0} matters — 	{0}が大事 — 
+{0} more ♥ to the next memory	次の思い出まであと♥{0}
+{0} near misses	ニアミス{0}回
+{0} selected — joins runs.	{0}を選択 — ランに同行。
+{0} stamps · streak {1} (best {2})	スタンプ{0}個 · 連続{1}日(最高{2})
+{0} tries left	残り{0}回
+{0} weeks to the tower · stamina {1} gate ▼{2} OK! · energy {3}	鉄塔まで{0}週 · 体力{1} ゲート▼{2} OK! · エネルギー{3}
+{0} weeks to the tower · {1} more to gate ▼{2} · energy {3}	鉄塔まで{0}週 · ゲート▼{2}まであと{1} · エネルギー{3}
+{0} wins…	{0}勝…
+{0} withered… ({1}%)	{0}が枯れた…({1}%)
+{0} {1} / target {2}	{0} {1} / 目標{2}
+{0} {1} growing {2}/{3} (watered)	{0} {1} 成長中 {2}/{3}(水やり済み)
+{0} {1} {2}G · {3}w	{0} {1} {2}G · {3}週
+{0} {1} {2}G · {3}w · {4}% · {5}	{0} {1} {2}G · {3}週 · {4}% · {5}
+{0} {1}G — walk to a spot, then 「Place」	{0} {1}G — 場所まで歩いて「設置」
+{0} · done this week	{0} · 今週は済み
+{0} · wear	{0} · 着る
+{0} · {1}G (stress −{2})	{0} · {1}G(ストレス−{2})
+{0} ×{1} · {2}G each  (+{3}G)	{0} ×{1} · 1個{2}G  (+{3}G)
+{0} — done this turn	{0} — このターンは済み
+{0} — win to move on!	{0} — 勝って先へ!
+{0} — {1}. Reward {2}G · 3 shards. This week.	{0} — {1}。報酬{2}G · かけら3個。今週中。
+{0} — {1}/{2} so far. Please!	{0} — いま{1}/{2}。お願い!
+{0}! HP {1} → {2} (−{3}G)	{0}! HP {1} → {2}(−{3}G)
+{0}% of the song — one more?	曲の{0}% — もう一回?
+{0}'s turn!	{0}の番!
+{0}'s turn… throwing	{0}の番… 投げてる
+{0}/{1} · now {2}	{0}/{1} · 現在{2}
+{0}:{1} — Cinematic — always available	{0}:{1} — シネマティック — いつでも視聴可
+{0}G · a rental goes up and pays {1}G every 4 weeks. You have {2}G	{0}G · 賃貸物件が建ち、4週ごとに{1}Gの収入。所持{2}G
+{0}G · stress {1}	{0}G · ストレス{1}
+{0}G · water once per phase; grows more each week.	{0}G · 水やりはフェーズごとに1回。毎週さらに育つ。
+{0}\n{1} {2} almost ready~	{0}\n{1} {2} もうすぐ収穫~
+{0}\n{1} {2} growing... {3}w left	{0}\n{1} {2} 成長中... 残り{3}週
+{0}\n{1} {2} just sprouted!	{0}\n{1} {2} 芽が出た!
+{0}\n{1} {2} ready! ⭐	{0}\n{1} {2} 収穫OK! ⭐
+{0}\n{1} {2} sprout!	{0}\n{1} {2} 発芽!
+{0}w left	残り{0}週
+{0}… need {1}	{0}… {1}が必要
+…Woke up in the hospital. Paid {0}G ({1}%). 	…病院で目が覚めた。{0}G支払った({1}%)。 
+…{0}?! Still {1}G	…{0}?! まだ{1}G
+↩ Repaid {0}G — {1}G left	↩ {0}G返済 — 残り{1}G
+≤{0} hits	被弾{0}回以下
+≤{0} hits in first 500 m	最初の500mで被弾{0}回以下
+■  Hidden track {0} playing	■  隠しトラック{0}再生中
+■ Expand — one more row (3) {0}G	■ 拡張 — もう1列(3) {0}G
+■ Garden expanded to {0} plots (west)	■ 畑を{0}区画に拡張(西)
+■ Week {0} — today	■ 第{0}週 — 今日
+▶ Chapter {0}	▶ 第{0}章
+▶ Follow the kid ({0}/3) · {1}	▶ 子どもを追う({0}/3) · {1}
+▶ More ({0}/{1})	▶ もっと({0}/{1})
+▶ Ride — needs ♥3 (now ♥{0})	▶ 乗る — ♥3必要(現在♥{0})
+◆ {0} grade	◆ {0}ランク
+● 1 pull · {0} jelly	● 1回引く · ゼリー{0}
+● Buy & give a carrot {0}G (+10)	● ニンジンを買ってあげる {0}G(+10)
+● Feed {0}G (+6)	● エサ {0}G(+6)
+● Feed {0}G (+8)	● エサ {0}G(+8)
+● Garden ({0})	● 畑({0})
+● Hens {0} · Rabbits {1}	● ニワトリ{0} · ウサギ{1}
+● New {0} · ★ +{1}	● 新規{0} · ★ +{1}
+● The rain watered {0} plot(s)	● 雨が{0}区画に水をやった
+● {0} planted — ripe {1} · thirsty {2}	● {0}を植えた — 収穫{1} · 水切れ{2}
+●● 10 pulls · {0} jelly	●● 10回引く · ゼリー{0}
+★ 3 laps before {0}!	★ {0}までに3周!
+★ Coins {0}  ·  Lv {1} ★	★ コイン{0}  ·  Lv {1} ★
+★ Collect {0} golden egg(s)	★ 金の卵を{0}個集める
+★ Points {0}  ·  Lv {1} ★	★ ポイント{0}  ·  Lv {1} ★
+★ Stamped ✓  {0}-day streak  +{1}G	★ スタンプ済み ✓  {0}日連続  +{1}G
+★ Today's missions {0}/3	★ 今日のミッション {0}/3
+★ {0} entry	★ {0}エントリー
+★ {0} golden egg(s)!	★ 金の卵{0}個!
+★ {0} — max	★ {0} — 最大
+★ {0}G  ·  Lv {1} ★	★ {0}G  ·  Lv {1} ★
+☕ Buy me a coffee · {0}	☕ コーヒーをおごる · {0}
+☕ Thank you! {0} cup(s)	☕ ありがとう! {0}杯
+♥ Care for hens {0}	♥ ニワトリの世話 {0}
+♥ Care for rabbits {0}	♥ ウサギの世話 {0}
+♥ Friendship +{0}	♥ 友情 +{0}
+♥ Horse ♥{0}!	♥ 馬 ♥{0}!
+♥ Love ♥{0}!	♥ 愛情 ♥{0}!
+♥ Next week: {0}'s birthday	♥ 来週: {0}の誕生日
+♥ {0}'s birthday this week! Gifts count triple.	♥ 今週は{0}の誕生日! プレゼント効果3倍。
+♥ {0}/{1} for S	♥ Sまで{0}/{1}
+⚠ BURNOUT — stress {0}/{1}. Rest now.	⚠ バーンアウト — ストレス{0}/{1}。今すぐ休んで。
+⛏ Deep shaft B{0}	⛏ 深層坑道 B{0}
+⛏ Rock cleared! {0} stones dropped — regrows in {1}w	⛏ 岩を砕いた! 石が{0}個 — {1}週で復活
+⛏ {0} stones dropped · {1}/3	⛏ 石が{0}個落ちた · {1}/3
+✅ Buy (−{0}G)	✅ 購入(−{0}G)
+✔ {0} (wearing)	✔ {0}(着用中)
+✦ Caught {0}! Again	✦ {0}をゲット! もう一回
+✦ {0}'s turn… ✦	✦ {0}の番… ✦
+✨ Caught a monster! Already own {0} — shards +3 · 150G	✨ モンスターを捕まえた! {0}は所持済み — かけら+3 · 150G
+✨ Found {0}!	✨ {0}を見つけた!
+✨ Story '{0}' · {1}	✨ ストーリー「{0}」 · {1}
+✨ The story continues — {0}	✨ 物語は続く — {0}
+⬇ B{0} Boss room	⬇ B{0} ボス部屋
+⬇ Down to B{0}	⬇ B{0}へ下りる
+🌊 In the sea! Over {0}s is dangerous	🌊 海の中! {0}秒以上は危険
+🌱 Pick a seed for pot {0}!	🌱 鉢{0}の種を選んで!
+🌳 Timber! {0} logs dropped — walk over to collect · regrows in {1}w	🌳 倒れるぞ! 丸太が{0}本 — 歩いて拾おう · {1}週で復活
+🍊 {0} oranges fell → {1}G	🍊 オレンジが{0}個落ちた → {1}G
+🍊 {0} oranges → {1}G · Veg +1	🍊 オレンジ{0}個 → {1}G · 野菜+1
+🍊 {0} tangerines!	🍊 みかん{0}個!
+🍖 Butchered a rabbit — meat ×2 ({0} left)	🍖 ウサギを解体 — 肉×2(残り{0})
+🍖 Meat +3 — 🚨 Police! (wanted Lv {0}) Run or fight!	🍖 肉+3 — 🚨 警察だ!(手配Lv {0}) 逃げるか戦うか!
+🍯 {0} jars of honey!	🍯 ハチミツ{0}瓶!
+🎁 Gift to {0}	🎁 {0}へプレゼント
+🎁 Reward +{0}G · shards +3{1}	🎁 報酬 +{0}G · かけら+3{1}
+🎁 Sent to {0} (+{1})	🎁 {0}に送った(+{1})
+🎉 Bought {0}! Rent {1}G every 4 weeks	🎉 {0}を購入! 4週ごとに家賃{1}G
+🎉 Caught a monster! Got the pet 「{0}」 — equip it at the pet shop	🎉 モンスターを捕まえた! ペット「{0}」を入手 — ペットショップで装備しよう
+🎉 {0} begins!	🎉 {0}スタート!
+🎮 Play · Practice ({0}/{1})	🎮 プレイ · 練習({0}/{1})
+🎯 Mission complete! +{0}G · shards +{1}	🎯 ミッション達成! +{0}G · かけら+{1}
+🎯 Today's mission — {0}	🎯 今日のミッション — {0}
+🎵 Settle K-POP run income ({0} runs · {1}G → +{2}G)	🎵 K-POPラン収益を精算({0}回 · {1}G → +{2}G)
+🏏 Boss −{0} (HP {1})	🏏 ボス −{0}(HP {1})
+🏏 Hit −{0}	🏏 ヒット −{0}
+🏙 Jeju City ({0}G)	🏙 済州市({0}G)
+🏛 Donated {0}! +{1}G	🏛 {0}を寄贈! +{1}G
+🏝 Jungmon Resort ({0}G)	🏝 中文リゾート({0}G)
+🏠 Go inside (eat · sleep · desk) — {0}/{1}	🏠 家に入る(食事 · 睡眠 · 机) — {0}/{1}
+🏡 Land · rent ({0} lots · {1}G/mo)	🏡 土地 · 賃貸({0}区画 · 月{1}G)
+🏡 Land · rent ({0} lots)	🏡 土地 · 賃貸({0}区画)
+🏡 My rental · {0}G/mo (next in {1}w)	🏡 わたしの賃貸 · 月{0}G(次は{1}週後)
+🏡 Rent received! {0} month(s) +{1}G	🏡 家賃を受け取った! {0}か月分 +{1}G
+🏡 Village ({0}G)	🏡 村({0}G)
+🏡 {0} — owned · {1}G/mo	🏡 {0} — 所有中 · 月{1}G
+🏦 Borrowed {0}G — {1}% a week	🏦 {0}G借りた — 週{1}%
+🏦 Take a loan (limit {0}G)	🏦 借りる(上限{0}G)
+🏷 Buy {0} · {1}G ({2}G/mo)	🏷 {0}を購入 · {1}G(月{2}G)
+🏷 For sale · {0} ({1}G)	🏷 売り出し中 · {0}({1}G)
+🏷 {0} — {1}G ({2}G/mo)	🏷 {0} — {1}G(月{2}G)
+🐔 Caught a chicken! Sent to the farm ({0}/{1})	🐔 ニワトリを捕まえた! 牧場へ送った({0}/{1})
+🐔 Farm · {0} hens · {1} rabbits ({2} grown)	🐔 牧場 · ニワトリ{0} · ウサギ{1}(成体{2})
+🐝 Hive set up! ({0}/3)	🐝 巣箱を設置! ({0}/3)
+🐰 Caught a rabbit! Sent to the farm ({0}/{1})	🐰 ウサギを捕まえた! 牧場へ送った({0}/{1})
+🐴 The horse bolts! ({0} left)	🐴 馬が逃げ出した!(残り{0})
+👻 The ghost got you! HP −{0} — run home!	👻 おばけに捕まった! HP −{0} — 家へ走れ!
+💊 Nurse · Treatment (full HP, {0}G)	💊 看護師 · 治療(HP全回復、{0}G)
+💊 Treated! Full HP (−{0}G)	💊 治療完了! HP全回復(−{0}G)
+💢 Grabbed by a bandit! HP −{0} · lost {1}G — bat them twice!	💢 盗賊に捕まった! HP −{0} · {1}G失った — バットで2回叩け!
+💢 Hit by {0}! HP −{1} (HP {2})	💢 {0}にやられた! HP −{1}(HP {2})
+💥 Bitten by a big bug! HP −{0} — bop it with the bat first!	💥 大きな虫にかまれた! HP −{0} — 先にバットで叩け!
+💥 Critical! −{0} (HP {1})	💥 クリティカル! −{0}(HP {1})
+💥 Defeated! +{0}G{1} ({2} left)	💥 撃破! +{0}G{1}(残り{2})
+💧 Water · {0} {1}/{2}	💧 水やり · {0} {1}/{2}
+💧 Watered — {0} is ready!	💧 水やり完了 — {0}が収穫OK!
+💧 Watered — {0} {1}/{2}	💧 水やり完了 — {0} {1}/{2}
+💰 Deposited {0}G — {1}% interest a week	💰 {0}G預けた — 週{1}%の利子
+💰 Sell all  +{0}G	💰 全部売る  +{0}G
+💰 Sell cows ({0})	💰 牛を売る({0})
+💰 Sell pigs ({0})	💰 豚を売る({0})
+💰 Sold {0}! +{1}G	💰 {0}を売った! +{1}G
+💰 Sold! +{0}G (now {1}G)	💰 売れた! +{0}G(所持{1}G)
+💵 Withdrew {0}G	💵 {0}G引き出した
+💸 Not enough ({0}G short)	💸 お金が足りない({0}G不足)
+📖 New entry! {0}	📖 新しい記録! {0}
+📜 {0}'s request	📜 {0}の依頼
+📜 {0}'s request done! Go talk — {1}	📜 {0}の依頼完了! 話しかけよう — {1}
+🔥 Stove burned a log — cozy home, condition +3 ({0} left)	🔥 ストーブで薪を燃やした — 家がぽかぽか、コンディション+3(残り{0})
+🔥 Stove firewood (wood {0} · fuel {1}w)	🔥 ストーブの薪(木材{0} · 燃料{1}週)
+😌 Stress −{0}	😌 ストレス −{0}
+🚌 Arrived: {0}	🚌 到着: {0}
+🚓 Caught by the police! HP −{0} · fine {1}G — run to lose them	🚓 警察に捕まった! HP −{0} · 罰金{1}G — 走ってまこう
+🛍 Bought (−{0}G)	🛍 購入(−{0}G)
+🛣 Lay road — {0}G a tile, auto-move follows roads	🛣 道を敷く — 1マス{0}G、自動移動は道に沿う
+🛣 No road reaches {0}. Lay tiles ({1}G each) with the Road tool.	🛣 {0}に通じる道がない。道ツールでマスを敷こう(1マス{1}G)。
+🛣 Not enough money ({0}G a tile)	🛣 お金が足りない(1マス{0}G)
+🛣 Road tile −{0}G ({1} tiles · {2}G left)	🛣 道マス −{0}G({1}マス · 残り{2}G)
+🛣 Road: press action on the green tile → {0}G	🛣 道: 緑のマスでアクション → {0}G
+🥚 Collect {0} eggs	🥚 卵を{0}個集める
+🥚 Collected {0} eggs! ({1} in bag)	🥚 卵を{0}個集めた!(バッグに{1}個)
+🥛 {0} milk!	🥛 ミルク{0}本!
+🥥 {0} coconut(s) fell → bag	🥥 ココナッツが{0}個落ちた → バッグへ
+🪓 {0} logs dropped · stamina +1 · {1}/3	🪓 丸太が{0}本落ちた · 体力+1 · {1}/3
+🪜 Up to B{0}	🪜 B{0}へ上る
+🫙 {0} jars of syrup!	🫙 シロップ{0}瓶!

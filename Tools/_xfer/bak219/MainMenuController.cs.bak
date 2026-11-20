@@ -1,0 +1,1553 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Video;
+
+namespace CoastRun
+{
+    /// 『우리의 송전탑』 title — live world backdrop + quiet UI.
+    /// Cleared state changes the world; never explains itself.
+    public class MainMenuController : MonoBehaviour
+    {
+        public const string RunSceneName = "02_Run";
+        public const string SkipPrologueKey = "CoastRun_SkipPrologue";
+
+        private Canvas _canvas;
+        private CanvasGroup _uiCg;
+        private CanvasGroup _splashCg;
+        private TitleWorldBackdrop _world;
+        private TitleAudio _audio;
+        private ProgressionManager _progress;
+        private GameObject _galleryPanel;
+        private GameObject _creditsPanel;
+        private GameObject _settingsPanel;
+        private Toggle _skipToggle;
+        private bool _cleared;
+        private bool _ready;
+
+        private void Start()
+        {
+            IapBridge.Init();   // 스토어 연결·구매 복원(비동기, 실패해도 무시)
+            Application.targetFrameRate = 60;
+            var dir = GameDirector.EnsureExists();
+            _progress = dir.Progression;
+            _progress.Load();
+            _cleared = _progress.HasClearedCampaign ||
+                       PlayerPrefs.GetInt(ProgressionManager.ClearedKey, 0) == 1;
+
+            _gm = GameManager.Ensure();
+            _audio = gameObject.GetComponent<TitleAudio>() ?? gameObject.AddComponent<TitleAudio>();
+            // 14차-8: 키아트 한 장(로고 없음) + 제목은 글자로 언어별 표시
+            _gateArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Gate");
+            if (_gateArt == null)
+            {
+                // 대문 아트가 없을 때만 옛 3D 배경을 세운다(모바일 메모리 절약).
+                _world = gameObject.GetComponent<TitleWorldBackdrop>() ?? gameObject.AddComponent<TitleWorldBackdrop>();
+                _world.Build(_cleared);
+            }
+            else
+            {
+                // 옛 3D 배경이 카메라를 만들던 자리 — 대문 아트만 쓸 때도 카메라/리스너는 있어야 한다.
+                var cam = Camera.main;
+                if (cam == null)
+                {
+                    var go = new GameObject("TitleCamera");
+                    go.tag = "MainCamera";
+                    cam = go.AddComponent<Camera>();
+                    go.AddComponent<AudioListener>();
+                    cam.transform.position = new Vector3(0f, 0f, -10f);
+                }
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = new Color(0.12f, 0.08f, 0.10f);
+                cam.cullingMask = 0;
+                if (cam.GetComponent<AudioListener>() == null) cam.gameObject.AddComponent<AudioListener>();
+                if (cam.GetComponent<CoastPortraitViewport>() == null)
+                    cam.gameObject.AddComponent<CoastPortraitViewport>();
+            }
+
+            BuildSplashAndUi();
+            // 11차: 오프닝은 게임을 켤 때마다 타이틀 앞에서(건너뛰기 버튼). 씬 재로드(언어 전환 등)에는 안 나온다.
+            // 14차-9: 오프닝 강제 재생 제거 — 첫 실행에서 1분 37초 영상은 글로벌 캐주얼 기준 이탈 1순위.
+            // 오프닝은 더보기 > 오프닝, 또는 첫 런을 마친 뒤 제안(GameSession)으로만 본다.
+            bool firstLaunch = false;
+            _openingShownThisSession = true;
+            if (firstLaunch && _gateArt != null)
+            {
+                // 앱 시작: 오프닝 영상(최대 60초) → 타이틀. 메뉴 음악은 오프닝이 끝나고 시작.
+                OpeningCinematic.Play(() =>
+                {
+                    if (this == null) return;
+                    _audio.PlayMenu(_cleared);
+                    StartCoroutine(SplashThenUi(1.2f));
+                });
+            }
+            else
+            {
+                _audio.PlayMenu(_cleared);
+                // 첫 화면 = Title_Bus 영상만(로딩중 UI_Loading_Mock 없음).
+                StartCoroutine(SplashThenUi(1.4f));
+            }
+        }
+
+        private Texture2D _gateArt;
+        private static bool _openingShownThisSession;
+        // 47차: 로딩 화면 대신 옛 오프닝의 「멀리서 버스 가는」 영상(Resources/CoastRun/Title_Bus.mp4, 옛 VID_CH01_Open) 한 번.
+        private VideoPlayer _splashPlayer;
+        private RenderTexture _splashRt;
+        private RawImage _splashVideo;
+        private bool _splashIsVideo;
+        private const float SplashVideoMax = 5.6f;   // 클립 6초 — 끝나기 직전에 페이드
+
+        private IEnumerator SplashThenUi(float splashSeconds)
+        {
+            // Boot veil may still be up for a frame — clear so only the bus splash is visible.
+            var dir = FindAnyObjectByType<GameDirector>();
+            dir?.UI?.Snap(0f, Color.black);
+            Debug.Log("[Title] boot splash start video=" + _splashIsVideo + " (no loading mock)");
+
+            float t = 0f;
+            if (_splashIsVideo)
+            {
+                // 47차: 로딩바 없음 — 버스 영상이 준비되면 바로 재생, 끝나거나(≈5.6초) 탭하면 타이틀로.
+                float prep = 0f;
+                // 48차-8: 폰 첫 실행은 디코더 준비가 느려 6초까지 대기. (본문을 주석에 넣으면 while이 LogWarning만 돌며 메인스레드가 멈춤)
+                while (_splashPlayer != null && !_splashPlayer.isPrepared && prep < 6f)
+                {
+                    prep += Time.unscaledDeltaTime;
+                    yield return null;
+                }
+#if UNITY_EDITOR
+                Debug.LogWarning("[Title] splash video prepared=" + (_splashPlayer != null && _splashPlayer.isPrepared) + " after " + prep.ToString("0.00") + "s");
+#endif
+                if (_splashPlayer != null && _splashPlayer.isPrepared)
+                {
+                    _splashPlayer.Play();
+                    if (_splashVideo != null) _splashVideo.color = Color.white;
+                    float len = Mathf.Min(SplashVideoMax, (float)_splashPlayer.length - 0.3f);
+                    while (t < len)
+                    {
+                        t += Time.unscaledDeltaTime;
+                        if (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
+                            (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)) break;
+                        yield return null;
+                    }
+                }
+                goto fadeOut;
+            }
+            // 48차-8: 영상이 없을 때의 폴백 — 로딩바·퍼센트 없이 노을빛 화면 0.8초(탭으로 건너뛰기)
+            while (t < 0.8f)
+            {
+                t += Time.unscaledDeltaTime;
+                if (Input.anyKeyDown || Input.GetMouseButtonDown(0) ||
+                    (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)) break;
+                yield return null;
+            }
+
+        fadeOut:
+            if (_splashCg != null)
+            {
+                float f = 0f;
+                while (f < 0.5f)
+                {
+                    f += Time.unscaledDeltaTime;
+                    _splashCg.alpha = 1f - f / 0.5f;
+                    yield return null;
+                }
+
+                _splashCg.gameObject.SetActive(false);
+            }
+            if (_splashPlayer != null) { _splashPlayer.Stop(); Destroy(_splashPlayer); _splashPlayer = null; }
+            if (_splashRt != null) { _splashRt.Release(); Destroy(_splashRt); _splashRt = null; }
+
+            if (_uiCg != null)
+            {
+                _uiCg.gameObject.SetActive(true);
+                // Fade with raycasts off — otherwise CoastRaycastWatchdog treats alpha≈0 TitleUI
+                // as a ghost blocker and clears blocksRaycasts permanently (K-POP return click death).
+                _uiCg.blocksRaycasts = false;
+                _uiCg.interactable = false;
+                float f = 0f;
+                while (f < 0.55f)
+                {
+                    f += Time.unscaledDeltaTime;
+                    _uiCg.alpha = Mathf.Clamp01(f / 0.55f);
+                    yield return null;
+                }
+
+                _uiCg.alpha = 1f;
+                _uiCg.blocksRaycasts = true;
+                _uiCg.interactable = true;
+            }
+
+            _ready = true;
+            ShowAiNoticeOnce();
+            if (_ready && !Donation.PopupSeen) OpenDonate();   // 52차: 첫 로딩 — 기부부탁 팝업 한 번
+        }
+
+        /// 52차(사용자): 기부부탁 팝업(우상단 아이콘 탭 / 첫 로딩 자동).
+        private void OpenDonate()
+        {
+            if (DonateUI.IsOpen) return;
+            if (_moreOpen) ToggleMore();
+            _ready = false;
+            DonateUI.Open(() => { if (this != null) _ready = true; });
+        }
+
+        /// 첫 실행 1회: AI 제작 혼성 듀오 고지(스토어 정책·팬덤 신뢰). 확인 전엔 메뉴가 안 눌린다.
+        private void ShowAiNoticeOnce()
+        {
+            var p = _gm?.Profile;
+            if (p == null || p.aiNoticeSeen) return;
+            _ready = false;
+            var root = CoastUiCanvas.Root(_canvas);
+            var dim = CoastHudLayout.MakeImage(root, "AiNoticeDim", Vector2.zero, Vector2.one, new Vector2(-40f, -40f), new Vector2(40f, 40f), new Color(0f, 0f, 0f, 0.7f));
+            dim.raycastTarget = true;
+            // 109차(사용자): 제작 고지 문구 갱신 — 목소리=AI, 그림·작곡·편곡=스튜디오 우히히시+AI, 가상 이야기·K-POP/제주 알리기 목적.
+            //   설치(프로필)당 1회: Profile.aiNoticeSeen — 「알겠어요」 누르면 저장되고 다시는 안 뜬다.
+            var panel = CoastOrnate.PanelSized(root, "AiNotice", CoastOrnate.Gold, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(600f, 480f), new Color(0.98f, 0.95f, 0.88f, 0.97f));
+            var t = CoastOrnate.Label(panel.transform, "T", Loc.T("『제주』는 AI로 만든 가상 듀오예요", "“JEJU” is an AI-produced virtual duo"), 22, new Color(0.16f, 0.12f, 0.10f));
+            t.rectTransform.anchorMin = new Vector2(0f, 1f); t.rectTransform.anchorMax = new Vector2(1f, 1f); t.rectTransform.anchoredPosition = new Vector2(0f, -40f); t.rectTransform.sizeDelta = new Vector2(0f, 40f);
+            var b = CoastOrnate.Label(panel.transform, "B", Loc.T(
+                "하늘과 도윤의 목소리는 AI로 제작했고, 그림·작곡과 편곡은 스튜디오 우히히시와 AI가 함께 했습니다. 본 이야기의 사건 등은 가상의 이야기로 만들었습니다. K-POP에 대한 세계화와 제주도를 알리기 위한 순수한 목적으로 만든 게임입니다.\n\n광고도, 강제 결제도 없습니다. 커피 한 잔 값 기부는 자율이에요.",
+                "Haneul and Doyun's voices are AI-produced; art, composition and arrangement were made together by Studio Wooheeheeshi and AI. The events in this story are fiction. This game was made with the pure purpose of sharing K-POP worldwide and introducing Jeju Island.\n\nNo ads, no forced purchases. A coffee-sized donation is entirely optional."), 16, new Color(0.16f, 0.12f, 0.10f), TextAnchor.UpperLeft);
+            b.rectTransform.anchorMin = new Vector2(0f, 0f); b.rectTransform.anchorMax = new Vector2(1f, 1f); b.rectTransform.offsetMin = new Vector2(30f, 90f); b.rectTransform.offsetMax = new Vector2(-30f, -80f);
+            b.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _aiNoticeOk = () =>
+            {
+                _aiNoticeOk = null;
+                p.aiNoticeSeen = true; _gm.WriteProfileNow();
+                Destroy(panel.gameObject); Destroy(dim.gameObject); _ready = true;
+                if (!Donation.PopupSeen) OpenDonate();
+            };
+            CoastOrnate.GlassButton(panel.transform, "Ok", Loc.T("알겠어요", "Got it"), new Vector2(0.5f, 0f), new Vector2(0f, 46f), new Vector2(220f, 46f), () => _aiNoticeOk?.Invoke(), 0.5f, 18, true);
+        }
+
+        private GameManager _gm;
+        private System.Action _aiNoticeOk;
+        private GameObject _charSelectPanel;
+
+        /// v2: 스토리 모드 — 세이브 있으면 이어하기, 없으면 새 회차(+튜토리얼).
+        public void OnStartRun()
+        {
+            OnStoryMode();
+        }
+
+        /// 스토리 모드: 처음이면 새 회차(육성 튜토리얼), 다음부터는 이어하기.
+        public void OnStoryMode()
+        {
+            if (!_ready || _gm == null) return;
+            if (_gm.HasSave) OnContinue();
+            else StartNewPlaythrough(RunMode.Running);
+        }
+
+        /// 새로하기 — 세이브가 있으면 확인 모달, 없으면 바로.
+        private void StartNewFlow()
+        {
+            if (_gm == null) return;
+            if (!_gm.HasSave) { StartNewPlaythrough(RunMode.Running); return; }
+            _audio?.PlayClick();
+            if (_newConfirm != null) Destroy(_newConfirm);
+            _newConfirm = CreateOverlayPanel(_root, "NewConfirm");
+            CreateLabel(_newConfirm.transform, "T", Loc.T("새로 시작할까?", "Start over?"), 30, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.66f), new Vector2(520f, 44f));
+            CreateLabel(_newConfirm.transform, "B", Loc.T("지금 진행 중인 회차는 지워져.\n컬렉션·레코드·기록은 그대로 남아.", "The current playthrough is erased.\nCollection, records and stats stay."), 18, FontStyle.Normal, new Color(1f, 0.9f, 0.8f), new Vector2(0.5f, 0.56f), new Vector2(520f, 70f));
+            CreateMenuButton(_newConfirm.transform, Loc.T("새로하기", "New Game"), 0.44f, () => { Destroy(_newConfirm); _newConfirm = null; StartNewPlaythrough(RunMode.Running); });
+            CreateMenuButton(_newConfirm.transform, Loc.T("취소", "Cancel"), 0.36f, () => { Destroy(_newConfirm); _newConfirm = null; });
+        }
+        private GameObject _newConfirm;
+        private Transform _root;
+
+        public void OnContinue()
+        {
+            if (!_ready || _gm == null || !_gm.HasSave)
+                return;
+            _audio?.PlayClick();
+            _audio?.StopMenu();
+            _gm.Continue();
+        }
+
+        private void StartNewPlaythrough(RunMode mode)
+        {
+            if (_gm == null) return;
+            if (mode == RunMode.Skateboard && !_gm.Profile.skateboardUnlocked)
+                return;
+            _audio?.PlayStart();
+            _audio?.StopMenu();
+            _gm.NewGame(mode);
+        }
+
+        private void BuildSplashAndUi()
+        {
+            _canvas = CoastUiCanvas.Create("MainMenuCanvas", 100);
+            var root = CoastUiCanvas.Root(_canvas);
+
+            // Transparent UI over live 3D — no full-screen background image.
+            BuildSplash(root);
+            BuildMainUi(root);
+        }
+
+        private void BuildSplash(Transform root)
+        {
+            var go = new GameObject("Splash", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+            go.transform.SetParent(root, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
+            rt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+            var splashImg = go.GetComponent<Image>();
+            splashImg.color = new Color(0.10f, 0.07f, 0.10f, 1f);
+            splashImg.raycastTarget = true;
+            _splashCg = go.GetComponent<CanvasGroup>();
+
+            // 47차: 로딩 화면 삭제 → 옛 오프닝의 버스 영상(멀리 해안도로를 버스가 지나가는 컷)을 타이틀 앞에 한 번.
+            var busClip = Resources.Load<VideoClip>(ArtAssets.ResourceRoot + "Title_Bus");
+#if UNITY_EDITOR
+            Debug.LogWarning("[Title] Title_Bus clip=" + (busClip != null ? busClip.length.ToString("0.0") + "s" : "null"));
+#endif
+            if (busClip != null)
+            {
+                _splashIsVideo = true;
+                splashImg.color = new Color(0.98f, 0.80f, 0.55f, 1f);   // 노을빛 — 영상 첫 프레임 전 잠깐
+                var vgo = new GameObject("BusVideo", typeof(RectTransform), typeof(RawImage));
+                vgo.transform.SetParent(go.transform, false);
+                var vrt = vgo.GetComponent<RectTransform>();
+                vrt.anchorMin = Vector2.zero; vrt.anchorMax = Vector2.one;
+                vrt.offsetMin = vrt.offsetMax = Vector2.zero;
+                _splashVideo = vgo.GetComponent<RawImage>();
+                _splashVideo.raycastTarget = false;
+                _splashVideo.color = new Color(1f, 1f, 1f, 0f);
+                _splashRt = new RenderTexture(720, 1280, 0);
+                _splashVideo.texture = _splashRt;
+                _splashPlayer = gameObject.AddComponent<VideoPlayer>();
+                _splashPlayer.playOnAwake = false;
+                _splashPlayer.renderMode = VideoRenderMode.RenderTexture;
+                _splashPlayer.targetTexture = _splashRt;
+                _splashPlayer.audioOutputMode = VideoAudioOutputMode.None;
+                _splashPlayer.isLooping = true;
+                _splashPlayer.skipOnDrop = true;
+                _splashPlayer.clip = busClip;
+                _splashPlayer.Prepare();
+
+                // 71차(사용자): 「터치하면 건너뛰기」 3배 크기(16 → 48, 상자 400×26 → 660×78)
+                var hint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 48, FontStyle.Bold,
+                    new Color(1f, 1f, 1f, 0.85f), new Vector2(0.5f, 0.07f), new Vector2(660f, 78f));
+                CoastUiArt.OutlineText(hint, new Color(0f, 0f, 0f, 0.7f), 3f);
+                return;
+            }
+
+            // 48차-8(사용자): 첫 화면은 버스 영상만. 영상이 없으면 노을빛 단색 + 안내 한 줄(옛 로딩 시안·로딩바·퍼센트 코드 삭제).
+            Debug.LogWarning("[Title] Title_Bus 영상이 없어 단색 스플래시로 폴백");
+            _splashIsVideo = false;
+            splashImg.color = new Color(0.98f, 0.80f, 0.55f, 1f);
+            var fbHint = CreateLabel(go.transform, "SplashHint", Loc.T("터치하면 건너뛰기", "Tap to skip"), 48, FontStyle.Bold,
+                new Color(1f, 1f, 1f, 0.85f), new Vector2(0.5f, 0.07f), new Vector2(660f, 78f));
+            CoastUiArt.OutlineText(fbHint, new Color(0f, 0f, 0f, 0.7f), 3f);
+        }
+
+        private void BuildMainUi(Transform root)
+        {
+            if (_gateArt != null)
+            {
+                BuildGateUi(root);
+                return;
+            }
+            var ui = new GameObject("TitleUI", typeof(RectTransform), typeof(CanvasGroup));
+            ui.transform.SetParent(root, false);
+            var urt = ui.GetComponent<RectTransform>();
+            urt.anchorMin = Vector2.zero;
+            urt.anchorMax = Vector2.one;
+            urt.offsetMin = Vector2.zero;
+            urt.offsetMax = Vector2.zero;
+            _uiCg = ui.GetComponent<CanvasGroup>();
+            _uiCg.alpha = 0f;
+            ui.SetActive(false);
+
+            // Layout follows the Subway Surfers title: the whole screen is the start
+            // button, the logo sits high, "tap to play" pulses mid-screen, and the three
+            // big rounded buttons along the bottom hold everything else.
+
+            // Full-screen tap-to-play (lowest sibling so the bottom buttons win clicks).
+            var tap = new GameObject("TapToPlay", typeof(RectTransform), typeof(Image), typeof(Button));
+            tap.transform.SetParent(ui.transform, false);
+            var tapRt = tap.GetComponent<RectTransform>();
+            tapRt.anchorMin = Vector2.zero;
+            tapRt.anchorMax = Vector2.one;
+            tapRt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
+            tapRt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+            var tapImg = tap.GetComponent<Image>();
+            tapImg.color = new Color(0f, 0f, 0f, 0f);
+            _startButton = tap.GetComponent<Button>();
+            _startButton.transition = Selectable.Transition.None;
+            _startButton.onClick.AddListener(OnStartRun);
+
+            // Soft bottom veil for readability only — not a still background.
+            var veil = CreateImage(ui.transform, "BottomVeil",
+                new Vector2(0f, 0f), new Vector2(1f, 0.30f));
+            veil.color = new Color(0.02f, 0.05f, 0.1f, 0.55f);
+            veil.raycastTarget = false;
+
+            // Top row — coins (left) and best score (right), in the run HUD's pill style.
+            int coins = PlayerPrefs.GetInt(CoinWallet.PrefsKey, 0);
+            BuildTopPill(ui.transform, "CoinPill", coins.ToString(), "Icon_Coin", new Vector2(0f, 1f));
+            BuildTopPill(ui.transform, "BestPill", "BEST " + RunHudChrome.BestScore.ToString("00000"), null,
+                new Vector2(1f, 1f));
+
+            // Logo block: shadow + title + subtitle on a rounded cream plate.
+            var plate = CoastUiArt.Panel(ui.transform, "LogoPlate", new Color(0.98f, 0.95f, 0.88f, 0.92f), 28);
+            var prt = plate.rectTransform;
+            prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 0.80f);
+            prt.sizeDelta = new Vector2(560f, 150f);
+            prt.localRotation = Quaternion.Euler(0f, 0f, 2.5f);
+            var shadow = CreateLabel(plate.transform, "LogoShadow", "우리의 송전탑", 60, FontStyle.Bold,
+                new Color(0.10f, 0.14f, 0.30f, 0.35f), new Vector2(0.5f, 0.58f), new Vector2(600f, 80f));
+            shadow.rectTransform.anchoredPosition = new Vector2(4f, -4f);
+            CreateLabel(plate.transform, "Logo", "우리의 송전탑", 60, FontStyle.Bold,
+                new Color(1f, 0.55f, 0.15f), new Vector2(0.5f, 0.58f), new Vector2(600f, 80f));
+            CreateLabel(plate.transform, "Subtitle", "COAST RUN", 20, FontStyle.Bold,
+                new Color(0.10f, 0.14f, 0.30f, 0.8f), new Vector2(0.5f, 0.18f), new Vector2(400f, 32f));
+
+
+            // Bottom row: three big rounded buttons.
+            bool hasSave = _gm != null && _gm.HasSave;
+            bool showGallery = _cleared || (_progress != null && _progress.UnlockedMemoryCount >= 1);
+            BuildBottomButton(ui.transform, hasSave ? "새로 시작" : "기록", 0,
+                new Color(0.30f, 0.72f, 0.36f), () =>
+                {
+                    _audio?.PlayClick();
+                    if (hasSave) StartNewFlow();
+                    else ShowPanel(_recordPanel, true);
+                });
+            BuildBottomButton(ui.transform, "회상", 1, new Color(0.35f, 0.45f, 0.70f), () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(showGallery ? _galleryPanel : _recordPanel, true);
+            });
+            BuildBottomButton(ui.transform, "설정", 2, new Color(1f, 0.55f, 0.15f), () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_settingsPanel, true);
+            });
+
+            // Skip prologue — only on replay (has save or cleared).
+            if (_progress != null && (_progress.HasSave || _cleared))
+                BuildSkipToggle(ui.transform);
+
+            BuildGalleryPanel(root);
+            BuildCreditsPanel(root);
+            BuildSettingsPanel(root);
+            BuildRecordPanel(root);
+            _root = root;
+            // 52차(사용자): 우상단 「기부부탁」 아이콘 — 메인(타이틀)에서만 보이고 더보기·다른 페이지·팝업 중엔 숨는다.
+            // 79차: 세이프존(중앙 16:9) 안에 — 세로가 긴 폰에서 화면 맨 위로 올라가 타이틀 글자와 겹쳤다.
+            DonateUI.AttachIcon(CoastUiCanvas.SafeZoneBox(ui.GetComponent<RectTransform>()), () => _ready && !_moreOpen && !DonateUI.IsOpen && !KpopChapterSelect.IsOpen && !CollectionUI.IsOpen && !ChapterMissionUI.IsOpen && !PolicyUI.IsOpen
+                                                  && !(_settingsPanel != null && _settingsPanel.activeSelf) && !(_galleryPanel != null && _galleryPanel.activeSelf)
+                                                  && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf), OpenDonate);
+        }
+
+
+        /// 98차(사용자: 「메인페이지는 위아래 이상한데 원래대로 돌려줘」): 79차에 1080×2400 으로 늘린
+        /// UI_Title_Mock(위엔 밋밋한 하늘 띠, 아래엔 뒤집힌 길)이 어색해 **1080×1920 원본**으로 되돌렸다.
+        /// false = 원본 그림을 67차처럼 안전영역에 꽉 채운다(20:9 폰에선 세로로 조금 늘어남, 버튼 히트는
+        /// 그림 비율 앵커라 어긋나지 않음). true = 79차 방식(제작 1080×2400 풀블리드) — 그때는 그림도
+        /// Tools/_bg20_backup/UI_Title_Mock_1080x2400.png 로 바꿔야 한다.
+        public static readonly bool GateArt20x9 = false;
+
+        /// 프린세스 메이커 대문식 타이틀: 전면 키아트 + 상단 로고 + 장식 메뉴 패널.
+        private void BuildGateUi(Transform root)
+        {
+            var pad = CoastUiCanvas.HudPad;
+            // 39차: 시안(UI_Title_Mock — 같은 키아트 위에 스토리 모드/더보기 사각 버튼, CH 칩, K-POP 러닝모드 Play 판이 그려진 그림)이 있으면
+            // 그림을 통째로 깔고 버튼은 투명 히트 영역으로. 제목·부제도 그림에 있으니 글자 라벨은 생략. CH 칩만 실제 챕터로 덮어 그린다.
+            var mockArt = Resources.Load<Texture2D>(ArtAssets.ResourceRoot + "UI_Title_Mock");
+            bool useMock = mockArt != null;
+            // 79차(사용자 캔버스 전략): 타이틀 키아트는 제작 기준 1080×2400(20:9)으로 그려 두고
+            //   **안전 영역이 아니라 화면 전체**를 덮는다. 20:9 에서 딱 맞고 S25(19.5:9)는 위아래 30px,
+            //   16:9 는 위아래 240px 이 잘린다 — 잘리는 곳은 하늘·꽃밭뿐이고 그림의 중앙 16:9(로고·버튼)는
+            //   어느 비율에서도 온전히 보인다. 전엔 안전영역에 늘여 붙여(preserveAspect=false) 20:9 폰에서
+            //   인물이 세로로 늘어났다.
+            // 98차: GateArt20x9=false 면 원본(1080×1920)을 안전영역(인셋+HudPad)에 채우는 67차 방식.
+            var sprite = CoastUiArt.AsSprite(useMock ? mockArt : _gateArt, 100f);
+            var canvas = root.GetComponentInParent<Canvas>();
+            var bg = GateArt20x9 && canvas != null
+                ? CoastUiCanvas.FullBleedBackground(canvas, "GateArt", sprite)
+                : CoastHudLayout.MakeImage(root, "GateArt", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), Color.white);
+            if (bg.sprite == null) bg.sprite = sprite;
+            bg.preserveAspect = false;
+            bg.raycastTarget = false;
+
+            var ui = new GameObject("TitleUI", typeof(RectTransform), typeof(CanvasGroup));
+            ui.transform.SetParent(root, false);
+            CoastOrnate.Stretch(ui.GetComponent<RectTransform>(), 0f, 0f, 0f, 0f);
+            _uiCg = ui.GetComponent<CanvasGroup>();
+            _uiCg.alpha = 0f;
+            ui.SetActive(false);
+
+            // 67차-5(사용자): 빈 공간 탭으로 시작하던 투명 「TapAnywhere」 버튼 삭제 — 스토리 모드/K-POP/CHAPTER 버튼으로만 진입.
+
+            bool hasSave = _gm != null && _gm.HasSave;
+            float btnW = 220f, btnH = 62f, gapX = 12f;
+            float rowY = 172f;   // 26차: 아래에 K-POP 러닝모드 바가 들어가서 한 칸 위로 (31차: 바가 커져서 172)
+            System.Action startKpop = () => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm); } };
+            if (!useMock)
+            {
+                // 14차-8: 제목은 글자로(언어별) — 키아트엔 로고가 없다. 상단 하늘 영역, 크림색 + 짙은 테두리.
+                string title = Loc.T(AlbumTable.AlbumKo, AlbumTable.AlbumEn);
+                var titleLbl = CreateLabel(ui.transform, "Title", title, 60, FontStyle.Bold,
+                    new Color(1f, 0.96f, 0.86f), new Vector2(0.5f, 0.905f), new Vector2(680f, 90f));
+                CoastUiArt.OutlineText(titleLbl, new Color(0.22f, 0.10f, 0.06f, 0.95f), 3f);
+                var sub = CreateLabel(ui.transform, "TitleSub", Loc.IsKo ? "COAST RUN · JEJU" : "너와 나의 주파수 · COAST RUN", 20, FontStyle.Normal,
+                    new Color(1f, 0.93f, 0.78f, 0.9f), new Vector2(0.5f, 0.855f), new Vector2(600f, 30f));
+                CoastUiArt.OutlineText(sub, new Color(0.22f, 0.10f, 0.06f, 0.8f), 1.5f);
+
+                // 메뉴 2개(스토리 모드 / 더보기) — 육성하기는 더보기 › 새로하기로.
+                CoastOrnate.GlassButton(ui.transform, "StoryBtn", Loc.T("스토리 모드", "Story Mode"), new Vector2(0.5f, 0f),
+                    new Vector2(-(btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) OnStoryMode(); }, 0.4f, 26, true);
+                _moreBtn = CoastOrnate.GlassButton(ui.transform, "MoreBtn", Loc.T("더보기", "More"), new Vector2(0.5f, 0f),
+                    new Vector2((btnW + gapX) * 0.5f, rowY), new Vector2(btnW, btnH), () => { if (_ready) ToggleMore(); }, 0.4f, 26, false);
+                _moreLabel = _moreBtn.GetComponentInChildren<Text>();
+            }
+            else
+            {
+                // 67차-4/5(사용자): 배경 그림은 화면 비율대로 늘어나므로 히트 영역도 **그림 좌표 비율**로 앵커(그림의 자식) — 19.5:9·20:9 폰에서
+                //   버튼 그림과 터치 영역이 어긋나 「빈 곳을 눌렀는데 러닝이 시작」되던 문제의 진짜 원인. c = 720×1280 좌하단 기준 중심, sz = 크기.
+                // 79차: 그림이 제작 기준 720×1600(20:9)으로 길어졌다 — 시안 좌표(720×1280)는 그 중앙에
+                //   들어가므로 SafeZoneRectToBgAnchors 로 옮긴다. 세 버튼 모두 세이프존 안이라 절대 안 잘린다.
+                System.Func<string, Vector2, Vector2, System.Action, Button> hit = (n, c, sz, a) =>
+                {
+                    var b = RunHudChrome.HitButton(bg.transform, n, Vector2.zero, Vector2.zero, a);
+                    var r = b.GetComponent<RectTransform>();
+                    Vector2 aMin, aMax;
+                    if (GateArt20x9) CoastUiCanvas.SafeZoneRectToBgAnchors(c, sz, out aMin, out aMax);
+                    else
+                    {
+                        // 98차: 원본 그림(720×1280 좌표계 그대로) — 67차 식.
+                        aMin = new Vector2((c.x - sz.x * 0.5f) / CoastUiCanvas.SafeZoneWidth, (c.y - sz.y * 0.5f) / CoastUiCanvas.SafeZoneHeight);
+                        aMax = new Vector2((c.x + sz.x * 0.5f) / CoastUiCanvas.SafeZoneWidth, (c.y + sz.y * 0.5f) / CoastUiCanvas.SafeZoneHeight);
+                    }
+                    r.anchorMin = aMin; r.anchorMax = aMax;
+                    r.pivot = new Vector2(0.5f, 0.5f); r.anchoredPosition = Vector2.zero; r.sizeDelta = Vector2.zero;
+                    _gateHits.Add(b);
+                    return b;
+                };
+                hit("StoryBtn", new Vector2(88f, 992f), new Vector2(130f, 146f), () => { if (_ready) OnStoryMode(); });
+                _moreBtn = hit("MoreBtn", new Vector2(88f, 833f), new Vector2(130f, 122f), () => { if (_ready) ToggleMore(); });
+                _moreLabel = null;
+                hit("KpopBtn", new Vector2(358f, 181f), new Vector2(425f, 293f), () => startKpop());
+            }
+            // 26차: 스토리 모드와 분리된 러닝 모드 진입 — 화면 맨 아래 넓은 바.
+            var kpopArt = useMock ? null : ArtAssets.LoadTexture("UI_KpopBar");   // 29차: 네온 글라스 바 그림(Tools/KlingGen/out/kpop_btn → Python 합성)
+            if (useMock) { }
+            else if (kpopArt != null)
+            {
+                // 그림 1320×260 = UI 660×130(글로우 여백 포함, 본체 626×96). 31차: 시안 비율(높이 ↑). 그림 자체에 헤드폰·글자·이퀄라이저·음표·반짝이가 들어 있다.
+                var go = new GameObject("KpopBtn", typeof(RectTransform), typeof(Image), typeof(Button), typeof(KpopBarPulse));
+                go.transform.SetParent(ui.transform, false);
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f); rt.pivot = new Vector2(0.5f, 0.5f);
+                // 38차: 오른쪽에 챕터 선택 아이콘 자리를 비운다(바 660→560, 왼쪽으로 50)
+                rt.anchoredPosition = new Vector2(-52f, 82f); rt.sizeDelta = new Vector2(560f, 110f);
+                var im = go.GetComponent<Image>();
+                im.sprite = CoastUiArt.AsSprite(kpopArt); im.preserveAspect = true; im.raycastTarget = true;
+                var b = go.GetComponent<Button>(); b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => startKpop());
+            }
+            else
+            {
+                var kpop = CoastOrnate.GlassButton(ui.transform, "KpopBtn", Loc.T("K-POP 러닝모드  ♪", "K-POP RUN MODE  ♪"), new Vector2(0.5f, 0f),
+                    new Vector2(0f, 70f), new Vector2(btnW * 3f + gapX * 2f, 66f), () => startKpop(), 0.55f, 28, true);
+                foreach (var img in kpop.GetComponentsInChildren<Image>())
+                {
+                    if (img.name == "Fill") img.color = new Color(0.32f, 0.16f, 0.62f, 0.85f);        // 보라
+                    else if (img.gameObject == kpop.gameObject) img.color = new Color(0.55f, 0.85f, 1f, 0.9f);   // 하늘색 테두리
+                }
+                var kpopText = kpop.GetComponentInChildren<Text>();
+                if (kpopText != null) { kpopText.color = new Color(1f, 0.95f, 0.75f); kpopText.fontStyle = FontStyle.Bold; }
+            }
+            // 38차-fix: K-POP 바 오른쪽 — 같은 라벤더→핑크 유리 칩(UI_ChapterChip) + CH 번호 오버레이
+            var sdChip = hasSave && _gm != null ? (_gm.Save ?? _gm.SaveSys.Load()) : null;
+            if (useMock)
+            {
+                // 39차-4: 시안의 "CH 1. 이름" 칩 자리(중심 501/319) → 「CHAPTER ▾」 칩 + 오른쪽 위 번호 배지.
+                // 누르면 K-POP 러닝 챕터 선택 페이지(1~20). 안 고르면 마지막 클리어 다음 챕터가 자동(ArcadeRun.KpopChapter).
+                // 67차-4(사용자: 폰에서 「CH1 이름」과 CHAPTER 가 겹쳐 보임): 배경 그림은 화면 비율대로 늘어나는데 칩은 인셋 캔버스 좌표라
+                //   16:9 가 아닌 폰에선 그림에 박힌 옛 「CH 1. 이름」 칩과 어긋났다. → 그림에서 옛 칩을 지우고(UI_Title_Mock.png 수정),
+                //   CHAPTER 칩은 배경 그림의 자식으로 그림 좌표 비율(664~872 / 1405~1482 of 1080×1920)에 앵커 → 어떤 비율에서도 같은 자리.
+                var chip = CoastUiArt.GlossyPill(bg.transform, "ChapterChip", new Color(0.22f, 0.58f, 0.97f), 21, 5);
+                var crt = chip.rectTransform;
+                // 79차: 그림이 1080×2400 으로 길어졌으니 시안 픽셀(1080×1920) 자리를 그대로 옮겨 준다.
+                Vector2 chipMin, chipMax;
+                if (GateArt20x9) CoastUiCanvas.MockPixelRectToBgAnchors(656f, 1396f, 880f, 1486f, out chipMin, out chipMax);
+                else
+                {
+                    // 98차: 원본 그림 픽셀(1080×1920, 좌상단 원점) 비율 그대로 — 67차 식.
+                    chipMin = new Vector2(656f / 1080f, 1f - 1486f / 1920f);
+                    chipMax = new Vector2(880f / 1080f, 1f - 1396f / 1920f);
+                }
+                crt.anchorMin = chipMin; crt.anchorMax = chipMax;
+                crt.pivot = new Vector2(0.5f, 0.5f); crt.anchoredPosition = Vector2.zero; crt.sizeDelta = Vector2.zero;
+                chip.raycastTarget = true;
+                _chapterChipCg = chip.gameObject.AddComponent<CanvasGroup>();   // 타이틀 UI(스플래시·챕터 화면·페이드)와 같이 보였다 숨는다
+                _chapterChipCg.alpha = 0f; _chapterChipCg.blocksRaycasts = false;
+                var ct = CreateLabel(chip.transform, "T", "CHAPTER ▾", 14, FontStyle.Bold,
+                    Color.white, new Vector2(0.5f, 0.5f), new Vector2(132f, 30f));
+                ct.rectTransform.anchoredPosition = new Vector2(-4f, 3f);
+                CoastUiArt.OutlineText(ct, new Color(0.05f, 0.20f, 0.50f, 0.8f), 1.2f);
+                var badge = CoastUiArt.CutePill(chip.transform, "Badge", new Color(1f, 0.35f, 0.55f), 12, 2);
+                var brt = badge.rectTransform; brt.anchorMin = brt.anchorMax = new Vector2(1f, 1f); brt.pivot = new Vector2(0.5f, 0.5f);
+                brt.anchoredPosition = new Vector2(-4f, 2f); brt.sizeDelta = new Vector2(34f, 24f); badge.raycastTarget = false;
+                var bt = CreateLabel(badge.transform, "T", "", 11, FontStyle.Bold, Color.white, new Vector2(0.5f, 0.5f), new Vector2(34f, 20f));
+                bt.rectTransform.anchoredPosition = new Vector2(0f, 1f);
+                System.Action refreshChip = () => { bt.text = ArcadeRun.KpopChapter(_gm).ToString(); };
+                refreshChip();
+                var cb = chip.gameObject.AddComponent<Button>(); cb.transition = Selectable.Transition.None;
+                cb.onClick.AddListener(() =>
+                {
+                    if (!_ready) return;
+                    _audio?.PlayClick();
+                    if (_moreOpen) ToggleMore();
+                    KpopChapterSelect.TitleUi = _uiCg;   // 47차: 챕터 화면 동안 타이틀 글자·Play 바 숨김
+                    KpopChapterSelect.Open(_gm, _ => refreshChip(),
+                        ch => { if (_ready) { _audio?.PlayStart(); _ready = false; ArcadeRun.StartKpop(_gm, ch); } });
+                });
+            }
+            else if (sdChip != null)
+            {
+                int nextCh = Mathf.Clamp(sdChip.chapter, 1, Timeline.Chapters);
+                var chipArt = ArtAssets.LoadTexture("UI_ChapterChip");
+                GameObject chipGo;
+                if (chipArt != null)
+                {
+                    chipGo = new GameObject("ChapterChip", typeof(RectTransform), typeof(Image), typeof(Button), typeof(KpopBarPulse));
+                    chipGo.transform.SetParent(ui.transform, false);
+                    var img = chipGo.GetComponent<Image>();
+                    img.sprite = CoastUiArt.AsSprite(chipArt);
+                    img.preserveAspect = true;
+                    img.raycastTarget = true;
+                    var btn = chipGo.GetComponent<Button>();
+                    btn.transition = Selectable.Transition.None;
+                    btn.onClick.AddListener(() => { if (_ready) OnChapterSelect(); });
+                }
+                else
+                {
+                    var chip = CoastUiArt.CutePill(ui.transform, "ChapterChip", new Color(0.72f, 0.55f, 0.95f), 22, 4);
+                    chip.raycastTarget = true;
+                    chipGo = chip.gameObject;
+                    var cb = chipGo.AddComponent<Button>();
+                    cb.transition = Selectable.Transition.None;
+                    cb.onClick.AddListener(() => { if (_ready) OnChapterSelect(); });
+                }
+                var crt = chipGo.GetComponent<RectTransform>();
+                crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0f);
+                crt.pivot = new Vector2(0.5f, 0.5f);
+                // 바와 같은 높이·간격 — 이퀄라이저 옆에 붙인 느낌
+                crt.anchoredPosition = new Vector2(292f, 82f);
+                crt.sizeDelta = new Vector2(112f, 112f);
+
+                // 아트 상단 이퀄라이저 자리를 비우고, 가운데 CH / 아래 제목만 올린다
+                var cn = CreateLabel(chipGo.transform, "N", $"CH {nextCh}", 28, FontStyle.Bold,
+                    Color.white, new Vector2(0.5f, 0.5f), new Vector2(100f, 36f));
+                cn.rectTransform.anchoredPosition = new Vector2(0f, -6f);
+                CoastUiArt.OutlineText(cn, new Color(0.40f, 0.12f, 0.55f, 0.85f), 1.8f);
+
+                string chTitle = ChapterScript.Title(nextCh);
+                if (string.IsNullOrEmpty(chTitle)) chTitle = Loc.T("선택", "Pick");
+                if (chTitle.Length > 6) chTitle = chTitle.Substring(0, 6);
+                var ct = CreateLabel(chipGo.transform, "T", chTitle, 12, FontStyle.Bold,
+                    new Color(0.88f, 0.96f, 1f, 0.95f), new Vector2(0.5f, 0f), new Vector2(96f, 20f));
+                ct.rectTransform.anchoredPosition = new Vector2(0f, 26f);
+                CoastUiArt.OutlineText(ct, new Color(0.35f, 0.12f, 0.50f, 0.75f), 1.2f);
+            }
+            // 14차-9: 오프닝을 안 본 유저에게 한 줄 힌트(강제 재생 대신)
+            if (!useMock && PlayerPrefs.GetInt("CoastRun_OpeningSeen", 0) == 0)
+            {
+                _openingHint = CreateLabel(ui.transform, "OpeningHint", Loc.T("이야기가 궁금하면  더보기 › 시네마", "Curious about the story?  More › Cinema"), 17, FontStyle.Normal,
+                    new Color(1f, 0.96f, 0.86f, 0.9f), new Vector2(0.5f, 0f), new Vector2(600f, 26f));
+                _openingHint.rectTransform.anchoredPosition = new Vector2(0f, rowY + btnH * 0.5f + 20f);
+                CoastUiArt.OutlineText(_openingHint, new Color(0.2f, 0.1f, 0.06f, 0.85f), 1.5f);
+            }
+
+            // 더보기 열: 오른쪽에서 슬라이드. 새로하기 / 컬렉션 / 레코드 / 시네마 / 미니게임 / 보스전 / 설정 / 이용약관·정책(70차 순서).
+            // 42차(사용자): 「챕터 선택」 항목 삭제(챕터는 타이틀 CHAPTER 칩), 컬렉션은 모은 사진(포토카드 탭)으로 바로,
+            //             레코드 옆 새 항목 점(•) 제거, 「오프닝」 → 「시네마」(컷씬 골라 보기, CinemaSelect).
+            var more = new System.Collections.Generic.List<(string, System.Action)>();
+            more.Add((Loc.T("새로하기", "New Game"), () => { if (_ready) { CloseMore(restoreMenuBgm: false); StartNewFlow(); } }));
+            // 38차: 「노을 달리기」 항목 제거(K-POP 러닝모드 바로 통합)
+            // 컬렉션·레코드·시네마·미니게임 = 스토리 모드 BGM(M13)
+            more.Add((Loc.T("컬렉션", "Collection"), () =>
+            {
+                if (!_ready) return;
+                CloseMore(restoreMenuBgm: false);
+                TitleAudio.PlayRaising();
+                _ready = false;
+                CollectionUI.Open(() => { if (this == null) return; TitleAudio.FadeMenuIn(_cleared); _ready = true; }, 1);
+            }));
+            // 37차: 레코드 — 컷씬 음악 7곡. 타이틀 곡을 멈추고 들어가서, 닫으면 다시 튼다.
+            more.Add((Loc.T("레코드", "Records"), () =>
+            {
+                if (!_ready) return;
+                CloseMore(restoreMenuBgm: false);
+                TitleAudio.PlayRaising();
+                _ready = false;
+                CollectionUI.Open(() => { if (this == null) return; TitleAudio.FadeMenuIn(_cleared); _ready = true; }, 0);
+            }));
+            // 70차(사용자): 더보기 순서 = 새로하기 / 컬렉션 / 레코드 / 시네마 / 미니게임 / 보스전 / 설정 / 이용약관
+            more.Add((Loc.T("시네마", "Cinema"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayClick();
+                CloseMore(restoreMenuBgm: false);
+                if (_openingHint != null) _openingHint.gameObject.SetActive(false);
+                TitleAudio.PlayRaising();
+                _ready = false;
+                CinemaSelect.Open(_gm,
+                    onPlayStart: () => { TitleAudio.StopMenuGlobal(); },   // 컷씬 자체 BGM — CinematicPlayer 도 정지
+                    onClose: () => { if (this == null) return; TitleAudio.FadeMenuIn(_cleared); _ready = true; });
+            }));
+            // 44차: 미니게임 — 챕터 미션에서 이긴 놀이만 다시하기(ChapterMissionUI.OpenMenu)
+            more.Add((Loc.T("미니게임", "Mini-games"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayClick();
+                CloseMore(restoreMenuBgm: false);
+                TitleAudio.PlayRaising();
+                _ready = false;
+                ChapterMissionUI.OpenMenu(_gm, () => { if (this == null) return; TitleAudio.FadeMenuIn(_cleared); _ready = true; });
+            }));
+            // 51차(사용자): 보스전 — K-POP 한 곡 창에 보스(갈매기 해적·돌하르방 골렘·태풍 도깨비)만 연달아. 난이도는 해금 챕터 기준 랜덤.
+            more.Add((Loc.T("보스전", "Boss Rush"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayStart();
+                CloseMore(restoreMenuBgm: false);
+                _ready = false;
+                ArcadeRun.StartBossRush(_gm);
+            }));
+            // 61차(사용자): 「설정」은 더보기에서 빼고 우상단 톱니 아이콘으로(BuildSettingsIcon)
+            // 65차(사용자): 설정은 다시 더보기 안으로(우상단 톱니 아이콘 제거)
+            more.Add((Loc.T("설정", "Settings"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayClick();
+                CloseMore(restoreMenuBgm: true);   // 설정은 메인 위에 — 메뉴 BGM 복구
+                ShowPanel(_settingsPanel, true);
+            }));
+            // 50차(사용자): 이용약관(AI 기반 K-POP 음악·사이버 가수 우히&히시 조항) · 개인정보 처리지침 · 운영정책 · 청소년 보호 — 한 항목 안에 탭 4개(PolicyUI)
+            more.Add((Loc.T("이용약관·정책", "Terms & Policies"), () =>
+            {
+                if (!_ready) return;
+                _audio?.PlayClick();
+                CloseMore(restoreMenuBgm: true);
+                _ready = false;
+                PolicyUI.Open(PolicyUI.Doc.Terms, () => { if (this == null) return; _ready = true; });
+            }));
+
+            var col = new GameObject("MoreColumn", typeof(RectTransform), typeof(CanvasGroup));
+            col.transform.SetParent(ui.transform, false);
+            _moreRt = col.GetComponent<RectTransform>();
+            _moreCg = col.GetComponent<CanvasGroup>();
+            float mW = 236f, mH = 58f, mGap = 10f;
+            float total = more.Count * mH + (more.Count - 1) * mGap;
+            _moreRt.anchorMin = _moreRt.anchorMax = new Vector2(1f, 0f);
+            _moreRt.pivot = new Vector2(1f, 0f);
+            _moreRt.sizeDelta = new Vector2(mW + 24f, total + 24f);
+            float moreY = useMock ? 400f : rowY + btnH * 0.5f + 26f;   // 39차: 시안 배치에선 Play 판 위, 화면 중간 높이
+            _moreHidden = new Vector2(mW + 60f, moreY);
+            _moreShown = new Vector2(-10f, moreY);
+            _moreRt.anchoredPosition = _moreHidden;
+            _moreCg.alpha = 0f; _moreCg.interactable = false; _moreCg.blocksRaycasts = false;
+            var backing = CoastUiArt.Panel(col.transform, "Backing", new Color(0.05f, 0.04f, 0.08f, 0.35f), 16);
+            CoastOrnate.Stretch(backing.rectTransform, 0f, 0f, 0f, 0f);
+            backing.raycastTarget = false;
+            for (int i = 0; i < more.Count; i++)
+            {
+                var (label, act) = more[i];
+                float y = 12f + mH * 0.5f + (more.Count - 1 - i) * (mH + mGap);
+                CoastOrnate.GlassButton(col.transform, label + "Btn", label, new Vector2(0.5f, 0f), new Vector2(0f, y),
+                    new Vector2(mW, mH), () => { if (_ready) act(); }, 0.42f, 24, false);
+            }
+
+            var ver = CreateLabel(ui.transform, "Version", Loc.T("스튜디오 우히히시 v", "Studio Woohee-Heesi v") + Application.version, 13, FontStyle.Normal,   // 51차(사용자): 스튜디오 이름 + 살짝 아래
+                new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0.018f), new Vector2(300f, 20f));
+            ver.alignment = TextAnchor.MiddleRight; ver.rectTransform.anchorMin = ver.rectTransform.anchorMax = new Vector2(1f, 0f);
+            ver.rectTransform.pivot = new Vector2(1f, 0f); ver.rectTransform.anchoredPosition = new Vector2(-14f, -18f);   // 26차: K-POP 바와 겹치지 않게 우하단 구석 · 61차: 살짝 더 아래 · 71차(사용자): 한 번 더 살짝(−12 → −18)
+
+            BuildGalleryPanel(root);
+            BuildCreditsPanel(root);
+            BuildSettingsPanel(root);
+            BuildRecordPanel(root);
+            _root = root;
+            // 52차(사용자): 우상단 「기부부탁」 아이콘 — 메인(타이틀)에서만 보이고 더보기·다른 페이지·팝업 중엔 숨는다.
+            System.Func<bool> onMain = () => _ready && !_moreOpen && !DonateUI.IsOpen && !KpopChapterSelect.IsOpen && !CollectionUI.IsOpen && !ChapterMissionUI.IsOpen && !PolicyUI.IsOpen
+                                                  && !(_settingsPanel != null && _settingsPanel.activeSelf) && !(_galleryPanel != null && _galleryPanel.activeSelf)
+                                                  && !(_creditsPanel != null && _creditsPanel.activeSelf) && !(_recordPanel != null && _recordPanel.activeSelf);
+            // 79차: 세이프존(중앙 16:9) 안에 — 20:9 폰에서 컵이 화면 맨 위로 붙어 타이틀 글자와 겹쳤다.
+            DonateUI.AttachIcon(CoastUiCanvas.SafeZoneBox(ui.GetComponent<RectTransform>()), onMain, OpenDonate);   // 38차: 캐릭터 선택 페이지 삭제(BuildCharacterSelect 미호출)
+            // BuildSettingsIcon(ui.transform, onMain);   // 65차(사용자): 톱니 아이콘 대신 더보기 「설정」
+        }
+
+        /// 61차(사용자): 설정은 메인 화면 우상단 톱니 아이콘(Icon_Gear) — 기부 컵 위. 메인에서만 보인다.
+        private void BuildSettingsIcon(Transform ui, System.Func<bool> visible)
+        {
+            var go = new GameObject("SettingsIcon", typeof(RectTransform), typeof(Image), typeof(Button), typeof(VisibleWhen));
+            go.transform.SetParent(ui, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(1f, 1f); rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(-38f, -36f); rt.sizeDelta = new Vector2(64f, 64f);   // 63차(사용자): 우측 맨 위 구석 · 아이콘은 Kling 젤리 버튼(Icon_Gear) / 64차: 더 구석·조금 작게
+            // 64차(사용자: 주변과 어울리게): 하늘 위에 떠 보이지 않게 반투명 남색 원판 받침 + 흰 링
+            {
+                var back = new GameObject("Back", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                back.transform.SetParent(go.transform, false); back.transform.SetAsFirstSibling();
+                back.sprite = CoastUiArt.RoundedRect(40); back.type = Image.Type.Sliced; back.color = new Color(0.10f, 0.14f, 0.30f, 0.28f); back.raycastTarget = false;
+                var brt = back.rectTransform; brt.anchorMin = Vector2.zero; brt.anchorMax = Vector2.one; brt.offsetMin = new Vector2(-8f, -8f); brt.offsetMax = new Vector2(8f, 8f);
+            }
+            var img = go.GetComponent<Image>();
+            var gear = CoastUiArt.Art("Icon_Gear");
+            if (gear != null) { img.sprite = gear; img.preserveAspect = true; img.color = Color.white; }
+            else { img.sprite = CoastUiArt.RoundedRect(30); img.type = Image.Type.Sliced; img.color = new Color(0.25f, 0.45f, 0.85f, 0.9f); }
+            img.raycastTarget = true;
+            var b = go.GetComponent<Button>(); b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(() => { if (!_ready) return; _audio?.PlayClick(); if (_moreOpen) ToggleMore(); ShowPanel(_settingsPanel, true); });
+            var vw = go.GetComponent<VisibleWhen>(); vw.visible = visible;
+        }
+
+        private class VisibleWhen : MonoBehaviour
+        {
+            public System.Func<bool> visible; private CanvasGroup _cg;
+            private void Update()
+            {
+                if (_cg == null && !TryGetComponent(out _cg)) _cg = gameObject.AddComponent<CanvasGroup>();
+                bool on = visible == null || visible();
+                _cg.alpha = Mathf.MoveTowards(_cg.alpha, on ? 1f : 0f, Time.unscaledDeltaTime * 6f);
+                _cg.interactable = on; _cg.blocksRaycasts = on;
+            }
+        }
+
+        /// 세이브가 있을 때: 육성 화면을 챕터 선택(타임라인)이 열린 상태로 연다.
+        private void OnChapterSelect()
+        {
+            if (!_ready || _gm == null || !_gm.HasSave) return;
+            _audio?.PlayClick();
+            _audio?.StopMenu();
+            _gm.OpenTimelineOnRaising = true;
+            _gm.Continue();
+        }
+
+        /// 회차 시작 캐릭터 선택: 러닝 / 스케이트보드(엔딩 1회 후 해금, 속도·코인 ×1.3).
+        private void BuildCharacterSelect(Transform root)
+        {
+            _charSelectPanel = CreateOverlayPanel(root, "CharacterSelect");
+            bool unlocked = _gm != null && _gm.Profile.skateboardUnlocked;
+            bool hasSave = _gm != null && _gm.HasSave;
+
+            CreateLabel(_charSelectPanel.transform, "Title", Loc.T("누구로 달릴까?", "How will you run?"), 34, FontStyle.Bold,
+                new Color(1f, 0.95f, 0.82f), new Vector2(0.5f, 0.86f), new Vector2(600f, 50f));
+            if (hasSave)
+                CreateLabel(_charSelectPanel.transform, "Warn", Loc.T("새로 시작하면 지금 진행 중인 회차는 지워져.", "Starting over erases the current playthrough."), 16, FontStyle.Normal,
+                    new Color(1f, 0.6f, 0.6f), new Vector2(0.5f, 0.81f), new Vector2(600f, 30f));
+
+            BuildCharCard(_charSelectPanel.transform, Loc.T("러닝", "Running"), Loc.T("달려서 송전탑까지.\n속도 ×1.0 · 코인 ×1.0\n처음이라면 이쪽.", "Run to the tower.\nSpeed ×1.0 · Coins ×1.0\nStart here."),
+                new Color(0.30f, 0.72f, 0.36f), 0.60f, true, () => StartNewPlaythrough(RunMode.Running), "Raise_Girl_Happy", false);
+            BuildCharCard(_charSelectPanel.transform, Loc.T("스케이트보드", "Skateboard"),
+                unlocked ? Loc.T("보드로 질주. 속도 ×1.3 · 코인 ×1.3\n반응 시간이 짧은 고급 난이도.", "Ride the board. Speed ×1.3 · Coins ×1.3\nShorter reaction time — advanced.")
+                         : Loc.T("잠김 — 엔딩을 한 번 보면 열려.\n속도 ×1.3 · 코인 ×1.3 (고급)", "Locked — see one ending to unlock.\nSpeed ×1.3 · Coins ×1.3 (advanced)"),
+                unlocked ? new Color(1f, 0.55f, 0.15f) : new Color(0.35f, 0.36f, 0.42f), 0.36f, unlocked,
+                () => StartNewPlaythrough(RunMode.Skateboard), "Sched_dev_skate", true);
+
+            CreateMenuButton(_charSelectPanel.transform, "닫기", 0.12f, () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_charSelectPanel, false);
+            }, absoluteBottom: true);
+            _charSelectPanel.SetActive(false);
+        }
+
+        private void BuildCharCard(Transform parent, string title, string body, Color color, float anchorY, bool enabled,
+            UnityEngine.Events.UnityAction onClick, string artName = null, bool cover = false)
+        {
+            var card = CoastUiArt.CutePill(parent, title + "Card", color, 24, 5);
+            var rt = card.rectTransform;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, anchorY);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(560f, 210f);
+            card.raycastTarget = true;
+            var btn = card.gameObject.AddComponent<Button>();
+            btn.transition = Selectable.Transition.None;
+            btn.onClick.AddListener(() =>
+            {
+                if (!enabled) { _audio?.PlayClick(); return; }
+                onClick?.Invoke();
+            });
+            // 9차: 카드 왼쪽에 그림(투명 PNG는 그대로, 삽화는 둥근 마스크 cover) — 글자만 있던 첫 선택 화면에 얼굴을.
+            var tex = string.IsNullOrEmpty(artName) ? null : ArtAssets.LoadTexture(artName);
+            float left = 24f;
+            if (tex != null)
+            {
+                left = 190f;
+                var frameGo = new GameObject("Art", typeof(RectTransform), typeof(Image), typeof(Mask));
+                frameGo.transform.SetParent(card.transform, false);
+                var frt = frameGo.GetComponent<RectTransform>();
+                frt.anchorMin = new Vector2(0f, 0f); frt.anchorMax = new Vector2(0f, 1f); frt.pivot = new Vector2(0f, 0.5f);
+                frt.anchoredPosition = new Vector2(12f, 0f); frt.sizeDelta = new Vector2(160f, -16f);
+                var fi = frameGo.GetComponent<Image>(); fi.sprite = CoastUiArt.RoundedRect(18); fi.type = Image.Type.Sliced;
+                fi.color = cover ? Color.white : new Color(1f, 1f, 1f, 0.16f); fi.raycastTarget = false;
+                frameGo.GetComponent<Mask>().showMaskGraphic = true;
+                var pic = new GameObject("Img", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                pic.transform.SetParent(frameGo.transform, false);
+                pic.sprite = CoastUiArt.AsSprite(tex); pic.raycastTarget = false;
+                var prt = pic.rectTransform; prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one; prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;
+                if (cover)
+                {
+                    var fit = pic.gameObject.AddComponent<AspectRatioFitter>();
+                    fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; fit.aspectRatio = tex.width / (float)tex.height;
+                }
+                else { pic.preserveAspect = true; prt.offsetMin = new Vector2(4f, 4f); prt.offsetMax = new Vector2(-4f, -4f); }
+                if (!enabled) pic.color = new Color(0.6f, 0.6f, 0.65f, 1f);
+            }
+            var t = CreateLabel(card.transform, "T", title + (enabled ? "" : Loc.T("  (잠김)", "  (locked)")), 28, FontStyle.Bold, Color.white,
+                new Vector2(0.5f, 0.74f), new Vector2(520f, 44f));
+            t.alignment = TextAnchor.MiddleLeft;
+            t.rectTransform.anchorMin = new Vector2(0f, 0.74f); t.rectTransform.anchorMax = new Vector2(1f, 0.74f);
+            t.rectTransform.sizeDelta = new Vector2(0f, 44f); t.rectTransform.offsetMin = new Vector2(left, -22f); t.rectTransform.offsetMax = new Vector2(-16f, 22f);
+            CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1.5f);
+            var b = CreateLabel(card.transform, "B", body, 16, FontStyle.Normal, new Color(1f, 1f, 1f, enabled ? 0.95f : 0.7f),
+                new Vector2(0.5f, 0.36f), new Vector2(520f, 90f));
+            b.alignment = TextAnchor.MiddleLeft;
+            b.rectTransform.anchorMin = new Vector2(0f, 0.36f); b.rectTransform.anchorMax = new Vector2(1f, 0.36f);
+            b.rectTransform.sizeDelta = new Vector2(0f, 90f); b.rectTransform.offsetMin = new Vector2(left, -45f); b.rectTransform.offsetMax = new Vector2(-16f, 45f);
+            b.horizontalOverflow = HorizontalWrapMode.Wrap;
+        }
+
+        private Button _startButton;
+        private GameObject _recordPanel;
+
+        private CanvasGroup _chapterChipCg;
+        private readonly System.Collections.Generic.List<Button> _gateHits = new System.Collections.Generic.List<Button>();
+
+        // 71차(사용자 「가끔 화면이 안 눌러진다」): 타이틀 게이트 안전장치 — 어떤 팝업도 안 열려 있는데 _ready 가 8초 넘게 꺼져 있으면(콜백 누락) 다시 켠다.
+        private float _readyOffSince = -1f;
+        private static bool AnyOverlayOpen() => DonateUI.IsOpen || KpopChapterSelect.IsOpen || CollectionUI.IsOpen || CinemaSelect.IsOpen || PolicyUI.IsOpen || ChapterMissionUI.IsOpen || ArcadeRun.Active;
+        private void ReadyWatch()
+        {
+            if (_ready || _uiCg == null || !_uiCg.gameObject.activeInHierarchy || _uiCg.alpha < 0.99f || _aiNoticeOk != null) { _readyOffSince = -1f; return; }
+            if (AnyOverlayOpen()) { _readyOffSince = -1f; return; }
+            if (_readyOffSince < 0f) _readyOffSince = Time.unscaledTime;
+            else if (Time.unscaledTime - _readyOffSince > 8f) { _ready = true; _readyOffSince = -1f; Debug.LogWarning("[Title] _ready 가 팝업 없이 8초 꺼져 있어 다시 켰다(입력 막힘 방지)"); }
+        }
+
+        /// TitleUI visible + no overlay but raycasts off (watchdog cleared during fade/chapter hide).
+        private void RestoreTitleRaycastsIfNeeded()
+        {
+            if (_uiCg == null || !_ready || !_uiCg.gameObject.activeInHierarchy) return;
+            if (_uiCg.alpha < 0.99f || AnyOverlayOpen()) return;
+            if (_uiCg.blocksRaycasts && _uiCg.interactable) return;
+            _uiCg.blocksRaycasts = true;
+            _uiCg.interactable = true;
+            Debug.LogWarning("[Title] TitleUI blocksRaycasts 복구(알파 1인데 입력이 꺼져 있었음)");
+        }
+
+        private void Update()
+        {
+            AnimateMore();
+            ReadyWatch();
+            RestoreTitleRaycastsIfNeeded();
+            if (_chapterChipCg != null && _uiCg != null)
+            {
+                bool vis = _uiCg.gameObject.activeInHierarchy;
+                _chapterChipCg.alpha = vis ? _uiCg.alpha : 0f;
+                _chapterChipCg.blocksRaycasts = _chapterChipCg.interactable = vis && _uiCg.alpha > 0.5f && _uiCg.blocksRaycasts;
+                bool hitOn = vis && _uiCg.alpha > 0.5f && _uiCg.blocksRaycasts;
+                foreach (var hb in _gateHits) if (hb != null && hb.interactable != hitOn) hb.interactable = hitOn;
+            }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 에디터 검증용: N = 캐릭터 선택, 1 = 러닝, 2 = 스케이트보드, C = 스토리 모드, Escape = 닫기.
+            if (_aiNoticeOk != null && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))) { _aiNoticeOk(); return; }
+            if (!_ready) return;
+            if (Input.GetKeyDown(KeyCode.M))
+            {
+                // 14차-8 디버그: 마우스 아래 UI 레이캐스트 결과
+                var es = UnityEngine.EventSystems.EventSystem.current;
+                var pd = new UnityEngine.EventSystems.PointerEventData(es) { position = Input.mousePosition };
+                var hits = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+                es.RaycastAll(pd, hits);
+                var sb = new System.Text.StringBuilder("[UI raycast] " + Input.mousePosition + " es=" + es.name + " module=" + es.currentInputModule);
+                foreach (var h in hits) sb.Append("\n  ").Append(h.gameObject.name).Append(" <- ").Append(h.gameObject.transform.parent ? h.gameObject.transform.parent.name : "");
+                if (_moreBtn != null)
+                {
+                    var brt = _moreBtn.GetComponent<RectTransform>();
+                    var c = new Vector3[4]; brt.GetWorldCorners(c);
+                    sb.Append("\n moreBtn corners ").Append(c[0]).Append(" .. ").Append(c[2])
+                      .Append(" contains=").Append(RectTransformUtility.RectangleContainsScreenPoint(brt, Input.mousePosition))
+                      .Append(" active=").Append(_moreBtn.gameObject.activeInHierarchy).Append(" screen=").Append(Screen.width).Append("x").Append(Screen.height)
+                      .Append(" raycaster=").Append(_canvas.GetComponent<UnityEngine.UI.GraphicRaycaster>() != null).Append(" canvasEnabled=").Append(_canvas.enabled);
+                }
+                Debug.Log(sb.ToString());
+            }
+            if (Input.GetKeyDown(KeyCode.N)) ShowPanel(_charSelectPanel, true);
+            if (Input.GetKeyDown(KeyCode.C)) OnStoryMode();
+            if (Input.GetKeyDown(KeyCode.L)) { Loc.Toggle(); UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name); }
+            if (Input.GetKeyDown(KeyCode.S)) ShowPanel(_settingsPanel, true);
+            if (Input.GetKeyDown(KeyCode.A)) ArcadeUI.Open(false);
+            if (Input.GetKeyDown(KeyCode.F7)) CollectionUI.Open(null, 3);   // 71차: K 는 원격 클릭(CoastDebugClicker)과 겹쳐 탭마다 컬렉션이 열렸다 → F7
+            // V/B/T + Shift: 사이드·엔딩 변주·진엔딩 미리보기 (스크립트 Has 검증용)
+            if (Input.GetKeyDown(KeyCode.V)) ChapterVN.Play(Input.GetKey(KeyCode.LeftShift) ? "SIDE_MANSU_3" : "SIDE_RUA_3", null);
+            if (Input.GetKeyDown(KeyCode.B))
+            {
+                string epi = Input.GetKey(KeyCode.LeftShift) ? "END_B_TRUST"
+                    : Input.GetKey(KeyCode.LeftControl) ? "END_A_SENSE" : "END_A_TRUST";
+                ChapterVN.Play(epi, null);
+            }
+            if (Input.GetKeyDown(KeyCode.T)) ChapterVN.Play(Input.GetKey(KeyCode.LeftShift) ? "END_B_WEAK" : "END_TRUE", null);
+            if (_charSelectPanel != null && _charSelectPanel.activeSelf)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1)) StartNewPlaythrough(RunMode.Running);
+                if (Input.GetKeyDown(KeyCode.Alpha2)) StartNewPlaythrough(RunMode.Skateboard);
+                if (Input.GetKeyDown(KeyCode.Escape)) ShowPanel(_charSelectPanel, false);
+            }
+#endif
+        }
+
+        private void BuildTopPill(Transform parent, string name, string text, string iconName, Vector2 corner)
+        {
+            var pill = CoastUiArt.Panel(parent, name, RunHudChrome.PillNavy, 20);
+            var rt = pill.rectTransform;
+            rt.anchorMin = rt.anchorMax = corner;
+            rt.pivot = corner;
+            rt.anchoredPosition = Vector2.zero;
+            rt.sizeDelta = new Vector2(iconName != null ? 170f : 230f, 54f);
+
+            float textRight = -16f;
+            if (iconName != null)
+            {
+                var iconGo = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+                iconGo.transform.SetParent(rt, false);
+                var irt = iconGo.GetComponent<RectTransform>();
+                irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f);
+                irt.pivot = new Vector2(0f, 0.5f);
+                irt.anchoredPosition = new Vector2(10f, 0f);
+                irt.sizeDelta = new Vector2(36f, 36f);
+                var icon = iconGo.GetComponent<Image>();
+                icon.sprite = CoastUiArt.AsSprite(ArtAssets.LoadTexture(iconName), 100f);
+                icon.preserveAspect = true;
+                icon.raycastTarget = false;
+            }
+
+            var label = CoastHudLayout.MakeText(rt, "Label", text, 26, TextAnchor.MiddleRight,
+                Vector2.zero, Vector2.one, new Vector2(iconName != null ? 52f : 16f, 0f), new Vector2(textRight, 0f));
+            label.color = RunHudChrome.ScoreYellow;
+        }
+
+        private void BuildBottomButton(Transform parent, string label, int slot, Color color,
+            UnityEngine.Events.UnityAction onClick)
+        {
+            var img = CoastUiArt.Panel(parent, label + "Btn", color, 22);
+            var rt = img.rectTransform;
+            float x = (slot - 1) * 0.31f;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f + x, 0f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = new Vector2(0f, 96f);
+            rt.sizeDelta = new Vector2(190f, 96f);
+            img.raycastTarget = true;
+
+            var text = CoastHudLayout.MakeText(rt, "Label", label, 28, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.one, new Vector2(0f, 0f), new Vector2(0f, 0f));
+            text.color = Color.white;
+            text.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.45f);
+
+            var btn = img.gameObject.AddComponent<Button>();
+            btn.targetGraphic = img;
+            btn.onClick.AddListener(onClick);
+        }
+
+        private void BuildRecordPanel(Transform root)
+        {
+            _recordPanel = CreateOverlayPanel(root, "Record");
+            CreateLabel(_recordPanel.transform, "T", "기록", 28, FontStyle.Bold,
+                Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
+            int coins = PlayerPrefs.GetInt(CoinWallet.PrefsKey, 0);
+            CreateLabel(_recordPanel.transform, "B",
+                "최고 점수  " + RunHudChrome.BestScore.ToString("00000") + "\n보유 코인  " + coins +
+                "\n회상 조각  " + (_progress != null ? _progress.UnlockedMemoryCount : 0) + " / " +
+                ProgressionManager.MemorySlotCount,
+                22, FontStyle.Normal, new Color(0.85f, 0.9f, 0.95f), new Vector2(0.5f, 0.5f), new Vector2(480f, 140f));
+            CreateMenuButton(_recordPanel.transform, "닫기", 0.12f, () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_recordPanel, false);
+            }, absoluteBottom: true);
+            _recordPanel.SetActive(false);
+        }
+
+        private void BuildSkipToggle(Transform parent)
+        {
+            var go = new GameObject("SkipPrologue", typeof(RectTransform), typeof(Toggle));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0f);
+            rt.anchorMax = new Vector2(0.5f, 0f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.anchoredPosition = new Vector2(0f, 36f);
+            rt.sizeDelta = new Vector2(360f, 36f);
+
+            var box = new GameObject("Box", typeof(RectTransform), typeof(Image));
+            box.transform.SetParent(go.transform, false);
+            var brt = box.GetComponent<RectTransform>();
+            brt.anchorMin = new Vector2(0f, 0.5f);
+            brt.anchorMax = new Vector2(0f, 0.5f);
+            brt.pivot = new Vector2(0f, 0.5f);
+            brt.anchoredPosition = new Vector2(0f, 0f);
+            brt.sizeDelta = new Vector2(28f, 28f);
+            box.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.2f);
+
+            var check = new GameObject("Check", typeof(RectTransform), typeof(Image));
+            check.transform.SetParent(box.transform, false);
+            var crt = check.GetComponent<RectTransform>();
+            crt.anchorMin = Vector2.zero;
+            crt.anchorMax = Vector2.one;
+            crt.offsetMin = new Vector2(4f, 4f);
+            crt.offsetMax = new Vector2(-4f, -4f);
+            var checkImg = check.GetComponent<Image>();
+            checkImg.color = new Color(0.4f, 0.85f, 0.75f, 1f);
+
+            _skipToggle = go.GetComponent<Toggle>();
+            _skipToggle.targetGraphic = box.GetComponent<Image>();
+            _skipToggle.graphic = checkImg;
+            _skipToggle.isOn = PlayerPrefs.GetInt(SkipPrologueKey, 0) == 1;
+            check.SetActive(_skipToggle.isOn);
+            _skipToggle.onValueChanged.AddListener(v =>
+            {
+                _audio?.PlayClick();
+                check.SetActive(v);
+                PlayerPrefs.SetInt(SkipPrologueKey, v ? 1 : 0);
+                PlayerPrefs.Save();
+            });
+
+            var label = CreateLabel(go.transform, "L", "프롤로그 건너뛰기", 16, FontStyle.Normal,
+                new Color(0.85f, 0.9f, 0.95f, 0.85f), new Vector2(0.58f, 0.5f), new Vector2(280f, 32f));
+            label.raycastTarget = false;
+        }
+
+        private void BuildGalleryPanel(Transform root)
+        {
+            _galleryPanel = CreateOverlayPanel(root, "Gallery");
+            CreateLabel(_galleryPanel.transform, "T", "회상", 28, FontStyle.Bold,
+                Color.white, new Vector2(0.5f, 0.92f), new Vector2(400f, 40f));
+
+            var grid = new GameObject("Grid", typeof(RectTransform), typeof(GridLayoutGroup));
+            grid.transform.SetParent(_galleryPanel.transform, false);
+            var grt = grid.GetComponent<RectTransform>();
+            grt.anchorMin = new Vector2(0.08f, 0.18f);
+            grt.anchorMax = new Vector2(0.92f, 0.84f);
+            grt.offsetMin = Vector2.zero;
+            grt.offsetMax = Vector2.zero;
+            var layout = grid.GetComponent<GridLayoutGroup>();
+            layout.cellSize = new Vector2(110f, 110f);
+            layout.spacing = new Vector2(12f, 12f);
+            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            layout.constraintCount = 3;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+
+            for (int i = 0; i < ProgressionManager.MemorySlotCount; i++)
+            {
+                bool unlocked = _progress != null && _progress.IsMemoryUnlocked(i);
+                int slot = i;
+                var cell = new GameObject("M" + i, typeof(RectTransform), typeof(Image), typeof(Button));
+                cell.transform.SetParent(grid.transform, false);
+                var img = cell.GetComponent<Image>();
+                if (unlocked)
+                {
+                    // R15 thumb is phone-like; others cool fill — no completion caption.
+                    bool isR15 = slot == 14;
+                    img.color = isR15
+                        ? new Color(0.2f, 0.22f, 0.28f, 0.95f)
+                        : new Color(0.55f, 0.72f, 0.85f, 0.9f);
+                    var btn = cell.GetComponent<Button>();
+                    btn.onClick.AddListener(() =>
+                    {
+                        _audio?.PlayClick();
+                        var mem = GameDirector.Instance != null
+                            ? GameDirector.Instance.Memory
+                            : Object.FindFirstObjectByType<MemoryDirector>();
+                        if (mem != null)
+                            mem.ReplayFromGalleryIndex(slot);
+                        else
+                            UI_MemoryPopup.Ensure().Play(StoryDatabase.GetByIndex(slot), null, true);
+                    });
+                }
+                else
+                {
+                    // Silhouette — dark, no label explaining why.
+                    img.color = new Color(0.12f, 0.14f, 0.18f, 0.95f);
+                    cell.GetComponent<Button>().interactable = false;
+                }
+            }
+
+            // ★ No completion bonus text even at 15/15.
+            CreateMenuButton(_galleryPanel.transform, "닫기", 0.08f, () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_galleryPanel, false);
+            }, absoluteBottom: true);
+            _galleryPanel.SetActive(false);
+        }
+
+        private void BuildCreditsPanel(Transform root)
+        {
+            _creditsPanel = CreateOverlayPanel(root, "Credits");
+            CreateLabel(_creditsPanel.transform, "T", "크레딧", 28, FontStyle.Bold,
+                Color.white, new Vector2(0.5f, 0.7f), new Vector2(400f, 40f));
+            CreateLabel(_creditsPanel.transform, "B", "Coast Run\n우리의 송전탑", 20, FontStyle.Normal,
+                new Color(0.85f, 0.9f, 0.95f), new Vector2(0.5f, 0.5f), new Vector2(480f, 120f));
+            CreateMenuButton(_creditsPanel.transform, "닫기", 0.12f, () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_creditsPanel, false);
+            }, absoluteBottom: true);
+            _creditsPanel.SetActive(false);
+        }
+
+        private void BuildSettingsPanel(Transform root)
+        {
+            _settingsPanel = CreateOverlayPanel(root, "Settings");
+            CreateLabel(_settingsPanel.transform, "T", Loc.T("설정", "Settings"), 32, FontStyle.Bold,
+                Color.white, new Vector2(0.5f, 0.80f), new Vector2(400f, 44f));
+            // 9차: 소리 → 진동 → 언어 → 크레딧 (펫 선택은 상점·마이룸에서만 — 사면 자동 장착)
+            Text volLabel = null;
+            var volBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("소리", "Sound"), 0.70f, () =>
+            {
+                CoastPrefs.VolumeStep = (CoastPrefs.VolumeStep + 4) % 5;   // 100 → 75 → 50 → 25 → OFF → 100
+                if (volLabel != null) volLabel.text = VolumeText();
+            });
+            volLabel = volBtn.GetComponentInChildren<Text>();
+            if (volLabel != null) volLabel.text = VolumeText();
+            // 210차(사용자: 「설정에 프레임우선 모드를 디폴트로」): 그래픽 — 프레임 우선(기본) ↔ 화질 우선
+            Text gfxLabel = null;
+            var gfxBtn = CreateMenuButton(_settingsPanel.transform, GraphicsMode.Label(Loc.IsKo), 0.62f, () =>
+            {
+                _audio?.PlayClick();
+                CoastPrefs.FramePriority = !CoastPrefs.FramePriority; GraphicsMode.Apply();
+                if (gfxLabel != null) gfxLabel.text = GraphicsMode.Label(Loc.IsKo);
+            });
+            gfxLabel = gfxBtn.GetComponentInChildren<Text>();
+            if (gfxLabel != null) gfxLabel.text = GraphicsMode.Label(Loc.IsKo);
+            Text hapLabel = null;
+            var hapBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("진동", "Vibration"), 0.54f, () =>
+            {
+                CoastPrefs.Haptic = !CoastPrefs.Haptic;
+                if (hapLabel != null) hapLabel.text = HapticText();
+            });
+            hapLabel = hapBtn.GetComponentInChildren<Text>();
+            if (hapLabel != null) hapLabel.text = HapticText();
+
+            Text langLabel = null;
+            var langBtn = CreateMenuButton(_settingsPanel.transform, Loc.LanguageButtonLabel(), 0.46f, () =>
+            {
+                _audio?.PlayClick();
+                OpenLanguagePopup(() =>
+                {
+                    if (langLabel != null) langLabel.text = Loc.LanguageButtonLabel();
+                });
+            });
+            langLabel = langBtn.GetComponentInChildren<Text>();
+            if (langLabel != null) langLabel.text = Loc.LanguageButtonLabel();
+
+            CreateMenuButton(_settingsPanel.transform, Loc.T("크레딧", "Credits"), 0.38f, () =>
+            {
+                ShowPanel(_settingsPanel, false);
+                ShowPanel(_creditsPanel, true);
+            });
+            // 37차: 비밀코드(테스트) — 1111 이면 전체 챕터·레코드 해금
+            Text codeLabel = null;
+            var codeBtn = CreateMenuButton(_settingsPanel.transform, Loc.T("비밀코드", "Secret code"), 0.30f, () => OpenSecretCode(() =>
+            {
+                if (codeLabel != null) codeLabel.text = SecretText();
+            }));
+            codeLabel = codeBtn.GetComponentInChildren<Text>();
+            if (codeLabel != null) codeLabel.text = SecretText();
+            CreateLabel(_settingsPanel.transform, "Ver", "v0.9  ·  Coast Run · Jeju", 14, FontStyle.Normal,
+                new Color(1f, 0.95f, 0.85f, 0.55f), new Vector2(0.5f, 0.235f), new Vector2(400f, 24f));
+            CreateMenuButton(_settingsPanel.transform, Loc.T("닫기", "Close"), 0.12f, () =>
+            {
+                _audio?.PlayClick();
+                ShowPanel(_settingsPanel, false);
+            }, absoluteBottom: true);
+            _settingsPanel.SetActive(false);
+        }
+
+        private static string VolumeText()
+        {
+            int s = CoastPrefs.VolumeStep;
+            string bar = new string('■', s) + new string('□', 4 - s);
+            return (Loc.IsKo ? "소리  " : "Sound  ") + bar + "  " + CoastPrefs.VolumeLabel(s);
+        }
+
+        private string SecretText() => (Loc.IsKo ? "비밀코드" : "Secret code") + (_gm != null && _gm.DevUnlockAll ? Loc.T("  ·  전부 열림", "  ·  all open") : "");
+
+        // ── 언어 팝업 + 비밀코드 ──
+        public const string SecretCode = "1111";
+        private GameObject _codeModal;
+        private GameObject _langModal;
+
+        private void OpenLanguagePopup(System.Action onChanged = null)
+        {
+            if (_langModal != null) Destroy(_langModal);
+            var root = _settingsPanel != null ? _settingsPanel.transform.parent : transform;
+            _langModal = new GameObject("LangPopup", typeof(RectTransform), typeof(Image));
+            _langModal.transform.SetParent(root, false);
+            var mrt = _langModal.GetComponent<RectTransform>(); mrt.anchorMin = Vector2.zero; mrt.anchorMax = Vector2.one; mrt.offsetMin = Vector2.zero; mrt.offsetMax = Vector2.zero;
+            _langModal.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
+            var dimBtn = _langModal.AddComponent<Button>(); dimBtn.transition = Selectable.Transition.None;
+            dimBtn.onClick.AddListener(() => { Destroy(_langModal); _langModal = null; });
+            var card = CoastUiArt.CutePill(_langModal.transform, "Card", new Color(0.98f, 0.94f, 0.86f), 26, 5);
+            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.sizeDelta = new Vector2(440f, 520f); crt.anchoredPosition = new Vector2(0f, 10f);
+            card.raycastTarget = true;
+            var navy = new Color(0.10f, 0.14f, 0.30f);
+            var title = CreateLabel(card.transform, "T", Loc.T("언어", "Language"), 26, FontStyle.Bold, navy, new Vector2(0.5f, 1f), new Vector2(400f, 40f));
+            title.rectTransform.anchoredPosition = new Vector2(0f, -36f);
+            var hint = CreateLabel(card.transform, "Hint", Loc.T("한 번 고르면 저장돼요", "Your choice is saved"), 14, FontStyle.Normal, new Color(0.35f, 0.32f, 0.40f), new Vector2(0.5f, 1f), new Vector2(400f, 28f));
+            hint.rectTransform.anchoredPosition = new Vector2(0f, -72f);
+            float y = -110f;
+            foreach (var code in Loc.Langs)
+            {
+                string c = code;
+                bool on = Loc.Lang == c;
+                CoastOrnate.GlassButton(card.transform, "L_" + c, (on ? "★ " : "") + Loc.Native(c), new Vector2(0.5f, 1f), new Vector2(0f, y), new Vector2(340f, 48f), () =>
+                {
+                    _audio?.PlayClick();
+                    if (Loc.Lang == c) { Destroy(_langModal); _langModal = null; return; }
+                    Loc.SetLang(c);
+                    Destroy(_langModal); _langModal = null;
+                    onChanged?.Invoke();
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+                }, 0.5f, 18, on);
+                y -= 56f;
+            }
+            CoastOrnate.GlassButton(card.transform, "Close", Loc.T("닫기", "Close"), new Vector2(0.5f, 0f), new Vector2(0f, 28f), new Vector2(200f, 46f), () => { _audio?.PlayClick(); Destroy(_langModal); _langModal = null; }, 0.45f, 18, false);
+        }
+
+        private void OpenSecretCode(System.Action onChanged)
+        {
+            if (_codeModal != null) Destroy(_codeModal);
+            var root = _settingsPanel.transform.parent;
+            _codeModal = new GameObject("SecretCode", typeof(RectTransform), typeof(Image));
+            _codeModal.transform.SetParent(root, false);
+            var mrt = _codeModal.GetComponent<RectTransform>(); mrt.anchorMin = Vector2.zero; mrt.anchorMax = Vector2.one; mrt.offsetMin = Vector2.zero; mrt.offsetMax = Vector2.zero;
+            _codeModal.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
+            var card = CoastUiArt.CutePill(_codeModal.transform, "Card", new Color(0.98f, 0.94f, 0.86f), 26, 5);
+            var crt = card.rectTransform; crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0.5f); crt.sizeDelta = new Vector2(440f, 620f); crt.anchoredPosition = new Vector2(0f, 20f);
+            var navy = new Color(0.10f, 0.14f, 0.30f);
+            var title = CreateLabel(card.transform, "T", Loc.T("비밀코드", "Secret code"), 24, FontStyle.Bold, navy, new Vector2(0.5f, 1f), new Vector2(400f, 40f));
+            title.rectTransform.anchoredPosition = new Vector2(0f, -40f);
+            string entered = "";
+            var shown = CreateLabel(card.transform, "Code", "_ _ _ _", 34, FontStyle.Bold, navy, new Vector2(0.5f, 1f), new Vector2(400f, 50f));
+            shown.rectTransform.anchoredPosition = new Vector2(0f, -96f);
+            var hint = CreateLabel(card.transform, "Hint", Loc.T("숫자 4자리", "4 digits"), 14, FontStyle.Normal, new Color(0.3f, 0.3f, 0.35f, 0.8f), new Vector2(0.5f, 1f), new Vector2(400f, 26f));
+            hint.rectTransform.anchoredPosition = new Vector2(0f, -132f);
+            System.Action refresh = () =>
+            {
+                var sb = new System.Text.StringBuilder();
+                for (int i = 0; i < 4; i++) { sb.Append(i < entered.Length ? entered[i].ToString() : "_"); if (i < 3) sb.Append(' '); }
+                shown.text = sb.ToString();
+            };
+            System.Action<string> press = key =>
+            {
+                _audio?.PlayClick();
+                if (key == "←") { if (entered.Length > 0) entered = entered.Substring(0, entered.Length - 1); refresh(); return; }
+                if (key == "OK")
+                {
+                    if (entered == SecretCode && _gm != null)
+                    {
+                        RecordTable.UnlockAll(_gm.Profile);
+                        _gm.WriteProfileNow();
+                        var save = _gm.PeekSave();
+                        if (save != null)
+                        {
+                            PetShop.UnlockAllPets(save);
+                            if (_gm.Save != null) _gm.Persist();
+                            else _gm.SaveSys.Write(save);
+                        }
+                        hint.text = Loc.T("열렸다 — 전체 챕터 · 레코드 · 펫", "Unlocked — chapters, records & pets");
+                        hint.color = new Color(0.1f, 0.55f, 0.25f);
+                        CoastToast.Show(Loc.T("비밀코드 — 전체 챕터·레코드·펫 해금", "Secret code — chapters, records & pets unlocked"));
+                        onChanged?.Invoke();
+                        StartCoroutine(CloseCodeLater(0.9f));
+                    }
+                    else if (Donation.TryPasscode(entered))   // 52차: 기부 선물 ② 패스코드 — 모든 게임 열림
+                    {
+                        hint.text = Loc.T("열렸다 — 기부 패스코드 ☕", "Unlocked — donor passcode ☕");
+                        hint.color = new Color(0.1f, 0.55f, 0.25f);
+                        CoastToast.Show(Loc.T("기부 패스코드 — 모든 게임이 열렸어요", "Donor passcode — all games unlocked"));
+                        onChanged?.Invoke();
+                        StartCoroutine(CloseCodeLater(0.9f));
+                    }
+                    else { hint.text = Loc.T("아니야", "Nope"); hint.color = new Color(0.8f, 0.2f, 0.2f); entered = ""; refresh(); }
+                    return;
+                }
+                if (entered.Length >= 4) return;
+                entered += key; refresh();
+            };
+            string[] keys = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "←", "0", "OK" };
+            for (int i = 0; i < keys.Length; i++)
+            {
+                int r = i / 3, c = i % 3; string k = keys[i];
+                var pill = CoastUiArt.CutePill(card.transform, "K" + k, k == "OK" ? new Color(1f, 0.45f, 0.35f) : k == "←" ? new Color(0.72f, 0.72f, 0.78f) : new Color(1f, 1f, 1f), 16, 3);
+                var prt = pill.rectTransform; prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 1f); prt.sizeDelta = new Vector2(112f, 80f);
+                prt.anchoredPosition = new Vector2((c - 1) * 124f, -212f - r * 92f);
+                pill.raycastTarget = true;
+                var b = pill.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => press(k));
+                var kl = CreateLabel(pill.transform, "L", k, 26, FontStyle.Bold, k == "OK" ? Color.white : navy, new Vector2(0.5f, 0.5f), new Vector2(100f, 60f));
+                kl.rectTransform.anchoredPosition = new Vector2(0f, 2f);
+            }
+            var close = CoastOrnate.GlassButton(card.transform, "Close", Loc.T("닫기", "Close"), new Vector2(0.5f, 0f), new Vector2(0f, 36f), new Vector2(200f, 46f), () => { _audio?.PlayClick(); Destroy(_codeModal); _codeModal = null; }, 0.45f, 18, false);
+        }
+
+        private System.Collections.IEnumerator CloseCodeLater(float s)
+        {
+            yield return new WaitForSecondsRealtime(s);
+            if (_codeModal != null) { Destroy(_codeModal); _codeModal = null; }
+        }
+
+        private static string HapticText() => (Loc.IsKo ? "진동  " : "Vibration  ") + (CoastPrefs.Haptic ? "ON" : "OFF");
+
+        // 14차-8: 더보기 슬라이드
+        private Button _moreBtn; private Text _moreLabel; private Text _openingHint;
+        private RectTransform _moreRt; private CanvasGroup _moreCg;
+        private Vector2 _moreHidden, _moreShown; private bool _moreOpen; private float _moreT;
+
+        private void ToggleMore()
+        {
+            if (_moreOpen) CloseMore(restoreMenuBgm: true, playClick: true);
+            else OpenMore();
+        }
+
+        private void OpenMore()
+        {
+            _audio?.PlayClick();
+            _moreOpen = true;
+            if (_moreLabel != null) _moreLabel.text = Loc.T("닫기", "Close");
+            if (_moreCg != null) { _moreCg.interactable = true; _moreCg.blocksRaycasts = true; }
+            TitleAudio.FadeMenuOut(0.55f);   // 더보기 중엔 메인 BGM 안 들리게
+        }
+
+        /// restoreMenuBgm: 그냥 닫기면 true(메인 BGM 복구). 컬렉션 등으로 넘어가면 false.
+        private void CloseMore(bool restoreMenuBgm, bool playClick = false)
+        {
+            if (!_moreOpen) return;
+            if (playClick) _audio?.PlayClick();
+            _moreOpen = false;
+            if (_moreLabel != null) _moreLabel.text = Loc.T("더보기", "More");
+            if (_moreCg != null) { _moreCg.interactable = false; _moreCg.blocksRaycasts = false; }
+            if (restoreMenuBgm) TitleAudio.FadeMenuIn(_cleared, 0.55f);
+        }
+
+        private void AnimateMore()
+        {
+            if (_moreRt == null) return;
+            float goal = _moreOpen ? 1f : 0f;
+            if (Mathf.Approximately(_moreT, goal)) return;
+            _moreT = Mathf.MoveTowards(_moreT, goal, Time.unscaledDeltaTime * 4.5f);
+            float e = 1f - Mathf.Pow(1f - _moreT, 3f);   // ease-out
+            _moreRt.anchoredPosition = Vector2.LerpUnclamped(_moreHidden, _moreShown, e);
+            _moreCg.alpha = _moreT;
+        }
+
+        private void ShowPanel(GameObject panel, bool on)
+        {
+            if (panel != null)
+                panel.SetActive(on);
+        }
+
+        private GameObject CreateOverlayPanel(Transform root, string name)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(root, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            // 8차: 검정 반투명 → 반투명 딤 + 가운데 크라프트지 카드(금테). 글은 그대로 흰색.
+            go.GetComponent<Image>().color = new Color(0.05f, 0.04f, 0.06f, 0.55f);
+            var card = CoastUiArt.Panel(go.transform, "Card", new Color(0.83f, 0.69f, 0.22f, 0.9f), 26);
+            // 18차: 카드는 화면 높이의 6~94% — 안의 버튼이 화면 비율(anchorY)로 놓이므로 긴 폰에서도 카드 밖으로 안 나간다
+            var crt = card.rectTransform; crt.anchorMin = new Vector2(0.5f, 0.06f); crt.anchorMax = new Vector2(0.5f, 0.94f); crt.sizeDelta = new Vector2(620f, 0f); crt.anchoredPosition = Vector2.zero;
+            card.raycastTarget = false;
+            var inner = CoastUiArt.Panel(card.transform, "Inner", new Color(0.24f, 0.17f, 0.13f, 0.96f), 24);
+            var irt = inner.rectTransform; irt.anchorMin = Vector2.zero; irt.anchorMax = Vector2.one; irt.offsetMin = new Vector2(3f, 3f); irt.offsetMax = new Vector2(-3f, -3f);
+            inner.raycastTarget = false;
+            return go;
+        }
+
+        private Button CreateMenuButton(Transform parent, string label, float anchorY, UnityEngine.Events.UnityAction onClick,
+            bool absoluteBottom = false)
+        {
+            var go = new GameObject(label + "Btn", typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            if (absoluteBottom)
+            {
+                rt.anchorMin = new Vector2(0.5f, 0f);
+                rt.anchorMax = new Vector2(0.5f, 0f);
+                rt.pivot = new Vector2(0.5f, 0f);
+                rt.anchoredPosition = new Vector2(0f, 118f);
+            }
+            else
+            {
+                rt.anchorMin = new Vector2(0.5f, anchorY);
+                rt.anchorMax = new Vector2(0.5f, anchorY);
+                rt.pivot = new Vector2(0.5f, 0.5f);
+                rt.anchoredPosition = Vector2.zero;
+            }
+
+            rt.sizeDelta = new Vector2(400f, 58f);
+            var img = go.GetComponent<Image>();
+            img.sprite = CoastUiArt.RoundedRect(16); img.type = Image.Type.Sliced;
+            img.color = new Color(1f, 0.92f, 0.72f, 0.16f);
+            var btn = go.GetComponent<Button>();
+            btn.onClick.AddListener(() =>
+            {
+                if (label != "START")
+                    _audio?.PlayClick();
+                onClick?.Invoke();
+            });
+
+            CreateLabel(go.transform, "L", label, 22, FontStyle.Bold, Color.white,
+                new Vector2(0.5f, 0.5f), new Vector2(340f, 48f));
+            return btn;
+        }
+
+        private static Image CreateImage(Transform parent, string name, Vector2 amin, Vector2 amax)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = amin;
+            rt.anchorMax = amax;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            return go.GetComponent<Image>();
+        }
+
+        private static Text CreateLabel(Transform parent, string name, string text, int size, FontStyle style,
+            Color color, Vector2 anchor, Vector2 sizeDelta)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = anchor;
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = sizeDelta;
+            rt.anchoredPosition = Vector2.zero;
+            var label = go.AddComponent<Text>();
+            label.font = CoastHudLayout.Font();
+            label.fontSize = CoastHudLayout.Scaled(size);
+            label.fontStyle = style;
+            label.color = color;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.text = text;
+            label.raycastTarget = false;
+            label.verticalOverflow = VerticalWrapMode.Overflow;   // 11차: 글자를 키우면서 세로 잘림 방지
+            return label;
+        }
+    }
+}

@@ -1,0 +1,1 @@
+[BeachReach] tested=64 stuck=0

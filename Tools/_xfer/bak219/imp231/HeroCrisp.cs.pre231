@@ -1,0 +1,127 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace CoastRun
+{
+    /// 229차(사용자: 「마을에서 주인공이 게임 캐릭터 같지 않게 수채화풍이고 또렷하지 않음」):
+    ///   마을은 전체가 부드러운 룩(_CoastSoft: 넓은 명암 경계·밝은 그늘·뿌연 앰비언트)이라 주인공도 배경처럼 물들어 보였다.
+    ///   주인공 몸 재질에만 ① 소프트 룩을 덜 받게(_CharCrisp — 명암 경계가 또렷한 셀 셰이딩) ② 몸 테두리빛(_CharRim)
+    ///   ③ 잉크 윤곽선을 조금 굵게 — 배경은 그대로 두고 주인공만 또렷하게. 크기·색·모델은 그대로.
+    ///   옷을 갈아입어 몸이 다시 만들어져도 1초마다 확인해 다시 적용한다.
+    public class HeroCrisp : MonoBehaviour
+    {
+        public float Crisp = 1.0f;           // 0 = 마을 소프트 룩 그대로, 1 = 러닝처럼 또렷한 셀 셰이딩
+        public float Rim = 0.42f;            // 몸 테두리빛
+        public float ShadowThreshold = 0.5f, ShadowSoftness = 0.025f;
+        public float OutlineWidth = 0.024f;  // 잉크 윤곽 두께(기본 0.010)
+
+        // 230차(사용자 허락: 목장이야기 비교 제안 2·3): 뒷모습 표지(하트 머리핀) · 배경과 색 대비(머리 조금 밝고 따뜻하게, 노란 옷을 돌길과 다른 주황빛 노랑으로)
+        public bool HeartPin = true;
+        public Color HeartColor = new Color(0.98f, 0.30f, 0.45f);
+        static readonly Color JacketWarm = new Color(1.0f, 0.62f, 0.20f);   // 돌길(연노랑)과 갈리는 주황빛 노랑
+        const float JacketBlend = 0.38f, HairLift = 1.18f;
+        readonly HashSet<Material> _tinted = new HashSet<Material>();
+        Transform _pin;
+
+        static readonly int IdCrisp = Shader.PropertyToID("_CharCrisp"), IdRim = Shader.PropertyToID("_CharRim"),
+            IdThr = Shader.PropertyToID("_ShadowThreshold"), IdSoft = Shader.PropertyToID("_ShadowSoftness"), IdWidth = Shader.PropertyToID("_Width");
+
+        IEnumerator Start()
+        {
+            yield return null; yield return null;   // CelOutlineHint 가 윤곽 셸을 만든 뒤
+            var wait = new WaitForSeconds(1f);
+            while (true) { Apply(); yield return wait; }
+        }
+
+        /// 재질 이름(HN_Jacket·HN_Hair·HN_HairDark)으로 한 번만 색을 바꾼다(다시 적용돼도 누적되지 않게)
+        void Tint(Material m)
+        {
+            if (_tinted.Contains(m) || !m.HasProperty("_BaseColor")) return;
+            _tinted.Add(m);
+            var c = m.GetColor("_BaseColor"); string n = m.name;
+            if (n.StartsWith("HN_Jacket")) { var w = Color.Lerp(c, JacketWarm, JacketBlend); w.a = c.a; m.SetColor("_BaseColor", w); }
+            else if (n.StartsWith("HN_Hair"))
+            {
+                // 밝게 + 살짝 붉은 기(갈색 흙과 갈리게)
+                var w = new Color(Mathf.Min(1f, c.r * HairLift + 0.04f), Mathf.Min(1f, c.g * HairLift + 0.01f), Mathf.Min(1f, c.b * HairLift), c.a);
+                m.SetColor("_BaseColor", w);
+            }
+        }
+
+        /// 뒤에서도 「하늘」로 읽히게 — 머리 뒤쪽 위에 하트 머리핀(일러스트의 하트 핀)
+        void EnsurePin()
+        {
+            if (!HeartPin || (_pin != null && _pin.gameObject.activeInHierarchy)) return;
+            var anim = GetComponentInChildren<Animator>(); if (anim == null || anim.avatar == null || !anim.avatar.isHuman) return;
+            var head = anim.GetBoneTransform(HumanBodyBones.Head); if (head == null) return;
+            var prefab = Resources.Load<GameObject>(ArtAssets.ResourceRoot + "Models/Heart");
+            GameObject go;
+            if (prefab != null) { go = Instantiate(prefab); go.name = "HeartPin"; foreach (var c in go.GetComponentsInChildren<Collider>(true)) Destroy(c); }
+            else { go = GameObject.CreatePrimitive(PrimitiveType.Sphere); go.name = "HeartPin"; Destroy(go.GetComponent<Collider>()); }
+            var mat = CoastMaterials.CreateToon(HeartColor);
+            foreach (var r in go.GetComponentsInChildren<MeshRenderer>(true)) { var arr = new Material[r.sharedMaterials.Length]; for (int i = 0; i < arr.Length; i++) arr[i] = mat; r.sharedMaterials = arr; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; if (r.GetComponent<CelOutlineHint>() == null) r.gameObject.AddComponent<CelOutlineHint>(); }
+            if (mat != null) { mat.SetFloat(IdCrisp, 1f); mat.SetFloat(IdRim, 0.3f); }
+            // 크기 맞추기: 가장 큰 폭 0.17 m(키 1.19 m 기준), 가장 얇은 축이 몸 뒤쪽을 보게
+            go.transform.SetParent(null, false); go.transform.rotation = Quaternion.identity; go.transform.localScale = Vector3.one;
+            var b = new Bounds(go.transform.position, Vector3.zero); bool any = false;
+            foreach (var r in go.GetComponentsInChildren<Renderer>(true)) { if (!any) { b = r.bounds; any = true; } else b.Encapsulate(r.bounds); }
+            var sz = any ? b.size : Vector3.one * 0.1f; float big = Mathf.Max(sz.x, Mathf.Max(sz.y, sz.z));
+            float k = 0.22f / Mathf.Max(0.0001f, big);
+            var holder = new GameObject("HeartPinHolder").transform; holder.SetParent(head, false);
+            var body = transform;   // Rig 호스트(플레이어 회전을 따라감)
+            // 머리 기준: 뒤로 0.25 m · 위로 0.15 m · 오른쪽으로 0.10 m (플레이어 방향 기준) — 머리 뼈 축과 상관없이 몸 방향으로 맞춘다
+            // 2등신 머리(지름 ≈0.5 m)라 머리카락 겉면까지 ≈0.25 m — 그 바깥에 붙인다
+            float topY = head.position.y + 0.25f;
+            foreach (var smr in GetComponentsInChildren<SkinnedMeshRenderer>(true)) if (smr.name != "Outline") topY = Mathf.Max(topY, smr.bounds.max.y);
+            // 머리카락 겉면(반지름 ≈0.3 m)의 뒤·위·오른쪽 45° 자리 — 머리핀처럼 머리 위 뒤쪽에 올라앉게
+            var hp = head.position; hp.y = topY - 0.10f;
+            holder.position = hp - body.forward * 0.27f + body.right * 0.12f;
+            // 얇은 축 → 뒤(-forward)
+            Vector3 thin = sz.x <= sz.y && sz.x <= sz.z ? Vector3.right : sz.y <= sz.z ? Vector3.up : Vector3.forward;
+            go.transform.SetParent(holder, false);
+            float ls = Mathf.Max(0.0001f, holder.lossyScale.x);
+            go.transform.localScale = Vector3.one * (k / ls);   // 머리 뼈 아래 배율(리그 크기)을 빼고 실제 0.17 m
+            go.transform.position = holder.position;
+            // 얇은 축을 몸 뒤(-forward)로, 나머지 세로축을 몸 위로(모델이 Y-up 이라고 보고, 납작하게 누운 모델이면 Z 를 세로로)
+            Vector3 bf = -body.forward, up = body.up;
+            if (thin == Vector3.forward) go.transform.rotation = Quaternion.LookRotation(bf, up);
+            else if (thin == Vector3.right) go.transform.rotation = Quaternion.LookRotation(Vector3.Cross(bf, up), up);
+            else go.transform.rotation = Quaternion.LookRotation(up, bf);
+            go.transform.Rotate(-body.forward, 15f, Space.World);   // 살짝 기울여 핀 느낌
+            // 중심 맞추기
+            Bounds b2 = new Bounds(); bool any2 = false; foreach (var r in go.GetComponentsInChildren<Renderer>(true)) { if (!any2) { b2 = r.bounds; any2 = true; } else b2.Encapsulate(r.bounds); }
+            if (any2) go.transform.position += holder.position - b2.center;
+            _pin = holder;
+            Debug.Log($"[HeroCrisp] heart pin on {head.name} · model {(prefab != null ? "Heart" : "sphere")} · size {sz} → ×{k:0.###}");
+        }
+
+        public void Apply()
+        {
+            EnsurePin();
+            foreach (var r in GetComponentsInChildren<Renderer>(true))
+            {
+                if (r == null) continue;
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    var m = mats[i]; if (m == null || m.shader == null) continue;
+                    string sn = m.shader.name;
+                    if (sn == "CoastRun/ToonLit")
+                    {
+                        if (m.HasProperty(IdCrisp) && Mathf.Approximately(m.GetFloat(IdCrisp), Crisp)) continue;
+                        if (!m.name.EndsWith("(Instance)")) { m = r.materials[i]; }   // 공용 재질이면 이 몸만의 복제본으로
+                        m.SetFloat(IdCrisp, Crisp); m.SetFloat(IdRim, Rim);
+                        Tint(m);
+                        m.SetFloat(IdThr, ShadowThreshold); m.SetFloat(IdSoft, ShadowSoftness);
+                    }
+                    else if (sn == "CoastRun/InkOutline" && m.HasProperty(IdWidth) && m.GetFloat(IdWidth) < OutlineWidth - 0.0005f)
+                    {
+                        // 윤곽 재질은 CelOutlineHint 가 이 몸 전용으로 만든 것
+                        m.SetFloat(IdWidth, OutlineWidth);
+                    }
+                }
+            }
+        }
+    }
+}

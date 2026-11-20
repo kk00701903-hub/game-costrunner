@@ -1,0 +1,546 @@
+   (+{0}★, total {1}/60)	   (+{0}★, total {1}/60)
+   ·   {0} more for S	   ·   {0} más para S
+ (need {0} +{1})	 (necesitas {0} +{1})
+ Horse {0}	 Caballo {0}
+ Ranch  {0}	 Rancho  {0}
+ STA {0}	 ENE {0}
+ STA{0}	 ENE{0}
+ stress {0}	 estrés {0}
+ stress{0}	 estrés{0}
+ · have {0}	 · tienes {0}
+ · passcode {0}	 · código {0}
+ — +{0}G · replay it from More › Mini-games	 — +{0}G · juega de nuevo en Más › Minijuegos
++{0} coins	+{0} monedas
++{0}G · stress -{1}!	¡+{0}G · estrés -{1}!
+1st {0}G ♥3 prize · 2nd {1}G ♥2 · 3rd {2}G ♥1	1.º {0}G ♥3 · 2.º {1}G ♥2 · 3.º {2}G ♥1
+9 trees. Weekly harvest. {0}G	9 árboles. Cosecha semanal. {0}G
+A week goes by — week {0} → {1}	Pasa una semana — semana {0} → {1}
+Achievements {0}/{1}  ·  Stars {2}/60  ·  Daily stamps {3}  ·  Endings {4}/7	Logros {0}/{1}  ·  Estrellas {2}/60  ·  Sellos diarios {3}  ·  Finales {4}/7
+Affinity {0} · Lv{1} reward	Afinidad {0} · recompensa Nv{1}
+Agility {0}!	¡Agilidad {0}!
+All ({0}G)	Todo ({0}G)
+All 3 by chapter end: ♥ +2 · 2: +1 · now ♥ {0}	Los 3 antes del fin del capítulo: ♥ +2 · 2: +1 · ahora ♥ {0}
+Arrive within {0}s	Llega en {0} s
+Arrows {0} · in {1}/{2} — tap [Set aim] on the jar	Flechas {0} · dentro {1}/{2} — toca [Apuntar] en la vasija
+As much as I can ({0}G)	Todo lo que pueda ({0}G)
+At most {0} hits	Máximo {0} golpes
+Ate this week · dishes {0} · ingredients {1}	Comido esta semana · platos {0} · ingredientes {1}
+Ate {0}!	¡Comiste {0}!
+Auto grocery: {0}	Compra automática: {0}
+Auto-filled {0} · tap a slot to change	Autocompletado {0} · toca una ranura para cambiar
+Beat the chapter {0} mission to unlock	Supera la misión del capítulo {0} para desbloquear
+Best combo {0}	Mejor combo {0}
+Best combo ×{0}	Mejor combo ×{0}
+Best {0}	Mejor {0}
+Best {0} m	Mejor {0} m
+Best {0} m · {1} pts · {2} runs	Mejor {0} m · {1} pts · {2} carreras
+Binder {0}/{1}  ·  {2}/{3} released  ·  found as items while running	Álbum {0}/{1}  ·  {2}/{3} publicadas  ·  se encuentran como objetos al correr
+Bond ♥ +{0} (♥ {1})	Vínculo ♥ +{0} (♥ {1})
+Boss Rush · {0} bosses cleared!	¡Jefes en serie · {0} jefes superados!
+Bought {0} ×1!	¡Compraste {0} ×1!
+Bought {0} ×{1}!	¡Compraste {0} ×{1}!
+Bought {0}!	¡Compraste {0}!
+Burnout (stress {0}/{1}). Spend this week playing — a walk or a swim.	Agotamiento (estrés {0}/{1}). Dedica esta semana a jugar: un paseo o un baño.
+Burnout {0}/{1} — spend this week playing	Agotamiento {0}/{1} — dedica esta semana a jugar
+Buy once, wear anytime · {0}G	Compra una vez, úsalo siempre · {0}G
+B{0} · 👑 Boss	B{0} · 👑 Jefe
+CHAPTER {0}	CAPÍTULO {0}
+Casts left {0}/{1}	Lanzamientos restantes {0}/{1}
+Catch {0} bugs	Atrapa {0} insectos
+Catch {0} crabs	Atrapa {0} cangrejos
+Caught {0}! {1} +1 · Fish +{2} (sell at the shop)	¡Atrapaste {0}! {1} +1 · Peces +{2} (véndelos en la tienda)
+Caught! Back to start ({0}/3)	¡Atrapado! Vuelves al inicio ({0}/3)
+Ch. {0}	Cap. {0}
+Ch. {0} · {1}	Cap. {0} · {1}
+Ch. {0} · {1} · {2}:{3}	Cap. {0} · {1} · {2}:{3}
+Ch.{0} {1} : {2} ({3})	Cap.{0} {1} : {2} ({3})
+Challenge Chapter {0}!	¡Desafía el capítulo {0}!
+Chapter {0} complete	Capítulo {0} completado
+Chapter {0} is done. Now chapter {1} — week {2}.	Capítulo {0} terminado. Ahora, capítulo {1} — semana {2}.
+Chapter {0} mission · replay	Misión del capítulo {0} · repetir
+Chapter {0} story\n{1}  ·  {2}	Historia del capítulo {0}\n{1}  ·  {2}
+Chapter {0} · {1}	Capítulo {0} · {1}
+Chapter {0} — farm money & items for story mode!	Capítulo {0} — ¡consigue dinero y objetos para el modo historia!
+Characters {0}/2	Personajes {0}/2
+Charm {0}!	¡Encanto {0}!
+Chop wood {0}×	Cortar leña {0}×
+Cinematic · {0}:{1}	Cinemática · {0}:{1}
+Cleared · Rank {0} · hearts {1}/{2}	Superado · Rango {0} · corazones {1}/{2}
+Clothes {0} wk left	Ropa: quedan {0} sem
+Clothes {0}w left	Ropa {0} sem
+Clue on hold — {0}	Pista en espera — {0}
+Clue — {0} ({1}/6)	Pista — {0} ({1}/6)
+Clues {0}/6	Pistas {0}/6
+Coin jackpot {0}!	¡Premio gordo de monedas {0}!
+Coins {0}	Monedas {0}
+Coins {0}   ·   Jelly {1}	Monedas {0}   ·   Gelatinas {1}
+Coins {0} · Near miss {1} · Best combo {2} · Hearts {3}	Monedas {0} · Roces {1} · Mejor combo {2} · Corazones {3}
+Collect {0} coins	Reúne {0} monedas
+Combo {0}	Combo {0}
+Condition {0} · Stress {1} / Stamina {2}	Condición {0} · Estrés {1} / Energía {2}
+Cond{0}	Cond{0}
+Contest "{0}"\n{1}  ·  {2}	Concurso «{0}»\n{1}  ·  {2}
+Contest in {0}w: {1} · {2}	Concurso en {0} sem: {1} · {2}
+Contest reward — {0}	Premio del concurso — {0}
+Cooked → {0}	Cocinado → {0}
+Cook→{0}	Cocinar→{0}
+Cows {0} · Pigs {1}	Vacas {0} · Cerdos {1}
+Cows {0}/3 · Pigs {1}/4	Vacas {0}/3 · Cerdos {1}/4
+Cutscene {0} / {1}	Escena {0} / {1}
+Cutscene {0} at end of ch.{1} (week {2})	Escena {0} al final del cap.{1} (semana {2})
+Cutscene {0} — story time.	Escena {0} — hora de la historia.
+Daily Run  {0}	Carrera diaria  {0}
+Deco · {0}	Deco · {0}
+Defeat {0} bosses	Derrota a {0} jefes
+Delivery/market {0}/2	Reparto/mercado {0}/2
+Done! {0} knocked out → {1}G	¡Listo! {0} fuera → {1}G
+Done! {0} out	¡Listo! {0} fuera
+Done. {0}/{1} today.	Hecho. {0}/{1} hoy.
+Drank remaining stock {0}	Bebiste las existencias restantes: {0}
+Effective {0} · {1}	Efectivo {0} · {1}
+Endless  best {0} m · {1} pts\nDaily  best {2} · streak {3} (best {4})\nTotal  {5} runs · {6} km · {7} coins · {8} near misses · {9} flawless	Infinito  mejor {0} m · {1} pts\nDiaria  mejor {2} · racha {3} (mejor {4})\nTotal  {5} carreras · {6} km · {7} monedas · {8} roces · {9} perfectas
+Energy {0}	Energía {0}
+Enter — {0}	Entrar — {0}
+Entry: {0}	Inscripción: {0}
+Exhausted (stress {0}). One more week and you'll fall ill. (Condition -10)	Agotamiento (estrés {0}). Una semana más y enfermarás. (Condición -10)
+Fan art #{0}	Fan art #{0}
+Fan art gallery — one piece per {0} mission stars. (stars {1}/60 → {2} open)	Galería de fan art — una obra cada {0} estrellas de misión. (estrellas {1}/60 → {2} abiertas)
+Fertilize {0}G	Abonar {0}G
+Festival in {0}w: {1} · {2} {3}/{4}	Festival en {0} sem: {1} · {2} {3}/{4}
+Festival prize — "{0}"!	Premio del festival — ¡«{0}»!
+Fullness {0} → {1}  ·  Condition {2} → {3}	Saciedad {0} → {1}  ·  Condición {2} → {3}
+Full{0}	Sac{0}
+Game · {0}	Juego · {0}
+Garden ready: {0} — harvest in My Room	Huerto listo: {0} — cosecha en Mi cuarto
+Gate week. Stamina {0}/{1} — Feed/Play to raise it or you can't run.	Semana de control. Energía {0}/{1}: súbela con Comer/Jugar o no podrás correr.
+Gate {0}/{1} (−{2})	Control {0}/{1} (−{2})
+Gate {0}/{1} ✓	Control {0}/{1} ✓
+Go back to CH {0}?	¿Volver al CAP {0}?
+Go fishing {0}×	Ir a pescar {0}×
+Go inside? (eat · sleep · desk) — {0}/{1}	¿Entrar? (comer · dormir · escritorio) — {0}/{1}
+Goal {0} m	Meta {0} m
+Google Play billing · voluntary · {0} cup(s) so far ☕ thank you{1}	Pago por Google Play · voluntario · {0} taza(s) hasta ahora ☕ gracias{1}
+Great {0} · Fail {1}	Genial {0} · Fallo {1}
+HP {0} · {1}G	HP {0} · {1}G
+HP {0}/{1} · {2}G	HP {0}/{1} · {2}G
+HP {0}/{1} → {2}  ·  {3}G	HP {0}/{1} → {2}  ·  {3}G
+Harvest {0}%!	¡Cosecha {0}%!
+Harvest! {0} → {1}	¡Cosecha! {0} → {1}
+Have {0}	Tienes {0}
+Have {0}w	Tienes {0} sem
+Hearts +{0}	Corazones +{0}
+Hearts {0}	Corazones {0}
+Hearts {0} / {1}  (run +{2})	Corazones {0} / {1}  (carrera +{2})
+Hens {0}/{1} — 1 egg each every morning	Gallinas {0}/{1} — 1 huevo cada una por la mañana
+Here — {0}!	¡Aquí tienes — {0}!
+In season: {0}	De temporada: {0}
+In! {0}/{1} · arrows {2}	¡Dentro! {0}/{1} · flechas {2}
+Items {0}	Objetos {0}
+Kept a promise ({0}/3)	Promesa cumplida ({0}/3)
+Kid's promises ({0}/3) · ♥ {1}	Promesas al niño ({0}/3) · ♥ {1}
+Knock {0} marbles out in 3 shots!	¡Saca {0} canicas en 3 tiros!
+LEVEL UP! Lv {0}	¡SUBES DE NIVEL! Nv {0}
+Land on {0} to catch them back to the lap start — and throw again!	¡Cae en {0} para mandarlos al inicio de la vuelta y vuelve a lanzar!
+Lap {0}!	¡Vuelta {0}!
+Letter · {0}/{1}	Carta · {0}/{1}
+Locked · Fan art #{0} — opens at {1} stars	Bloqueado · Fan art #{0} — se abre con {1} estrellas
+Locked · [{0}] {1}% from photocard items	Bloqueado · [{0}] {1}% de objetos fotocarta
+Love the place! {0}G rent coming in {1} week(s).	¡Me encanta el lugar! Recibirás {0}G de alquiler en {1} semana(s).
+Lv {0}  Haneul · {1}	Nv {0}  Haneul · {1}
+Main story {0}	Historia principal {0}
+Main story {0} · {1}	Historia principal {0} · {1}
+Mastery {0} — {1}	Maestría {0} — {1}
+Me {0}/{1}  ·  {2} {3}/{4}	Yo {0}/{1}  ·  {2} {3}/{4}
+Meals {0}  ·  Ing {1}  ·  Med {2}  ·  Clothes {3}  ·  {4}  ·  {5}	Comidas {0}  ·  Ingr {1}  ·  Med {2}  ·  Ropa {3}  ·  {4}  ·  {5}
+Meals {0} · Ing {1} · Clothes {2}w · Full {3} · Cond {4}	Comidas {0} · Ingr {1} · Ropa {2} sem · Sac {3} · Cond {4}
+Mine rocks {0}×	Picar rocas {0}×
+Mini-game "{0}"{1}\n{2}  ·  {3}	Minijuego «{0}»{1}\n{2}  ·  {3}
+Miss {0} · {1}/{2} · arrows {3}	Fallo {0} · {1}/{2} · flechas {3}
+Money {0}	Dinero {0}
+Money {0}G	Dinero {0}G
+More than the village shop · {0}G	Más que en la tienda del pueblo · {0}G
+My Room bonus — "{0}"!	Bono de Mi cuarto — ¡«{0}»!
+Napped with {0} — stamina +3	Siesta con {0} — energía +3
+Near-miss combo {0}	Combo de roces {0}
+Need {0} more stamina. Use the goal ribbon when picking Feed/Play.	Necesitas {0} de energía más. Usa la cinta de meta al elegir Comer/Jugar.
+Need {0} more {1}.	Necesitas {0} más de {1}.
+Need {0}G	Necesitas {0}G
+Need {0}G.	Necesitas {0}G.
+Need {0}G…	Necesitas {0}G…
+Needs: {0}	Requiere: {0}
+New card: {0}	Nueva carta: {0}
+Next story in chapter {0} — its place will glow	Siguiente historia en el capítulo {0}: su lugar brillará
+Next turn: chapter {0} story	Próximo turno: historia del capítulo {0}
+Next turn: chapter {0} story → contest "{1}"	Próximo turno: historia del capítulo {0} → concurso «{1}»
+Next — Shots {0} · {1} left	Siguiente — Tiros {0} · quedan {1}
+Next: {0} SIDE {1} needs {2}	Siguiente: {0} SIDE {1} requiere {2}
+No meal… dishes {0} · ingredients {1} (cook then Feed)	Sin comida… platos {0} · ingredientes {1} (cocina y luego Comer)
+No run this chapter — the story opens on week {0}	Sin carrera este capítulo: la historia empieza en la semana {0}
+No sleep ({0} wk)	Sin dormir ({0} sem)
+Not enough coins or level (Lv{0}) — run more!	Faltan monedas o nivel (Nv{0}) — ¡corre más!
+Not enough coins — need {0}G.	Faltan monedas: necesitas {0}G.
+Not enough {0}	Falta {0}
+Not ready to run yet.\nStamina {0} / need {1} — {2} more.\nThis chapter gets one more week of training.	Aún no puedes correr.\nEnergía {0} / necesitas {1} — faltan {2}.\nEste capítulo suma una semana más de entrenamiento.
+Off to {0}!	¡Rumbo a {0}!
+One record per long cut · bonus tracks at 90% Rank S (now {0}/20)	Un disco por toma larga · pistas extra con 90% de Rango S (ahora {0}/20)
+Only {0} HP — too weak to auto-hunt. Eat and sleep first!	Solo {0} PV — demasiado débil para cazar sola. ¡Come y duerme primero!
+Opened by the secret code.\nJump to week {0} with your current stats.	Desbloqueado con el código secreto.\nSalta a la semana {0} con tus estadísticas actuales.
+Our Frequency — {0}:{1}	Nuestra frecuencia — {0}:{1}
+Paid {0} coins to pass (no reward)	Pagaste {0} monedas para pasar (sin recompensa)
+Paid {0}G to skip	Pagaste {0}G para saltar
+Pay {0} coins to pass	Paga {0} monedas para pasar
+Pay {0}G to skip	Paga {0}G para saltar
+Pets unlock at week {0} or after {1} contests\n(now week {2} · {3} contests)\n\nBuy with coins from runs (level required).	Las mascotas se desbloquean en la semana {0} o tras {1} concursos\n(ahora semana {2} · {3} concursos)\n\nCómpralas con monedas de las carreras (requiere nivel).
+Pets unlock at week {0} or {1} contests (now wk {2} · {3} contests)	Mascotas: semana {0} o {1} concursos (ahora sem. {2} · {3} concursos)
+Photo {0} / {1}	Foto {0} / {1}
+Photocard [{0}] {1}	Fotocarta [{0}] {1}
+Photocard — [{0}] {1}	Fotocarta — [{0}] {1}
+Photos collected {0} / {1}	Fotos reunidas {0} / {1}
+Pick up {0} things	Recoge {0} objetos
+Pickaxe by a glowing vein. {0} veins left this week.	Un pico junto a una veta brillante. Quedan {0} vetas esta semana.
+Placed {0}! (−{1}G)	¡Colocaste {0}! (−{1}G)
+Plant · {0}%	Planta · {0}%
+Planted {0}. Harvest in {1}w!	Plantaste {0}. ¡Cosecha en {1} sem.!
+Playthrough {0} — inherited 10% stats & half mastery	Partida {0} — heredas 10% de estadísticas y la mitad de maestría
+Police: Useless! ({0} left)	Policía: ¡Inútil! (quedan {0})
+Prize: {0}G	Premio: {0}G
+Prologue · Our Frequency : Opening ({0})	Prólogo · Nuestra frecuencia : Apertura ({0})
+Promise · {0} {1}/{2}	Promesa · {0} {1}/{2}
+Promises {0}/3 · bond ♥ {1}	Promesas {0}/3 · vínculo ♥ {1}
+Promises · chapter {0}	Promesas · capítulo {0}
+Pull 10+1\n(★{0})	Tirar 10+1\n(★{0})
+Pull capsules with jelly. Legend 1% · Epic 5% · Rare 12% · Uncommon 27% · Common 55%\nJelly {0}	Saca cápsulas con gelatina. Legendaria 1% · Épica 5% · Rara 12% · Poco común 27% · Común 55%\nGelatina {0}
+Pull ×1 ({0})	Tirar ×1 ({0})
+Rabbits {0}/{1} — grown after 3 sleeps ({2} grown)	Conejos {0}/{1} — crecen tras 3 noches ({2} adultos)
+Radio/ham/DJ cards {0}/3	Cartas de radio/radioaficionado/DJ {0}/3
+Rank S {0} / {1}	Rango S {0} / {1}
+Rank {0}	Rango {0}
+Rare deco · {0}	Deco rara · {0}
+Reach chapter {0} to unlock	Llega al capítulo {0} para desbloquear
+Record unlocked — {0}	Disco desbloqueado — {0}
+Removed {0}.	Quitaste {0}.
+Removed. +{0}G refunded	Quitado. +{0}G reembolsados
+Rent {0}G / 4 weeks · next in {1}w · {2}G	Renta {0}G / 4 semanas · próxima en {1} sem. · {2}G
+Retry from week {0}. Only better results are kept.	Reintenta desde la semana {0}. Solo se guardan los mejores resultados.
+Retrying · CH {0}	Reintentando · CAP {0}
+Rice ×{0}w	Arroz ×{0} sem.
+Room {0}/{1}	Cuarto {0}/{1}
+Room {0}G · {1}%/wk (costlier than deposit interest!)	Cuarto {0}G · {1}%/sem. (¡más caro que el interés del depósito!)
+Run jelly ×{0}	Gelatina de carrera ×{0}
+Run {0} m	Carrera {0} m
+Running again rewinds to week {0}; only better results are kept.	Correr de nuevo te regresa a la semana {0}; solo se guardan los mejores resultados.
+STA {0} · AGI {1} · CHA {2} · SEN {3}	ENE {0} · AGI {1} · CAR {2} · SEN {3}
+STA {0} → HP {1} · AGI {2} → lanes {3}% faster · CHA {4} → near-miss +{5}%	ENE {0} → PV {1} · AGI {2} → carriles {3}% más rápido · CAR {4} → casi choque +{5}%
+Score {0}	Puntos {0}
+Sea cards {0}/2	Cartas del mar {0}/2
+Season: {0}	Estación: {0}
+Season: {0} (locked)	Estación: {0} (bloqueada)
+Sell bugs, fish, crops to buy land — then rent every 4 weeks! {0}G	¡Vende bichos, peces y cosechas para comprar terreno y cobrar renta cada 4 semanas! {0}G
+Sellable — {0}G in all. Save up for land and earn monthly rent!	Vendible — {0}G en total. ¡Ahorra para un terreno y cobra renta mensual!
+Sense {0} = radio/photo/spirit events (60+) · sense-based jobs	Sensibilidad {0} = eventos de radio/foto/espíritus (60+) · trabajos de sensibilidad
+Sense {0}!	¡Sensibilidad {0}!
+Sense {0}/40	Sensibilidad {0}/40
+Settled {0} K-POP runs ({1}G). Bonus +{2}G added!	Liquidaste {0} carreras K-POP ({1}G). ¡Bono de +{2}G añadido!
+Shards: {0} · tickets {1} · SR+ in {2}	Fragmentos: {0} · boletos {1} · SR+ en {2}
+Shared with {0} — 1 dish cooked, stress −5%	Compartido con {0} — 1 platillo cocinado, estrés −5%
+Shared with {0} — stress −5% (no ingredients)	Compartido con {0} — estrés −5% (sin ingredientes)
+Shot at {0}%!	¡Tiro al {0}%!
+Shots 3 · leave ≤2 inside ({0} of 8 out) — [Set aim]	Tiros 3 · deja ≤2 dentro ({0} de 8 fuera) — [Apuntar]
+Shots left: {0}  ·  knocked out: {1}	Tiros restantes: {0}  ·  fuera: {1}
+Shots {0} · {1} left (≤2 wins)	Tiros {0} · quedan {1} (≤2 gana)
+Side story · {0}	Historia paralela · {0}
+Side story · {0} : {1} ({2})	Historia paralela · {0} : {1} ({2})
+Side ×{0}w	Guarnición ×{0} sem.
+Signed card ✦ {0}	Carta firmada ✦ {0}
+Sis! The {0} booth is open — limited goods!	¡Hermana! Abrió el puesto de {0} — ¡artículos limitados!
+Slam in the yellow zone! Tries {0}	¡Golpea en la zona amarilla! Intentos {0}
+So close! Reach {0} m next time!	¡Casi! ¡Llega a {0} m la próxima vez!
+Stacked {0} logs. Fuel for {1} weeks — one burns per week, +3 condition.	Apilaste {0} leños. Combustible para {1} semanas — se quema uno por semana, +3 condición.
+Stamina {0}	Energía {0}
+Stamina {0} / need {1} — ready.\nTo the tower.	Energía {0} / necesitas {1} — lista.\nA la torre.
+Stamina {0}!	¡Energía {0}!
+Stamina {0}/{1} — not ready.	Energía {0}/{1} — aún no.
+Stamp earned!  Streak {0}	¡Sello obtenido!  Racha {0}
+Stamped ✓  {0}-day streak  +{1}G	Sellado ✓  racha de {0} días  +{1}G
+Star shards +{0} — try the Star Capsule	Fragmentos de estrella +{0} — prueba la Cápsula Estelar
+Sta{0}	Ene{0}
+Still daytime. {0}/{1} done · {2} action(s) left — sleeping ends the week.	Aún es de día. {0}/{1} hechas · quedan {2} acción(es) — dormir termina la semana.
+Still growing — {0}w left.	Aún crece — faltan {0} sem.
+Story — '{0}'	Historia — «{0}»
+Stress (limit {0})	Estrés (límite {0})
+Stress is at {0}. Play or pet Haneul to recover.	El estrés está en {0}. Juega o acaricia a Haneul para recuperarte.
+Stress {0}	Estrés {0}
+Stress {0} — wearing down (success ↓).	Estrés {0} — desgastándose (éxito ↓).
+Stress {0} — worn out, spend a slot playing	Estrés {0} — agotada, usa un turno para jugar
+Stress {0} → {1} / limit {2} ({3})	Estrés {0} → {1} / límite {2} ({3})
+Stress {0}! Collapses next week — play & rest	¡Estrés {0}! Colapsará la próxima semana — juega y descansa
+Stress{0}	Estrés{0}
+Take {0} photos	Toma {0} fotos
+Talk to {0} villagers	Habla con {0} vecinos
+Tend the garden {0}×	Cuida el huerto {0}×
+Thank you! ★ Everything unlocked\nHidden passcode {0} — enter it in Settings › Secret code on another device	¡Gracias! ★ Todo desbloqueado\nCódigo oculto {0} — ingrésalo en Ajustes › Código secreto en otro dispositivo
+That's {0}G — not enough coins.	Son {0}G — no te alcanzan las monedas.
+That's {0}G.	Son {0}G.
+The fare is {0}G.	El pasaje cuesta {0}G.
+The horse lifts a hoof with every stroke. {0}	El caballo levanta un casco con cada caricia. {0}
+The horse takes the carrot and nudges your palm. {0}	El caballo toma la zanahoria y te empuja la palma. {0}
+This time, let's do these: {0}	Esta vez, hagamos esto: {0}
+Time limit · {0}:{1}	Tiempo límite · {0}:{1}
+To the {0}! Where it glows.	¡Hacia {0}! Donde brilla.
+To {0}~	Rumbo a {0}~
+Too hard, it bounced! Tries {0}	¡Muy fuerte, rebotó! Intentos {0}
+Too weak! Tries {0}	¡Muy débil! Intentos {0}
+Tower jobs {0}/2 or stamina {1}/60	Trabajos en la torre {0}/2 o energía {1}/60
+Trust {0} = 15 salon · 50 job stress -4 · fail -1	Confianza {0} = 15 salón · 50 estrés de trabajo -4 · fallo -1
+Um… could you {0}?	Eh… ¿podrías {0}?
+Unlock: agility {0}	Desbloqueo: agilidad {0}
+Unlock: stamina {0}	Desbloqueo: energía {0}
+Unlock: trust ≥ {0}	Desbloqueo: confianza ≥ {0}
+Unlock: tuition {0}G	Desbloqueo: matrícula {0}G
+Used {0}!	¡Usaste {0}!
+Walked the coast with {0} — stress −{1} · stamina +1	Paseaste por la costa con {0} — estrés −{1} · energía +1
+Wallet {0}G · Deposit {1}G ({2}%/wk) · Loan {3}G ({4}%/wk)	Cartera {0}G · Depósito {1}G ({2}%/sem.) · Préstamo {3}G ({4}%/sem.)
+Week {0} morning.	Mañana de la semana {0}.
+Week {0} or {1} contests cleared (now wk {2} · {3} contests)	Semana {0} o {1} concursos superados (ahora sem. {2} · {3} concursos)
+Week {0} {1}  ·  Lv.{2}  ·  {3}/{4} {5}	Semana {0} {1}  ·  Nv.{2}  ·  {3}/{4} {5}
+Week {0} · Lv {1} · {2}G	Semana {0} · Nv {1} · {2}G
+Week {0} · {1}	Semana {0} · {1}
+Week {0} · {1} · Ch.{2}	Semana {0} · {1} · Cap.{2}
+Week {0} · {1} · Lv.{2}	Semana {0} · {1} · Nv.{2}
+Week {0} · {1}G · stress {2}	Semana {0} · {1}G · estrés {2}
+Week {0} → Week {1} · {2}	Semana {0} → Semana {1} · {2}
+Week {0} → {1} · {2} (last)	Semana {0} → {1} · {2} (última)
+Week {0}, night — falling asleep…	Semana {0}, noche — quedándose dormida…
+Week {0}. Last week of this chapter.	Semana {0}. Última semana de este capítulo.
+Weekend mini-game — {0}! Win for {1}G.	Minijuego de fin de semana — ¡{0}! Gana y obtén {1}G.
+Weekend rest  |  Heal {0}:{1}	Descanso de fin de semana  |  Curación {0}:{1}
+Weeks {0}-{1} only!	¡Solo semanas {0}-{1}!
+Where to? {0}G	¿A dónde? {0}G
+Win for {0}G · lose and skipping costs {1}G	Gana {0}G · si pierdes, saltar cuesta {1}G
+Wk {0}	Sem {0}
+Won! +{0}G	¡Ganaste! +{0}G
+You again! I love {0}.	¡Tú otra vez! Me encanta {0}.
+You did it! First clear this week — 2,000G · 40 jelly · gold ore ×2 · {0}. Take the ladder up.	¡Lo lograste! Primera victoria de la semana — 2,000G · 40 gelatinas · mineral de oro ×2 · {0}. Sube por la escalera.
+You need {0}G.	Necesitas {0}G.
+You've hit the {0}G limit. Repay some first.	Llegaste al límite de {0}G. Paga una parte primero.
+Your turn — [THROW!!] 3 laps before {0}	Tu turno — [¡¡LANZA!!] 3 vueltas antes que {0}
+"{0}" OST · {1} tracks	«{0}» OST · {1} pistas
+\n+{0}G · jelly +{1} (×2 with all 3 missions)	\n+{0}G · gelatina +{1} (×2 con las 3 misiones)
+\nAll clear! +{0}G	\n¡Todo completado! +{0}G
+\nneed {0} +{1}	\nfalta {0} +{1}
+\n★ 3 missions — money & jelly ×2!  +{0}G · jelly +{1}	\n★ 3 misiones — ¡dinero y gelatina ×2!  +{0}G · gelatina +{1}
+fail {0}%	fallo {0}%
+gate {0}	puerta {0}
+gate {0} ✓	puerta {0} ✓
+in {0}w	en {0} sem.
+limit {0}	límite {0}
+next {0}	siguiente {0}
+ticket ×{0}	boleto ×{0}
+{0}  ({1}/{2})\n{3}\nReward: {4}G · {5} shards · 1 activity	{0}  ({1}/{2})\n{3}\nRecompensa: {4}G · {5} fragmentos · 1 actividad
+{0}  ·  HP +{1}  ·  {2}G	{0}  ·  PV +{1}  ·  {2}G
+{0} / gate {1}	{0} / puerta {1}
+{0} / gate {1} ✓	{0} / puerta {1} ✓
+{0} Harvest {1}	{0} Cosecha {1}
+{0} Harvested! {1} → bag	{0} ¡Cosechado! {1} → bolsa
+{0} Planted {1}. Water it!	{0} Plantaste {1}. ¡Riégalo!
+{0} The {1} withered… no water for two weeks.	{0} {1} se marchitó… dos semanas sin agua.
+{0} action(s) left. Press again to skip them.	Quedan {0} acción(es). Pulsa otra vez para saltarlas.
+{0} brought a bag of rice! (−18G)	¡{0} trajo un saco de arroz! (−18G)
+{0} brought ingredients — {1} dishes cooked!	{0} trajo ingredientes — ¡{1} platillos cocinados!
+{0} capsules → bag	{0} cápsulas → bolsa
+{0} cheered me up — stress −{1}	{0} me animó — estrés −{1}
+{0} coins	{0} monedas
+{0} command · 1/week	Orden {0} · 1/semana
+{0} course · same for everyone today. Clear all three for a stamp.	Recorrido {0} · hoy es igual para todos. Supera los tres para un sello.
+{0} cuts · {1}s · {2}	{0} tomas · {1} s · {2}
+{0} donated	Donado: {0}
+{0} festival · week {1}	Festival {0} · semana {1}
+{0} fetched a letter — hearts +1	{0} trajo una carta — corazones +1
+{0} finished 3 laps first…	{0} completó 3 vueltas primero…
+{0} first…	{0} primero…
+{0} hearts	{0} corazones
+{0} hearts to S-cut. Contests and great successes help.	Faltan {0} corazones para el corte S. Los concursos y los grandes éxitos ayudan.
+{0} is lowest. If a Lesson card appears under Play, take it.	{0} es la más baja. Si aparece una carta de Lección en Jugar, tómala.
+{0} joined!	¡{0} se unió!
+{0} km to the tower	{0} km hasta la torre
+{0} left…	Quedan {0}…
+{0} left… need ≤2	Quedan {0}… se necesita ≤2
+{0} main stories + {1} side stories · {2} seen{3}	{0} historias principales + {1} secundarias · {2} vistas{3}
+{0} matters — 	{0} importa — 
+{0} more ♥ to the next memory	Faltan {0} ♥ para el próximo recuerdo
+{0} near misses	{0} roces
+{0} selected — joins runs.	{0} seleccionado — se une a las carreras.
+{0} stamps · streak {1} (best {2})	{0} sellos · racha {1} (mejor {2})
+{0} tries left	Quedan {0} intentos
+{0} weeks to the tower · stamina {1} gate ▼{2} OK! · energy {3}	{0} semanas para la torre · energía {1} puerta ▼{2} ¡OK! · energía {3}
+{0} weeks to the tower · {1} more to gate ▼{2} · energy {3}	{0} semanas para la torre · faltan {1} para la puerta ▼{2} · energía {3}
+{0} wins…	{0} victorias…
+{0} withered… ({1}%)	{0} se marchitó… ({1}%)
+{0} {1} / target {2}	{0} {1} / meta {2}
+{0} {1} growing {2}/{3} (watered)	{0} {1} creciendo {2}/{3} (regado)
+{0} {1} {2}G · {3}w	{0} {1} {2}G · {3} sem
+{0} {1} {2}G · {3}w · {4}% · {5}	{0} {1} {2}G · {3} sem · {4}% · {5}
+{0} {1}G — walk to a spot, then 「Place」	{0} {1}G — camina hasta un lugar y luego 「Colocar」
+{0} · done this week	{0} · hecho esta semana
+{0} · wear	{0} · ponerse
+{0} · {1}G (stress −{2})	{0} · {1}G (estrés −{2})
+{0} ×{1} · {2}G each  (+{3}G)	{0} ×{1} · {2}G c/u  (+{3}G)
+{0} — done this turn	{0} — hecho este turno
+{0} — win to move on!	{0} — ¡gana para avanzar!
+{0} — {1}. Reward {2}G · 3 shards. This week.	{0} — {1}. Recompensa {2}G · 3 fragmentos. Esta semana.
+{0} — {1}/{2} so far. Please!	{0} — {1}/{2} por ahora. ¡Por favor!
+{0}! HP {1} → {2} (−{3}G)	¡{0}! PV {1} → {2} (−{3}G)
+{0}% of the song — one more?	{0}% de la canción — ¿otra más?
+{0}'s turn!	¡Turno de {0}!
+{0}'s turn… throwing	Turno de {0}… lanzando
+{0}/{1} · now {2}	{0}/{1} · ahora {2}
+{0}:{1} — Cinematic — always available	{0}:{1} — Cinemática — siempre disponible
+{0}G · a rental goes up and pays {1}G every 4 weeks. You have {2}G	{0}G · se construye un alquiler que paga {1}G cada 4 semanas. Tienes {2}G
+{0}G · stress {1}	{0}G · estrés {1}
+{0}G · water once per phase; grows more each week.	{0}G · riega una vez por fase; crece más cada semana.
+{0}\n{1} {2} almost ready~	{0}\n{1} {2} ¡casi lista~
+{0}\n{1} {2} growing... {3}w left	{0}\n{1} {2} creciendo... quedan {3} sem
+{0}\n{1} {2} just sprouted!	{0}\n{1} {2} ¡acaba de brotar!
+{0}\n{1} {2} ready! ⭐	{0}\n{1} {2} ¡lista! ⭐
+{0}\n{1} {2} sprout!	{0}\n{1} {2} ¡brote!
+{0}w left	Quedan {0} sem
+{0}… need {1}	{0}… se necesita {1}
+…Woke up in the hospital. Paid {0}G ({1}%). 	…Despertaste en el hospital. Pagaste {0}G ({1}%). 
+…{0}?! Still {1}G	…¡¿{0}?! Aún {1}G
+↩ Repaid {0}G — {1}G left	↩ Pagaste {0}G — quedan {1}G
+≤{0} hits	≤{0} golpes
+≤{0} hits in first 500 m	≤{0} golpes en los primeros 500 m
+■  Hidden track {0} playing	■  Pista oculta {0} sonando
+■ Expand — one more row (3) {0}G	■ Ampliar — una fila más (3) {0}G
+■ Garden expanded to {0} plots (west)	■ Huerto ampliado a {0} parcelas (oeste)
+■ Week {0} — today	■ Semana {0} — hoy
+▶ Chapter {0}	▶ Capítulo {0}
+▶ Follow the kid ({0}/3) · {1}	▶ Sigue al niño ({0}/3) · {1}
+▶ More ({0}/{1})	▶ Más ({0}/{1})
+▶ Ride — needs ♥3 (now ♥{0})	▶ Montar — requiere ♥3 (ahora ♥{0})
+◆ {0} grade	◆ Rango {0}
+● 1 pull · {0} jelly	● 1 tirada · {0} gominolas
+● Buy & give a carrot {0}G (+10)	● Comprar y dar zanahoria {0}G (+10)
+● Feed {0}G (+6)	● Alimentar {0}G (+6)
+● Feed {0}G (+8)	● Alimentar {0}G (+8)
+● Garden ({0})	● Huerto ({0})
+● Hens {0} · Rabbits {1}	● Gallinas {0} · Conejos {1}
+● New {0} · ★ +{1}	● Nuevos {0} · ★ +{1}
+● The rain watered {0} plot(s)	● La lluvia regó {0} parcela(s)
+● {0} planted — ripe {1} · thirsty {2}	● {0} plantado — madura {1} · sed {2}
+●● 10 pulls · {0} jelly	●● 10 tiradas · {0} gominolas
+★ 3 laps before {0}!	★ ¡3 vueltas antes de {0}!
+★ Coins {0}  ·  Lv {1} ★	★ Monedas {0}  ·  Nv {1} ★
+★ Collect {0} golden egg(s)	★ Recoge {0} huevo(s) de oro
+★ Points {0}  ·  Lv {1} ★	★ Puntos {0}  ·  Nv {1} ★
+★ Stamped ✓  {0}-day streak  +{1}G	★ Sellado ✓  racha de {0} días  +{1}G
+★ Today's missions {0}/3	★ Misiones de hoy {0}/3
+★ {0} entry	★ Entrada {0}
+★ {0} golden egg(s)!	★ ¡{0} huevo(s) de oro!
+★ {0} — max	★ {0} — máx.
+★ {0}G  ·  Lv {1} ★	★ {0}G  ·  Nv {1} ★
+☕ Buy me a coffee · {0}	☕ Invítame un café · {0}
+☕ Thank you! {0} cup(s)	☕ ¡Gracias! {0} taza(s)
+♥ Care for hens {0}	♥ Cuidar gallinas {0}
+♥ Care for rabbits {0}	♥ Cuidar conejos {0}
+♥ Friendship +{0}	♥ Amistad +{0}
+♥ Horse ♥{0}!	♥ ¡Caballo ♥{0}!
+♥ Love ♥{0}!	♥ ¡Amor ♥{0}!
+♥ Next week: {0}'s birthday	♥ La próxima semana: cumpleaños de {0}
+♥ {0}'s birthday this week! Gifts count triple.	♥ ¡Esta semana es el cumpleaños de {0}! Los regalos cuentan triple.
+♥ {0}/{1} for S	♥ {0}/{1} para S
+⚠ BURNOUT — stress {0}/{1}. Rest now.	⚠ AGOTAMIENTO — estrés {0}/{1}. Descansa ya.
+⛏ Deep shaft B{0}	⛏ Pozo profundo B{0}
+⛏ Rock cleared! {0} stones dropped — regrows in {1}w	⛏ ¡Roca despejada! Cayeron {0} piedras — reaparece en {1} sem
+⛏ {0} stones dropped · {1}/3	⛏ Cayeron {0} piedras · {1}/3
+✅ Buy (−{0}G)	✅ Comprar (−{0}G)
+✔ {0} (wearing)	✔ {0} (puesto)
+✦ Caught {0}! Again	✦ ¡Atrapaste {0}! Otra vez
+✦ {0}'s turn… ✦	✦ Turno de {0}… ✦
+✨ Caught a monster! Already own {0} — shards +3 · 150G	✨ ¡Atrapaste un monstruo! Ya tienes {0} — fragmentos +3 · 150G
+✨ Found {0}!	✨ ¡Encontraste {0}!
+✨ Story '{0}' · {1}	✨ Historia '{0}' · {1}
+✨ The story continues — {0}	✨ La historia continúa — {0}
+⬇ B{0} Boss room	⬇ B{0} Sala del jefe
+⬇ Down to B{0}	⬇ Bajar a B{0}
+🌊 In the sea! Over {0}s is dangerous	🌊 ¡En el mar! Más de {0} s es peligroso
+🌱 Pick a seed for pot {0}!	🌱 ¡Elige una semilla para la maceta {0}!
+🌳 Timber! {0} logs dropped — walk over to collect · regrows in {1}w	🌳 ¡Árbol va! Cayeron {0} troncos — camina para recogerlos · reaparece en {1} sem
+🍊 {0} oranges fell → {1}G	🍊 Cayeron {0} naranjas → {1}G
+🍊 {0} oranges → {1}G · Veg +1	🍊 {0} naranjas → {1}G · Verdura +1
+🍊 {0} tangerines!	🍊 ¡{0} mandarinas!
+🍖 Butchered a rabbit — meat ×2 ({0} left)	🍖 Conejo despiezado — carne ×2 (quedan {0})
+🍖 Meat +3 — 🚨 Police! (wanted Lv {0}) Run or fight!	🍖 Carne +3 — 🚨 ¡Policía! (búsqueda Nv {0}) ¡Huye o pelea!
+🍯 {0} jars of honey!	🍯 ¡{0} frascos de miel!
+🎁 Gift to {0}	🎁 Regalo para {0}
+🎁 Reward +{0}G · shards +3{1}	🎁 Recompensa +{0}G · fragmentos +3{1}
+🎁 Sent to {0} (+{1})	🎁 Enviado a {0} (+{1})
+🎉 Bought {0}! Rent {1}G every 4 weeks	🎉 ¡Compraste {0}! Renta de {1}G cada 4 semanas
+🎉 Caught a monster! Got the pet 「{0}」 — equip it at the pet shop	🎉 ¡Atrapaste un monstruo! Conseguiste la mascota 「{0}」 — equípala en la tienda de mascotas
+🎉 {0} begins!	🎉 ¡Comienza {0}!
+🎮 Play · Practice ({0}/{1})	🎮 Jugar · Práctica ({0}/{1})
+🎯 Mission complete! +{0}G · shards +{1}	🎯 ¡Misión cumplida! +{0}G · fragmentos +{1}
+🎯 Today's mission — {0}	🎯 Misión de hoy — {0}
+🎵 Settle K-POP run income ({0} runs · {1}G → +{2}G)	🎵 Cobrar ingresos de carreras K-POP ({0} carreras · {1}G → +{2}G)
+🏏 Boss −{0} (HP {1})	🏏 Jefe −{0} (PV {1})
+🏏 Hit −{0}	🏏 Golpe −{0}
+🏙 Jeju City ({0}G)	🏙 Ciudad de Jeju ({0}G)
+🏛 Donated {0}! +{1}G	🏛 ¡Donaste {0}! +{1}G
+🏝 Jungmon Resort ({0}G)	🏝 Resort Jungmun ({0}G)
+🏠 Go inside (eat · sleep · desk) — {0}/{1}	🏠 Entrar (comer · dormir · escritorio) — {0}/{1}
+🏡 Land · rent ({0} lots · {1}G/mo)	🏡 Terrenos · alquiler ({0} lotes · {1}G/mes)
+🏡 Land · rent ({0} lots)	🏡 Terrenos · alquiler ({0} lotes)
+🏡 My rental · {0}G/mo (next in {1}w)	🏡 Mi alquiler · {0}G/mes (próximo en {1} sem)
+🏡 Rent received! {0} month(s) +{1}G	🏡 ¡Renta recibida! {0} mes(es) +{1}G
+🏡 Village ({0}G)	🏡 Pueblo ({0}G)
+🏡 {0} — owned · {1}G/mo	🏡 {0} — tuyo · {1}G/mes
+🏦 Borrowed {0}G — {1}% a week	🏦 Préstamo de {0}G — {1}% semanal
+🏦 Take a loan (limit {0}G)	🏦 Pedir préstamo (límite {0}G)
+🏷 Buy {0} · {1}G ({2}G/mo)	🏷 Comprar {0} · {1}G ({2}G/mes)
+🏷 For sale · {0} ({1}G)	🏷 En venta · {0} ({1}G)
+🏷 {0} — {1}G ({2}G/mo)	🏷 {0} — {1}G ({2}G/mes)
+🐔 Caught a chicken! Sent to the farm ({0}/{1})	🐔 ¡Atrapaste una gallina! Enviada a la granja ({0}/{1})
+🐔 Farm · {0} hens · {1} rabbits ({2} grown)	🐔 Granja · {0} gallinas · {1} conejos ({2} adultos)
+🐝 Hive set up! ({0}/3)	🐝 ¡Colmena instalada! ({0}/3)
+🐰 Caught a rabbit! Sent to the farm ({0}/{1})	🐰 ¡Atrapaste un conejo! Enviado a la granja ({0}/{1})
+🐴 The horse bolts! ({0} left)	🐴 ¡El caballo se desboca! (quedan {0})
+👻 The ghost got you! HP −{0} — run home!	👻 ¡El fantasma te atrapó! PV −{0} — ¡corre a casa!
+💊 Nurse · Treatment (full HP, {0}G)	💊 Enfermera · Tratamiento (PV completos, {0}G)
+💊 Treated! Full HP (−{0}G)	💊 ¡Curada! PV completos (−{0}G)
+💢 Grabbed by a bandit! HP −{0} · lost {1}G — bat them twice!	💢 ¡Te atrapó un bandido! PV −{0} · perdiste {1}G — ¡golpéalo dos veces con el bate!
+💢 Hit by {0}! HP −{1} (HP {2})	💢 ¡Te golpeó {0}! PV −{1} (PV {2})
+💥 Bitten by a big bug! HP −{0} — bop it with the bat first!	💥 ¡Te mordió un bicho grande! PV −{0} — ¡golpéalo primero con el bate!
+💥 Critical! −{0} (HP {1})	💥 ¡Crítico! −{0} (PV {1})
+💥 Defeated! +{0}G{1} ({2} left)	💥 ¡Derrotado! +{0}G{1} (quedan {2})
+💧 Water · {0} {1}/{2}	💧 Regar · {0} {1}/{2}
+💧 Watered — {0} is ready!	💧 Regado — ¡{0} está listo!
+💧 Watered — {0} {1}/{2}	💧 Regado — {0} {1}/{2}
+💰 Deposited {0}G — {1}% interest a week	💰 Depositaste {0}G — {1}% de interés semanal
+💰 Sell all  +{0}G	💰 Vender todo  +{0}G
+💰 Sell cows ({0})	💰 Vender vacas ({0})
+💰 Sell pigs ({0})	💰 Vender cerdos ({0})
+💰 Sold {0}! +{1}G	💰 ¡Vendiste {0}! +{1}G
+💰 Sold! +{0}G (now {1}G)	💰 ¡Vendido! +{0}G (ahora {1}G)
+💵 Withdrew {0}G	💵 Retiraste {0}G
+💸 Not enough ({0}G short)	💸 No alcanza (faltan {0}G)
+📖 New entry! {0}	📖 ¡Nueva entrada! {0}
+📜 {0}'s request	📜 Pedido de {0}
+📜 {0}'s request done! Go talk — {1}	📜 ¡Pedido de {0} completado! Ve a hablar — {1}
+🔥 Stove burned a log — cozy home, condition +3 ({0} left)	🔥 La estufa quemó un tronco — casa acogedora, condición +3 (quedan {0})
+🔥 Stove firewood (wood {0} · fuel {1}w)	🔥 Leña para la estufa (madera {0} · combustible {1} sem)
+😌 Stress −{0}	😌 Estrés −{0}
+🚌 Arrived: {0}	🚌 Llegaste: {0}
+🚓 Caught by the police! HP −{0} · fine {1}G — run to lose them	🚓 ¡Te atrapó la policía! PV −{0} · multa {1}G — corre para perderlos
+🛍 Bought (−{0}G)	🛍 Comprado (−{0}G)
+🛣 Lay road — {0}G a tile, auto-move follows roads	🛣 Construir camino — {0}G por casilla, el auto-movimiento sigue los caminos
+🛣 No road reaches {0}. Lay tiles ({1}G each) with the Road tool.	🛣 Ningún camino llega a {0}. Coloca casillas ({1}G c/u) con la herramienta Camino.
+🛣 Not enough money ({0}G a tile)	🛣 No alcanza el dinero ({0}G por casilla)
+🛣 Road tile −{0}G ({1} tiles · {2}G left)	🛣 Casilla de camino −{0}G ({1} casillas · quedan {2}G)
+🛣 Road: press action on the green tile → {0}G	🛣 Camino: pulsa acción en la casilla verde → {0}G
+🥚 Collect {0} eggs	🥚 Recoge {0} huevos
+🥚 Collected {0} eggs! ({1} in bag)	🥚 ¡Recogiste {0} huevos! ({1} en la bolsa)
+🥛 {0} milk!	🥛 ¡{0} de leche!
+🥥 {0} coconut(s) fell → bag	🥥 Cayeron {0} coco(s) → bolsa
+🪓 {0} logs dropped · stamina +1 · {1}/3	🪓 Cayeron {0} troncos · energía +1 · {1}/3
+🪜 Up to B{0}	🪜 Subir a B{0}
+🫙 {0} jars of syrup!	🫙 ¡{0} frascos de jarabe!

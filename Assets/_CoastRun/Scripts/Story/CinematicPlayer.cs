@@ -36,6 +36,10 @@ namespace CoastRun
         private Canvas _canvas;
         private Image _a, _b, _fader;
         private Material _matA, _matB;
+        // 240차: 흐린 뒤 배경 · 자막 그늘 · 진행 선 · 제목 카드 장식
+        private Image _back; private Material _matBack; private Sprite _backNext; private bool _backSepia; private float _backSat = 1f;
+        private Image _progress, _topShade, _cardLineA, _cardLineB; private RectTransform _cardMain;
+        private readonly Image[] _moteImg = new Image[26]; private readonly float[] _moteSize = new float[26];
         private Text _caption, _tag;
         private Image _band;   // 85차: 자막 띠 — 긴 자막(>90자)이면 더 높게
         private CanvasGroup _titleCg;
@@ -84,8 +88,16 @@ namespace CoastRun
             black.raycastTarget = true;
 
             var sh = DesatShader();
+            // 240차: 그림 뒤 — 같은 그림을 흐리고 어둡게 깔아 화면 위아래 검은 띠를 없앤다(긴 화면 · 켄번즈로 그림이 비켜난 자리)
+            _back = CoastRun.Story.StoryFx.Fill(root, "Backdrop", null, new Color(0.46f, 0.46f, 0.50f, 0f), Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad));
             _a = MakeShot(root, "ShotA"); _b = MakeShot(root, "ShotB");
-            if (sh != null) { _matA = new Material(sh); _matB = new Material(sh); _a.material = _matA; _b.material = _matB; }
+            if (sh != null)
+            {
+                _matA = new Material(sh); _matB = new Material(sh); _a.material = _matA; _b.material = _matB;
+                _matBack = new Material(sh); _back.material = _matBack;
+                CoastRun.Story.StoryFx.ApplyPicture(_matA, 0.03f); CoastRun.Story.StoryFx.ApplyPicture(_matB, 0.03f);   // 또렷하게 · 번짐 · 필름 톤 · 가장자리 부드럽게
+                CoastRun.Story.StoryFx.ApplyBackdrop(_matBack);
+            }
 
             var vgo = new GameObject("Video", typeof(RectTransform), typeof(RawImage));
             vgo.transform.SetParent(root, false);
@@ -106,9 +118,21 @@ namespace CoastRun
             _flash = CoastHudLayout.MakeImage(root, "Flash", Vector2.zero, Vector2.one, new Vector2(-pad, -pad), new Vector2(pad, pad), new Color(1f, 0.97f, 0.9f, 0f)); _flash.raycastTarget = false;
 
             // 자막 띠(아래) + 회상 태그(위)
+            // 240차: 위쪽 옅은 그늘(곡명 · 건너뛰기 버튼이 밝은 하늘 위에서도 읽히게)
+            _topShade = CoastRun.Story.StoryFx.Fill(root, "TopShade", CoastRun.Story.StoryFx.VGradient(false), new Color(0f, 0f, 0f, 0.42f),
+                new Vector2(0f, 0.86f), new Vector2(1f, 1f), new Vector2(-pad, 0f), new Vector2(pad, pad));
             var band = CoastHudLayout.MakeImage(root, "CaptionBand", new Vector2(0f, 0.06f), new Vector2(1f, 0.21f),
-                new Vector2(-CoastUiCanvas.HudPad, 0f), new Vector2(CoastUiCanvas.HudPad, 0f), new Color(0f, 0f, 0f, 0.46f));
+                new Vector2(-CoastUiCanvas.HudPad, 0f), new Vector2(CoastUiCanvas.HudPad, 0f), new Color(0f, 0f, 0f, 0f));
             band.raycastTarget = false; _band = band;
+            // 240차: 네모난 회색 띠 대신 아래에서 위로 사라지는 그늘 — 그림을 자르지 않고 자막만 받친다
+            var shade = CoastRun.Story.StoryFx.Fill(band.transform, "Shade", CoastRun.Story.StoryFx.VGradient(true), new Color(0.02f, 0.02f, 0.05f, 0.80f),
+                Vector2.zero, Vector2.one, new Vector2(-pad, -150f), new Vector2(pad, 120f));
+            // 그늘 아래(화면 맨 밑 · 긴 화면 여백)는 같은 색으로 이어 채운다
+            CoastRun.Story.StoryFx.Fill(shade.transform, "Under", null, new Color(0.02f, 0.02f, 0.05f, 0.80f), Vector2.zero, new Vector2(1f, 0f), new Vector2(0f, -pad), Vector2.zero);
+            shade.transform.SetAsFirstSibling();
+            // 240차: 이야기 진행 선(자막 아래 가는 금빛 선이 컷마다 조금씩 자란다)
+            var track = CoastRun.Story.StoryFx.Fill(band.transform, "ProgressTrack", null, new Color(1f, 1f, 1f, 0.14f), new Vector2(0.12f, 0f), new Vector2(0.88f, 0f), new Vector2(0f, -14f), new Vector2(0f, -11f));
+            _progress = CoastRun.Story.StoryFx.Fill(track.transform, "Fill", null, new Color(1f, 0.86f, 0.52f, 0.85f), Vector2.zero, new Vector2(0f, 1f), Vector2.zero, Vector2.zero);
             _caption = CoastOrnate.Label(band.transform, "Caption", "", 27, new Color(1f, 0.97f, 0.9f));
             _caption.lineSpacing = 1.3f; _caption.horizontalOverflow = HorizontalWrapMode.Wrap;
             // 75차: 두 문장 자막(≤64자)이 세 줄로 갈려 마지막 줄에 한두 단어만 남던 것 — 여백 40→26, 최대 27→25 로 두 줄에 맞춘다
@@ -125,8 +149,13 @@ namespace CoastRun
             tgo.transform.SetParent(root, false);
             CoastOrnate.Stretch(tgo.GetComponent<RectTransform>(), 0f, 0f, 0f, 0f);
             _titleCg = tgo.GetComponent<CanvasGroup>(); _titleCg.alpha = 0f; _titleCg.blocksRaycasts = false;
+            // 240차: 제목 뒤 부드러운 어둠 + 위아래 가는 금빛 선(카드가 뜰 때 가운데에서 양옆으로 펴진다)
+            CoastRun.Story.StoryFx.Fill(tgo.transform, "CardShade", CoastRun.Story.StoryFx.SoftDot(), new Color(0f, 0f, 0f, 0.55f),
+                new Vector2(0f, 0.47f), new Vector2(1f, 0.87f), new Vector2(-pad - 260f, 0f), new Vector2(pad + 260f, 0f));
+            _cardLineA = CoastRun.Story.StoryFx.Line(tgo.transform, "LineA", new Vector2(0.5f, 0.70f), new Vector2(0f, 62f), 460f, 3f, new Color(1f, 0.86f, 0.55f, 0.9f));
+            _cardLineB = CoastRun.Story.StoryFx.Line(tgo.transform, "LineB", new Vector2(0.5f, 0.70f), new Vector2(0f, -58f), 460f, 3f, new Color(1f, 0.86f, 0.55f, 0.9f));
             var t1 = CoastOrnate.Label(tgo.transform, "Main", StoryEn.T(_def.cardMain ?? _def.title), _def.gameTitleCard ? 64 : 54, new Color(1f, 0.97f, 0.88f));
-            var r1 = t1.rectTransform; r1.anchorMin = r1.anchorMax = new Vector2(0.5f, 0.70f); r1.sizeDelta = new Vector2(680f, 90f);
+            var r1 = t1.rectTransform; r1.anchorMin = r1.anchorMax = new Vector2(0.5f, 0.70f); r1.sizeDelta = new Vector2(680f, 90f); _cardMain = r1;
             t1.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(t1, new Color(0.55f, 0.22f, 0.08f, 0.9f), 2.5f);
             if (!string.IsNullOrEmpty(_def.cardSub))
             {
@@ -242,6 +271,9 @@ namespace CoastRun
                 // 72차: 진짜 크로스페이드 — 새 컷은 위에서 알파 0 으로 시작해 0.8초에 걸쳐 나타난다(전엔 위에 바로 불투명으로 올라와 「탁」 바뀌는 게 깜빡임처럼 보였다)
                 cur.color = tex != null ? new Color(1f, 1f, 1f, i == 0 ? 1f : 0f) : new Color(0.2f, 0.18f, 0.22f, 1f);
                 SetLook(curM, s.sat >= 0f ? s.sat : _def.sat, s.sepia);   // 85차: 컷별 채도 키프레임(END_TRUE 2컷부터 1.0)
+                // 240차: 흐린 뒤 배경 — 첫 컷은 바로, 그 뒤로는 크로스페이드 중간(0.4초)에 바꿔 끼운다
+                _backNext = cur.sprite; _backSat = s.sat >= 0f ? s.sat : _def.sat; _backSepia = s.sepia;
+                if (i == 0) SwapBackdrop();
                 cur.transform.SetAsLastSibling();
                 if (_band != null)
                 {   // 85차(v4): 자막이 세 문장 넘는 컷은 띠를 높여 세 줄까지
@@ -259,6 +291,7 @@ namespace CoastRun
                 else _video.color = new Color(1f, 1f, 1f, 0f);
                 if (_fx != null) { _fx.SetAsLastSibling(); _fx.gameObject.SetActive(!useVideo); }
                 _grain.transform.SetAsLastSibling(); _barTop.transform.SetAsLastSibling(); _barBot.transform.SetAsLastSibling(); _flash.transform.SetAsLastSibling();
+                if (_topShade != null) _topShade.transform.SetAsLastSibling();
                 if (s.sepia && !_wasSepia) { StartCoroutine(FlashCo()); CoastPrefs.VibrateEvent(); }   // 회상으로 들어갈 때 하얗게 번쩍(109차: 여기서만 진동)
                 _wasSepia = s.sepia;
                 _fader.transform.SetAsLastSibling();
@@ -295,6 +328,14 @@ namespace CoastRun
                         UpdateFx(t, s.sepia);
                     }
                     UpdateFlashback(s.sepia, dt: Time.unscaledDeltaTime);
+                    if (_backNext != null && t >= 0.4f) SwapBackdrop();
+                    if (_back != null) { _back.enabled = !useVideo; }
+                    if (_progress != null) _progress.rectTransform.anchorMax = new Vector2(Mathf.Clamp01((i + Mathf.Clamp01(t / dur)) / cuts.Length), 1f);
+                    {   // 240차: 자막이 컷마다 아래에서 살짝 올라오며 나타난다
+                        float ck = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 0.35f) / 0.45f));
+                        _caption.rectTransform.anchoredPosition = new Vector2(0f, Mathf.Lerp(-10f, 0f, ck));
+                        var cc1 = _caption.color; cc1.a = ck; _caption.color = cc1;
+                    }
                     if (i == 0) { var c = _fader.color; c.a = 1f - Mathf.Clamp01(t / 0.9f); _fader.color = c; }
                     else if (t >= 0.8f && nxt.color.a > 0f) nxt.color = new Color(1f, 1f, 1f, 0f);
                     if (t > 0.5f && !string.IsNullOrEmpty(cap) && capShown < cap.Length + 1f)
@@ -303,6 +344,7 @@ namespace CoastRun
                         _caption.text = CoastRun.Story.TextReveal.Build(cap, capShown);
                     }
                     if (isLast && t > dur - 2.4f) _titleCg.alpha = Mathf.Clamp01((t - (dur - 2.4f)) / 0.9f);
+                    UpdateCard();
                     if (Tapped()) { cutShort = true; break; }
                     yield return null;
                 }
@@ -310,6 +352,7 @@ namespace CoastRun
             }
 
             _titleCg.alpha = 1f; _caption.text = ""; _tag.text = "";
+            if (_progress != null) _progress.rectTransform.parent.gameObject.SetActive(false);
             float h = 0f;
             float hold = _def.holdToSeconds > 0f && !cutShort ? Mathf.Max(2.2f, _def.holdToSeconds - FinalFade - (Time.unscaledTime - started)) : 2.2f;
             // 105차: 마무리 카드와 함께 「다음화 이어보기」를 띄우고, 누를 틈이 있게 카드를 조금 더 붙잡는다.
@@ -318,6 +361,7 @@ namespace CoastRun
             {
                 h += Time.unscaledDeltaTime;
                 if (_nextCg != null && _nextCg.alpha < 1f) _nextCg.alpha = Mathf.Clamp01(_nextCg.alpha + Time.unscaledDeltaTime / 0.35f);
+                UpdateCard();
                 if (Tapped() && !PointerOverNext()) break;
                 yield return null;
             }
@@ -332,6 +376,29 @@ namespace CoastRun
                 yield return null;
             }
             Finish();
+        }
+
+        /// 240차: 흐린 뒤 배경을 지금 컷 그림으로(그림이 없는 컷은 숨긴다).
+        private void SwapBackdrop()
+        {
+            if (_back == null) return;
+            _back.sprite = _backNext;
+            var c = _back.color; c.a = _backNext != null && _matBack != null ? 1f : 0f; _back.color = c;
+            if (_matBack != null) { _matBack.SetFloat("_Sat", _backSepia ? 0.15f : _backSat); _matBack.SetFloat("_Sepia", _backSepia ? 0.85f : 0f); }
+            _backNext = null;
+        }
+
+        /// 240차: 마무리 카드 — 뜨는 동안 제목이 살짝 커졌다 자리 잡고, 금빛 선이 가운데에서 양옆으로 펴진다.
+        private float _cardK;
+        private void UpdateCard()
+        {
+            if (_titleCg == null) return;
+            float target = _titleCg.alpha > 0.01f ? 1f : 0f;
+            _cardK = Mathf.MoveTowards(_cardK, target, Time.unscaledDeltaTime / 1.1f);
+            float e = 1f - Mathf.Pow(1f - _cardK, 3f);
+            if (_cardMain != null) _cardMain.localScale = Vector3.one * Mathf.Lerp(1.08f, 1f, e);
+            if (_cardLineA != null) _cardLineA.rectTransform.localScale = new Vector3(e, 1f, 1f);
+            if (_cardLineB != null) _cardLineB.rectTransform.localScale = new Vector3(e, 1f, 1f);
         }
 
         // 75차: 회상 연출 값 — 레터박스 높이(0 ↔ 100), 그레인 깜빡임
@@ -383,22 +450,25 @@ namespace CoastRun
             _fx = fxGo.GetComponent<RectTransform>();
             _fx.anchorMin = Vector2.zero; _fx.anchorMax = Vector2.one; _fx.offsetMin = new Vector2(-pad, -pad); _fx.offsetMax = new Vector2(pad, pad);
             _vignette = new GameObject("Vignette", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
-            _vignette.transform.SetParent(_fx, false); _vignette.raycastTarget = false; _vignette.sprite = VignetteSprite();
-            var vrt = _vignette.rectTransform; vrt.anchorMin = Vector2.zero; vrt.anchorMax = Vector2.one; vrt.offsetMin = vrt.offsetMax = Vector2.zero;
+            _vignette.transform.SetParent(_fx, false); _vignette.raycastTarget = false; _vignette.sprite = CoastRun.Story.StoryFx.Vignette();   // 240차: 더 넓고 부드러운 비네트
+            // 240차: 비네트가 화면보다 400 씩 더 커서 어두운 모서리가 화면 밖에 있었다 → 화면 크기에 맞춘다
+            var vrt = _vignette.rectTransform; vrt.anchorMin = Vector2.zero; vrt.anchorMax = Vector2.one; vrt.offsetMin = new Vector2(400f, 400f); vrt.offsetMax = new Vector2(-400f, -400f);
             _vignette.color = new Color(0f, 0f, 0f, 0.35f);
             _sweep = new GameObject("Sweep", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
             _sweep.transform.SetParent(_fx, false); _sweep.raycastTarget = false; _sweep.sprite = SweepSprite();
             var srt = _sweep.rectTransform; srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 0.5f); srt.sizeDelta = new Vector2(260f, 2600f); srt.localRotation = Quaternion.Euler(0f, 0f, 22f);
             _sweep.color = new Color(1f, 0.97f, 0.85f, 0.10f);
-            var dot = CoastUiArt.RoundedRect(16);
+            // 240차: 둥근 사각형 점(그림 위에서 회색 먼지처럼 보였다) → 가장자리가 사라지는 빛 알갱이.
+            //   앞쪽 큰 알갱이는 옅고 느리게, 뒤쪽 작은 알갱이는 또렷하고 빠르게 — 깊이감.
+            var dot = CoastRun.Story.StoryFx.SoftDot();
             for (int i = 0; i < _motes.Length; i++)
             {
                 var m = new GameObject("Mote" + i, typeof(RectTransform), typeof(Image)).GetComponent<Image>();
                 m.transform.SetParent(_fx, false); m.raycastTarget = false; m.sprite = dot; m.type = Image.Type.Simple;
                 var r = m.rectTransform; r.anchorMin = r.anchorMax = new Vector2(0.5f, 0.5f);
-                float sz = UnityEngine.Random.Range(5f, 14f); r.sizeDelta = new Vector2(sz, sz);
+                float sz = i < 5 ? UnityEngine.Random.Range(54f, 96f) : UnityEngine.Random.Range(12f, 30f); r.sizeDelta = new Vector2(sz, sz);
                 m.color = new Color(1f, 0.96f, 0.85f, 0f);
-                _motes[i] = r; _moteSeed[i] = UnityEngine.Random.value * 1000f;
+                _motes[i] = r; _moteImg[i] = m; _moteSize[i] = sz; _moteSeed[i] = UnityEngine.Random.value * 1000f;
             }
         }
 
@@ -417,12 +487,13 @@ namespace CoastRun
             for (int i = 0; i < _motes.Length; i++)
             {
                 float sd = _moteSeed[i];
-                float life = Mathf.Repeat(T * 0.11f + sd, 1f);           // 약 9초에 화면 아래→위
-                float x = Mathf.Repeat(sd * 0.37f, 1f) * 720f - 360f + Mathf.Sin(T * 0.6f + sd) * 26f;
-                float y = Mathf.Lerp(-700f, 700f, life);
+                bool big = _moteSize[i] > 40f;
+                float life = Mathf.Repeat(T * (big ? 0.06f : 0.11f) + sd, 1f);           // 약 9초에 화면 아래→위(큰 알갱이는 16초)
+                float x = Mathf.Repeat(sd * 0.37f, 1f) * 760f - 380f + Mathf.Sin(T * 0.6f + sd) * (big ? 40f : 26f);
+                float y = Mathf.Lerp(-860f, 860f, life);
                 _motes[i].anchoredPosition = new Vector2(x, y);
-                float a = Mathf.Sin(life * Mathf.PI) * (0.35f + 0.25f * Mathf.Sin(T * 2.3f + sd));
-                _motes[i].GetComponent<Image>().color = sepia ? new Color(1f, 0.9f, 0.7f, a * 0.8f) : new Color(1f, 0.97f, 0.88f, a);
+                float a = Mathf.Sin(life * Mathf.PI) * (big ? 0.10f + 0.04f * Mathf.Sin(T * 0.9f + sd) : 0.42f + 0.28f * Mathf.Sin(T * 2.3f + sd));
+                if (_moteImg[i] != null) _moteImg[i].color = sepia ? new Color(1f, 0.9f, 0.7f, a * 0.8f) : new Color(1f, 0.97f, 0.88f, a);
             }
         }
 

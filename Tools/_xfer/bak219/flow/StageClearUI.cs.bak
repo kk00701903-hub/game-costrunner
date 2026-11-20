@@ -1,0 +1,644 @@
+using System;
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace CoastRun
+{
+    /// Stage clear: settle the run, offer upgrades, then hand off to the story beat.
+    ///
+    ///     정산 (count-up)  →  아이템/업그레이드  →  회상 조각  →  다음 스테이지
+    ///
+    /// The settlement doubles as the journey's pacing beat. Subway Surfers ends a run
+    /// with a score; this ends it with how much closer the tower is and how much light
+    /// is left, so the numbers carry the story instead of interrupting it.
+    public class StageClearUI : MonoBehaviour
+    {
+        [SerializeField] private UpgradeManager upgrades;
+        [SerializeField] private CoinWallet wallet;
+        [SerializeField] private UI_FeedbackController feedback;
+        [SerializeField] private UpgradeShopUI shop;
+
+        private Canvas _canvas;
+        private GameObject _root;
+        private Text _title;
+        private Text _stageLabel;
+        private Text _lineCoins;
+        private Text _lineNearMiss;
+        private Text _lineCombo;
+        private Text _lineTotal;
+        private Text _lineHeld;
+        private Text _journey;
+        private Image _journeyFill;
+        private GameObject _shopHost;
+        private Button _continueBtn;
+        private Button _retryBtn;
+        private Action _onContinue;
+        private Action _onRetry;
+        private Coroutine _settle;
+
+        public bool IsVisible => _root != null && _root.activeSelf;
+        /// 정산 연출(칩 카운트업) 중이면 true — 회상 팝업은 이게 끝난 뒤에 띄운다.
+        public bool IsSettling => _settle != null;
+
+        public void Bind(UpgradeManager upgradeManager, CoinWallet coinWallet,
+            UI_FeedbackController ui, UpgradeShopUI shopUi)
+        {
+            upgrades = upgradeManager;
+            wallet = coinWallet;
+            feedback = ui;
+            shop = shopUi;
+            EnsureBuilt();
+            Hide();
+        }
+
+        public void Show(StageDef stage, bool chapterComplete, Action onContinue, Action onRetry)
+        {
+            EnsureBuilt();
+            _onContinue = onContinue;
+            _onRetry = onRetry;
+
+            // 챕터 클리어 타이틀 — 스테이지 번호 = 챕터(v2). 등급 있으면 같이.
+            int ch = stage.stageIndex;
+            string chName = ChapterLocation.Get(ch).Name;
+            string continueLabel = stage.stageIndex >= 20 ? Loc.T("도착", "Arrived") : Loc.T("다음 스테이지", "Next stage");
+            if (GameManager.Active)
+            {
+                var gm = GameManager.I;
+                ch = gm.Save.chapter;
+                chName = ChapterLocation.Get(ch).Name;
+                var grade = gm.LastGrade;
+                _title.text = "STAGE CLEAR!";   // 39차: 시안대로
+                _title.color = grade == ChapterGrade.S ? new Color(1f, 0.85f, 0.3f) : new Color(1f, 0.93f, 0.55f);
+                CoastAudioManager.PlayAnywhere(grade == ChapterGrade.S ? CoastSfx.RankS : CoastSfx.ChapterClear);
+                string heartLine = gm.Save.CurrentChapter != null
+                    ? Loc.T($"말랑이 하트 {gm.Save.CurrentChapter.heartsEarned} / {gm.Save.CurrentChapter.heartsTarget}  (런닝 +{gm.LastRunHearts})", $"Hearts {gm.Save.CurrentChapter.heartsEarned} / {gm.Save.CurrentChapter.heartsTarget}  (run +{gm.LastRunHearts})")
+                    : Loc.T($"말랑이 하트 +{gm.LastRunHearts}", $"Hearts +{gm.LastRunHearts}");
+                if (gm.LastRunLate) heartLine = Loc.T("해가 진 뒤에 도착했어… 하트 −40%   ·   ", "Arrived after sunset… hearts −40%   ·   ") + heartLine;
+                else if (gm.LastRunEarly) heartLine = Loc.T("노을 안에 도착! 하트 +10%   ·   ", "Made it before sunset! hearts +10%   ·   ") + heartLine;
+                var rec = gm.Save.CurrentChapter;
+                if (grade != ChapterGrade.S)
+                {
+                    int need = Mathf.CeilToInt((rec != null ? rec.heartsTarget : 0) * ChapterGrading.S_Ratio) - (rec != null ? rec.heartsEarned : 0);
+                    heartLine += Loc.T($"   ·   S급까지 {need}개", $"   ·   {need} more for S");
+                }
+                if (gm.IsRetry)
+                    heartLine += gm.LastImproved ? Loc.T("   ·   기록 갱신!", "   ·   New record!") : Loc.T("   ·   이전 기록 유지", "   ·   Previous record kept");
+                var prof = gm.Profile;
+                string stars = "";
+                for (int b = 0; b < 3; b++) stars += MissionTable.Has(prof, gm.Save.chapter, b) ? "★" : "☆";
+                string m1 = MissionTable.Get(gm.Save.chapter, 0).Text, m2 = MissionTable.Get(gm.Save.chapter, 1).Text;
+                string starLine = $"{stars}  {Loc.T("클리어", "Clear")} · {m1} · {m2}";
+                if (gm.LastStarsGained > 0) starLine += Loc.T($"   (+{gm.LastStarsGained}★, 총 {prof.StarsTotal}/60)", $"   (+{gm.LastStarsGained}★, total {prof.StarsTotal}/60)");
+                if (gm.LastRecord) starLine += Loc.T("   · 개인 기록", "   · Personal best");
+                string gradeLine = Loc.T($"등급 {ChapterGrading.GradeLabel(grade)}", $"Rank {ChapterGrading.GradeLabel(grade)}");
+                _stageLabel.text = $"{chName}  ·  {gradeLine}\n{heartLine}\n{starLine}";   // 56차-2: 3줄(4줄은 아이템 칩에 가렸다)
+                continueLabel = gm.IsRetry ? Loc.T("타임라인으로", "To timeline") : gm.Save.chapter >= Timeline.Chapters ? Loc.T("송전탑으로", "To the tower") : Loc.T("육성으로", "Back home");
+            }
+            else
+            {
+                _title.text = "STAGE CLEAR!";
+                _title.color = new Color(1f, 0.85f, 0.30f);
+                _stageLabel.text = $"S{stage.stageIndex:00}  {stage.stageName}";   // 39차: 시안대로 한 줄
+                CoastAudioManager.PlayAnywhere(CoastSfx.ChapterClear);
+            }
+
+            if (_continueBtn != null)
+            {
+                var label = _continueBtn.GetComponentInChildren<Text>();
+                if (label != null)
+                    label.text = continueLabel;
+            }
+
+            // 9차: 등급 배지(큰 글자 원) — S 금, A 코랄, 그 외 하늘색
+            if (_gradeBadge != null && GameManager.Active)
+            {
+                var g = GameManager.I.LastGrade;
+                _gradeText.text = ChapterGrading.GradeLabel(g);
+                _gradeBadge.color = g == ChapterGrade.S ? new Color(1f, 0.80f, 0.25f) : g == ChapterGrade.A ? new Color(1f, 0.44f, 0.57f) : new Color(0.45f, 0.68f, 0.90f);
+                _gradeBadge.gameObject.SetActive(false);   // 39차: 시안엔 등급 배지 없음(등급은 소제목 줄에)
+            }
+            else if (_gradeBadge != null) _gradeBadge.gameObject.SetActive(false);
+
+            HideRunHud(true);
+            _root.SetActive(true);
+
+            if (_settle != null)
+                StopCoroutine(_settle);
+            _settle = StartCoroutine(Settle(stage));
+        }
+
+        // 9차: 정산 카드가 뜰 때 런 HUD·픽업 FX·회상 잔여를 숨긴다.
+        // (구버전: sortingOrder>=200 스킵 → PickupFloat 560 / MemoryPopup 360 이 클리어 위에 남음)
+        private readonly System.Collections.Generic.List<Canvas> _hiddenHud = new System.Collections.Generic.List<Canvas>();
+        private const int ClearCanvasOrder = 600;
+        private void HideRunHud(bool hide)
+        {
+            if (hide)
+            {
+                _hiddenHud.Clear();
+                PickupFloat.ClearAll();
+                FeverMode.Instance?.DismissOffer();
+                var mem = UI_MemoryPopup.Instance;
+                if (mem != null && mem.IsPlaying)
+                    mem.ForceAbort();
+
+                foreach (var c in FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+                {
+                    if (c == null || c == _canvas || !c.enabled) continue;
+                    // 페이드 베일만 유지(알파 0이면 안 보임). 그 외 런/FX 캔버스는 전부 숨김.
+                    if (c.name == "FlowUIRoot") continue;
+                    c.enabled = false;
+                    _hiddenHud.Add(c);
+                }
+                if (_canvas != null) _canvas.sortingOrder = ClearCanvasOrder;
+            }
+            else
+            {
+                foreach (var c in _hiddenHud) if (c != null) c.enabled = true;
+                _hiddenHud.Clear();
+                if (_canvas != null) _canvas.sortingOrder = 200;
+                PickupFloat.Resume();
+            }
+        }
+
+        public void ShowFinal(StageDef stage, Action onContinue, Action onRetry)
+        {
+            Show(stage, true, onContinue, onRetry);
+            _title.text = "ARRIVAL";
+            _stageLabel.text = Loc.T("S20  송전탑", "S20  The Tower");
+        }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private void Update()
+        {
+            // 에디터 검증용: 정산 화면에서 Return = 계속, R = 다시.
+            if (!IsVisible || _settle != null) return;
+            if (Input.GetKeyDown(KeyCode.Return)) _onContinue?.Invoke();
+            else if (Input.GetKeyDown(KeyCode.R)) _onRetry?.Invoke();
+        }
+#endif
+
+        public void Hide()
+        {
+            if (_settle != null)
+            {
+                StopCoroutine(_settle);
+                _settle = null;
+            }
+            if (_root != null)
+                _root.SetActive(false);
+            HideRunHud(false);
+            shop?.HidePanel();
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Settlement
+        // ────────────────────────────────────────────────────────────────
+
+        /// Lines land one at a time. The pause between them is the point — it lets the
+        /// run settle before the next stage asks for attention again.
+        private IEnumerator Settle(StageDef stage)
+        {
+            var stats = StageRunStats.Instance;
+            int coinValue = stats != null ? stats.CoinValue : 0;
+            int coinCount = stats != null ? stats.Coins : 0;
+            int nmValue = stats != null ? stats.NearMissValue : 0;
+            int nmCount = stats != null ? stats.NearMissCount : 0;
+            int bestCombo = stats != null ? stats.BestCombo : 0;
+            bool flawless = stats != null && stats.Flawless;
+            float seconds = stats != null ? stats.Seconds : 0f;
+            int jellies = stats != null ? stats.Jellies : 0;
+            int potions = stats != null ? stats.Potions : 0;
+            int hearts = stats != null ? stats.Hearts : 0;
+            int stars = stats != null ? stats.Stars : 0;
+
+            foreach (var c in _chips) c.SetActive(false);
+            _lineTotal.text = "";
+            _lineHeld.text = "";
+            _lineCombo.text = "";
+            if (_shopHost != null)
+                _shopHost.SetActive(false);
+            SetButtons(false);
+
+            if (_faceBubble != null)
+                _faceBubble.text = Loc.T("오늘도 찢었다! 오운완", "Crushed it today! Workout done");
+            // 제목이 '쾅' 들어온다
+            yield return PunchIn(_banner, 0.35f);
+            yield return Wait(0.15f);
+
+            // 22차-5: 먹은 아이템을 ×N 칩으로 하나씩(게임 화면 위에서)
+            int i = 0;
+            yield return Chip(i++, "Coin_Gold", Loc.T("코인", "Coins"), coinCount, coinValue);
+            // 39차: 시안대로 말랑이·하트·물약은 0이어도 항상 네 줄
+            yield return Chip(i++, "Jelly_Lemon", Loc.T("말랑이", "Jellies"), jellies, 0);
+            yield return Chip(i++, "Heart", Loc.T("하트", "Hearts"), hearts, 0);
+            yield return Chip(i++, "Potion", Loc.T("물약", "Potions"), potions, 0);
+            if (stars > 0) yield return Chip(i++, "Star", Loc.T("보너스 별", "Bonus stars"), stars, 0);
+            if (nmCount > 0) yield return Chip(i++, null, Loc.T("니어미스", "Near miss"), nmCount, nmValue);
+
+            if (ShowTotals)
+            {
+                if (bestCombo > 1)
+                    _lineCombo.text = Loc.T($"최고 콤보 ×{bestCombo}", $"Best combo ×{bestCombo}");
+                else if (flawless)
+                    _lineCombo.text = Loc.T("무피해 클리어!", "No damage!");
+                yield return Wait(0.2f);
+
+                int total = coinValue + nmValue;
+                yield return CountUp(_lineTotal, Loc.T("합계", "Total"), total, 0.45f);
+                _lineHeld.text = Row(Loc.T("보유", "Wallet"), "", wallet != null ? wallet.TotalCoins : 0);
+                yield return Wait(0.15f);
+            }
+            if (ShowJourney)
+            {
+                UpdateJourney(stage, seconds);
+                yield return Wait(0.2f);
+            }
+
+            // 22차-5: 인게임 정산에선 업그레이드 상점을 띄우지 않는다(주인공 포즈를 가린다; 펫 상점이 대신).
+            SetButtons(true);
+            _settle = null;
+        }
+
+        private readonly System.Collections.Generic.List<GameObject> _chips = new System.Collections.Generic.List<GameObject>();
+        private RectTransform _chipHost; private RectTransform _banner;
+
+        /// 아이콘 + 이름 + ×N (+ 코인값) 칩. 왼쪽에서 톡 튀어 들어온다.
+        private IEnumerator Chip(int index, string iconKey, string label, int count, int value)
+        {
+            while (_chips.Count <= index)
+            {
+                var go = new GameObject("Chip" + _chips.Count, typeof(RectTransform), typeof(Image));
+                go.transform.SetParent(_chipHost, false);
+                var img = go.GetComponent<Image>();
+                // 39차: 시안 — 남색 반투명 둥근 띠(325×57, 간격 63), 아이콘 44, 글자 20
+                img.sprite = CoastUiArt.RoundedRect(16); img.type = Image.Type.Sliced; img.color = new Color(0.10f, 0.13f, 0.30f, 0.74f); img.raycastTarget = false;
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0f, 1f); rt.anchorMax = new Vector2(0f, 1f); rt.pivot = new Vector2(0f, 1f);
+                rt.sizeDelta = new Vector2(347f, 60f);
+                var icon = new GameObject("Icon", typeof(RectTransform), typeof(Image)); icon.transform.SetParent(go.transform, false);
+                var irt = icon.GetComponent<RectTransform>(); irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f); irt.anchoredPosition = new Vector2(36f, 0f); irt.sizeDelta = new Vector2(52f, 52f);
+                icon.GetComponent<Image>().preserveAspect = true; icon.GetComponent<Image>().raycastTarget = false;
+                var t = CoastHudLayout.MakeText(rt, "T", "", 24, TextAnchor.MiddleLeft, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(72f, 0f), new Vector2(-12f, 0f));
+                t.color = Color.white; t.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.35f), 1f);
+                _chips.Add(go);
+            }
+            var chip = _chips[index];
+            chip.SetActive(true);
+            var crt = chip.GetComponent<RectTransform>();
+            crt.anchoredPosition = new Vector2(0f, -index * 70f);
+            var iconImg = chip.transform.Find("Icon").GetComponent<Image>();
+            var tex = iconKey != null ? PaintedProp.Load(iconKey) : null;
+            iconImg.enabled = tex != null;
+            if (tex != null) iconImg.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            var txt = chip.transform.Find("T").GetComponent<Text>();
+            txt.supportRichText = true;
+            txt.text = value > 0 ? $"{label}  ×0   <color=#FFD54A>+0</color>" : $"{label}  ×0";
+            CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
+            float t0 = 0f; const float slideDur = 0.22f;
+            while (t0 < slideDur)
+            {
+                t0 += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t0 / slideDur);
+                float e = 1f - (1f - u) * (1f - u);
+                crt.anchoredPosition = new Vector2(Mathf.Lerp(-200f, 0f, e), -index * 70f);
+                crt.localScale = Vector3.one * (u < 0.7f ? Mathf.Lerp(0.8f, 1.08f, u / 0.7f) : Mathf.Lerp(1.08f, 1f, (u - 0.7f) / 0.3f));
+                yield return null;
+            }
+            crt.localScale = Vector3.one;
+
+            // 슬라이드 후 ×N / 점수 드라마틱 카운트업
+            int safeCount = Mathf.Max(0, count);
+            int safeValue = Mathf.Max(0, value);
+            float countDur = Mathf.Clamp(0.35f + Mathf.Sqrt(Mathf.Max(safeCount, safeValue)) * 0.045f, 0.45f, 1.15f);
+            float ct = 0f;
+            int lastShown = -1;
+            while (ct < countDur)
+            {
+                ct += Time.unscaledDeltaTime;
+                float u = EaseOutCubic(Mathf.Clamp01(ct / countDur));
+                int shownCount = Mathf.RoundToInt(Mathf.Lerp(0f, safeCount, u));
+                int shownValue = Mathf.RoundToInt(Mathf.Lerp(0f, safeValue, u));
+                if (shownCount != lastShown)
+                {
+                    lastShown = shownCount;
+                    if (shownCount > 0 && shownCount % Mathf.Max(1, safeCount / 8) == 0)
+                        CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
+                    float punch = 1f + 0.08f * (1f - u);
+                    crt.localScale = Vector3.one * punch;
+                }
+                txt.text = safeValue > 0
+                    ? $"{label}  ×{shownCount}   <color=#FFD54A>+{shownValue:N0}</color>"
+                    : $"{label}  ×{shownCount}";
+                yield return null;
+            }
+            txt.text = safeValue > 0
+                ? $"{label}  ×{safeCount}   <color=#FFD54A>+{safeValue:N0}</color>"
+                : $"{label}  ×{safeCount}";
+            // 최종 확정 펀치
+            float pt = 0f;
+            while (pt < 0.18f)
+            {
+                pt += Time.unscaledDeltaTime;
+                float u = Mathf.Clamp01(pt / 0.18f);
+                float sc = u < 0.4f ? Mathf.Lerp(1f, 1.14f, u / 0.4f) : Mathf.Lerp(1.14f, 1f, (u - 0.4f) / 0.6f);
+                crt.localScale = Vector3.one * sc;
+                yield return null;
+            }
+            crt.localScale = Vector3.one;
+            CoastAudioManager.PlayAnywhere(CoastSfx.Coin);
+        }
+
+        private static float EaseOutCubic(float x)
+        {
+            x = Mathf.Clamp01(x);
+            float inv = 1f - x;
+            return 1f - inv * inv * inv;
+        }
+
+        private IEnumerator PunchIn(RectTransform rt, float dur)
+        {
+            if (rt == null) yield break;
+            float t = 0f;
+            while (t < dur)
+            {
+                t += Time.unscaledDeltaTime; float u = Mathf.Clamp01(t / dur);
+                float sc = u < 0.6f ? Mathf.Lerp(1.8f, 0.94f, u / 0.6f) : Mathf.Lerp(0.94f, 1f, (u - 0.6f) / 0.4f);
+                rt.localScale = Vector3.one * sc;
+                yield return null;
+            }
+            rt.localScale = Vector3.one;
+        }
+
+        private IEnumerator CountUp(Text target, string label, int value, float duration)
+        {
+            float t = 0f;
+            while (t < duration)
+            {
+                t += Time.unscaledDeltaTime;
+                int shown = Mathf.RoundToInt(Mathf.Lerp(0f, value, EaseOutQuad(t / duration)));
+                target.text = Row(label, "", shown);
+                yield return null;
+            }
+            target.text = Row(label, "", value);
+        }
+
+        private static float EaseOutQuad(float x)
+        {
+            x = Mathf.Clamp01(x);
+            return 1f - (1f - x) * (1f - x);
+        }
+
+        private static IEnumerator Wait(float seconds)
+        {
+            float t = 0f;
+            while (t < seconds)
+            {
+                t += Time.unscaledDeltaTime;
+                yield return null;
+            }
+        }
+
+        private static string Row(string label, string count, int value, bool showValue = true)
+        {
+            string mid = string.IsNullOrEmpty(count) ? "" : "   " + count;
+            string right = showValue ? "   " + value.ToString("N0") : "";
+            return label + mid + right;
+        }
+
+        /// Distance left to the tower and the light that is left, in one line each.
+        private void UpdateJourney(StageDef stage, float seconds)
+        {
+            if (_journey == null) return;
+            var stages = StageManager.Instance;
+            if (stages == null)
+            {
+                _journey.text = "";
+                return;
+            }
+
+            float progress = Mathf.Clamp01(stages.JourneyProgress01);
+            if (_journeyFill != null)
+                _journeyFill.rectTransform.anchorMax = new Vector2(progress, 1f);
+
+            float remainingKm = stages.RemainingJourneyDistance / 1000f;
+            // 23차-5: 남은 거리는 한 줄로 크게 — 시계·기록은 아래 작은 줄로.
+            _journey.text = Loc.T($"송전탑까지  {remainingKm:0.0} km", $"{remainingKm:0.0} km to the tower");
+            if (_journeySub != null) _journeySub.text = $"{ClockAt(stage.lightingTEnd)}   ·   {StageRunStats.FormatTime(seconds)}";
+            if (_journeyPill != null) StartCoroutine(SimpleTween.PunchScale(_journeyPill.transform, 0.12f, 0.25f));
+        }
+
+        /// The run spans 13:20 → 19:04 as one unbroken afternoon; lightingT is that clock.
+        private static string ClockAt(float t)
+        {
+            const int startMinutes = 13 * 60 + 20;
+            const int endMinutes = 19 * 60 + 4;
+            int m = Mathf.RoundToInt(Mathf.Lerp(startMinutes, endMinutes, Mathf.Clamp01(t)));
+            return $"{m / 60:00}:{m % 60:00}";
+        }
+
+        private void SetButtons(bool on)
+        {
+            if (_continueBtn != null)
+                _continueBtn.gameObject.SetActive(on);
+            if (_retryBtn != null)
+                _retryBtn.gameObject.SetActive(on);
+            if (_homeBtn != null)
+                _homeBtn.gameObject.SetActive(on);
+        }
+        private Button _homeBtn;
+
+        // ────────────────────────────────────────────────────────────────
+
+        private void EnsureBuilt()
+        {
+            if (_root != null)
+                return;
+
+            _canvas = CoastUiCanvas.Create("StageClearCanvas", 200);
+            _root = new GameObject("StageClearRoot", typeof(RectTransform), typeof(Image));
+            _root.transform.SetParent(CoastUiCanvas.Root(_canvas), false);
+            var rt = _root.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(-CoastUiCanvas.HudPad, -CoastUiCanvas.HudPad);
+            rt.offsetMax = new Vector2(CoastUiCanvas.HudPad, CoastUiCanvas.HudPad);
+            // 22차-5: 팝업 카드가 아니라 게임 화면 위에 얹히는 정산 — 배경 딤 없음(주인공 골인 포즈가 보인다).
+            _root.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+            _root.GetComponent<Image>().raycastTarget = false;
+            _card = rt;
+
+            // 상단 배너: STAGE CLEAR! + 등급 배지
+            _banner = new GameObject("Banner", typeof(RectTransform)).GetComponent<RectTransform>();
+            _banner.SetParent(_card, false);
+            _banner.anchorMin = new Vector2(0f, 1f); _banner.anchorMax = new Vector2(1f, 1f); _banner.pivot = new Vector2(0.5f, 1f);
+            // 39차: 시안(ref_clear) 배치 — 어두운 띠 없이 하늘 위에 금색 제목(y≈98) + 스테이지 소제목(y≈170)
+            _banner.anchoredPosition = new Vector2(0f, -30f); _banner.sizeDelta = new Vector2(0f, 150f);
+            _title = CoastHudLayout.MakeText(_banner, "Title", "STAGE CLEAR!", 56, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(20f, -110f), new Vector2(-20f, -20f));
+            _title.color = new Color(1f, 0.85f, 0.30f); _title.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_title, new Color(0.30f, 0.12f, 0.02f, 0.9f), 2.5f);
+            _stageLabel = CoastHudLayout.MakeText(_banner, "Stage", "", 14, TextAnchor.MiddleCenter, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(16f, -206f), new Vector2(-16f, -118f));   // 56차-2: 3줄이 들어가게 높이 88
+            _stageLabel.resizeTextForBestFit = true; _stageLabel.resizeTextMinSize = 12; _stageLabel.resizeTextMaxSize = 20;
+            _stageLabel.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _stageLabel.color = Color.white; CoastUiArt.OutlineText(_stageLabel, new Color(0f, 0f, 0f, 0.7f), 1.5f);
+
+            // 23차-1: 뒤돌아 포즈 잡을 때 메인페이지의 그 얼굴 — 배너 왼쪽에 동그란 컷인 + 말풍선
+            // 40차: 얼굴 2배(160→320), 말풍선 「오늘도 찢었다! 오운완」(시안 초안 "해냈다!" 아님)
+            var faceTex = ArtAssets.LoadTexture("UI_Face_Ring") ?? ArtAssets.LoadTexture("UI_Face_Girl");
+            if (faceTex != null)
+            {
+                _face = new GameObject("Face", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                _face.transform.SetParent(_card, false); _face.raycastTarget = false;
+                _face.sprite = CoastUiArt.AsSprite(faceTex); _face.preserveAspect = true;
+                var frt0 = _face.rectTransform; frt0.anchorMin = frt0.anchorMax = new Vector2(0f, 1f); frt0.pivot = new Vector2(0.5f, 0.5f);
+                // 43차: 20% 축소(320→256) + 오른쪽이 잘리지 않게 안쪽으로(중심 622→524: 오른쪽 끝 652 ≤ 인셋 664)
+                frt0.anchoredPosition = new Vector2(524f, -330f); frt0.sizeDelta = new Vector2(256f, 256f);
+                var bub = CoastUiArt.CutePill(_card, "FaceBubble", Color.white, 14, 3);
+                var brt2 = bub.rectTransform; brt2.anchorMin = brt2.anchorMax = new Vector2(0f, 1f); brt2.pivot = new Vector2(0.5f, 0.5f);
+                brt2.anchoredPosition = new Vector2(520f, -490f); brt2.sizeDelta = new Vector2(280f, 52f); bub.raycastTarget = false;   // 43차: 얼굴 아래·화면 안
+                foreach (var im in bub.GetComponentsInChildren<Image>()) if (im.name == "Lip") im.color = new Color(0.82f, 0.82f, 0.86f, 1f);
+                _faceBubble = CoastHudLayout.MakeText(brt2, "T", "", 18, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(8f, 0f), new Vector2(-8f, 0f));
+                _faceBubble.color = new Color(0.16f, 0.16f, 0.22f); _faceBubble.fontStyle = FontStyle.Bold;
+                _faceBubble.resizeTextForBestFit = true; _faceBubble.resizeTextMinSize = 12; _faceBubble.resizeTextMaxSize = 20; _faceBubble.horizontalOverflow = HorizontalWrapMode.Wrap;
+            }
+            _gradeBadge = CoastUiArt.Panel(_banner, "Grade", new Color(1f, 0.80f, 0.25f), 40);
+            var grt = _gradeBadge.rectTransform; grt.anchorMin = grt.anchorMax = new Vector2(1f, 1f); grt.pivot = new Vector2(1f, 1f);
+            grt.anchoredPosition = new Vector2(-14f, 6f); grt.sizeDelta = new Vector2(80f, 80f);
+            _gradeBadge.raycastTarget = false;
+            var ring = CoastUiArt.Panel(_gradeBadge.transform, "Ring", new Color(1f, 1f, 1f, 0.55f), 36);
+            var rrt = ring.rectTransform; rrt.anchorMin = Vector2.zero; rrt.anchorMax = Vector2.one; rrt.offsetMin = new Vector2(5f, 5f); rrt.offsetMax = new Vector2(-5f, -5f);
+            ring.raycastTarget = false;
+            _gradeText = CoastHudLayout.MakeText(_gradeBadge.rectTransform, "T", "S", 40, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, Vector2.zero, new Vector2(0f, 2f));
+            _gradeText.color = Color.white; _gradeText.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(_gradeText, new Color(0.3f, 0.15f, 0.05f, 0.6f), 1.6f);
+
+            // 왼쪽 위: 아이템 칩 열(정산). 화면 왼쪽 30%~, 주인공은 가운데 아래에 보인다.
+            _chipHost = new GameObject("Chips", typeof(RectTransform)).GetComponent<RectTransform>();
+            _chipHost.SetParent(_card, false);
+            _chipHost.anchorMin = new Vector2(0f, 1f); _chipHost.anchorMax = new Vector2(0f, 1f); _chipHost.pivot = new Vector2(0f, 1f);
+            _chipHost.anchoredPosition = new Vector2(22f, -232f); _chipHost.sizeDelta = new Vector2(340f, 400f);   // 56차-2: 설명 3줄 아래로
+
+            // 아래쪽: 콤보/합계/보유/여정 + 버튼(반투명 띠 위)
+            var foot = CoastUiArt.Panel(_card, "Foot", new Color(0.05f, 0.04f, 0.12f, 0f), 22);   // 39차: 시안엔 띠 없음
+            var frt = foot.rectTransform; frt.anchorMin = new Vector2(0f, 0f); frt.anchorMax = new Vector2(1f, 0f); frt.pivot = new Vector2(0.5f, 0f);
+            // 25차-5: 정산 화면 단순화(사용자) — 합계·보유·콤보·"송전탑까지 N km" 전부 제거, 버튼만 남긴다.
+            frt.anchoredPosition = new Vector2(0f, 14f); frt.sizeDelta = new Vector2(-24f, 170f); foot.raycastTarget = false;
+            _lineCombo = FootLabel(frt, "Combo", 18, -12f, 30f); _lineCombo.color = new Color(1f, 0.72f, 0.45f);
+            _lineTotal = FootLabel(frt, "Total", 30, -44f, 46f); _lineTotal.color = new Color(1f, 0.93f, 0.55f); _lineTotal.fontStyle = FontStyle.Bold;
+            _lineHeld = FootLabel(frt, "Held", 15, -92f, 26f); _lineHeld.color = new Color(1f, 1f, 1f, 0.8f);
+            _lineCoins = FootLabel(frt, "Coins", 1, -200f, 1f); _lineNearMiss = FootLabel(frt, "NearMiss", 1, -200f, 1f);   // (칩으로 대체, 자리만)
+
+            if (ShowJourney) BuildJourneyBar(frt);
+            _lineCombo.gameObject.SetActive(ShowTotals); _lineTotal.gameObject.SetActive(ShowTotals); _lineHeld.gameObject.SetActive(ShowTotals);
+
+            _shopHost = new GameObject("UpgradeHost", typeof(RectTransform));
+            _shopHost.transform.SetParent(_card, false);
+            var sht = _shopHost.GetComponent<RectTransform>();
+            sht.anchorMin = new Vector2(0.06f, 0.36f);
+            sht.anchorMax = new Vector2(0.94f, 0.52f);
+            sht.offsetMin = Vector2.zero;
+            sht.offsetMax = Vector2.zero;
+
+            // 39차: 시안 — 590×141 큰 광택 버튼 셋(핑크 →, 주황 ⟳, 파랑 ⌂), 중심 y 479 / 300 / 129
+            _continueBtn = MakeButton(_card, "Continue", new Vector2(0.5f, 0f), new Vector2(0f, 479f), new Vector2(590f, 141f),
+                GameManager.Active && !ArcadeRun.Active ? Loc.T("육성으로 돌아가기", "Back to raising") : Loc.T("다음 스테이지", "Next stage"), new Color(0.93f, 0.22f, 0.52f), () => _onContinue?.Invoke(), GameManager.Active && !ArcadeRun.Active ? "Icon_Home" : "Icon_Arrow");   // 60차: 육성 모드 대회는 끝나면 육성으로
+            _retryBtn = MakeButton(_card, "Retry", new Vector2(0.5f, 0f), new Vector2(0f, 300f), new Vector2(590f, 141f),
+                Loc.T("다시 달리기", "Run again"), new Color(1f, 0.50f, 0.08f), () => _onRetry?.Invoke(), "Icon_Refresh");
+            _homeBtn = MakeButton(_card, "Home", new Vector2(0.5f, 0f), new Vector2(0f, 129f), new Vector2(590f, 141f),
+                Loc.T("메인으로", "Main menu"), new Color(0.12f, 0.50f, 0.92f), () =>
+                {
+                    if (ArcadeRun.Active) { ArcadeRun.Exit(); return; }
+                    ArcadeRun.ClearSession();
+                    var flow = GameDirector.Instance != null ? GameDirector.Instance.Flow : null;
+                    if (flow != null) _ = flow.GoTo(FlowState.Title, TransitionType.Fade);
+                }, "Icon_Home");
+        }
+
+        private Text FootLabel(RectTransform host, string name, int size, float y, float h)
+        {
+            var t = CoastHudLayout.MakeText(host, name, "", size, TextAnchor.MiddleCenter,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(24f, y - h), new Vector2(-24f, y));
+            t.color = Color.white; CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.6f), 1.5f);
+            return t;
+        }
+
+        /// 25차-5: 합계/보유/콤보 줄과 여정(송전탑까지 km) 표시 여부 — 사용자 요청으로 끔.
+        public const bool ShowTotals = false;
+        public const bool ShowJourney = false;
+        private RectTransform _card; private Image _gradeBadge; private Text _gradeText;
+        private Image _journeyPill; private Text _journeySub; private Image _face; private Text _faceBubble;
+
+        private void BuildJourneyBar(RectTransform host)
+        {
+            var track = CoastUiArt.CutePill(host, "JourneyTrack", new Color(0.86f, 0.80f, 0.68f, 1f), 8, 2);
+            var trt = track.rectTransform;
+            trt.anchorMin = new Vector2(0.1f, 1f); trt.anchorMax = new Vector2(0.9f, 1f); trt.pivot = new Vector2(0.5f, 1f);
+            trt.anchoredPosition = new Vector2(0f, -124f); trt.sizeDelta = new Vector2(0f, 14f);
+            track.raycastTarget = false;
+
+            var fill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+            fill.transform.SetParent(track.transform, false);
+            _journeyFill = fill.GetComponent<Image>();
+            _journeyFill.sprite = CoastUiArt.RoundedRect(6); _journeyFill.type = Image.Type.Sliced;
+            _journeyFill.color = new Color(1f, 0.55f, 0.28f, 1f);
+            _journeyFill.raycastTarget = false;
+            var frt = _journeyFill.rectTransform;
+            frt.anchorMin = Vector2.zero;
+            frt.anchorMax = new Vector2(0f, 1f);
+            frt.offsetMin = new Vector2(3f, 3f);
+            frt.offsetMax = new Vector2(0f, -3f);
+
+            // 23차-5: "송전탑까지 N km"가 버튼에 가려 안 보였다 → 주황 알약 안에 22px 굵게, 그 아래 시계·기록.
+            _journeyPill = CoastUiArt.CutePill(host, "JourneyPill", new Color(1f, 0.55f, 0.28f, 1f), 16, 3);
+            var jrt = _journeyPill.rectTransform; jrt.anchorMin = new Vector2(0.5f, 1f); jrt.anchorMax = new Vector2(0.5f, 1f); jrt.pivot = new Vector2(0.5f, 1f);
+            jrt.anchoredPosition = new Vector2(0f, -140f); jrt.sizeDelta = new Vector2(420f, 44f); _journeyPill.raycastTarget = false;
+            var tower = new GameObject("Tower", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+            tower.transform.SetParent(_journeyPill.transform, false); tower.raycastTarget = false;
+            var tex = CoastUiArt.TowerIcon; if (tex != null) tower.sprite = CoastUiArt.AsSprite(tex);
+            tower.preserveAspect = true; tower.color = Color.white;
+            var trt2 = tower.rectTransform; trt2.anchorMin = trt2.anchorMax = new Vector2(0f, 0.5f); trt2.pivot = new Vector2(0f, 0.5f);
+            trt2.anchoredPosition = new Vector2(10f, 0f); trt2.sizeDelta = new Vector2(32f, 32f);
+            _journey = CoastHudLayout.MakeText(_journeyPill.rectTransform, "Journey", "", 22, TextAnchor.MiddleCenter, Vector2.zero, Vector2.one, new Vector2(40f, 0f), new Vector2(-8f, 0f));
+            _journey.color = Color.white; _journey.fontStyle = FontStyle.Bold; CoastUiArt.OutlineText(_journey, new Color(0.35f, 0.12f, 0.02f, 0.8f), 2f);
+            _journeySub = FootLabel(host, "JourneySub", 13, -188f, 20f);
+            _journeySub.color = new Color(1f, 1f, 1f, 0.75f);
+        }
+
+        /// 카드 상단 기준 y(음수)·높이로 놓는 가운데 정렬 글자.
+        private Text CardLabel(string name, string value, int size, float y, float h)
+        {
+            var t = CoastHudLayout.MakeText(_card, name, value, size, TextAnchor.MiddleCenter,
+                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(28f, y - h), new Vector2(-28f, y));
+            return t;
+        }
+
+        private static Button MakeButton(Transform parent, string name, Vector2 anchor, Vector2 pos, Vector2 size,
+            string label, Color color, Action onClick, string iconName = null)
+        {
+            var pill = CoastUiArt.GlossyPill(parent, name, color, 44, 14);
+            var rt = pill.rectTransform;
+            rt.anchorMin = rt.anchorMax = anchor; rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos; rt.sizeDelta = size;
+            pill.raycastTarget = true;
+            var btn = pill.gameObject.AddComponent<Button>();
+            btn.transition = Selectable.Transition.None;
+            btn.onClick.AddListener(() => onClick?.Invoke());
+            float textLeft = 0f;
+            var iconSpr = iconName != null ? CoastUiArt.Art(iconName) : null;
+            if (iconSpr != null)
+            {
+                var ic = new GameObject("Icon", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
+                ic.transform.SetParent(pill.transform, false); ic.raycastTarget = false;
+                ic.sprite = iconSpr; ic.preserveAspect = true;
+                var irt = ic.rectTransform; irt.anchorMin = irt.anchorMax = new Vector2(0f, 0.5f); irt.pivot = new Vector2(0.5f, 0.5f);
+                irt.anchoredPosition = new Vector2(80f, 8f); irt.sizeDelta = new Vector2(82f, 82f);
+                textLeft = 70f;
+            }
+            var t = CoastHudLayout.MakeText(pill.transform, "Label", label, 40, TextAnchor.MiddleCenter,
+                Vector2.zero, Vector2.one, new Vector2(textLeft, 10f), new Vector2(-16f, 8f));
+            t.color = Color.white; t.fontStyle = FontStyle.Bold;
+            CoastUiArt.OutlineText(t, new Color(0f, 0f, 0f, 0.30f), 1.5f);
+            return btn;
+        }
+    }
+}

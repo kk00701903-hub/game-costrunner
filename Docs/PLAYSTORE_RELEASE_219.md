@@ -758,3 +758,10 @@
 - 주의 2: **C 드라이브 여유 1.9 GB**(빌드 전 11 GB). Library/_old_* 빌드 임시 폴더가 쌓여 있음 — 사용자 지시(임시 데이터는 E:\C_temp_archive 로)에 따라 옮길지 확인 필요. 지금은 손대지 않음.
 - 포함된 변경: 233차 하늘 그림, 235차(결과창·얼굴 아이콘·단서 카드·첫 스와이프), 236~237차(충돌 보조·연타 피해 감소·체력 피해 감소, 스트레스·시작 돈·굶주림 완화).
 - 아직 안 한 것: 플레이스토어 업로드·검토 제출(사용자 확인 후).
+
+### §36 (239차) AAB 83 빌드 (최신 변경 포함) + Play Console 업로드 준비
+- 요청: 「최신변경까지 넣어서 올려줘」. 18:58 배치 빌드(versionCode 82)는 C 드라이브 가득 참(Win32 오류 112)으로 Gradle 단계에서 실패. 81 은 Builds/old/CoastRun_play_81.aab 로 보관.
+- 에디터를 다시 열어 메뉴 빌드 → **AAB 83 생성**: Builds/CoastRun_play.aab, 507,810,770 B(약 484 MB), 20:55 완성. 압축 검사 이상 없음(항목 1,373 · base · UnityDataAssetPack · CutImages · 서명 META-INF). 09:53 변경(CutsceneController.cs · MemoryFragmentLog.cs) 포함.
+- 빌드 중 C 드라이브 여유 25 GB → 4.5 GB 까지 줄었음(빌드 한 번에 약 20 GB 사용). 다음 빌드 전 정리 필요.
+- 빌드 결과 기록(last_build_aab.txt)은 Unity 의 App Bundle 크기 경고 창 때문에 「building…」으로 남을 수 있음 — 창을 닫으면 기록됨.
+- Play Console: 「너와 나의 주파수」(com.ourfrequency.game) 내부 테스트 트랙, 이전 최신 74(1.0, 9/29). 515 MB 파일은 도구 첨부 한도(10 MB) 때문에 사용자가 직접 끌어다 올리고, 출시 노트·검토 제출은 사용자 확인 후.

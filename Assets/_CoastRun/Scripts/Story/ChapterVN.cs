@@ -133,6 +133,8 @@ namespace CoastRun
                         go.transform.SetParent(_fxLayer, false);
                         var rt = go.GetComponent<RectTransform>(); var img = go.GetComponent<Image>();
                         img.sprite = sprite; img.type = Image.Type.Sliced; img.raycastTarget = false;
+                        bool soft = kind == FxKind.Firefly || kind == FxKind.Snow;   // 240차: 반딧불 · 눈은 가장자리가 사라지는 빛 알갱이로
+                        if (soft) { img.sprite = CoastRun.Story.StoryFx.SoftDot(); img.type = Image.Type.Simple; }
                         float size, vx, vy; Color c;
                         switch (kind)
                         {
@@ -141,6 +143,7 @@ namespace CoastRun
                             case FxKind.Leaf: size = UnityEngine.Random.Range(9f, 15f); c = new Color(0.95f, 0.55f, 0.25f, 0.9f); vx = UnityEngine.Random.Range(-60f, 30f); vy = UnityEngine.Random.Range(-90f, -50f); break;
                             default: size = UnityEngine.Random.Range(5f, 10f); c = new Color(1f, 1f, 1f, 0.9f); vx = UnityEngine.Random.Range(-15f, 15f); vy = UnityEngine.Random.Range(-60f, -30f); break;
                         }
+                        if (soft) size *= kind == FxKind.Firefly ? 3.2f : 2.2f;   // 부드러운 알갱이는 번짐까지 포함한 크기
                         rt.sizeDelta = new Vector2(size, kind == FxKind.Petal ? size * 0.6f : size);
                         img.color = c;
                         rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -202,6 +205,15 @@ namespace CoastRun
             fxGo.transform.SetParent(_artArea, false);
             _fxLayer = fxGo.GetComponent<RectTransform>();
             _fxLayer.anchorMin = Vector2.zero; _fxLayer.anchorMax = Vector2.one; _fxLayer.offsetMin = Vector2.zero; _fxLayer.offsetMax = Vector2.zero;
+            // 240차(그래픽 업그레이드): 그림을 또렷하게 · 필름 톤(시네마틱과 같은 셰이더) + 모서리를 살짝 누르는 비네트
+            var psh = CoastRun.Story.StoryFx.PictureShader();
+            if (psh != null)
+            {
+                var mb = new Material(psh); var mc = new Material(psh);
+                CoastRun.Story.StoryFx.ApplyPicture(mb, 0f); CoastRun.Story.StoryFx.ApplyPicture(mc, 0f);
+                _bg.material = mb; _cg.material = mc;
+            }
+            CoastRun.Story.StoryFx.Fill(_artArea, "Vignette", CoastRun.Story.StoryFx.Vignette(), new Color(0f, 0f, 0f, 0.34f), Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
             // 텍스트박스 — 프린세스 메이커식: 그림 위에 반투명 창. 기본은 아래, 씬이 '위'를 요구하면 위로(인물을 가리지 않게).
             _box = CoastUiArt.Panel(root, "TextBox", new Color(0.05f, 0.04f, 0.07f, 0.66f), 22);
@@ -261,6 +273,9 @@ namespace CoastRun
             _titleText.lineSpacing = 1.3f;
             _titleText.supportRichText = true;
             CoastUiArt.OutlineText(_titleText, new Color(0.83f, 0.69f, 0.22f, 0.9f), 1.5f);
+            // 240차: 챕터 제목 위아래 가는 금빛 선
+            CoastRun.Story.StoryFx.Line(tgo.transform, "LineA", new Vector2(0.5f, 0.5f), new Vector2(0f, 128f), 420f, 3f, new Color(1f, 0.86f, 0.55f, 0.85f));
+            CoastRun.Story.StoryFx.Line(tgo.transform, "LineB", new Vector2(0.5f, 0.5f), new Vector2(0f, -128f), 420f, 3f, new Color(1f, 0.86f, 0.55f, 0.85f));
             tgo.SetActive(false);
         }
 

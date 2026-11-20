@@ -1,0 +1,22 @@
+drive C:\ free 23.19 GB / total 251.0 GB
+      3115 MB  \Library
+        1340 MB  \Library\Artifacts
+        1262 MB  \Library\PackageCache
+         249 MB  \Library\BurstCache
+         156 MB  \Library\Search
+      2289 MB  \.tmp.driveupload
+      2020 MB  \.git
+        2014 MB  \.git\objects
+      1497 MB  \Tools
+         551 MB  \Tools\KlingGen
+         352 MB  \Tools\FireflyArt
+         213 MB  \Tools\Art
+         192 MB  \Tools\AceStepGen
+          92 MB  \Tools\Figma
+          65 MB  \Tools\FireflyVideo
+      1080 MB  \Assets
+         902 MB  \Assets\Resources
+         126 MB  \Assets\StreamingAssets
+        88 MB  \Claude outputs
+        28 MB  \Builds
+        21 MB  \Build

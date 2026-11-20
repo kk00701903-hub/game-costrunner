@@ -1,0 +1,5 @@
+[219] sdk=C:\Program Files\Unity\Hub\Editor\6000.5.10f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK
+ platforms=android-34,android-36,android-37.0
+ build-tools=36.0.0
+ jdk=C:\Program Files\Unity\Hub\Editor\6000.5.10f1\Editor\Data\PlaybackEngines\AndroidPlayer\OpenJDK
+ target=AndroidApiLevelAuto min=AndroidApiLevel26 id=com.jette.coastrun ver=1.0(66) arch=ARM64 keystore=False:

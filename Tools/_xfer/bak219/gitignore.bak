@@ -1,0 +1,121 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.apk
+*.aab
+sysinfo.txt
+crashlytics-buildid.txt
+Dist/
+*.log
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Kling asset generation output
+Tools/KlingGen/out/
+
+# ACE-Step BGM generation scratch (candidates + Demucs splits + run logs).
+# masters/ holds the lossless WAV the shipped .ogg was encoded from — kept on
+# disk, kept out of git: 425 MB of WAV against 41 MB of Vorbis.
+Tools/AceStepGen/takes/
+Tools/AceStepGen/demucs_out/
+Tools/AceStepGen/masters/
+Tools/AceStepGen/*_log.txt
+Tools/AceStepGen/env_probe.txt
+Tools/AceStepGen/install_done.txt
+Tools/AceStepGen/proc.txt
+__pycache__/
+*.pyc
+
+# gh-pages worktree 산출물 (main 에 커밋 금지)
+/index.html
+/.nojekyll
+/Build/
+
+# Unity Test Framework 런타임 산출물
+/Assets/Resources/PerformanceTestRun*.json
+/Assets/Resources/PerformanceTestRun*.json.meta
+
+# Burst build leftovers dropped at the repo root
+/Data/
+*_BurstDebugInformation_DoNotShip/
+# Unity's gradle/CMake scratch for Android builds
+/.utmp/
+
+Tools/scene_dump*.txt
+Tools/debug_log.txt
+Tools/blender/build_log.txt
+# Pre-replacement copies of art git already has in history
+Tools/FireflyArt/_prev/
+# Cutscene re-render: Firefly originals in, previous art out. The processed
+# 810x1440 results live in Assets/Resources; cut_prompts.json is the recipe.
+Tools/FireflyArt/cut_new/
+Tools/FireflyArt/cut_old/
+# Scratch previews the art scripts write while tuning
+Tools/FireflyArt/_*.png
+Tools/kit_log.txt
+
+# secrets in txt form
+*환경 변수*.txt
+# Studio*
+
+# Telegram reporter scratch (token lives in .env, which is not tracked)
+Tools/Telegram/queue.txt
+Tools/Telegram/sent.log
+Tools/Telegram/__pycache__/
+Tools/blender/*_log.txt
+Tools/blender/*_out.txt
+# Firefly title candidates that were not chosen
+Tools/FireflyArt/Title_Gate_v2_raw.png
+Tools/FireflyArt/Title_jeju_coastal_sunset_poster.png
+Tools/FireflyArt/Title_our_frequency_jeju_coast.png
+# Firefly video fetch scratch (presigned URLs expire) and the source clips.
+# The trimmed mp4s that ship live in Assets/Resources/CoastRun/Video.
+Tools/FireflyVideo/fetch.txt
+Tools/FireflyVideo/fetch.log
+Tools/FireflyVideo/run.txt
+Tools/FireflyVideo/raw/
+# Agent scratch sheets. The slices that ship live in Assets/Resources/CoastRun.
+Claude outputs/
+
+# 104차: 작업 중 스크래치 — 디스크에는 남기고 git 에는 올리지 않는다(합쳐 약 1.9GB).
+#   _bg20_backup 은 20:9 로 늘린 타이틀 판 보관용이라 지우지 말 것(원래 그림으로
+#   되돌렸으니 다시 20:9 로 갈 때 여기서 꺼낸다).
+Tools/_shots/
+Tools/_clip/
+Tools/_bg20_backup/
+Tools/_tasks.txt
+Tools/_upm.txt
+Tools/*_bak.png
+Tools/cleanup_old_cutscenes*.bat
+# 커밋 메시지 임시 파일(긴 한글 메시지를 파일로 넘길 때 쓴다)
+Tools/_msg*.txt
+Tools/_commit_msg.txt
+# 텔레그램 보고 스크래치(큐/결과). 토큰은 .env 에 있고 그건 이미 제외된다.
+Tools/Telegram/outbox*
+# 구글 드라이브 동기화가 저장소 루트에 만드는 임시 폴더(수백 개 파일)
+.tmp.driveupload/
+.tmp.drivedownload/

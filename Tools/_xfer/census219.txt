@@ -1,0 +1,2 @@
+[219] census ASTC_6x6=1104, ETC_RGB4=74, Alpha8=4, ETC2_RGBA8=10, RGBA32=26 total=546MB
+  33MB RGBA32 2560x2560 Assets/Resources/CoastRun/Textures/Village/Splat_Village_v213.png

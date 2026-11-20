@@ -1,0 +1,26 @@
+[219] ASTC dry run: 3 textures (source files 2 MB), skipped 1275
+would ASTC_6x6 max=2048  Assets/_CoastRun/Art/Brand/AppIcon.png
+would ASTC_6x6 max=2048  Assets/_CoastRun/Art/Brand/AppIcon_Bg.png
+would ASTC_6x6 max=2048  Assets/_CoastRun/Art/Brand/AppIcon_Fg.png
+skip readable  Assets/Art/Character/Girl_Idle.png
+skip readable  Assets/Art/Character/Girl_Jump.png
+skip readable  Assets/Art/Character/Girl_LeanL.png
+skip readable  Assets/Art/Character/Girl_LeanR.png
+skip readable  Assets/Art/Character/Girl_Push.png
+skip readable  Assets/Art/Character/Girl_Slide.png
+skip readable  Assets/Art/Concept/Concept_Alt_City.jpg
+skip readable  Assets/Art/Concept/Concept_Cliff.jpg
+skip readable  Assets/Art/Concept/Concept_KeyArt.jpg
+skip readable  Assets/Art/Concept/Concept_RoadClose.jpg
+skip readable  Assets/Art/Concept/Concept_Tower.jpg
+skip readable  Assets/Art/Concept/Concept_WreckRoad.jpg
+skip readable  Assets/Art/FX/FX_Leaf.png
+skip readable  Assets/Art/FX/FX_Mote.png
+skip readable  Assets/Art/FX/FX_Petal.png
+skip readable  Assets/Art/FX/FX_Snow.png
+skip readable  Assets/Art/UI/UI_Btn_Restart.png
+skip readable  Assets/Art/UI/UI_Icon_Supply.png
+skip readable  Assets/Art/UI/UI_Icon_Tower.png
+skip readable  Assets/Art/UI/UI_Panel_Dark.png
+skip readable  Assets/Resources/CoastRun/Textures/Village/Splat_Village_v213.png
+skip readable  Assets/Resources/CoastRun/Textures/Village/Tex_GrassTile.png
